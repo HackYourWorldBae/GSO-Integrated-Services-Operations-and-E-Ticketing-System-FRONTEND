@@ -1,27 +1,38 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import api from '@/api/client';
 
 export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
-  const personnel = ref([
-    { id: 1,  name: 'Ricardo Dalisay',   role: 'Head Gardener',      status: 'Available', assignedTicket: 'LEAU-TIC-30', ticketTask: 'Campus Main Lawn Mowing', implementationDate: 'Apr 29, 2026', nextAssignment: { ticketId: 'LEAU-TIC-35', task: 'Shrub Pruning along Avenue', date: 'May 03, 2026' } },
-    { id: 2,  name: 'Emma Watson',        role: 'Landscaper',         status: 'Working',   assignedTicket: 'LEAU-TIC-18', ticketTask: 'Quadrangle Flower Bed Planting', implementationDate: 'Apr 16, 2026', nextAssignment: { ticketId: 'LEAU-TIC-36', task: 'Soil Hauling & Leveling', date: 'May 02, 2026' } },
-    { id: 3,  name: 'Steve Rogers',       role: 'Maintenance Staff',  status: 'Available', assignedTicket: null, ticketTask: null, implementationDate: null, nextAssignment: { ticketId: 'LEAU-TIC-37', task: 'Drainage Canal Grubbing', date: 'May 04, 2026' } },
-    { id: 4,  name: 'Bruce Banner',       role: 'Groundskeeper',      status: 'On Leave',  assignedTicket: null, ticketTask: null, implementationDate: null, nextAssignment: null },
-    { id: 5,  name: 'Natasha Romanoff',   role: 'Gardener',           status: 'Available', assignedTicket: 'LEAU-TIC-32', ticketTask: 'Auditorium Stage Plants Setup', implementationDate: 'Apr 30, 2026', nextAssignment: { ticketId: 'LEAU-TIC-38', task: 'Potted Plants Relocation', date: 'May 05, 2026' } },
-    { id: 6,  name: 'Tony Stark',         role: 'Equipment Operator', status: 'Working',   assignedTicket: 'LEAU-TIC-20', ticketTask: 'Heavy Lawn Mowing & Trimming', implementationDate: 'Apr 17, 2026', nextAssignment: { ticketId: 'LEAU-TIC-39', task: 'Chainsaw Tree Cutting', date: 'May 01, 2026' } },
-    { id: 7,  name: 'Wanda Maximoff',     role: 'Gardener',           status: 'Available', assignedTicket: null, ticketTask: null, implementationDate: null, nextAssignment: { ticketId: 'LEAU-TIC-40', task: 'Weeding at Botanical Garden', date: 'May 03, 2026' } },
-    { id: 8,  name: 'Vision',             role: 'Maintenance Staff',  status: 'Working',   assignedTicket: 'LEAU-TIC-19', ticketTask: 'Hallway Disinfection Spraying', implementationDate: 'Apr 16, 2026', nextAssignment: { ticketId: 'LEAU-TIC-41', task: 'Waste Hauling to Disposal', date: 'May 02, 2026' } },
-    { id: 9,  name: 'Sam Wilson',         role: 'Landscaper',         status: 'Available', assignedTicket: null, ticketTask: null, implementationDate: null, nextAssignment: { ticketId: 'LEAU-TIC-42', task: 'New Sapling Planting', date: 'May 06, 2026' } },
-    { id: 10, name: 'Bucky Barnes',       role: 'Groundskeeper',      status: 'Available', assignedTicket: null, ticketTask: null, implementationDate: null, nextAssignment: null },
-  ]);
+  const personnel = ref([]);
 
   const groupedPersonnel = computed(() => {
     return personnel.value.reduce((groups, worker) => {
-      if (!groups[worker.role]) groups[worker.role] = [];
-      groups[worker.role].push(worker);
+      // Map specialty to role for frontend backward compatibility
+      const role = worker.specialty || worker.role;
+      if (!groups[role]) groups[role] = [];
+      groups[role].push(worker);
       return groups;
     }, {});
   });
+
+  const fetchPersonnel = async () => {
+    try {
+      const response = await api.get('personnel/LEAU');
+      if (response.data?.data?.personnel) {
+        personnel.value = response.data.data.personnel.map(p => ({
+          ...p,
+          status: p.status === 'available' ? 'Available' : p.status === 'working' ? 'Working' : p.status === 'on_leave' ? 'On Leave' : p.status === 'on_trip' ? 'On Trip' : p.status,
+          role: p.specialty,
+          // If they have an active assignment, use it
+          assignedTicket: p.assigned_ticket_id || null,
+          ticketTask: p.ticket_task || null,
+          implementationDate: p.implementation_date || null
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch LEAU personnel:', error);
+    }
+  };
 
   const toggleWorkerStatus = (workerId) => {
     const worker = personnel.value.find(w => w.id === workerId);
@@ -101,6 +112,7 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
   return {
     personnel,
     groupedPersonnel,
+    fetchPersonnel,
     toggleWorkerStatus,
     setWorkerStatus,
     assignWorker,

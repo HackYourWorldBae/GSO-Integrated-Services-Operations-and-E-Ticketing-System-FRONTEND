@@ -53,7 +53,8 @@ const router = createRouter({
     {
       path: '/services',
       name: 'services-list',
-      component: ServicesListView
+      component: ServicesListView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/user/dashboard',
@@ -236,22 +237,27 @@ const router = createRouter({
     {
       path: '/services/forms',
       name: 'services-forms',
-      component: FormsView
+      component: FormsView,
+      meta: { requiresAuth: true }
     }
   ]
 });
 
-// 3. Add a Global Navigation Guard & Unauthorized Event Handler
+// Global Navigation Guard — protect all routes with meta.requiresAuth
 router.beforeEach((to, from, next) => {
-  // Check if route explicitly requires authentication when backend verification is active
   if (to.meta && to.meta.requiresAuth) {
     try {
-      const piniaAuth = JSON.parse(localStorage.getItem('auth') || '{}');
-      const token = piniaAuth.token || localStorage.getItem('token');
-      if (!token) {
-        return next({ name: 'login' });
-      }
-    } catch (e) {
+      // pinia-plugin-persistedstate saves the store under the store id ('auth')
+      // The structure is: { token: '...', user: {...}, role: '...' }
+      const raw = localStorage.getItem('auth');
+      if (!raw) return next({ name: 'login' });
+
+      const stored = JSON.parse(raw);
+      // Support both flat { token } and nested { state: { token } } structures
+      const token = stored?.token || stored?.state?.token || null;
+
+      if (!token) return next({ name: 'login' });
+    } catch {
       return next({ name: 'login' });
     }
   }

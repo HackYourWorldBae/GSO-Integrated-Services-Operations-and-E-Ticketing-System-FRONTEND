@@ -58,16 +58,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
-              <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
+              <div class="p-3 rounded-2xl bg-slate-900 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
-              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full uppercase tracking-tighter">Ready Fleet</span>
+              <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-full uppercase tracking-tighter">Total Requests</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ availableVehiclesCount }}/{{ totalVehiclesCount }}</h3>
-            <div class="mt-2 flex items-center gap-1">
-              <span class="text-xs font-bold text-emerald-600">{{ availabilityRate }}%</span>
-              <span class="text-[10px] text-slate-400 font-medium italic">Availability rate</span>
-            </div>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">All Time Requests</p>
           </div>
 
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
@@ -77,7 +74,7 @@
               </div>
               <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full uppercase tracking-tighter">Pending TO</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">08</h3>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.pending || 0 }}</h3>
             <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Travel Orders Awaiting VP</p>
           </div>
 
@@ -88,19 +85,19 @@
               </div>
               <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-tighter">Active Trips</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ activeTripsCount }}</h3>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.processing || 0 }}</h3>
             <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Trip Tickets Issued & Scheduled</p>
           </div>
 
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
-              <div class="p-3 rounded-2xl bg-slate-900 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
               </div>
-              <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-full uppercase tracking-tighter">Weekly Fuel</span>
+              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full uppercase tracking-tighter">Completed Trips</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">₱24.5k</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Operational Cost</p>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.resolved || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Resolved Vehicle Requests</p>
           </div>
         </div>
 
@@ -210,19 +207,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, nextTick } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import Chart from 'chart.js/auto';
-import { useTasuVehiclesStore } from '@/stores/tasuVehicles';
+import api from '@/api/client';
 
-const vehiclesStore = useTasuVehiclesStore();
-const totalVehiclesCount = computed(() => vehiclesStore.vehicles.length);
-const availableVehiclesCount = computed(() => vehiclesStore.vehicles.filter(v => v.status === 'Available').length);
-const availabilityRate = computed(() => totalVehiclesCount.value ? Math.round((availableVehiclesCount.value / totalVehiclesCount.value) * 100) : 0);
-const activeTripsCount = computed(() => vehiclesStore.bookings.filter(b => b.status === 'In Progress' || b.status === 'Scheduled').length);
+const stats = ref({});
 
 const tasuActivePeriod = ref('Month');
-
 const tasuPeriodFilters = [
   { key: 'Day',   label: 'This Day' },
   { key: 'Week',  label: 'This Week' },
@@ -230,181 +222,158 @@ const tasuPeriodFilters = [
   { key: 'Year',  label: 'This Year' }
 ];
 
-// Total service request counts per period for TASU services
-const tasuServiceFreqData = {
-  Day: {
-    labels: ['Vehicle Booking', 'Travel Order Request', 'Trip Ticket Issuance', 'Driver Deployment', 'Fuel Request', 'Vehicle Maintenance'],
-    data:   [5, 4, 3, 3, 2, 1]
-  },
-  Week: {
-    labels: ['Vehicle Booking', 'Travel Order Request', 'Trip Ticket Issuance', 'Driver Deployment', 'Fuel Request', 'Vehicle Maintenance'],
-    data:   [31, 25, 20, 18, 12, 5]
-  },
-  Month: {
-    labels: ['Vehicle Booking', 'Travel Order Request', 'Trip Ticket Issuance', 'Driver Deployment', 'Fuel Request', 'Vehicle Maintenance'],
-    data:   [98, 72, 65, 58, 34, 12]
-  },
-  Year: {
-    labels: ['Vehicle Booking', 'Travel Order Request', 'Trip Ticket Issuance', 'Driver Deployment', 'Fuel Request', 'Vehicle Maintenance'],
-    data:   [1150, 840, 760, 680, 400, 145]
-  }
-};
-
 let tasuServiceFreqChart = null;
+let charts = [];
 
 function setTasuPeriod(period) {
   tasuActivePeriod.value = period;
-  const { labels, data } = tasuServiceFreqData[period];
-  tasuServiceFreqChart.data.labels = labels;
-  tasuServiceFreqChart.data.datasets[0].data = data;
-  tasuServiceFreqChart.update();
+  if (tasuServiceFreqChart && stats.value.service_freq) {
+    const data = stats.value.service_freq[period] || [];
+    tasuServiceFreqChart.data.labels = data.map(d => d.service_type);
+    tasuServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
+    tasuServiceFreqChart.update();
+  }
 }
 
+const renderCharts = () => {
+  // Destroy existing charts to prevent memory leaks if re-rendered
+  charts.forEach(c => c.destroy());
+  charts = [];
+
+  const safeVal = (val) => parseFloat(val) || 0;
+
+  // 1. Performance Radar Chart
+  const radarCtx = document.getElementById('performanceRadar');
+  if (radarCtx && stats.value.feedback_averages) {
+    const avg = stats.value.feedback_averages;
+    charts.push(new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['Quality', 'Efficiency', 'Timeliness'],
+        datasets: [{
+          label: 'Current Avg (1-5)',
+          data: [safeVal(avg.avg_quality), safeVal(avg.avg_efficiency), safeVal(avg.avg_timeliness)],
+          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+          borderColor: '#10b981',
+          pointBackgroundColor: '#10b981',
+          borderWidth: 3
+        }, {
+          label: 'Target Score',
+          data: [4.5, 4.5, 4.5],
+          backgroundColor: 'rgba(226, 232, 240, 0.1)',
+          borderColor: '#94a3b8',
+          borderDash: [5, 5],
+          borderWidth: 1,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, display: false } } },
+        plugins: { legend: { position: 'bottom' } },
+        responsive: true, maintainAspectRatio: false
+      }
+    }));
+  }
+
+  // 2. Completion Health Doughnut
+  const completionCtx = document.getElementById('completionDoughnut');
+  if (completionCtx && stats.value.completion_health) {
+    const health = stats.value.completion_health;
+    const onTime = health.find(h => h.completion_status === 'on-time')?.count || 0;
+    const beyondTime = health.find(h => h.completion_status === 'beyond-time')?.count || 0;
+    const notCompleted = health.find(h => h.completion_status === 'not-completed')?.count || 0;
+    
+    charts.push(new Chart(completionCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['On-time', 'Beyond Time', 'Not Completed'],
+        datasets: [{
+          data: [onTime, beyondTime, notCompleted],
+          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+          hoverOffset: 15, borderRadius: 10, borderWidth: 4, borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom' } },
+        cutout: '70%', responsive: true, maintainAspectRatio: false
+      }
+    }));
+  }
+
+  // 3. Delay Reasons
+  const delayCtx = document.getElementById('delayReasonsChart');
+  if (delayCtx && stats.value.delay_reasons) {
+    charts.push(new Chart(delayCtx, {
+      type: 'bar',
+      data: {
+        labels: stats.value.delay_reasons.map(r => r.reason_code) || ['None'],
+        datasets: [{
+          label: 'Occurrences',
+          data: stats.value.delay_reasons.map(r => parseInt(r.count)) || [0],
+          backgroundColor: '#f59e0b', borderRadius: 6
+        }]
+      },
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+    }));
+  }
+
+  // 4. Non-Completion
+  const nonCompCtx = document.getElementById('nonCompletionChart');
+  if (nonCompCtx && stats.value.non_completion) {
+    charts.push(new Chart(nonCompCtx, {
+      type: 'bar',
+      data: {
+        labels: stats.value.non_completion.map(r => r.reason_code) || ['None'],
+        datasets: [{
+          label: 'Occurrences',
+          data: stats.value.non_completion.map(r => parseInt(r.count)) || [0],
+          backgroundColor: '#ef4444', borderRadius: 6
+        }]
+      },
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+    }));
+  }
+
+  // 5. Service Request Frequency
+  const freqCtx = document.getElementById('fgmuServiceFreqChart') || 
+                  document.getElementById('leauServiceFreqChart') || 
+                  document.getElementById('ssuServiceFreqChart') || 
+                  document.getElementById('tasuServiceFreqChart');
+  if (freqCtx && stats.value.service_freq) {
+    const initData = stats.value.service_freq[tasuActivePeriod.value] || [];
+    tasuServiceFreqChart = new Chart(freqCtx, {
+      type: 'bar',
+      data: {
+        labels: initData.map(d => d.service_type),
+        datasets: [{
+          label: 'Requests',
+          data: initData.map(d => parseInt(d.count)),
+          backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'],
+          borderRadius: 8
+        }]
+      },
+      options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+    });
+    charts.push(tasuServiceFreqChart);
+  }
+};
+
+const fetchStats = async () => {
+  try {
+    const response = await api.get('tickets/stats/TASU');
+    if (response.data?.data?.stats) {
+      stats.value = response.data.data.stats;
+      nextTick(() => {
+        renderCharts();
+      });
+    }
+  } catch (error) {
+    console.error('Failed to fetch TASU stats:', error);
+  }
+};
+
 onMounted(() => {
-  // 1. Booking Pipeline Chart
-  const pipelineCtx = document.getElementById('bookingPipelineChart');
-  new Chart(pipelineCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Requests Submitted', 'Travel Orders Issued', 'Trip Tickets Ready'],
-      datasets: [{
-        label: 'Current Monthly Volume',
-        data: [45, 32, 28],
-        backgroundColor: ['#f59e0b', '#10b981', '#3b82f6'],
-        borderRadius: 8
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { weight: '700' } } },
-        y: { ticks: { font: { weight: '900', size: 10 } } }
-      },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
-
-  // 2. Travel Purpose Doughnut
-  const purposeCtx = document.getElementById('travelPurposeDoughnut');
-  new Chart(purposeCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Official Business', 'Official Time', 'Emergency/Others'],
-      datasets: [{
-        data: [75, 15, 10],
-        backgroundColor: ['#10b981', '#3b82f6', '#94a3b8'],
-        hoverOffset: 15,
-        borderRadius: 10,
-        borderWidth: 4,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { weight: '700', size: 10 }, padding: 15 } }
-      },
-      cutout: '65%',
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
-
-  // 3. Fleet Activity Bar
-  const fleetCtx = document.getElementById('fleetActivityChart');
-  new Chart(fleetCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Van SAC 1399', 'SUV BSU 202', 'Bus TRANS 01', 'Van SAC 1400', 'Pickup GSO 55'],
-      datasets: [{
-        label: 'Trips Completed',
-        data: [15, 12, 5, 10, 8],
-        backgroundColor: '#3b82f6',
-        borderRadius: 6
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { weight: '700', size: 9 } } },
-        y: { ticks: { font: { weight: '700' } } }
-      },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
-
-  // 4. Fuel Trend Line
-  const fuelCtx = document.getElementById('fuelTrendChart');
-  new Chart(fuelCtx, {
-    type: 'line',
-    data: {
-      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-      datasets: [{
-        label: 'Gasoline (L)',
-        data: [250, 310, 280, 350],
-        borderColor: '#0f172a',
-        backgroundColor: 'rgba(15, 23, 42, 0.1)',
-        tension: 0.4,
-        fill: true,
-        borderWidth: 3
-      }, {
-        label: 'Diesel (L)',
-        data: [420, 390, 450, 410],
-        borderColor: '#10b981',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        tension: 0.4,
-        fill: true,
-        borderWidth: 3
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { weight: '700' } } }
-      },
-      scales: {
-        x: { grid: { display: false } },
-        y: { grid: { borderDash: [5, 5] }, ticks: { font: { weight: '700' } } }
-      },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
-
-  // 5. Service Request Frequency Chart
-  const freqCtx = document.getElementById('tasuServiceFreqChart');
-  const initFreq = tasuServiceFreqData[tasuActivePeriod.value];
-  tasuServiceFreqChart = new Chart(freqCtx, {
-    type: 'bar',
-    data: {
-      labels: initFreq.labels,
-      datasets: [{
-        label: 'Requests',
-        data: initFreq.data,
-        backgroundColor: [
-          '#3b82f6', '#60a5fa', '#93c5fd',
-          '#bfdbfe', '#2563eb', '#1d4ed8'
-        ],
-        borderRadius: 8,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { weight: '700', size: 9 } } },
-        y: {
-          grid: { borderDash: [4, 4], color: '#f1f5f9' },
-          ticks: { font: { weight: '700' } }
-        }
-      },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+  fetchStats();
 });
 </script>
 

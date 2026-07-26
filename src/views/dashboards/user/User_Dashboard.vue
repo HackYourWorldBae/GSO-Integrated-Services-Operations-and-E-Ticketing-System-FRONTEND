@@ -59,8 +59,7 @@
 
         <!-- Metric Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <!-- Open Tickets -->
-          <div class="group p-8 rounded-[2rem] bg-white border border-slate-200 hover:border-emerald-500 transition-all shadow-sm">
+          <div @click="$router.push({ path: '/user/tickets', query: { status: 'processing' } })" class="group p-8 rounded-[2rem] bg-white border border-slate-200 hover:border-emerald-500 transition-all shadow-sm cursor-pointer">
             <div class="flex items-center justify-between mb-8">
               <div class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:scale-110 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -70,13 +69,12 @@
               <span class="text-[10px] font-black text-emerald-500/40 uppercase tracking-widest">Ongoing</span>
             </div>
             <div class="space-y-1">
-              <h3 class="text-4xl font-black text-slate-900 tabular-nums">03</h3>
+              <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ openTicketsCount }}</h3>
               <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Open Tickets</p>
             </div>
           </div>
 
-          <!-- Pending Approval -->
-          <div class="group p-8 rounded-[2rem] bg-white border border-slate-200 hover:border-amber-500 transition-all shadow-sm">
+          <div @click="$router.push({ path: '/user/tickets', query: { status: 'pending' } })" class="group p-8 rounded-[2rem] bg-white border border-slate-200 hover:border-amber-500 transition-all shadow-sm cursor-pointer">
             <div class="flex items-center justify-between mb-8">
               <div class="p-4 rounded-2xl bg-amber-50 text-amber-600 group-hover:scale-110 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -86,13 +84,12 @@
               <span class="text-[10px] font-black text-amber-500/40 uppercase tracking-widest">Reviewing</span>
             </div>
             <div class="space-y-1">
-              <h3 class="text-4xl font-black text-slate-900 tabular-nums">01</h3>
+              <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ pendingTicketsCount }}</h3>
               <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Pending Tickets</p>
             </div>
           </div>
 
-          <!-- Resolved -->
-          <div class="group p-8 rounded-[2rem] bg-white border border-slate-200 hover:border-emerald-400 transition-all shadow-sm">
+          <div @click="$router.push({ path: '/user/completed-tickets' })" class="group p-8 rounded-[2rem] bg-white border border-slate-200 hover:border-emerald-400 transition-all shadow-sm cursor-pointer">
             <div class="flex items-center justify-between mb-8">
               <div class="p-4 rounded-2xl bg-emerald-50 text-emerald-500 group-hover:scale-110 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -102,13 +99,12 @@
               <span class="text-[10px] font-black text-emerald-400/40 uppercase tracking-widest">Finished</span>
             </div>
             <div class="space-y-1">
-              <h3 class="text-4xl font-black text-slate-900 tabular-nums">12</h3>
+              <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ resolvedTicketsCount }}</h3>
               <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Resolved Tickets</p>
             </div>
           </div>
 
-          <!-- Total Requests -->
-          <div class="group p-8 rounded-[2rem] bg-white border border-slate-200 hover:border-emerald-600 transition-all shadow-sm">
+          <div @click="$router.push({ path: '/user/tickets' })" class="group p-8 rounded-[2rem] bg-white border border-slate-200 hover:border-emerald-600 transition-all shadow-sm cursor-pointer">
             <div class="flex items-center justify-between mb-8">
               <div class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:scale-110 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -118,7 +114,7 @@
               <span class="text-[10px] font-black text-emerald-600/40 uppercase tracking-widest">History</span>
             </div>
             <div class="space-y-1">
-              <h3 class="text-4xl font-black text-slate-900 tabular-nums">16</h3>
+              <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ totalRequestsCount }}</h3>
               <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Total Requests</p>
             </div>
           </div>
@@ -157,58 +153,80 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import { useAuthStore } from '@/stores/auth';
+import api from '@/api/client';
 
 const userName = ref('');
 const router = useRouter();
+const authStore = useAuthStore();
 
-const recentUpdates = ref([
-  {
-    ticketId: 'FGMU-TIC-42-2026',
-    service: 'Equipment Maintenance',
-    description: 'Status updated to Pending Approval.',
-    time: '2h ago',
-    status: 'pending'
-  },
-  {
-    ticketId: 'LEAU-TIC-18-2026',
-    service: 'Janitorial Service',
-    description: 'Status updated to Job Started. Workers assigned.',
-    time: '5h ago',
-    status: 'processing'
-  },
-  {
-    ticketId: 'FGMU-TIC-43-2026',
-    service: 'Plumbing Repair',
-    description: 'Ticket marked as Job Finished by GSO staff.',
-    time: '1d ago',
-    status: 'resolved'
-  }
-]);
+const userTickets = ref([]);
+const completedTickets = ref([]);
+
+
+const openTicketsCount = computed(() => userTickets.value.filter(t => t.status === 'processing' || t.status === 'in_progress').length);
+const pendingTicketsCount = computed(() => userTickets.value.filter(t => t.status === 'pending').length);
+const resolvedTicketsCount = computed(() => completedTickets.value.length);
+const totalRequestsCount = computed(() => userTickets.value.length + completedTickets.value.length);
+
+const recentUpdates = computed(() => {
+  const updates = [];
+  const allUserTickets = [...userTickets.value, ...completedTickets.value];
+  // Sort by latest assuming ID or just take the last few
+  allUserTickets.slice(-5).forEach(t => {
+    updates.push({
+      ticketId: t.ticketId,
+      service: t.service,
+      description: `Ticket status is ${t.statusLabel || t.status}`,
+      time: t.date,
+      status: t.status
+    });
+  });
+  return updates.reverse();
+});
 
 const navigateToTicket = (ticketId) => {
   router.push({ path: '/user/tickets', query: { highlight: ticketId } });
 };
 
-onMounted(() => {
-  const storedUser = localStorage.getItem('user');
-  if (storedUser) {
-    const user = JSON.parse(storedUser);
-    userName.value = user.first_name || user.name || 'User';
+const fetchDashboardData = async () => {
+  try {
+    const [activeRes, completedRes] = await Promise.all([
+      api.get('tickets/my-requests'),
+      api.get('tickets/completed')
+    ]);
+    
+    if (activeRes.data?.data?.tickets) {
+      // Map API response to match what the frontend expects
+      userTickets.value = activeRes.data.data.tickets.map(t => ({
+        ticketId: t.id,
+        service: t.service_type,
+        status: t.status,
+        statusLabel: t.status_label,
+        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      }));
+    }
+    
+    if (completedRes.data?.data?.tickets) {
+      completedTickets.value = completedRes.data.data.tickets.map(t => ({
+        ticketId: t.id,
+        service: t.service_type,
+        status: t.status,
+        statusLabel: t.status_label,
+        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to fetch dashboard data:', error);
   }
+};
 
-  const ackMap = JSON.parse(localStorage.getItem('gso_ssu_acknowledged_incidents') || '{}');
-  Object.values(ackMap).forEach(ack => {
-    recentUpdates.value.unshift({
-      ticketId: ack.ticketId,
-      service: 'Incident Report',
-      description: `SSU Action & Recommendations: "${ack.actionsTaken}"`,
-      time: 'Just now',
-      status: 'processing'
-    });
-  });
+onMounted(() => {
+  userName.value = authStore.user?.first_name || authStore.fullName || 'User';
+  fetchDashboardData();
 });
 </script>
 

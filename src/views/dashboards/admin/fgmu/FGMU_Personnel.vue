@@ -247,7 +247,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useFgmuPersonnelStore } from '@/stores/fgmuPersonnel';
 
@@ -274,6 +274,10 @@ const toggleWorkerStatus = (worker) => {
   }
   store.toggleWorkerStatus(worker.id);
 };
+
+onMounted(() => {
+  store.fetchPersonnel();
+});
 </script>
 
 <style scoped>

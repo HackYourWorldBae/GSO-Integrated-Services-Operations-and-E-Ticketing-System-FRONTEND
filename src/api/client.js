@@ -40,7 +40,11 @@ apiClient.interceptors.request.use(
       const piniaAuth  = JSON.parse(localStorage.getItem('auth') || '{}');
       const token      = piniaAuth?.token || localStorage.getItem('token');
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        if (typeof config.headers.set === 'function') {
+          config.headers.set('Authorization', `Bearer ${token}`);
+        } else {
+          config.headers['Authorization'] = `Bearer ${token}`;
+        }
       }
     } catch {
       // Fail silently — the JWT filter on the backend will handle the missing token

@@ -44,16 +44,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
-              <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600">
+              <div class="p-3 rounded-2xl bg-slate-900 text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
-              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full uppercase tracking-tighter">On-Time Rate</span>
+              <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-full uppercase tracking-tighter">Total Requests</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">84%</h3>
-            <div class="mt-2 flex items-center gap-1">
-              <span class="text-xs font-bold text-emerald-600">+2.4%</span>
-              <span class="text-[10px] text-slate-400 font-medium italic">vs last month</span>
-            </div>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">All Time</p>
           </div>
 
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
@@ -61,32 +58,32 @@
               <div class="p-3 rounded-2xl bg-amber-50 text-amber-600">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
-              <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full uppercase tracking-tighter">Avg Delay</span>
+              <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full uppercase tracking-tighter">Pending</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">2.4</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Days Per Job</p>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.pending || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Awaiting Approval</p>
           </div>
 
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
-              <div class="p-3 rounded-2xl bg-rose-50 text-rose-600">
+              <div class="p-3 rounded-2xl bg-blue-50 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+              <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-tighter">Processing</span>
+            </div>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.processing || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">In Progress</p>
+          </div>
+
+          <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
+            <div class="flex items-center justify-between mb-4">
+              <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
               </div>
-              <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-full uppercase tracking-tighter">Resource Gap</span>
+              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full uppercase tracking-tighter">Completed</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">12</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Pending Materials</p>
-          </div>
-
-          <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
-            <div class="flex items-center justify-between mb-4">
-              <div class="p-3 rounded-2xl bg-slate-900 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              </div>
-              <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-full uppercase tracking-tighter">Efficiency</span>
-            </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">4.2/5</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Evaluation Score</p>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.resolved || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Resolved Tickets</p>
           </div>
         </div>
 
@@ -199,12 +196,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, nextTick } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import Chart from 'chart.js/auto';
+import api from '@/api/client';
+
+const stats = ref({});
 
 const fgmuActivePeriod = ref('Month');
-
 const fgmuPeriodFilters = [
   { key: 'Day',   label: 'This Day' },
   { key: 'Week',  label: 'This Week' },
@@ -212,199 +211,158 @@ const fgmuPeriodFilters = [
   { key: 'Year',  label: 'This Year' }
 ];
 
-const fgmuServiceLabels = [
-  'Concrete Works',
-  'Masonry Works',
-  'Welding & Tinsmith Works',
-  'Carpentry & Joinery',
-  'Glass & Glazing Works',
-  'Painting Works',
-  'Electrical Work',
-  'Plumbing & Sanitary Works',
-  'Electronics & Communication Works',
-  'Mechanical Works'
-];
-
-// Total service request counts per period for FGMU services based on selection page
-const fgmuServiceFreqData = {
-  Day: {
-    labels: fgmuServiceLabels,
-    data:   [5, 3, 4, 6, 2, 8, 9, 7, 3, 5]
-  },
-  Week: {
-    labels: fgmuServiceLabels,
-    data:   [28, 18, 22, 35, 14, 45, 52, 40, 19, 31]
-  },
-  Month: {
-    labels: fgmuServiceLabels,
-    data:   [95, 64, 78, 120, 48, 145, 168, 132, 65, 102]
-  },
-  Year: {
-    labels: fgmuServiceLabels,
-    data:   [1050, 720, 890, 1380, 540, 1650, 1890, 1480, 740, 1150]
-  }
-};
-
 let fgmuServiceFreqChart = null;
+let charts = [];
 
 function setFgmuPeriod(period) {
   fgmuActivePeriod.value = period;
-  const { labels, data } = fgmuServiceFreqData[period];
-  fgmuServiceFreqChart.data.labels = labels;
-  fgmuServiceFreqChart.data.datasets[0].data = data;
-  fgmuServiceFreqChart.update();
+  if (fgmuServiceFreqChart && stats.value.service_freq) {
+    const data = stats.value.service_freq[period] || [];
+    fgmuServiceFreqChart.data.labels = data.map(d => d.service_type);
+    fgmuServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
+    fgmuServiceFreqChart.update();
+  }
 }
 
-onMounted(() => {
+const renderCharts = () => {
+  // Destroy existing charts to prevent memory leaks if re-rendered
+  charts.forEach(c => c.destroy());
+  charts = [];
+
+  const safeVal = (val) => parseFloat(val) || 0;
+
   // 1. Performance Radar Chart
   const radarCtx = document.getElementById('performanceRadar');
-  new Chart(radarCtx, {
-    type: 'radar',
-    data: {
-      labels: ['Quality', 'Efficiency', 'Timeliness'],
-      datasets: [{
-        label: 'Current Avg (1-5)',
-        data: [4.2, 3.8, 3.5],
-        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-        borderColor: '#10b981',
-        pointBackgroundColor: '#10b981',
-        borderWidth: 3
-      }, {
-        label: 'Target Score',
-        data: [4.5, 4.5, 4.5],
-        backgroundColor: 'rgba(226, 232, 240, 0.1)',
-        borderColor: '#94a3b8',
-        borderDash: [5, 5],
-        borderWidth: 1,
-        pointRadius: 0
-      }]
-    },
-    options: {
-      scales: {
-        r: {
-          min: 0,
-          max: 5,
-          ticks: { stepSize: 1, display: false },
-          pointLabels: {
-            font: { family: 'Inter', weight: '900', size: 12 },
-            color: '#1e293b'
-          }
-        }
+  if (radarCtx && stats.value.feedback_averages) {
+    const avg = stats.value.feedback_averages;
+    charts.push(new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['Quality', 'Efficiency', 'Timeliness'],
+        datasets: [{
+          label: 'Current Avg (1-5)',
+          data: [safeVal(avg.avg_quality), safeVal(avg.avg_efficiency), safeVal(avg.avg_timeliness)],
+          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+          borderColor: '#10b981',
+          pointBackgroundColor: '#10b981',
+          borderWidth: 3
+        }, {
+          label: 'Target Score',
+          data: [4.5, 4.5, 4.5],
+          backgroundColor: 'rgba(226, 232, 240, 0.1)',
+          borderColor: '#94a3b8',
+          borderDash: [5, 5],
+          borderWidth: 1,
+          pointRadius: 0
+        }]
       },
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { weight: '700' } } }
-      },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+      options: {
+        scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, display: false } } },
+        plugins: { legend: { position: 'bottom' } },
+        responsive: true, maintainAspectRatio: false
+      }
+    }));
+  }
 
   // 2. Completion Health Doughnut
   const completionCtx = document.getElementById('completionDoughnut');
-  new Chart(completionCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['On-time', 'Beyond Time', 'Not Completed'],
-      datasets: [{
-        data: [65, 25, 10],
-        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-        hoverOffset: 15,
-        borderRadius: 10,
-        borderWidth: 4,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { weight: '800', size: 11 }, padding: 20 } }
+  if (completionCtx && stats.value.completion_health) {
+    const health = stats.value.completion_health;
+    const onTime = health.find(h => h.completion_status === 'on-time')?.count || 0;
+    const beyondTime = health.find(h => h.completion_status === 'beyond-time')?.count || 0;
+    const notCompleted = health.find(h => h.completion_status === 'not-completed')?.count || 0;
+    
+    charts.push(new Chart(completionCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['On-time', 'Beyond Time', 'Not Completed'],
+        datasets: [{
+          data: [onTime, beyondTime, notCompleted],
+          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+          hoverOffset: 15, borderRadius: 10, borderWidth: 4, borderColor: '#ffffff'
+        }]
       },
-      cutout: '70%',
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+      options: {
+        plugins: { legend: { position: 'bottom' } },
+        cutout: '70%', responsive: true, maintainAspectRatio: false
+      }
+    }));
+  }
 
-  // 3. Delay Reasons (Horizontal Bar)
+  // 3. Delay Reasons
   const delayCtx = document.getElementById('delayReasonsChart');
-  new Chart(delayCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Absenteeism', 'Extra Work', 'Extended Break'],
-      datasets: [{
-        label: 'Occurrences',
-        data: [12, 18, 5],
-        backgroundColor: '#f59e0b',
-        borderRadius: 6
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false } },
-        y: { ticks: { font: { weight: '700', size: 10 } } }
+  if (delayCtx && stats.value.delay_reasons) {
+    charts.push(new Chart(delayCtx, {
+      type: 'bar',
+      data: {
+        labels: stats.value.delay_reasons.map(r => r.reason_code) || ['None'],
+        datasets: [{
+          label: 'Occurrences',
+          data: stats.value.delay_reasons.map(r => parseInt(r.count)) || [0],
+          backgroundColor: '#f59e0b', borderRadius: 6
+        }]
       },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+    }));
+  }
 
-  // 4. Non-Completion (Horizontal Bar)
+  // 4. Non-Completion
   const nonCompCtx = document.getElementById('nonCompletionChart');
-  new Chart(nonCompCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Lack Materials', 'Lack Tools', 'Lack Skills'],
-      datasets: [{
-        label: 'Occurrences',
-        data: [15, 6, 8],
-        backgroundColor: '#ef4444',
-        borderRadius: 6
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false } },
-        y: { ticks: { font: { weight: '700', size: 10 } } }
+  if (nonCompCtx && stats.value.non_completion) {
+    charts.push(new Chart(nonCompCtx, {
+      type: 'bar',
+      data: {
+        labels: stats.value.non_completion.map(r => r.reason_code) || ['None'],
+        datasets: [{
+          label: 'Occurrences',
+          data: stats.value.non_completion.map(r => parseInt(r.count)) || [0],
+          backgroundColor: '#ef4444', borderRadius: 6
+        }]
       },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+    }));
+  }
 
-  // 5. Service Request Frequency Chart
-  const freqCtx = document.getElementById('fgmuServiceFreqChart');
-  const initFreq = fgmuServiceFreqData[fgmuActivePeriod.value];
-  fgmuServiceFreqChart = new Chart(freqCtx, {
-    type: 'bar',
-    data: {
-      labels: initFreq.labels,
-      datasets: [{
-        label: 'Requests',
-        data: initFreq.data,
-        backgroundColor: [
-          '#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0',
-          '#0f766e', '#0d9488', '#14b8a6', '#2dd4bf', '#5eead4'
-        ],
-        borderRadius: 8,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { weight: '700', size: 10 } } },
-        y: {
-          grid: { borderDash: [4, 4], color: '#f1f5f9' },
-          ticks: { font: { weight: '700' } }
-        }
+  // 5. Service Request Frequency
+  const freqCtx = document.getElementById('fgmuServiceFreqChart') || 
+                  document.getElementById('leauServiceFreqChart') || 
+                  document.getElementById('ssuServiceFreqChart') || 
+                  document.getElementById('tasuServiceFreqChart');
+  if (freqCtx && stats.value.service_freq) {
+    const initData = stats.value.service_freq[fgmuActivePeriod.value] || [];
+    fgmuServiceFreqChart = new Chart(freqCtx, {
+      type: 'bar',
+      data: {
+        labels: initData.map(d => d.service_type),
+        datasets: [{
+          label: 'Requests',
+          data: initData.map(d => parseInt(d.count)),
+          backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'],
+          borderRadius: 8
+        }]
       },
-      responsive: true,
-      maintainAspectRatio: false
+      options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+    });
+    charts.push(fgmuServiceFreqChart);
+  }
+};
+
+const fetchStats = async () => {
+  try {
+    const response = await api.get('tickets/stats/FGMU');
+    if (response.data?.data?.stats) {
+      stats.value = response.data.data.stats;
+      nextTick(() => {
+        renderCharts();
+      });
     }
-  });
+  } catch (error) {
+    console.error('Failed to fetch FGMU stats:', error);
+  }
+};
+
+onMounted(() => {
+  fetchStats();
 });
 </script>
 

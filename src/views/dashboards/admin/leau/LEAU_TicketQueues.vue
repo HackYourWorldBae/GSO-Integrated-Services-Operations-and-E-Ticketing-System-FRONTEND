@@ -140,11 +140,11 @@
                     <div class="col-span-2 mt-1" v-if="ticket.attachments && ticket.attachments.length > 0">
                       <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments</p>
                       <div class="flex flex-wrap gap-2">
-                        <div v-for="(file, index) in ticket.attachments" :key="index" class="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 hover:border-emerald-400 hover:text-emerald-600 cursor-pointer transition-colors shadow-sm">
+                        <div v-for="(file, index) in ticket.attachments" :key="index" @click="downloadAttachment(file)" class="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 hover:border-emerald-400 hover:text-emerald-600 cursor-pointer transition-colors shadow-sm">
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                           </svg>
-                          {{ file }}
+                          {{ file.file_name || 'Attachment' }}
                         </div>
                       </div>
                     </div>
@@ -220,19 +220,65 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
-import { useTicketsStore } from '@/stores/tickets';
+import api from '@/api/client';
 
-const ticketsStore = useTicketsStore();
+const downloadAttachment = async (att) => {
+  try {
+    const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
+    if (att.file_type && att.file_type.startsWith('image/')) {
+      window.open(url, '_blank');
+    } else {
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', att.file_name || 'attachment');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+  } catch (error) {
+    console.error('Failed to download attachment', error);
+    alert('Failed to download attachment.');
+  }
+};
 
-// Reactive counts and tickets from central store
-const tickets = computed(() => ticketsStore.pendingTicketsByUnit('LEAU'));
-const pendingCount = computed(() => tickets.value.length);
-const scheduledCount = computed(() => ticketsStore.dispatchedOrScheduledTickets('LEAU').length);
-const activeCount = computed(() => ticketsStore.activeTicketsByUnit('LEAU').length);
-const completedCount = computed(() => ticketsStore.completedTicketsByUnit('LEAU').length);
+const tickets = ref([]);
+
+const pendingCount = ref(0);
+const scheduledCount = ref(0);
+const activeCount = ref(0);
+const completedCount = ref(0);
+
+const fetchQueue = async () => {
+  try {
+    const response = await api.get('tickets/queue/LEAU');
+    if (response.data?.data?.tickets) {
+      tickets.value = response.data.data.tickets.map(t => ({
+        id: t.id,
+        ticketId: t.id,
+        service: t.service_type,
+        description: t.description,
+        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        requestedBy: 'End User', // Ideally fetched from user relation
+        location: t.location,
+        office_room: t.office_room,
+        attachments: t.attachments || [],
+        isDeclining: false,
+        declineReason: ''
+      }));
+      pendingCount.value = response.data.data.count || tickets.value.length;
+    }
+  } catch (error) {
+    console.error('Failed to fetch LEAU queue:', error);
+  }
+};
+
+onMounted(() => {
+  fetchQueue();
+});
 
 
 const showConfirmModal = ref(false);
@@ -248,11 +294,16 @@ const closeConfirmModal = () => {
   ticketToApprove.value = null;
 };
 
-const confirmApproval = () => {
+const confirmApproval = async () => {
   if (ticketToApprove.value) {
-    ticketsStore.approveTicket(ticketToApprove.value.id);
-    toast.success(`Approved ticket ${ticketToApprove.value.ticketId}`);
-    closeConfirmModal();
+    try {
+      await api.patch(`tickets/${ticketToApprove.value.id}/approve`);
+      toast.success(`Approved ticket ${ticketToApprove.value.ticketId}`);
+      closeConfirmModal();
+      fetchQueue(); // Refresh queue
+    } catch (error) {
+      toast.error('Failed to approve ticket');
+    }
   }
 };
 
@@ -263,10 +314,15 @@ const toggleDeclineMode = (ticket) => {
   }
 };
 
-const rejectTicket = (ticket) => {
+const rejectTicket = async (ticket) => {
   if (ticket.declineReason) {
-    ticketsStore.declineTicket(ticket.id, ticket.declineReason);
-    toast.error(`Rejected ticket ${ticket.ticketId}`);
+    try {
+      await api.patch(`tickets/${ticket.id}/decline`, { decline_reason: ticket.declineReason });
+      toast.error(`Rejected ticket ${ticket.ticketId}`);
+      fetchQueue(); // Refresh queue
+    } catch (error) {
+      toast.error('Failed to reject ticket');
+    }
   }
 };
 </script>

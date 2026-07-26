@@ -221,11 +221,11 @@
             <div v-if="modalTicket?.attachments && modalTicket?.attachments.length > 0" class="space-y-4">
               <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Attached Documents</label>
               <div class="flex flex-wrap gap-3">
-                <div v-for="file in modalTicket?.attachments" :key="file" class="px-5 py-3 bg-white border border-slate-100 rounded-2xl flex items-center gap-4 shadow-sm hover:border-emerald-500 transition-colors group cursor-pointer">
+                <div v-for="file in modalTicket?.attachments" :key="typeof file === 'string' ? file : file.id" @click="downloadAttachment(file)" class="px-5 py-3 bg-white border border-slate-100 rounded-2xl flex items-center gap-4 shadow-sm hover:border-emerald-500 transition-colors group cursor-pointer">
                   <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                   </div>
-                  <span class="text-xs font-black text-slate-800">{{ file }}</span>
+                  <span class="text-xs font-black text-slate-800">{{ typeof file === 'string' ? file : (file.file_name || 'Attachment') }}</span>
                 </div>
               </div>
             </div>
@@ -249,6 +249,29 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
+import api from '@/api/client';
+
+const downloadAttachment = async (att) => {
+  // att can be a plain filename string (mock data) or a full attachment object from the API
+  if (typeof att === 'string') return;
+  try {
+    const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
+    if (att.file_type && att.file_type.startsWith('image/')) {
+      window.open(url, '_blank');
+    } else {
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', att.file_name || 'attachment');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+  } catch (error) {
+    console.error('Failed to download attachment', error);
+    alert('Failed to download attachment.');
+  }
+};
 
 const router = useRouter();
 const showTicketModal = ref(false);

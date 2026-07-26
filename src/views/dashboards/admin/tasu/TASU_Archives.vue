@@ -201,13 +201,40 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import { useTicketsStore } from '@/stores/tickets';
+import api from '@/api/client';
 
-const ticketsStore = useTicketsStore();
+const tickets = ref([]);
 
-const tickets = computed(() => ticketsStore.completedTicketsByUnit('TASU'));
+const fetchArchives = async () => {
+  try {
+    const response = await api.get('tickets/archives/TASU');
+    if (response.data?.data?.tickets) {
+      tickets.value = response.data.data.tickets.map(t => ({
+        id: t.id,
+        ticketId: t.id,
+        service: t.service_type,
+        description: t.description,
+        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        requestedBy: 'End User',
+        status: t.status,
+        statusLabel: t.status_label,
+        location: t.location || 'N/A',
+        office_room: t.office_room || 'N/A',
+        attachments: t.attachments || [],
+        assignedWorker: t.assignments?.[0]?.assigned_to_name || 'Unassigned',
+        materials: [] // No materials tracking in this DB yet
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to fetch TASU archives:', error);
+  }
+};
+
+onMounted(() => {
+  fetchArchives();
+});
 
 const searchQuery = ref('');
 const serviceFilter = ref('');

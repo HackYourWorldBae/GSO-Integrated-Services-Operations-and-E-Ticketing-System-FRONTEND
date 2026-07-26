@@ -1,30 +1,38 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import api from '@/api/client';
 
 export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
-  const personnel = ref([
-    { id: 1, name: 'Wilmer T. Toribio', role: 'Plumber', status: 'Available', assignedTicket: 'FGMU-TIC-50', ticketTask: 'Main Line Valve Repair', implementationDate: 'Apr 29, 2026', nextAssignment: { ticketId: 'FGMU-TIC-58', task: 'Cafeteria Sink Inspection', date: 'May 03, 2026' } },
-    { id: 7, name: 'Michael Johnson', role: 'Plumber', status: 'Working', assignedTicket: 'FGMU-TIC-44', ticketTask: 'Restroom Pipe Leakage', implementationDate: 'Apr 28, 2026', nextAssignment: { ticketId: 'FGMU-TIC-51', task: 'Admin Bldg Drainage Cleanout', date: 'Apr 30, 2026' } },
-    { id: 8, name: 'David Lee', role: 'Plumber', status: 'On Leave', assignedTicket: null, ticketTask: null, implementationDate: null, nextAssignment: { ticketId: 'FGMU-TIC-60', task: 'Water Pump Maintenance', date: 'May 05, 2026' } },
-    { id: 2, name: 'John Doe', role: 'Electrician', status: 'Working', assignedTicket: 'FGMU-TIC-43', ticketTask: 'Library Lighting Replacement', implementationDate: 'Apr 28, 2026', nextAssignment: { ticketId: 'FGMU-TIC-52', task: 'Gym Breaker Box Inspection', date: 'May 01, 2026' } },
-    { id: 9, name: 'Mark Evans', role: 'Electrician', status: 'Available', assignedTicket: 'FGMU-TIC-49', ticketTask: 'Projector Power Outlet Installation', implementationDate: 'Apr 30, 2026', nextAssignment: { ticketId: 'FGMU-TIC-62', task: 'Streetlight Bulb Replacement', date: 'May 04, 2026' } },
-    { id: 3, name: 'Alex Smith', role: 'Carpenter', status: 'Working', assignedTicket: 'FGMU-TIC-45', ticketTask: 'Conference Room Table Repair', implementationDate: 'Apr 28, 2026', nextAssignment: { ticketId: 'FGMU-TIC-54', task: 'Door Lock & Hinge Fix', date: 'May 02, 2026' } },
-    { id: 10, name: 'Tom Hardy', role: 'Carpenter', status: 'Available', assignedTicket: null, ticketTask: null, implementationDate: null, nextAssignment: { ticketId: 'FGMU-TIC-59', task: 'Cabinet Bookshelf Construction', date: 'May 03, 2026' } },
-    { id: 4, name: 'Maria Santos', role: 'Aircon Tech', status: 'On Leave', assignedTicket: null, ticketTask: null, implementationDate: null, nextAssignment: null },
-    { id: 11, name: 'Peter Parker', role: 'Aircon Tech', status: 'Working', assignedTicket: 'FGMU-TIC-42', ticketTask: 'Server Room AC Unit Servicing', implementationDate: 'Apr 28, 2026', nextAssignment: { ticketId: 'FGMU-TIC-56', task: 'Filter Cleaning & Freon Refill', date: 'May 01, 2026' } },
-    { id: 5, name: 'Robert Fox', role: 'General Repair', status: 'Working', assignedTicket: 'FGMU-TIC-42', ticketTask: 'CEAT Ceiling Tile Replacement', implementationDate: 'Apr 28, 2026', nextAssignment: { ticketId: 'FGMU-TIC-57', task: 'Window Glass Sealant Application', date: 'May 02, 2026' } },
-    { id: 12, name: 'Chris Pratt', role: 'General Repair', status: 'Available', assignedTicket: 'FGMU-TIC-47', ticketTask: 'Handrail Welding Fix', implementationDate: 'Apr 29, 2026', nextAssignment: { ticketId: 'FGMU-TIC-61', task: 'Floor Tile Regrouting', date: 'May 04, 2026' } },
-    { id: 6, name: 'Sarah Wilson', role: 'Painter', status: 'Available', assignedTicket: null, ticketTask: null, implementationDate: null, nextAssignment: { ticketId: 'FGMU-TIC-63', task: 'Auditorium Stage Repainting', date: 'May 06, 2026' } },
-    { id: 13, name: 'Emily Clark', role: 'Painter', status: 'Working', assignedTicket: 'FGMU-TIC-46', ticketTask: 'Hallway Wall Touch-up', implementationDate: 'Apr 28, 2026', nextAssignment: { ticketId: 'FGMU-TIC-64', task: 'Exterior Fence Waterproofing', date: 'May 05, 2026' } },
-  ]);
+  const personnel = ref([]);
 
   const groupedPersonnel = computed(() => {
     return personnel.value.reduce((groups, worker) => {
-      if (!groups[worker.role]) groups[worker.role] = [];
-      groups[worker.role].push(worker);
+      // Map specialty to role for frontend backward compatibility
+      const role = worker.specialty || worker.role;
+      if (!groups[role]) groups[role] = [];
+      groups[role].push(worker);
       return groups;
     }, {});
   });
+
+  const fetchPersonnel = async () => {
+    try {
+      const response = await api.get('personnel/FGMU');
+      if (response.data?.data?.personnel) {
+        personnel.value = response.data.data.personnel.map(p => ({
+          ...p,
+          status: p.status === 'available' ? 'Available' : p.status === 'working' ? 'Working' : p.status === 'on_leave' ? 'On Leave' : p.status === 'on_trip' ? 'On Trip' : p.status,
+          role: p.specialty,
+          // If they have an active assignment, use it
+          assignedTicket: p.assigned_ticket_id || null,
+          ticketTask: p.ticket_task || null,
+          implementationDate: p.implementation_date || null
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch FGMU personnel:', error);
+    }
+  };
 
   const toggleWorkerStatus = (workerId) => {
     const worker = personnel.value.find(w => w.id === workerId);
@@ -105,6 +113,7 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
   return {
     personnel,
     groupedPersonnel,
+    fetchPersonnel,
     toggleWorkerStatus,
     setWorkerStatus,
     assignWorker,

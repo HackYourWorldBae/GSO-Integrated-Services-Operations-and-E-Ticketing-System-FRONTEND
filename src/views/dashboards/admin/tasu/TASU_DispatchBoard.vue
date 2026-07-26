@@ -574,18 +574,16 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuVehiclesStore } from '@/stores/tasuVehicles';
 import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
-import { useTicketsStore } from '@/stores/tickets';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();
 const vehiclesStore = useTasuVehiclesStore();
 const personnelStore = useTasuPersonnelStore();
-const ticketsStore = useTicketsStore();
 
 // Full list of 17+ vehicles from store
 const allVehicles = computed(() => vehiclesStore.vehicles);
@@ -785,17 +783,7 @@ const getVehiclePlateById = (id) => {
 
 const submitNewDispatch = () => {
   const createdBooking = vehiclesStore.addBooking({ ...newDispatch.value });
-  // Also push to central ticket store as dispatched/scheduled
-  ticketsStore.submitConsolidatedRequest({
-    unit: 'TASU',
-    service: 'Vehicle Request',
-    requestedBy: newDispatch.value.requestor || 'TASU Dispatcher',
-    description: `Trip to ${newDispatch.value.destination} (${newDispatch.value.type}) - ${newDispatch.value.passengers} passengers`,
-    destination: newDispatch.value.destination,
-    passengers: newDispatch.value.passengers,
-    time: newDispatch.value.time,
-    date: newDispatch.value.date
-  });
+  // Removed mock ticket generation to prevent errors since we dropped ticketsStore
   toast.success(`Dispatched vehicle unit for trip to ${newDispatch.value.destination}`);
   showScheduleModal.value = false;
 };
@@ -869,6 +857,10 @@ const getStatusActiveButtonStyle = (status) => {
     default: return 'bg-slate-600 text-white shadow-md';
   }
 };
+
+onMounted(() => {
+  personnelStore.fetchPersonnel();
+});
 </script>
 
 <style scoped>

@@ -47,7 +47,7 @@ export const fetchActiveTickets = (unitCode) =>
 
 /** Get archived/completed tickets for a unit, with optional filters. */
 export const fetchArchives = (unitCode, filters = {}) =>
-  apiClient.get(`/tickets/archive/${unitCode}`, { params: filters });
+  apiClient.get(`/tickets/archives/${unitCode}`, { params: filters });
 
 /** Get dashboard statistics for a unit (pending, processing, resolved counts). */
 export const fetchUnitStats = (unitCode) =>

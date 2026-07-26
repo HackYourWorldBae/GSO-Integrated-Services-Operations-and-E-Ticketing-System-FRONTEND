@@ -116,7 +116,7 @@
               <!-- Card Header -->
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 relative z-10">
                 <div class="flex items-center gap-4 flex-wrap">
-                   <span class="text-xs font-black text-slate-400 uppercase tracking-widest border border-slate-100 px-3 py-1 rounded-lg bg-slate-50">{{ job.ticketId }}</span>
+                   <span class="text-xs font-black text-slate-400 uppercase tracking-widest border border-slate-100 px-3 py-1 rounded-lg bg-slate-50">{{ job.ticket_id }}</span>
                    <!-- Blue for PENDING (next assignment), Orange for IN PROGRESS (current) -->
                    <span 
                     class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest"
@@ -125,10 +125,9 @@
                     {{ job.status === 'IN PROGRESS' ? '🟠 In Progress' : '🔵 Assigned' }}
                    </span>
                    <span 
-                    class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest"
-                    :class="job.priority === 'HIGH' ? 'bg-red-100 text-red-600' : 'bg-amber-50 text-amber-600'"
+                    class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-amber-50 text-amber-600"
                    >
-                    {{ job.priority }} PRIORITY
+                    {{ job.ticket_status }}
                    </span>
                 </div>
                 
@@ -147,7 +146,7 @@
 
               <!-- Job Title & Description -->
               <div class="mb-10 relative z-10">
-                <h4 class="text-3xl font-black text-slate-900 mb-3 tracking-tight">{{ job.title }}</h4>
+                <h4 class="text-3xl font-black text-slate-900 mb-3 tracking-tight">{{ job.service_type }} ({{ job.task_notes }})</h4>
                 <p class="text-slate-500 font-medium leading-relaxed max-w-4xl">{{ job.description }}</p>
               </div>
 
@@ -171,7 +170,7 @@
                     </div>
                     <div>
                        <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Due Date</p>
-                       <p class="text-sm font-bold text-slate-700">{{ job.dueDate }}</p>
+                       <p class="text-sm font-bold text-slate-700">{{ job.implementation_date || 'N/A' }}</p>
                     </div>
                  </div>
 
@@ -181,8 +180,8 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                     </div>
                     <div>
-                       <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Requested By</p>
-                       <p class="text-sm font-bold text-slate-700">{{ job.requestedBy }}</p>
+                       <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Worker Assigned</p>
+                       <p class="text-sm font-bold text-slate-700">{{ job.worker_name || 'N/A' }}</p>
                     </div>
                  </div>
 
@@ -193,7 +192,7 @@
                     </div>
                     <div>
                        <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Assigned Date</p>
-                       <p class="text-sm font-bold text-slate-700">{{ job.assignedDate }}</p>
+                       <p class="text-sm font-bold text-slate-700">{{ new Date(job.assigned_at).toLocaleDateString() }}</p>
                     </div>
                  </div>
               </div>
@@ -238,12 +237,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
-import { useTicketsStore } from '@/stores/tickets';
-
-const ticketsStore = useTicketsStore();
+import api from '@/api/client';
 
 const confirmModalState = reactive({
   isOpen: false,
@@ -274,49 +271,66 @@ const executeConfirm = () => {
   closeConfirmModal();
 };
 
-// --- REACTIVE JOBS FROM STORE ---
-const assignedJobs = computed(() => {
-  const activeJobs = [
-    ...ticketsStore.activeTicketsByUnit('FGMU'),
-    ...ticketsStore.activeTicketsByUnit('LEAU')
-  ];
-  return activeJobs.map(t => ({
-    ...t,
-    id: t.id,
-    ticketId: t.ticketId || `TKT-${t.id}`,
-    status: t.status === 'processing' ? 'IN PROGRESS' : 'PENDING',
-    priority: t.priority || 'HIGH',
-    title: t.service || 'Maintenance Job',
-    description: t.description || 'Job details pending.',
-    location: t.location || 'Campus Facility',
-    dueDate: t.date || 'Today',
-    requestedBy: t.requestedBy || 'Faculty / Staff',
-    assignedDate: t.date || 'Today',
-    materials: t.materials || ['Standard maintenance tools & replacement parts']
-  }));
+// --- REACTIVE JOBS ---
+const assignedJobs = ref([]);
+
+const fetchAssignments = async () => {
+  try {
+    const response = await api.get('dispatch/active/all');
+    if (response.data?.data?.active_jobs) {
+      assignedJobs.value = response.data.data.active_jobs.map(job => ({
+        ...job,
+        status: (job.worker_status === 'working' || job.worker_status === 'on_trip') ? 'IN PROGRESS' : 'PENDING'
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to fetch assignments:', error);
+  }
+};
+
+onMounted(() => {
+  fetchAssignments();
 });
 
 const currentStatus = ref('Working'); // Initial state
 
-const toggleJobStatus = (job) => {
-  if (job.status === 'PENDING') {
-    job.status = 'IN PROGRESS';
-    currentStatus.value = 'Working';
+const toggleJobStatus = async (job) => {
+  // If the job hasn't been started yet
+  // We check if it hasn't been dispatched by the worker yet (e.g. status isn't marked as Job Started or worker status isn't working)
+  // Actually, just let the button state dictate it. If they click "Start Job", we hit the API.
+  if (job.status === 'PENDING' || job.status === 'approved' || job.status === 'processing') {
+    try {
+      await api.post('dispatch/start', {
+        ticket_id: job.ticket_id,
+        personnel_id: job.personnel_id
+      });
+      job.status = 'IN PROGRESS';
+      currentStatus.value = 'Working';
+      // Optionally refetch assignments to ensure fresh data
+      await fetchAssignments();
+    } catch (error) {
+      console.error('Failed to start job:', error);
+    }
   } else {
     openConfirmModal({
       title: 'Complete Job',
-      message: `Mark "${job.title}" as completed?`,
+      message: `Mark "${job.ticketTask || job.service_type}" as completed?`,
       confirmText: 'Complete',
       type: 'warning',
-      onConfirm: () => {
-        if (job.id) {
-          ticketsStore.completeTicket(job.id);
-        }
-        
-        // If no more jobs are in progress, set status to Available
-        const remainingInProgress = assignedJobs.value.some(j => j.status === 'IN PROGRESS');
-        if (!remainingInProgress) {
-          currentStatus.value = 'Available';
+      onConfirm: async () => {
+        try {
+          await api.patch(`tickets/${job.ticket_id}/complete`);
+          
+          // If no more jobs are in progress, set status to Available
+          const remainingInProgress = assignedJobs.value.filter(j => j.ticket_id !== job.ticket_id).some(j => j.status === 'IN PROGRESS');
+          if (!remainingInProgress) {
+            currentStatus.value = 'Available';
+          }
+          
+          // Refetch assignments
+          await fetchAssignments();
+        } catch (error) {
+          console.error('Failed to complete job:', error);
         }
       }
     });

@@ -345,7 +345,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, watch } from 'vue';
+import { onMounted, ref, computed, reactive, watch } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
 import { useTasuVehiclesStore } from '@/stores/tasuVehicles';
@@ -458,6 +458,10 @@ const getStatusStyle = (status) => {
     default: return 'bg-slate-600';
   }
 };
+
+onMounted(() => {
+  store.fetchPersonnel();
+});
 </script>
 
 <style scoped>

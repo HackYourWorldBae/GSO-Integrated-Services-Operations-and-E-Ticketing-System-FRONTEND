@@ -232,9 +232,6 @@
 import { ref, reactive, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
-import { useTicketsStore } from '@/stores/tickets';
-
-const ticketsStore = useTicketsStore();
 
 const confirmModalState = reactive({
   isOpen: false,
@@ -266,28 +263,12 @@ const executeConfirm = () => {
 };
 
 // --- REACTIVE JOBS FROM STORE ---
+const assignedTrips = computed(() => {
+  return [];
+});
+
 const assignedJobs = computed(() => {
-  const activeTasu = [
-    ...ticketsStore.activeTicketsByUnit('TASU'),
-    ...ticketsStore.dispatchedOrScheduledTickets('TASU')
-  ];
-  return activeTasu.map(t => ({
-    ...t,
-    id: t.id,
-    ticketId: t.ticketId || `TRP-${t.id}`,
-    status: t.status === 'processing' ? 'ON ROUTE' : 'PENDING',
-    priority: t.priority || 'HIGH',
-    title: t.service || 'Transport Trip',
-    description: t.description || 'Passenger and route details.',
-    location: t.destination || t.location || 'Regional Destination',
-    dueDate: t.date || 'Today',
-    requestedBy: t.requestedBy || 'TASU Client',
-    assignedDate: t.date || 'Today',
-    vehicle: t.assignedVehicle || 'Toyota Hiace (LMM-456)',
-    passengers: t.passengers || 8,
-    departureTime: t.time || '08:00 AM',
-    materials: t.materials || ['Travel Order', 'Fuel Slip', 'Vehicle Keys']
-  }));
+  return [];
 });
 
 const currentStatus = ref('On Route'); // Initial state
@@ -303,9 +284,8 @@ const toggleJobStatus = (job) => {
       confirmText: 'Complete',
       type: 'warning',
       onConfirm: () => {
-        if (job.id) {
-          ticketsStore.completeTicket(job.id);
-        }
+        // Placeholder for complete logic
+
         
         // If no more trips are in progress, set status to Available
         const remainingInProgress = assignedJobs.value.some(j => j.status === 'ON ROUTE');

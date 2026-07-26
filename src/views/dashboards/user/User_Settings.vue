@@ -169,7 +169,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+
+const authStore = useAuthStore();
 
 const form = ref({
   firstName: '',
@@ -182,39 +185,29 @@ const showPassword = ref(false);
 const isSaving = ref(false);
 
 onMounted(() => {
-  const storedUser = localStorage.getItem('user');
-  if (storedUser) {
-    const user = JSON.parse(storedUser);
-    // If structured names exist, use them. Otherwise, try to split 'name' or use it as firstName.
-    if (user.first_name || user.last_name) {
-      form.value.firstName = user.first_name || '';
-      form.value.lastName = user.last_name || '';
-    } else if (user.name) {
-      const parts = user.name.split(' ');
-      form.value.firstName = parts[0] || '';
-      form.value.lastName = parts.slice(1).join(' ') || '';
-    }
-    form.value.email = user.email || '';
+  const user = authStore.user;
+  if (user) {
+    form.value.firstName = user.first_name || '';
+    form.value.lastName  = user.last_name  || '';
+    form.value.email     = user.email      || '';
   }
 });
 
-const handleSave = () => {
+const handleSave = async () => {
   isSaving.value = true;
-  // Mock save delay
-  setTimeout(() => {
-    isSaving.value = false;
-    alert('Profile updated successfully!');
-    
-    // Update local storage
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-    const updatedUser = {
-      ...storedUser,
+  try {
+    const result = await authStore.updateProfile({
       first_name: form.value.firstName,
-      last_name: form.value.lastName,
-      email: form.value.email
-    };
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-  }, 1500);
+      last_name:  form.value.lastName,
+    });
+    if (result.success) {
+      alert('Profile updated successfully!');
+    } else {
+      alert(result.message || 'Failed to update profile.');
+    }
+  } finally {
+    isSaving.value = false;
+  }
 };
 </script>
 

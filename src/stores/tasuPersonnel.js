@@ -1,22 +1,26 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import api from '@/api/client';
 
 export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
-  const personnel = ref([
-    { id: 1,  name: 'Wilmer T. Toribio',   role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 2,  name: 'Homer D. Cuilan',      role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 3,  name: 'Sunny M. Quintos',     role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 4,  name: 'Federico A. Murphy Jr.', role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 5,  name: 'Reyner A. Berato',     role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 6,  name: 'Joel C. Pongdad',      role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 7,  name: 'Freddie K. Agtulao',   role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 8,  name: 'Zularte M. Laking',    role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 9,  name: 'Geordan L. Titiwa',    role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 10, name: 'John C. Delmas',        role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 11, name: 'Noliver G. Abelao',     role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 12, name: 'Gregory T. Sudaypan',   role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-    { id: 13, name: 'Roy B. Bugnay',         role: 'Professional Driver', status: 'Available', assignedTicket: null, implementationDate: null },
-  ]);
+  const personnel = ref([]);
+
+  const fetchPersonnel = async () => {
+    try {
+      const response = await api.get('personnel/TASU');
+      if (response.data?.data?.personnel) {
+        personnel.value = response.data.data.personnel.map(p => ({
+          ...p,
+          status: p.status === 'available' ? 'Available' : p.status === 'working' || p.status === 'on_trip' ? 'On Trip' : p.status === 'on_leave' ? 'On Leave' : p.status,
+          role: p.specialty || p.role || 'Driver',
+          assignedTicket: p.assigned_ticket_id || null,
+          implementationDate: p.implementation_date || null
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch TASU personnel:', error);
+    }
+  };
 
   const groupedPersonnel = computed(() => {
     return personnel.value.reduce((groups, worker) => {
@@ -81,5 +85,6 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
     unassignWorker,
     updateTicketDate,
     startWork,
+    fetchPersonnel,
   };
 });

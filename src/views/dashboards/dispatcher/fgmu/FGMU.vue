@@ -79,7 +79,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="ticket in mockTickets" :key="ticket.id" class="group transition-all duration-200">
+                <tr v-for="ticket in tickets" :key="ticket.id" class="group transition-all duration-200">
                   <td class="py-6 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all">
                     <span class="text-sm font-black text-slate-900">#{{ ticket.id }}</span>
                   </td>
@@ -173,11 +173,11 @@
             <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="space-y-4">
               <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Submitted Attachments</label>
               <div class="flex flex-wrap gap-3">
-                <div v-for="file in selectedTicket.attachments" :key="file" class="px-5 py-3 bg-white border border-slate-100 rounded-2xl flex items-center gap-4 shadow-sm hover:border-emerald-500 transition-colors group cursor-pointer">
+                <div v-for="file in selectedTicket.attachments" :key="file.id" @click="downloadAttachment(file)" class="px-5 py-3 bg-white border border-slate-100 rounded-2xl flex items-center gap-4 shadow-sm hover:border-emerald-500 transition-colors group cursor-pointer">
                   <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                   </div>
-                  <span class="text-xs font-black text-slate-800">{{ file }}</span>
+                  <span class="text-xs font-black text-slate-800">{{ file.file_name || 'Attachment' }}</span>
                 </div>
               </div>
             </div>
@@ -197,35 +197,72 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import { useTicketsStore } from '@/stores/tickets';
+import api from '@/api/client';
 
-const ticketsStore = useTicketsStore();
+const downloadAttachment = async (att) => {
+  try {
+    const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
+    if (att.file_type && att.file_type.startsWith('image/')) {
+      window.open(url, '_blank');
+    } else {
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', att.file_name || 'attachment');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+  } catch (error) {
+    console.error('Failed to download attachment', error);
+    alert('Failed to download attachment.');
+  }
+};
 
-const unassignedCount = computed(() => mockTickets.value.length);
-const ongoingCount = computed(() => ticketsStore.activeTicketsByUnit('FGMU').length);
-const resolvedCount = computed(() => ticketsStore.completedTicketsByUnit('FGMU').length);
+const tickets = ref([]);
+
+const unassignedCount = computed(() => tickets.value.length);
+const ongoingCount = computed(() => 0);
+const resolvedCount = computed(() => 0);
+
+const fetchDispatchQueue = async () => {
+  try {
+    const response = await api.get('tickets/dispatch/FGMU');
+    if (response.data?.data?.tickets) {
+      tickets.value = response.data.data.tickets.map(t => ({
+        id: t.id,
+        type: t.service_type,
+        requester: t.details?.requesting_personnel || 'End User',
+        location: t.location,
+        college_building: t.details?.college_building || t.location,
+        office_room: t.office_room || t.details?.office_room,
+        job_description: t.description,
+        source_of_fund: t.details?.source_of_fund || 'N/A',
+        contact_number: t.details?.contact_number || 'N/A',
+        submittedAt: new Date(t.submitted_at).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric'
+        }),
+        attachments: t.attachments || [],
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to fetch FGMU dispatch queue:', error);
+  }
+};
+
+onMounted(() => {
+  fetchDispatchQueue();
+});
 
 const showTicketModal = ref(false);
-const selectedTicket = ref(null);
+const selectedTicket = ref({});
 
 const openTicketModal = (ticket) => {
   selectedTicket.value = ticket;
   showTicketModal.value = true;
 };
-
-const mockTickets = computed(() => ticketsStore.dispatchedOrScheduledTickets('FGMU').map(t => ({
-  ...t,
-  id: t.ticketId || t.id,
-  type: t.service || 'Maintenance',
-  requester: t.requestedBy || 'Requester',
-  location: t.location || 'Campus',
-  college_building: t.location || 'Main Building',
-  office_room: t.office_room || 'Room',
-  job_description: t.description || 'No description provided.',
-  attachments: t.attachments || []
-})));
 </script>
 
 <style scoped>

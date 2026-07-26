@@ -44,49 +44,46 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
-              <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              <div class="p-3 rounded-2xl bg-slate-900 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
-              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full uppercase tracking-tighter">Campus Coverage</span>
+              <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-full uppercase tracking-tighter">Total Requests</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">98.2%</h3>
-            <div class="mt-2 flex items-center gap-1">
-              <span class="text-xs font-bold text-emerald-600">Optimal</span>
-              <span class="text-[10px] text-slate-400 font-medium italic">Landscape health</span>
-            </div>
-          </div>
-
-          <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
-            <div class="flex items-center justify-between mb-4">
-              <div class="p-3 rounded-2xl bg-teal-50 text-teal-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
-              </div>
-              <span class="text-[10px] font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded-full uppercase tracking-tighter">Aesthetic Rating</span>
-            </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">100%</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Excellent Standard</p>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">All Time</p>
           </div>
 
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
               <div class="p-3 rounded-2xl bg-amber-50 text-amber-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
-              <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full uppercase tracking-tighter">Borrowed Items</span>
+              <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full uppercase tracking-tighter">Pending</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">42</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Plants & Tools</p>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.pending || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Awaiting Approval</p>
           </div>
 
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
-              <div class="p-3 rounded-2xl bg-slate-900 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              <div class="p-3 rounded-2xl bg-blue-50 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
-              <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-full uppercase tracking-tighter">Manpower</span>
+              <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-tighter">Processing</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">18</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Landscape Artists</p>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.processing || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">In Progress</p>
+          </div>
+
+          <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
+            <div class="flex items-center justify-between mb-4">
+              <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              </div>
+              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full uppercase tracking-tighter">Completed</span>
+            </div>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.resolved || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Resolved Tickets</p>
           </div>
         </div>
 
@@ -220,12 +217,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, nextTick } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import Chart from 'chart.js/auto';
+import api from '@/api/client';
+
+const stats = ref({});
 
 const leauActivePeriod = ref('Month');
-
 const leauPeriodFilters = [
   { key: 'Day',   label: 'This Day' },
   { key: 'Week',  label: 'This Week' },
@@ -233,257 +232,158 @@ const leauPeriodFilters = [
   { key: 'Year',  label: 'This Year' }
 ];
 
-const leauServiceLabels = [
-  'Disinfection',
-  'Cleaning/ Grubbing',
-  'Hauling',
-  'Mowing/ Weeding',
-  'Planting/ Landscaping',
-  'Pruning/ Cutting',
-  'Borrowing of plants',
-  'Stage & Hall Decoration',
-  'Borrowing of tools/ equipment',
-  'Others'
-];
-
-// Total service request counts per period for LEAU services based on selection page
-const leauServiceFreqData = {
-  Day: {
-    labels: leauServiceLabels,
-    data:   [4, 5, 3, 6, 4, 2, 3, 2, 5, 3]
-  },
-  Week: {
-    labels: leauServiceLabels,
-    data:   [22, 28, 19, 38, 24, 12, 18, 15, 30, 16]
-  },
-  Month: {
-    labels: leauServiceLabels,
-    data:   [85, 105, 70, 140, 95, 45, 65, 55, 110, 60]
-  },
-  Year: {
-    labels: leauServiceLabels,
-    data:   [980, 1200, 850, 1550, 1080, 510, 780, 650, 1300, 720]
-  }
-};
-
 let leauServiceFreqChart = null;
+let charts = [];
 
 function setLeauPeriod(period) {
   leauActivePeriod.value = period;
-  const { labels, data } = leauServiceFreqData[period];
-  leauServiceFreqChart.data.labels = labels;
-  leauServiceFreqChart.data.datasets[0].data = data;
-  leauServiceFreqChart.update();
+  if (leauServiceFreqChart && stats.value.service_freq) {
+    const data = stats.value.service_freq[period] || [];
+    leauServiceFreqChart.data.labels = data.map(d => d.service_type);
+    leauServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
+    leauServiceFreqChart.update();
+  }
 }
 
-onMounted(() => {
+const renderCharts = () => {
+  // Destroy existing charts to prevent memory leaks if re-rendered
+  charts.forEach(c => c.destroy());
+  charts = [];
+
+  const safeVal = (val) => parseFloat(val) || 0;
+
   // 1. Performance Radar Chart
-  const radarCtx = document.getElementById('leauPerformanceRadar');
-  new Chart(radarCtx, {
-    type: 'radar',
-    data: {
-      labels: ['Quality', 'Efficiency', 'Timeliness'],
-      datasets: [{
-        label: 'Current Avg (1-5)',
-        data: [4.9, 4.4, 3.2],
-        backgroundColor: 'rgba(20, 184, 166, 0.2)',
-        borderColor: '#14b8a6',
-        pointBackgroundColor: '#14b8a6',
-        borderWidth: 3
-      }, {
-        label: 'Target Standard',
-        data: [4.5, 4.5, 4.5],
-        backgroundColor: 'rgba(226, 232, 240, 0.1)',
-        borderColor: '#94a3b8',
-        borderDash: [5, 5],
-        borderWidth: 1,
-        pointRadius: 0
-      }]
-    },
-    options: {
-      scales: {
-        r: {
-          min: 0,
-          max: 5,
-          ticks: { stepSize: 1, display: false },
-          pointLabels: {
-            font: { family: 'Inter', weight: '900', size: 12 },
-            color: '#1e293b'
-          }
-        }
+  const radarCtx = document.getElementById('performanceRadar');
+  if (radarCtx && stats.value.feedback_averages) {
+    const avg = stats.value.feedback_averages;
+    charts.push(new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['Quality', 'Efficiency', 'Timeliness'],
+        datasets: [{
+          label: 'Current Avg (1-5)',
+          data: [safeVal(avg.avg_quality), safeVal(avg.avg_efficiency), safeVal(avg.avg_timeliness)],
+          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+          borderColor: '#10b981',
+          pointBackgroundColor: '#10b981',
+          borderWidth: 3
+        }, {
+          label: 'Target Score',
+          data: [4.5, 4.5, 4.5],
+          backgroundColor: 'rgba(226, 232, 240, 0.1)',
+          borderColor: '#94a3b8',
+          borderDash: [5, 5],
+          borderWidth: 1,
+          pointRadius: 0
+        }]
       },
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { weight: '700' } } }
-      },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+      options: {
+        scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, display: false } } },
+        plugins: { legend: { position: 'bottom' } },
+        responsive: true, maintainAspectRatio: false
+      }
+    }));
+  }
 
-  // 2. Inventory Return Analysis
-  const inventoryCtx = document.getElementById('inventoryReturnChart');
-  new Chart(inventoryCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Plants', 'Tools', 'Equipment'],
-      datasets: [{
-        label: 'Returned',
-        data: [35, 12, 8],
-        backgroundColor: '#10b981',
-        borderRadius: 6
-      }, {
-        label: 'Outstanding',
-        data: [8, 4, 2],
-        backgroundColor: '#ef4444',
-        borderRadius: 6
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { weight: '700' } } }
+  // 2. Completion Health Doughnut
+  const completionCtx = document.getElementById('completionDoughnut');
+  if (completionCtx && stats.value.completion_health) {
+    const health = stats.value.completion_health;
+    const onTime = health.find(h => h.completion_status === 'on-time')?.count || 0;
+    const beyondTime = health.find(h => h.completion_status === 'beyond-time')?.count || 0;
+    const notCompleted = health.find(h => h.completion_status === 'not-completed')?.count || 0;
+    
+    charts.push(new Chart(completionCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['On-time', 'Beyond Time', 'Not Completed'],
+        datasets: [{
+          data: [onTime, beyondTime, notCompleted],
+          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+          hoverOffset: 15, borderRadius: 10, borderWidth: 4, borderColor: '#ffffff'
+        }]
       },
-      scales: {
-        x: { stacked: true, grid: { display: false } },
-        y: { stacked: true, grid: { borderDash: [5, 5] } }
-      },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+      options: {
+        plugins: { legend: { position: 'bottom' } },
+        cutout: '70%', responsive: true, maintainAspectRatio: false
+      }
+    }));
+  }
 
-  // 3. Completion Health Doughnut
-  const completionCtx = document.getElementById('leauCompletionDoughnut');
-  new Chart(completionCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['On-time', 'Beyond Time', 'Not Completed'],
-      datasets: [{
-        data: [72, 18, 10],
-        backgroundColor: ['#14b8a6', '#f59e0b', '#ef4444'],
-        hoverOffset: 15,
-        borderRadius: 10,
-        borderWidth: 4,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { weight: '800' }, padding: 20 } }
+  // 3. Delay Reasons
+  const delayCtx = document.getElementById('delayReasonsChart');
+  if (delayCtx && stats.value.delay_reasons) {
+    charts.push(new Chart(delayCtx, {
+      type: 'bar',
+      data: {
+        labels: stats.value.delay_reasons.map(r => r.reason_code) || ['None'],
+        datasets: [{
+          label: 'Occurrences',
+          data: stats.value.delay_reasons.map(r => parseInt(r.count)) || [0],
+          backgroundColor: '#f59e0b', borderRadius: 6
+        }]
       },
-      cutout: '70%',
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+    }));
+  }
 
-  // 4. Scope Distribution
-  const scopeCtx = document.getElementById('scopeDistributionChart');
-  new Chart(scopeCtx, {
-    type: 'polarArea',
-    data: {
-      labels: ['Planting', 'Mowing', 'Decoration', 'Pruning'],
-      datasets: [{
-        data: [45, 25, 35, 15],
-        backgroundColor: [
-          'rgba(16, 185, 129, 0.7)',
-          'rgba(20, 184, 166, 0.7)',
-          'rgba(245, 158, 11, 0.7)',
-          'rgba(148, 163, 184, 0.7)'
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { weight: '700' } } }
+  // 4. Non-Completion
+  const nonCompCtx = document.getElementById('nonCompletionChart');
+  if (nonCompCtx && stats.value.non_completion) {
+    charts.push(new Chart(nonCompCtx, {
+      type: 'bar',
+      data: {
+        labels: stats.value.non_completion.map(r => r.reason_code) || ['None'],
+        datasets: [{
+          label: 'Occurrences',
+          data: stats.value.non_completion.map(r => parseInt(r.count)) || [0],
+          backgroundColor: '#ef4444', borderRadius: 6
+        }]
       },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+    }));
+  }
 
-  // 5. Delay Reasons
-  const delayCtx = document.getElementById('leauDelayReasonsChart');
-  new Chart(delayCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Absenteeism', 'Extra Work', 'Extended Break'],
-      datasets: [{
-        label: 'Occurrences',
-        data: [15, 8, 4],
-        backgroundColor: '#f59e0b',
-        borderRadius: 6
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false } },
-        y: { ticks: { font: { weight: '700', size: 10 } } }
+  // 5. Service Request Frequency
+  const freqCtx = document.getElementById('fgmuServiceFreqChart') || 
+                  document.getElementById('leauServiceFreqChart') || 
+                  document.getElementById('ssuServiceFreqChart') || 
+                  document.getElementById('tasuServiceFreqChart');
+  if (freqCtx && stats.value.service_freq) {
+    const initData = stats.value.service_freq[leauActivePeriod.value] || [];
+    leauServiceFreqChart = new Chart(freqCtx, {
+      type: 'bar',
+      data: {
+        labels: initData.map(d => d.service_type),
+        datasets: [{
+          label: 'Requests',
+          data: initData.map(d => parseInt(d.count)),
+          backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'],
+          borderRadius: 8
+        }]
       },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+      options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+    });
+    charts.push(leauServiceFreqChart);
+  }
+};
 
-  // 6. Non-Completion Barriers
-  const nonCompCtx = document.getElementById('leauNonCompletionChart');
-  new Chart(nonCompCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Lack Materials', 'Lack Tools', 'Lack Skills'],
-      datasets: [{
-        label: 'Occurrences',
-        data: [10, 5, 3],
-        backgroundColor: '#ef4444',
-        borderRadius: 6
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false } },
-        y: { ticks: { font: { weight: '700', size: 10 } } }
-      },
-      responsive: true,
-      maintainAspectRatio: false
+const fetchStats = async () => {
+  try {
+    const response = await api.get('tickets/stats/LEAU');
+    if (response.data?.data?.stats) {
+      stats.value = response.data.data.stats;
+      nextTick(() => {
+        renderCharts();
+      });
     }
-  });
+  } catch (error) {
+    console.error('Failed to fetch LEAU stats:', error);
+  }
+};
 
-  // 7. Service Request Frequency Chart
-  const freqCtx = document.getElementById('leauServiceFreqChart');
-  const initFreq = leauServiceFreqData[leauActivePeriod.value];
-  leauServiceFreqChart = new Chart(freqCtx, {
-    type: 'bar',
-    data: {
-      labels: initFreq.labels,
-      datasets: [{
-        label: 'Requests',
-        data: initFreq.data,
-        backgroundColor: [
-          '#14b8a6', '#2dd4bf', '#5eead4',
-          '#99f6e4', '#0d9488', '#0f766e',
-          '#115e59', '#134e4a', '#042f2e', '#022c2b'
-        ],
-        borderRadius: 8,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { weight: '700', size: 10 } } },
-        y: {
-          grid: { borderDash: [4, 4], color: '#f1f5f9' },
-          ticks: { font: { weight: '700' } }
-        }
-      },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+onMounted(() => {
+  fetchStats();
 });
 </script>
 

@@ -44,10 +44,6 @@
             </div>
           </div>
           <div class="relative z-10 flex flex-row gap-4">
-            <div class="flex items-center gap-2 bg-emerald-500/20 rounded-xl px-3 py-1.5 border border-emerald-500/30 self-start md:self-auto backdrop-blur-sm">
-              <span class="text-[10px] font-black text-emerald-300 uppercase tracking-widest">Impl. Date:</span>
-              <input type="date" v-model="selectedTicket.implementationDate" @change="handleTicketDateChange" class="bg-transparent text-white text-[11px] font-bold outline-none cursor-pointer [color-scheme:dark]" />
-            </div>
             <div class="flex items-center gap-2 self-start md:self-auto bg-white/5 px-4 py-2 rounded-xl border border-white/10">
               <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</span>
               <span :class="['px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest', selectedTicket.status === 'Urgent' ? 'text-rose-400 bg-rose-400/10' : 'text-emerald-400 bg-emerald-400/10']">
@@ -96,7 +92,7 @@
               </div>
               <div class="flex items-center gap-4 flex-wrap">
                 <div class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg>
                   <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">{{ assign.implementationDate || 'No date set' }}</span>
                 </div>
                 <button @click="removeAssignment(assign)" class="p-2.5 rounded-xl bg-white/5 text-white/40 hover:text-rose-400 hover:bg-rose-500/10 transition-colors border border-white/5 hover:border-rose-500/30">
@@ -110,6 +106,34 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
               Dispatch Assigned Workers
             </button>
+          </div>
+        </div>
+
+        <!-- NEW: Implementation Schedule Section -->
+        <div v-if="selectedTicket" class="p-8 rounded-[2.5rem] bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden animate-fade-in" style="animation-delay: 0.1s;">
+          <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="relative z-10">
+            <h3 class="text-xl font-black text-slate-900 flex items-center gap-3 mb-2">
+              <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
+              Implementation Schedule
+            </h3>
+            <p class="text-sm font-medium text-slate-500">Set the target date for when the assigned workers should execute this task.</p>
+          </div>
+          
+          <div class="relative z-10 flex items-center gap-4 bg-slate-50 p-3 rounded-3xl border border-slate-200 shadow-inner group transition-all hover:bg-emerald-50/50 hover:border-emerald-200">
+            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 transition-transform group-hover:scale-105 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg>
+            </div>
+            <div class="flex flex-col pr-4">
+              <label for="impl-date" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 cursor-pointer group-hover:text-emerald-700 transition-colors">Target Date</label>
+              <input 
+                id="impl-date" 
+                type="date" 
+                v-model="selectedTicket.implementationDate" 
+                @change="handleTicketDateChange" 
+                class="bg-transparent text-slate-900 text-base font-black outline-none cursor-pointer min-w-[150px] custom-date-input" 
+              />
+            </div>
           </div>
         </div>
 
@@ -385,12 +409,14 @@
 
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useLeauPersonnelStore } from '@/stores/leauPersonnel';
 import { toast } from 'vue3-toastify';
+import api from '@/api/client';
 
 const route = useRoute();
+const router = useRouter();
 const store = useLeauPersonnelStore();
 
 const showTicketModal = ref(false);
@@ -471,9 +497,43 @@ const toggleManagementStatus = (worker) => {
   toast.success(`Status updated for ${worker.name}`);
 };
 
-onMounted(() => {
+onMounted(async () => {
   const ticketId = route.query.ticket;
-  selectedTicket.value = ticketId ? mockTickets.value.find(t => t.id === ticketId) ?? null : null;
+  
+  if (ticketId) {
+    try {
+      const response = await api.get(`tickets/${ticketId}`);
+      if (response.data?.data?.ticket) {
+        const t = response.data.data.ticket;
+        selectedTicket.value = {
+          id: t.id,
+          type: t.service_type,
+          location: t.location,
+          requester: t.details?.requesting_personnel || 'End User',
+          status: t.status === 'approved' ? 'Pending' : t.status,
+          college_building: t.details?.college_building || t.location,
+          office_room: t.office_room || t.details?.office_room,
+          source_of_fund: t.details?.source_of_fund || 'N/A',
+          contact_number: t.details?.contact_number || 'N/A',
+          job_description: t.description,
+          attachments: t.attachments || [],
+          submittedAt: new Date(t.submitted_at).toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric'
+          }),
+          implementationDate: ''
+        };
+      }
+    } catch (error) {
+      console.error('Failed to load selected ticket details:', error);
+      toast.error('Failed to load ticket details.');
+    }
+  } else {
+    selectedTicket.value = null;
+  }
+  
+  await store.fetchPersonnel();
+  
+  // If we have existing workers assigned with a date, sync it back to the ticket UI
   if (selectedTicket.value && currentAssignments.value.length > 0) {
     const existingDate = currentAssignments.value[0].implementationDate;
     if (existingDate && !selectedTicket.value.implementationDate) {
@@ -499,12 +559,31 @@ const removeAssignment = (assign) => {
   toast.info(`Removed assignment for ${assign.workerName}`);
 };
 
-const dispatchAll = () => {
+const dispatchAll = async () => {
   if (!selectedTicket.value) return;
-  currentAssignments.value.forEach(a => store.startWork(a.workerId));
-  const ticket = mockTickets.value.find(t => t.id === selectedTicket.value.id);
-  if (ticket) ticket.status = 'Dispatched';
-  toast.success(`All workers dispatched for ${selectedTicket.value.id}!`);
+  if (currentAssignments.value.length === 0) {
+    toast.error('No workers assigned to dispatch.');
+    return;
+  }
+  
+  try {
+    for (const assign of currentAssignments.value) {
+      const worker = store.personnel.find(w => w.id === assign.workerId);
+      if (worker && worker.status === 'Available') {
+         await api.post('dispatch/assign', {
+           ticket_id: selectedTicket.value.id,
+           personnel_id: assign.workerId,
+           implementation_date: selectedTicket.value.implementationDate || '',
+           task_notes: 'Grounds & Landscaping Work'
+         });
+      }
+    }
+    toast.success(`Workers successfully dispatched for ${selectedTicket.value.id}!`);
+    router.push('/dispatcher/leau');
+  } catch (error) {
+    console.error('Dispatch failed:', error);
+    toast.error('Failed to dispatch some workers. Check your connection.');
+  }
 };
 </script>
 

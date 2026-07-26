@@ -119,23 +119,24 @@
         </div>
 
         <!-- Timeline Modal -->
-        <div v-if="selectedTicket" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-          <div class="bg-white rounded-[2rem] w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]" @click.stop>
-            <!-- Header -->
-            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-white relative z-10 shadow-sm">
-              <div>
-                <h3 class="text-xl font-black text-slate-900">Track Request</h3>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-0.5">{{ selectedTicket.ticketId }} &bull; {{ selectedTicket.unit }}</p>
+        <Teleport to="body">
+          <div v-if="selectedTicket" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in" @click.self="closeTimeline">
+            <div class="bg-white rounded-[2rem] w-full max-w-xl shadow-2xl flex flex-col max-h-[90vh]" @click.stop>
+              <!-- Header -->
+              <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-white relative z-10 shadow-sm shrink-0 rounded-t-[2rem]">
+                <div>
+                  <h3 class="text-xl font-black text-slate-900">Track Request</h3>
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-0.5">{{ selectedTicket.ticketId }} &bull; {{ selectedTicket.unit }}</p>
+                </div>
+                <button @click="closeTimeline" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors active:scale-95">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <button @click="closeTimeline" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
 
-            <!-- Body / Timeline -->
-            <div class="p-8 overflow-y-auto flex-1 bg-slate-50/50">
+              <!-- Body / Timeline -->
+              <div class="p-8 overflow-y-auto flex-1 bg-slate-50/50">
               <div class="relative pl-8 space-y-8 before:absolute before:inset-y-0 before:left-[19px] before:w-0.5 before:bg-slate-200">
                 
                 <div v-for="(step, index) in getSteps(selectedTicket)" :key="index" class="relative z-10">
@@ -200,6 +201,22 @@
                           <div>
                              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Job Particulars</p>
                              <p class="text-xs font-medium text-slate-600 leading-relaxed">{{ selectedTicket.description }}</p>
+                          </div>
+                          <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="pt-2 border-t border-slate-100 mt-2">
+                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments / Photos</p>
+                             <div class="flex flex-col gap-2">
+                               <a v-for="att in selectedTicket.attachments" :key="att.id" @click.prevent="downloadAttachment(att)" class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-colors shadow-sm cursor-pointer group">
+                                 <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
+                                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                   </svg>
+                                 </div>
+                                 <div class="flex flex-col overflow-hidden">
+                                    <span class="text-xs font-bold text-slate-700 truncate group-hover:text-emerald-700 transition-colors">{{ att.file_name || 'Attachment' }}</span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase">{{ att.file_size_bytes ? (att.file_size_bytes / 1024).toFixed(1) + ' KB' : 'Unknown Size' }}</span>
+                                 </div>
+                               </a>
+                             </div>
                           </div>
                         </div>
                       </div>
@@ -347,6 +364,22 @@
                           <div>
                              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Purpose of Travel</p>
                              <p class="text-xs font-medium text-slate-600 leading-relaxed">{{ selectedTicket.purpose || 'N/A' }}</p>
+                          </div>
+                          <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="pt-2 border-t border-slate-100 mt-2">
+                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments / Photos</p>
+                             <div class="flex flex-col gap-2">
+                               <a v-for="att in selectedTicket.attachments" :key="att.id" @click.prevent="downloadAttachment(att)" class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-colors shadow-sm cursor-pointer group">
+                                 <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
+                                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                   </svg>
+                                 </div>
+                                 <div class="flex flex-col overflow-hidden">
+                                    <span class="text-xs font-bold text-slate-700 truncate group-hover:text-emerald-700 transition-colors">{{ att.file_name || 'Attachment' }}</span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase">{{ att.file_size_bytes ? (att.file_size_bytes / 1024).toFixed(1) + ' KB' : 'Unknown Size' }}</span>
+                                 </div>
+                               </a>
+                             </div>
                           </div>
                         </div>
                       </div>
@@ -550,10 +583,10 @@
                 <p v-else class="text-sm font-medium text-slate-500">Thank you for your feedback! This ticket has been successfully closed.</p>
               </div>
 
+              </div>
             </div>
           </div>
-        </div>
-
+        </Teleport>
       </div>
     </template>
   </MainLayout>
@@ -563,9 +596,30 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import { useTicketsStore } from '@/stores/tickets';
+import { useAuthStore } from '@/stores/auth';
+import api from '@/api/client';
 
-const ticketsStore = useTicketsStore();
+const authStore = useAuthStore();
+
+const downloadAttachment = async (att) => {
+  try {
+    const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
+    if (att.file_type && att.file_type.startsWith('image/')) {
+        window.open(url, '_blank');
+    } else {
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', att.file_name || 'attachment');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    }
+  } catch (error) {
+    console.error('Failed to download attachment', error);
+    alert('Failed to download attachment.');
+  }
+};
 
 const route = useRoute();
 const highlightedTicket = ref(null);
@@ -581,6 +635,8 @@ onMounted(() => {
     }, 100);
   }
 
+  userName.value = authStore.user?.first_name || authStore.fullName || 'User';
+
   const ackMap = JSON.parse(localStorage.getItem('gso_ssu_acknowledged_incidents') || '{}');
   tickets.value.forEach(t => {
     if (ackMap[t.ticketId]) {
@@ -591,7 +647,40 @@ onMounted(() => {
       t.actionsTaken = updated.actionsTaken;
     }
   });
+
+  fetchTickets();
 });
+
+const tickets = ref([]);
+const fetchTickets = async () => {
+  try {
+    const response = await api.get('tickets/my-requests');
+    if (response.data?.data?.tickets) {
+      tickets.value = response.data.data.tickets.map(t => ({
+        id: t.id,
+        ticketId: t.id,
+        service: t.service_type,
+        unit: t.unit_code,
+        description: t.description,
+        status: t.status,
+        statusLabel: t.status_label,
+        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        requestedBy: userName.value,
+        location: t.location,
+        office_room: t.office_room,
+        attachments: t.attachments || [],
+        isDeclining: false,
+        declineReason: '',
+        currentStep: parseInt(t.current_step) || 1,
+        assignedWorker: t.assigned_worker,
+        implementationDate: t.scheduled_date,
+        isClosed: t.status === 'completed' || t.status === 'closed'
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to fetch tickets:', error);
+  }
+};
 
 const searchQuery = ref('');
 const statusFilter = ref('all');
@@ -648,7 +737,8 @@ const getSteps = (ticket) => {
   return unitSteps[ticket.unit] || [];
 };
 
-const tickets = computed(() => ticketsStore.getTicketsByUser('Jane Smith (Faculty)'));
+const userName = ref('');
+// `tickets` is now a ref managed by fetchTickets()
 
 const filteredTickets = computed(() => {
   return tickets.value.filter(ticket => {
@@ -746,11 +836,47 @@ const closeTimeline = () => {
   document.body.style.overflow = '';
 };
 
-const closeTicket = () => {
+const closeTicket = async () => {
   if (selectedTicket.value && isFormValid.value) {
-    selectedTicket.value.isClosed = true;
-    selectedTicket.value.status = 'closed';
-    selectedTicket.value.statusLabel = 'Closed';
+    try {
+      const payload = {
+        ticket_id: selectedTicket.value.ticketId || selectedTicket.value.id,
+        completion_status: satisfactionForm.value.completionStatus,
+        courtesy_rating: satisfactionForm.value.ratings.courtesy,
+        quality_rating: satisfactionForm.value.ratings.quality,
+        efficiency_rating: satisfactionForm.value.ratings.efficiency,
+        timeliness_rating: satisfactionForm.value.ratings.timeliness,
+        cleanliness_rating: satisfactionForm.value.ratings.cleanliness,
+        remarks: satisfactionForm.value.remarks,
+        delay_reasons: []
+      };
+
+      if (satisfactionForm.value.completionStatus === 'beyond-time') {
+        const br = satisfactionForm.value.beyondTimeReasons;
+        if (br.personnelAbsent) payload.delay_reasons.push('ABSENT');
+        if (br.extendedBreak) payload.delay_reasons.push('BREAK');
+        if (br.additionalWork) payload.delay_reasons.push('EXTRA');
+      } else if (satisfactionForm.value.completionStatus === 'not-completed') {
+        const nr = satisfactionForm.value.notCompletedReasons;
+        if (nr.lackWorkingDays) payload.delay_reasons.push('NO_TIME');
+        if (nr.lackMaterials) payload.delay_reasons.push('NO_MATS');
+        if (nr.lackSkills) payload.delay_reasons.push('NO_SKILLS');
+      }
+
+      await api.post('feedback', payload);
+
+      selectedTicket.value.isClosed = true;
+      selectedTicket.value.status = 'closed';
+      selectedTicket.value.statusLabel = 'Closed';
+      
+      if (typeof fetchTickets === 'function') {
+        await fetchTickets();
+      }
+    } catch (error) {
+      console.error('Failed to submit feedback:', error);
+      // Fallback UI update just in case
+      selectedTicket.value.isClosed = true;
+    }
   }
 };
 

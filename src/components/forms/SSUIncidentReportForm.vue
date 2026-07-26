@@ -20,9 +20,12 @@ const props = defineProps({
         <h3 class="text-2xl sm:text-3xl font-black tracking-tighter">Incident <span class="text-red-500">Report</span> Form</h3>
         <p class="text-slate-400 mt-1 text-sm sm:text-base font-bold">Formal documentation of security-related events.</p>
       </div>
-      <div class="sm:text-right">
-          <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Ticket ID</p>
-          <p class="text-xl sm:text-2xl font-black text-red-500 uppercase tracking-tight">SSU-TIC-24-2026</p>
+      <div class="sm:text-right mt-4 sm:mt-0">
+          <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Status</p>
+          <div class="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-lg">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
+            <span class="text-xs font-black text-slate-500 tracking-wider">PENDING SUBMIT</span>
+          </div>
       </div>
     </div>
 

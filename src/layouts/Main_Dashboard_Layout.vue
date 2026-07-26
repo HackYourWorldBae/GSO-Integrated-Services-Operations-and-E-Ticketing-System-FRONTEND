@@ -190,9 +190,12 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import api from '@/api/client';
 
 const router = useRouter();
+const authStore = useAuthStore();
 const userName = ref('');
 const userRole = ref('');
 const isSidebarOpen = ref(true);
@@ -229,29 +232,49 @@ const executeConfirm = () => {
   closeConfirmModal();
 };
 
-const notifications = ref([
-  {
-    id: 1,
-    title: 'Ticket Resolved',
-    message: 'Your request #GS-BSU-1015 has been successfully resolved by SSU staff.',
-    time: '2 hours ago',
-    type: 'success'
-  },
-  {
-    id: 2,
-    title: 'New Assignment',
-    message: 'GSO dispatcher assigned Worker #32 to your Equipment Maintenance request.',
-    time: '5 hours ago',
-    type: 'info'
-  },
-  {
-    id: 3,
-    title: 'Service Verified',
-    message: 'Your field trip vehicle request is now verified and awaiting final dispatch.',
-    time: '1 day ago',
-    type: 'info'
+const notifications = ref([]);
+
+const fetchNotifications = async () => {
+  try {
+    const role = authStore.role?.toLowerCase() || '';
+    let url = '';
+    
+    if (['student', 'employee'].includes(role)) {
+      url = 'tickets/my-requests';
+    } else if (['admin', 'dispatcher'].includes(role)) {
+      const unit = (authStore.user?.unit_id === 2 || authStore.user?.unit === 'TASU') ? 'tasu' : 'bgmo';
+      url = `tickets/active/${unit}`;
+    } else if (['worker', 'driver'].includes(role)) {
+      url = 'dispatch/active/all';
+    }
+
+    if (!url) return;
+
+    const response = await api.get(url);
+    let items = [];
+    
+    if (response.data?.data?.tickets) {
+      items = response.data.data.tickets;
+    } else if (response.data?.data?.jobs) {
+      items = response.data.data.jobs;
+    } else if (Array.isArray(response.data?.data)) {
+      items = response.data.data;
+    }
+    
+    if (Array.isArray(items)) {
+      items.sort((a, b) => (b.id || 0) - (a.id || 0));
+      notifications.value = items.slice(0, 5).map(item => ({
+        id: item.id || item.ticket_id || Math.random().toString(36),
+        title: `Update on Ticket #${item.id || item.ticket_id || 'N/A'}`,
+        message: item.service_type ? `Service: ${item.service_type} - Status: ${item.status_label || item.status}` : `Status updated to ${item.status}`,
+        time: new Date(item.updated_at || item.submitted_at || Date.now()).toLocaleDateString(),
+        type: (item.status === 'resolved' || item.status === 'completed') ? 'success' : 'warning'
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to fetch notifications:', error);
   }
-]);
+};
 
 const handleToggle = () => {
   if (window.innerWidth < 768) {
@@ -292,18 +315,16 @@ const handleOutsideClick = (event) => {
 };
 
 onMounted(() => {
-  const storedUser = localStorage.getItem('user');
-  const storedRole = localStorage.getItem('role');
-  if (storedUser && storedRole) {
-    const user = JSON.parse(storedUser);
-    // Support both structured and simple name formats
-    if (user.first_name || user.last_name) {
-      userName.value = `${user.first_name || ''} ${user.last_name || ''}`.trim();
-    } else {
-      userName.value = user.name || 'User';
-    }
-    userRole.value = storedRole.toUpperCase();
+  // Redirect to login if not authenticated
+  if (!authStore.isAuthenticated) {
+    router.push({ name: 'login' });
+    return;
   }
+
+  userName.value = authStore.fullName || 'User';
+  userRole.value = authStore.capitalizedRole;
+
+  fetchNotifications();
 
   document.addEventListener('click', handleOutsideClick);
 
@@ -324,10 +345,9 @@ const handleLogout = () => {
     message: 'Sign out of GSO Portal?',
     confirmText: 'Sign Out',
     type: 'danger',
-    onConfirm: () => {
-      localStorage.removeItem('user');
-      localStorage.removeItem('role');
-      router.push('/');
+    onConfirm: async () => {
+      await authStore.logout();
+      router.push({ name: 'login' });
     }
   });
 };

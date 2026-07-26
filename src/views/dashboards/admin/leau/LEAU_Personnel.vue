@@ -247,7 +247,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useLeauPersonnelStore } from '@/stores/leauPersonnel';
 
@@ -274,6 +274,10 @@ const toggleWorkerStatus = (worker) => {
   }
   store.toggleWorkerStatus(worker.id);
 };
+
+onMounted(() => {
+  store.fetchPersonnel();
+});
 </script>
 
 <style scoped>

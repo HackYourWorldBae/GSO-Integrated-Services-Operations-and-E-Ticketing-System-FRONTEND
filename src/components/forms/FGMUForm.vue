@@ -46,10 +46,13 @@ const removeFile = (idx) => {
         <h3 class="text-2xl sm:text-3xl font-black tracking-tighter">Facilities Management <span class="text-emerald-500">(FGMU)</span></h3>
         <p class="text-slate-400 mt-1 text-sm sm:text-base font-bold">Structure, Utilities, and Mechanical requests.</p>
       </div>
-      <div class="sm:text-right">
-          <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Ticket ID</p>
-          <p class="text-xl sm:text-2xl font-black text-emerald-500 uppercase tracking-tight">FGMU-TIC-42-2026</p>
-      </div>
+        <div class="hidden sm:block text-right">
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+          <div class="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-lg">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
+            <span class="text-xs font-black text-slate-500 tracking-wider">PENDING SUBMIT</span>
+          </div>
+        </div>
     </div>
 
     <div class="p-4 sm:p-10 space-y-8 sm:space-y-12">

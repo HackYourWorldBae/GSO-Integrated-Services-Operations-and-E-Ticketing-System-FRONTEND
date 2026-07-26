@@ -163,6 +163,22 @@
                   <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
                 </div>
               </div>
+              <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="col-span-2">
+                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments / Photos</p>
+                 <div class="flex flex-col gap-2">
+                   <a v-for="att in selectedTicket.attachments" :key="att.id" @click.prevent="downloadAttachment(att)" class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-colors shadow-sm cursor-pointer group">
+                     <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                       </svg>
+                     </div>
+                     <div class="flex flex-col overflow-hidden">
+                        <span class="text-xs font-bold text-slate-700 truncate group-hover:text-emerald-700 transition-colors">{{ att.file_name || 'Attachment' }}</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">{{ att.file_size_bytes ? (att.file_size_bytes / 1024).toFixed(1) + ' KB' : 'Unknown Size' }}</span>
+                     </div>
+                   </a>
+                 </div>
+              </div>
             </div>
 
             <!-- Read Only Notice -->
@@ -182,10 +198,65 @@
 <script setup>
 import { ref, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import { useTicketsStore } from '@/stores/tickets';
+import { useAuthStore } from '@/stores/auth';
+import api from '@/api/client';
 
-const ticketsStore = useTicketsStore();
-const tickets = computed(() => ticketsStore.getCompletedTicketsByUser('Jane Smith (Faculty)'));
+const authStore = useAuthStore();
+
+const downloadAttachment = async (att) => {
+  try {
+    const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
+    if (att.file_type && att.file_type.startsWith('image/')) {
+        window.open(url, '_blank');
+    } else {
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', att.file_name || 'attachment');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    }
+  } catch (error) {
+    console.error('Failed to download attachment', error);
+    alert('Failed to download attachment.');
+  }
+};
+
+const userName = ref(authStore.user?.first_name || authStore.fullName || 'User');
+
+const tickets = ref([]);
+import { onMounted } from 'vue';
+
+onMounted(async () => {
+  try {
+    const response = await api.get('tickets/completed');
+    if (response.data?.data?.tickets) {
+      tickets.value = response.data.data.tickets.map(t => ({
+        id: t.id,
+        ticketId: t.id,
+        service: t.service_type,
+        unit: t.unit_code,
+        description: t.description,
+        status: t.status,
+        statusLabel: t.status_label,
+        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        requestedBy: userName.value,
+        location: t.location,
+        office_room: t.office_room,
+        attachments: t.attachments || [],
+        isDeclining: false,
+        declineReason: '',
+        currentStep: parseInt(t.current_step) || 1,
+        assignedWorker: t.assigned_worker,
+        implementationDate: t.scheduled_date,
+        isClosed: t.status === 'completed' || t.status === 'closed'
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to fetch completed tickets:', error);
+  }
+});
 
 const searchQuery = ref('');
 

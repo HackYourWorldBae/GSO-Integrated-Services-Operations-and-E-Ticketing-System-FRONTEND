@@ -3,18 +3,20 @@ import { ref, onMounted, computed, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
 import { useFormsStore } from '@/stores/forms';
-import { useTicketsStore } from '@/stores/tickets';
 import SignaturePad from '@/components/SignaturePad.vue';
 import SearchableDropdown from '@/components/SearchableDropdown.vue';
+import api from '@/api/client';
 import FGMUForm from '@/components/forms/FGMUForm.vue';
 import LEAUForm from '@/components/forms/LEAUForm.vue';
 import SSUVehiclePassForm from '@/components/forms/SSUVehiclePassForm.vue';
 import SSUIncidentReportForm from '@/components/forms/SSUIncidentReportForm.vue';
 import TASUForm from '@/components/forms/TASUForm.vue';
 
+import { useAuthStore } from '@/stores/auth';
+
 const router = useRouter();
 const formsStore = useFormsStore();
-const ticketsStore = useTicketsStore();
+const authStore = useAuthStore();
 
 // --- STATE ---
 const user = ref(null);
@@ -78,31 +80,31 @@ const locations = [
 // State moved to src/stores/forms.js
 
 onMounted(() => {
-  const storedUser = localStorage.getItem('user');
-  const storedRole = localStorage.getItem('role');
-  
-  if (storedUser) {
-    user.value = JSON.parse(storedUser);
-    const fullName = `${user.value.first_name || ''} ${user.value.last_name || ''}`.trim();
-    const contact = user.value.contact_number || 'Not Provided';
-    const role = storedRole || 'Student';
-    
-    // Auto-fill all
-    formsStore.fgmuState.sectionA.end_user = fullName;
-    formsStore.fgmuState.sectionA.contact_number = contact;
-    formsStore.leauState.sectionA.end_user = fullName;
-    formsStore.leauState.sectionA.contact_number = contact;
-    
-    // SSU Auto-fill
-    formsStore.ssuVehicleState.name = fullName;
-    formsStore.ssuVehicleState.contactNo = contact;
-    formsStore.ssuVehicleState.accountType = role.charAt(0).toUpperCase() + role.slice(1);
-    
-    formsStore.ssuIncidentState.reportedBy.printedName = fullName;
-    formsStore.ssuIncidentState.reportedBy.roles = [role.charAt(0).toUpperCase() + role.slice(1)];
-    
-    formsStore.tasuVehicleState.requestingPersonnel = fullName;
+  // Redirect to login if not authenticated
+  if (!authStore.isAuthenticated) {
+    router.push({ name: 'login' });
+    return;
   }
+
+  // Auto-fill form fields from the authenticated user's profile
+  const fullName = authStore.fullName;
+  const contact  = authStore.user?.contact_number || 'Not Provided';
+  const role     = authStore.capitalizedRole;
+
+  formsStore.fgmuState.sectionA.end_user        = fullName;
+  formsStore.fgmuState.sectionA.contact_number  = contact;
+  formsStore.leauState.sectionA.end_user        = fullName;
+  formsStore.leauState.sectionA.contact_number  = contact;
+
+  // SSU Auto-fill
+  formsStore.ssuVehicleState.name        = fullName;
+  formsStore.ssuVehicleState.contactNo   = contact;
+  formsStore.ssuVehicleState.accountType = role;
+
+  formsStore.ssuIncidentState.reportedBy.printedName = fullName;
+  formsStore.ssuIncidentState.reportedBy.roles       = [role];
+
+  formsStore.tasuVehicleState.requestingPersonnel = fullName;
 
   const storedBooking = localStorage.getItem('pendingVehicleBooking');
   if (storedBooking) {
@@ -182,22 +184,51 @@ const handleFinalSubmit = async () => {
   }
 
   isSubmitting.value = true;
+  // Build the payload (don't send File objects in JSON)
   const finalRequest = {
-    fgmu: hasFGMU.value ? { details: formsStore.fgmuState.sectionA, services: fgmuServices.value, files: formsStore.fgmuState.attachments.map(f => f.name) } : null,
-    leau: hasLEAU.value ? { details: formsStore.leauState.sectionA, services: leauServices.value, files: formsStore.leauState.attachments.map(f => f.name) } : null,
+    fgmu: hasFGMU.value ? { details: formsStore.fgmuState.sectionA, services: fgmuServices.value } : null,
+    leau: hasLEAU.value ? { details: formsStore.leauState.sectionA, services: leauServices.value } : null,
     ssu: hasSSU.value ? { 
-      vehiclePass: hasVehiclePass.value ? { ...formsStore.ssuVehicleState, files: formsStore.ssuVehicleState.attachments.map(f => f.name) } : null,
+      vehiclePass: hasVehiclePass.value ? formsStore.ssuVehicleState : null,
       incidentReport: hasIncidentReport.value ? formsStore.ssuIncidentState : null
     } : null,
-    tasu: hasTasuVehicle.value ? { ...formsStore.tasuVehicleState, travelOrderAttachments: formsStore.tasuVehicleState.travelOrderAttachments.map(f => f.name) } : null,
+    tasu: hasTasuVehicle.value ? formsStore.tasuVehicleState : null,
     others: hasOthers.value ? otherServices.value : null,
     submittedAt: new Date().toISOString()
   };
   
-  // Submit consolidated request to central state store (ready for backend API substitution)
   try {
-    await new Promise(resolve => setTimeout(resolve, 600));
-    ticketsStore.submitConsolidatedRequest(finalRequest, user.value);
+    const response = await api.post('tickets/intake', finalRequest);
+    // Backend returns { data: { ticket_ids: [...] } }
+    const createdTickets = response.data?.data?.ticket_ids ?? [];
+
+    // Helper to upload attachments for a ticket
+    const uploadFiles = async (ticketId, filesArray) => {
+      if (!filesArray || filesArray.length === 0) return;
+      const formData = new FormData();
+      filesArray.forEach(f => formData.append('attachments[]', f));
+      // Set Content-Type to undefined so the browser automatically generates the multipart boundary
+      await api.post(`tickets/${ticketId}/attachments`, formData, {
+        headers: { 'Content-Type': undefined }
+      });
+    };
+
+    // Match attachments to the created tickets by their prefix
+    for (const tId of createdTickets) {
+      if (tId.startsWith('FGMU')) {
+        await uploadFiles(tId, formsStore.fgmuState.attachments);
+      } else if (tId.startsWith('LEAU')) {
+        await uploadFiles(tId, formsStore.leauState.attachments);
+      } else if (tId.startsWith('SSU')) {
+        // Handle SSU vehicle pass attachments if any, or incident report attachments
+        if (hasVehiclePass.value && formsStore.ssuVehicleState.attachments) {
+            await uploadFiles(tId, formsStore.ssuVehicleState.attachments);
+        }
+      } else if (tId.startsWith('TASU')) {
+        await uploadFiles(tId, formsStore.tasuVehicleState.travelOrderAttachments);
+      }
+    }
+
     toast.success("Requests submitted successfully!");
     formsStore.clearForms();
     localStorage.removeItem('selectedServices');
@@ -206,7 +237,8 @@ const handleFinalSubmit = async () => {
     localStorage.removeItem('pendingVehicleBooking');
     router.push('/user/dashboard');
   } catch (error) {
-    toast.error("An error occurred while submitting. Please try again.");
+    console.error('Submission error:', error);
+    toast.error(error.response?.data?.message || "An error occurred while submitting. Please try again.");
   } finally {
     isSubmitting.value = false;
   }

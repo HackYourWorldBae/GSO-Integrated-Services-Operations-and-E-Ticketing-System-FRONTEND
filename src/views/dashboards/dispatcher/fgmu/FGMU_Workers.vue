@@ -37,10 +37,7 @@
             <p class="text-emerald-700 font-medium text-sm mt-1">{{ selectedTicket.location }}</p>
           </div>
           <div class="relative z-10 flex gap-4 md:items-center">
-            <div class="flex items-center gap-2 bg-white/50 rounded-xl px-3 py-1.5 border border-emerald-200 shadow-sm self-center">
-              <span class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Impl. Date:</span>
-              <input type="date" v-model="selectedTicket.implementationDate" @change="handleTicketDateChange" class="bg-transparent text-emerald-900 text-[11px] font-bold outline-none cursor-pointer" />
-            </div>
+
             <div class="flex flex-col md:items-end">
               <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</span>
               <span :class="['text-sm font-black uppercase inline-block', selectedTicket.status === 'Urgent' ? 'text-rose-600' : 'text-amber-500']">
@@ -106,6 +103,34 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
               Dispatch Assigned Workers
             </button>
+          </div>
+        </div>
+
+        <!-- NEW: Implementation Schedule Section -->
+        <div v-if="selectedTicket" class="p-8 rounded-[2.5rem] bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden animate-fade-in" style="animation-delay: 0.1s;">
+          <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="relative z-10">
+            <h3 class="text-xl font-black text-slate-900 flex items-center gap-3 mb-2">
+              <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
+              Implementation Schedule
+            </h3>
+            <p class="text-sm font-medium text-slate-500">Set the target date for when the assigned workers should execute this task.</p>
+          </div>
+          
+          <div class="relative z-10 flex items-center gap-4 bg-slate-50 p-3 rounded-3xl border border-slate-200 shadow-inner group transition-all hover:bg-emerald-50/50 hover:border-emerald-200">
+            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 transition-transform group-hover:scale-105 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg>
+            </div>
+            <div class="flex flex-col pr-4">
+              <label for="impl-date" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 cursor-pointer group-hover:text-emerald-700 transition-colors">Target Date</label>
+              <input 
+                id="impl-date" 
+                type="date" 
+                v-model="selectedTicket.implementationDate" 
+                @change="handleTicketDateChange" 
+                class="bg-transparent text-slate-900 text-base font-black outline-none cursor-pointer min-w-[150px] custom-date-input" 
+              />
+            </div>
           </div>
         </div>
 
@@ -395,11 +420,11 @@
               <div v-if="modalTicket?.attachments && modalTicket?.attachments.length > 0" class="space-y-4">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Submitted Attachments</label>
                 <div class="flex flex-wrap gap-3">
-                  <div v-for="file in modalTicket?.attachments" :key="file" class="px-5 py-3 bg-white border border-slate-100 rounded-2xl flex items-center gap-4 shadow-sm hover:border-emerald-500 transition-colors group cursor-pointer">
+                  <div v-for="file in modalTicket?.attachments" :key="file.id" @click="downloadAttachment(file)" class="px-5 py-3 bg-white border border-slate-100 rounded-2xl flex items-center gap-4 shadow-sm hover:border-emerald-500 transition-colors group cursor-pointer">
                     <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     </div>
-                    <span class="text-xs font-black text-slate-800">{{ file }}</span>
+                    <span class="text-xs font-black text-slate-800">{{ file.file_name || 'Attachment' }}</span>
                   </div>
                 </div>
               </div>
@@ -418,12 +443,34 @@
 
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useFgmuPersonnelStore } from '@/stores/fgmuPersonnel';
 import { toast } from 'vue3-toastify';
+import api from '@/api/client';
+
+const downloadAttachment = async (att) => {
+  try {
+    const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
+    if (att.file_type && att.file_type.startsWith('image/')) {
+      window.open(url, '_blank');
+    } else {
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', att.file_name || 'attachment');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+  } catch (error) {
+    console.error('Failed to download attachment', error);
+    alert('Failed to download attachment.');
+  }
+};
 
 const route = useRoute();
+const router = useRouter();
 const store = useFgmuPersonnelStore();
 
 const showTicketModal = ref(false);
@@ -527,9 +574,42 @@ const toggleManagementStatus = (worker) => {
   toast.success(`Worker status updated to ${worker.status === 'Available' ? 'On Leave' : 'Available'}`);
 };
 
-onMounted(() => {
+onMounted(async () => {
   const ticketId = route.query.ticket;
-  selectedTicket.value = ticketId ? mockTickets.value.find(t => t.id === ticketId) ?? null : null;
+  
+  if (ticketId) {
+    try {
+      const response = await api.get(`tickets/${ticketId}`);
+      if (response.data?.data?.ticket) {
+        const t = response.data.data.ticket;
+        selectedTicket.value = {
+          id: t.id,
+          type: t.service_type,
+          location: t.location,
+          requester: t.details?.requesting_personnel || 'End User',
+          status: t.status === 'approved' ? 'Pending' : t.status,
+          college_building: t.details?.college_building || t.location,
+          office_room: t.office_room || t.details?.office_room,
+          source_of_fund: t.details?.source_of_fund || 'N/A',
+          contact_number: t.details?.contact_number || 'N/A',
+          job_description: t.description,
+          attachments: t.attachments || [],
+          submittedAt: new Date(t.submitted_at).toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric'
+          }),
+          implementationDate: ''
+        };
+      }
+    } catch (error) {
+      console.error('Failed to load selected ticket details:', error);
+      toast.error('Failed to load ticket details.');
+    }
+  } else {
+    selectedTicket.value = null;
+  }
+  
+  await store.fetchPersonnel();
+  
   // If we have existing workers assigned with a date, sync it back to the ticket UI
   if (selectedTicket.value && currentAssignments.value.length > 0) {
     const existingDate = currentAssignments.value[0].implementationDate;
@@ -558,14 +638,32 @@ const removeAssignment = (assign) => {
   toast.info(`Removed assignment for ${assign.workerName}`);
 };
 
-const dispatchAll = () => {
+const dispatchAll = async () => {
   if (!selectedTicket.value) return;
-  // Mark all currently assigned workers for this ticket as Working
-  currentAssignments.value.forEach(a => store.startWork(a.workerId));
-  // Mark the ticket as Dispatched in the local list
-  const ticket = mockTickets.value.find(t => t.id === selectedTicket.value.id);
-  if (ticket) ticket.status = 'Dispatched';
-  toast.success(`All workers dispatched for ${selectedTicket.value.id}!`);
+  if (currentAssignments.value.length === 0) {
+    toast.error('No workers assigned to dispatch.');
+    return;
+  }
+  
+  try {
+    for (const assign of currentAssignments.value) {
+      // If not yet dispatched to DB (assume worker status Available)
+      const worker = store.personnel.find(w => w.id === assign.workerId);
+      if (worker && worker.status === 'Available') {
+         await api.post('dispatch/assign', {
+           ticket_id: selectedTicket.value.id,
+           personnel_id: assign.workerId,
+           implementation_date: selectedTicket.value.implementationDate || '',
+           task_notes: 'Facilities Maintenance Work'
+         });
+      }
+    }
+    toast.success(`Workers successfully dispatched for ${selectedTicket.value.id}!`);
+    router.push('/dispatcher/fgmu');
+  } catch (error) {
+    console.error('Dispatch failed:', error);
+    toast.error('Failed to dispatch some workers. Check your connection.');
+  }
 };
 </script>
 
