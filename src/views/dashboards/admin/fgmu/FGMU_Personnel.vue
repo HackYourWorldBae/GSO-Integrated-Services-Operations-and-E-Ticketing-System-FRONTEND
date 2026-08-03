@@ -32,13 +32,18 @@
 
     <template #header-title>
       <div class="flex flex-col">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">Personnel Management</h2>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">FGMU Workforce Oversight</p>
+        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">FGMU Dashboard</h2>
+        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Facilities & Ground Management</p>
       </div>
     </template>
 
     <template #main-content>
-      <div class="space-y-6 animate-fade-in pb-12">
+      <div class="space-y-6 animate-fade-in pb-12 px-8 py-8 max-w-[1600px] mx-auto min-h-screen">
+        <div class="mb-6 max-w-2xl">
+          <h2 class="text-3xl font-black tracking-tight text-slate-900 mb-2">FGMU Roster</h2>
+          <p class="text-sm text-slate-500 font-medium">Manage and track personnel status and current assignments.</p>
+        </div>
+
         <div class="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div>
@@ -65,7 +70,11 @@
           </div>
 
           <div class="space-y-8">
-            <div v-for="(workers, role) in groupedPersonnel" :key="role">
+            <div v-if="Object.keys(groupedPersonnel).length === 0" class="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+              <span class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">No Personnel Found</span>
+              <p class="text-sm text-slate-500 font-medium">The roster is currently empty or loading.</p>
+            </div>
+            <div v-else v-for="(workers, role) in groupedPersonnel" :key="role">
               <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-4 border-b border-slate-100 pb-2 flex items-center gap-2">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 {{ role }}s
@@ -83,7 +92,7 @@
                     <div class="flex items-center justify-between xl:justify-start gap-6 min-w-[300px]">
                       <div class="flex items-center gap-4">
                         <div class="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors shrink-0 shadow-sm font-black text-xl">
-                          {{ worker.name.charAt(0) }}
+                          {{ worker.name ? worker.name.charAt(0) : 'U' }}
                         </div>
                         <div>
                           <h4 class="text-base font-black text-slate-900 leading-tight mb-1">{{ worker.name }}</h4>
@@ -105,7 +114,7 @@
                                 worker.assignedTicket ? 'bg-blue-500' :
                                 worker.status === 'Available' ? 'bg-emerald-500' : 'bg-slate-400'
                               ]"></span>
-                              {{ worker.status === 'Working' ? 'Working' : worker.assignedTicket ? `Assigned to #${worker.assignedTicket}` : worker.status }}
+                              {{ worker.status === 'Working' ? 'Working' : worker.assignedTicket ? `Assigned to #${worker.assignedTicket}` : (worker.status || 'Available') }}
                             </span>
                             <!-- Improved Change Status Button Below Status Bar -->
                             <button 
@@ -160,15 +169,15 @@
                       </div>
                       <div v-else class="h-full min-h-[140px] p-4 rounded-2xl bg-slate-100/50 border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No Active Assignment</span>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Worker is currently {{ worker.status.toLowerCase() }}.</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Worker is currently {{ worker.status ? worker.status.toLowerCase() : 'unavailable' }}.</p>
                       </div>
 
                       <!-- Next Assignment Details -->
                       <div 
-                        v-if="worker.nextAssignment" 
-                        @click="toggleTicketExtension(worker.id, worker.nextAssignment.ticketId)"
+                        v-if="worker.nextAssignmentId" 
+                        @click="toggleTicketExtension(worker.id, worker.nextAssignmentId)"
                         class="h-full min-h-[140px] p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between bg-white shadow-xs hover:shadow-md"
-                        :class="expandedTickets[worker.id] === worker.nextAssignment.ticketId ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20' : 'border-purple-200 hover:border-purple-400 text-purple-900'"
+                        :class="expandedTickets[worker.id] === worker.nextAssignmentId ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20' : 'border-purple-200 hover:border-purple-400 text-purple-900'"
                         title="Click to expand brief ticket info"
                       >
                         <div>
@@ -177,16 +186,16 @@
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                               Next Queued Job
                             </span>
-                            <span class="font-black px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm transition-transform group-hover:scale-105" :class="expandedTickets[worker.id] === worker.nextAssignment.ticketId ? 'bg-emerald-600 text-white' : 'bg-purple-100 text-purple-800'">
-                              #{{ worker.nextAssignment.ticketId }}
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" :class="expandedTickets[worker.id] === worker.nextAssignment.ticketId ? 'rotate-180 text-white' : 'opacity-60'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                            <span class="font-black px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm transition-transform group-hover:scale-105" :class="expandedTickets[worker.id] === worker.nextAssignmentId ? 'bg-emerald-600 text-white' : 'bg-purple-100 text-purple-800'">
+                              #{{ worker.nextAssignmentId }}
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" :class="expandedTickets[worker.id] === worker.nextAssignmentId ? 'rotate-180 text-white' : 'opacity-60'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </span>
                           </div>
-                          <p class="text-sm font-bold text-slate-800">{{ worker.nextAssignment.task }}</p>
+                          <p class="text-sm font-bold text-slate-800">{{ worker.nextTicketTask || 'Facilities Maintenance Work' }}</p>
                         </div>
                         <div class="mt-3 pt-2.5 border-t border-purple-100 flex items-center justify-between text-[10px] font-bold text-purple-700">
-                          <span>Target Date:</span>
-                          <span class="text-slate-800">{{ worker.nextAssignment.date }}</span>
+                          <span>Status:</span>
+                          <span class="text-slate-800">Pending</span>
                         </div>
                       </div>
                       <div v-else class="h-full min-h-[140px] p-4 rounded-2xl bg-slate-100/50 border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
@@ -198,7 +207,7 @@
 
                   <!-- Inline Brief Ticket Extension inside container -->
                   <div v-if="expandedTickets[worker.id]" class="mt-6 pt-6 border-t border-slate-200/80 animate-fade-in">
-                    <div v-if="store.getTicketInfo(expandedTickets[worker.id])" class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
+                    <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
                       <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
                       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-800 relative z-10">
@@ -207,7 +216,6 @@
                             Ticket Extension
                           </span>
                           <span class="text-lg font-black tracking-tight text-white">#{{ expandedTickets[worker.id] }}</span>
-                          <span class="text-xs font-bold text-slate-400">({{ store.getTicketInfo(expandedTickets[worker.id]).type }})</span>
                         </div>
                         <button @click="expandedTickets[worker.id] = null" class="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 hover:text-rose-300 text-slate-300 text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5">
                           Close Extension
@@ -215,24 +223,11 @@
                         </button>
                       </div>
 
-                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 relative z-10">
-                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Location</span>
-                          <span class="text-xs font-bold text-slate-100 block truncate">{{ store.getTicketInfo(expandedTickets[worker.id]).location }}</span>
-                        </div>
-                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Requester</span>
-                          <span class="text-xs font-bold text-slate-100 block truncate">{{ store.getTicketInfo(expandedTickets[worker.id]).requester }}</span>
-                        </div>
-                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Scheduled Date</span>
-                          <span class="text-xs font-bold text-emerald-400 block truncate">{{ store.getTicketInfo(expandedTickets[worker.id]).date }}</span>
-                        </div>
-                      </div>
-
                       <div class="relative z-10">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Job Description</span>
-                        <p class="text-xs font-medium text-slate-300 leading-relaxed bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">{{ store.getTicketInfo(expandedTickets[worker.id]).desc }}</p>
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Task Description</span>
+                        <p class="text-xs font-medium text-slate-300 leading-relaxed bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                          {{ expandedTickets[worker.id] === worker.assignedTicket ? (worker.ticketTask || 'No details provided.') : (worker.nextTicketTask || 'No details provided.') }}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -277,6 +272,11 @@ const toggleWorkerStatus = (worker) => {
 
 onMounted(() => {
   store.fetchPersonnel();
+  
+  // Real-time polling for personnel status (every 5 seconds)
+  const interval = setInterval(() => {
+    store.fetchPersonnel();
+  }, 5000);
 });
 </script>
 

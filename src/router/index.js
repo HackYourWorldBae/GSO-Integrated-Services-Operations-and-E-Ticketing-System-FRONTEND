@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+const LandingView = () => import('../views/LandingView.vue');
 const LoginView = () => import('../views/auth/LoginView.vue');
 
 // Lazy-loaded route components for performance optimization & code splitting
@@ -46,6 +47,11 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name: 'landing',
+      component: LandingView
+    },
+    {
+      path: '/login',
       name: 'login',
       component: LoginView
     },
@@ -264,9 +270,26 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
-// Listen for 401 Unauthorized API interceptor events
+// Listen for 401 Unauthorized API interceptor events.
+// IMPORTANT: Only handle 401s when the user already has a session token.
+// A 401 on the /auth/login endpoint (wrong password) must NOT clear an
+// existing session or trigger a redirect — that's a normal login failure.
 if (typeof window !== 'undefined') {
-  window.addEventListener('auth:unauthorized', () => {
+  window.addEventListener('auth:unauthorized', (event) => {
+    // Ignore 401s that originate from the login endpoint itself
+    const requestUrl = event.detail?.config?.url || '';
+    if (requestUrl.includes('auth/login')) return;
+
+    // Only clear and redirect if a session token actually existed
+    const hadToken = (() => {
+      try {
+        const raw = JSON.parse(localStorage.getItem('auth') || '{}');
+        return !!(raw?.token || localStorage.getItem('token'));
+      } catch { return false; }
+    })();
+
+    if (!hadToken) return;
+
     // Clear tokens and redirect to login
     localStorage.removeItem('token');
     try {

@@ -3,16 +3,9 @@
     <template #sidebar-links>
       <router-link to="/admin/tasu" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-        </svg>
-        <span class="text">TASU Home</span>
-      </router-link>
-      <router-link to="/admin/tasu/vehicles" class="nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
         </svg>
-        <span class="text">Vehicle Management</span>
+        <span class="text">TASU Home</span>
       </router-link>
       <router-link to="/admin/tasu/queues" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -26,10 +19,16 @@
         </svg>
         <span class="text">Personnel Management</span>
       </router-link>
+      <router-link to="/admin/tasu/vehicles" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="text">Vehicle Management</span>
+      </router-link>
       <router-link to="/admin/tasu/dispatch" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
         <span class="text">Dispatch Board</span>
       </router-link>
@@ -46,291 +45,203 @@
 
     <template #header-title>
       <div class="flex flex-col">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">Personnel Management & Driver Assignment</h2>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">TASU Driver Oversight & Trip Deployment</p>
+        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">TASU Dashboard</h2>
+        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Transportation & Automotive Services</p>
       </div>
     </template>
 
     <template #main-content>
-      <div class="space-y-8 animate-fade-in pb-16">
-        
-        <!-- Top Stats Overview -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="p-5 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
-            <div class="p-3.5 rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total TASU Drivers</p>
-              <p class="text-2xl font-black text-slate-900 tabular-nums leading-none">{{ allDrivers.length }}</p>
-              <p class="text-[10px] font-bold text-emerald-600 mt-1">Professional Roster</p>
-            </div>
-          </div>
-
-          <div class="p-5 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
-            <div class="p-3.5 rounded-2xl bg-blue-50 text-blue-600 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Available For Duty</p>
-              <p class="text-2xl font-black text-slate-900 tabular-nums leading-none">{{ availableDrivers.length }}</p>
-              <p class="text-[10px] font-bold text-blue-600 mt-1">Ready for assignment</p>
-            </div>
-          </div>
-
-          <div class="p-5 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
-            <div class="p-3.5 rounded-2xl bg-amber-50 text-amber-600 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Deployed On Trip</p>
-              <p class="text-2xl font-black text-slate-900 tabular-nums leading-none">{{ onTripDrivers.length }}</p>
-              <p class="text-[10px] font-bold text-amber-600 mt-1">Active transit duty</p>
-            </div>
-          </div>
-
-          <div class="p-5 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
-            <div class="p-3.5 rounded-2xl bg-rose-50 text-rose-600 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Unassigned Trips</p>
-              <p class="text-2xl font-black text-slate-900 tabular-nums leading-none">{{ unassignedBookings.length }}</p>
-              <p class="text-[10px] font-bold text-rose-600 mt-1">Pending driver choice</p>
-            </div>
-          </div>
+      <div class="space-y-6 animate-fade-in pb-12 px-8 py-8 max-w-[1600px] mx-auto min-h-screen">
+        <div class="mb-6 max-w-2xl">
+          <h2 class="text-3xl font-black tracking-tight text-slate-900 mb-2">TASU Roster</h2>
+          <p class="text-sm text-slate-500 font-medium">Manage and track Transportation & Automotive Services Unit personnel status and current assignments.</p>
         </div>
 
-        <!-- Navigation Tabs Container -->
-        <div class="bg-white p-3 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl w-full sm:w-auto">
-            <button 
-              @click="activeTab = 'assign'"
-              :class="['px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2', activeTab === 'assign' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'text-slate-500 hover:text-slate-900']"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
-              <span>Assign Drivers to Trips</span>
-              <span v-if="unassignedBookings.length > 0" class="ml-1 px-2 py-0.5 rounded-full text-[10px]" :class="activeTab === 'assign' ? 'bg-white/20 text-white' : 'bg-rose-500 text-white'">{{ unassignedBookings.length }}</span>
-            </button>
-
-            <button 
-              @click="activeTab = 'status'"
-              :class="['px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2', activeTab === 'status' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'text-slate-500 hover:text-slate-900']"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <span>Driver Availability Roster</span>
-            </button>
-          </div>
-
-          <div class="px-4 py-2 bg-emerald-50 border border-emerald-200/80 rounded-xl flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-            <span class="text-[11px] font-bold text-emerald-800">Vehicle bookings have pre-selected units; assign drivers directly here.</span>
-          </div>
-        </div>
-
-        <!-- ========================================================= -->
-        <!-- TAB 1: ASSIGN DRIVERS TO TRIPS TAB -->
-        <!-- ========================================================= -->
-        <div v-if="activeTab === 'assign'" class="space-y-8 animate-fade-in">
-          
-          <div class="bg-white rounded-[2.5rem] border border-slate-200 p-8 shadow-sm">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-100">
-              <div>
-                <span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block mb-2">Central Driver Deployment</span>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tight">Active & Pending Trip Dispatch Queue</h3>
-                <p class="text-xs text-slate-500 font-bold mt-1">Assign professional drivers from the roster to scheduled vehicle trips requested on the services page.</p>
-              </div>
-
-              <div class="flex items-center gap-3">
-                <input v-model="searchTripQuery" type="text" placeholder="Search destination, requestor..." class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
-                <select v-model="filterAssignedStatus" class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 focus:outline-none">
-                  <option value="All">All Trip Dispatches</option>
-                  <option value="Unassigned">Unassigned Trips Only</option>
-                  <option value="Assigned">Assigned Trips Only</option>
-                </select>
-              </div>
+        <div class="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+            <div>
+              <h3 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
+                Staff Availability Control
+              </h3>
+              <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Toggle personnel status between Available and On Leave</p>
             </div>
-
-            <!-- List of Trips Needing / Having Drivers -->
-            <div v-if="filteredBookings.length === 0" class="p-12 text-center rounded-3xl bg-slate-50 border border-dashed border-slate-300">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <h4 class="text-base font-black text-slate-800">No matching trip dispatches found</h4>
-              <p class="text-xs font-bold text-slate-400 mt-1">Adjust your filters or schedule new trips from the Dispatch Board.</p>
-            </div>
-
-            <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div 
-                v-for="booking in filteredBookings" 
-                :key="booking.id"
-                :class="['p-6 rounded-3xl border shadow-sm transition-all relative flex flex-col justify-between', !booking.driver ? 'bg-amber-50/30 border-amber-300 hover:shadow-md' : 'bg-white border-slate-200 hover:shadow-md']"
-              >
-                <div>
-                  <div class="flex items-start justify-between gap-4 mb-4">
-                    <div class="flex items-center gap-2">
-                      <span :class="['px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border', !booking.driver ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-emerald-50 text-emerald-700 border-emerald-200']">
-                        {{ !booking.driver ? '⚠️ Unassigned' : '🧑 Assigned' }}
-                      </span>
-                      <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest">
-                        Trip #{{ booking.id }}
-                      </span>
-                    </div>
-                    <span :class="['px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-white', getStatusStyle(booking.status)]">
-                      {{ booking.status }}
-                    </span>
-                  </div>
-
-                  <h4 class="text-lg font-black text-slate-900 leading-tight mb-2">{{ booking.destination }}</h4>
-                  
-                  <!-- Requested Vehicle info (Chosen by Requestor) -->
-                  <div class="p-3.5 rounded-2xl bg-slate-100/70 border border-slate-200/80 mb-4 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                      <div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-lg shadow-2xs shrink-0">🚗</div>
-                      <div>
-                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Requested Vehicle (Pre-booked)</span>
-                        <p class="text-xs font-black text-slate-800">{{ getVehicleName(booking.vehicleId) }}</p>
-                      </div>
-                    </div>
-                    <span class="px-2 py-1 rounded-md bg-white text-emerald-700 border border-slate-200 text-[10px] font-black tracking-wider">
-                      {{ getVehiclePlate(booking.vehicleId) }}
-                    </span>
-                  </div>
-
-                  <div class="grid grid-cols-2 gap-3 mb-5 text-xs font-bold text-slate-600">
-                    <div class="flex items-center gap-2">
-                      <span class="text-slate-400">📅</span>
-                      <span>{{ booking.date }}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <span class="text-slate-400">⏰</span>
-                      <span>{{ booking.time }}</span>
-                    </div>
-                    <div class="flex items-center gap-2 col-span-2">
-                      <span class="text-slate-400">🏢</span>
-                      <span class="truncate">Requestor: <strong class="text-slate-900">{{ booking.requestor }}</strong></span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Driver Assignment Box -->
-                <div class="pt-5 border-t border-slate-100 mt-2">
-                  <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Assign / Change Professional Driver</label>
-                  <div class="flex items-center gap-2">
-                    <select 
-                      v-model="bookingDrivers[booking.id]" 
-                      class="flex-1 p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                    >
-                      <option value="">-- No Driver Assigned --</option>
-                      <option v-for="d in availableDriversForSelection(booking.driver)" :key="d.id" :value="d.name">
-                        🧑 {{ d.name }} ({{ d.status }})
-                      </option>
-                    </select>
-                    
-                    <button 
-                      @click="saveDriverAssignment(booking)"
-                      class="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider shadow-md shadow-emerald-500/20 transition-all shrink-0 active:scale-95"
-                    >
-                      Save Driver
-                    </button>
-                  </div>
-
-                  <div v-if="booking.driver" class="mt-2.5 flex items-center justify-between text-[10px] font-bold text-slate-500">
-                    <span>Currently: <strong class="text-emerald-700 font-black">{{ booking.driver }}</strong></span>
-                    <button @click="unassignDriverFromBooking(booking)" class="text-rose-500 hover:underline font-black">Remove Driver</button>
-                  </div>
-                </div>
-
-              </div>
+            <div class="flex gap-4">
+              <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Available
+              </span>
+              <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span> Assigned
+              </span>
+              <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Working
+              </span>
+              <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <span class="w-2 h-2 rounded-full bg-slate-300"></span> On Leave
+              </span>
             </div>
           </div>
-        </div>
 
-        <!-- ========================================================= -->
-        <!-- TAB 2: DRIVER AVAILABILITY ROSTER TAB -->
-        <!-- ========================================================= -->
-        <div v-if="activeTab === 'status'" class="space-y-6 animate-fade-in">
-          <div class="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-              <div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                  <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
-                  Driver Duty & Availability Roster
-                </h3>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Manage duty status for all TASU professional drivers</p>
-              </div>
-              <div class="flex gap-4">
-                <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Available
-                </span>
-                <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  <span class="w-2 h-2 rounded-full bg-amber-500"></span> On Trip
-                </span>
-                <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  <span class="w-2 h-2 rounded-full bg-slate-300"></span> On Leave
-                </span>
-              </div>
+          <div class="space-y-8">
+            <div v-if="Object.keys(groupedPersonnel).length === 0" class="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+              <span class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">No Personnel Found</span>
+              <p class="text-sm text-slate-500 font-medium">The roster is currently empty or loading.</p>
             </div>
-
-            <div class="space-y-8">
-              <div v-for="(driversGroup, role) in groupedPersonnel" :key="role">
-                <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-4 border-b border-slate-100 pb-2 flex items-center gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  {{ role }}s
-                  <span class="text-[9px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{{ driversGroup.length }}</span>
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <div 
-                    v-for="driver in driversGroup" 
-                    :key="driver.id" 
-                    class="p-6 rounded-3xl border border-slate-300 shadow-sm bg-slate-50/50 group hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
-                  >
-                    <div>
-                      <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-center gap-4">
-                          <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors font-black text-lg">
-                            🧑
-                          </div>
-                          <div>
-                            <h4 class="text-sm font-black text-slate-900 leading-none mb-1">{{ driver.name }}</h4>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ driver.role }}</p>
+            <div v-else v-for="(workers, role) in groupedPersonnel" :key="role">
+              <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-4 border-b border-slate-100 pb-2 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                {{ role }}s
+                <span class="text-[9px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{{ workers.length }}</span>
+              </h4>
+              <div class="flex flex-col space-y-4">
+                <div 
+                  v-for="worker in workers" 
+                  :key="worker.id" 
+                  class="p-6 rounded-3xl border border-slate-200/80 shadow-sm bg-slate-50/40 hover:bg-white hover:shadow-xl hover:border-slate-300 transition-all duration-300 group"
+                >
+                  <!-- Main Row Container -->
+                  <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+                    <!-- Left column: Worker Info & Status -->
+                    <div class="flex items-center justify-between xl:justify-start gap-6 min-w-[300px]">
+                      <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors shrink-0 shadow-sm font-black text-xl">
+                          {{ worker.name ? worker.name.charAt(0) : 'U' }}
+                        </div>
+                        <div>
+                          <h4 class="text-base font-black text-slate-900 leading-tight mb-1">{{ worker.name }}</h4>
+                          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ worker.role }}</p>
+                          <div class="mt-3 flex flex-col items-start gap-2.5 w-full">
+                            <!-- Status Bar -->
+                            <span 
+                              @click="toggleWorkerStatus(worker)"
+                              :class="[
+                                'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all',
+                                !worker.assignedTicket && worker.status !== 'Working' ? 'cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-emerald-500 active:scale-95' : 'cursor-default',
+                                worker.status === 'Working' ? 'bg-amber-50 text-amber-600 border border-amber-200/60' :
+                                worker.assignedTicket ? 'bg-blue-50 text-blue-600 border border-blue-200/60' :
+                                worker.status === 'Available' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200/60' : 'bg-slate-200 text-slate-500 border border-slate-300'
+                              ]">
+                              <span :class="[
+                                'w-1.5 h-1.5 rounded-full animate-pulse',
+                                worker.status === 'Working' ? 'bg-amber-500' :
+                                worker.assignedTicket ? 'bg-blue-500' :
+                                worker.status === 'Available' ? 'bg-emerald-500' : 'bg-slate-400'
+                              ]"></span>
+                              {{ worker.status === 'Working' ? 'Working' : worker.assignedTicket ? `Assigned to #${worker.assignedTicket}` : (worker.status || 'Available') }}
+                            </span>
+                            <!-- Improved Change Status Button Below Status Bar -->
+                            <button 
+                              @click="toggleWorkerStatus(worker)"
+                              :disabled="worker.status === 'Working' || !!worker.assignedTicket"
+                              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border"
+                              :class="worker.status === 'Working' || worker.assignedTicket 
+                                ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60' 
+                                : worker.status === 'On Leave'
+                                ? 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-600 shadow-emerald-500/20 active:scale-95 cursor-pointer'
+                                : 'bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-600 border-slate-200 hover:border-rose-200 active:scale-95 cursor-pointer'"
+                            >
+                              <svg v-if="worker.status === 'On Leave'" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                              <svg v-else-if="!worker.assignedTicket && worker.status !== 'Working'" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                              <span>{{ worker.assignedTicket || worker.status === 'Working' ? 'Locked (In Progress)' : worker.status === 'On Leave' ? 'Set to Available' : 'Set to On Leave' }}</span>
+                            </button>
                           </div>
                         </div>
-                        <div class="flex flex-col items-end">
-                           <span 
-                            @click="toggleDriverStatus(driver)"
-                            :class="[
-                              'flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-emerald-500 active:scale-95',
-                              driver.status === 'Available' ? 'bg-emerald-50 text-emerald-600' : 
-                              driver.status === 'On Trip' ? 'bg-amber-50 text-amber-600' : 'bg-slate-200 text-slate-500'
-                            ]">
-                            <span :class="[
-                              'w-1.5 h-1.5 rounded-full animate-pulse',
-                              driver.status === 'Available' ? 'bg-emerald-500' : 
-                              driver.status === 'On Trip' ? 'bg-amber-500' : 'bg-slate-400'
-                            ]"></span>
-                            {{ driver.status }}
+                      </div>
+                    </div>
+
+                    <!-- Right column: Current Work & Next Assignment side-by-side -->
+                    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 xl:max-w-3xl items-stretch">
+                      <!-- Current Work / Assignment Details -->
+                      <div 
+                        v-if="worker.status === 'Working' || worker.assignedTicket" 
+                        @click="toggleTicketExtension(worker.id, worker.assignedTicket)"
+                        class="h-full min-h-[140px] p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between bg-white shadow-xs hover:shadow-md"
+                        :class="expandedTickets[worker.id] === worker.assignedTicket ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20' : worker.status === 'Working' ? 'border-amber-200 hover:border-amber-400 text-amber-900' : 'border-blue-200 hover:border-blue-400 text-blue-900'"
+                        title="Click to expand brief ticket info"
+                      >
+                        <div>
+                          <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5" :class="worker.status === 'Working' ? 'text-amber-700' : 'text-blue-700'">
+                              <span class="w-2 h-2 rounded-full animate-pulse" :class="worker.status === 'Working' ? 'bg-amber-500' : 'bg-blue-500'"></span>
+                              {{ worker.status === 'Working' ? 'Currently Working On' : 'Currently Assigned To' }}
+                            </span>
+                            <span class="text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm transition-transform group-hover:scale-105" :class="expandedTickets[worker.id] === worker.assignedTicket ? 'bg-emerald-600 text-white' : worker.status === 'Working' ? 'bg-amber-200/80 text-amber-900' : 'bg-blue-200/80 text-blue-900'">
+                              #{{ worker.assignedTicket }}
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" :class="expandedTickets[worker.id] === worker.assignedTicket ? 'rotate-180 text-white' : 'opacity-60'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                            </span>
+                          </div>
+                          <p class="text-sm font-bold leading-snug text-slate-800">{{ worker.ticketTask || 'Transportation Services' }}</p>
+                        </div>
+                        <div v-if="worker.implementationDate" class="mt-3 pt-2.5 border-t flex items-center justify-between text-[10px] font-semibold text-slate-600" :class="worker.status === 'Working' ? 'border-amber-200/60' : 'border-blue-200/60'">
+                          <span class="flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            Scheduled Date:
                           </span>
+                          <strong class="font-bold text-slate-800">{{ worker.implementationDate }}</strong>
                         </div>
                       </div>
+                      <div v-else class="h-full min-h-[140px] p-4 rounded-2xl bg-slate-100/50 border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No Active Assignment</span>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Worker is currently {{ worker.status ? worker.status.toLowerCase() : 'unavailable' }}.</p>
+                      </div>
 
-                      <!-- Current Assigned Trip Preview if any -->
-                      <div v-if="getDriverActiveTrip(driver.name)" class="mt-3 p-3 rounded-2xl bg-emerald-50/60 border border-emerald-200 text-xs">
-                        <p class="text-[8px] font-black text-emerald-600 uppercase tracking-widest mb-0.5">Currently Assigned To Trip</p>
-                        <p class="font-black text-slate-800 truncate">{{ getDriverActiveTrip(driver.name).destination }}</p>
-                        <p class="text-[9px] font-bold text-slate-500 mt-0.5">{{ getDriverActiveTrip(driver.name).date }} • {{ getVehiclePlate(getDriverActiveTrip(driver.name).vehicleId) }}</p>
+                      <!-- Next Assignment Details -->
+                      <div 
+                        v-if="worker.nextAssignmentId" 
+                        @click="toggleTicketExtension(worker.id, worker.nextAssignmentId)"
+                        class="h-full min-h-[140px] p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between bg-white shadow-xs hover:shadow-md"
+                        :class="expandedTickets[worker.id] === worker.nextAssignmentId ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20' : 'border-purple-200 hover:border-purple-400 text-purple-900'"
+                        title="Click to expand brief ticket info"
+                      >
+                        <div>
+                          <div class="flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                            <span class="flex items-center gap-1.5 text-purple-600">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                              Next Queued Job
+                            </span>
+                            <span class="font-black px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm transition-transform group-hover:scale-105" :class="expandedTickets[worker.id] === worker.nextAssignmentId ? 'bg-emerald-600 text-white' : 'bg-purple-100 text-purple-800'">
+                              #{{ worker.nextAssignmentId }}
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" :class="expandedTickets[worker.id] === worker.nextAssignmentId ? 'rotate-180 text-white' : 'opacity-60'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                            </span>
+                          </div>
+                          <p class="text-sm font-bold text-slate-800">{{ worker.nextTicketTask || 'Transportation Services' }}</p>
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t border-purple-100 flex items-center justify-between text-[10px] font-bold text-purple-700">
+                          <span>Status:</span>
+                          <span class="text-slate-800">Pending</span>
+                        </div>
+                      </div>
+                      <div v-else class="h-full min-h-[140px] p-4 rounded-2xl bg-slate-100/50 border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No Next Job Queued</span>
+                        <p class="text-[11px] text-slate-400 mt-0.5">No upcoming tickets assigned.</p>
                       </div>
                     </div>
-                    
-                    <div class="pt-4 border-t border-slate-200 mt-4">
-                      <div class="flex items-center justify-between text-[10px] font-bold">
-                        <span class="text-slate-400 uppercase tracking-widest">Duty Action:</span>
-                        <button 
-                          @click="toggleDriverStatus(driver)"
-                          class="text-emerald-600 hover:text-emerald-700 transition-colors font-black underline underline-offset-4"
-                          :disabled="driver.status === 'On Trip'"
-                        >
-                          {{ driver.status === 'On Leave' ? 'Mark Available' : 'Set to On Leave' }}
+                  </div>
+
+                  <!-- Inline Brief Ticket Extension inside container -->
+                  <div v-if="expandedTickets[worker.id]" class="mt-6 pt-6 border-t border-slate-200/80 animate-fade-in">
+                    <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
+                      <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+
+                      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-800 relative z-10">
+                        <div class="flex flex-wrap items-center gap-2.5">
+                          <span class="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-widest rounded-full">
+                            Ticket Extension
+                          </span>
+                          <span class="text-lg font-black tracking-tight text-white">#{{ expandedTickets[worker.id] }}</span>
+                        </div>
+                        <button @click="expandedTickets[worker.id] = null" class="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 hover:text-rose-300 text-slate-300 text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5">
+                          Close Extension
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                       </div>
+
+                      <div class="relative z-10">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Task Description</span>
+                        <p class="text-xs font-medium text-slate-300 leading-relaxed bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                          {{ expandedTickets[worker.id] === worker.assignedTicket ? (worker.ticketTask || 'No details provided.') : (worker.nextTicketTask || 'No details provided.') }}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -338,129 +249,47 @@
             </div>
           </div>
         </div>
-
       </div>
     </template>
   </MainLayout>
 </template>
 
 <script setup>
-import { onMounted, ref, computed, reactive, watch } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
-import { useTasuVehiclesStore } from '@/stores/tasuVehicles';
-import { toast } from 'vue3-toastify';
 
-const activeTab = ref('assign'); // 'assign' or 'status'
-const searchTripQuery = ref('');
-const filterAssignedStatus = ref('All');
+const store = useTasuPersonnelStore();
+const groupedPersonnel = computed(() => store.groupedPersonnel);
 
-const personnelStore = useTasuPersonnelStore();
-const vehiclesStore = useTasuVehiclesStore();
+const expandedTickets = ref({});
 
-const allDrivers = computed(() => personnelStore.personnel);
-const groupedPersonnel = computed(() => personnelStore.groupedPersonnel);
-const availableDrivers = computed(() => allDrivers.value.filter(d => d.status === 'Available'));
-const onTripDrivers = computed(() => allDrivers.value.filter(d => d.status === 'On Trip'));
-
-const allBookings = computed(() => vehiclesStore.bookings);
-const allVehicles = computed(() => vehiclesStore.vehicles);
-
-const unassignedBookings = computed(() => allBookings.value.filter(b => !b.driver || b.driver === ''));
-
-// Local dictionary to hold selected driver for each booking
-const bookingDrivers = reactive({});
-
-// Populate initial booking drivers
-const initBookingDrivers = () => {
-  allBookings.value.forEach(b => {
-    if (bookingDrivers[b.id] === undefined) {
-      bookingDrivers[b.id] = b.driver || '';
-    }
-  });
-};
-initBookingDrivers();
-watch(() => allBookings.value, () => { initBookingDrivers(); }, { deep: true });
-
-// Filtered Bookings for the Assign Drivers tab
-const filteredBookings = computed(() => {
-  return allBookings.value.filter(b => {
-    const matchesSearch = searchTripQuery.value === '' || 
-      b.destination.toLowerCase().includes(searchTripQuery.value.toLowerCase()) ||
-      b.requestor.toLowerCase().includes(searchTripQuery.value.toLowerCase());
-    
-    if (filterAssignedStatus.value === 'Unassigned') {
-      return matchesSearch && (!b.driver || b.driver === '');
-    }
-    if (filterAssignedStatus.value === 'Assigned') {
-      return matchesSearch && b.driver && b.driver !== '';
-    }
-    return matchesSearch;
-  });
-});
-
-const availableDriversForSelection = (currentAssignedDriver) => {
-  // Return all drivers who are Available plus the currently assigned one so it shows up
-  return allDrivers.value.filter(d => d.status === 'Available' || d.name === currentAssignedDriver);
-};
-
-const saveDriverAssignment = (booking) => {
-  const selectedDriverName = bookingDrivers[booking.id];
-  vehiclesStore.updateBooking(booking.id, { driver: selectedDriverName });
-  
-  if (selectedDriverName) {
-    const driverObj = allDrivers.value.find(d => d.name === selectedDriverName);
-    if (driverObj) {
-      personnelStore.assignWorker(driverObj.id, booking.id, booking.date);
-    }
-    toast.success(`Assigned driver ${selectedDriverName} to trip #${booking.id}`);
+const toggleTicketExtension = (workerId, ticketId) => {
+  if (!ticketId) return;
+  if (expandedTickets.value[workerId] === ticketId) {
+    expandedTickets.value[workerId] = null;
   } else {
-    toast.info(`Cleared driver assignment for trip #${booking.id}`);
+    expandedTickets.value[workerId] = ticketId;
   }
 };
 
-const unassignDriverFromBooking = (booking) => {
-  bookingDrivers[booking.id] = '';
-  vehiclesStore.updateBooking(booking.id, { driver: '' });
-  toast.info(`Removed driver from trip #${booking.id}`);
-};
-
-const toggleDriverStatus = (driver) => {
-  if (driver.status === 'On Trip') {
-    alert('Cannot change status of a driver who is currently on a trip.');
+const toggleWorkerStatus = (worker) => {
+  if (worker.status === 'Working' || worker.assignedTicket) {
+    alert(worker.assignedTicket
+      ? `Cannot change status: ${worker.name} is assigned to ${worker.assignedTicket}.`
+      : 'Cannot change status of a worker who is currently working on a ticket.');
     return;
   }
-  personnelStore.toggleWorkerStatus(driver.id);
-  toast.success(`Updated status for ${driver.name} to ${driver.status === 'Available' ? 'On Leave' : 'Available'}`);
-};
-
-// Helpers for vehicle display
-const getVehicleName = (vId) => {
-  const v = allVehicles.value.find(item => item.id === vId);
-  return v ? v.name : 'Shuttle Bus #1';
-};
-
-const getVehiclePlate = (vId) => {
-  const v = allVehicles.value.find(item => item.id === vId);
-  return v ? v.plate : 'SBA-1234';
-};
-
-const getDriverActiveTrip = (driverName) => {
-  return allBookings.value.find(b => b.driver === driverName && (b.status === 'Scheduled' || b.status === 'In Progress'));
-};
-
-const getStatusStyle = (status) => {
-  switch (status) {
-    case 'Completed': return 'bg-emerald-600';
-    case 'In Progress': return 'bg-amber-500 animate-pulse';
-    case 'Scheduled': return 'bg-blue-600';
-    case 'Cancelled': return 'bg-rose-500';
-    default: return 'bg-slate-600';
-  }
+  store.toggleWorkerStatus(worker.id);
 };
 
 onMounted(() => {
   store.fetchPersonnel();
+  
+  // Real-time polling for personnel status (every 5 seconds)
+  const interval = setInterval(() => {
+    store.fetchPersonnel();
+  }, 5000);
 });
 </script>
 

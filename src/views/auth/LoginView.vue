@@ -28,7 +28,10 @@ const handleLogin = async () => {
 
     // Redirect based on role
     if (role === 'admin') {
-      const unit = authStore.user?.unit_code || authStore.user?.unit;
+      const unitId = authStore.user?.unit_id;
+      const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU', 4: 'TASU' };
+      const unit = authStore.user?.unit_code || authStore.user?.unit || unitMap[unitId] || 'FGMU';
+
       if (unit === 'SSU') {
         router.push('/admin/ssu');
       } else if (unit === 'LEAU') {
@@ -39,7 +42,10 @@ const handleLogin = async () => {
         router.push('/admin/fgmu');
       }
     } else if (role === 'dispatcher') {
-      router.push('/dispatcher/fgmu');
+      const unitId = authStore.user?.unit_id;
+      const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU', 4: 'TASU' };
+      const unit = authStore.user?.unit_code || authStore.user?.unit || unitMap[unitId] || 'FGMU';
+      router.push(`/dispatcher/${unit.toLowerCase()}`);
     } else if (role === 'worker') {
       router.push('/worker/dashboard');
     } else if (role === 'driver') {
@@ -78,15 +84,15 @@ const handleLogin = async () => {
     </div>
 
     <!-- Top Left University Branding -->
-    <div class="absolute top-6 left-6 sm:top-8 sm:left-10 z-20 flex items-center gap-4 animate-fade-in drop-shadow-sm pointer-events-none">
-      <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white p-1 shadow-md border border-slate-100 overflow-hidden flex-shrink-0">
+    <router-link to="/" class="absolute top-6 left-6 sm:top-8 sm:left-10 z-20 flex items-center gap-4 animate-fade-in drop-shadow-sm cursor-pointer hover:opacity-90 transition-opacity">
+      <div class="w-16 h-16 sm:w-20 sm:h-20 overflow-hidden flex-shrink-0">
         <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-cover rounded-full" />
       </div>
       <div class="hidden sm:block">
         <h2 class="text-emerald-800 font-extrabold tracking-widest text-sm uppercase mb-0.5 drop-shadow-md">Benguet State University</h2>
         <p class="text-slate-700 font-bold text-xs tracking-wide drop-shadow-md">La Trinidad, Benguet</p>
       </div>
-    </div>
+    </router-link>
 
     <!-- Main Login Card -->
     <div class="relative z-10 w-full max-w-md mx-4 p-6 sm:p-8 rounded-[2rem] border border-slate-200/60 bg-white/90 backdrop-blur-2xl shadow-2xl transition-all duration-700 hover:shadow-emerald-500/15 flex flex-col justify-center max-h-[95vh] overflow-hidden">

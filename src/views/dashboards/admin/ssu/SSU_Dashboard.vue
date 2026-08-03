@@ -96,28 +96,6 @@
           </div>
         </div>
 
-        <!-- Security Intelligence Summary -->
-        <div class="p-8 rounded-[2.5rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-8 opacity-10">
-             <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-          </div>
-          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div class="max-w-xl">
-              <h3 class="text-2xl font-black tracking-tight mb-2">Security Intelligence Briefing</h3>
-              <p class="text-slate-300 text-sm font-medium leading-relaxed italic">"Road Accidents" and "Unauthorized Entry" incidents have increased in Zone B. Currently, 24 vehicle pass stickers are awaiting BSU ID verification. Recommend increasing guard patrols near the West Gate between 5 PM and 8 PM.</p>
-            </div>
-            <div class="flex gap-3">
-              <div class="px-6 py-4 rounded-2xl bg-rose-500/20 backdrop-blur-md border border-rose-500/20 flex flex-col items-center">
-                <span class="text-rose-400 font-black text-xl italic">+12%</span>
-                <span class="text-[10px] uppercase font-bold tracking-widest text-slate-400 mt-1">Incident Trend</span>
-              </div>
-              <div class="px-6 py-3 rounded-2xl bg-white text-slate-900 shadow-lg flex flex-col items-center justify-center">
-                <span class="text-xs font-black uppercase tracking-widest leading-none mb-1">Passes</span>
-                <span class="text-[8px] font-bold opacity-80 italic uppercase text-slate-500">68 Pending</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- Main Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">

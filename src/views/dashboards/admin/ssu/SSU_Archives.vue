@@ -73,8 +73,11 @@
           <div v-for="ticket in filteredTickets" :key="ticket.id" class="group relative overflow-hidden bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all">
             <div class="flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10">
               <div class="flex items-start gap-5 flex-1">
-                <div class="p-4 rounded-2xl shrink-0 bg-emerald-50 text-emerald-600 transition-transform group-hover:scale-110">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div :class="['p-4 rounded-2xl shrink-0 transition-transform group-hover:scale-110', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600']">
+                  <svg v-if="ticket.status === 'declined' || ticket.status === 'rejected'" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -82,7 +85,7 @@
                   <div class="flex items-center justify-between w-full">
                     <div class="flex items-center gap-3">
                       <h3 class="text-lg font-black text-slate-900">{{ ticket.service }}</h3>
-                      <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-emerald-50 text-emerald-600 border-emerald-200">
+                      <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
                         {{ ticket.statusLabel }}
                       </span>
                     </div>
@@ -107,6 +110,11 @@
                     <div class="col-span-2 p-4 bg-white border border-slate-100 rounded-xl shadow-sm mt-1">
                       <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Details / Description</p>
                       <p class="text-xs font-medium text-slate-600 leading-relaxed italic">"{{ ticket.description }}"</p>
+                    </div>
+                    
+                    <div v-if="ticket.declineReason" class="col-span-2 p-4 bg-rose-50 border border-rose-100 rounded-xl shadow-sm mt-1">
+                      <p class="text-[9px] font-bold text-rose-400 uppercase tracking-widest mb-1">Reason for Decline</p>
+                      <p class="text-xs font-medium text-rose-700 leading-relaxed">"{{ ticket.declineReason }}"</p>
                     </div>
                   </div>
                 </div>
@@ -216,6 +224,7 @@ const fetchArchives = async () => {
         requestedBy: 'End User',
         status: t.status,
         statusLabel: t.status_label,
+        declineReason: t.decline_reason || '',
         location: t.location || 'N/A',
         office_room: t.office_room || 'N/A',
         attachments: t.attachments || [],

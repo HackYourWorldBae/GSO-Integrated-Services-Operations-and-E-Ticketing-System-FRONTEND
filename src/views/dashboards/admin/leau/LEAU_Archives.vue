@@ -65,8 +65,11 @@
           <div v-for="ticket in filteredTickets" :key="ticket.id" class="group relative overflow-hidden bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all">
             <div class="flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10">
               <div class="flex items-start gap-5 flex-1">
-                <div class="p-4 rounded-2xl shrink-0 bg-emerald-50 text-emerald-600 transition-transform group-hover:scale-110">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div :class="['p-4 rounded-2xl shrink-0 transition-transform group-hover:scale-110', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600']">
+                  <svg v-if="ticket.status === 'declined' || ticket.status === 'rejected'" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -74,7 +77,7 @@
                   <div class="flex items-center justify-between w-full">
                     <div class="flex items-center gap-3">
                       <h3 class="text-lg font-black text-slate-900">{{ ticket.service }}</h3>
-                      <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-emerald-50 text-emerald-600 border-emerald-200">
+                      <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
                         {{ ticket.statusLabel }}
                       </span>
                     </div>
@@ -109,6 +112,11 @@
                     <div class="col-span-2 p-4 bg-white border border-slate-100 rounded-xl shadow-sm mt-1">
                       <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Job Particulars</p>
                       <p class="text-xs font-medium text-slate-600 leading-relaxed italic">"{{ ticket.description }}"</p>
+                    </div>
+                    
+                    <div v-if="ticket.declineReason" class="col-span-2 p-4 bg-rose-50 border border-rose-100 rounded-xl shadow-sm mt-1">
+                      <p class="text-[9px] font-bold text-rose-400 uppercase tracking-widest mb-1">Reason for Decline</p>
+                      <p class="text-xs font-medium text-rose-700 leading-relaxed">"{{ ticket.declineReason }}"</p>
                     </div>
                   </div>
                 </div>
@@ -186,6 +194,53 @@
                   <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
                 </div>
               </div>
+
+              <!-- Dedicated Decline Reason Section (If Applicable) -->
+              <div v-if="selectedTicket.declineReason" class="col-span-2">
+                <p class="text-xs font-bold text-rose-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Reason for Decline
+                </p>
+                <div class="p-5 bg-rose-50 border-l-4 border-rose-500 rounded-r-xl shadow-sm">
+                  <p class="text-sm font-semibold text-rose-800 leading-relaxed">{{ selectedTicket.declineReason }}</p>
+                </div>
+              </div>
+
+              <!-- Dedicated Feedback/Rating Section (If Applicable) -->
+              <div v-if="selectedTicket.feedback" class="col-span-2 mt-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  End-User Service Feedback
+                </p>
+                <div class="p-5 bg-white border border-slate-200 rounded-xl shadow-sm">
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
+                      <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.quality_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
+                      <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Quality</span>
+                    </div>
+                    <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
+                      <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.efficiency_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
+                      <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Efficiency</span>
+                    </div>
+                    <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
+                      <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.timeliness_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
+                      <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Timeliness</span>
+                    </div>
+                    <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
+                      <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.courtesy_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
+                      <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Courtesy</span>
+                    </div>
+                  </div>
+                  <div v-if="selectedTicket.feedback.remarks" class="pt-4 border-t border-slate-100">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Additional Remarks</p>
+                    <p class="text-sm font-medium text-slate-600 italic">"{{ selectedTicket.feedback.remarks }}"</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Read Only Notice -->
@@ -222,11 +277,13 @@ const fetchArchives = async () => {
         requestedBy: 'End User',
         status: t.status,
         statusLabel: t.status_label,
+        declineReason: t.decline_reason || '',
         location: t.location || 'N/A',
         office_room: t.office_room || 'N/A',
         attachments: t.attachments || [],
         assignedWorker: t.assignments?.[0]?.assigned_to_name || 'Unassigned',
-        materials: [] // No materials tracking in this DB yet
+        materials: [], // No materials tracking in this DB yet
+        feedback: t.feedback || null
       }));
     }
   } catch (error) {

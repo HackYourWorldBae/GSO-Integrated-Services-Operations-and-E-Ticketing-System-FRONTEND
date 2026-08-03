@@ -55,6 +55,10 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = access_token;
       user.value  = userData;
       role.value  = userData.role;
+      
+      // Immediately set the token in localStorage to avoid async Pinia persistence race conditions
+      // This ensures api/client.js has it instantly when routing to the dashboard.
+      localStorage.setItem('token', access_token);
 
       return { success: true, role: userData.role };
     } catch (err) {
@@ -77,6 +81,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value  = null;
       role.value  = null;
       token.value = null;
+      localStorage.removeItem('token');
     }
   };
 

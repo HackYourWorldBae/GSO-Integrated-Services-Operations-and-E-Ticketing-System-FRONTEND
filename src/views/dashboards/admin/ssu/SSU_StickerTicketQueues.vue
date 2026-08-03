@@ -342,7 +342,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
@@ -378,9 +378,13 @@ const completedCount = ref(0);
 
 const fetchQueue = async () => {
   try {
-    const response = await api.get('tickets/queue/SSU');
-    if (response.data?.data?.tickets) {
-      const allSsu = response.data.data.tickets.filter(t => t.service_type === 'Vehicle Pass Application');
+    const [pendingRes, verifiedRes] = await Promise.all([
+      api.get('tickets/queue/SSU'),
+      api.get('tickets/dispatch/SSU')
+    ]);
+
+    if (pendingRes.data?.data?.tickets) {
+      const allSsu = pendingRes.data.data.tickets.filter(t => t.service_type === 'Vehicle Pass Application');
       tickets.value = allSsu.map(t => ({
         id: t.id,
         ticketId: t.id,
@@ -395,15 +399,45 @@ const fetchQueue = async () => {
         isDeclining: false,
         declineReason: ''
       }));
-      pendingCount.value = response.data.data.count || tickets.value.length;
+      pendingCount.value = pendingRes.data.data.count || tickets.value.length;
+    }
+
+    if (verifiedRes.data?.data?.tickets) {
+      const allSsuVerified = verifiedRes.data.data.tickets.filter(t => t.service_type === 'Vehicle Pass Application');
+      verifiedTickets.value = allSsuVerified.map(t => ({
+        id: t.id,
+        ticketId: t.id,
+        service: t.service_type,
+        description: t.description,
+        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        requestedBy: 'End User', // Ideally fetched from user relation
+        plate_no: t.details?.plate_no || 'N/A',
+        vehicle_type: t.details?.type_color || 'N/A',
+        location: t.location || 'N/A',
+        attachments: t.attachments || []
+      }));
     }
   } catch (error) {
     console.error('Failed to fetch SSU Sticker queue:', error);
   }
 };
 
+let pollingInterval = null;
+
 onMounted(() => {
   fetchQueue();
+  pollingInterval = setInterval(() => {
+    const isInteracting = tickets.value.some(t => t.isDeclining) || verifiedTickets.value.some(t => t.isDeclining);
+    if (!isInteracting) {
+      fetchQueue();
+    }
+  }, 5000);
+});
+
+onUnmounted(() => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+  }
 });
 
 const route = useRoute();
@@ -428,7 +462,7 @@ const switchTab = (tab) => {
   }
 };
 
-const verifiedTickets = computed(() => []); // Placeholder for API integration
+const verifiedTickets = ref([]);
 const verifiedSearchQuery = ref('');
 
 const filteredVerifiedTickets = computed(() => {
@@ -480,11 +514,16 @@ const closeIssueConfirmModal = () => {
   ticketToIssue.value = null;
 };
 
-const confirmIssue = () => {
+const confirmIssue = async () => {
   if (ticketToIssue.value) {
-    // API call for issue
-    toast.success(`Sticker pass ${ticketToIssue.value.ticketId} successfully issued and ticket closed!`);
-    closeIssueConfirmModal();
+    try {
+      await api.patch(`tickets/${ticketToIssue.value.id}/complete`);
+      toast.success(`Sticker pass ${ticketToIssue.value.ticketId} successfully issued and ticket closed!`);
+      closeIssueConfirmModal();
+      fetchQueue();
+    } catch (error) {
+      toast.error('Failed to issue sticker pass');
+    }
   }
 };
 

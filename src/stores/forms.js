@@ -38,7 +38,10 @@ export const useFormsStore = defineStore('forms', () => {
     contactNo: '',
     driverName: '',
     driverContact: '',
-    completeAddress: '',
+    houseStreet: '',
+    barangay: '',
+    cityMunicipality: '',
+    province: '',
     vehicleDetails: {
       registeredOwner: '',
       plateNo: '',
@@ -119,7 +122,10 @@ export const useFormsStore = defineStore('forms', () => {
       contactNo: '',
       driverName: '',
       driverContact: '',
-      completeAddress: '',
+      houseStreet: '',
+      barangay: '',
+      cityMunicipality: '',
+      province: '',
       vehicleDetails: {
         registeredOwner: '',
         plateNo: '',
@@ -185,7 +191,10 @@ export const useFormsStore = defineStore('forms', () => {
     ssuVehicleState: {
       accountType: { required },
       contactNo: { required },
-      completeAddress: { required },
+      houseStreet: { required },
+      barangay: { required },
+      cityMunicipality: { required },
+      province: { required },
       vehicleDetails: {
         registeredOwner: { required },
         plateNo: { required },

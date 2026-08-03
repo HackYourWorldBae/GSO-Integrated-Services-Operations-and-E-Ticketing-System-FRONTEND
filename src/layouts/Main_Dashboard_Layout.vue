@@ -18,13 +18,24 @@
       ]"
     >
       <!-- Sidebar Header -->
-      <div class="h-24 px-6 flex items-center gap-4 border-b border-slate-100 shrink-0 overflow-hidden min-w-[288px]">
-        <div class="w-12 h-12 rounded-xl flex shrink-0 items-center justify-center overflow-hidden">
-          <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-contain" />
-        </div>
-        <div class="flex flex-col whitespace-nowrap">
-          <span class="font-black text-lg text-slate-900 leading-tight tracking-tight">GSO Portal</span>
-          <span class="text-[8px] text-emerald-600 font-black tracking-[0.1em] uppercase">Centralized Services E-Ticketing</span>
+      <div class="sidebar-header shrink-0 overflow-hidden min-w-[288px]">
+        <!-- Decorative gradient band -->
+        <div class="sidebar-header-band"></div>
+
+        <div class="sidebar-header-inner">
+          <!-- Gold-ringed logo -->
+          <div class="sidebar-logo-ring">
+            <div class="sidebar-logo-inner">
+              <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-contain" />
+            </div>
+          </div>
+
+          <!-- Text block -->
+          <div class="sidebar-header-text">
+            <span class="sidebar-app-name">GSO Portal</span>
+            <span class="sidebar-app-university">Benguet State University</span>
+            <span class="sidebar-app-sub">Centralized e-Ticketing</span>
+          </div>
         </div>
       </div>
       
@@ -85,39 +96,48 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:animate-swing" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
-                <span v-if="notifications.length > 0" class="absolute top-2.5 right-2.5 w-2 h-2 bg-amber-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(245,158,11,0.4)]"></span>
+                <span v-if="unreadNotificationCount > 0" class="absolute top-2.5 right-2.5 w-2 h-2 bg-amber-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(245,158,11,0.4)]"></span>
               </button>
 
               <!-- Notification Dropdown -->
               <Transition name="slide-up">
-                <div v-if="isNotificationOpen" class="absolute top-full right-0 mt-3 w-80 bg-white border border-slate-200 rounded-[2rem] shadow-2xl overflow-hidden z-50 origin-top-right">
-                  <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div v-if="isNotificationOpen" class="absolute top-full right-0 mt-3 w-80 bg-white border border-slate-200 rounded-[2rem] shadow-2xl overflow-hidden z-50 origin-top-right flex flex-col max-h-[500px]">
+                  <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
                     <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest">Notifications</h3>
-                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-md">{{ notifications.length }} New</span>
+                    <span v-if="unreadNotificationCount > 0" class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-md">{{ unreadNotificationCount }} New</span>
                   </div>
                   
-                  <div class="max-h-[400px] overflow-y-auto custom-scrollbar">
-                    <div v-for="notif in notifications" :key="notif.id" class="p-5 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer group">
+                  <div class="overflow-y-auto custom-scrollbar flex-1">
+                    <div v-if="notifications.length === 0" class="p-8 text-center text-slate-400 text-sm font-bold">
+                      No notifications yet.
+                    </div>
+                    <div v-for="notif in notifications" :key="notif.id" 
+                         @click="notif.is_read == 0 ? markAsRead(notif.id) : null"
+                         :class="['p-5 border-b border-slate-50 transition-colors cursor-pointer group', notif.is_read == 0 ? 'bg-slate-50/50 hover:bg-slate-100' : 'bg-white hover:bg-slate-50']">
                       <div class="flex gap-4">
-                        <div :class="['w-10 h-10 rounded-xl flex items-center justify-center shrink-0', notif.type === 'success' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600']">
+                        <div :class="['w-10 h-10 rounded-xl flex items-center justify-center shrink-0', notif.type === 'success' ? 'bg-emerald-100 text-emerald-600' : (notif.type === 'warning' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600')]">
                           <svg v-if="notif.type === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <svg v-else-if="notif.type === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                           </svg>
                           <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         </div>
                         <div class="space-y-1 overflow-hidden">
-                          <p class="text-sm font-bold text-slate-900 truncate group-hover:text-emerald-600 transition-colors">{{ notif.title }}</p>
+                          <p :class="['text-sm truncate transition-colors group-hover:text-emerald-600', notif.is_read == 0 ? 'font-black text-slate-900' : 'font-bold text-slate-600']">{{ notif.title }}</p>
                           <p class="text-xs text-slate-500 font-medium leading-relaxed">{{ notif.message }}</p>
-                          <p class="text-[10px] text-slate-400 font-bold uppercase pt-1">{{ notif.time }}</p>
+                          <p class="text-[10px] text-slate-400 font-bold uppercase pt-1">{{ new Date(notif.created_at).toLocaleString() }}</p>
                         </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div class="p-4 bg-slate-50 border-t border-slate-100">
-                    <button class="w-full py-2.5 text-xs font-black text-emerald-600 hover:text-emerald-500 uppercase tracking-widest transition-colors">View All Notifications</button>
+                  <div class="p-4 bg-slate-50 border-t border-slate-100 flex flex-col gap-2 shrink-0">
+                    <button v-if="unreadNotificationCount > 0" @click="markAllAsRead" class="w-full py-2 text-xs font-black text-emerald-600 hover:text-emerald-500 uppercase tracking-widest transition-colors">Mark All As Read</button>
+                    <button @click="clearReadNotifications" class="w-full py-2 text-xs font-black text-slate-400 hover:text-red-500 uppercase tracking-widest transition-colors">Clear Read</button>
                   </div>
                 </div>
               </Transition>
@@ -233,46 +253,44 @@ const executeConfirm = () => {
 };
 
 const notifications = ref([]);
+const unreadNotificationCount = ref(0);
 
 const fetchNotifications = async () => {
   try {
-    const role = authStore.role?.toLowerCase() || '';
-    let url = '';
-    
-    if (['student', 'employee'].includes(role)) {
-      url = 'tickets/my-requests';
-    } else if (['admin', 'dispatcher'].includes(role)) {
-      const unit = (authStore.user?.unit_id === 2 || authStore.user?.unit === 'TASU') ? 'tasu' : 'bgmo';
-      url = `tickets/active/${unit}`;
-    } else if (['worker', 'driver'].includes(role)) {
-      url = 'dispatch/active/all';
-    }
-
-    if (!url) return;
-
-    const response = await api.get(url);
-    let items = [];
-    
-    if (response.data?.data?.tickets) {
-      items = response.data.data.tickets;
-    } else if (response.data?.data?.jobs) {
-      items = response.data.data.jobs;
-    } else if (Array.isArray(response.data?.data)) {
-      items = response.data.data;
-    }
-    
-    if (Array.isArray(items)) {
-      items.sort((a, b) => (b.id || 0) - (a.id || 0));
-      notifications.value = items.slice(0, 5).map(item => ({
-        id: item.id || item.ticket_id || Math.random().toString(36),
-        title: `Update on Ticket #${item.id || item.ticket_id || 'N/A'}`,
-        message: item.service_type ? `Service: ${item.service_type} - Status: ${item.status_label || item.status}` : `Status updated to ${item.status}`,
-        time: new Date(item.updated_at || item.submitted_at || Date.now()).toLocaleDateString(),
-        type: (item.status === 'resolved' || item.status === 'completed') ? 'success' : 'warning'
-      }));
+    const response = await api.get('notifications');
+    if (response.data?.data) {
+      notifications.value = response.data.data.notifications || [];
+      unreadNotificationCount.value = response.data.data.unread_count || 0;
     }
   } catch (error) {
     console.error('Failed to fetch notifications:', error);
+  }
+};
+
+const markAsRead = async (id) => {
+  try {
+    await api.post(`notifications/read/${id}`);
+    fetchNotifications();
+  } catch (error) {
+    console.error('Failed to mark notification as read:', error);
+  }
+};
+
+const markAllAsRead = async () => {
+  try {
+    await api.post('notifications/read-all');
+    fetchNotifications();
+  } catch (error) {
+    console.error('Failed to mark all as read:', error);
+  }
+};
+
+const clearReadNotifications = async () => {
+  try {
+    await api.delete('notifications/clear');
+    fetchNotifications();
+  } catch (error) {
+    console.error('Failed to clear notifications:', error);
   }
 };
 
@@ -314,17 +332,36 @@ const handleOutsideClick = (event) => {
   }
 };
 
+let notificationInterval = null;
+
 onMounted(() => {
-  // Redirect to login if not authenticated
-  if (!authStore.isAuthenticated) {
+  // Auth guard — checks both Pinia reactive state AND localStorage directly.
+  // Pinia's persist plugin rehydrates asynchronously, so the reactive token.value
+  // may briefly be null right after navigation even if a valid session exists.
+  // Reading localStorage directly here acts as a synchronous fallback.
+  const piniaToken = authStore.token;
+  const localToken = (() => {
+    try {
+      const raw = localStorage.getItem('auth');
+      return raw ? JSON.parse(raw)?.token : null;
+    } catch { return null; }
+  })();
+
+  if (!piniaToken && !localToken) {
     router.push({ name: 'login' });
     return;
+  }
+
+  // If Pinia wasn't hydrated yet but localStorage had the token, sync it now
+  if (!piniaToken && localToken) {
+    authStore._setAuth(authStore.user, authStore.role, localToken);
   }
 
   userName.value = authStore.fullName || 'User';
   userRole.value = authStore.capitalizedRole;
 
   fetchNotifications();
+  notificationInterval = setInterval(fetchNotifications, 10000);
 
   document.addEventListener('click', handleOutsideClick);
 
@@ -337,6 +374,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('click', handleOutsideClick);
+  if (notificationInterval) clearInterval(notificationInterval);
 });
 
 const handleLogout = () => {
@@ -377,50 +415,157 @@ const handleLogout = () => {
   background: rgba(16, 185, 129, 0.2);
 }
 
-/* Sidebar Nav */
-.sidebar-nav .nav-item {
+/* ========================
+   SIDEBAR HEADER
+   ======================== */
+.sidebar-header {
+  position: relative;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.12);
+  background: linear-gradient(160deg, #0f4221 0%, #1a6b35 60%, #166534 100%);
+}
+
+/* Subtle gold shimmer stripe */
+.sidebar-header-band {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #c8a800 0%, #f0cc00 50%, #c8a800 100%);
+}
+
+.sidebar-header-inner {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border-radius: 16px;
-  color: #64748b; 
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 14px;
+  padding: 20px 20px 18px;
+}
+
+/* Gold-rimmed logo circle */
+.sidebar-logo-ring {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid rgba(200, 168, 0, 0.7);
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(200, 168, 0, 0.12), 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.sidebar-logo-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-logo-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sidebar-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.sidebar-app-name {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.sidebar-app-university {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.sidebar-app-sub {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #f0cc00;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ========================
+   SIDEBAR NAV ITEMS
+   ======================== */
+.sidebar-nav .nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  color: #64748b;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 600;
-  font-size: 0.925rem;
+  font-size: 0.875rem;
   white-space: nowrap;
   text-decoration: none;
   border: 1px solid transparent;
-  margin: 4px 0;
+  margin: 2px 0;
+  overflow: hidden;
 }
 
 .sidebar-nav .nav-item svg {
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   flex-shrink: 0;
-  color: #94a3b8; 
+  color: #94a3b8;
 }
 
 .sidebar-nav .nav-item:hover {
   background-color: #f0fdf4;
-  color: #059669;
-  border-color: #dcfce7;
-  transform: translateX(4px);
+  color: #15803d;
+  border-color: #bbf7d0;
+  padding-left: 18px;
 }
 
 .sidebar-nav .nav-item:hover svg {
-  transform: scale(1.15);
-  color: #059669;
+  color: #16a34a;
+  transform: scale(1.1);
+}
+
+/* Active left accent bar */
+.sidebar-nav .nav-item.router-link-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #16a34a, #15803d);
 }
 
 .sidebar-nav .nav-item.router-link-active {
-  background: #f0fdf4;
-  color: #059669;
-  border-color: #dcfce7;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  color: #15803d;
+  border-color: #bbf7d0;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.08);
+  padding-left: 20px;
 }
 
 .sidebar-nav .nav-item.router-link-active svg {
-  color: #059669;
+  color: #16a34a;
 }
 
 /* Animations */

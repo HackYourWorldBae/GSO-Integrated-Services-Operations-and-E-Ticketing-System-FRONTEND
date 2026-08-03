@@ -231,7 +231,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
@@ -280,15 +280,42 @@ const fetchQueue = async () => {
         isDeclining: false,
         declineReason: ''
       }));
-      pendingCount.value = response.data.data.count || tickets.value.length;
     }
   } catch (error) {
     console.error('Failed to fetch TASU queue:', error);
   }
+
+  try {
+    const statsResponse = await api.get('tickets/stats/TASU');
+    if (statsResponse.data?.data?.stats) {
+      const stats = statsResponse.data.data.stats;
+      pendingCount.value = parseInt(stats.pending || 0);
+      scheduledCount.value = parseInt(stats.scheduled || 0);
+      activeCount.value = parseInt(stats.active_working || 0);
+      completedCount.value = parseInt(stats.resolved || 0);
+    }
+  } catch (error) {
+    console.error('Failed to fetch TASU stats:', error);
+  }
 };
+
+let pollingInterval = null;
 
 onMounted(() => {
   fetchQueue();
+  // Smart polling every 5 seconds
+  pollingInterval = setInterval(() => {
+    const isInteracting = tickets.value.some(t => t.isDeclining);
+    if (!isInteracting) {
+      fetchQueue();
+    }
+  }, 5000);
+});
+
+onUnmounted(() => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+  }
 });
 
 

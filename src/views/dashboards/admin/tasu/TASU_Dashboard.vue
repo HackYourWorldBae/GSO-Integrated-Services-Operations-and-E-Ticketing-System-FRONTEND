@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <MainLayout>
     <template #sidebar-links>
       <router-link to="/admin/tasu" class="nav-item">
@@ -98,29 +98,6 @@
             </div>
             <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.resolved || 0 }}</h3>
             <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Resolved Vehicle Requests</p>
-          </div>
-        </div>
-
-        <!-- Fleet Logistics Insights -->
-        <div class="p-8 rounded-[2.5rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-8 opacity-10">
-             <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-          </div>
-          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div class="max-w-xl">
-              <h3 class="text-2xl font-black tracking-tight mb-2">Fleet Logistics Briefing</h3>
-              <p class="text-slate-300 text-sm font-medium leading-relaxed italic">"Official Business" travel accounts for 75% of trips this week. "Van SAC 1399" has reached the recommended mileage for maintenance. Currently, 3 booking requests are awaiting VP approval before Travel Orders can be issued.</p>
-            </div>
-            <div class="flex gap-3">
-              <div class="px-6 py-4 rounded-2xl bg-emerald-500/20 backdrop-blur-md border border-emerald-500/20 flex flex-col items-center">
-                <span class="text-emerald-400 font-black text-xl italic">75%</span>
-                <span class="text-[10px] uppercase font-bold tracking-widest text-slate-400 mt-1">Utilization</span>
-              </div>
-              <div class="px-6 py-3 rounded-2xl bg-white text-slate-900 shadow-lg flex flex-col items-center justify-center">
-                <span class="text-xs font-black uppercase tracking-widest leading-none mb-1">Alert</span>
-                <span class="text-[8px] font-bold opacity-80 italic uppercase text-rose-600">Maintenance</span>
-              </div>
-            </div>
           </div>
         </div>
 

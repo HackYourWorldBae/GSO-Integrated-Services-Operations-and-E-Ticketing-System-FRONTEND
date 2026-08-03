@@ -37,6 +37,19 @@ const handleFile = (e) => {
 const removeFile = (idx) => {
   formsStore.ssuVehicleState.attachments.splice(idx, 1);
 };
+
+const formatPhone = (val) => {
+  if (!val) return '';
+  let v = val.replace(/\D/g, ''); // strip non-digits
+  if (v.length > 11) v = v.substring(0, 11); // max 11 digits
+  
+  if (v.length > 7) {
+    return `${v.slice(0,4)} ${v.slice(4,7)} ${v.slice(7)}`;
+  } else if (v.length > 4) {
+    return `${v.slice(0,4)} ${v.slice(4)}`;
+  }
+  return v;
+};
 </script>
 
 <template>
@@ -86,16 +99,7 @@ const removeFile = (idx) => {
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
-        <div class="space-y-3 relative">
-          <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.ssuVehicleState.accountType.$error ? 'text-red-500' : 'text-slate-400'">Account Type</label>
-          <div class="flex gap-4">
-            <label v-for="type in ['Employee', 'Student']" :key="type" class="flex-1 flex items-center justify-center h-14 rounded-2xl border-2 transition-all cursor-pointer font-bold text-sm" :class="[formsStore.ssuVehicleState.accountType === type ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-slate-50 border-slate-50 text-slate-400 hover:border-blue-200', formsStore.v$.ssuVehicleState.accountType.$error && formsStore.ssuVehicleState.accountType !== type ? 'border-red-500' : '']" @click="formsStore.v$.ssuVehicleState.accountType.$touch()">
-              <input type="radio" :value="type" v-model="formsStore.ssuVehicleState.accountType" class="hidden" />
-              {{ type }}
-            </label>
-          </div>
-          <p v-if="formsStore.v$.ssuVehicleState.accountType.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">Please select an account type</p>
-        </div>
+
         <div class="space-y-3">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Name of Applicant</label>
           <input v-model="formsStore.ssuVehicleState.name" type="text" readonly class="w-full h-14 px-6 rounded-2xl bg-slate-100 border-2 border-slate-100 text-slate-400 text-sm font-bold outline-none cursor-not-allowed" />
@@ -112,9 +116,12 @@ const removeFile = (idx) => {
         <div class="space-y-3 relative">
           <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.ssuVehicleState.contactNo.$error ? 'text-red-500' : 'text-slate-400'">Contact Number</label>
           <input 
-            v-model="formsStore.ssuVehicleState.contactNo" 
+            :value="formsStore.ssuVehicleState.contactNo" 
+            @input="formsStore.ssuVehicleState.contactNo = formatPhone($event.target.value)"
             @blur="formsStore.v$.ssuVehicleState.contactNo.$touch()"
             type="text" 
+            maxlength="13"
+            placeholder="09XX XXX XXXX"
             class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
             :class="formsStore.v$.ssuVehicleState.contactNo.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-blue-500'" 
           />
@@ -126,21 +133,69 @@ const removeFile = (idx) => {
         </div>
         <div class="space-y-3">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Driver Contact (Optional)</label>
-          <input v-model="formsStore.ssuVehicleState.driverContact" type="text" placeholder="Driver's mobile number" class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white text-sm font-bold outline-none transition-all" />
+          <input 
+            :value="formsStore.ssuVehicleState.driverContact" 
+            @input="formsStore.ssuVehicleState.driverContact = formatPhone($event.target.value)"
+            type="text" 
+            maxlength="13"
+            placeholder="09XX XXX XXXX" 
+            class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white text-sm font-bold outline-none transition-all" 
+          />
         </div>
       </div>
 
-      <div class="space-y-3 relative">
-        <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.ssuVehicleState.completeAddress.$error ? 'text-red-500' : 'text-slate-400'">Complete Address</label>
-        <input 
-          v-model="formsStore.ssuVehicleState.completeAddress" 
-          @blur="formsStore.v$.ssuVehicleState.completeAddress.$touch()"
-          type="text" 
-          placeholder="House No., Street, Brgy., City/Municipality" 
-          class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
-          :class="formsStore.v$.ssuVehicleState.completeAddress.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-blue-500'" 
-        />
-        <p v-if="formsStore.v$.ssuVehicleState.completeAddress.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">This field is required</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8">
+        <div class="space-y-3 relative lg:col-span-2">
+          <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.ssuVehicleState.houseStreet.$error ? 'text-red-500' : 'text-slate-400'">House No. / Street</label>
+          <input 
+            v-model="formsStore.ssuVehicleState.houseStreet" 
+            @blur="formsStore.v$.ssuVehicleState.houseStreet.$touch()"
+            type="text" 
+            placeholder="House No., Street name..." 
+            class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
+            :class="formsStore.v$.ssuVehicleState.houseStreet.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-blue-500'" 
+          />
+          <p v-if="formsStore.v$.ssuVehicleState.houseStreet.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">Required</p>
+        </div>
+
+        <div class="space-y-3 relative lg:col-span-2">
+          <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.ssuVehicleState.barangay.$error ? 'text-red-500' : 'text-slate-400'">Barangay</label>
+          <input 
+            v-model="formsStore.ssuVehicleState.barangay" 
+            @blur="formsStore.v$.ssuVehicleState.barangay.$touch()"
+            type="text" 
+            placeholder="Barangay" 
+            class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
+            :class="formsStore.v$.ssuVehicleState.barangay.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-blue-500'" 
+          />
+          <p v-if="formsStore.v$.ssuVehicleState.barangay.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">Required</p>
+        </div>
+
+        <div class="space-y-3 relative lg:col-span-2">
+          <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.ssuVehicleState.cityMunicipality.$error ? 'text-red-500' : 'text-slate-400'">City / Municipality</label>
+          <input 
+            v-model="formsStore.ssuVehicleState.cityMunicipality" 
+            @blur="formsStore.v$.ssuVehicleState.cityMunicipality.$touch()"
+            type="text" 
+            placeholder="City / Municipality" 
+            class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
+            :class="formsStore.v$.ssuVehicleState.cityMunicipality.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-blue-500'" 
+          />
+          <p v-if="formsStore.v$.ssuVehicleState.cityMunicipality.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">Required</p>
+        </div>
+
+        <div class="space-y-3 relative lg:col-span-2">
+          <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.ssuVehicleState.province.$error ? 'text-red-500' : 'text-slate-400'">Province</label>
+          <input 
+            v-model="formsStore.ssuVehicleState.province" 
+            @blur="formsStore.v$.ssuVehicleState.province.$touch()"
+            type="text" 
+            placeholder="Province" 
+            class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
+            :class="formsStore.v$.ssuVehicleState.province.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-blue-500'" 
+          />
+          <p v-if="formsStore.v$.ssuVehicleState.province.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">Required</p>
+        </div>
       </div>
 
       <div class="space-y-6 bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-inner">

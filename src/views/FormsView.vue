@@ -88,7 +88,7 @@ onMounted(() => {
 
   // Auto-fill form fields from the authenticated user's profile
   const fullName = authStore.fullName;
-  const contact  = authStore.user?.contact_number || 'Not Provided';
+  const contact  = authStore.user?.contact_number || '';
   const role     = authStore.capitalizedRole;
 
   formsStore.fgmuState.sectionA.end_user        = fullName;

@@ -41,7 +41,7 @@
       <div class="space-y-8 animate-fade-in pb-12">
         
         <!-- Key Metrics Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
               <div class="p-3 rounded-2xl bg-slate-900 text-white">
@@ -64,15 +64,28 @@
             <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Awaiting Approval</p>
           </div>
 
+          <!-- Dispatched & Scheduled -->
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
               <div class="p-3 rounded-2xl bg-blue-50 text-blue-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
               </div>
-              <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-tighter">Processing</span>
+              <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-tighter">Dispatched</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.processing || 0 }}</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">In Progress</p>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.scheduled || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Scheduled Jobs</p>
+          </div>
+
+          <!-- Active Dispatches -->
+          <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
+            <div class="flex items-center justify-between mb-4">
+              <div class="p-3 rounded-2xl bg-emerald-100 text-emerald-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </div>
+              <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full uppercase tracking-tighter">Active</span>
+            </div>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.active_working || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Work In Progress</p>
           </div>
 
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
@@ -87,28 +100,6 @@
           </div>
         </div>
 
-        <!-- Improvement focus summary -->
-        <div class="p-8 rounded-[2.5rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-8 opacity-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-          </div>
-          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div class="max-w-xl">
-              <h3 class="text-2xl font-black tracking-tight mb-2">Service Improvement Insights</h3>
-              <p class="text-slate-300 text-sm font-medium leading-relaxed italic">"Lack of Materials" and "Additional Work Requests" are currently the primary drivers for completion delays. Next month's focus should prioritize inventory stocking and more rigorous initial site assessments.</p>
-            </div>
-            <div class="flex gap-3">
-              <div class="px-6 py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex flex-col items-center">
-                <span class="text-rose-400 font-black text-xl italic">#1</span>
-                <span class="text-[10px] uppercase font-bold tracking-widest text-slate-400 mt-1">Bottleneck</span>
-              </div>
-              <div class="px-6 py-3 rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 flex flex-col items-center justify-center">
-                <span class="text-xs font-black uppercase tracking-widest leading-none mb-1">Stock Up</span>
-                <span class="text-[8px] font-bold opacity-80 italic uppercase">Material Priority</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- Main Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -205,10 +196,10 @@ const stats = ref({});
 
 const fgmuActivePeriod = ref('Month');
 const fgmuPeriodFilters = [
-  { key: 'Day',   label: 'This Day' },
-  { key: 'Week',  label: 'This Week' },
-  { key: 'Month', label: 'This Month' },
-  { key: 'Year',  label: 'This Year' }
+  { key: 'Day',   label: 'Last 24 Hours' },
+  { key: 'Week',  label: 'Last 7 Days' },
+  { key: 'Month', label: 'Last 30 Days' },
+  { key: 'Year',  label: 'Last 12 Months' }
 ];
 
 let fgmuServiceFreqChart = null;
@@ -218,8 +209,13 @@ function setFgmuPeriod(period) {
   fgmuActivePeriod.value = period;
   if (fgmuServiceFreqChart && stats.value.service_freq) {
     const data = stats.value.service_freq[period] || [];
-    fgmuServiceFreqChart.data.labels = data.map(d => d.service_type);
-    fgmuServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
+    if (data.length === 0) {
+      fgmuServiceFreqChart.data.labels = ['No requests yet'];
+      fgmuServiceFreqChart.data.datasets[0].data = [0];
+    } else {
+      fgmuServiceFreqChart.data.labels = data.map(d => d.service_type);
+      fgmuServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
+    }
     fgmuServiceFreqChart.update();
   }
 }
@@ -324,24 +320,40 @@ const renderCharts = () => {
   }
 
   // 5. Service Request Frequency
-  const freqCtx = document.getElementById('fgmuServiceFreqChart') || 
-                  document.getElementById('leauServiceFreqChart') || 
-                  document.getElementById('ssuServiceFreqChart') || 
-                  document.getElementById('tasuServiceFreqChart');
+  const freqCtx = document.getElementById('fgmuServiceFreqChart');
   if (freqCtx && stats.value.service_freq) {
     const initData = stats.value.service_freq[fgmuActivePeriod.value] || [];
+    
+    let labels = ['No requests yet'];
+    let dataCounts = [0];
+    
+    if (initData.length > 0) {
+      labels = initData.map(d => d.service_type);
+      dataCounts = initData.map(d => parseInt(d.count));
+    }
+
     fgmuServiceFreqChart = new Chart(freqCtx, {
       type: 'bar',
       data: {
-        labels: initData.map(d => d.service_type),
+        labels: labels,
         datasets: [{
           label: 'Requests',
-          data: initData.map(d => parseInt(d.count)),
+          data: dataCounts,
           backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'],
           borderRadius: 8
         }]
       },
-      options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+      options: { 
+        plugins: { legend: { display: false } }, 
+        responsive: true, 
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1 }
+          }
+        }
+      }
     });
     charts.push(fgmuServiceFreqChart);
   }

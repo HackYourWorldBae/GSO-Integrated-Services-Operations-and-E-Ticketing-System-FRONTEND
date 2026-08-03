@@ -40,53 +40,6 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in relative pb-12">
 
-        <!-- Analytics Summary -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="p-5 rounded-[1.75rem] bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all flex items-center gap-4">
-            <div class="p-3 rounded-2xl bg-amber-50 text-amber-500 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Pending</p>
-              <p class="text-3xl font-black text-slate-900 tabular-nums leading-none">{{ pendingCount }}</p>
-              <p class="text-[10px] font-semibold text-slate-400 mt-0.5">Awaiting approval</p>
-            </div>
-          </div>
-
-          <div class="p-5 rounded-[1.75rem] bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all flex items-center gap-4">
-            <div class="p-3 rounded-2xl bg-blue-50 text-blue-500 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Dispatched & Scheduled</p>
-              <p class="text-3xl font-black text-slate-900 tabular-nums leading-none">{{ scheduledCount }}</p>
-              <p class="text-[10px] font-semibold text-slate-400 mt-0.5">Approved & queued</p>
-            </div>
-          </div>
-
-          <div class="p-5 rounded-[1.75rem] bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all flex items-center gap-4">
-            <div class="p-3 rounded-2xl bg-teal-50 text-teal-500 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Active Dispatches</p>
-              <p class="text-3xl font-black text-slate-900 tabular-nums leading-none">{{ activeCount }}</p>
-              <p class="text-[10px] font-semibold text-slate-400 mt-0.5">Work in progress</p>
-            </div>
-          </div>
-
-          <div class="p-5 rounded-[1.75rem] bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all flex items-center gap-4">
-            <div class="p-3 rounded-2xl bg-slate-100 text-slate-500 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Completed</p>
-              <p class="text-3xl font-black text-slate-900 tabular-nums leading-none">{{ completedCount }}</p>
-              <p class="text-[10px] font-semibold text-slate-400 mt-0.5">Successfully resolved</p>
-            </div>
-          </div>
-        </div>
-
         <div class="grid grid-cols-1 gap-4">
           <div v-for="ticket in tickets" :key="ticket.id" class="group relative overflow-hidden bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all">
             <div class="flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10">
@@ -220,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
@@ -269,15 +222,41 @@ const fetchQueue = async () => {
         isDeclining: false,
         declineReason: ''
       }));
-      pendingCount.value = response.data.data.count || tickets.value.length;
     }
   } catch (error) {
     console.error('Failed to fetch LEAU queue:', error);
+  }
+
+  try {
+    const statsResponse = await api.get('tickets/stats/LEAU');
+    if (statsResponse.data?.data?.stats) {
+      const stats = statsResponse.data.data.stats;
+      pendingCount.value = parseInt(stats.pending || 0);
+      scheduledCount.value = parseInt(stats.scheduled || 0);
+      activeCount.value = parseInt(stats.active_working || 0);
+      completedCount.value = parseInt(stats.resolved || 0);
+    }
+  } catch (error) {
+    console.error('Failed to fetch LEAU stats:', error);
   }
 };
 
 onMounted(() => {
   fetchQueue();
+
+  // Setup real-time polling (every 5 seconds)
+  pollingInterval = setInterval(() => {
+    const isInteracting = tickets.value.some(t => t.isDeclining);
+    if (!isInteracting) {
+      fetchQueue();
+    }
+  }, 5000);
+});
+
+let pollingInterval = null;
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval);
 });
 
 

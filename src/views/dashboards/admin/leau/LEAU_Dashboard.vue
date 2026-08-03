@@ -41,7 +41,7 @@
       <div class="space-y-8 animate-fade-in pb-12">
         
         <!-- Key Metrics Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
               <div class="p-3 rounded-2xl bg-slate-900 text-white">
@@ -64,15 +64,28 @@
             <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Awaiting Approval</p>
           </div>
 
+          <!-- Dispatched & Scheduled -->
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
               <div class="p-3 rounded-2xl bg-blue-50 text-blue-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
               </div>
-              <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-tighter">Processing</span>
+              <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-tighter">Dispatched</span>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.processing || 0 }}</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">In Progress</p>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.scheduled || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Scheduled Jobs</p>
+          </div>
+
+          <!-- Active Dispatches -->
+          <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
+            <div class="flex items-center justify-between mb-4">
+              <div class="p-3 rounded-2xl bg-emerald-100 text-emerald-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </div>
+              <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full uppercase tracking-tighter">Active</span>
+            </div>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.active_working || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Work In Progress</p>
           </div>
 
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
@@ -87,29 +100,6 @@
           </div>
         </div>
 
-        <!-- Aesthetic focus summary -->
-        <div class="p-8 rounded-[2.5rem] bg-gradient-to-br from-teal-900 to-emerald-900 text-white shadow-2xl relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-8 opacity-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
-          </div>
-          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div class="max-w-xl">
-              <h3 class="text-2xl font-black tracking-tight mb-2">Aesthetic Improvement Insights</h3>
-              <p class="text-emerald-100 text-sm font-medium leading-relaxed italic">"Stage & Hall Decoration" requests have spiked this month. While "Quality" remains at a perfect 5.0, "Timeliness" is affected by manpower absenteeism. Improving the rotation for borrowed tool maintenance is recommended for next month.</p>
-            </div>
-            <div class="flex gap-3">
-              <div class="px-6 py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex flex-col items-center">
-                <span class="text-amber-400 font-black text-xl italic">82%</span>
-                <span class="text-[10px] uppercase font-bold tracking-widest text-emerald-300 mt-1">Return Rate</span>
-              </div>
-              <div class="px-6 py-3 rounded-2xl bg-white text-emerald-900 shadow-lg flex flex-col items-center justify-center">
-                <span class="text-xs font-black uppercase tracking-widest leading-none mb-1">Mowing</span>
-                <span class="text-[8px] font-bold opacity-80 italic uppercase text-emerald-600">Top Service</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Main Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
@@ -117,26 +107,15 @@
           <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px] lg:h-[400px]">
             <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
               <div class="w-2 h-6 bg-teal-500 rounded-full"></div>
-              Aesthetic Standards
+              Evaluation Averages
             </h4>
             <div class="flex-1 relative">
-              <canvas id="leauPerformanceRadar"></canvas>
-            </div>
-          </div>
-
-          <!-- Inventory Borrowing Return Analysis -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px] lg:h-[400px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-amber-500 rounded-full"></div>
-              Inventory Return Analysis
-            </h4>
-            <div class="flex-1 relative">
-              <canvas id="inventoryReturnChart"></canvas>
+              <canvas id="performanceRadar"></canvas>
             </div>
           </div>
 
           <!-- Completion Status -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-1 min-h-[350px] lg:h-[400px]">
+          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px] lg:h-[400px]">
             <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
               <div class="w-2 h-6 bg-slate-400 rounded-full"></div>
               Job Completion Health
@@ -146,34 +125,24 @@
             </div>
           </div>
 
-          <!-- Workload Distribution -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-1 min-h-[350px] lg:h-[400px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
-              Scope Distribution
-            </h4>
-            <div class="flex-1 relative">
-              <canvas id="scopeDistributionChart"></canvas>
-            </div>
-          </div>
-
+          <!-- Delay Analysis -->
           <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-2">
-            <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 mb-10">
-              <h4 class="text-lg font-black text-slate-900 flex items-center gap-3 italic">
-                <div class="w-2 h-6 bg-rose-500 rounded-full shrink-0"></div>
-                Root Cause Analysis (Improvement Drivers)
+            <div class="flex items-center justify-between mb-8">
+              <h4 class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
+                <div class="w-2 h-6 bg-amber-500 rounded-full"></div>
+                Root Cause Analysis (Why Delays Happen)
               </h4>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic leading-none bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">Operational Barriers</p>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic leading-none">Improvement Focus</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div class="space-y-6">
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Reasons for Delay</p>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Completed Beyond Time (Reasons)</p>
                 <div class="relative h-48">
                   <canvas id="leauDelayReasonsChart"></canvas>
                 </div>
               </div>
               <div class="space-y-6">
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Reasons for Non-Completion</p>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Not Completed/Performed (Barriers)</p>
                 <div class="relative h-48">
                   <canvas id="leauNonCompletionChart"></canvas>
                 </div>
@@ -226,10 +195,10 @@ const stats = ref({});
 
 const leauActivePeriod = ref('Month');
 const leauPeriodFilters = [
-  { key: 'Day',   label: 'This Day' },
-  { key: 'Week',  label: 'This Week' },
-  { key: 'Month', label: 'This Month' },
-  { key: 'Year',  label: 'This Year' }
+  { key: 'Day',   label: 'Last 24 Hours' },
+  { key: 'Week',  label: 'Last 7 Days' },
+  { key: 'Month', label: 'Last 30 Days' },
+  { key: 'Year',  label: 'Last 12 Months' }
 ];
 
 let leauServiceFreqChart = null;
@@ -239,8 +208,13 @@ function setLeauPeriod(period) {
   leauActivePeriod.value = period;
   if (leauServiceFreqChart && stats.value.service_freq) {
     const data = stats.value.service_freq[period] || [];
-    leauServiceFreqChart.data.labels = data.map(d => d.service_type);
-    leauServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
+    if (data.length === 0) {
+      leauServiceFreqChart.data.labels = ['No requests yet'];
+      leauServiceFreqChart.data.datasets[0].data = [0];
+    } else {
+      leauServiceFreqChart.data.labels = data.map(d => d.service_type);
+      leauServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
+    }
     leauServiceFreqChart.update();
   }
 }
@@ -263,9 +237,9 @@ const renderCharts = () => {
         datasets: [{
           label: 'Current Avg (1-5)',
           data: [safeVal(avg.avg_quality), safeVal(avg.avg_efficiency), safeVal(avg.avg_timeliness)],
-          backgroundColor: 'rgba(16, 185, 129, 0.2)',
-          borderColor: '#10b981',
-          pointBackgroundColor: '#10b981',
+          backgroundColor: 'rgba(20, 184, 166, 0.2)', // teal-500 with opacity
+          borderColor: '#14b8a6', // teal-500
+          pointBackgroundColor: '#14b8a6',
           borderWidth: 3
         }, {
           label: 'Target Score',
@@ -286,7 +260,7 @@ const renderCharts = () => {
   }
 
   // 2. Completion Health Doughnut
-  const completionCtx = document.getElementById('completionDoughnut');
+  const completionCtx = document.getElementById('leauCompletionDoughnut');
   if (completionCtx && stats.value.completion_health) {
     const health = stats.value.completion_health;
     const onTime = health.find(h => h.completion_status === 'on-time')?.count || 0;
@@ -311,7 +285,7 @@ const renderCharts = () => {
   }
 
   // 3. Delay Reasons
-  const delayCtx = document.getElementById('delayReasonsChart');
+  const delayCtx = document.getElementById('leauDelayReasonsChart');
   if (delayCtx && stats.value.delay_reasons) {
     charts.push(new Chart(delayCtx, {
       type: 'bar',
@@ -328,7 +302,7 @@ const renderCharts = () => {
   }
 
   // 4. Non-Completion
-  const nonCompCtx = document.getElementById('nonCompletionChart');
+  const nonCompCtx = document.getElementById('leauNonCompletionChart');
   if (nonCompCtx && stats.value.non_completion) {
     charts.push(new Chart(nonCompCtx, {
       type: 'bar',

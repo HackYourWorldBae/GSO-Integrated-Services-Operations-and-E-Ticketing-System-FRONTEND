@@ -232,7 +232,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
@@ -289,8 +289,22 @@ const fetchQueue = async () => {
   }
 };
 
+let pollingInterval = null;
+
 onMounted(() => {
   fetchQueue();
+  pollingInterval = setInterval(() => {
+    const isInteracting = tickets.value.some(t => t.isDeclining || t.isAcknowledging);
+    if (!isInteracting) {
+      fetchQueue();
+    }
+  }, 5000);
+});
+
+onUnmounted(() => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+  }
 });
 
 
