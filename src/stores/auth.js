@@ -6,7 +6,9 @@ import { login as apiLogin, logout as apiLogout, getMe, updateProfile as apiUpda
  * Auth Store — Pinia
  *
  * Manages authentication state: JWT token, user profile, and role.
- * Persisted to localStorage so users stay logged in across page refreshes.
+ * Persisted to sessionStorage (not localStorage) to isolate each browser tab.
+ * This prevents concurrent users on the same browser from overwriting each
+ * other's tokens, while still surviving same-tab page refreshes.
  *
  * The token property is what the api/client.js interceptor reads to
  * inject the Bearer header on every request.
@@ -56,9 +58,10 @@ export const useAuthStore = defineStore('auth', () => {
       user.value  = userData;
       role.value  = userData.role;
       
-      // Immediately set the token in localStorage to avoid async Pinia persistence race conditions
-      // This ensures api/client.js has it instantly when routing to the dashboard.
-      localStorage.setItem('token', access_token);
+      // Immediately write the token to sessionStorage to avoid async Pinia persistence race
+      // conditions. This ensures api/client.js has it instantly when routing to the dashboard.
+      // sessionStorage keeps each tab isolated, preventing concurrent user session collisions.
+      sessionStorage.setItem('token', access_token);
 
       return { success: true, role: userData.role };
     } catch (err) {
@@ -81,7 +84,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value  = null;
       role.value  = null;
       token.value = null;
-      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
     }
   };
 
@@ -135,5 +138,7 @@ export const useAuthStore = defineStore('auth', () => {
     _setAuth,
   };
 }, {
-  persist: true, // Persists the entire store to localStorage via pinia-plugin-persistedstate
+  // Use sessionStorage so each tab has its own isolated session.
+  // This prevents concurrent users from overwriting each other's tokens.
+  persist: { storage: sessionStorage },
 });

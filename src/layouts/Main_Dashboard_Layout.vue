@@ -335,14 +335,15 @@ const handleOutsideClick = (event) => {
 let notificationInterval = null;
 
 onMounted(() => {
-  // Auth guard — checks both Pinia reactive state AND localStorage directly.
+  // Auth guard — checks both Pinia reactive state AND sessionStorage directly.
   // Pinia's persist plugin rehydrates asynchronously, so the reactive token.value
   // may briefly be null right after navigation even if a valid session exists.
-  // Reading localStorage directly here acts as a synchronous fallback.
+  // Reading sessionStorage directly here acts as a synchronous fallback.
+  // sessionStorage is tab-isolated, so each tab only sees its own session.
   const piniaToken = authStore.token;
   const localToken = (() => {
     try {
-      const raw = localStorage.getItem('auth');
+      const raw = sessionStorage.getItem('auth');
       return raw ? JSON.parse(raw)?.token : null;
     } catch { return null; }
   })();
@@ -352,7 +353,7 @@ onMounted(() => {
     return;
   }
 
-  // If Pinia wasn't hydrated yet but localStorage had the token, sync it now
+  // If Pinia wasn't hydrated yet but sessionStorage had the token, sync it now
   if (!piniaToken && localToken) {
     authStore._setAuth(authStore.user, authStore.role, localToken);
   }

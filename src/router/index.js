@@ -254,8 +254,8 @@ router.beforeEach((to, from, next) => {
   if (to.meta && to.meta.requiresAuth) {
     try {
       // pinia-plugin-persistedstate saves the store under the store id ('auth')
-      // The structure is: { token: '...', user: {...}, role: '...' }
-      const raw = localStorage.getItem('auth');
+      // With sessionStorage, each tab has its own isolated auth state.
+      const raw = sessionStorage.getItem('auth');
       if (!raw) return next({ name: 'login' });
 
       const stored = JSON.parse(raw);
@@ -283,19 +283,19 @@ if (typeof window !== 'undefined') {
     // Only clear and redirect if a session token actually existed
     const hadToken = (() => {
       try {
-        const raw = JSON.parse(localStorage.getItem('auth') || '{}');
-        return !!(raw?.token || localStorage.getItem('token'));
+        const raw = JSON.parse(sessionStorage.getItem('auth') || '{}');
+        return !!(raw?.token || sessionStorage.getItem('token'));
       } catch { return false; }
     })();
 
     if (!hadToken) return;
 
     // Clear tokens and redirect to login
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     try {
-      const piniaAuth = JSON.parse(localStorage.getItem('auth') || '{}');
+      const piniaAuth = JSON.parse(sessionStorage.getItem('auth') || '{}');
       delete piniaAuth.token;
-      localStorage.setItem('auth', JSON.stringify(piniaAuth));
+      sessionStorage.setItem('auth', JSON.stringify(piniaAuth));
     } catch (e) {}
     if (router.currentRoute.value && router.currentRoute.value.name !== 'login') {
       router.push({ name: 'login' });

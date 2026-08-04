@@ -6,7 +6,7 @@ import { sanitizeObject, getSecurityHeaders } from '@/utils/security';
 //
 // This is the single Axios instance used by all api/* module files.
 // It automatically:
-//   1. Attaches the JWT Bearer token from Pinia persisted store.
+//   1. Attaches the JWT Bearer token from Pinia persisted store (sessionStorage).
 //   2. Sanitizes outgoing JSON payloads against XSS injection.
 //   3. Adds security headers (X-Requested-With, X-Content-Type-Options).
 //   4. Dispatches a global 'auth:unauthorized' event on 401 so the router
@@ -37,10 +37,10 @@ apiClient.interceptors.request.use(
     const securityHeaders = getSecurityHeaders?.() ?? {};
     Object.assign(config.headers, securityHeaders);
 
-    // 2. Inject Bearer token from Pinia persisted auth store
+    // 2. Inject Bearer token from Pinia persisted auth store (sessionStorage, tab-isolated)
     try {
-      const piniaAuth  = JSON.parse(localStorage.getItem('auth') || '{}');
-      const token      = piniaAuth?.token || localStorage.getItem('token');
+      const piniaAuth  = JSON.parse(sessionStorage.getItem('auth') || '{}');
+      const token      = piniaAuth?.token || sessionStorage.getItem('token');
       if (token) {
         if (typeof config.headers.set === 'function') {
           config.headers.set('Authorization', `Bearer ${token}`);
