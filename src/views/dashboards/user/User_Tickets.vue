@@ -902,14 +902,14 @@ const closeTicket = async () => {
 
     if (satisfactionForm.value.completionStatus === 'beyond-time') {
       const br = satisfactionForm.value.beyondTimeReasons;
-      if (br.personnelAbsent) payload.delay_reasons.push('ABSENT');
-      if (br.extendedBreak)   payload.delay_reasons.push('BREAK');
-      if (br.additionalWork)  payload.delay_reasons.push('EXTRA');
+      if (br.personnelAbsent) payload.delay_reasons.push('personnelAbsent');
+      if (br.extendedBreak)   payload.delay_reasons.push('extendedBreak');
+      if (br.additionalWork)  payload.delay_reasons.push('additionalWork');
     } else if (satisfactionForm.value.completionStatus === 'not-completed') {
       const nr = satisfactionForm.value.notCompletedReasons;
-      if (nr.lackWorkingDays) payload.delay_reasons.push('NO_TIME');
-      if (nr.lackMaterials)   payload.delay_reasons.push('NO_MATS');
-      if (nr.lackSkills)      payload.delay_reasons.push('NO_SKILLS');
+      if (nr.lackWorkingDays) payload.delay_reasons.push('lackDays');
+      if (nr.lackMaterials)   payload.delay_reasons.push('lackMaterials');
+      if (nr.lackSkills)      payload.delay_reasons.push('lackSkills');
     }
 
     await api.post('feedback', payload);
