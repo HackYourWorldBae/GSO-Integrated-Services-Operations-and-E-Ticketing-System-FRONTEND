@@ -21,8 +21,10 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  // Required for CORS + credentials (must match supportsCredentials: true in CI4 Cors.php)
-  withCredentials: true,
+  // JWT Bearer token is injected via the request interceptor below.
+  // withCredentials is intentionally NOT set — the API is stateless (JWT, not cookies)
+  // and enabling it forces strict CORS preflight with exact origin matching,
+  // which breaks cross-origin requests when the origin doesn't match exactly.
   timeout: 15000, // 15 second request timeout
 });
 
