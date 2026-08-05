@@ -62,7 +62,7 @@
     </aside>
 
     <!-- Main Content wrapper -->
-    <div class="flex-1 flex flex-col w-full h-screen overflow-hidden relative">
+    <div class="flex-1 flex flex-col w-full h-screen overflow-hidden relative" style="transform: translateZ(0);">
       <!-- Top Navbar -->
       <header class="h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0">
         <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">

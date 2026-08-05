@@ -44,12 +44,6 @@
             </div>
           </div>
           <div class="relative z-10 flex flex-row gap-4">
-            <div class="flex items-center gap-2 self-start md:self-auto bg-white/5 px-4 py-2 rounded-xl border border-white/10">
-              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</span>
-              <span :class="['px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest', selectedTicket.status === 'Urgent' ? 'text-rose-400 bg-rose-400/10' : 'text-emerald-400 bg-emerald-400/10']">
-                {{ selectedTicket.status }}
-              </span>
-            </div>
             <button @click="openTicketModal(selectedTicket)" class="px-5 py-2.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-xl transition-colors shadow-sm self-center">Review Ticket</button>
             <router-link to="/dispatcher/leau" class="p-3 bg-white hover:bg-slate-900 hover:text-white text-slate-600 rounded-xl transition-all shadow-sm border border-emerald-100 items-center justify-center flex self-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>

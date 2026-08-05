@@ -81,25 +81,8 @@
                     </div>
                   </div>
                   
-                  <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <div>
-                      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ticket ID</p>
-                      <p class="text-sm font-semibold text-slate-700">{{ ticket.ticketId }}</p>
-                    </div>
-                    <div>
-                      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Unit Assigned</p>
-                      <p class="text-sm font-semibold text-slate-700">{{ ticket.unit }}</p>
-                    </div>
-                    
-                    <div class="col-span-2 p-4 bg-white border border-slate-100 rounded-xl shadow-sm mt-1">
-                      <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Description</p>
-                      <p class="text-xs font-medium text-slate-600 leading-relaxed italic">"{{ ticket.description }}"</p>
-                    </div>
-                    
-                    <div v-if="ticket.declineReason" class="col-span-2 p-4 bg-rose-50 border border-rose-100 rounded-xl shadow-sm mt-1">
-                      <p class="text-[9px] font-bold text-rose-400 uppercase tracking-widest mb-1">Reason for Decline</p>
-                      <p class="text-xs font-medium text-rose-700 leading-relaxed">"{{ ticket.declineReason }}"</p>
-                    </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">#{{ ticket.ticketId }}</span>
                   </div>
                 </div>
               </div>
@@ -127,9 +110,11 @@
           </div>
         </div>
       </div>
+    </template>
 
+    <template #modal-overlay>
       <!-- Read-Only Ticket Details Modal -->
-      <div v-if="showDetailsModal && selectedTicket" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in" @click.self="closeDetailsModal">
+      <div v-if="showDetailsModal && selectedTicket" class="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeDetailsModal">
         <div class="bg-white rounded-[2rem] p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-2xl font-black text-slate-900">Completed Ticket Details</h3>
