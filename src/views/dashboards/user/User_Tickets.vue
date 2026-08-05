@@ -197,7 +197,7 @@
                   </div>
 
                   <!-- Rate Instruction -->
-                  <div v-if="ticket.status === 'resolved' && (ticket.unit === 'FGMU' || ticket.unit === 'LEAU')" class="mt-3 flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl animate-fade-in">
+                  <div v-if="isFeedbackEligible(ticket)" class="mt-3 flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl animate-fade-in">
                     <div class="p-1.5 bg-amber-100 rounded-lg shrink-0 mt-0.5">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -205,7 +205,7 @@
                     </div>
                     <div>
                       <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-0.5">Action Required</p>
-                      <p class="text-xs font-semibold text-amber-800 leading-relaxed">This ticket is completed! Please click <strong>"Track Progress"</strong> to submit your rating and officially close this ticket.</p>
+                      <p class="text-xs font-semibold text-amber-800 leading-relaxed">This ticket is completed! Please click the <strong>"Rate"</strong> button to submit your rating and officially close this ticket.</p>
                     </div>
                   </div>
                 </div>
@@ -235,7 +235,107 @@
                     </svg>
                     Track Progress
                   </button>
+
+                  <button
+                    v-if="isFeedbackEligible(ticket) && !ticket.isClosed"
+                    @click="toggleRatingForm(ticket)"
+                    class="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-sm shadow-amber-500/20 transition-all text-xs active:scale-95 whitespace-nowrap"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                    {{ ratingTicketId === ticket.ticketId ? 'Close Rating' : 'Rate' }}
+                  </button>
                 </div>
+              </div>
+            </div>
+
+            <!-- Expanded Ratings Form -->
+            <div v-if="ratingTicketId === ticket.ticketId" class="border-t border-slate-100 p-5 bg-emerald-50">
+              <div class="flex items-start justify-between mb-5">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <div class="w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    </div>
+                    <h4 class="font-black text-emerald-900 text-sm">Service Performance Evaluation</h4>
+                  </div>
+                  <p class="text-xs text-emerald-700/80">Complete this evaluation to close your ticket.</p>
+                </div>
+                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg uppercase tracking-wider border border-emerald-200">Section F</span>
+              </div>
+
+              <div class="space-y-5">
+                <!-- Completion Status -->
+                <div>
+                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">1. Job Completion Status <span class="text-rose-500">*</span></label>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <label v-for="option in completionOptions" :key="option.value"
+                      :class="['flex items-center justify-center p-2.5 border rounded-xl cursor-pointer transition-all text-center', satisfactionForm.completionStatus === option.value ? option.activeClass : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300']">
+                      <input type="radio" v-model="satisfactionForm.completionStatus" :value="option.value" class="hidden" />
+                      <span class="text-xs font-bold leading-tight">{{ option.label }}</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Star Ratings -->
+                <div v-if="satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-4 rounded-xl border border-slate-200 space-y-3 animate-fade-in">
+                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1">2. Service Quality Rating <span class="text-rose-500">*</span></label>
+                  <div v-for="(label, key) in ratingCriteria" :key="key" class="flex items-center justify-between gap-3">
+                    <span class="text-xs text-slate-600 font-medium flex-1">{{ label }}</span>
+                    <div class="flex gap-1">
+                      <button v-for="star in 5" :key="star" @click="satisfactionForm.ratings[key] = star"
+                        :class="['w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all active:scale-95',
+                          satisfactionForm.ratings[key] >= star ? 'bg-amber-100 text-amber-600 border border-amber-200' : 'bg-slate-50 text-slate-300 border border-slate-100']">
+                        {{ star }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Beyond Time Reasons -->
+                <div v-if="satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-4 rounded-xl border border-slate-200 animate-fade-in">
+                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">Reasons for beyond time</label>
+                  <div class="space-y-2.5">
+                    <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.personnelAbsent" label="Personnel absent / on-leave" />
+                    <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.extendedBreak" label="Extended break period" />
+                    <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.additionalWork" label="Additional work requested" />
+                  </div>
+                </div>
+
+                <!-- Not Completed Reasons -->
+                <div v-if="satisfactionForm.completionStatus === 'not-completed'" class="bg-white p-4 rounded-xl border border-slate-200 animate-fade-in">
+                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">Reasons for not completed</label>
+                  <div class="space-y-2.5">
+                    <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackWorkingDays" label="Lack of working days" />
+                    <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackMaterials" label="Lack of materials / tools" />
+                    <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackSkills" label="Lack of skills" />
+                  </div>
+                </div>
+
+                <!-- Remarks -->
+                <div v-if="satisfactionForm.completionStatus" class="animate-fade-in">
+                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Remarks (Optional)</label>
+                  <textarea v-model="satisfactionForm.remarks" rows="2"
+                    class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-sm transition-all resize-none"
+                    placeholder="Any additional comments...">
+                  </textarea>
+                </div>
+
+                <!-- Submit -->
+                <button
+                  @click="closeTicket(ticket)"
+                  :disabled="!isFormValid"
+                  :class="['w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all',
+                    isFormValid ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 active:scale-[0.98]' : 'bg-slate-200 text-slate-400 cursor-not-allowed']"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Submit & Close Ticket
+                </button>
               </div>
             </div>
 
@@ -413,98 +513,9 @@
                     </div>
                   </div>
 
-                  <!-- ========== SATISFACTION FORM ========== -->
-                  <div v-if="isFeedbackEligible(selectedTicket) && !selectedTicket.isClosed" class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
-                    <div class="flex items-start justify-between mb-5">
-                      <div>
-                        <div class="flex items-center gap-2 mb-1">
-                          <div class="w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                          </div>
-                          <h4 class="font-black text-emerald-900 text-sm">Service Performance Evaluation</h4>
-                        </div>
-                        <p class="text-xs text-emerald-700/80">Complete this evaluation to close your ticket.</p>
-                      </div>
-                      <span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg uppercase tracking-wider border border-emerald-200">Section F</span>
-                    </div>
-
-                    <div class="space-y-5">
-                      <!-- Completion Status -->
-                      <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">1. Job Completion Status <span class="text-rose-500">*</span></label>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                          <label v-for="option in completionOptions" :key="option.value"
-                            :class="['flex items-center justify-center p-2.5 border rounded-xl cursor-pointer transition-all text-center', satisfactionForm.completionStatus === option.value ? option.activeClass : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300']">
-                            <input type="radio" v-model="satisfactionForm.completionStatus" :value="option.value" class="hidden" />
-                            <span class="text-xs font-bold leading-tight">{{ option.label }}</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      <!-- Star Ratings -->
-                      <div v-if="satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-4 rounded-xl border border-slate-200 space-y-3 animate-fade-in">
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1">2. Service Quality Rating <span class="text-rose-500">*</span></label>
-                        <div v-for="(label, key) in ratingCriteria" :key="key" class="flex items-center justify-between gap-3">
-                          <span class="text-xs text-slate-600 font-medium flex-1">{{ label }}</span>
-                          <div class="flex gap-1">
-                            <button v-for="star in 5" :key="star" @click="satisfactionForm.ratings[key] = star"
-                              :class="['w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all active:scale-95',
-                                satisfactionForm.ratings[key] >= star ? 'bg-amber-100 text-amber-600 border border-amber-200' : 'bg-slate-50 text-slate-300 border border-slate-100']">
-                              {{ star }}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Beyond Time Reasons -->
-                      <div v-if="satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-4 rounded-xl border border-slate-200 animate-fade-in">
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">Reasons for beyond time</label>
-                        <div class="space-y-2.5">
-                          <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.personnelAbsent" label="Personnel absent / on-leave" />
-                          <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.extendedBreak" label="Extended break period" />
-                          <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.additionalWork" label="Additional work requested" />
-                        </div>
-                      </div>
-
-                      <!-- Not Completed Reasons -->
-                      <div v-if="satisfactionForm.completionStatus === 'not-completed'" class="bg-white p-4 rounded-xl border border-slate-200 animate-fade-in">
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">Reasons for not completed</label>
-                        <div class="space-y-2.5">
-                          <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackWorkingDays" label="Lack of working days" />
-                          <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackMaterials" label="Lack of materials / tools" />
-                          <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackSkills" label="Lack of skills" />
-                        </div>
-                      </div>
-
-                      <!-- Remarks -->
-                      <div v-if="satisfactionForm.completionStatus" class="animate-fade-in">
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Remarks (Optional)</label>
-                        <textarea v-model="satisfactionForm.remarks" rows="2"
-                          class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-sm transition-all resize-none"
-                          placeholder="Any additional comments...">
-                        </textarea>
-                      </div>
-
-                      <!-- Submit -->
-                      <button
-                        @click="closeTicket"
-                        :disabled="!isFormValid"
-                        :class="['w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all',
-                          isFormValid ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 active:scale-[0.98]' : 'bg-slate-200 text-slate-400 cursor-not-allowed']"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Submit & Close Ticket
-                      </button>
-                    </div>
-                  </div>
-
                   <!-- ========== TICKET CLOSED STATE ========== -->
                   <div
-                    v-else-if="selectedTicket.isClosed || (selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && selectedTicket.currentStep === 5)"
+                    v-if="selectedTicket.isClosed || (selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && selectedTicket.currentStep === 5)"
                     class="bg-slate-50 border border-slate-200 rounded-2xl p-8 flex flex-col items-center text-center"
                   >
                     <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-4">
@@ -528,6 +539,20 @@
         </Teleport>
 
       </div>
+
+      <!-- Toast Notification -->
+      <Teleport to="body">
+        <Transition name="modal">
+          <div v-if="showToast" class="fixed bottom-6 right-6 z-[200] max-w-sm animate-fade-in">
+            <div class="bg-emerald-600 text-white px-5 py-3.5 rounded-xl shadow-xl shadow-emerald-600/20 flex items-start gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 mt-0.5 text-emerald-100" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <p class="text-sm font-medium leading-relaxed">{{ toastMessage }}</p>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
     </template>
   </MainLayout>
 </template>
@@ -540,6 +565,19 @@ import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 
 const authStore = useAuthStore();
+
+const ratingTicketId = ref(null);
+const showToast = ref(false);
+const toastMessage = ref('');
+
+const toggleRatingForm = (ticket) => {
+  if (ratingTicketId.value === ticket.ticketId) {
+    ratingTicketId.value = null;
+  } else {
+    ratingTicketId.value = ticket.ticketId;
+    resetForm();
+  }
+};
 
 // ---- Sub-components defined inline to keep file self-contained ----
 
@@ -885,11 +923,11 @@ const isFormValid = computed(() => {
   return false;
 });
 
-const closeTicket = async () => {
-  if (!selectedTicket.value || !isFormValid.value) return;
+const closeTicket = async (ticket) => {
+  if (!ticket || !isFormValid.value) return;
   try {
     const payload = {
-      ticket_id: selectedTicket.value.ticketId || selectedTicket.value.id,
+      ticket_id: ticket.ticketId || ticket.id,
       completion_status:  satisfactionForm.value.completionStatus,
       courtesy_rating:    satisfactionForm.value.ratings.courtesy,
       quality_rating:     satisfactionForm.value.ratings.quality,
@@ -913,13 +951,21 @@ const closeTicket = async () => {
     }
 
     await api.post('feedback', payload);
-    selectedTicket.value.isClosed    = true;
-    selectedTicket.value.status      = 'closed';
-    selectedTicket.value.statusLabel = 'Closed';
+    ticket.isClosed    = true;
+    ticket.status      = 'closed';
+    ticket.statusLabel = 'Closed';
+    
+    // Show toast message
+    toastMessage.value = `Thanks for the honest evaluation, #${ticket.ticketId || ticket.id} is now complete and closed!`;
+    showToast.value = true;
+    setTimeout(() => { showToast.value = false; }, 5000);
+    
+    ratingTicketId.value = null;
+
     await fetchTickets();
   } catch (error) {
     console.error('Failed to submit feedback:', error);
-    selectedTicket.value.isClosed = true;
+    ticket.isClosed = true;
   }
 };
 
