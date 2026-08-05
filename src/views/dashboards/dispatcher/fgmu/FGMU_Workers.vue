@@ -220,9 +220,8 @@
                             <!-- Improved Change Status Button Below Status Bar -->
                             <button 
                               @click="toggleManagementStatus(worker)"
-                              :disabled="worker.status === 'Working' || !!worker.assignedTicket"
                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border"
-                              :class="worker.status === 'Working' || worker.assignedTicket 
+                              :class="!isManagementMode || worker.status === 'Working' || worker.assignedTicket 
                                 ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60' 
                                 : worker.status === 'On Leave'
                                 ? 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-600 shadow-emerald-500/20 active:scale-95 cursor-pointer'
@@ -230,7 +229,7 @@
                             >
                               <svg v-if="worker.status === 'On Leave'" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                               <svg v-else-if="!worker.assignedTicket && worker.status !== 'Working'" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                              <span>{{ worker.assignedTicket || worker.status === 'Working' ? 'Locked (In Progress)' : worker.status === 'On Leave' ? 'Set to Available' : 'Set to On Leave' }}</span>
+                              <span>{{ !isManagementMode ? 'Management Disabled' : worker.assignedTicket || worker.status === 'Working' ? 'Locked (In Progress)' : worker.status === 'On Leave' ? 'Set to Available' : 'Set to On Leave' }}</span>
                             </button>
 
                             <div v-if="!isManagementMode && worker.status === 'Available' && !worker.assignedTicket && selectedTicket" class="w-full pt-1">
@@ -556,16 +555,22 @@ const currentAssignments = computed(() => {
 });
 
 const toggleManagementStatus = (worker) => {
-  if (worker.status === 'Working' || worker.assignedTicket) {
-    toast.warning('Cannot change status while worker is assigned or working.');
+  if (!isManagementMode.value) {
+    if (worker.assignedTicket || worker.status === 'Working') {
+      toast.info(`Worker is locked on assignment (#${worker.assignedTicket || 'Active Work'}).`);
+    } else {
+      toast.info('Enable Management Mode above to toggle availability status.');
+    }
     return;
   }
-  if (!isManagementMode.value) {
-    toast.info('Please enable "Manage Personnel" toggle at the top right to change worker status.');
+  if (worker.status === 'Working' || worker.assignedTicket) {
+    toast.error(worker.assignedTicket
+      ? `Cannot toggle status: ${worker.name} is currently assigned to #${worker.assignedTicket}. Remove assignment first.`
+      : `Cannot toggle status: ${worker.name} is actively working on a ticket.`);
     return;
   }
   store.toggleWorkerStatus(worker.id);
-  toast.success(`Worker status updated to ${worker.status === 'Available' ? 'On Leave' : 'Available'}`);
+  toast.success(`Status updated for ${worker.name}`);
 };
 
 onMounted(async () => {

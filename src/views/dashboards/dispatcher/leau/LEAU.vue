@@ -41,23 +41,23 @@
           <div class="p-8 rounded-[2rem] bg-white border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-6">
               <div class="p-3 rounded-xl bg-emerald-50 text-emerald-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
               </div>
-              <span class="text-[10px] font-black text-emerald-500/40 uppercase tracking-widest">Deployment</span>
+              <span class="text-[10px] font-black text-emerald-500/40 uppercase tracking-widest">Ongoing</span>
             </div>
-            <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ activeGardenersCount }}</h3>
-            <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Active Gardeners</p>
+            <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ ongoingCount }}</h3>
+            <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Active Dispatches</p>
           </div>
 
           <div class="p-8 rounded-[2rem] bg-white border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-6">
               <div class="p-3 rounded-xl bg-emerald-50 text-emerald-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
-              <span class="text-[10px] font-black text-emerald-400/40 uppercase tracking-widest">Status</span>
+              <span class="text-[10px] font-black text-emerald-400/40 uppercase tracking-widest">Completed Requests</span>
             </div>
-            <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ beautifiedZonesCount }}</h3>
-            <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Zones Beautified</p>
+            <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ resolvedCount }}</h3>
+            <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Resolved Tickets</p>
           </div>
         </div>
 
@@ -228,8 +228,8 @@ const tickets = ref([]);
 const stats = ref({ ongoing: 0, resolved: 0 });
 
 const unplannedCount = computed(() => tickets.value.length);
-const activeGardenersCount = computed(() => stats.value.ongoing);
-const beautifiedZonesCount = computed(() => stats.value.resolved);
+const ongoingCount = computed(() => stats.value.ongoing);
+const resolvedCount = computed(() => stats.value.resolved);
 
 const fetchStats = async () => {
   try {
