@@ -222,10 +222,24 @@ const downloadAttachment = async (att) => {
 };
 
 const tickets = ref([]);
+const stats = ref({ ongoing: 0, resolved: 0 });
 
 const unassignedCount = computed(() => tickets.value.length);
-const ongoingCount = computed(() => 0);
-const resolvedCount = computed(() => 0);
+const ongoingCount = computed(() => stats.value.ongoing);
+const resolvedCount = computed(() => stats.value.resolved);
+
+const fetchStats = async () => {
+  try {
+    const response = await api.get('tickets/stats/FGMU');
+    if (response.data?.data?.stats) {
+      const data = response.data.data.stats;
+      stats.value.ongoing = parseInt(data.processing || 0);
+      stats.value.resolved = parseInt(data.resolved || 0);
+    }
+  } catch (error) {
+    console.error('Failed to fetch FGMU stats:', error);
+  }
+};
 
 const fetchDispatchQueue = async () => {
   try {
@@ -254,6 +268,7 @@ const fetchDispatchQueue = async () => {
 
 onMounted(() => {
   fetchDispatchQueue();
+  fetchStats();
 });
 
 const showTicketModal = ref(false);

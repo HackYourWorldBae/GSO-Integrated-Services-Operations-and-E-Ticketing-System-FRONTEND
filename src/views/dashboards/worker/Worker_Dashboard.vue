@@ -282,9 +282,15 @@ const fetchAssignments = async () => {
         ...job,
         status: (job.worker_status === 'working' || job.worker_status === 'on_trip') ? 'IN PROGRESS' : 'PENDING'
       }));
+      const hasInProgress = assignedJobs.value.some(j => j.status === 'IN PROGRESS');
+      currentStatus.value = hasInProgress ? 'Working' : 'Available';
+    } else {
+      assignedJobs.value = [];
+      currentStatus.value = 'Available';
     }
   } catch (error) {
     console.error('Failed to fetch assignments:', error);
+    currentStatus.value = 'Available';
   }
 };
 
@@ -292,25 +298,33 @@ onMounted(() => {
   fetchAssignments();
 });
 
-const currentStatus = ref('Working'); // Initial state
+const currentStatus = ref('Available'); // Initial state
 
 const toggleJobStatus = async (job) => {
   // If the job hasn't been started yet
   // We check if it hasn't been dispatched by the worker yet (e.g. status isn't marked as Job Started or worker status isn't working)
   // Actually, just let the button state dictate it. If they click "Start Job", we hit the API.
   if (job.status === 'PENDING' || job.status === 'approved' || job.status === 'processing') {
-    try {
-      await api.post('dispatch/start', {
-        ticket_id: job.ticket_id,
-        personnel_id: job.personnel_id
-      });
-      job.status = 'IN PROGRESS';
-      currentStatus.value = 'Working';
-      // Optionally refetch assignments to ensure fresh data
-      await fetchAssignments();
-    } catch (error) {
-      console.error('Failed to start job:', error);
-    }
+    openConfirmModal({
+      title: 'Start Job',
+      message: `Are you sure you want to start "${job.service_type || job.ticket_id}"?`,
+      confirmText: 'Start',
+      type: 'info',
+      onConfirm: async () => {
+        try {
+          await api.post('dispatch/start', {
+            ticket_id: job.ticket_id,
+            personnel_id: job.personnel_id
+          });
+          job.status = 'IN PROGRESS';
+          currentStatus.value = 'Working';
+          // Optionally refetch assignments to ensure fresh data
+          await fetchAssignments();
+        } catch (error) {
+          console.error('Failed to start job:', error);
+        }
+      }
+    });
   } else {
     openConfirmModal({
       title: 'Complete Job',

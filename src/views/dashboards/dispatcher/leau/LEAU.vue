@@ -225,10 +225,24 @@ const downloadAttachment = async (att) => {
 };
 
 const tickets = ref([]);
+const stats = ref({ ongoing: 0, resolved: 0 });
 
 const unplannedCount = computed(() => tickets.value.length);
-const activeGardenersCount = computed(() => 0);
-const beautifiedZonesCount = computed(() => 0);
+const activeGardenersCount = computed(() => stats.value.ongoing);
+const beautifiedZonesCount = computed(() => stats.value.resolved);
+
+const fetchStats = async () => {
+  try {
+    const response = await api.get('tickets/stats/LEAU');
+    if (response.data?.data?.stats) {
+      const data = response.data.data.stats;
+      stats.value.ongoing = parseInt(data.processing || 0);
+      stats.value.resolved = parseInt(data.resolved || 0);
+    }
+  } catch (error) {
+    console.error('Failed to fetch LEAU stats:', error);
+  }
+};
 
 const fetchDispatchQueue = async () => {
   try {
@@ -257,6 +271,7 @@ const fetchDispatchQueue = async () => {
 
 onMounted(() => {
   fetchDispatchQueue();
+  fetchStats();
 });
 
 const showTicketModal = ref(false);
