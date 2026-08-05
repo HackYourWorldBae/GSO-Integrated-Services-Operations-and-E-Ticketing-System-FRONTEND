@@ -553,6 +553,22 @@
           </div>
         </Transition>
       </Teleport>
+
+      <!-- Image Viewer Modal -->
+      <Teleport to="body">
+        <div v-if="showImageModal" class="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeImageModal">
+          <div class="relative bg-white rounded-2xl p-2 max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
+            <button @click="closeImageModal" class="absolute -top-4 -right-4 bg-white text-slate-500 hover:text-slate-700 p-2 rounded-full shadow-lg transition-colors z-10">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div class="overflow-auto rounded-xl flex items-center justify-center bg-slate-100 min-h-[200px] min-w-[200px]">
+              <img :src="selectedImageUrl" alt="Attachment Preview" class="max-w-full max-h-[85vh] object-contain rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </Teleport>
     </template>
   </MainLayout>
 </template>
@@ -665,12 +681,24 @@ const CheckboxItem = defineComponent({
 });
 
 // ---- Attachment download ----
+const showImageModal = ref(false);
+const selectedImageUrl = ref('');
+
+const closeImageModal = () => {
+  showImageModal.value = false;
+  if (selectedImageUrl.value) {
+    window.URL.revokeObjectURL(selectedImageUrl.value);
+    selectedImageUrl.value = '';
+  }
+};
+
 const downloadAttachment = async (att) => {
   try {
     const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
     const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
     if (att.file_type?.startsWith('image/')) {
-      window.open(url, '_blank');
+      selectedImageUrl.value = url;
+      showImageModal.value = true;
     } else {
       const link = document.createElement('a');
       link.href = url;
@@ -681,7 +709,7 @@ const downloadAttachment = async (att) => {
     }
   } catch (error) {
     console.error('Failed to download attachment', error);
-    alert('Failed to download attachment.');
+    alert(`Failed to download attachment: ${error.response?.data?.message || error.message}`);
   }
 };
 
