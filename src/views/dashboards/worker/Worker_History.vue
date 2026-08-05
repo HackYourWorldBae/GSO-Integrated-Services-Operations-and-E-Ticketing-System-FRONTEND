@@ -45,11 +45,11 @@
                     <div class="flex items-center gap-4">
                        <div class="text-right hidden md:block">
                           <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Feedback Score</p>
-                          <div class="flex items-center gap-1 justify-end text-amber-400">
-                             <svg v-for="i in 5" :key="i" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                          <div class="flex items-center gap-1 justify-end">
+                             <svg v-for="i in 5" :key="i" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="i <= (job.rating || 0) ? 'text-amber-400' : 'text-slate-200'" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                           </div>
                        </div>
-                       <button class="px-6 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-emerald-600 transition-all uppercase tracking-widest">View details</button>
+                       <button class="px-6 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-emerald-600 transition-all uppercase tracking-widest cursor-not-allowed opacity-50" title="Details view coming soon">View details</button>
                     </div>
                  </div>
               </div>
@@ -62,14 +62,63 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import api from '@/api/client';
 
-const completedJobs = ref([
-  { ticketId: "TKT-2026-004", title: "Furniture Repair", completedDate: "March 18, 2026", location: "Registrar's Office" },
-  { ticketId: "TKT-2026-002", title: "Leakage Repair", completedDate: "March 15, 2026", location: "Canteen Area" },
-  { ticketId: "TKT-2026-001", title: "Electrical Check", completedDate: "March 12, 2026", location: "CET Lobby" },
-]);
+const completedJobs = ref([]);
+const isLoading = ref(true);
+
+const fetchHistory = async () => {
+  isLoading.value = true;
+  try {
+    const [fgmuRes, leauRes] = await Promise.all([
+      api.get('/tickets/archives/FGMU'),
+      api.get('/tickets/archives/LEAU')
+    ]);
+    
+    const fgmu = fgmuRes.data?.data?.tickets || [];
+    const leau = leauRes.data?.data?.tickets || [];
+    
+    const all = [...fgmu, ...leau];
+    
+    // Sort by updated_at descending
+    all.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+    
+    completedJobs.value = all.map(t => {
+       let rating = 0;
+       if (t.feedback) {
+         const ratings = [
+           t.feedback.courtesy_rating, 
+           t.feedback.quality_rating, 
+           t.feedback.efficiency_rating, 
+           t.feedback.timeliness_rating, 
+           t.feedback.cleanliness_rating
+         ].filter(r => r !== undefined && r !== null).map(Number);
+         
+         if (ratings.length > 0) {
+           rating = Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
+         }
+       }
+
+       return {
+         ticketId: t.id,
+         title: t.service_type || 'Maintenance Task',
+         completedDate: t.completed_at ? new Date(t.completed_at).toLocaleDateString() : (t.updated_at ? new Date(t.updated_at).toLocaleDateString() : 'N/A'),
+         location: t.location || 'Unknown Location',
+         rating: rating
+       };
+    });
+  } catch (error) {
+    console.error('Failed to fetch worker history', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchHistory();
+});
 </script>
 
 <style scoped>
