@@ -215,6 +215,19 @@ const renderCharts = () => {
 
   const safeVal = (val) => parseFloat(val) || 0;
 
+  const formatReason = (code) => {
+    if (!code) return 'None';
+    const map = {
+      personnelAbsent: "Personnel Absent",
+      extendedBreak: "Extended Break Period",
+      additionalWork: "Additional Work",
+      lackWorkingDays: "Lack of Working Days",
+      lackMaterials: "Lack of Materials / Tools",
+      lackSkills: "Lack of Skills"
+    };
+    return map[code] || code.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  };
+
   // 1. Performance Radar Chart
   const radarCtx = document.getElementById('performanceRadar');
   if (radarCtx && stats.value.feedback_averages) {
@@ -279,7 +292,7 @@ const renderCharts = () => {
     charts.push(new Chart(delayCtx, {
       type: 'bar',
       data: {
-        labels: stats.value.delay_reasons.map(r => r.reason_code) || ['None'],
+        labels: stats.value.delay_reasons.map(r => formatReason(r.reason_code)) || ['None'],
         datasets: [{
           label: 'Occurrences',
           data: stats.value.delay_reasons.map(r => parseInt(r.count)) || [0],
@@ -296,7 +309,7 @@ const renderCharts = () => {
     charts.push(new Chart(nonCompCtx, {
       type: 'bar',
       data: {
-        labels: stats.value.non_completion.map(r => r.reason_code) || ['None'],
+        labels: stats.value.non_completion.map(r => formatReason(r.reason_code)) || ['None'],
         datasets: [{
           label: 'Occurrences',
           data: stats.value.non_completion.map(r => parseInt(r.count)) || [0],
