@@ -444,24 +444,16 @@ const handleLogout = () => {
   padding: 20px 20px 18px;
 }
 
-/* Gold-rimmed logo circle */
+/* Logo */
 .sidebar-logo-ring {
   flex-shrink: 0;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 2px solid rgba(200, 168, 0, 0.7);
-  padding: 3px;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 4px rgba(200, 168, 0, 0.12), 0 4px 12px rgba(0,0,0,0.25);
+  width: 60px;
+  height: 60px;
 }
 
 .sidebar-logo-inner {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  overflow: hidden;
-  background: white;
   display: flex;
   align-items: center;
   justify-content: center;
