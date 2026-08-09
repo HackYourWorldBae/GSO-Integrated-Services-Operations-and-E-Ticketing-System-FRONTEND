@@ -378,9 +378,10 @@ const completedCount = ref(0);
 
 const fetchQueue = async () => {
   try {
-    const [pendingRes, verifiedRes] = await Promise.all([
+    const [pendingRes, verifiedRes, archiveRes] = await Promise.all([
       api.get('tickets/queue/SSU'),
-      api.get('tickets/dispatch/SSU')
+      api.get('tickets/dispatch/SSU'),
+      api.get('tickets/archives/SSU')
     ]);
 
     if (pendingRes.data?.data?.tickets) {
@@ -399,7 +400,7 @@ const fetchQueue = async () => {
         isDeclining: false,
         declineReason: ''
       }));
-      pendingCount.value = pendingRes.data.data.count || tickets.value.length;
+      pendingCount.value = allSsu.length;
     }
 
     if (verifiedRes.data?.data?.tickets) {
@@ -416,6 +417,12 @@ const fetchQueue = async () => {
         location: t.location || 'N/A',
         attachments: t.attachments || []
       }));
+      verifiedCount.value = allSsuVerified.length;
+    }
+
+    if (archiveRes.data?.data?.tickets) {
+      const allSsuArchived = archiveRes.data.data.tickets.filter(t => t.service_type === 'Vehicle Pass Application');
+      completedCount.value = allSsuArchived.length;
     }
   } catch (error) {
     console.error('Failed to fetch SSU Sticker queue:', error);
