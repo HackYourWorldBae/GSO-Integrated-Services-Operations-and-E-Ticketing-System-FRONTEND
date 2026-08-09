@@ -65,6 +65,7 @@
 import { ref, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
+import { useAuthStore } from '@/stores/auth';
 
 const completedJobs = ref([]);
 const isLoading = ref(true);
@@ -72,33 +73,31 @@ const isLoading = ref(true);
 const fetchHistory = async () => {
   isLoading.value = true;
   try {
-    const [fgmuRes, leauRes] = await Promise.all([
-      api.get('/tickets/archives/FGMU'),
-      api.get('/tickets/archives/LEAU')
-    ]);
+    const authStore = useAuthStore();
+    const workerId = authStore.user?.id;
+    if (!workerId) {
+       console.error('No worker logged in.');
+       return;
+    }
+
+    const response = await api.get(`/dispatch/worker/${workerId}/history`);
+    const history = response.data?.data?.history || [];
     
-    const fgmu = fgmuRes.data?.data?.tickets || [];
-    const leau = leauRes.data?.data?.tickets || [];
+    // Sort by completed_at descending (or updated_at if not present)
+    history.sort((a, b) => new Date(b.completed_at || b.updated_at) - new Date(a.completed_at || a.updated_at));
     
-    const all = [...fgmu, ...leau];
-    
-    // Sort by updated_at descending
-    all.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-    
-    completedJobs.value = all.map(t => {
+    completedJobs.value = history.map(t => {
        let rating = 0;
-       if (t.feedback) {
-         const ratings = [
-           t.feedback.courtesy_rating, 
-           t.feedback.quality_rating, 
-           t.feedback.efficiency_rating, 
-           t.feedback.timeliness_rating, 
-           t.feedback.cleanliness_rating
-         ].filter(r => r !== undefined && r !== null).map(Number);
-         
-         if (ratings.length > 0) {
-           rating = Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
-         }
+       const ratings = [
+         t.courtesy_rating, 
+         t.quality_rating, 
+         t.efficiency_rating, 
+         t.timeliness_rating, 
+         t.cleanliness_rating
+       ].filter(r => r > 0).map(Number);
+       
+       if (ratings.length > 0) {
+         rating = Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
        }
 
        return {

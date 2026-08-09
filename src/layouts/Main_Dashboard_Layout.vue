@@ -113,8 +113,12 @@
                     </div>
                     <div v-for="notif in notifications" :key="notif.id" 
                          @click="notif.is_read == 0 ? markAsRead(notif.id) : null"
-                         :class="['p-5 border-b border-slate-50 transition-colors cursor-pointer group', notif.is_read == 0 ? 'bg-slate-50/50 hover:bg-slate-100' : 'bg-white hover:bg-slate-50']">
-                      <div class="flex gap-4">
+                         :class="['p-5 border-b border-slate-50 transition-colors cursor-pointer group relative', notif.is_read == 0 ? 'bg-blue-50/30 hover:bg-blue-50/60' : 'bg-white hover:bg-slate-50 opacity-60 hover:opacity-100']">
+                      
+                      <!-- Unread Indicator Dot -->
+                      <div v-if="notif.is_read == 0" class="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
+
+                      <div class="flex gap-4 ml-2">
                         <div :class="['w-10 h-10 rounded-xl flex items-center justify-center shrink-0', notif.type === 'success' ? 'bg-emerald-100 text-emerald-600' : (notif.type === 'warning' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600')]">
                           <svg v-if="notif.type === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -127,8 +131,8 @@
                           </svg>
                         </div>
                         <div class="space-y-1 overflow-hidden">
-                          <p :class="['text-sm truncate transition-colors group-hover:text-emerald-600', notif.is_read == 0 ? 'font-black text-slate-900' : 'font-bold text-slate-600']">{{ notif.title }}</p>
-                          <p class="text-xs text-slate-500 font-medium leading-relaxed">{{ notif.message }}</p>
+                          <p :class="['text-sm truncate transition-colors group-hover:text-blue-600', notif.is_read == 0 ? 'font-black text-slate-900' : 'font-bold text-slate-500']">{{ notif.title }}</p>
+                          <p :class="['text-xs font-medium leading-relaxed', notif.is_read == 0 ? 'text-slate-600' : 'text-slate-400']">{{ notif.message }}</p>
                           <p class="text-[10px] text-slate-400 font-bold uppercase pt-1">{{ new Date(notif.created_at).toLocaleString() }}</p>
                         </div>
                       </div>
