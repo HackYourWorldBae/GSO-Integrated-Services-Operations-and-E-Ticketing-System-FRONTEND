@@ -505,7 +505,7 @@ const IncidentTicketCard = defineComponent({
                   class: `px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${isInvestigating.value ? 'bg-violet-50 text-violet-600 border-violet-200' : 'bg-rose-50 text-rose-600 border-rose-200'}`,
                 }, props.ticket.statusLabel),
                 // Notation badge
-                hasNotation.value
+                hasNotation.value && !(props.ticket.statusLabel || '').toLowerCase().includes('notation')
                   ? h('span', { class: 'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-blue-50 text-blue-600 border-blue-200' }, 'Notation Added')
                   : null,
               ]),

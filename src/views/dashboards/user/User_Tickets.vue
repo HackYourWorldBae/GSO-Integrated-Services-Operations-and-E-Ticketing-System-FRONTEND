@@ -339,6 +339,27 @@
               </div>
             </div>
 
+            <!-- ========== SSU NOTATION EXTENSION CARD ========== -->
+            <div
+              v-if="ticket.unit === 'SSU' && ticket.service === 'Incident Report' && ticket.notation"
+              class="border-t border-slate-100 p-5 bg-blue-50/60"
+            >
+              <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" style="width:18px;height:18px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <p class="text-[10px] font-black text-blue-700 uppercase tracking-widest">SSU Recommendation / Notation</p>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-blue-100 text-blue-600 border border-blue-200 uppercase tracking-widest">From SSU Staff</span>
+                  </div>
+                  <p class="text-sm text-blue-900 font-medium leading-relaxed italic">"{{ ticket.notation }}"</p>
+                </div>
+              </div>
+            </div>
+
             <!-- Active/processing indicator bar -->
             <div v-if="ticket.status === 'processing'" class="h-0.5 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-400 animate-progress-bar"></div>
           </div>
@@ -525,28 +546,7 @@
                     </div>
                   </div>
 
-                  <!-- ========== SSU NOTATION EXTENSION CARD ========== -->
-                  <!-- Shown below the timeline — NOT a progress step. -->
-                  <!-- This is a direct communication from SSU staff to the reporter. -->
-                  <div
-                    v-if="selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && selectedTicket.notation"
-                    class="rounded-2xl border border-blue-200 bg-blue-50/60 p-5 animate-fade-in"
-                  >
-                    <div class="flex items-start gap-3">
-                      <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" style="width:18px;height:18px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                        </svg>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1.5">
-                          <p class="text-[10px] font-black text-blue-700 uppercase tracking-widest">SSU Recommendation / Notation</p>
-                          <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-blue-100 text-blue-600 border border-blue-200 uppercase tracking-widest">From SSU Staff</span>
-                        </div>
-                        <p class="text-sm text-blue-900 font-medium leading-relaxed italic">"{{ selectedTicket.notation }}"</p>
-                      </div>
-                    </div>
-                  </div>
+
 
                   <!-- ========== TICKET CLOSED STATE ========== -->
                   <div
