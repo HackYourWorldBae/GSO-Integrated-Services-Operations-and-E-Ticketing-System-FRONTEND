@@ -787,7 +787,7 @@ const fetchTickets = async () => {
           : null,
         isClosed: t.status === 'completed' || t.status === 'closed',
         // SSU Incident Report specific fields
-        isUnderInvestigation: !!t.is_under_investigation,
+        isUnderInvestigation: Number(t.is_under_investigation) === 1,
         hasNotation:          !!t.ssu_notation,
         notation:             t.ssu_notation || '',
         actionsTaken:         t.ssu_notation || '',

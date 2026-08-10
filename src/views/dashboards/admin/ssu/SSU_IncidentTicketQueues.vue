@@ -318,7 +318,7 @@ const mapTicket = (t) => ({
   date:                 new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
   requestedBy:          t.details?.reporter_name || 'Reporter',
   attachments:          t.attachments || [],
-  isUnderInvestigation: !!t.is_under_investigation,
+  isUnderInvestigation: Number(t.is_under_investigation) === 1,
   hasNotation:          !!t.ssu_notation,
   notation:             t.ssu_notation || '',
   statusLabel:          t.status_label || t.status,
@@ -326,19 +326,19 @@ const mapTicket = (t) => ({
 
 const fetchQueue = async () => {
   try {
-    const [pendingRes, investigatingRes] = await Promise.all([
+    const [pendingRes, activeRes] = await Promise.all([
       api.get('tickets/queue/SSU'),
-      api.get('tickets/investigating/SSU'),
+      api.get('tickets/active/SSU'),
     ]);
 
-    const pendingRaw      = (pendingRes.data?.data?.tickets  || []).filter(t => t.service_type === 'Incident Report');
-    const investigatingRaw = (investigatingRes.data?.data?.tickets || []);
+    const pendingRaw = (pendingRes.data?.data?.tickets || []).filter(t => t.service_type === 'Incident Report');
+    const activeRaw  = (activeRes.data?.data?.tickets || []).filter(t => t.service_type === 'Incident Report');
 
-    // Merge into one deduplicated list — investigating queue takes precedence
-    const investigatingIds = new Set(investigatingRaw.map(t => t.id));
+    // Merge into one deduplicated list — active queue takes precedence
+    const activeIds = new Set(activeRaw.map(t => t.id));
     const merged = [
-      ...investigatingRaw.map(mapTicket),
-      ...pendingRaw.filter(t => !investigatingIds.has(t.id)).map(mapTicket),
+      ...activeRaw.map(mapTicket),
+      ...pendingRaw.filter(t => !activeIds.has(t.id)).map(mapTicket),
     ];
 
     allTickets.value = merged;
