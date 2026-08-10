@@ -414,7 +414,7 @@
                               Current
                             </span>
                           </div>
-                          <p class="text-xs text-slate-500 leading-relaxed">{{ step.description }}</p>
+                          <p class="text-xs text-slate-500 leading-relaxed">{{ getStepDescription(selectedTicket, step, index) }}</p>
 
                           <!-- ---- FGMU/LEAU: View Digital Ticket (Step 2) ---- -->
                           <template v-if="(selectedTicket.unit === 'FGMU' || selectedTicket.unit === 'LEAU') && index === 1">
@@ -486,11 +486,23 @@
                             </div>
                           </template>
 
-                          <!-- ---- SSU: Actions Taken (Incident Report Step 3) ---- -->
+                          <!-- ---- SSU: Incident Report Step 3 — Dynamic investigation/notation tags ---- -->
                           <template v-if="selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && index === 2 && selectedTicket.currentStep >= 3">
-                            <div class="mt-3 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-                              <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1.5">Action Logging / Recommendations</p>
-                              <p class="text-xs text-blue-800 leading-relaxed italic">"{{ selectedTicket.actionsTaken }}"</p>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                              <span
+                                v-if="selectedTicket.isUnderInvestigation"
+                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-violet-100 text-violet-700 border border-violet-200"
+                              >
+                                <span class="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></span>
+                                Under Investigation
+                              </span>
+                              <span
+                                v-if="selectedTicket.hasNotation"
+                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-100 text-blue-700 border border-blue-200"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                                Notation Added
+                              </span>
                             </div>
                           </template>
 
@@ -513,9 +525,32 @@
                     </div>
                   </div>
 
+                  <!-- ========== SSU NOTATION EXTENSION CARD ========== -->
+                  <!-- Shown below the timeline — NOT a progress step. -->
+                  <!-- This is a direct communication from SSU staff to the reporter. -->
+                  <div
+                    v-if="selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && selectedTicket.notation"
+                    class="rounded-2xl border border-blue-200 bg-blue-50/60 p-5 animate-fade-in"
+                  >
+                    <div class="flex items-start gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" style="width:18px;height:18px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                        </svg>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1.5">
+                          <p class="text-[10px] font-black text-blue-700 uppercase tracking-widest">SSU Recommendation / Notation</p>
+                          <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-blue-100 text-blue-600 border border-blue-200 uppercase tracking-widest">From SSU Staff</span>
+                        </div>
+                        <p class="text-sm text-blue-900 font-medium leading-relaxed italic">"{{ selectedTicket.notation }}"</p>
+                      </div>
+                    </div>
+                  </div>
+
                   <!-- ========== TICKET CLOSED STATE ========== -->
                   <div
-                    v-if="selectedTicket.isClosed || (selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && selectedTicket.currentStep === 5)"
+                    v-if="selectedTicket.isClosed || (selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && selectedTicket.currentStep >= 4)"
                     class="bg-slate-50 border border-slate-200 rounded-2xl p-8 flex flex-col items-center text-center"
                   >
                     <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-4">
@@ -523,7 +558,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <h4 class="font-black text-slate-900 text-base mb-1">Ticket Closed</h4>
+                    <h4 class="font-black text-slate-900 text-base mb-1">Ticket Resolved</h4>
                     <p v-if="selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report'" class="text-sm text-slate-500">
                       This incident report has been resolved and archived by the SSU staff.
                     </p>
@@ -751,6 +786,11 @@ const fetchTickets = async () => {
           ? new Date(t.assignment.implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
           : null,
         isClosed: t.status === 'completed' || t.status === 'closed',
+        // SSU Incident Report specific fields
+        isUnderInvestigation: !!t.is_under_investigation,
+        hasNotation:          !!t.ssu_notation,
+        notation:             t.ssu_notation || '',
+        actionsTaken:         t.ssu_notation || '',
       }));
     }
   } catch (error) {
@@ -851,18 +891,18 @@ const unitSteps = {
   ],
   SSU: {
     'Vehicle Pass Application': [
-      { label: 'Application',          description: 'The client fills out the digital Vehicle Pass Application.' },
-      { label: 'Document Upload',      description: "OR/CR and Driver's License digital copies uploaded." },
+      { label: 'Application',           description: 'The client fills out the digital Vehicle Pass Application.' },
+      { label: 'Document Upload',       description: "OR/CR and Driver's License digital copies uploaded." },
       { label: 'Document Verification', description: 'Staff verifies documents.' },
-      { label: 'Status Update',        description: 'Ticket marked as "Approved - Ready for Pickup".' },
-      { label: 'Completion',           description: 'Sticker is ready for pickup at the Security Office.' },
+      { label: 'Status Update',         description: 'Ticket marked as "Approved - Ready for Pickup".' },
+      { label: 'Completion',            description: 'Sticker is ready for pickup at the Security Office.' },
     ],
     'Incident Report': [
-      { label: 'Report Submission', description: 'The client fills out a digital Incident Report.' },
-      { label: 'Staff Review',      description: 'SSU staff reviews the incident details.' },
-      { label: 'Action Logging',    description: 'Staff enters actions taken or recommendations.' },
-      { label: 'Status Tracking',   description: 'Current Status: Under Investigation or Resolved.' },
-      { label: 'Archiving',         description: 'Ticket moved to digital archives for record-keeping.' },
+      { label: 'Report Submission',        description: 'The client fills out a digital Incident Report and submits it to SSU.' },
+      { label: 'Staff Review',             description: 'SSU staff reviews the incident details.' },
+      { label: 'Action / Investigation',   description: 'SSU staff takes action: logs a recommendation and/or opens an investigation.' },
+      { label: 'Resolution',              description: 'SSU staff marks the incident as resolved.' },
+      { label: 'Archiving',               description: 'Ticket moved to digital archives for record-keeping.' },
     ],
   },
   TASU: [
@@ -894,6 +934,35 @@ const getSteps = (ticket) => {
   }
 
   return steps;
+};
+
+/**
+ * Returns a dynamic description for a given step.
+ * For SSU Incident Reports, step 3 (index 2) reflects the live ticket state
+ * so the reporter sees exactly what is happening with their case.
+ */
+const getStepDescription = (ticket, step, index) => {
+  if (
+    ticket?.unit === 'SSU' &&
+    ticket?.service === 'Incident Report' &&
+    index === 2 &&
+    ticket.currentStep >= 3
+  ) {
+    const hasInvestigation = ticket.isUnderInvestigation;
+    const hasNotation      = ticket.hasNotation;
+
+    if (hasInvestigation && hasNotation) {
+      return 'SSU staff has opened an investigation and has communicated a recommendation to you.';
+    }
+    if (hasInvestigation) {
+      return 'SSU staff has flagged this incident for active investigation.';
+    }
+    if (hasNotation) {
+      return 'SSU staff has added a recommendation/notation. See the notation card below for details.';
+    }
+    return step.description;
+  }
+  return step.description;
 };
 
 // ---- Satisfaction Form ----

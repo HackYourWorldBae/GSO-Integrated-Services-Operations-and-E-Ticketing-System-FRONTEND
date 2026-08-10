@@ -122,27 +122,7 @@
             </div>
           </div>
 
-          <!-- Report Sources -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col h-[350px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
-              Reporter Demographics
-            </h4>
-            <div class="flex-1 relative">
-              <canvas id="reporterSourcesChart"></canvas>
-            </div>
-          </div>
 
-          <!-- System Overview Radar -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px] lg:h-[400px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-amber-500 rounded-full"></div>
-              Operations Standard (SLAs)
-            </h4>
-            <div class="flex-1 relative">
-              <canvas id="securitySlaRadar"></canvas>
-            </div>
-          </div>
 
           <!-- Service Request Frequency -->
           <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-2">
@@ -228,95 +208,55 @@ const renderCharts = () => {
     return map[code] || code.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
   };
 
-  // 1. Performance Radar Chart
-  const radarCtx = document.getElementById('performanceRadar');
-  if (radarCtx && stats.value.feedback_averages) {
-    const avg = stats.value.feedback_averages;
-    charts.push(new Chart(radarCtx, {
-      type: 'radar',
-      data: {
-        labels: ['Quality', 'Efficiency', 'Timeliness'],
-        datasets: [{
-          label: 'Current Avg (1-5)',
-          data: [safeVal(avg.avg_quality), safeVal(avg.avg_efficiency), safeVal(avg.avg_timeliness)],
-          backgroundColor: 'rgba(16, 185, 129, 0.2)',
-          borderColor: '#10b981',
-          pointBackgroundColor: '#10b981',
-          borderWidth: 3
-        }, {
-          label: 'Target Score',
-          data: [4.5, 4.5, 4.5],
-          backgroundColor: 'rgba(226, 232, 240, 0.1)',
-          borderColor: '#94a3b8',
-          borderDash: [5, 5],
-          borderWidth: 1,
-          pointRadius: 0
-        }]
-      },
-      options: {
-        scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, display: false } } },
-        plugins: { legend: { position: 'bottom' } },
-        responsive: true, maintainAspectRatio: false
-      }
-    }));
-  }
-
-  // 2. Completion Health Doughnut
-  const completionCtx = document.getElementById('completionDoughnut');
-  if (completionCtx && stats.value.completion_health) {
-    const health = stats.value.completion_health;
-    const onTime = health.find(h => h.completion_status === 'on-time')?.count || 0;
-    const beyondTime = health.find(h => h.completion_status === 'beyond-time')?.count || 0;
-    const notCompleted = health.find(h => h.completion_status === 'not-completed')?.count || 0;
-    
-    charts.push(new Chart(completionCtx, {
+  // 1. Incident Heatmap Doughnut
+  const incidentCtx = document.getElementById('incidentDoughnut');
+  if (incidentCtx && stats.value.incident_heatmap) {
+    const data = stats.value.incident_heatmap;
+    charts.push(new Chart(incidentCtx, {
       type: 'doughnut',
       data: {
-        labels: ['On-time', 'Beyond Time', 'Not Completed'],
+        labels: data.map(d => d.category),
         datasets: [{
-          data: [onTime, beyondTime, notCompleted],
-          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+          data: data.map(d => parseInt(d.count)),
+          backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'],
           hoverOffset: 15, borderRadius: 10, borderWidth: 4, borderColor: '#ffffff'
         }]
       },
       options: {
         plugins: { legend: { position: 'bottom' } },
-        cutout: '70%', responsive: true, maintainAspectRatio: false
+        cutout: '65%', responsive: true, maintainAspectRatio: false
       }
     }));
   }
 
-  // 3. Delay Reasons
-  const delayCtx = document.getElementById('delayReasonsChart');
-  if (delayCtx && stats.value.delay_reasons) {
-    charts.push(new Chart(delayCtx, {
-      type: 'bar',
-      data: {
-        labels: stats.value.delay_reasons.map(r => formatReason(r.reason_code)) || ['None'],
-        datasets: [{
-          label: 'Occurrences',
-          data: stats.value.delay_reasons.map(r => parseInt(r.count)) || [0],
-          backgroundColor: '#f59e0b', borderRadius: 6
-        }]
-      },
-      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
-    }));
-  }
+  // 2. Vehicle Pass Pipeline
+  const passCtx = document.getElementById('passPipelineChart');
+  if (passCtx && stats.value.pass_pipeline) {
+    const data = stats.value.pass_pipeline;
+    const statuses = ['pending', 'approved', 'resolved', 'cancelled'];
+    const formatStatus = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+    
+    const counts = statuses.map(s => {
+      const match = data.find(d => d.status === s);
+      return match ? parseInt(match.count) : 0;
+    });
 
-  // 4. Non-Completion
-  const nonCompCtx = document.getElementById('nonCompletionChart');
-  if (nonCompCtx && stats.value.non_completion) {
-    charts.push(new Chart(nonCompCtx, {
+    charts.push(new Chart(passCtx, {
       type: 'bar',
       data: {
-        labels: stats.value.non_completion.map(r => formatReason(r.reason_code)) || ['None'],
+        labels: statuses.map(formatStatus),
         datasets: [{
-          label: 'Occurrences',
-          data: stats.value.non_completion.map(r => parseInt(r.count)) || [0],
-          backgroundColor: '#ef4444', borderRadius: 6
+          label: 'Tickets',
+          data: counts,
+          backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'],
+          borderRadius: 6
         }]
       },
-      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+      options: { 
+        indexAxis: 'y', 
+        plugins: { legend: { display: false } }, 
+        responsive: true, maintainAspectRatio: false 
+      }
     }));
   }
 
