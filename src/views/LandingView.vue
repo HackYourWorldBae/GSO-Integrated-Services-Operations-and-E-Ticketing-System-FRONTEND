@@ -131,22 +131,24 @@ const goToLogin = () => router.push({ name: 'login' });
       </div>
 
       <div class="hero-content">
-        <!-- Badge -->
-        <div class="hero-badge">
-          <span class="hero-badge-dot"></span>
-          Now Live — Digital Service Platform
+        <!-- Institutional Identifier -->
+        <div class="hero-office-id">
+          <div class="hero-office-id-bar"></div>
+          <div class="hero-office-id-text">
+            <span class="hero-office-university">Benguet State University</span>
+            <span class="hero-office-name">General Services Office</span>
+          </div>
         </div>
 
         <h1 class="hero-heading">
-          GSO
-          <span class="hero-heading-accent">e-Ticketing</span>
-          <br />System
+          e-Ticketing
+          <br /><span class="hero-heading-accent">Service Portal</span>
         </h1>
 
         <p class="hero-subtext">
-          The official digital service portal of the <strong>General Services Office</strong> of
-          <strong>Benguet State University</strong>. Submit, track, and manage campus service
-          requests — fast, transparent, and accessible.
+          The official digital platform for submitting, monitoring, and managing campus service
+          requests across all GSO units — designed for transparency, accountability,
+          and efficient campus operations.
         </p>
 
         <div class="hero-actions">
@@ -178,7 +180,7 @@ const goToLogin = () => router.push({ name: 'login' });
               </div>
               <div class="ticket-info">
                 <span class="ticket-title">Electrical Repair — Admin Bldg.</span>
-                <span class="ticket-meta">LEAU · Ticket #2051</span>
+                <span class="ticket-meta">FGMU · Ticket #2051</span>
               </div>
               <span class="ticket-badge badge-processing">In Progress</span>
             </div>
@@ -202,7 +204,7 @@ const goToLogin = () => router.push({ name: 'login' });
               </div>
               <div class="ticket-info">
                 <span class="ticket-title">Grounds Mowing — Science Bldg.</span>
-                <span class="ticket-meta">FGMU · Ticket #2049</span>
+                <span class="ticket-meta">LEAU · Ticket #2049</span>
               </div>
               <span class="ticket-badge badge-done">Resolved</span>
             </div>
@@ -723,51 +725,71 @@ const goToLogin = () => router.push({ name: 'login' });
   width: 100%;
 }
 
-.hero-badge {
-  grid-column: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(200, 168, 0, 0.15);
-  border: 1px solid rgba(200, 168, 0, 0.4);
-  color: var(--bsu-gold-light);
-  padding: 0.4rem 1rem;
-  border-radius: 100px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  width: fit-content;
-  animation: fadeSlideUp 0.6s ease forwards;
-}
-
-.hero-badge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--bsu-gold-light);
-  animation: pulseBadge 2s ease infinite;
-}
-
+/* Hero badge removed — replaced by .hero-office-id block */
 @keyframes pulseBadge {
   0%, 100% { box-shadow: 0 0 0 0 rgba(240, 204, 0, 0.6); }
   50%       { box-shadow: 0 0 0 6px rgba(240, 204, 0, 0); }
 }
 
+/* Institutional office identifier block */
+.hero-office-id {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: fadeSlideUp 0.6s ease forwards;
+  margin-bottom: 0.25rem;
+}
+
+.hero-office-id-bar {
+  width: 4px;
+  height: 40px;
+  background: linear-gradient(180deg, var(--bsu-gold-light) 0%, var(--bsu-gold) 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.hero-office-id-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.hero-office-university {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1;
+}
+
+.hero-office-name {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bsu-gold-light);
+  line-height: 1;
+}
+
 .hero-heading {
   grid-column: 1;
-  font-size: clamp(3rem, 6vw, 5.5rem);
+  font-size: clamp(2.6rem, 5.5vw, 5rem);
   font-weight: 900;
   line-height: 1.05;
   color: white;
   margin: 0;
   animation: fadeSlideUp 0.7s 0.1s ease both;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
 .hero-heading-accent {
   color: var(--bsu-gold-light);
   display: inline-block;
   position: relative;
+  font-size: clamp(2.6rem, 5.5vw, 5rem);
+  font-weight: 900;
 }
 
 .hero-heading-accent::after {
@@ -790,12 +812,14 @@ const goToLogin = () => router.push({ name: 'login' });
 
 .hero-subtext {
   grid-column: 1;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: clamp(0.875rem, 1.4vw, 1.05rem);
+  line-height: 1.8;
   max-width: 480px;
   margin: 0;
   animation: fadeSlideUp 0.7s 0.2s ease both;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .hero-subtext strong { color: rgba(255, 255, 255, 0.95); font-weight: 700; }
