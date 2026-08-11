@@ -119,7 +119,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import { api } from '../../../../services/api';
+import api from '@/api/client';
 import Swal from 'sweetalert2';
 
 const tickets = ref([]);
