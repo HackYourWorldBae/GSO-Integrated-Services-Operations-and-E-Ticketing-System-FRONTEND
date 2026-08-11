@@ -23,13 +23,13 @@ const LEAU_Dispatcher = () => import('../views/dashboards/dispatcher/leau/LEAU.v
 const LEAU_Workers = () => import('../views/dashboards/dispatcher/leau/LEAU_Workers.vue');
 const TASU_Dispatcher = () => import('../views/dashboards/dispatcher/tasu/TASU.vue');
 const TASU_Drivers = () => import('../views/dashboards/dispatcher/tasu/TASU_Drivers.vue');
-const Worker_Dashboard = () => import('../views/dashboards/worker/Worker_Dashboard.vue');
+const FGMU_DispatchedTickets = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatchedTickets.vue');
+const LEAU_DispatchedTickets = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatchedTickets.vue');
+const TASU_DispatchedTickets = () => import('../views/dashboards/dispatcher/tasu/TASU_DispatchedTickets.vue');
 const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
 const TASU_VehicleManagement = () => import('../views/dashboards/admin/tasu/TASU_VehicleManagement.vue');
 const TASU_DispatchBoard = () => import('../views/dashboards/admin/tasu/TASU_DispatchBoard.vue');
-const Worker_History = () => import('../views/dashboards/worker/Worker_History.vue');
-const Driver_Dashboard = () => import('../views/dashboards/driver/Driver_Dashboard.vue');
 const VehicleAvailabilityView = () => import('../views/VehicleAvailabilityView.vue');
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
 const LEAU_Personnel = () => import('../views/dashboards/admin/leau/LEAU_Personnel.vue');
@@ -221,19 +221,19 @@ const router = createRouter({
       component: TASU_Drivers
     },
     {
-      path: '/worker/dashboard',
-      name: 'worker-dashboard',
-      component: Worker_Dashboard
+      path: '/dispatcher/fgmu/dispatched',
+      name: 'fgmu-dispatched-tickets',
+      component: FGMU_DispatchedTickets
     },
     {
-      path: '/worker/history',
-      name: 'worker-history',
-      component: Worker_History
+      path: '/dispatcher/leau/dispatched',
+      name: 'leau-dispatched-tickets',
+      component: LEAU_DispatchedTickets
     },
     {
-      path: '/driver/dashboard',
-      name: 'driver-dashboard',
-      component: Driver_Dashboard
+      path: '/dispatcher/tasu/dispatched',
+      name: 'tasu-dispatched-tickets',
+      component: TASU_DispatchedTickets
     },
     {
       path: '/services/vehicle-availability',
