@@ -124,7 +124,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import MainLayout from '../../../../components/MainLayout.vue';
+import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { api } from '../../../../services/api';
 import Swal from 'sweetalert2';
 
