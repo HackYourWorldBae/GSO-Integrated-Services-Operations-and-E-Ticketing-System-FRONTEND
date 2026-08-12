@@ -34,10 +34,10 @@
         <!-- ① Scheduled / Waiting for Departure -->
         <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-amber-100">
           <!-- Section Header -->
-          <div class="relative bg-gradient-to-br from-amber-900 to-amber-800 px-10 py-7 overflow-hidden">
+          <div class="relative bg-gradient-to-br from-amber-900 to-amber-800 px-6 sm:px-10 py-7 overflow-hidden">
             <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15),_transparent_60%)]"></div>
             <div class="absolute -bottom-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-            <div class="relative z-10 flex items-center justify-between">
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div class="flex items-center gap-4">
                 <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -49,7 +49,7 @@
                   <p class="text-amber-200 text-[10px] font-bold uppercase tracking-widest mt-0.5">Trips awaiting departure time</p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-2xl border border-white/30 backdrop-blur-sm">
+              <div class="flex items-center self-start sm:self-auto gap-2 px-4 py-2 bg-white/20 rounded-2xl border border-white/30 backdrop-blur-sm">
                 <span class="w-2 h-2 rounded-full bg-amber-200 animate-pulse"></span>
                 <span class="text-white font-black text-sm">{{ scheduledTickets.length }}</span>
                 <span class="text-amber-200 text-[10px] font-bold uppercase tracking-widest">Pending</span>
@@ -58,7 +58,7 @@
           </div>
 
           <!-- Table Body -->
-          <div class="bg-white px-6 pb-6">
+          <div class="bg-white px-4 sm:px-6 pb-6">
             <!-- Empty State -->
             <div v-if="scheduledTickets.length === 0" class="py-16 flex flex-col items-center justify-center gap-3">
               <div class="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center">
@@ -75,43 +75,51 @@
               <div
                 v-for="ticket in scheduledTickets"
                 :key="ticket.id"
-                class="group flex items-center gap-5 py-5 px-4 hover:bg-amber-50/50 rounded-2xl transition-all duration-200 cursor-default -mx-4"
+                class="group flex flex-col md:flex-row md:items-center gap-4 py-5 px-4 hover:bg-amber-50/50 rounded-2xl transition-all duration-200 cursor-default sm:-mx-4"
               >
-                <!-- Left Accent + ID -->
-                <div class="flex items-center gap-4 min-w-0">
-                  <div class="w-1 h-12 rounded-full bg-amber-400 group-hover:h-14 transition-all duration-300 shrink-0"></div>
-                  <div class="h-12 px-3 min-w-[3rem] rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
-                    <span class="text-xs font-black text-amber-600 leading-none">#{{ ticket.id }}</span>
+                <!-- Mobile Header Row: ID & Status -->
+                <div class="flex items-center justify-between w-full md:w-auto md:shrink-0">
+                  <div class="flex items-center gap-4 min-w-0">
+                    <div class="w-1 h-12 rounded-full bg-amber-400 group-hover:h-14 transition-all duration-300 shrink-0"></div>
+                    <div class="h-12 px-3 min-w-[3rem] rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
+                      <span class="text-xs font-black text-amber-600 leading-none">#{{ ticket.id }}</span>
+                    </div>
+                  </div>
+                  <!-- Mobile Status Chip -->
+                  <div class="flex md:hidden items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
                   </div>
                 </div>
 
-                <!-- Departure Date -->
-                <div class="flex flex-col min-w-[130px]">
-                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Departure</span>
-                  <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
+                <!-- Content Grid for Mobile, Flex for Desktop -->
+                <div class="grid grid-cols-2 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
+                  <div class="flex flex-col min-w-[130px]">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Departure</span>
+                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
+                  </div>
+                  <div class="flex flex-col flex-1 min-w-0">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver & Vehicle</span>
+                    <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                    <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
+                  </div>
                 </div>
 
-                <!-- Driver & Vehicle -->
-                <div class="flex flex-col flex-1 min-w-0">
-                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver & Vehicle</span>
-                  <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
-                  <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
+                <!-- Actions (Desktop & Mobile) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4 w-full md:w-auto mt-2 md:mt-0 md:shrink-0">
+                  <!-- Desktop Status Chip -->
+                  <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
+                  </div>
+                  <button
+                    @click="initiateAction('depart', ticket.id)"
+                    :disabled="loading"
+                    class="w-full sm:w-auto shrink-0 px-5 py-3 md:py-2.5 rounded-xl bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                  >
+                    Depart Early
+                  </button>
                 </div>
-
-                <!-- Status Chip -->
-                <div class="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                  <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
-                </div>
-
-                <!-- Action -->
-                <button
-                  @click="initiateAction('depart', ticket.id)"
-                  :disabled="loading"
-                  class="shrink-0 px-5 py-2.5 rounded-xl bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
-                >
-                  Depart Early
-                </button>
               </div>
             </div>
           </div>
@@ -120,10 +128,10 @@
         <!-- ② On Route / Active Trips -->
         <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200">
           <!-- Section Header -->
-          <div class="relative bg-gradient-to-br from-slate-900 to-slate-800 px-10 py-7 overflow-hidden">
+          <div class="relative bg-gradient-to-br from-slate-900 to-slate-800 px-6 sm:px-10 py-7 overflow-hidden">
             <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(16,185,129,0.12),_transparent_60%)]"></div>
             <div class="absolute -bottom-8 -right-8 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl"></div>
-            <div class="relative z-10 flex items-center justify-between">
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div class="flex items-center gap-4">
                 <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 backdrop-blur-sm flex items-center justify-center border border-emerald-500/30">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,7 +143,7 @@
                   <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Duration updates every hour</p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 px-4 py-2 bg-emerald-500/15 rounded-2xl border border-emerald-500/25 backdrop-blur-sm">
+              <div class="flex items-center self-start sm:self-auto gap-2 px-4 py-2 bg-emerald-500/15 rounded-2xl border border-emerald-500/25 backdrop-blur-sm">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="text-white font-black text-sm">{{ activeTickets.length }}</span>
                 <span class="text-emerald-300 text-[10px] font-bold uppercase tracking-widest">Active</span>
@@ -144,7 +152,7 @@
           </div>
 
           <!-- Table Body -->
-          <div class="bg-white px-6 pb-6">
+          <div class="bg-white px-4 sm:px-6 pb-6">
             <!-- Empty State -->
             <div v-if="activeTickets.length === 0" class="py-16 flex flex-col items-center justify-center gap-3">
               <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
@@ -161,56 +169,66 @@
               <div
                 v-for="ticket in activeTickets"
                 :key="ticket.id"
-                class="group flex items-center gap-5 py-5 px-4 hover:bg-emerald-50/40 rounded-2xl transition-all duration-200 cursor-default -mx-4"
+                class="group flex flex-col md:flex-row md:items-center gap-4 py-5 px-4 hover:bg-emerald-50/40 rounded-2xl transition-all duration-200 cursor-default sm:-mx-4"
               >
-                <!-- Left Accent + ID -->
-                <div class="flex items-center gap-4 min-w-0">
-                  <div class="w-1 h-12 rounded-full bg-emerald-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
-                  <div class="h-12 px-3 min-w-[3rem] rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
-                    <span class="text-xs font-black text-emerald-600 leading-none">#{{ ticket.id }}</span>
+                <!-- Mobile Header Row: ID & Status -->
+                <div class="flex items-center justify-between w-full md:w-auto md:shrink-0">
+                  <div class="flex items-center gap-4 min-w-0">
+                    <div class="w-1 h-12 rounded-full bg-emerald-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
+                    <div class="h-12 px-3 min-w-[3rem] rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                      <span class="text-xs font-black text-emerald-600 leading-none">#{{ ticket.id }}</span>
+                    </div>
+                  </div>
+                  <!-- Mobile Status Chip -->
+                  <div class="flex md:hidden items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">On Route</span>
                   </div>
                 </div>
 
-                <!-- Departure Date -->
-                <div class="flex flex-col min-w-[130px]">
-                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Departed</span>
-                  <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
-                </div>
-
-                <!-- Driver & Vehicle -->
-                <div class="flex flex-col flex-1 min-w-0">
-                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver & Vehicle</span>
-                  <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
-                  <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
-                </div>
-
-                <!-- Live Duration -->
-                <div class="flex flex-col items-center shrink-0">
-                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Elapsed</span>
-                  <div class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 rounded-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span class="text-xs font-black text-white tracking-wide">
-                      {{ liveDurations[ticket.id] || '—' }}
-                    </span>
+                <!-- Content Grid for Mobile, Flex for Desktop -->
+                <div class="grid grid-cols-2 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
+                  <div class="flex flex-col min-w-[130px]">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Departed</span>
+                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
+                  </div>
+                  <div class="flex flex-col flex-1 min-w-0">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver & Vehicle</span>
+                    <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                    <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
                   </div>
                 </div>
 
-                <!-- On Route chip -->
-                <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl shrink-0">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">On Route</span>
-                </div>
+                <!-- Actions (Desktop & Mobile) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4 w-full md:w-auto mt-2 md:mt-0 md:shrink-0">
+                  <div class="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+                    <!-- Live Duration -->
+                    <div class="flex flex-col md:items-center shrink-0 w-full sm:w-auto">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 hidden md:block">Elapsed</span>
+                      <div class="flex items-center justify-center gap-1.5 px-3 py-2 md:py-1.5 bg-slate-900 rounded-xl w-full sm:w-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-xs font-black text-white tracking-wide">
+                          {{ liveDurations[ticket.id] || '—' }} <span class="md:hidden ml-1 text-[10px] font-medium text-slate-400 uppercase">elapsed</span>
+                        </span>
+                      </div>
+                    </div>
+                    <!-- Desktop Status Chip -->
+                    <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl shrink-0">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">On Route</span>
+                    </div>
+                  </div>
 
-                <!-- Action -->
-                <button
-                  @click="initiateAction('finish', ticket.id)"
-                  :disabled="loading"
-                  class="shrink-0 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
-                >
-                  Job Finished
-                </button>
+                  <button
+                    @click="initiateAction('finish', ticket.id)"
+                    :disabled="loading"
+                    class="w-full sm:w-auto shrink-0 px-5 py-3 md:py-2.5 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                  >
+                    Job Finished
+                  </button>
+                </div>
               </div>
             </div>
           </div>
