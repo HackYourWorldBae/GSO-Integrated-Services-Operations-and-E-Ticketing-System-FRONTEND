@@ -89,8 +89,8 @@
                   <!-- Main Row Container -->
                   <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                     <!-- Left column: Worker Info & Status -->
-                    <div class="flex items-center justify-between xl:justify-start gap-6 min-w-[300px]">
-                      <div class="flex items-center gap-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between xl:justify-start gap-4 sm:gap-6 w-full xl:w-auto xl:min-w-[300px]">
+                      <div class="flex items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                         <div class="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors shrink-0 shadow-sm font-black text-xl">
                           {{ worker.name ? worker.name.charAt(0) : 'U' }}
                         </div>
@@ -120,7 +120,7 @@
                             <button 
                               @click="toggleWorkerStatus(worker)"
                               :disabled="worker.status === 'Working' || !!worker.assignedTicket"
-                              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border"
+                              class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border w-full sm:w-auto mt-1"
                               :class="worker.status === 'Working' || worker.assignedTicket 
                                 ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60' 
                                 : worker.status === 'On Leave'
