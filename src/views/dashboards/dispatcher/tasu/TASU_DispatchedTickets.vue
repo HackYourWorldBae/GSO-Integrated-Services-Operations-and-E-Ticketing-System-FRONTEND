@@ -65,7 +65,11 @@
                     </div>
                   </td>
                   <td class="py-6 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-amber-500 transition-all text-right">
-                    <button @click="startJobEarly(ticket.id)" class="px-4 py-2 rounded-xl bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-700 transition-colors inline-block shadow-sm" :disabled="loading">
+                    <button
+                      @click="initiateAction('depart', ticket.id)"
+                      class="px-4 py-2 rounded-xl bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-700 transition-colors inline-block shadow-sm"
+                      :disabled="loading"
+                    >
                       Depart Early
                     </button>
                   </td>
@@ -75,7 +79,7 @@
           </div>
         </div>
 
-        <!-- Active / Performing Trips -->
+        <!-- Active / On Route Trips -->
         <div class="rounded-[2.5rem] bg-white border border-slate-200 p-10 overflow-hidden shadow-sm">
           <div class="flex items-center justify-between mb-8">
             <h3 class="text-2xl font-black text-slate-900 tracking-tight text-emerald-600">On Route / Active Trips</h3>
@@ -109,7 +113,13 @@
                     </div>
                   </td>
                   <td class="py-6 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-emerald-500 transition-all text-right">
-                    <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-widest rounded-full">On Route</span>
+                    <button
+                      @click="initiateAction('finish', ticket.id)"
+                      class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors inline-block shadow-sm"
+                      :disabled="loading"
+                    >
+                      Job Finished
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -120,16 +130,75 @@
       </div>
     </template>
   </MainLayout>
+
+  <!-- Custom Confirm Modal -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div
+        v-if="showConfirmModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in"
+        @click.self="closeConfirmModal"
+      >
+        <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl transform transition-all">
+          <!-- Icon -->
+          <div
+            class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
+            :class="pendingAction === 'finish' ? 'bg-emerald-100' : 'bg-amber-100'"
+          >
+            <svg v-if="pendingAction === 'finish'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </div>
+
+          <!-- Text -->
+          <h3 class="text-2xl font-black text-slate-900 text-center mb-2">
+            {{ pendingAction === 'finish' ? 'Mark Trip as Completed?' : 'Depart Early?' }}
+          </h3>
+          <p class="text-slate-500 text-center font-medium mb-8">
+            {{ pendingAction === 'finish'
+              ? 'This will complete the trip and free up the assigned driver and vehicle.'
+              : 'This will move the trip to On Route regardless of the scheduled departure date.' }}
+          </p>
+
+          <!-- Actions -->
+          <div class="flex gap-4">
+            <button
+              @click="closeConfirmModal"
+              class="w-full px-6 py-4 bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-200 transition-all active:scale-95"
+            >
+              Cancel
+            </button>
+            <button
+              @click="executeConfirmedAction"
+              :disabled="loading"
+              class="w-full px-6 py-4 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-60"
+              :class="pendingAction === 'finish'
+                ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20'
+                : 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/20'"
+            >
+              {{ pendingAction === 'finish' ? 'Yes, Complete Trip' : 'Yes, Depart Now' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
-import Swal from 'sweetalert2';
+import { toast } from 'vue3-toastify';
 
 const tickets = ref([]);
 const loading = ref(false);
+const showConfirmModal = ref(false);
+const pendingTicketId = ref(null);
+const pendingAction = ref(null); // 'depart' | 'finish'
 
 const scheduledTickets = computed(() => {
   return tickets.value.filter(t => t.current_step == 3);
@@ -148,39 +217,121 @@ const fetchTickets = async () => {
   }
 };
 
-const startJobEarly = async (ticketId) => {
-  const result = await Swal.fire({
-    title: 'Depart Early?',
-    text: 'This will move the trip to On Route regardless of the scheduled departure date.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#10B981',
-    cancelButtonColor: '#64748B',
-    confirmButtonText: 'Yes, Depart Now'
-  });
+/**
+ * Opens the confirmation modal for either 'depart' (start early) or 'finish' (complete) actions.
+ */
+const initiateAction = (action, ticketId) => {
+  pendingAction.value = action;
+  pendingTicketId.value = ticketId;
+  showConfirmModal.value = true;
+};
 
-  if (result.isConfirmed) {
-    loading.value = true;
-    try {
-      await api.post('/dispatch/start', { ticket_id: ticketId });
-      Swal.fire({
-        title: 'Success!',
-        text: 'The trip has been started.',
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false
-      });
-      await fetchTickets();
-    } catch (error) {
-      console.error(error);
-      Swal.fire('Error', error.response?.data?.message || 'Failed to start trip early.', 'error');
-    } finally {
-      loading.value = false;
-    }
+const closeConfirmModal = () => {
+  showConfirmModal.value = false;
+  pendingAction.value = null;
+  pendingTicketId.value = null;
+};
+
+const executeConfirmedAction = async () => {
+  if (pendingAction.value === 'depart') {
+    await performDepartEarly(pendingTicketId.value);
+  } else if (pendingAction.value === 'finish') {
+    await performJobFinished(pendingTicketId.value);
   }
+  closeConfirmModal();
+};
+
+const performDepartEarly = async (ticketId) => {
+  loading.value = true;
+  try {
+    await api.post('/dispatch/start', { ticket_id: ticketId });
+    toast.success('Trip departed — now On Route.');
+    await fetchTickets();
+  } catch (error) {
+    console.error(error);
+    toast.error(error.response?.data?.message || 'Failed to start trip early.');
+  } finally {
+    loading.value = false;
+  }
+};
+
+const performJobFinished = async (ticketId) => {
+  loading.value = true;
+  try {
+    const ticket = tickets.value.find(t => t.id === ticketId);
+    await api.patch(`/tickets/${ticketId}/complete`);
+
+    const duration = computeDuration(ticket?.assignment);
+    const message = duration
+      ? `Trip #${ticketId} completed in ${duration}.`
+      : `Trip #${ticketId} has been marked as completed.`;
+
+    toast.success(message);
+    await fetchTickets();
+  } catch (error) {
+    console.error(error);
+    toast.error(error.response?.data?.message || 'Failed to complete trip.');
+  } finally {
+    loading.value = false;
+  }
+};
+
+/**
+ * Computes a human-friendly duration string from the job start time to now.
+ *
+ * Priority: dispatched_at (early departure timestamp) → implementation_date (scheduled date at midnight).
+ * Returns null if neither reference date is available.
+ */
+const computeDuration = (assignment) => {
+  if (!assignment) return null;
+
+  const startRaw = assignment.dispatched_at || assignment.implementation_date;
+  if (!startRaw) return null;
+
+  const startDate = new Date(startRaw);
+  if (isNaN(startDate.getTime())) return null;
+
+  const totalMs = Date.now() - startDate.getTime();
+  if (totalMs <= 0) return null;
+
+  const totalMinutes = Math.floor(totalMs / 60000);
+  const totalHours   = Math.floor(totalMinutes / 60);
+  const days         = Math.floor(totalHours / 24);
+  const hours        = totalHours % 24;
+  const minutes      = totalMinutes % 60;
+
+  if (days > 0) {
+    return hours > 0 ? `${days}d ${hours}h` : `${days} day${days !== 1 ? 's' : ''}`;
+  }
+  if (hours > 0) {
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours} hour${hours !== 1 ? 's' : ''}`;
+  }
+  return `${minutes} min${minutes !== 1 ? 's' : ''}`;
 };
 
 onMounted(() => {
   fetchTickets();
 });
 </script>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+  transform: scale(0.96);
+}
+</style>
