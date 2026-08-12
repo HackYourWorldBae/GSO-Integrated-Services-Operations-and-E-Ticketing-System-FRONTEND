@@ -486,7 +486,7 @@ const IncidentTicketCard = defineComponent({
       h('div', { class: 'flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10' }, [
 
         // Left: icon + details
-        h('div', { class: 'flex items-start gap-5 flex-1' }, [
+        h('div', { class: 'flex flex-col sm:flex-row items-start gap-4 sm:gap-5 flex-1 w-full min-w-0' }, [
           h('div', {
             class: `p-4 rounded-2xl shrink-0 transition-transform group-hover:scale-110 ${isInvestigating.value ? 'bg-violet-50 text-violet-600' : 'bg-rose-50 text-rose-600'}`,
           }, [
@@ -495,21 +495,21 @@ const IncidentTicketCard = defineComponent({
             ]),
           ]),
 
-          h('div', { class: 'space-y-3 w-full' }, [
+          h('div', { class: 'space-y-4 w-full min-w-0' }, [
             // Title row
-            h('div', { class: 'flex flex-wrap items-center justify-between gap-2 w-full' }, [
-              h('div', { class: 'flex items-center gap-3' }, [
-                h('h4', { class: 'text-lg font-black text-slate-900' }, props.ticket.service),
+            h('div', { class: 'flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full' }, [
+              h('div', { class: 'flex flex-wrap items-center gap-2 sm:gap-3' }, [
+                h('h4', { class: 'text-lg sm:text-xl font-black text-slate-900 break-words' }, props.ticket.service),
                 // Status badge
                 h('span', {
-                  class: `px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${isInvestigating.value ? 'bg-violet-50 text-violet-600 border-violet-200' : 'bg-rose-50 text-rose-600 border-rose-200'}`,
+                  class: `px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap ${isInvestigating.value ? 'bg-violet-50 text-violet-600 border-violet-200' : 'bg-rose-50 text-rose-600 border-rose-200'}`,
                 }, props.ticket.statusLabel),
                 // Notation badge
                 hasNotation.value && !(props.ticket.statusLabel || '').toLowerCase().includes('notation')
-                  ? h('span', { class: 'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-blue-50 text-blue-600 border-blue-200' }, 'Notation Added')
+                  ? h('span', { class: 'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap bg-blue-50 text-blue-600 border-blue-200' }, 'Notation Added')
                   : null,
               ]),
-              h('div', { class: 'text-xs font-bold text-slate-400 flex items-center gap-1' }, [
+              h('div', { class: 'text-xs font-bold text-slate-400 flex items-center gap-1.5 shrink-0' }, [
                 h('svg', { xmlns: 'http://www.w3.org/2000/svg', class: 'h-4 w-4', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
                   h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' }),
                 ]),
@@ -518,33 +518,33 @@ const IncidentTicketCard = defineComponent({
             ]),
 
             // Info grid
-            h('div', { class: 'grid grid-cols-2 gap-4 bg-slate-50/80 p-4 rounded-xl border border-slate-100' }, [
-              h('div', {}, [
+            h('div', { class: 'grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 bg-slate-50/80 p-4 sm:p-5 rounded-xl border border-slate-100' }, [
+              h('div', { class: 'min-w-0' }, [
                 h('p', { class: 'text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1' }, 'Ticket ID'),
-                h('p', { class: 'text-sm font-black text-rose-600' }, props.ticket.ticketId),
+                h('p', { class: 'text-sm font-black text-rose-600 break-words' }, props.ticket.ticketId),
               ]),
-              h('div', {}, [
+              h('div', { class: 'min-w-0' }, [
                 h('p', { class: 'text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1' }, 'Reported By'),
-                h('p', { class: 'text-sm font-semibold text-slate-700' }, props.ticket.requestedBy),
+                h('p', { class: 'text-sm font-semibold text-slate-700 break-words' }, props.ticket.requestedBy),
               ]),
-              h('div', { class: 'col-span-2' }, [
+              h('div', { class: 'col-span-1 sm:col-span-2 min-w-0' }, [
                 h('p', { class: 'text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1' }, 'Particulars / Incident Summary'),
-                h('p', { class: 'text-sm text-slate-600 font-medium leading-relaxed' }, props.ticket.description),
+                h('p', { class: 'text-sm text-slate-600 font-medium leading-relaxed break-words' }, props.ticket.description),
               ]),
               // Attachments
               ...(props.ticket.attachments?.length > 0 ? [
-                h('div', { class: 'col-span-2 mt-1' }, [
+                h('div', { class: 'col-span-1 sm:col-span-2 mt-1 min-w-0' }, [
                   h('p', { class: 'text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2' }, 'Evidence / Attachments'),
                   h('div', { class: 'flex flex-wrap gap-2' }, props.ticket.attachments.map((file, idx) =>
                     h('div', {
                       key: idx,
                       onClick: () => emit('download-attachment', file),
-                      class: 'flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 hover:border-rose-400 hover:text-rose-600 cursor-pointer transition-colors shadow-sm',
+                      class: 'flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 hover:border-rose-400 hover:text-rose-600 cursor-pointer transition-colors shadow-sm max-w-full',
                     }, [
-                      h('svg', { xmlns: 'http://www.w3.org/2000/svg', class: 'h-4 w-4 text-rose-500', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
+                      h('svg', { xmlns: 'http://www.w3.org/2000/svg', class: 'h-4 w-4 text-rose-500 shrink-0', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
                         h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13' }),
                       ]),
-                      file.file_name || 'Attachment',
+                      h('span', { class: 'truncate' }, file.file_name || 'Attachment'),
                     ])
                   )),
                 ]),
@@ -552,14 +552,14 @@ const IncidentTicketCard = defineComponent({
 
               // Existing notation display (if already has one)
               ...(hasNotation.value ? [
-                h('div', { class: 'col-span-2 mt-1' }, [
-                  h('div', { class: 'p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-2' }, [
-                    h('svg', { xmlns: 'http://www.w3.org/2000/svg', class: 'h-4 w-4 text-blue-500 shrink-0 mt-0.5', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
+                h('div', { class: 'col-span-1 sm:col-span-2 mt-1 min-w-0' }, [
+                  h('div', { class: 'p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-2 sm:gap-3' }, [
+                    h('svg', { xmlns: 'http://www.w3.org/2000/svg', class: 'h-4 w-4 sm:h-5 sm:w-5 text-blue-500 shrink-0 mt-0.5', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
                       h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z' }),
                     ]),
-                    h('div', {}, [
-                      h('p', { class: 'text-[10px] font-black text-blue-600 uppercase tracking-widest mb-0.5' }, 'Current Notation / Recommendation'),
-                      h('p', { class: 'text-xs text-blue-800 font-medium leading-relaxed italic' }, `"${props.ticket.notation}"`),
+                    h('div', { class: 'min-w-0' }, [
+                      h('p', { class: 'text-[10px] font-black text-blue-600 uppercase tracking-widest mb-0.5 break-words' }, 'Current Notation / Recommendation'),
+                      h('p', { class: 'text-xs text-blue-800 font-medium leading-relaxed italic break-words' }, `"${props.ticket.notation}"`),
                     ]),
                   ]),
                 ]),

@@ -104,21 +104,21 @@
         <div v-if="activeTab === 'pending'" class="grid grid-cols-1 gap-4">
           <div v-for="ticket in tickets" :key="ticket.id" class="group relative overflow-hidden bg-white border border-blue-100/80 rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all">
             <div class="flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10">
-              <div class="flex items-start gap-5 flex-1">
+              <div class="flex flex-col sm:flex-row items-start gap-4 sm:gap-5 flex-1 w-full min-w-0">
                 <div class="p-4 rounded-2xl shrink-0 bg-blue-50 text-blue-600 transition-transform group-hover:scale-110">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                   </svg>
                 </div>
-                <div class="space-y-3 w-full">
-                  <div class="flex flex-wrap items-center justify-between gap-2 w-full">
-                    <div class="flex items-center gap-3">
-                      <h4 class="text-lg font-black text-slate-900">{{ ticket.service }}</h4>
-                      <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-amber-50 text-amber-600 border-amber-200">
+                <div class="space-y-4 w-full min-w-0">
+                  <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                      <h4 class="text-lg sm:text-xl font-black text-slate-900 break-words">{{ ticket.service }}</h4>
+                      <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap bg-amber-50 text-amber-600 border-amber-200">
                         {{ ticket.statusLabel }}
                       </span>
                     </div>
-                    <div class="text-xs font-bold text-slate-400 flex items-center gap-1">
+                    <div class="text-xs font-bold text-slate-400 flex items-center gap-1.5 shrink-0">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -126,38 +126,38 @@
                     </div>
                   </div>
                   
-                  <div class="grid grid-cols-2 gap-4 bg-slate-50/80 p-4 rounded-xl border border-slate-100">
-                    <div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 bg-slate-50/80 p-4 sm:p-5 rounded-xl border border-slate-100">
+                    <div class="min-w-0">
                       <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ticket ID</p>
-                      <p class="text-sm font-black text-blue-600">{{ ticket.ticketId }}</p>
+                      <p class="text-sm font-black text-blue-600 break-words">{{ ticket.ticketId }}</p>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                       <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Applicant</p>
-                      <p class="text-sm font-semibold text-slate-700">{{ ticket.requestedBy }}</p>
+                      <p class="text-sm font-semibold text-slate-700 break-words">{{ ticket.requestedBy }}</p>
                     </div>
 
-                    <div>
+                    <div class="min-w-0">
                       <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Vehicle Model & Plate</p>
-                      <p class="text-xs font-bold text-slate-700">{{ ticket.vehicleModel }} ({{ ticket.plateNo }})</p>
+                      <p class="text-xs font-bold text-slate-700 break-words">{{ ticket.vehicleModel }} ({{ ticket.plateNo }})</p>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                       <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Driver's License No</p>
-                      <p class="text-xs font-bold text-slate-700">{{ ticket.licenseNo }}</p>
+                      <p class="text-xs font-bold text-slate-700 break-words">{{ ticket.licenseNo }}</p>
                     </div>
 
-                    <div class="col-span-2">
+                    <div class="col-span-1 sm:col-span-2 min-w-0">
                       <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Particulars / Application Note</p>
-                      <p class="text-sm text-slate-600 font-medium leading-relaxed">{{ ticket.description }}</p>
+                      <p class="text-sm text-slate-600 font-medium leading-relaxed break-words">{{ ticket.description }}</p>
                     </div>
                     
-                    <div class="col-span-2 mt-1" v-if="ticket.attachments && ticket.attachments.length > 0">
+                    <div class="col-span-1 sm:col-span-2 mt-1 min-w-0" v-if="ticket.attachments && ticket.attachments.length > 0">
                       <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Attached Documents</p>
                       <div class="flex flex-wrap gap-2">
-                        <div v-for="(file, index) in ticket.attachments" :key="index" @click="downloadAttachment(file)" class="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 hover:border-blue-400 hover:text-blue-600 cursor-pointer transition-colors shadow-sm">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div v-for="(file, index) in ticket.attachments" :key="index" @click="downloadAttachment(file)" class="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 hover:border-blue-400 hover:text-blue-600 cursor-pointer transition-colors shadow-sm max-w-full">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                           </svg>
-                          {{ file.file_name || 'Attachment' }}
+                          <span class="truncate">{{ file.file_name || 'Attachment' }}</span>
                         </div>
                       </div>
                     </div>
@@ -224,21 +224,21 @@
           <div class="grid grid-cols-1 gap-4">
             <div v-for="ticket in filteredVerifiedTickets" :key="ticket.id" class="group relative overflow-hidden bg-white border border-emerald-100/80 rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all">
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                <div class="flex items-start gap-5 flex-1">
+                <div class="flex flex-col sm:flex-row items-start gap-4 sm:gap-5 flex-1 w-full min-w-0">
                   <div class="p-4 rounded-2xl shrink-0 bg-emerald-50 text-emerald-600 transition-transform group-hover:scale-110">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <div class="space-y-3 w-full">
-                    <div class="flex flex-wrap items-center justify-between gap-2 w-full">
-                      <div class="flex items-center gap-3">
-                        <h4 class="text-lg font-black text-slate-900">{{ ticket.service }}</h4>
-                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-emerald-50 text-emerald-600 border-emerald-200">
+                  <div class="space-y-4 w-full min-w-0">
+                    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full">
+                      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <h4 class="text-lg sm:text-xl font-black text-slate-900 break-words">{{ ticket.service }}</h4>
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap bg-emerald-50 text-emerald-600 border-emerald-200">
                           {{ ticket.statusLabel }}
                         </span>
                       </div>
-                      <div class="text-xs font-bold text-slate-400 flex items-center gap-1">
+                      <div class="text-xs font-bold text-slate-400 flex items-center gap-1.5 shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
@@ -246,26 +246,26 @@
                       </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50/80 p-4 rounded-xl border border-slate-100">
-                      <div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 bg-slate-50/80 p-4 rounded-xl border border-slate-100">
+                      <div class="min-w-0">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ticket Number</p>
-                        <p class="text-sm font-black text-emerald-600">{{ ticket.ticketId }}</p>
+                        <p class="text-sm font-black text-emerald-600 break-words">{{ ticket.ticketId }}</p>
                       </div>
-                      <div>
+                      <div class="min-w-0">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Applicant</p>
-                        <p class="text-sm font-semibold text-slate-700">{{ ticket.requestedBy }}</p>
+                        <p class="text-sm font-semibold text-slate-700 break-words">{{ ticket.requestedBy }}</p>
                       </div>
-                      <div>
+                      <div class="min-w-0">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Vehicle Info</p>
-                        <p class="text-xs font-bold text-slate-700">{{ ticket.vehicleModel }} ({{ ticket.plateNo }})</p>
+                        <p class="text-xs font-bold text-slate-700 break-words">{{ ticket.vehicleModel }} ({{ ticket.plateNo }})</p>
                       </div>
-                      <div>
+                      <div class="min-w-0">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">License No</p>
-                        <p class="text-xs font-bold text-slate-700">{{ ticket.licenseNo }}</p>
+                        <p class="text-xs font-bold text-slate-700 break-words">{{ ticket.licenseNo }}</p>
                       </div>
                     </div>
 
-                    <div class="p-3 bg-emerald-50/50 rounded-xl border border-emerald-100 text-xs font-medium text-emerald-800">
+                    <div class="p-3 bg-emerald-50/50 rounded-xl border border-emerald-100 text-xs font-medium text-emerald-800 break-words">
                       {{ ticket.description }}
                     </div>
                   </div>
