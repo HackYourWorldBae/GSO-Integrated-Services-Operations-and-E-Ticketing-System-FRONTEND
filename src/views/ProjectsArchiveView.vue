@@ -128,9 +128,8 @@
       <!-- Projects Grid -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div v-for="(project, index) in filteredProjects" :key="project.id" 
-             class="group bg-white rounded-[2rem] border border-slate-200/60 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-500 flex flex-col hover:-translate-y-2 relative"
-             :style="{ animationDelay: `${index * 100}ms` }"
-             class="animate-fade-in-up">
+             class="group bg-white rounded-[2rem] border border-slate-200/60 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-500 flex flex-col hover:-translate-y-2 relative animate-fade-in-up"
+             :style="{ animationDelay: `${index * 100}ms` }">
              
           <!-- Colored Top Accent Line -->
           <div class="absolute top-0 left-0 w-full h-1.5 bg-slate-300 transition-colors duration-300 group-hover:bg-slate-400"></div>
