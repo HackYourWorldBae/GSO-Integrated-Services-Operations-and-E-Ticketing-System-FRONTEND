@@ -116,7 +116,8 @@
         </div>
 
         <!-- Add Modal -->
-        <div v-if="showAddModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <Teleport to="body">
+          <div v-if="showAddModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center shrink-0">
               <h3 class="text-xl font-black text-slate-900 tracking-tight">New Project Announcement</h3>
@@ -214,6 +215,7 @@
             </div>
           </div>
         </div>
+        </Teleport>
 
       </div>
     </template>
