@@ -29,101 +29,190 @@
     </template>
 
     <template #main-content>
-      <div class="space-y-8 animate-fade-in relative">
-        
-        <!-- Scheduled/Dispatched Trips -->
-        <div class="rounded-[2.5rem] bg-white border border-slate-200 p-10 overflow-hidden shadow-sm">
-          <div class="flex items-center justify-between mb-8">
-            <h3 class="text-2xl font-black text-slate-900 tracking-tight text-amber-600">Scheduled / Waiting for Departure</h3>
+      <div class="space-y-8 animate-fade-in">
+
+        <!-- ① Scheduled / Waiting for Departure -->
+        <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-amber-100">
+          <!-- Section Header -->
+          <div class="relative bg-gradient-to-br from-amber-600 to-amber-500 px-10 py-7 overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15),_transparent_60%)]"></div>
+            <div class="absolute -bottom-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="relative z-10 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-black text-white tracking-tight">Scheduled / Waiting for Departure</h3>
+                  <p class="text-amber-100 text-[10px] font-bold uppercase tracking-widest mt-0.5">Trips awaiting departure time</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-2xl border border-white/30 backdrop-blur-sm">
+                <span class="w-2 h-2 rounded-full bg-amber-200 animate-pulse"></span>
+                <span class="text-white font-black text-sm">{{ scheduledTickets.length }}</span>
+                <span class="text-amber-100 text-[10px] font-bold uppercase tracking-widest">Pending</span>
+              </div>
+            </div>
           </div>
-          
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-separate border-spacing-y-4 min-w-[750px]">
-              <thead>
-                <tr class="border-b border-slate-100">
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 font-bold">Ticket ID</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Departure Date</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Driver & Vehicle</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 font-bold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="scheduledTickets.length === 0">
-                  <td colspan="4" class="py-8 text-center text-slate-400 text-sm font-medium">No scheduled trips.</td>
-                </tr>
-                <tr v-for="ticket in scheduledTickets" :key="ticket.id" class="group transition-all duration-200">
-                  <td class="py-6 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-amber-500 transition-all">
-                    <span class="text-sm font-black text-slate-900">#{{ ticket.id }}</span>
-                  </td>
-                  <td class="py-6 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-amber-500 transition-all">
-                    <span class="text-sm font-bold text-slate-900">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
-                  </td>
-                  <td class="py-6 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-amber-500 transition-all">
-                    <div class="flex flex-col">
-                      <span class="text-sm font-bold text-slate-700">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
-                      <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">{{ ticket.assignment?.vehicle_name || 'No Vehicle' }}</span>
-                    </div>
-                  </td>
-                  <td class="py-6 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-amber-500 transition-all text-right">
-                    <button
-                      @click="initiateAction('depart', ticket.id)"
-                      class="px-4 py-2 rounded-xl bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-700 transition-colors inline-block shadow-sm"
-                      :disabled="loading"
-                    >
-                      Depart Early
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+
+          <!-- Table Body -->
+          <div class="bg-white px-6 pb-6">
+            <!-- Empty State -->
+            <div v-if="scheduledTickets.length === 0" class="py-16 flex flex-col items-center justify-center gap-3">
+              <div class="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <p class="text-slate-400 font-bold text-sm">No scheduled trips</p>
+              <p class="text-slate-300 text-xs">All dispatched trips have already departed.</p>
+            </div>
+
+            <!-- Ticket List -->
+            <div v-else class="divide-y divide-slate-100">
+              <div
+                v-for="ticket in scheduledTickets"
+                :key="ticket.id"
+                class="group flex items-center gap-5 py-5 px-4 hover:bg-amber-50/50 rounded-2xl transition-all duration-200 cursor-default -mx-4"
+              >
+                <!-- Left Accent + ID -->
+                <div class="flex items-center gap-4 min-w-0">
+                  <div class="w-1 h-12 rounded-full bg-amber-400 group-hover:h-14 transition-all duration-300 shrink-0"></div>
+                  <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
+                    <span class="text-xs font-black text-amber-600 leading-none">#{{ ticket.id }}</span>
+                  </div>
+                </div>
+
+                <!-- Departure Date -->
+                <div class="flex flex-col min-w-[130px]">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Departure</span>
+                  <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
+                </div>
+
+                <!-- Driver & Vehicle -->
+                <div class="flex flex-col flex-1 min-w-0">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver & Vehicle</span>
+                  <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                  <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
+                </div>
+
+                <!-- Status Chip -->
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                  <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
+                </div>
+
+                <!-- Action -->
+                <button
+                  @click="initiateAction('depart', ticket.id)"
+                  :disabled="loading"
+                  class="shrink-0 px-5 py-2.5 rounded-xl bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                >
+                  Depart Early
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Active / On Route Trips -->
-        <div class="rounded-[2.5rem] bg-white border border-slate-200 p-10 overflow-hidden shadow-sm">
-          <div class="flex items-center justify-between mb-8">
-            <h3 class="text-2xl font-black text-slate-900 tracking-tight text-emerald-600">On Route / Active Trips</h3>
+        <!-- ② On Route / Active Trips -->
+        <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200">
+          <!-- Section Header -->
+          <div class="relative bg-gradient-to-br from-slate-900 to-slate-800 px-10 py-7 overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(16,185,129,0.12),_transparent_60%)]"></div>
+            <div class="absolute -bottom-8 -right-8 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl"></div>
+            <div class="relative z-10 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 backdrop-blur-sm flex items-center justify-center border border-emerald-500/30">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-black text-white tracking-tight">On Route / Active Trips</h3>
+                  <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Duration updates every hour</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 px-4 py-2 bg-emerald-500/15 rounded-2xl border border-emerald-500/25 backdrop-blur-sm">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-white font-black text-sm">{{ activeTickets.length }}</span>
+                <span class="text-emerald-300 text-[10px] font-bold uppercase tracking-widest">Active</span>
+              </div>
+            </div>
           </div>
-          
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-separate border-spacing-y-4 min-w-[750px]">
-              <thead>
-                <tr class="border-b border-slate-100">
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 font-bold">Ticket ID</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Departure Date</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Driver & Vehicle</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 font-bold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="activeTickets.length === 0">
-                  <td colspan="4" class="py-8 text-center text-slate-400 text-sm font-medium">No trips currently on route.</td>
-                </tr>
-                <tr v-for="ticket in activeTickets" :key="ticket.id" class="group transition-all duration-200">
-                  <td class="py-6 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <span class="text-sm font-black text-slate-900">#{{ ticket.id }}</span>
-                  </td>
-                  <td class="py-6 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <span class="text-sm font-bold text-slate-900">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
-                  </td>
-                  <td class="py-6 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <div class="flex flex-col">
-                      <span class="text-sm font-bold text-slate-700">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
-                      <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">{{ ticket.assignment?.vehicle_name || 'No Vehicle' }}</span>
-                    </div>
-                  </td>
-                  <td class="py-6 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-emerald-500 transition-all text-right">
-                    <button
-                      @click="initiateAction('finish', ticket.id)"
-                      class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors inline-block shadow-sm"
-                      :disabled="loading"
-                    >
-                      Job Finished
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+
+          <!-- Table Body -->
+          <div class="bg-white px-6 pb-6">
+            <!-- Empty State -->
+            <div v-if="activeTickets.length === 0" class="py-16 flex flex-col items-center justify-center gap-3">
+              <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <p class="text-slate-400 font-bold text-sm">No active trips</p>
+              <p class="text-slate-300 text-xs">No vehicles are currently on route.</p>
+            </div>
+
+            <!-- Ticket List -->
+            <div v-else class="divide-y divide-slate-100">
+              <div
+                v-for="ticket in activeTickets"
+                :key="ticket.id"
+                class="group flex items-center gap-5 py-5 px-4 hover:bg-emerald-50/40 rounded-2xl transition-all duration-200 cursor-default -mx-4"
+              >
+                <!-- Left Accent + ID -->
+                <div class="flex items-center gap-4 min-w-0">
+                  <div class="w-1 h-12 rounded-full bg-emerald-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
+                  <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                    <span class="text-xs font-black text-emerald-600 leading-none">#{{ ticket.id }}</span>
+                  </div>
+                </div>
+
+                <!-- Departure Date -->
+                <div class="flex flex-col min-w-[130px]">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Departed</span>
+                  <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
+                </div>
+
+                <!-- Driver & Vehicle -->
+                <div class="flex flex-col flex-1 min-w-0">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver & Vehicle</span>
+                  <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                  <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
+                </div>
+
+                <!-- Live Duration -->
+                <div class="flex flex-col items-center shrink-0">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Elapsed</span>
+                  <div class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-xs font-black text-white tracking-wide">
+                      {{ liveDurations[ticket.id] || '—' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- On Route chip -->
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl shrink-0">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">On Route</span>
+                </div>
+
+                <!-- Action -->
+                <button
+                  @click="initiateAction('finish', ticket.id)"
+                  :disabled="loading"
+                  class="shrink-0 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                >
+                  Job Finished
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -136,10 +225,10 @@
     <Transition name="modal">
       <div
         v-if="showConfirmModal"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
         @click.self="closeConfirmModal"
       >
-        <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl transform transition-all">
+        <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl">
           <!-- Icon -->
           <div
             class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
@@ -189,7 +278,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
@@ -200,26 +289,34 @@ const showConfirmModal = ref(false);
 const pendingTicketId = ref(null);
 const pendingAction = ref(null); // 'depart' | 'finish'
 
-const scheduledTickets = computed(() => {
-  return tickets.value.filter(t => t.current_step == 3);
-});
+/** Keyed by ticket.id → human-friendly elapsed duration string. Updated every hour. */
+const liveDurations = reactive({});
 
-const activeTickets = computed(() => {
-  return tickets.value.filter(t => t.current_step == 4);
-});
+let durationRefreshTimer = null;
+
+const scheduledTickets = computed(() => tickets.value.filter(t => t.current_step == 3));
+const activeTickets    = computed(() => tickets.value.filter(t => t.current_step == 4));
 
 const fetchTickets = async () => {
   try {
     const res = await api.get('/tickets/active/TASU');
     tickets.value = res.data.data.tickets;
+    refreshDurations();
   } catch (error) {
     console.error('Failed to fetch active tickets', error);
   }
 };
 
 /**
- * Opens the confirmation modal for either 'depart' (start early) or 'finish' (complete) actions.
+ * Recomputes the elapsed duration for every active ticket and writes it into
+ * the liveDurations map. Called once on mount, then every hour.
  */
+const refreshDurations = () => {
+  for (const ticket of activeTickets.value) {
+    liveDurations[ticket.id] = computeDuration(ticket.assignment);
+  }
+};
+
 const initiateAction = (action, ticketId) => {
   pendingAction.value = action;
   pendingTicketId.value = ticketId;
@@ -262,7 +359,7 @@ const performJobFinished = async (ticketId) => {
     await api.patch(`/tickets/${ticketId}/complete`);
 
     const duration = computeDuration(ticket?.assignment);
-    const message = duration
+    const message  = duration
       ? `Trip #${ticketId} completed in ${duration}.`
       : `Trip #${ticketId} has been marked as completed.`;
 
@@ -277,10 +374,8 @@ const performJobFinished = async (ticketId) => {
 };
 
 /**
- * Computes a human-friendly duration string from the job start time to now.
- *
- * Priority: dispatched_at (early departure timestamp) → implementation_date (scheduled date at midnight).
- * Returns null if neither reference date is available.
+ * Computes a human-friendly elapsed duration string.
+ * Uses dispatched_at (early departure) if set, otherwise implementation_date.
  */
 const computeDuration = (assignment) => {
   if (!assignment) return null;
@@ -311,6 +406,12 @@ const computeDuration = (assignment) => {
 
 onMounted(() => {
   fetchTickets();
+  // Refresh displayed durations every hour without re-fetching from the server
+  durationRefreshTimer = setInterval(refreshDurations, 60 * 60 * 1000);
+});
+
+onUnmounted(() => {
+  clearInterval(durationRefreshTimer);
 });
 </script>
 
@@ -326,12 +427,12 @@ onMounted(() => {
 
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
-  transform: scale(0.96);
+  transform: scale(0.95) translateY(8px);
 }
 </style>
