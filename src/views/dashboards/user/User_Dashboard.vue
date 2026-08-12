@@ -368,9 +368,16 @@ const fetchDashboardData = async () => {
   }
 };
 
+let pollingInterval = null;
+
 onMounted(() => {
   userName.value = authStore.user?.first_name || authStore.fullName || 'User';
   fetchDashboardData();
+  pollingInterval = setInterval(fetchDashboardData, 5000);
+});
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval);
 });
 </script>
 

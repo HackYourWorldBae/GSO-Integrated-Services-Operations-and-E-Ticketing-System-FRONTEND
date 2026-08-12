@@ -777,6 +777,21 @@ const fetchTickets = async () => {
         notation:             t.ssu_notation || '',
         actionsTaken:         t.ssu_notation || '',
       }));
+      
+      const ackMap = JSON.parse(localStorage.getItem('gso_ssu_acknowledged_incidents') || '{}');
+      tickets.value.forEach(t => {
+        if (ackMap[t.ticketId]) {
+          Object.assign(t, ackMap[t.ticketId]);
+        }
+      });
+
+      // Update the timeline modal ticket if it is currently open
+      if (selectedTicket.value) {
+        const updated = tickets.value.find(t => t.ticketId === selectedTicket.value.ticketId);
+        if (updated) {
+          selectedTicket.value = updated;
+        }
+      }
     }
   } catch (error) {
     console.error('Failed to fetch tickets:', error);
@@ -795,13 +810,6 @@ onMounted(() => {
   }
 
   userName.value = authStore.user?.first_name || authStore.fullName || 'User';
-
-  const ackMap = JSON.parse(localStorage.getItem('gso_ssu_acknowledged_incidents') || '{}');
-  tickets.value.forEach(t => {
-    if (ackMap[t.ticketId]) {
-      Object.assign(t, ackMap[t.ticketId]);
-    }
-  });
 
   fetchTickets();
   pollingInterval = setInterval(fetchTickets, 5000);
