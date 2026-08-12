@@ -32,7 +32,7 @@
       <div class="space-y-8 animate-fade-in">
 
         <!-- ① Scheduled / Waiting for Departure -->
-        <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-amber-100">
+        <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-amber-200">
           <!-- Section Header -->
           <div class="relative bg-gradient-to-br from-amber-900 to-amber-800 px-6 sm:px-10 py-7 overflow-hidden">
             <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15),_transparent_60%)]"></div>
@@ -75,19 +75,19 @@
               <div
                 v-for="ticket in scheduledTickets"
                 :key="ticket.id"
-                class="group flex flex-col md:flex-row md:items-center gap-4 py-5 px-4 hover:bg-amber-50/50 rounded-2xl transition-all duration-200 cursor-default sm:-mx-4"
+                class="group flex flex-col md:flex-row md:items-center gap-4 py-5 px-4 hover:bg-slate-50 border-b border-transparent hover:border-slate-100 rounded-2xl transition-all duration-200 cursor-default sm:-mx-4"
               >
                 <!-- Mobile Header Row: ID & Status -->
                 <div class="flex items-center justify-between w-full md:w-auto md:shrink-0">
                   <div class="flex items-center gap-4 min-w-0">
-                    <div class="w-1 h-12 rounded-full bg-amber-400 group-hover:h-14 transition-all duration-300 shrink-0"></div>
-                    <div class="h-12 px-3 min-w-[3rem] rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
-                      <span class="text-xs font-black text-amber-600 leading-none">#{{ ticket.id }}</span>
+                    <div class="w-1 h-12 rounded-full bg-amber-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
+                    <div class="h-12 px-3 min-w-[4.5rem] rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+                      <span class="text-xs font-black text-amber-700 leading-none">#{{ ticket.id }}</span>
                     </div>
                   </div>
                   <!-- Mobile Status Chip -->
                   <div class="flex md:hidden items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                     <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
                   </div>
                 </div>
@@ -100,7 +100,7 @@
                   </div>
                   <div class="flex flex-col flex-1 min-w-0">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver & Vehicle</span>
-                    <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
                     <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
                   </div>
                 </div>
@@ -109,7 +109,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4 w-full md:w-auto mt-2 md:mt-0 md:shrink-0">
                   <!-- Desktop Status Chip -->
                   <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                     <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
                   </div>
                   <button
@@ -126,7 +126,7 @@
         </div>
 
         <!-- ② On Route / Active Trips -->
-        <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200">
+        <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 shadow-xl shadow-slate-200/50">
           <!-- Section Header -->
           <div class="relative bg-gradient-to-br from-slate-900 to-slate-800 px-6 sm:px-10 py-7 overflow-hidden">
             <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(16,185,129,0.12),_transparent_60%)]"></div>
@@ -169,13 +169,13 @@
               <div
                 v-for="ticket in activeTickets"
                 :key="ticket.id"
-                class="group flex flex-col md:flex-row md:items-center gap-4 py-5 px-4 hover:bg-emerald-50/40 rounded-2xl transition-all duration-200 cursor-default sm:-mx-4"
+                class="group flex flex-col md:flex-row md:items-center gap-4 py-5 px-4 hover:bg-slate-50 border-b border-transparent hover:border-slate-100 rounded-2xl transition-all duration-200 cursor-default sm:-mx-4"
               >
                 <!-- Mobile Header Row: ID & Status -->
                 <div class="flex items-center justify-between w-full md:w-auto md:shrink-0">
                   <div class="flex items-center gap-4 min-w-0">
                     <div class="w-1 h-12 rounded-full bg-emerald-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
-                    <div class="h-12 px-3 min-w-[3rem] rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                    <div class="h-12 px-3 min-w-[4.5rem] rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
                       <span class="text-xs font-black text-emerald-600 leading-none">#{{ ticket.id }}</span>
                     </div>
                   </div>
@@ -194,7 +194,7 @@
                   </div>
                   <div class="flex flex-col flex-1 min-w-0">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver & Vehicle</span>
-                    <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
                     <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
                   </div>
                 </div>
@@ -255,7 +255,7 @@
             <svg v-if="pendingAction === 'finish'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
           </div>
@@ -402,7 +402,7 @@ const computeDuration = (assignment) => {
   if (!startRaw) return null;
 
   // Append 'Z' to treat the backend Y-m-d H:i:s string as UTC
-  const startStr = startRaw.replace(' ', 'T') + (startRaw.includes('Z') ? '' : 'Z');
+  const startStr = startRaw.replace(' ', 'T'); // Parsed as local time
   const startDate = new Date(startStr);
   if (isNaN(startDate.getTime())) return null;
 
@@ -427,7 +427,7 @@ const computeDuration = (assignment) => {
 onMounted(() => {
   fetchTickets();
   // Refresh displayed durations every hour without re-fetching from the server
-  durationRefreshTimer = setInterval(refreshDurations, 60 * 60 * 1000);
+  durationRefreshTimer = setInterval(refreshDurations, 60 * 1000);
 });
 
 onUnmounted(() => {
