@@ -222,7 +222,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import MainLayout from '@/components/MainLayout.vue';
+import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
