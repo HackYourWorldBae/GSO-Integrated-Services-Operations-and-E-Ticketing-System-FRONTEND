@@ -78,7 +78,7 @@
                 <!-- Left Accent + ID -->
                 <div class="flex items-center gap-4 min-w-0">
                   <div class="w-1 h-12 rounded-full bg-amber-400 group-hover:h-14 transition-all duration-300 shrink-0"></div>
-                  <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
+                  <div class="h-12 px-3 min-w-[3rem] rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
                     <span class="text-xs font-black text-amber-600 leading-none">#{{ ticket.id }}</span>
                   </div>
                 </div>
@@ -161,7 +161,7 @@
                 <!-- Left Accent + ID -->
                 <div class="flex items-center gap-4 min-w-0">
                   <div class="w-1 h-12 rounded-full bg-emerald-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
-                  <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                  <div class="h-12 px-3 min-w-[3rem] rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
                     <span class="text-xs font-black text-emerald-600 leading-none">#{{ ticket.id }}</span>
                   </div>
                 </div>
@@ -368,7 +368,9 @@ const computeDuration = (assignment) => {
   const startRaw = assignment.dispatched_at || assignment.implementation_date;
   if (!startRaw) return null;
 
-  const startDate = new Date(startRaw);
+  // Append 'Z' to treat the backend Y-m-d H:i:s string as UTC
+  const startStr = startRaw.replace(' ', 'T') + (startRaw.includes('Z') ? '' : 'Z');
+  const startDate = new Date(startStr);
   if (isNaN(startDate.getTime())) return null;
 
   const totalMs = Date.now() - startDate.getTime();
