@@ -129,48 +129,33 @@
             <div class="pl-5 pr-5 py-5">
               <div class="flex flex-col md:flex-row md:items-start gap-4">
 
-                <!-- Status icon -->
-                <div class="flex-shrink-0 mt-0.5">
-                  <div class="w-11 h-11 rounded-xl flex items-center justify-center" :class="getStatusBg(ticket.status)">
-                    <svg v-if="ticket.status === 'declined' || ticket.status === 'rejected'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="getStatusColor(ticket.status)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    <svg v-else-if="ticket.status === 'resolved' || ticket.status === 'closed'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="getStatusColor(ticket.status)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="getStatusColor(ticket.status)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                    </svg>
-                  </div>
-                </div>
-
                 <!-- Main info -->
                 <div class="flex-1 min-w-0">
-                  <!-- Title row -->
-                  <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <h3 class="text-base font-black text-slate-900 leading-tight">{{ ticket.service }}</h3>
+                  <!-- Meta / Badges Row -->
+                  <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <!-- Unit badge -->
+                      <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider border border-slate-200">
+                        {{ ticket.unit }}
+                      </span>
+                      <span class="font-mono font-bold text-[10px] text-slate-400">#{{ ticket.ticketId }}</span>
+                    </div>
+                    
                     <!-- Status badge -->
                     <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wide border', getStatusBadge(ticket.status)]">
                       <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(ticket.status)"></span>
                       {{ ticket.statusLabel }}
                     </span>
-                    <!-- Unit badge -->
-                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider border border-slate-200">
-                      {{ ticket.unit }}
-                    </span>
                   </div>
+
+                  <!-- Title -->
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight mb-2">{{ ticket.service }}</h3>
 
                   <!-- Description -->
                   <p v-if="ticket.description" class="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-3">{{ ticket.description }}</p>
 
-                  <!-- Meta row -->
+                  <!-- Dates Row -->
                   <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                    <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                      </svg>
-                      <span class="font-mono font-bold text-slate-500">#{{ ticket.ticketId }}</span>
-                    </div>
                     <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -1069,90 +1054,125 @@ const closeTicket = async (ticket) => {
 // ---- Style helpers ----
 const getStatusAccent = (status) => {
   const map = {
-    pending:    'bg-amber-400',
-    processing: 'bg-blue-500',
-    resolved:   'bg-emerald-500',
-    closed:     'bg-slate-400',
-    declined:   'bg-rose-500',
-    rejected:   'bg-rose-500',
+    pending:       'bg-amber-400',
+    processing:    'bg-blue-500',
+    'in-progress': 'bg-blue-500',
+    approved:      'bg-blue-500',
+    scheduled:     'bg-blue-500',
+    completed:     'bg-emerald-500',
+    resolved:      'bg-emerald-500',
+    closed:        'bg-slate-400',
+    declined:      'bg-rose-500',
+    rejected:      'bg-rose-500',
   };
   return map[status] || 'bg-slate-300';
 };
 
 const getStatusBg = (status) => {
   const map = {
-    pending:    'bg-amber-50',
-    processing: 'bg-blue-50',
-    resolved:   'bg-emerald-50',
-    closed:     'bg-slate-100',
-    declined:   'bg-rose-50',
-    rejected:   'bg-rose-50',
+    pending:       'bg-amber-50',
+    processing:    'bg-blue-50',
+    'in-progress': 'bg-blue-50',
+    approved:      'bg-blue-50',
+    scheduled:     'bg-blue-50',
+    completed:     'bg-emerald-50',
+    resolved:      'bg-emerald-50',
+    closed:        'bg-slate-100',
+    declined:      'bg-rose-50',
+    rejected:      'bg-rose-50',
   };
   return map[status] || 'bg-slate-50';
 };
 
 const getStatusColor = (status) => {
   const map = {
-    pending:    'text-amber-500',
-    processing: 'text-blue-500',
-    resolved:   'text-emerald-600',
-    closed:     'text-slate-500',
-    declined:   'text-rose-500',
-    rejected:   'text-rose-500',
+    pending:       'text-amber-500',
+    processing:    'text-blue-500',
+    'in-progress': 'text-blue-500',
+    approved:      'text-blue-500',
+    scheduled:     'text-blue-500',
+    completed:     'text-emerald-600',
+    resolved:      'text-emerald-600',
+    closed:        'text-slate-500',
+    declined:      'text-rose-500',
+    rejected:      'text-rose-500',
   };
   return map[status] || 'text-slate-500';
 };
 
 const getStatusBadge = (status) => {
   const map = {
-    pending:    'bg-amber-50 text-amber-600 border-amber-200',
-    processing: 'bg-blue-50 text-blue-600 border-blue-200',
-    resolved:   'bg-emerald-50 text-emerald-600 border-emerald-200',
-    closed:     'bg-slate-100 text-slate-500 border-slate-300',
-    declined:   'bg-rose-50 text-rose-600 border-rose-200',
-    rejected:   'bg-rose-50 text-rose-600 border-rose-200',
+    pending:       'bg-amber-50 text-amber-600 border-amber-200',
+    processing:    'bg-blue-50 text-blue-600 border-blue-200',
+    'in-progress': 'bg-blue-50 text-blue-600 border-blue-200',
+    approved:      'bg-blue-50 text-blue-600 border-blue-200',
+    scheduled:     'bg-blue-50 text-blue-600 border-blue-200',
+    completed:     'bg-emerald-50 text-emerald-600 border-emerald-200',
+    resolved:      'bg-emerald-50 text-emerald-600 border-emerald-200',
+    closed:        'bg-slate-100 text-slate-500 border-slate-300',
+    declined:      'bg-rose-50 text-rose-600 border-rose-200',
+    rejected:      'bg-rose-50 text-rose-600 border-rose-200',
   };
   return map[status] || 'bg-slate-50 text-slate-500 border-slate-200';
 };
 
 const getStatusDot = (status) => {
   const map = {
-    pending:    'bg-amber-500',
-    processing: 'bg-blue-500',
-    resolved:   'bg-emerald-500',
-    closed:     'bg-slate-400',
-    declined:   'bg-rose-500',
-    rejected:   'bg-rose-500',
+    pending:       'bg-amber-500',
+    processing:    'bg-blue-500',
+    'in-progress': 'bg-blue-500',
+    approved:      'bg-blue-500',
+    scheduled:     'bg-blue-500',
+    completed:     'bg-emerald-500',
+    resolved:      'bg-emerald-500',
+    closed:        'bg-slate-400',
+    declined:      'bg-rose-500',
+    rejected:      'bg-rose-500',
   };
   return map[status] || 'bg-slate-400';
 };
 
 const getStepFill = (status) => {
   const map = {
-    pending:    'bg-amber-400',
-    processing: 'bg-blue-500',
-    resolved:   'bg-emerald-500',
-    declined:   'bg-rose-400',
+    pending:       'bg-amber-400',
+    processing:    'bg-blue-500',
+    'in-progress': 'bg-blue-500',
+    approved:      'bg-blue-500',
+    scheduled:     'bg-blue-500',
+    completed:     'bg-emerald-500',
+    resolved:      'bg-emerald-500',
+    declined:      'bg-rose-400',
+    rejected:      'bg-rose-400',
   };
   return map[status] || 'bg-slate-400';
 };
 
 const getActiveDot = (status) => {
   const map = {
-    pending:    'bg-amber-400 text-white',
-    processing: 'bg-blue-500 text-white',
-    resolved:   'bg-emerald-500 text-white',
-    declined:   'bg-rose-500 text-white',
+    pending:       'bg-amber-400 text-white',
+    processing:    'bg-blue-500 text-white',
+    'in-progress': 'bg-blue-500 text-white',
+    approved:      'bg-blue-500 text-white',
+    scheduled:     'bg-blue-500 text-white',
+    completed:     'bg-emerald-500 text-white',
+    resolved:      'bg-emerald-500 text-white',
+    declined:      'bg-rose-500 text-white',
+    rejected:      'bg-rose-500 text-white',
   };
   return map[status] || 'bg-slate-400 text-white';
 };
 
 const getActiveStepBadge = (status) => {
   const map = {
-    pending:    'bg-amber-100 text-amber-700',
-    processing: 'bg-blue-100 text-blue-700',
-    resolved:   'bg-emerald-100 text-emerald-700',
-    declined:   'bg-rose-100 text-rose-700',
+    pending:       'bg-amber-100 text-amber-700',
+    processing:    'bg-blue-100 text-blue-700',
+    'in-progress': 'bg-blue-100 text-blue-700',
+    approved:      'bg-blue-100 text-blue-700',
+    scheduled:     'bg-blue-100 text-blue-700',
+    completed:     'bg-emerald-100 text-emerald-700',
+    resolved:      'bg-emerald-100 text-emerald-700',
+    declined:      'bg-rose-100 text-rose-700',
+    rejected:      'bg-rose-100 text-rose-700',
   };
   return map[status] || 'bg-slate-100 text-slate-600';
 };

@@ -273,48 +273,64 @@ const navigateToTicket = (ticketId) => {
 // Status styling helpers for activity feed
 const getUpdateIconBg = (status) => {
   const map = {
-    pending:    'bg-amber-50',
-    processing: 'bg-blue-50',
-    resolved:   'bg-emerald-50',
-    closed:     'bg-slate-100',
-    declined:   'bg-rose-50',
-    rejected:   'bg-rose-50',
+    pending:       'bg-amber-50',
+    processing:    'bg-blue-50',
+    'in-progress': 'bg-blue-50',
+    approved:      'bg-blue-50',
+    scheduled:     'bg-blue-50',
+    completed:     'bg-emerald-50',
+    resolved:      'bg-emerald-50',
+    closed:        'bg-slate-100',
+    declined:      'bg-rose-50',
+    rejected:      'bg-rose-50',
   };
   return map[status] || 'bg-slate-100';
 };
 
 const getUpdateIconColor = (status) => {
   const map = {
-    pending:    'text-amber-500',
-    processing: 'text-blue-500',
-    resolved:   'text-emerald-600',
-    closed:     'text-slate-500',
-    declined:   'text-rose-500',
-    rejected:   'text-rose-500',
+    pending:       'text-amber-500',
+    processing:    'text-blue-500',
+    'in-progress': 'text-blue-500',
+    approved:      'text-blue-500',
+    scheduled:     'text-blue-500',
+    completed:     'text-emerald-600',
+    resolved:      'text-emerald-600',
+    closed:        'text-slate-500',
+    declined:      'text-rose-500',
+    rejected:      'text-rose-500',
   };
   return map[status] || 'text-slate-500';
 };
 
 const getStatusBadge = (status) => {
   const map = {
-    pending:    'bg-amber-50 text-amber-600 border-amber-200',
-    processing: 'bg-blue-50 text-blue-600 border-blue-200',
-    resolved:   'bg-emerald-50 text-emerald-600 border-emerald-200',
-    closed:     'bg-slate-100 text-slate-500 border-slate-200',
-    declined:   'bg-rose-50 text-rose-600 border-rose-200',
-    rejected:   'bg-rose-50 text-rose-600 border-rose-200',
+    pending:       'bg-amber-50 text-amber-600 border-amber-200',
+    processing:    'bg-blue-50 text-blue-600 border-blue-200',
+    'in-progress': 'bg-blue-50 text-blue-600 border-blue-200',
+    approved:      'bg-blue-50 text-blue-600 border-blue-200',
+    scheduled:     'bg-blue-50 text-blue-600 border-blue-200',
+    completed:     'bg-emerald-50 text-emerald-600 border-emerald-200',
+    resolved:      'bg-emerald-50 text-emerald-600 border-emerald-200',
+    closed:        'bg-slate-100 text-slate-500 border-slate-200',
+    declined:      'bg-rose-50 text-rose-600 border-rose-200',
+    rejected:      'bg-rose-50 text-rose-600 border-rose-200',
   };
   return map[status] || 'bg-slate-50 text-slate-500 border-slate-200';
 };
 
 const getStatusDot = (status) => {
   const map = {
-    pending:    'bg-amber-500',
-    processing: 'bg-blue-500',
-    resolved:   'bg-emerald-500',
-    closed:     'bg-slate-400',
-    declined:   'bg-rose-500',
-    rejected:   'bg-rose-500',
+    pending:       'bg-amber-500',
+    processing:    'bg-blue-500',
+    'in-progress': 'bg-blue-500',
+    approved:      'bg-blue-500',
+    scheduled:     'bg-blue-500',
+    completed:     'bg-emerald-500',
+    resolved:      'bg-emerald-500',
+    closed:        'bg-slate-400',
+    declined:      'bg-rose-500',
+    rejected:      'bg-rose-500',
   };
   return map[status] || 'bg-slate-400';
 };
