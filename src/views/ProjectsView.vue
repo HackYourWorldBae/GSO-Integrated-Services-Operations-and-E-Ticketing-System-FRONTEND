@@ -1,263 +1,266 @@
 <template>
-  <div class="projects-page min-h-screen bg-[#f8fafc] flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
-    
-    <!-- ===================== NAVBAR ===================== -->
-    <nav class="bg-white/80 backdrop-blur-xl sticky top-0 z-50 border-b border-slate-200/60 shadow-[0_4px_30px_rgba(0,0,0,0.03)] transition-all duration-300" :class="{ 'py-2': isScrolled, 'py-4': !isScrolled }">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center transition-all duration-300" :class="isScrolled ? 'h-14' : 'h-16'">
-          <!-- Logo & Branding -->
-          <div class="flex items-center gap-4 group cursor-pointer" @click="$router.push('/')">
-            <div class="relative">
-              <div class="absolute inset-0 bg-emerald-500 rounded-full blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
-              <img src="/bsu-logo.png" alt="BSU Logo" class="h-10 w-10 sm:h-12 sm:w-12 relative z-10 drop-shadow-sm transition-transform duration-500 group-hover:scale-105" />
-            </div>
-            <div class="flex flex-col">
-              <span class="text-sm sm:text-lg font-black text-slate-900 leading-none tracking-tight">Benguet State University</span>
-              <span class="text-[10px] sm:text-xs font-bold text-emerald-600 tracking-[0.15em] uppercase mt-1">General Services Office</span>
-            </div>
+  <div class="projects-page">
+
+    <!-- ===================== NAVBAR (matches LandingView) ===================== -->
+    <nav class="navbar">
+      <div class="navbar-inner">
+        <!-- Logo & Branding -->
+        <div class="navbar-brand">
+          <div class="navbar-logo-ring">
+            <img src="/bsu-logo.png" alt="BSU Logo" class="navbar-logo-img" />
           </div>
-
-          <!-- Desktop Nav Links -->
-          <div class="hidden md:flex items-center gap-1">
-            <router-link to="/" class="px-5 py-2.5 rounded-full text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all">Home</router-link>
-            <router-link to="/projects" class="px-5 py-2.5 rounded-full text-sm font-bold bg-emerald-50 text-emerald-700 transition-all">Active Projects</router-link>
-            <router-link to="/projects/archives" class="px-5 py-2.5 rounded-full text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all">Archives</router-link>
-            
-            <div class="w-px h-6 bg-slate-200 mx-3"></div>
-
-            <button @click="goToLogin" class="group relative px-6 py-2.5 bg-slate-900 text-white rounded-full font-bold text-sm shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2 overflow-hidden">
-              <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span class="relative z-10 flex items-center gap-2">
-                Portal Login
-                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
-              </span>
-            </button>
+          <div class="navbar-text">
+            <span class="navbar-title">Benguet State University</span>
+            <span class="navbar-subtitle">General Services Office</span>
           </div>
-
-          <!-- Mobile Hamburger -->
-          <button @click="isMobileMenuOpen = !isMobileMenuOpen" class="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-full transition-colors focus:outline-none">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path v-if="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
+
+        <!-- Desktop Nav Links -->
+        <ul class="nav-links">
+          <li>
+            <router-link to="/" class="nav-item">
+              <span class="nav-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </span>
+              Home
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/projects" class="nav-item active-nav">
+              <span class="nav-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </span>
+              Active Projects
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/projects/archives" class="nav-item">
+              <span class="nav-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+              </span>
+              Archives
+            </router-link>
+          </li>
+        </ul>
+
+        <!-- CTA Login Button -->
+        <button class="btn-login-nav" @click="goToLogin">
+          <span class="btn-login-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+          </span>
+          Login
+        </button>
+
+        <!-- Hamburger -->
+        <button class="hamburger" @click="isMobileMenuOpen = !isMobileMenuOpen" aria-label="Toggle menu">
+          <span :class="{ open: isMobileMenuOpen }"></span>
+          <span :class="{ open: isMobileMenuOpen }"></span>
+          <span :class="{ open: isMobileMenuOpen }"></span>
+        </button>
       </div>
 
       <!-- Mobile Menu -->
-      <transition name="slide-down">
-        <div v-if="isMobileMenuOpen" class="md:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-2xl">
-          <div class="px-4 py-6 space-y-3">
-            <router-link to="/" @click="isMobileMenuOpen = false" class="block px-4 py-3.5 text-base font-bold text-slate-600 hover:bg-slate-50 rounded-2xl transition-colors">Home</router-link>
-            <router-link to="/projects" @click="isMobileMenuOpen = false" class="block px-4 py-3.5 text-base font-bold text-emerald-700 bg-emerald-50 rounded-2xl transition-colors">Active Projects</router-link>
-            <router-link to="/projects/archives" @click="isMobileMenuOpen = false" class="block px-4 py-3.5 text-base font-bold text-slate-600 hover:bg-slate-50 rounded-2xl transition-colors">Archives</router-link>
-            <button @click="goToLogin" class="w-full mt-4 bg-slate-900 text-white px-4 py-4 rounded-2xl font-bold text-center shadow-lg active:scale-95 transition-all">Login to Portal</button>
-          </div>
-        </div>
-      </transition>
+      <div class="mobile-menu" :class="{ 'mobile-menu--open': isMobileMenuOpen }">
+        <router-link to="/" @click="isMobileMenuOpen = false">Home</router-link>
+        <router-link to="/projects" @click="isMobileMenuOpen = false">Active Projects</router-link>
+        <router-link to="/projects/archives" @click="isMobileMenuOpen = false">Archives</router-link>
+        <button class="btn-login-mobile" @click="goToLogin">Login to Portal</button>
+      </div>
     </nav>
 
-    <!-- ===================== HERO SECTION ===================== -->
-    <header class="relative pt-24 pb-32 overflow-hidden shrink-0 bg-slate-900 isolate">
-      <!-- Premium Background Effects -->
-      <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 -z-10"></div>
-      <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] mix-blend-overlay -z-10"></div>
-      
-      <!-- Abstract Orbs -->
-      <div class="absolute top-0 right-0 -translate-y-12 translate-x-1/3 w-[800px] h-[800px] bg-emerald-500/20 rounded-full blur-[120px] -z-10 animate-pulse-slow"></div>
-      <div class="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-[600px] h-[600px] bg-teal-500/20 rounded-full blur-[100px] -z-10"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent -z-10"></div>
+    <!-- ===================== PAGE HERO ===================== -->
+    <section class="page-hero">
+      <div class="hero-orbs" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+      </div>
+      <div class="hero-stripe" aria-hidden="true"></div>
 
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
-        <!-- Badge -->
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8 animate-fade-in-up">
-          <span class="relative flex h-3 w-3">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-          </span>
-          <span class="text-xs font-bold text-emerald-50 tracking-wider uppercase">Live Updates</span>
+      <div class="page-hero-content">
+        <div class="page-hero-eyebrow">
+          <span class="eyebrow-dot"></span>
+          <span>Live Updates</span>
         </div>
-
-        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight mb-6 leading-[1.1] animate-fade-in-up" style="animation-delay: 100ms;">
-          Campus <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Projects</span>
-        </h1>
-        <p class="max-w-2xl text-lg sm:text-xl text-slate-300 mx-auto font-medium leading-relaxed animate-fade-in-up" style="animation-delay: 200ms;">
-          Stay informed about ongoing facility upgrades, maintenance schedules, and groundskeeping operations actively reshaping our university.
+        <h1 class="page-hero-title">Campus <span class="title-accent">Projects</span></h1>
+        <p class="page-hero-subtitle">
+          Stay informed about ongoing facility upgrades, maintenance schedules, and groundskeeping operations actively reshaping our university campus.
         </p>
-      </div>
 
-      <!-- Wave Separator -->
-      <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-0 rotate-180 text-[#f8fafc]">
-        <svg class="relative block w-full h-[50px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="currentColor"></path>
-        </svg>
+        <!-- Live stats strip -->
+        <div class="stats-strip">
+          <div class="stat-item">
+            <span class="stat-value">{{ projects.length }}</span>
+            <span class="stat-label">Active Projects</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-value">{{ fgmuCount }}</span>
+            <span class="stat-label">FGMU Projects</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-value">{{ leauCount }}</span>
+            <span class="stat-label">LEAU Projects</span>
+          </div>
+        </div>
       </div>
-    </header>
+    </section>
 
     <!-- ===================== MAIN CONTENT ===================== -->
-    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 w-full pb-24">
-      
-      <!-- Sleek Filter Controls -->
-      <div class="flex flex-col md:flex-row justify-between items-center bg-white p-3 rounded-2xl shadow-xl shadow-slate-200/40 border border-slate-100 mb-12 gap-4 animate-fade-in-up" style="animation-delay: 300ms;">
-        <h2 class="text-xl font-black text-slate-800 px-4">Active Directory</h2>
-        
-        <div class="flex p-1 bg-slate-100/80 rounded-xl w-full md:w-auto overflow-hidden">
-          <button @click="filter = 'ALL'" class="flex-1 md:flex-none px-6 py-2.5 rounded-lg font-bold text-sm transition-all duration-300 relative" :class="filter === 'ALL' ? 'text-slate-900 shadow-sm bg-white' : 'text-slate-500 hover:text-slate-700'">
-            All
-          </button>
-          <button @click="filter = 'FGMU'" class="flex-1 md:flex-none px-6 py-2.5 rounded-lg font-bold text-sm transition-all duration-300 relative" :class="filter === 'FGMU' ? 'text-emerald-700 shadow-sm bg-white' : 'text-slate-500 hover:text-slate-700'">
-            Facilities (FGMU)
-          </button>
-          <button @click="filter = 'LEAU'" class="flex-1 md:flex-none px-6 py-2.5 rounded-lg font-bold text-sm transition-all duration-300 relative" :class="filter === 'LEAU' ? 'text-amber-600 shadow-sm bg-white' : 'text-slate-500 hover:text-slate-700'">
-            Grounds (LEAU)
-          </button>
-        </div>
-      </div>
+    <main class="page-main">
+      <div class="page-container">
 
-      <!-- Loading State -->
-      <div v-if="loading" class="flex flex-col items-center justify-center py-32 animate-pulse">
-        <div class="relative w-16 h-16 mb-6">
-          <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
-          <div class="absolute inset-0 border-4 border-emerald-500 rounded-full border-t-transparent animate-spin"></div>
+        <!-- Section Header + Filters -->
+        <div class="section-header">
+          <div class="section-title-group">
+            <h2 class="section-title">Active & Upcoming Projects</h2>
+            <p class="section-subtitle">Scheduled facility and grounds maintenance projects currently in progress or announced.</p>
+          </div>
+          <div class="filter-pills">
+            <button @click="filter = 'ALL'" :class="['filter-pill', filter === 'ALL' ? 'filter-pill--active' : '']">All</button>
+            <button @click="filter = 'FGMU'" :class="['filter-pill', 'filter-pill--fgmu', filter === 'FGMU' ? 'filter-pill--active-fgmu' : '']">Facilities (FGMU)</button>
+            <button @click="filter = 'LEAU'" :class="['filter-pill', 'filter-pill--leau', filter === 'LEAU' ? 'filter-pill--active-leau' : '']">Grounds (LEAU)</button>
+          </div>
         </div>
-        <p class="text-slate-400 font-bold tracking-widest uppercase text-sm">Retrieving Projects...</p>
-      </div>
 
-      <!-- Empty State -->
-      <div v-else-if="filteredProjects.length === 0" class="flex flex-col items-center justify-center py-24 px-4 bg-white/50 backdrop-blur-sm rounded-[3rem] border border-slate-200/60 shadow-sm">
-        <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-6 border-8 border-white shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
+        <!-- Loading -->
+        <div v-if="loading" class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>Loading announcements...</p>
         </div>
-        <h3 class="text-2xl font-black text-slate-800 mb-2">No Active Projects</h3>
-        <p class="text-slate-500 font-medium text-center max-w-md">There are currently no active announcements matching your filter criteria. Please check back later.</p>
-      </div>
 
-      <!-- Projects Grid -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div v-for="(project, index) in filteredProjects" :key="project.id" 
-             class="group bg-white rounded-[2rem] border border-slate-200/60 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-500 flex flex-col hover:-translate-y-2 relative animate-fade-in-up"
-             :style="{ animationDelay: `${index * 100}ms` }">
-             
-          <!-- Colored Top Accent Line -->
-          <div class="absolute top-0 left-0 w-full h-1.5 transition-colors duration-300" :class="project.unit_id === 1 ? 'bg-emerald-500' : 'bg-amber-500'"></div>
-          
-          <div class="p-8 flex-1 flex flex-col relative z-10">
-            <!-- Header elements -->
-            <div class="flex justify-between items-start mb-6">
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg border font-bold text-[10px] tracking-wider uppercase transition-colors"
-                   :class="project.unit_id === 1 ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-amber-50 border-amber-200 text-amber-700'">
-                {{ project.unit_id === 1 ? 'Facilities (FGMU)' : 'Grounds (LEAU)' }}
+        <!-- Empty State -->
+        <div v-else-if="filteredProjects.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3>No Active Projects</h3>
+          <p>There are currently no project announcements matching your filter. Check back later for updates.</p>
+        </div>
+
+        <!-- Project Cards -->
+        <div v-else class="project-grid">
+          <article v-for="(project, index) in filteredProjects" :key="project.id"
+                   class="project-card"
+                   :class="project.unit_id === 1 ? 'project-card--fgmu' : 'project-card--leau'"
+                   :style="{ animationDelay: `${index * 80}ms` }">
+
+            <!-- Card top accent + unit badge -->
+            <div class="card-header">
+              <div class="card-unit-badge" :class="project.unit_id === 1 ? 'badge--fgmu' : 'badge--leau'">
+                <svg v-if="project.unit_id === 1" xmlns="http://www.w3.org/2000/svg" class="badge-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" class="badge-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                {{ project.unit_id === 1 ? 'FGMU — Facilities' : 'LEAU — Grounds' }}
               </div>
-              <span class="text-xs font-bold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">#{{ project.id }}</span>
+              <div class="card-status">
+                <span class="status-dot"></span>
+                In Progress
+              </div>
             </div>
-            
+
             <!-- Title -->
-            <h3 class="text-2xl font-black text-slate-900 leading-tight mb-3 group-hover:text-emerald-600 transition-colors line-clamp-2" :title="project.project_title">
-              {{ project.project_title }}
-            </h3>
-            
-            <!-- Location -->
-            <p class="text-sm text-slate-500 font-semibold mb-8 flex items-center gap-2">
-              <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-400 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-              </span>
-              <span class="truncate">{{ project.location }}</span>
-            </p>
+            <h3 class="card-title">{{ project.project_title }}</h3>
 
-            <!-- Metrics Grid -->
-            <div class="grid grid-cols-2 gap-3 mb-6">
-              <div class="bg-slate-50/80 rounded-2xl p-4 border border-slate-100/80 transition-colors group-hover:bg-slate-50 group-hover:border-slate-200">
-                <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Target Date</span>
-                <span class="block text-sm font-black text-slate-800">{{ formatDate(project.project_target_date) }}</span>
+            <!-- Location row -->
+            <div class="card-location">
+              <svg xmlns="http://www.w3.org/2000/svg" class="location-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+              </svg>
+              {{ project.location }}
+            </div>
+
+            <!-- Info grid -->
+            <div class="card-info-grid">
+              <div class="info-cell">
+                <span class="info-label">Target Date</span>
+                <span class="info-value">{{ formatDate(project.project_target_date) }}</span>
               </div>
-              <div class="bg-slate-50/80 rounded-2xl p-4 border border-slate-100/80 transition-colors group-hover:bg-slate-50 group-hover:border-slate-200">
-                <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Est. Duration</span>
-                <span class="block text-sm font-black text-slate-800">{{ project.project_target_duration }}</span>
+              <div class="info-cell">
+                <span class="info-label">Estimated Duration</span>
+                <span class="info-value">{{ project.project_target_duration || 'TBD' }}</span>
+              </div>
+              <div v-if="project.project_manpower" class="info-cell info-cell--wide">
+                <span class="info-label">Manpower Requirement</span>
+                <span class="info-value">{{ project.project_manpower }}</span>
               </div>
             </div>
 
-            <!-- Manpower if exists -->
-            <div v-if="project.project_manpower" class="mb-6 flex items-start gap-3 p-4 rounded-2xl bg-slate-50/50 border border-slate-100">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-              <div>
-                <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Manpower Requirement</span>
-                <span class="text-sm font-semibold text-slate-700">{{ project.project_manpower }}</span>
-              </div>
-            </div>
-
-            <!-- Remarks Accordion -->
-            <div v-if="project.project_remarks" class="mt-auto pt-2">
-              <details class="group/details relative">
-                <summary class="text-sm font-bold text-emerald-600 cursor-pointer list-none flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-emerald-50 transition-colors select-none">
+            <!-- Remarks -->
+            <div v-if="project.project_remarks" class="card-remarks">
+              <details>
+                <summary class="remarks-summary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="remarks-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                   Scope of Work & Remarks
-                  <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center transition-transform duration-300 group-open/details:rotate-180">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                  </span>
                 </summary>
-                <div class="mt-2 text-sm text-slate-600 bg-white p-5 rounded-2xl border border-slate-100 shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] leading-relaxed animate-fade-in">
-                  {{ project.project_remarks }}
-                </div>
+                <p class="remarks-body">{{ project.project_remarks }}</p>
               </details>
             </div>
-          </div>
-          
-          <!-- Card Footer -->
-          <div class="px-8 py-5 bg-slate-50/80 border-t border-slate-100 flex justify-between items-center relative overflow-hidden group-hover:bg-slate-50 transition-colors">
-            <div class="flex items-center gap-2 relative z-10">
-              <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span class="text-xs font-black text-slate-900 uppercase tracking-wider">In Progress</span>
+
+            <!-- Card footer -->
+            <div class="card-footer">
+              <span>Announced {{ formatDate(project.submitted_at) }}</span>
+              <span class="card-id">#{{ project.id }}</span>
             </div>
-            <span class="text-[11px] font-bold text-slate-400 relative z-10">Added {{ formatDate(project.submitted_at) }}</span>
-          </div>
+          </article>
         </div>
+
       </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-10 text-center shrink-0">
-      <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
-        <img src="/bsu-logo.png" alt="BSU" class="h-8 w-8 mb-4 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300" />
-        <p class="text-slate-500 text-sm font-semibold tracking-wide">© {{ new Date().getFullYear() }} Benguet State University.</p>
-        <p class="text-slate-400 text-xs font-medium mt-1">General Services Office • e-Ticketing System</p>
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="page-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img src="/bsu-logo.png" alt="BSU" class="footer-logo" />
+          <div>
+            <p class="footer-title">Benguet State University</p>
+            <p class="footer-subtitle">General Services Office</p>
+          </div>
+        </div>
+        <div class="footer-links">
+          <router-link to="/">Home</router-link>
+          <router-link to="/projects">Active Projects</router-link>
+          <router-link to="/projects/archives">Archives</router-link>
+        </div>
+        <p class="footer-copy">© {{ new Date().getFullYear() }} Benguet State University. All rights reserved.</p>
       </div>
     </footer>
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const isMobileMenuOpen = ref(false);
-const isScrolled = ref(false);
 const filter = ref('ALL');
 const projects = ref([]);
 const loading = ref(true);
 
-const goToLogin = () => {
-  router.push({ name: 'login' });
-};
-
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 20;
-};
+const goToLogin = () => router.push({ name: 'login' });
 
 const fetchProjects = async () => {
   loading.value = true;
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/projects`);
     const data = await res.json();
-    if (res.ok) {
-      projects.value = data.data?.projects || [];
-    }
-  } catch (error) {
-    console.error('Error fetching projects:', error);
+    if (res.ok) projects.value = data.data?.projects || [];
+  } catch (e) {
+    console.error('Error fetching projects:', e);
   } finally {
     loading.value = false;
   }
@@ -270,55 +273,263 @@ const filteredProjects = computed(() => {
   return projects.value;
 });
 
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'short', day: 'numeric'
-  });
+const fgmuCount = computed(() => projects.value.filter(p => p.unit_id === 1).length);
+const leauCount = computed(() => projects.value.filter(p => p.unit_id === 2).length);
+
+const formatDate = (d) => {
+  if (!d) return 'TBD';
+  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-  fetchProjects();
-});
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
+onMounted(fetchProjects);
 </script>
 
 <style scoped>
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0;
-}
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-.animate-pulse-slow {
-  animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* ========================
+   CSS CUSTOM PROPERTIES (matches LandingView)
+   ======================== */
+.projects-page {
+  --bsu-green:        #1a6b35;
+  --bsu-green-light:  #24903f;
+  --bsu-green-dark:   #0f4221;
+  --bsu-green-muted:  #e6f4eb;
+  --bsu-gold:         #c8a800;
+  --bsu-gold-light:   #f0cc00;
+  --bsu-gold-dark:    #9a8000;
+  --surface:          #ffffff;
+  --surface-2:        #f7faf8;
+  --text-primary:     #0f2419;
+  --text-secondary:   #3d6647;
+  --text-muted:       #6b8f76;
+  --border:           rgba(26, 107, 53, 0.15);
+
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  color: var(--text-primary);
+  background: var(--surface-2);
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Slide Transition for Mobile Menu */
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 0.3s ease-out;
+/* ========================
+   NAVBAR (exact copy from LandingView)
+   ======================== */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 20px rgba(26, 107, 53, 0.08);
 }
-.slide-down-enter-from,
-.slide-down-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
+.navbar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+.navbar-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; flex-shrink: 0; }
+.navbar-logo-ring { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+.navbar-logo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.navbar-text { display: flex; flex-direction: column; }
+.navbar-title { font-size: 0.8rem; font-weight: 800; color: var(--bsu-green-dark); letter-spacing: 0.05em; line-height: 1.2; text-transform: uppercase; }
+.navbar-subtitle { font-size: 0.65rem; font-weight: 600; color: var(--bsu-gold-dark); letter-spacing: 0.08em; text-transform: uppercase; }
+
+.nav-links { display: flex; list-style: none; margin: 0 1.5rem 0 auto; padding: 0; gap: 1.5rem; }
+.nav-item { display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 700; padding: 0.5rem 0; position: relative; transition: color 0.3s ease; }
+.nav-icon svg { width: 18px; height: 18px; opacity: 0.7; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease; }
+.nav-item::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: var(--bsu-gold); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); border-radius: 2px; transform: translateX(-50%); }
+.nav-item:hover { color: var(--bsu-green-dark); }
+.nav-item:hover .nav-icon svg { transform: translateY(-2px) scale(1.1); opacity: 1; }
+.nav-item:hover::after { width: 100%; }
+.active-nav { color: var(--bsu-green-dark) !important; }
+.active-nav::after { width: 100% !important; }
+
+.btn-login-nav { display: flex; align-items: center; gap: 0.5rem; background: var(--bsu-green); color: white; border: none; padding: 0.6rem 1.25rem; border-radius: 10px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.25s ease; white-space: nowrap; flex-shrink: 0; box-shadow: 0 4px 12px rgba(26, 107, 53, 0.3); }
+.btn-login-nav:hover { background: var(--bsu-green-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26, 107, 53, 0.4); }
+.btn-login-icon { width: 16px; height: 16px; display: flex; align-items: center; }
+.btn-login-icon svg { width: 100%; height: 100%; }
+
+.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: auto; }
+.hamburger span { display: block; width: 24px; height: 2px; background: var(--bsu-green); border-radius: 2px; transition: all 0.3s ease; transform-origin: center; }
+.hamburger span.open:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger span.open:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger span.open:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-menu { display: none; flex-direction: column; background: white; border-top: 1px solid var(--border); padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.3s ease; }
+.mobile-menu--open { max-height: 400px; padding: 1rem 2rem 1.5rem; }
+.mobile-menu a { display: block; color: var(--text-secondary); text-decoration: none; font-size: 0.95rem; font-weight: 600; padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+.btn-login-mobile { margin-top: 1rem; width: 100%; background: var(--bsu-green); color: white; border: none; padding: 0.85rem; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+.btn-login-mobile:hover { background: var(--bsu-green-dark); }
+
+/* ========================
+   PAGE HERO
+   ======================== */
+.page-hero {
+  position: relative;
+  padding: 140px 2rem 100px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #062b12 0%, #0d4a22 40%, #1a6b35 70%, #0a3d1a 100%);
+  text-align: center;
+}
+.hero-orbs { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.orb { position: absolute; border-radius: 50%; filter: blur(80px); animation: orbFloat 20s ease-in-out infinite alternate; }
+.orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(200, 168, 0, 0.25) 0%, transparent 70%); top: -100px; right: -100px; }
+.orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(36, 144, 63, 0.4) 0%, transparent 70%); bottom: 0; left: -80px; animation-duration: 22s; animation-direction: alternate-reverse; }
+.hero-stripe { position: absolute; top: 0; right: 0; width: 40%; height: 100%; background: linear-gradient(to bottom left, rgba(200, 168, 0, 0.08) 0%, transparent 60%); pointer-events: none; }
+
+@keyframes orbFloat {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(40px, -30px) scale(1.05); }
+  66%  { transform: translate(-20px, 20px) scale(0.95); }
+  100% { transform: translate(0, 0) scale(1); }
 }
 
-details > summary::-webkit-details-marker {
-  display: none;
+.page-hero-content { max-width: 800px; margin: 0 auto; position: relative; z-index: 1; }
+.page-hero-eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 100px; padding: 0.35rem 1rem; margin-bottom: 1.5rem; font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.85); letter-spacing: 0.12em; text-transform: uppercase; backdrop-filter: blur(8px); }
+.eyebrow-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.page-hero-title { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; color: white; line-height: 1.1; margin-bottom: 1.25rem; letter-spacing: -0.02em; }
+.title-accent { color: var(--bsu-gold-light); }
+.page-hero-subtitle { font-size: 1.1rem; color: rgba(255,255,255,0.75); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.7; font-weight: 400; }
+
+.stats-strip { display: inline-flex; align-items: center; gap: 2rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 1rem 2rem; backdrop-filter: blur(10px); }
+.stat-item { text-align: center; }
+.stat-value { display: block; font-size: 1.75rem; font-weight: 900; color: white; line-height: 1; }
+.stat-label { display: block; font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.3rem; }
+.stat-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.2); }
+
+/* ========================
+   MAIN CONTENT
+   ======================== */
+.page-main { flex: 1; padding: 4rem 0 6rem; }
+.page-container { max-width: 1280px; margin: 0 auto; padding: 0 2rem; }
+
+.section-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem; margin-bottom: 3rem; flex-wrap: wrap; }
+.section-title-group { flex: 1; }
+.section-title { font-size: 1.75rem; font-weight: 900; color: var(--text-primary); margin-bottom: 0.4rem; letter-spacing: -0.01em; }
+.section-subtitle { font-size: 0.9rem; color: var(--text-muted); max-width: 480px; line-height: 1.6; }
+
+.filter-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.filter-pill { border: 2px solid var(--border); background: white; color: var(--text-secondary); font-size: 0.8rem; font-weight: 700; padding: 0.45rem 1rem; border-radius: 100px; cursor: pointer; transition: all 0.2s ease; }
+.filter-pill:hover { border-color: var(--bsu-green); color: var(--bsu-green); }
+.filter-pill--active { background: var(--bsu-green); border-color: var(--bsu-green); color: white; box-shadow: 0 4px 12px rgba(26, 107, 53, 0.3); }
+.filter-pill--active-fgmu { background: var(--bsu-green); border-color: var(--bsu-green); color: white; box-shadow: 0 4px 12px rgba(26, 107, 53, 0.3); }
+.filter-pill--active-leau { background: #b45309; border-color: #b45309; color: white; box-shadow: 0 4px 12px rgba(180, 83, 9, 0.3); }
+
+/* Loading & Empty */
+.loading-state { display: flex; flex-direction: column; align-items: center; padding: 6rem 0; color: var(--text-muted); gap: 1rem; }
+.loading-spinner { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: var(--bsu-green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state { text-align: center; padding: 6rem 2rem; background: white; border-radius: 24px; border: 1px solid var(--border); }
+.empty-icon { width: 72px; height: 72px; background: var(--bsu-green-muted); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+.empty-icon svg { width: 32px; height: 32px; color: var(--bsu-green); }
+.empty-state h3 { font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem; }
+.empty-state p { color: var(--text-muted); font-size: 0.95rem; max-width: 380px; margin: 0 auto; }
+
+/* ========================
+   PROJECT CARDS
+   ======================== */
+.project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.75rem; }
+
+.project-card {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(15, 66, 33, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: cardFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  position: relative;
+}
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--bsu-green);
+  transition: height 0.2s ease;
+}
+.project-card--leau::before { background: #d97706; }
+.project-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(15, 66, 33, 0.12); }
+
+@keyframes cardFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem 0; }
+.card-unit-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.3rem 0.8rem; border-radius: 8px; }
+.badge-icon { width: 13px; height: 13px; }
+.badge--fgmu { background: var(--bsu-green-muted); color: var(--bsu-green-dark); }
+.badge--leau { background: #fef3c7; color: #92400e; }
+
+.card-status { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
+.status-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
+
+.card-title { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); line-height: 1.3; padding: 1rem 1.5rem 0.5rem; letter-spacing: -0.01em; }
+.card-location { display: flex; align-items: center; gap: 0.4rem; padding: 0 1.5rem 1.25rem; font-size: 0.82rem; color: var(--text-muted); font-weight: 600; }
+.location-icon { width: 14px; height: 14px; flex-shrink: 0; }
+
+.card-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 0 1.5rem 1.25rem; }
+.info-cell { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 0.85rem 1rem; }
+.info-cell--wide { grid-column: 1 / -1; }
+.info-label { display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem; }
+.info-value { display: block; font-size: 0.88rem; font-weight: 800; color: var(--text-primary); }
+
+/* Remarks */
+.card-remarks { padding: 0 1.5rem 1.25rem; }
+.card-remarks details summary { list-style: none; }
+.card-remarks details summary::-webkit-details-marker { display: none; }
+.remarks-summary { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 700; color: var(--bsu-green); cursor: pointer; padding: 0.6rem 0.75rem; border-radius: 8px; transition: background 0.2s ease; }
+.remarks-summary:hover { background: var(--bsu-green-muted); }
+.remarks-icon { width: 15px; height: 15px; flex-shrink: 0; }
+.remarks-body { margin-top: 0.75rem; padding: 1rem; background: var(--surface-2); border-left: 3px solid var(--bsu-gold); border-radius: 0 8px 8px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; font-style: italic; }
+
+.card-footer { margin-top: auto; padding: 0.9rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-muted); font-weight: 600; background: var(--surface-2); }
+.card-id { font-weight: 800; color: var(--text-secondary); }
+
+/* ========================
+   FOOTER
+   ======================== */
+.page-footer { background: var(--bsu-green-dark); color: rgba(255,255,255,0.65); }
+.footer-inner { max-width: 1280px; margin: 0 auto; padding: 3rem 2rem; }
+.footer-brand { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
+.footer-logo { width: 36px; height: 36px; border-radius: 50%; opacity: 0.8; }
+.footer-title { font-size: 0.9rem; font-weight: 800; color: white; margin: 0; }
+.footer-subtitle { font-size: 0.72rem; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+.footer-links { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; }
+.footer-links a { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: white; }
+.footer-copy { font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.25rem; margin: 0; }
+
+/* ========================
+   RESPONSIVE
+   ======================== */
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .btn-login-nav { display: none; }
+  .hamburger { display: flex; }
+  .mobile-menu { display: flex; }
+
+  .page-hero { padding: 120px 1.25rem 70px; }
+  .stats-strip { flex-direction: column; gap: 1rem; padding: 1rem 1.5rem; }
+  .stat-divider { width: 40px; height: 1px; }
+
+  .section-header { flex-direction: column; gap: 1.25rem; }
+  .project-grid { grid-template-columns: 1fr; }
+  .page-container { padding: 0 1.25rem; }
+  .footer-links { flex-direction: column; gap: 0.75rem; }
+  .navbar-inner { padding: 0 1.25rem; }
 }
 </style>
