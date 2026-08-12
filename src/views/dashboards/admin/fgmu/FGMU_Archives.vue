@@ -66,62 +66,62 @@
           </div>
         </div>
 
-        <!-- Tickets List -->
-        <div class="grid grid-cols-1 gap-4">
-          <div v-for="ticket in filteredTickets" :key="ticket.id" class="group relative overflow-hidden bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all">
-            <div class="flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10">
-              <div class="flex items-start gap-5 flex-1">
-                <div :class="['p-4 rounded-2xl shrink-0 transition-transform group-hover:scale-110', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600']">
-                  <svg v-if="ticket.status === 'declined' || ticket.status === 'rejected'" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div class="space-y-3 w-full">
-                  <div class="flex items-center justify-between w-full">
-                    <div class="flex items-center gap-3">
-                      <h3 class="text-lg font-black text-slate-900">{{ ticket.service }}</h3>
-                      <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
-                        {{ ticket.statusLabel }}
-                      </span>
-                    </div>
-                    <div class="text-xs font-bold text-slate-400 flex items-center gap-1">
+        <!-- Tickets List (Data Table) -->
+        <div class="rounded-[2.5rem] bg-white border border-slate-200 p-8 overflow-hidden shadow-sm mt-6">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-separate border-spacing-y-4 min-w-[800px]">
+              <thead>
+                <tr class="border-b border-slate-100">
+                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6">Ticket ID</th>
+                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Service</th>
+                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Requester</th>
+                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Status</th>
+                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Completed</th>
+                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="ticket in filteredTickets" :key="ticket.id" class="group transition-all duration-200">
+                  <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all">
+                    <span class="text-sm font-black text-slate-900">#{{ ticket.ticketId }}</span>
+                  </td>
+                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
+                    <span class="text-sm font-bold text-slate-900">{{ ticket.service }}</span>
+                  </td>
+                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
+                    <span class="text-sm font-bold text-slate-700">{{ ticket.requestedBy }}</span>
+                  </td>
+                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
+                    <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
+                      {{ ticket.statusLabel }}
+                    </span>
+                  </td>
+                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
+                    <span class="text-xs font-bold text-slate-500">{{ ticket.date }}</span>
+                  </td>
+                  <td class="py-5 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all text-right">
+                    <button @click="viewDetails(ticket)" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-sm active:scale-95 inline-flex items-center gap-2">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
-                      Completed: {{ ticket.date }}
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+                <tr v-if="filteredTickets.length === 0">
+                  <td colspan="6" class="p-12 text-center bg-slate-50 border border-slate-200 rounded-[2rem]">
+                    <div class="w-16 h-16 bg-white border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                      </svg>
                     </div>
-                  </div>
-                  
-                  <div class="flex items-center gap-3">
-                    <span class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">#{{ ticket.ticketId }}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="flex flex-col gap-3 shrink-0 pt-2 min-w-[200px] justify-center">
-                <!-- Only view details in read-only -->
-                <button @click="viewDetails(ticket)" class="px-8 py-3 bg-slate-100 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-slate-200">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  View Details
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div v-if="filteredTickets.length === 0" class="p-12 text-center bg-slate-50 border border-slate-200 rounded-[2rem]">
-            <div class="w-16 h-16 bg-white border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-              </svg>
-            </div>
-            <h3 class="text-lg font-black text-slate-900 mb-1">No Archived Tickets Found</h3>
-            <p class="text-sm text-slate-500 font-medium">Try adjusting your search or filters.</p>
+                    <h3 class="text-lg font-black text-slate-900 mb-1">No Archived Tickets Found</h3>
+                    <p class="text-sm text-slate-500 font-medium">Try adjusting your search or filters.</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

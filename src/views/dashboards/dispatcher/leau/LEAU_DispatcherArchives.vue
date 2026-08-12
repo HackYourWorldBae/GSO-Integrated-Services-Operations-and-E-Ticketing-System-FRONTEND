@@ -1,42 +1,26 @@
 <template>
   <MainLayout>
     <template #sidebar-links>
-      <router-link to="/admin/tasu" class="nav-item">
+
+      <router-link to="/dispatcher/leau" class="nav-item active">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
         </svg>
-        <span class="text">TASU Home</span>
+        <span class="text">Ticket Queue</span>
       </router-link>
-      <router-link to="/admin/tasu/vehicles" class="nav-item">
+      <router-link to="/dispatcher/leau/workers" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <span class="text">Vehicle Management</span>
+        <span class="text">Assign Workers</span>
       </router-link>
-      <router-link to="/admin/tasu/queues" class="nav-item">
+      <router-link to="/dispatcher/leau/dispatched" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
         </svg>
-        <span class="text">Ticket Queues</span>
+        <span class="text">Dispatched Tickets</span>
       </router-link>
-      <router-link to="/admin/tasu/personnel" class="nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-        <span class="text">Personnel Management</span>
-      </router-link>
-      <router-link to="/admin/tasu/dispatch" class="nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        <span class="text">Dispatch Board</span>
-      </router-link>
-      <div class="mt-8 mb-4 px-4">
-        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Archived Tickets</p>
-      </div>
-      <router-link to="/admin/tasu/archives" class="nav-item">
+      <router-link to="/dispatcher/leau/archives" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
         </svg>
@@ -47,7 +31,7 @@
     <template #header-title>
       <div class="flex flex-col">
         <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">Completed Tickets Archives</h2>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">TASU Archiving</p>
+        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">LEAU Archiving</p>
       </div>
     </template>
 
@@ -59,12 +43,14 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input v-model="searchQuery" type="text" placeholder="Search Full Ticket Number (e.g. TASU-TIC-08-2026)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
+            <input v-model="searchQuery" type="text" placeholder="Search Full Ticket Number (e.g. LEAU-TIC-18-2026)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
           </div>
           <div class="flex gap-3 w-full md:w-auto">
             <select v-model="serviceFilter" class="w-full md:w-48 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer">
               <option value="">All Services</option>
-              <option value="Vehicle Request">Vehicle Request</option>
+              <option value="Janitorial Service">Janitorial Service</option>
+              <option value="Landscaping">Landscaping</option>
+              <option value="Waste Disposal">Waste Disposal</option>
             </select>
             <button @click="applyFilter" class="px-6 py-3 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 active:scale-95 transition-all text-sm whitespace-nowrap">
               Apply Filter
@@ -171,13 +157,64 @@
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.service }}</p>
               </div>
+              <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Location / Office</p>
+                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.location }} - {{ selectedTicket.office_room }}</p>
+              </div>
               <div class="col-span-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Job Particulars / Description</p>
                 <div class="p-4 bg-white border border-slate-200 rounded-xl">
                   <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
                 </div>
               </div>
-              
+
+              <!-- Dedicated Decline Reason Section (If Applicable) -->
+              <div v-if="selectedTicket.declineReason" class="col-span-2">
+                <p class="text-xs font-bold text-rose-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Reason for Decline
+                </p>
+                <div class="p-5 bg-rose-50 border-l-4 border-rose-500 rounded-r-xl shadow-sm">
+                  <p class="text-sm font-semibold text-rose-800 leading-relaxed">{{ selectedTicket.declineReason }}</p>
+                </div>
+              </div>
+
+              <!-- Dedicated Feedback/Rating Section (If Applicable) -->
+              <div v-if="selectedTicket.feedback" class="col-span-2 mt-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  End-User Service Feedback
+                </p>
+                <div class="p-5 bg-white border border-slate-200 rounded-xl shadow-sm">
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
+                      <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.quality_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
+                      <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Quality</span>
+                    </div>
+                    <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
+                      <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.efficiency_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
+                      <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Efficiency</span>
+                    </div>
+                    <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
+                      <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.timeliness_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
+                      <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Timeliness</span>
+                    </div>
+                    <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
+                      <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.courtesy_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
+                      <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Courtesy</span>
+                    </div>
+                  </div>
+                  <div v-if="selectedTicket.feedback.remarks" class="pt-4 border-t border-slate-100">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Additional Remarks</p>
+                    <p class="text-sm font-medium text-slate-600 italic">"{{ selectedTicket.feedback.remarks }}"</p>
+                  </div>
+                </div>
+              </div>
+
               <!-- Attachments / Photos -->
               <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="col-span-2 mt-2">
                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments / Photos</p>
@@ -207,7 +244,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Image Viewer Modal -->
       <div v-if="showImageModal" class="absolute inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeImageModal">
         <div class="relative bg-white rounded-2xl p-2 max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
@@ -266,7 +303,7 @@ const downloadAttachment = async (att) => {
 
 const fetchArchives = async () => {
   try {
-    const response = await api.get('tickets/archives/TASU');
+    const response = await api.get('tickets/archives/LEAU');
     if (response.data?.data?.tickets) {
       tickets.value = response.data.data.tickets.map(t => ({
         id: t.id,
@@ -282,11 +319,12 @@ const fetchArchives = async () => {
         office_room: t.office_room || 'N/A',
         attachments: t.attachments || [],
         assignedWorker: t.assignments?.[0]?.assigned_to_name || 'Unassigned',
-        materials: [] // No materials tracking in this DB yet
+        materials: [], // No materials tracking in this DB yet
+        feedback: t.feedback || null
       }));
     }
   } catch (error) {
-    console.error('Failed to fetch TASU archives:', error);
+    console.error('Failed to fetch LEAU archives:', error);
   }
 };
 

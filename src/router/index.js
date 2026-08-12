@@ -26,6 +26,9 @@ const TASU_Drivers = () => import('../views/dashboards/dispatcher/tasu/TASU_Driv
 const FGMU_DispatchedTickets = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatchedTickets.vue');
 const LEAU_DispatchedTickets = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatchedTickets.vue');
 const TASU_DispatchedTickets = () => import('../views/dashboards/dispatcher/tasu/TASU_DispatchedTickets.vue');
+const FGMU_DispatcherArchives = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatcherArchives.vue');
+const LEAU_DispatcherArchives = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatcherArchives.vue');
+const TASU_DispatcherArchives = () => import('../views/dashboards/dispatcher/tasu/TASU_DispatcherArchives.vue');
 const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
 const TASU_VehicleManagement = () => import('../views/dashboards/admin/tasu/TASU_VehicleManagement.vue');
@@ -257,6 +260,21 @@ const router = createRouter({
       path: '/dispatcher/tasu/dispatched',
       name: 'tasu-dispatched-tickets',
       component: TASU_DispatchedTickets
+    },
+    {
+      path: '/dispatcher/fgmu/archives',
+      name: 'fgmu-dispatcher-archives',
+      component: FGMU_DispatcherArchives
+    },
+    {
+      path: '/dispatcher/leau/archives',
+      name: 'leau-dispatcher-archives',
+      component: LEAU_DispatcherArchives
+    },
+    {
+      path: '/dispatcher/tasu/archives',
+      name: 'tasu-dispatcher-archives',
+      component: TASU_DispatcherArchives
     },
     {
       path: '/services/vehicle-availability',
