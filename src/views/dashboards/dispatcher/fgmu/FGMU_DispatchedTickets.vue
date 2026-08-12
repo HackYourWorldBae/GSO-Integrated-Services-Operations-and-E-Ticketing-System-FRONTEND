@@ -34,7 +34,7 @@
         <!-- ① Scheduled / Dispatched Tickets -->
         <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-amber-100">
           <!-- Section Header -->
-          <div class="relative bg-gradient-to-br from-amber-600 to-amber-500 px-10 py-7 overflow-hidden">
+          <div class="relative bg-gradient-to-br from-amber-900 to-amber-800 px-10 py-7 overflow-hidden">
             <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15),_transparent_60%)]"></div>
             <div class="absolute -bottom-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
             <div class="relative z-10 flex items-center justify-between">
@@ -46,13 +46,13 @@
                 </div>
                 <div>
                   <h3 class="text-xl font-black text-white tracking-tight">Scheduled / Dispatched Tickets</h3>
-                  <p class="text-amber-100 text-[10px] font-bold uppercase tracking-widest mt-0.5">Tickets awaiting implementation date</p>
+                  <p class="text-amber-200 text-[10px] font-bold uppercase tracking-widest mt-0.5">Tickets awaiting implementation date</p>
                 </div>
               </div>
               <div class="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-2xl border border-white/30 backdrop-blur-sm">
                 <span class="w-2 h-2 rounded-full bg-amber-200 animate-pulse"></span>
                 <span class="text-white font-black text-sm">{{ scheduledTickets.length }}</span>
-                <span class="text-amber-100 text-[10px] font-bold uppercase tracking-widest">Pending</span>
+                <span class="text-amber-200 text-[10px] font-bold uppercase tracking-widest">Pending</span>
               </div>
             </div>
           </div>
