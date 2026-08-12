@@ -223,13 +223,13 @@
 <script>
 import { ref, onMounted } from 'vue';
 import MainLayout from '@/components/MainLayout.vue';
-import { useToast } from 'vue-toastification';
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 export default {
   name: 'LEAU_Announcements',
   components: { MainLayout },
   setup() {
-    const toast = useToast();
     const projects = ref([]);
     const loading = ref(true);
     
