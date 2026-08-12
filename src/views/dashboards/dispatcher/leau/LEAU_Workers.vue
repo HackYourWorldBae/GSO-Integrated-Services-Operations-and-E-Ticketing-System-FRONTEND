@@ -184,8 +184,8 @@
                   <!-- Main Row Container -->
                   <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                     <!-- Left column: Worker Info & Status -->
-                    <div class="flex items-center justify-between xl:justify-start gap-6 min-w-[300px]">
-                      <div class="flex items-center gap-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between xl:justify-start gap-4 sm:gap-6 w-full xl:w-auto xl:min-w-[300px]">
+                      <div class="flex items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                         <div :class="[
                           'w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl transition-colors shrink-0 shadow-sm border border-slate-200/60 bg-white',
                           worker.status === 'Working' ? 'text-amber-600 group-hover:bg-amber-50' :
@@ -219,7 +219,7 @@
                             <!-- Improved Change Status Button Below Status Bar -->
                             <button 
                               @click="toggleManagementStatus(worker)"
-                              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border"
+                              class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border w-full sm:w-auto"
                               :class="!isManagementMode || worker.status === 'Working' || worker.assignedTicket 
                                 ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60' 
                                 : worker.status === 'On Leave'
