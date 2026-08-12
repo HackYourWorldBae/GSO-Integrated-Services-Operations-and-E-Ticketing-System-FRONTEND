@@ -38,13 +38,13 @@
     </template>
 
     <template #main-content>
-      <div class="space-y-6 animate-fade-in pb-12 px-8 py-8 max-w-[1600px] mx-auto min-h-screen">
+      <div class="space-y-6 animate-fade-in pb-12 px-4 sm:px-8 py-8 max-w-[1600px] mx-auto min-h-screen">
         <div class="mb-6 max-w-2xl">
           <h2 class="text-3xl font-black tracking-tight text-slate-900 mb-2">LEAU Roster</h2>
           <p class="text-sm text-slate-500 font-medium">Manage and track personnel status and current assignments.</p>
         </div>
 
-        <div class="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm">
+        <div class="bg-white border border-slate-200 rounded-3xl sm:rounded-[2.5rem] p-4 sm:p-8 shadow-sm">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div>
               <h3 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
@@ -84,7 +84,7 @@
                 <div 
                   v-for="worker in workers" 
                   :key="worker.id" 
-                  class="p-6 rounded-3xl border border-slate-200/80 shadow-sm bg-slate-50/40 hover:bg-white hover:shadow-xl hover:border-slate-300 transition-all duration-300 group"
+                  class="p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm bg-slate-50/40 hover:bg-white hover:shadow-xl hover:border-slate-300 transition-all duration-300 group"
                 >
                   <!-- Main Row Container -->
                   <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6">

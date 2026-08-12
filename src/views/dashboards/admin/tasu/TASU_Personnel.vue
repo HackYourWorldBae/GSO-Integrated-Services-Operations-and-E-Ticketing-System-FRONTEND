@@ -51,13 +51,13 @@
     </template>
 
     <template #main-content>
-      <div class="space-y-6 animate-fade-in pb-12 px-8 py-8 max-w-[1600px] mx-auto min-h-screen">
+      <div class="space-y-6 animate-fade-in pb-12 px-4 sm:px-8 py-8 max-w-[1600px] mx-auto min-h-screen">
         <div class="mb-6 max-w-2xl">
           <h2 class="text-3xl font-black tracking-tight text-slate-900 mb-2">TASU Roster</h2>
           <p class="text-sm text-slate-500 font-medium">Manage and track Transportation & Automotive Services Unit personnel status and current assignments.</p>
         </div>
 
-        <div class="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm">
+        <div class="bg-white border border-slate-200 rounded-3xl sm:rounded-[2.5rem] p-4 sm:p-8 shadow-sm">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div>
               <h3 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
@@ -97,13 +97,13 @@
                 <div 
                   v-for="worker in workers" 
                   :key="worker.id" 
-                  class="p-6 rounded-3xl border border-slate-200/80 shadow-sm bg-slate-50/40 hover:bg-white hover:shadow-xl hover:border-slate-300 transition-all duration-300 group"
+                  class="p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm bg-slate-50/40 hover:bg-white hover:shadow-xl hover:border-slate-300 transition-all duration-300 group"
                 >
                   <!-- Main Row Container -->
                   <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                     <!-- Left column: Worker Info & Status -->
-                    <div class="flex items-center justify-between xl:justify-start gap-6 min-w-[300px]">
-                      <div class="flex items-center gap-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between xl:justify-start gap-4 sm:gap-6 w-full xl:w-auto xl:min-w-[300px]">
+                      <div class="flex items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                         <div class="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors shrink-0 shadow-sm font-black text-xl">
                           {{ worker.name ? worker.name.charAt(0) : 'U' }}
                         </div>
@@ -133,7 +133,7 @@
                             <button 
                               @click="toggleWorkerStatus(worker)"
                               :disabled="worker.status === 'Working' || !!worker.assignedTicket"
-                              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border"
+                              class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border w-full sm:w-auto mt-1"
                               :class="worker.status === 'Working' || worker.assignedTicket 
                                 ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60' 
                                 : worker.status === 'On Leave'

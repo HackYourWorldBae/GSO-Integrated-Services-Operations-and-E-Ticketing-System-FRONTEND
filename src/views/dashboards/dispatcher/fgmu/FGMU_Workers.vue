@@ -32,7 +32,7 @@
       <div class="space-y-8 animate-fade-in max-w-5xl mx-auto">
 
         <!-- ① Selected Ticket Header -->
-        <div v-if="selectedTicket" class="p-8 rounded-[2rem] bg-emerald-50 border border-emerald-100 shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div v-if="selectedTicket" class="p-4 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-emerald-50 border border-emerald-100 shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
           <div class="relative z-10">
             <div class="flex items-center gap-3 mb-2">
@@ -61,7 +61,7 @@
         </div>
 
         <!-- ② Current Assignments Panel (between ticket header and personnel list) -->
-        <div v-if="selectedTicket && currentAssignments.length > 0" class="p-8 rounded-[2.5rem] bg-slate-900 shadow-xl overflow-hidden relative">
+        <div v-if="selectedTicket && currentAssignments.length > 0" class="p-4 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-slate-900 shadow-xl overflow-hidden relative">
           <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
           <div class="flex items-center justify-between mb-6 relative z-10">
             <h3 class="text-white font-black text-xl flex items-center gap-3">
@@ -107,7 +107,7 @@
         </div>
 
         <!-- NEW: Implementation Schedule Section -->
-        <div v-if="selectedTicket" class="p-8 rounded-[2.5rem] bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden animate-fade-in" style="animation-delay: 0.1s;">
+        <div v-if="selectedTicket" class="p-4 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden animate-fade-in" style="animation-delay: 0.1s;">
           <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl pointer-events-none"></div>
           <div class="relative z-10">
             <h3 class="text-xl font-black text-slate-900 flex items-center gap-3 mb-2">
@@ -135,7 +135,7 @@
         </div>
 
         <!-- ③ Available Personnel List -->
-        <div class="p-8 rounded-[2.5rem] bg-white border border-slate-200 shadow-sm">
+        <div class="p-4 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-white border border-slate-200 shadow-sm">
           <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
             <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
               <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
@@ -183,7 +183,7 @@
               <div class="flex flex-col space-y-4">
                 <div v-for="worker in workers" :key="worker.id"
                   :class="[
-                    'p-6 rounded-3xl border transition-all duration-300 group shadow-sm',
+                    'p-4 sm:p-6 rounded-3xl border transition-all duration-300 group shadow-sm',
                     worker.status === 'Working' ? 'border-amber-200 bg-amber-50/40 hover:bg-white hover:shadow-xl' :
                     worker.assignedTicket ? 'border-blue-200 bg-blue-50/30 hover:bg-white hover:shadow-xl' :
                     'border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-slate-300 hover:shadow-xl'
