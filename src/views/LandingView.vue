@@ -74,6 +74,16 @@ const goToLogin = () => router.push({ name: 'login' });
             </a>
           </li>
           <li>
+            <router-link to="/projects" class="nav-item">
+              <span class="nav-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </span>
+              Projects
+            </router-link>
+          </li>
+          <li>
             <a href="#services" class="nav-item">
               <span class="nav-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -108,6 +118,7 @@ const goToLogin = () => router.push({ name: 'login' });
       <!-- Mobile Menu -->
       <div class="mobile-menu" :class="{ 'mobile-menu--open': isMobileMenuOpen }">
         <a href="#about" @click="isMobileMenuOpen = false">About</a>
+        <router-link to="/projects" @click="isMobileMenuOpen = false">Projects</router-link>
         <a href="#services" @click="isMobileMenuOpen = false">Services</a>
         <button class="btn-login-mobile" @click="goToLogin">Login to Portal</button>
       </div>

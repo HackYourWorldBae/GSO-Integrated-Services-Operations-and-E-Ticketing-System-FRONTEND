@@ -39,7 +39,10 @@ const LEAU_Archives = () => import('../views/dashboards/admin/leau/LEAU_Archives
 const SSU_Archives = () => import('../views/dashboards/admin/ssu/SSU_Archives.vue');
 const TASU_Archives = () => import('../views/dashboards/admin/tasu/TASU_Archives.vue');
 const User_CompletedTickets = () => import('../views/dashboards/user/User_CompletedTickets.vue');
-
+const FGMU_Announcements = () => import('../views/dashboards/admin/fgmu/FGMU_Announcements.vue');
+const LEAU_Announcements = () => import('../views/dashboards/admin/leau/LEAU_Announcements.vue');
+const ProjectsView = () => import('../views/ProjectsView.vue');
+const ProjectsArchiveView = () => import('../views/ProjectsArchiveView.vue');
 
 
 const router = createRouter({
@@ -54,6 +57,16 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView
+    },
+    {
+      path: '/projects',
+      name: 'projects',
+      component: ProjectsView
+    },
+    {
+      path: '/projects/archives',
+      name: 'projects-archives',
+      component: ProjectsArchiveView
     },
 
     {
@@ -105,6 +118,11 @@ const router = createRouter({
       component: FGMU_Archives
     },
     {
+      path: '/admin/fgmu/announcements',
+      name: 'fgmu-admin-announcements',
+      component: FGMU_Announcements
+    },
+    {
       path: '/admin/leau',
       name: 'leau-dashboard',
       component: LEAU_Dashboard
@@ -123,6 +141,11 @@ const router = createRouter({
       path: '/admin/leau/archives',
       name: 'leau-admin-archives',
       component: LEAU_Archives
+    },
+    {
+      path: '/admin/leau/announcements',
+      name: 'leau-admin-announcements',
+      component: LEAU_Announcements
     },
     {
       path: '/admin/ssu',
