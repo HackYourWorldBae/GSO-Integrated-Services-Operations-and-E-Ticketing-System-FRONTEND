@@ -259,7 +259,7 @@ export default {
     const fetchProjects = async () => {
       loading.value = true;
       try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const res = await fetch(`${import.meta.env.VITE_API_URL}/projects`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -284,7 +284,7 @@ export default {
 
       submitting.value = true;
       try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         
         const payload = {
           unit: 'FGMU',
@@ -335,7 +335,7 @@ export default {
     const updateProject = async () => {
       submitting.value = true;
       try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const res = await fetch(`${import.meta.env.VITE_API_URL}/projects/${currentProject.value.id}`, {
           method: 'PATCH',
           headers: {
