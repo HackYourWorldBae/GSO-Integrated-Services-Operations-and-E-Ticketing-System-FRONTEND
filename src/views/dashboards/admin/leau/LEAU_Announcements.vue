@@ -260,7 +260,7 @@ export default {
       loading.value = true;
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/projects`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/projects`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -296,7 +296,7 @@ export default {
           remarks: form.value.remarks
         };
 
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/projects`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/projects`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -336,7 +336,7 @@ export default {
       submitting.value = true;
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/projects/${currentProject.value.id}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/projects${currentProject.value ? '/' + currentProject.value.id : ''}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',

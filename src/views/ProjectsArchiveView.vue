@@ -231,7 +231,7 @@ const goToLogin = () => router.push({ name: 'login' });
 const fetchProjects = async () => {
   loading.value = true;
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/projects/archives`);
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/projects/archives`);
     const data = await res.json();
     if (res.ok) projects.value = data.data?.projects || [];
   } catch (e) {
