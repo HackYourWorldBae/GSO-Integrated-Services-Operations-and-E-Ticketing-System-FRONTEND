@@ -157,91 +157,107 @@
                    :class="Number(project.unit_id) === 1 ? 'project-card--fgmu' : 'project-card--leau'"
                    :style="{ animationDelay: `${index * 80}ms` }">
 
-            <!-- Card top accent + unit badge & status -->
-            <div class="card-header">
-              <div class="card-unit-badge" :class="Number(project.unit_id) === 1 ? 'badge--fgmu' : 'badge--leau'">
-                <svg v-if="Number(project.unit_id) === 1" xmlns="http://www.w3.org/2000/svg" class="badge-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                </svg>
-                <svg v-else xmlns="http://www.w3.org/2000/svg" class="badge-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                </svg>
-                {{ Number(project.unit_id) === 1 ? 'FGMU — Facilities' : 'LEAU — Grounds' }}
-              </div>
-              <div class="card-meta-right">
-                <span class="project-num-badge">{{ formatProjectNumber(project.id) }}</span>
-                <div class="card-status">
-                  <span class="status-dot"></span>
-                  <span>Active Notice</span>
+            <!-- ── ANNOUNCEMENT BANNER (colored full-width header) ── -->
+            <div class="card-banner" :class="Number(project.unit_id) === 1 ? 'banner--fgmu' : 'banner--leau'">
+              <!-- Decorative pattern lines -->
+              <div class="banner-pattern" aria-hidden="true"></div>
+
+              <!-- Office identity row -->
+              <div class="banner-office-row">
+                <div class="banner-office-icon" :class="Number(project.unit_id) === 1 ? 'office-icon--fgmu' : 'office-icon--leau'">
+                  <svg v-if="Number(project.unit_id) === 1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="banner-svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="banner-svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                  </svg>
                 </div>
+                <div class="banner-office-text">
+                  <span class="banner-office-label">Benguet State University — General Services Office</span>
+                  <span class="banner-office-unit">{{ Number(project.unit_id) === 1 ? 'Facilities & Grounds Maintenance Unit (FGMU)' : 'Landscaping & Environmental Affairs Unit (LEAU)' }}</span>
+                </div>
+                <div class="banner-num-seal">
+                  <span class="banner-num">{{ formatProjectNumber(project.id) }}</span>
+                  <span class="banner-num-label">Project Notice</span>
+                </div>
+              </div>
+
+              <!-- Announcement type label -->
+              <div class="banner-type-row">
+                <span class="banner-type-pill">
+                  <span class="banner-live-dot"></span>
+                  OFFICIAL PROJECT ANNOUNCEMENT
+                </span>
+                <span class="banner-date-label">Published {{ formatDate(project.submitted_at) }}</span>
               </div>
             </div>
 
-            <!-- Title & Location -->
-            <div class="card-body">
-              <h3 class="card-title">{{ project.project_title }}</h3>
+            <!-- ── ANNOUNCEMENT BODY ── -->
+            <div class="card-announcement-body">
 
-              <div class="card-location">
-                <svg xmlns="http://www.w3.org/2000/svg" class="location-icon" viewBox="0 0 20 20" fill="currentColor">
+              <!-- Project title — large editorial treatment -->
+              <h3 class="announcement-title">{{ project.project_title }}</h3>
+
+              <!-- Location pill -->
+              <div class="announcement-location">
+                <svg xmlns="http://www.w3.org/2000/svg" class="loc-icon" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                 </svg>
                 <span>{{ project.location || 'BSU Main Campus' }}</span>
               </div>
 
-              <!-- Project Description -->
-              <p class="card-description">
-                {{ project.description || 'Official campus facility maintenance and scheduled development project.' }}
+              <!-- Divider rule -->
+              <div class="announcement-rule" :class="Number(project.unit_id) === 1 ? 'rule--fgmu' : 'rule--leau'"></div>
+
+              <!-- Description paragraph -->
+              <p class="announcement-body-text">
+                {{ project.description || 'The General Services Office hereby announces an official campus facility maintenance and scheduled development project for the benefit of the university community. All concerned parties are duly informed.' }}
               </p>
 
-              <!-- Schedule Highlights -->
-              <div class="card-schedule-grid">
-                <div class="schedule-pill">
-                  <div class="schedule-icon-wrap">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="schedule-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <!-- Key details table-style block -->
+              <div class="announcement-details-grid">
+                <div class="detail-block" :class="Number(project.unit_id) === 1 ? 'detail-block--fgmu' : 'detail-block--leau'">
+                  <span class="detail-block-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="detail-icon">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                  </div>
-                  <div class="schedule-text">
-                    <span class="schedule-label">Target Implementation</span>
-                    <span class="schedule-val">{{ formatDate(project.project_target_date) }}</span>
-                  </div>
+                    Target Implementation
+                  </span>
+                  <span class="detail-block-value">{{ formatDate(project.project_target_date) }}</span>
                 </div>
-
-                <div class="schedule-pill">
-                  <div class="schedule-icon-wrap">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="schedule-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="detail-block" :class="Number(project.unit_id) === 1 ? 'detail-block--fgmu' : 'detail-block--leau'">
+                  <span class="detail-block-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="detail-icon">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                  </div>
-                  <div class="schedule-text">
-                    <span class="schedule-label">Working Days</span>
-                    <span class="schedule-val">{{ formatDuration(project.project_target_duration) }}</span>
-                  </div>
+                    Working Days
+                  </span>
+                  <span class="detail-block-value">{{ formatDuration(project.project_target_duration) }}</span>
                 </div>
               </div>
 
-              <!-- Scope of Work / Remarks Advisory -->
-              <div v-if="project.project_remarks" class="card-remarks-box">
-                <div class="remarks-header">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="remarks-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <!-- Remarks / advisory note box -->
+              <div v-if="project.project_remarks" class="announcement-advisory">
+                <div class="advisory-header">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="advisory-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Scope of Work & Notes</span>
+                  SCOPE OF WORK & ADVISORY
                 </div>
-                <p class="remarks-content">{{ project.project_remarks }}</p>
+                <p class="advisory-text">{{ project.project_remarks }}</p>
               </div>
             </div>
 
-            <!-- Card footer (No ticket ID number) -->
-            <div class="card-footer">
-              <span class="announcement-date">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                </svg>
-                Published on {{ formatDate(project.submitted_at) }}
+            <!-- ── OFFICIAL SEAL FOOTER ── -->
+            <div class="card-seal-footer" :class="Number(project.unit_id) === 1 ? 'seal-footer--fgmu' : 'seal-footer--leau'">
+              <span class="seal-footer-left">
+                <span class="seal-dot"></span>
+                Active Notice
               </span>
-              <span class="announcement-tag">Official Announcement</span>
+              <span class="seal-footer-center">BSU — General Services Office</span>
+              <span class="seal-footer-right">Official Announcement</span>
             </div>
+
           </article>
         </div>
 
@@ -472,9 +488,9 @@ onMounted(fetchProjects);
 .empty-state p { color: var(--text-muted); font-size: 0.95rem; max-width: 380px; margin: 0 auto; }
 
 /* ========================
-   PROJECT CARDS
+   PROJECT CARDS — ANNOUNCEMENT STYLE
    ======================== */
-.project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.75rem; }
+.project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 2rem; }
 
 .project-card {
   background: white;
@@ -483,194 +499,177 @@ onMounted(fetchProjects);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 20px rgba(15, 66, 33, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 24px rgba(15, 66, 33, 0.06);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
   animation: cardFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-  position: relative;
 }
-.project-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 4px;
-  background: var(--bsu-green);
-  transition: height 0.2s ease;
-}
-.project-card--leau::before { background: #d97706; }
-.project-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(15, 66, 33, 0.12); }
+.project-card:hover { transform: translateY(-5px); box-shadow: 0 20px 48px rgba(15, 66, 33, 0.13); }
 
 @keyframes cardFadeUp {
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(28px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 1.5rem 0.75rem;
-  border-bottom: 1px solid rgba(26, 107, 53, 0.08);
+/* ── BANNER ── */
+.card-banner {
+  position: relative;
+  padding: 1.4rem 1.6rem 1rem;
+  overflow: hidden;
 }
-.card-unit-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 0.35rem 0.85rem;
-  border-radius: 9999px;
-}
-.badge-icon { width: 14px; height: 14px; }
-.badge--fgmu { background: var(--bsu-green-muted); color: var(--bsu-green-dark); border: 1px solid rgba(26, 107, 53, 0.2); }
-.badge--leau { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.banner--fgmu { background: linear-gradient(135deg, #0d4a22 0%, #1a6b35 50%, #145e2b 100%); }
+.banner--leau  { background: linear-gradient(135deg, #78350f 0%, #b45309 50%, #92400e 100%); }
 
-.card-meta-right {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
+/* Decorative diagonal-stripe pattern */
+.banner-pattern {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255,255,255,0.04) 0px,
+    rgba(255,255,255,0.04) 1px,
+    transparent 1px,
+    transparent 12px
+  );
 }
-.project-num-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.7rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 0.25rem 0.65rem;
-  border-radius: 8px;
-  background: #0f172a;
-  color: #ffffff;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
-}
-.card-status {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-.status-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
 
-.card-body {
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.banner-office-row {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.banner-office-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.office-icon--fgmu { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); }
+.office-icon--leau  { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); }
+.banner-svg { width: 22px; height: 22px; color: rgba(255,255,255,0.92); }
+
+.banner-office-text {
+  flex: 1;
+  display: flex; flex-direction: column; gap: 0.15rem;
+}
+.banner-office-label {
+  font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.6);
+  text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.2;
+}
+.banner-office-unit {
+  font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.95);
+  letter-spacing: 0.01em; line-height: 1.3;
+}
+
+.banner-num-seal {
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 10px; padding: 0.45rem 0.75rem; text-align: center;
+}
+.banner-num { font-size: 0.88rem; font-weight: 900; color: white; line-height: 1; letter-spacing: 0.02em; }
+.banner-num-label { font-size: 0.55rem; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0.2rem; }
+
+.banner-type-row {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.banner-type-pill {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 100px; padding: 0.28rem 0.8rem;
+  font-size: 0.62rem; font-weight: 800; color: rgba(255,255,255,0.95);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.banner-live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4ade80; box-shadow: 0 0 6px #4ade80;
+  animation: pulse 2s infinite;
+}
+.banner-date-label { font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.55); }
+
+/* ── BODY ── */
+.card-announcement-body {
+  padding: 1.5rem 1.6rem;
+  display: flex; flex-direction: column; gap: 1rem;
   flex: 1;
 }
 
-.card-title {
-  font-size: 1.25rem;
-  font-weight: 900;
-  color: var(--text-primary);
-  line-height: 1.35;
-  letter-spacing: -0.01em;
-  margin: 0;
+.announcement-title {
+  font-size: 1.3rem; font-weight: 900; color: var(--text-primary);
+  line-height: 1.3; letter-spacing: -0.015em; margin: 0;
 }
 
-.card-location {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  font-weight: 600;
+.announcement-location {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.83rem; color: var(--text-secondary); font-weight: 600;
 }
-.location-icon { width: 16px; height: 16px; flex-shrink: 0; color: var(--bsu-green); }
+.loc-icon { width: 15px; height: 15px; flex-shrink: 0; color: var(--bsu-green); }
 
-.card-description {
-  font-size: 0.9rem;
-  color: #4b5563;
-  line-height: 1.6;
-  margin: 0;
+.announcement-rule {
+  height: 3px; border-radius: 99px;
+  background: var(--bsu-green); opacity: 0.2;
 }
+.announcement-rule.rule--leau { background: #b45309; }
 
-.card-schedule-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
-  margin-top: 0.25rem;
-}
-.schedule-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 0.75rem 0.9rem;
-}
-.schedule-icon-wrap {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-  color: var(--bsu-green);
-}
-.schedule-icon { width: 18px; height: 18px; }
-.schedule-text { display: flex; flex-direction: column; }
-.schedule-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-.schedule-val {
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin-top: 0.1rem;
+.announcement-body-text {
+  font-size: 0.9rem; color: #374151; line-height: 1.7;
+  margin: 0; font-family: Georgia, 'Times New Roman', serif;
 }
 
-.card-remarks-box {
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
-}
-.remarks-header {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.35rem;
-}
-.remarks-icon { width: 14px; height: 14px; color: #3b82f6; }
-.remarks-content {
-  font-size: 0.82rem;
-  color: #64748b;
-  line-height: 1.5;
-  margin: 0;
-  font-style: italic;
+/* ── DETAILS GRID (table-like info blocks) ── */
+.announcement-details-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;
 }
 
-.card-footer {
-  margin-top: auto;
-  padding: 0.85rem 1.5rem;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 600;
-  background: var(--surface-2);
+.detail-block {
+  border-radius: 12px; padding: 0.9rem 1rem;
+  display: flex; flex-direction: column; gap: 0.35rem;
+  border: 1px solid transparent;
 }
-.announcement-date { display: flex; align-items: center; gap: 0.4rem; font-weight: 600; }
-.announcement-tag { font-size: 0.68rem; font-weight: 800; color: var(--bsu-green); text-transform: uppercase; letter-spacing: 0.08em; }
+.detail-block--fgmu { background: #f0faf4; border-color: rgba(26,107,53,0.15); }
+.detail-block--leau  { background: #fffbeb; border-color: rgba(180,83,9,0.15); }
+
+.detail-block-label {
+  display: flex; align-items: center; gap: 0.3rem;
+  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted);
+}
+.detail-block--leau .detail-block-label { color: #92400e; }
+.detail-icon { width: 12px; height: 12px; }
+
+.detail-block-value {
+  font-size: 0.92rem; font-weight: 900; color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* ── ADVISORY BOX ── */
+.announcement-advisory {
+  background: #f8faff; border: 1px solid #c7d7fe;
+  border-left: 3px solid #6366f1;
+  border-radius: 0 10px 10px 0; padding: 0.85rem 1rem;
+}
+.advisory-header {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-size: 0.62rem; font-weight: 900; color: #4f46e5;
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4rem;
+}
+.advisory-icon { width: 13px; height: 13px; }
+.advisory-text { font-size: 0.84rem; color: #3730a3; line-height: 1.55; margin: 0; font-style: italic; }
+
+/* ── SEAL FOOTER ── */
+.card-seal-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.65rem 1.6rem; gap: 0.5rem;
+  font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.seal-footer--fgmu { background: #0d4a22; color: rgba(255,255,255,0.7); }
+.seal-footer--leau  { background: #78350f; color: rgba(255,255,255,0.7); }
+
+.seal-footer-left { display: flex; align-items: center; gap: 0.4rem; }
+.seal-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: pulse 2s infinite; }
+.seal-footer-center { color: rgba(255,255,255,0.5); font-weight: 600; letter-spacing: 0.04em; }
+.seal-footer-right { color: rgba(255,255,255,0.9); }
 
 /* ========================
    FOOTER
