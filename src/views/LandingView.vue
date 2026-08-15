@@ -1,10 +1,8 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-
-
 
 // Mobile menu
 const isMobileMenuOpen = ref(false);
@@ -42,6 +40,59 @@ const services = [
 ];
 
 const goToLogin = () => router.push({ name: 'login' });
+
+// ── Project Announcements ──
+const landingProjects = ref([]);
+const landingProjectsLoading = ref(false);
+
+const fetchLandingProjects = async () => {
+  landingProjectsLoading.value = true;
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/projects`);
+    const data = await res.json();
+    if (res.ok) landingProjects.value = data.data?.projects || [];
+  } catch (e) {
+    console.error('Failed to load landing projects', e);
+  } finally {
+    landingProjectsLoading.value = false;
+  }
+};
+
+const _today = new Date();
+_today.setHours(0, 0, 0, 0);
+
+const landingActive = computed(() =>
+  landingProjects.value.filter(p => {
+    if (!p.project_target_date) return true;
+    const d = new Date(p.project_target_date);
+    d.setHours(0, 0, 0, 0);
+    return d <= _today;
+  })
+);
+
+const landingUpcoming = computed(() =>
+  landingProjects.value.filter(p => {
+    if (!p.project_target_date) return false;
+    const d = new Date(p.project_target_date);
+    d.setHours(0, 0, 0, 0);
+    return d > _today;
+  })
+);
+
+const formatLandingDate = (d) => {
+  if (!d) return 'TBD';
+  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+};
+
+const formatLandingProjectNumber = (id) => {
+  if (!id) return '';
+  const s = String(id);
+  // Try to parse structured IDs like FGMU-PRJ-1-2025, else fallback
+  if (s.includes('PRJ')) return s;
+  return `Project #${s}`;
+};
+
+onMounted(fetchLandingProjects);
 </script>
 
 <template>
@@ -319,6 +370,87 @@ const goToLogin = () => router.push({ name: 'login' });
     </section>
 
 
+
+    <!-- ===================== PROJECT ANNOUNCEMENTS ===================== -->
+    <section v-if="landingProjects.length > 0" class="landing-projects-section">
+      <div class="section-container">
+        <!-- Section header -->
+        <div class="landing-proj-header">
+          <div>
+            <span class="section-label">Campus Projects</span>
+            <h2 class="section-heading">Official Project Notices</h2>
+            <p class="section-desc" style="max-width:500px">
+              Stay informed about ongoing and upcoming facility maintenance and grounds projects across the BSU campus.
+            </p>
+          </div>
+          <div class="landing-proj-counts">
+            <div class="landing-proj-count-card active-count-card">
+              <span class="landing-count-value">{{ landingActive.length }}</span>
+              <span class="landing-count-label">
+                <span class="landing-count-dot active-count-dot"></span>
+                Active Projects
+              </span>
+            </div>
+            <div class="landing-proj-count-card upcoming-count-card">
+              <span class="landing-count-value">{{ landingUpcoming.length }}</span>
+              <span class="landing-count-label">
+                <span class="landing-count-dot upcoming-count-dot"></span>
+                Upcoming
+              </span>
+            </div>
+            <router-link to="/projects" class="landing-proj-view-all">
+              View All
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+            </router-link>
+          </div>
+        </div>
+
+        <!-- Project announcement rows (max 3 shown) -->
+        <div class="landing-proj-list">
+          <div v-for="(project, index) in landingProjects.slice(0, 3)" :key="project.id"
+               class="landing-proj-row"
+               :class="Number(project.unit_id) === 1 ? 'landing-proj-row--fgmu' : 'landing-proj-row--leau'"
+               :style="{ animationDelay: `${index * 80}ms` }">
+
+            <!-- Left color band -->
+            <div class="landing-proj-band" :class="Number(project.unit_id) === 1 ? 'band--fgmu' : 'band--leau'">
+              <span class="landing-proj-num">{{ formatLandingProjectNumber(project.id) }}</span>
+              <span class="landing-proj-unit">{{ Number(project.unit_id) === 1 ? 'FGMU' : 'LEAU' }}</span>
+            </div>
+
+            <!-- Content -->
+            <div class="landing-proj-content">
+              <div class="landing-proj-meta">
+                <span class="landing-proj-badge"
+                      :class="landingActive.includes(project) ? 'badge-active' : 'badge-upcoming'">
+                  <span class="landing-proj-badge-dot"></span>
+                  {{ landingActive.includes(project) ? 'ACTIVE' : 'UPCOMING' }}
+                </span>
+                <span class="landing-proj-date">{{ formatLandingDate(project.submitted_at) }}</span>
+              </div>
+              <h4 class="landing-proj-title">{{ project.project_title }}</h4>
+              <p class="landing-proj-location">
+                <svg xmlns="http://www.w3.org/2000/svg" class="landing-proj-loc-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                </svg>
+                {{ project.location || 'BSU Main Campus' }}
+                <span class="landing-proj-date-chip">Target: {{ formatLandingDate(project.project_target_date) }}</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Show more link -->
+          <router-link v-if="landingProjects.length > 3" to="/projects" class="landing-proj-showmore">
+            View all {{ landingProjects.length }} project announcements
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4 inline ml-1">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </router-link>
+        </div>
+      </div>
+    </section>
 
     <!-- ===================== CTA BANNER ===================== -->
     <section class="cta-section">
@@ -1464,6 +1596,175 @@ const goToLogin = () => router.push({ name: 'login' });
 }
 
 /* ========================
+   LANDING PROJECT ANNOUNCEMENTS
+   ======================== */
+.landing-projects-section {
+  padding: 5rem 0;
+  background: #f7faf8;
+  border-top: 1px solid rgba(26,107,53,0.1);
+  border-bottom: 1px solid rgba(26,107,53,0.1);
+}
+
+.landing-proj-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.landing-proj-counts {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.landing-proj-count-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  border-radius: 16px;
+  border: 1px solid;
+  min-width: 90px;
+  text-align: center;
+}
+.active-count-card   { background: #dcfce7; border-color: #bbf7d0; }
+.upcoming-count-card { background: #fef3c7; border-color: #fde68a; }
+
+.landing-count-value {
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #0f2419;
+}
+.landing-count-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #374151;
+  margin-top: 0.35rem;
+}
+.landing-count-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.active-count-dot   { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+.upcoming-count-dot { background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
+
+.landing-proj-view-all {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: #1a6b35; color: white;
+  font-size: 0.82rem; font-weight: 700;
+  padding: 0.65rem 1.25rem; border-radius: 10px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+  white-space: nowrap;
+}
+.landing-proj-view-all:hover { background: #0f4221; transform: translateY(-1px); }
+
+.landing-proj-list { display: flex; flex-direction: column; gap: 0.875rem; }
+
+.landing-proj-row {
+  display: flex;
+  background: white;
+  border-radius: 14px;
+  border: 1px solid rgba(26,107,53,0.12);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(15, 66, 33, 0.04);
+  transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease;
+  animation: fadeSlideUp 0.45s cubic-bezier(0.16,1,0.3,1) both;
+}
+.landing-proj-row:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(15, 66, 33, 0.09); }
+
+/* Colored left band */
+.landing-proj-band {
+  width: 80px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.85rem 0.4rem;
+  text-align: center;
+}
+.band--fgmu { background: linear-gradient(175deg, #0d4a22 0%, #1a6b35 100%); }
+.band--leau  { background: linear-gradient(175deg, #78350f 0%, #b45309 100%); }
+
+.landing-proj-num {
+  font-size: 0.55rem; font-weight: 900; color: white;
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px; padding: 0.15rem 0.35rem;
+  letter-spacing: 0.03em;
+}
+.landing-proj-unit {
+  font-size: 0.55rem; font-weight: 800; color: rgba(255,255,255,0.6);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+
+/* Content area */
+.landing-proj-content {
+  flex: 1; padding: 0.85rem 1.1rem; min-width: 0;
+}
+
+.landing-proj-meta {
+  display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; flex-wrap: wrap;
+}
+
+.landing-proj-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.58rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.09em;
+  border-radius: 100px; padding: 0.18rem 0.55rem; border: 1px solid;
+}
+.badge-active   { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+.badge-upcoming { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+
+.landing-proj-badge-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.7;
+}
+
+.landing-proj-date {
+  font-size: 0.65rem; color: #6b7280; font-weight: 500;
+}
+
+.landing-proj-title {
+  font-size: 1rem; font-weight: 900; color: #0f2419;
+  line-height: 1.3; margin: 0 0 0.25rem;
+  letter-spacing: -0.01em;
+}
+
+.landing-proj-location {
+  display: flex; align-items: center; gap: 0.3rem;
+  font-size: 0.78rem; color: #6b7280; font-weight: 500; margin: 0;
+  flex-wrap: wrap;
+}
+.landing-proj-loc-icon {
+  width: 13px; height: 13px; flex-shrink: 0; color: #1a6b35;
+}
+.landing-proj-date-chip {
+  display: inline-flex; align-items: center;
+  background: #f3f4f6; border-radius: 6px; padding: 0.1rem 0.45rem;
+  font-size: 0.65rem; font-weight: 700; color: #374151;
+  margin-left: 0.5rem;
+}
+
+.landing-proj-showmore {
+  display: block; text-align: center;
+  font-size: 0.85rem; font-weight: 700; color: #1a6b35;
+  padding: 1rem; border: 1px dashed rgba(26,107,53,0.25);
+  border-radius: 12px; text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  margin-top: 0.25rem;
+}
+.landing-proj-showmore:hover { background: #f0faf4; color: #0f4221; }
+
+/* ========================
    RESPONSIVE
    ======================== */
 @media (max-width: 1024px) {
@@ -1497,6 +1798,10 @@ const goToLogin = () => router.push({ name: 'login' });
   .footer-bottom { flex-direction: column; text-align: center; }
 
   .service-card { padding: 1.5rem; }
+
+  .landing-proj-header { flex-direction: column; gap: 1.25rem; }
+  .landing-proj-counts { justify-content: flex-start; }
+  .landing-proj-band { width: 60px; }
 }
 
 @media (max-width: 480px) {
@@ -1505,5 +1810,8 @@ const goToLogin = () => router.push({ name: 'login' });
   .btn-hero-primary, .btn-hero-secondary { justify-content: center; }
   .services-grid { grid-template-columns: 1fr; }
   .btn-login-hero, .btn-secondary-hero { width: 100%; justify-content: center; }
+  .landing-proj-row { flex-direction: column; }
+  .landing-proj-band { width: 100%; height: 50px; flex-direction: row; justify-content: center; }
 }
 </style>
+

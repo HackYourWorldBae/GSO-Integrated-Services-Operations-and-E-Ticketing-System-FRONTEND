@@ -69,56 +69,73 @@
           <p class="text-slate-500 text-sm">There are no project announcements active at the moment.</p>
         </div>
 
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="project in projects" :key="project.id" class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col relative overflow-hidden group hover:shadow-lg transition-all">
-            <div class="absolute top-0 left-0 w-full h-1.5 bg-amber-500"></div>
-            
-            <div class="flex justify-between items-center mb-4">
-              <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider rounded-lg shadow-sm">
-                  {{ formatProjectNumber(project.id) }}
-                </span>
-                <span class="px-3 py-1 bg-amber-50 text-amber-800 text-xs font-extrabold rounded-full border border-amber-200 flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                  Active Announcement
-                </span>
+        <div v-else class="space-y-4">
+          <div v-for="project in projects" :key="project.id"
+               class="flex bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all group">
+
+            <!-- Left: colored banner column -->
+            <div class="relative flex-shrink-0 w-28 flex flex-col items-center justify-center gap-2 py-5 px-2 overflow-hidden text-center"
+                 style="background: linear-gradient(175deg, #78350f 0%, #b45309 60%, #92400e 100%)">
+              <div class="absolute inset-0 pointer-events-none" style="background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,0.04) 0px,rgba(255,255,255,0.04) 1px,transparent 1px,transparent 10px)"></div>
+              <div class="relative z-10 w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                </svg>
               </div>
-              <button @click="openUpdateModal(project)" class="text-xs font-bold text-slate-500 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                Update
-              </button>
+              <span class="relative z-10 text-[0.65rem] font-black text-white bg-white/15 border border-white/20 rounded-lg px-1.5 py-0.5 tracking-wide">{{ formatProjectNumber(project.id) }}</span>
+              <span class="relative z-10 text-[0.6rem] font-bold text-white/60 uppercase tracking-widest">LEAU</span>
             </div>
 
-            <h3 class="text-xl font-black text-slate-900 mb-1.5 leading-tight">{{ project.project_title }}</h3>
-            
-            <p class="text-sm font-semibold text-slate-500 mb-3 flex items-center gap-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-              {{ project.location }}
-            </p>
-
-            <p class="text-sm text-slate-600 leading-relaxed mb-4">
-              {{ project.description || 'Scheduled groundskeeping and campus landscaping project.' }}
-            </p>
-
-            <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-100 mb-4">
-              <div>
-                <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Target Date</span>
-                <span class="text-sm font-black text-slate-900">{{ formatDate(project.project_target_date) }}</span>
+            <!-- Right: content -->
+            <div class="flex-1 flex flex-col min-w-0">
+              <div class="flex items-center justify-between gap-3 px-5 pt-3.5 pb-0 flex-wrap">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="inline-flex items-center gap-1.5 text-[0.6rem] font-black uppercase tracking-widest text-amber-900 bg-amber-50 border border-amber-200/60 rounded-full px-2.5 py-0.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    OFFICIAL ANNOUNCEMENT
+                  </span>
+                  <span class="text-[0.65rem] font-medium text-slate-400">Published {{ formatDate(project.submitted_at) }}</span>
+                </div>
+                <button @click="openUpdateModal(project)"
+                        class="text-[0.7rem] font-bold text-slate-500 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                  Update
+                </button>
               </div>
-              <div>
-                <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Working Days</span>
-                <span class="text-sm font-black text-slate-900">{{ formatDuration(project.project_target_duration) }}</span>
+              <p class="text-[0.68rem] font-semibold text-slate-400 px-5 mt-0.5">Landscaping &amp; Environmental Affairs Unit (LEAU)</p>
+
+              <h3 class="text-lg font-black text-slate-900 leading-tight tracking-tight px-5 mt-1.5">{{ project.project_title }}</h3>
+
+              <p class="flex items-center gap-1 text-sm font-semibold text-slate-500 px-5 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                {{ project.location || 'BSU Main Campus' }}
+              </p>
+
+              <div class="mx-5 my-2.5 h-[2px] rounded-full bg-amber-600/15"></div>
+
+              <p class="text-[0.85rem] text-slate-600 leading-relaxed px-5" style="font-family: Georgia, serif">
+                {{ project.description || 'Scheduled groundskeeping and campus landscaping project.' }}
+              </p>
+
+              <div class="flex items-start gap-2.5 flex-wrap px-5 py-3">
+                <div class="flex flex-col gap-0.5 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 flex-1 min-w-[120px]">
+                  <span class="text-[0.58rem] font-black uppercase tracking-widest text-amber-800">Target Date</span>
+                  <span class="text-sm font-black text-slate-900">{{ formatDate(project.project_target_date) }}</span>
+                </div>
+                <div class="flex flex-col gap-0.5 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 flex-1 min-w-[120px]">
+                  <span class="text-[0.58rem] font-black uppercase tracking-widest text-amber-800">Working Days</span>
+                  <span class="text-sm font-black text-slate-900">{{ formatDuration(project.project_target_duration) }}</span>
+                </div>
+                <div v-if="project.project_remarks" class="text-xs text-indigo-700 bg-indigo-50 border border-indigo-200 border-l-2 border-l-indigo-500 rounded-r-xl px-3 py-2 flex-[2] min-w-[200px] italic leading-relaxed">
+                  <span class="font-black not-italic">SCOPE: </span>{{ project.project_remarks }}
+                </div>
               </div>
-            </div>
 
-            <div v-if="project.project_remarks" class="mb-4">
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Remarks / Notes</p>
-              <p class="text-xs text-slate-700 bg-amber-50/80 p-3 rounded-xl border border-amber-100 italic">{{ project.project_remarks }}</p>
-            </div>
-
-            <div class="mt-auto pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
-              <span>Published {{ formatDate(project.submitted_at) }}</span>
-              <span class="font-bold text-amber-700 uppercase text-[10px]">LEAU Notice</span>
+              <div class="flex items-center justify-between px-5 py-2 mt-auto text-[0.6rem] font-extrabold uppercase tracking-widest" style="background:#78350f;color:rgba(255,255,255,0.7)">
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_5px_#fbbf24] animate-pulse"></span> Active Notice</span>
+                <span style="color:rgba(255,255,255,0.4);font-weight:600">BSU — General Services Office</span>
+                <span style="color:rgba(255,255,255,0.9)">Official Announcement</span>
+              </div>
             </div>
           </div>
         </div>

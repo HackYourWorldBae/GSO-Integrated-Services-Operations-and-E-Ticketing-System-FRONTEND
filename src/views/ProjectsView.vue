@@ -99,18 +99,18 @@
         <!-- Live stats strip -->
         <div class="stats-strip">
           <div class="stat-item">
-            <span class="stat-value">{{ projects.length }}</span>
+            <span class="stat-value">{{ activeProjects.length }}</span>
             <span class="stat-label">Active Projects</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-value">{{ fgmuCount }}</span>
-            <span class="stat-label">FGMU Projects</span>
+            <span class="stat-value">{{ upcomingProjects.length }}</span>
+            <span class="stat-label">Upcoming Projects</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-value">{{ leauCount }}</span>
-            <span class="stat-label">LEAU Projects</span>
+            <span class="stat-value">{{ projects.length }}</span>
+            <span class="stat-label">Total Announced</span>
           </div>
         </div>
       </div>
@@ -120,19 +120,6 @@
     <main class="page-main">
       <div class="page-container">
 
-        <!-- Section Header + Filters -->
-        <div class="section-header">
-          <div class="section-title-group">
-            <h2 class="section-title">Active & Upcoming Projects</h2>
-            <p class="section-subtitle">Scheduled facility and grounds maintenance projects currently in progress or announced.</p>
-          </div>
-          <div class="filter-pills">
-            <button @click="filter = 'ALL'" :class="['filter-pill', filter === 'ALL' ? 'filter-pill--active' : '']">All</button>
-            <button @click="filter = 'FGMU'" :class="['filter-pill', 'filter-pill--fgmu', filter === 'FGMU' ? 'filter-pill--active-fgmu' : '']">Facilities (FGMU)</button>
-            <button @click="filter = 'LEAU'" :class="['filter-pill', 'filter-pill--leau', filter === 'LEAU' ? 'filter-pill--active-leau' : '']">Grounds (LEAU)</button>
-          </div>
-        </div>
-
         <!-- Loading -->
         <div v-if="loading" class="loading-state">
           <div class="loading-spinner"></div>
@@ -140,126 +127,179 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="filteredProjects.length === 0" class="empty-state">
+        <div v-else-if="projects.length === 0" class="empty-state">
           <div class="empty-icon">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <h3>No Active Projects</h3>
-          <p>There are currently no project announcements matching your filter. Check back later for updates.</p>
+          <h3>No Project Announcements</h3>
+          <p>There are currently no project announcements. Check back later for updates.</p>
         </div>
 
-        <!-- Project Cards -->
-        <div v-else class="project-grid">
-          <article v-for="(project, index) in filteredProjects" :key="project.id"
-                   class="project-card"
-                   :class="Number(project.unit_id) === 1 ? 'project-card--fgmu' : 'project-card--leau'"
-                   :style="{ animationDelay: `${index * 80}ms` }">
+        <template v-else>
 
-            <!-- ── ANNOUNCEMENT BANNER (colored full-width header) ── -->
-            <div class="card-banner" :class="Number(project.unit_id) === 1 ? 'banner--fgmu' : 'banner--leau'">
-              <!-- Decorative pattern lines -->
-              <div class="banner-pattern" aria-hidden="true"></div>
-
-              <!-- Office identity row -->
-              <div class="banner-office-row">
-                <div class="banner-office-icon" :class="Number(project.unit_id) === 1 ? 'office-icon--fgmu' : 'office-icon--leau'">
-                  <svg v-if="Number(project.unit_id) === 1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="banner-svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                  </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="banner-svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                  </svg>
-                </div>
-                <div class="banner-office-text">
-                  <span class="banner-office-label">Benguet State University — General Services Office</span>
-                  <span class="banner-office-unit">{{ Number(project.unit_id) === 1 ? 'Facilities & Grounds Maintenance Unit (FGMU)' : 'Landscaping & Environmental Affairs Unit (LEAU)' }}</span>
-                </div>
-                <div class="banner-num-seal">
-                  <span class="banner-num">{{ formatProjectNumber(project.id) }}</span>
-                  <span class="banner-num-label">Project Notice</span>
-                </div>
+          <!-- ── ACTIVE PROJECTS SECTION ── -->
+          <section v-if="splitActive.length > 0" class="projects-section">
+            <div class="projects-section-header">
+              <div class="section-label-group">
+                <span class="section-status-dot active-dot"></span>
+                <h2 class="section-title">Active Projects</h2>
               </div>
-
-              <!-- Announcement type label -->
-              <div class="banner-type-row">
-                <span class="banner-type-pill">
-                  <span class="banner-live-dot"></span>
-                  OFFICIAL PROJECT ANNOUNCEMENT
-                </span>
-                <span class="banner-date-label">Published {{ formatDate(project.submitted_at) }}</span>
-              </div>
+              <span class="section-count-badge active-badge">{{ splitActive.length }} In Progress</span>
             </div>
+            <div class="project-list">
+              <article v-for="(project, index) in splitActive" :key="project.id"
+                       class="project-row-card"
+                       :class="Number(project.unit_id) === 1 ? 'project-card--fgmu' : 'project-card--leau'"
+                       :style="{ animationDelay: `${index * 60}ms` }">
 
-            <!-- ── ANNOUNCEMENT BODY ── -->
-            <div class="card-announcement-body">
-
-              <!-- Project title — large editorial treatment -->
-              <h3 class="announcement-title">{{ project.project_title }}</h3>
-
-              <!-- Location pill -->
-              <div class="announcement-location">
-                <svg xmlns="http://www.w3.org/2000/svg" class="loc-icon" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                </svg>
-                <span>{{ project.location || 'BSU Main Campus' }}</span>
-              </div>
-
-              <!-- Divider rule -->
-              <div class="announcement-rule" :class="Number(project.unit_id) === 1 ? 'rule--fgmu' : 'rule--leau'"></div>
-
-              <!-- Description paragraph -->
-              <p class="announcement-body-text">
-                {{ project.description || 'The General Services Office hereby announces an official campus facility maintenance and scheduled development project for the benefit of the university community. All concerned parties are duly informed.' }}
-              </p>
-
-              <!-- Key details table-style block -->
-              <div class="announcement-details-grid">
-                <div class="detail-block" :class="Number(project.unit_id) === 1 ? 'detail-block--fgmu' : 'detail-block--leau'">
-                  <span class="detail-block-label">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="detail-icon">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <!-- Left: colored banner column -->
+                <div class="row-banner" :class="Number(project.unit_id) === 1 ? 'banner--fgmu' : 'banner--leau'">
+                  <div class="banner-pattern" aria-hidden="true"></div>
+                  <div class="row-banner-icon">
+                    <svg v-if="Number(project.unit_id) === 1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="banner-svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
-                    Target Implementation
-                  </span>
-                  <span class="detail-block-value">{{ formatDate(project.project_target_date) }}</span>
-                </div>
-                <div class="detail-block" :class="Number(project.unit_id) === 1 ? 'detail-block--fgmu' : 'detail-block--leau'">
-                  <span class="detail-block-label">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="detail-icon">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="banner-svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
                     </svg>
-                    Working Days
-                  </span>
-                  <span class="detail-block-value">{{ formatDuration(project.project_target_duration) }}</span>
+                  </div>
+                  <div class="row-banner-num">{{ formatProjectNumber(project.id) }}</div>
+                  <div class="row-banner-unit">{{ Number(project.unit_id) === 1 ? 'FGMU' : 'LEAU' }}</div>
                 </div>
-              </div>
 
-              <!-- Remarks / advisory note box -->
-              <div v-if="project.project_remarks" class="announcement-advisory">
-                <div class="advisory-header">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="advisory-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  SCOPE OF WORK & ADVISORY
+                <!-- Right: content -->
+                <div class="row-content">
+                  <div class="row-content-top">
+                    <div class="row-meta">
+                      <span class="row-type-pill">
+                        <span class="banner-live-dot"></span>
+                        OFFICIAL PROJECT ANNOUNCEMENT
+                      </span>
+                      <span class="row-date-label">Published {{ formatDate(project.submitted_at) }}</span>
+                    </div>
+                    <div class="row-office-label">{{ Number(project.unit_id) === 1 ? 'Facilities &amp; Grounds Maintenance Unit (FGMU)' : 'Landscaping &amp; Environmental Affairs Unit (LEAU)' }}</div>
+                  </div>
+
+                  <h3 class="row-title">{{ project.project_title }}</h3>
+
+                  <div class="row-location">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="loc-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>{{ project.location || 'BSU Main Campus' }}</span>
+                  </div>
+
+                  <div class="row-rule" :class="Number(project.unit_id) === 1 ? 'rule--fgmu' : 'rule--leau'"></div>
+
+                  <p class="row-description">{{ project.description || 'The General Services Office hereby announces an official campus facility maintenance and scheduled development project.' }}</p>
+
+                  <div class="row-details">
+                    <div class="row-detail-item" :class="Number(project.unit_id) === 1 ? 'detail-block--fgmu' : 'detail-block--leau'">
+                      <span class="detail-block-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="detail-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        Target Implementation
+                      </span>
+                      <span class="detail-block-value">{{ formatDate(project.project_target_date) }}</span>
+                    </div>
+                    <div class="row-detail-item" :class="Number(project.unit_id) === 1 ? 'detail-block--fgmu' : 'detail-block--leau'">
+                      <span class="detail-block-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="detail-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Working Days
+                      </span>
+                      <span class="detail-block-value">{{ formatDuration(project.project_target_duration) }}</span>
+                    </div>
+                    <div v-if="project.project_remarks" class="row-advisory">
+                      <span class="advisory-label">SCOPE: </span>{{ project.project_remarks }}
+                    </div>
+                  </div>
+
+                  <!-- Seal footer strip -->
+                  <div class="row-seal-footer" :class="Number(project.unit_id) === 1 ? 'seal-footer--fgmu' : 'seal-footer--leau'">
+                    <span class="seal-footer-left"><span class="seal-dot"></span> Active Notice</span>
+                    <span class="seal-footer-center">BSU — General Services Office</span>
+                    <span class="seal-footer-right">Official Announcement</span>
+                  </div>
                 </div>
-                <p class="advisory-text">{{ project.project_remarks }}</p>
+              </article>
+            </div>
+          </section>
+
+          <!-- ── UPCOMING PROJECTS SECTION ── -->
+          <section v-if="splitUpcoming.length > 0" class="projects-section" :class="{ 'projects-section--mt': splitActive.length > 0 }">
+            <div class="projects-section-header">
+              <div class="section-label-group">
+                <span class="section-status-dot upcoming-dot"></span>
+                <h2 class="section-title">Upcoming Projects</h2>
               </div>
+              <span class="section-count-badge upcoming-badge">{{ splitUpcoming.length }} Scheduled</span>
             </div>
+            <div class="project-list">
+              <article v-for="(project, index) in splitUpcoming" :key="project.id"
+                       class="project-row-card project-row-card--upcoming"
+                       :class="Number(project.unit_id) === 1 ? 'project-card--fgmu' : 'project-card--leau'"
+                       :style="{ animationDelay: `${index * 60}ms` }">
 
-            <!-- ── OFFICIAL SEAL FOOTER ── -->
-            <div class="card-seal-footer" :class="Number(project.unit_id) === 1 ? 'seal-footer--fgmu' : 'seal-footer--leau'">
-              <span class="seal-footer-left">
-                <span class="seal-dot"></span>
-                Active Notice
-              </span>
-              <span class="seal-footer-center">BSU — General Services Office</span>
-              <span class="seal-footer-right">Official Announcement</span>
+                <div class="row-banner row-banner--upcoming" :class="Number(project.unit_id) === 1 ? 'banner--fgmu' : 'banner--leau'">
+                  <div class="banner-pattern" aria-hidden="true"></div>
+                  <div class="row-banner-icon">
+                    <svg v-if="Number(project.unit_id) === 1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="banner-svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="banner-svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                    </svg>
+                  </div>
+                  <div class="row-banner-num">{{ formatProjectNumber(project.id) }}</div>
+                  <div class="row-banner-unit">{{ Number(project.unit_id) === 1 ? 'FGMU' : 'LEAU' }}</div>
+                </div>
+
+                <div class="row-content">
+                  <div class="row-content-top">
+                    <div class="row-meta">
+                      <span class="row-type-pill row-type-pill--upcoming">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        UPCOMING PROJECT
+                      </span>
+                      <span class="row-date-label">Published {{ formatDate(project.submitted_at) }}</span>
+                    </div>
+                    <div class="row-office-label">{{ Number(project.unit_id) === 1 ? 'Facilities &amp; Grounds Maintenance Unit (FGMU)' : 'Landscaping &amp; Environmental Affairs Unit (LEAU)' }}</div>
+                  </div>
+
+                  <h3 class="row-title">{{ project.project_title }}</h3>
+                  <div class="row-location">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="loc-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>{{ project.location || 'BSU Main Campus' }}</span>
+                  </div>
+                  <div class="row-rule" :class="Number(project.unit_id) === 1 ? 'rule--fgmu' : 'rule--leau'"></div>
+                  <p class="row-description">{{ project.description || 'The General Services Office hereby announces an upcoming campus facility maintenance and scheduled development project.' }}</p>
+                  <div class="row-details">
+                    <div class="row-detail-item" :class="Number(project.unit_id) === 1 ? 'detail-block--fgmu' : 'detail-block--leau'">
+                      <span class="detail-block-label"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="detail-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>Target Implementation</span>
+                      <span class="detail-block-value">{{ formatDate(project.project_target_date) }}</span>
+                    </div>
+                    <div class="row-detail-item" :class="Number(project.unit_id) === 1 ? 'detail-block--fgmu' : 'detail-block--leau'">
+                      <span class="detail-block-label"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="detail-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Working Days</span>
+                      <span class="detail-block-value">{{ formatDuration(project.project_target_duration) }}</span>
+                    </div>
+                    <div v-if="project.project_remarks" class="row-advisory">
+                      <span class="advisory-label">SCOPE: </span>{{ project.project_remarks }}
+                    </div>
+                  </div>
+                  <div class="row-seal-footer" :class="Number(project.unit_id) === 1 ? 'seal-footer--fgmu' : 'seal-footer--leau'" style="opacity:0.7">
+                    <span class="seal-footer-left"><span class="seal-dot" style="background:#f59e0b;box-shadow:0 0 6px #f59e0b"></span> Upcoming</span>
+                    <span class="seal-footer-center">BSU — General Services Office</span>
+                    <span class="seal-footer-right">Official Announcement</span>
+                  </div>
+                </div>
+              </article>
             </div>
+          </section>
 
-          </article>
-        </div>
+        </template>
 
       </div>
     </main>
@@ -287,13 +327,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, defineComponent, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { formatProjectNumber } from '@/utils/projectFormatter';
 
 const router = useRouter();
 const isMobileMenuOpen = ref(false);
-const filter = ref('ALL');
 const projects = ref([]);
 const loading = ref(true);
 
@@ -312,15 +351,51 @@ const fetchProjects = async () => {
   }
 };
 
-const filteredProjects = computed(() => {
-  if (filter.value === 'ALL') return projects.value;
-  if (filter.value === 'FGMU') return projects.value.filter(p => Number(p.unit_id) === 1);
-  if (filter.value === 'LEAU') return projects.value.filter(p => Number(p.unit_id) === 2);
-  return projects.value;
-});
+// Determine active vs upcoming by comparing target date to today
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
-const fgmuCount = computed(() => projects.value.filter(p => Number(p.unit_id) === 1).length);
-const leauCount = computed(() => projects.value.filter(p => Number(p.unit_id) === 2).length);
+const activeProjects = computed(() =>
+  projects.value.filter(p => {
+    if (!p.project_target_date) return true; // no date = treat as active
+    return new Date(p.project_target_date) >= today;
+  })
+);
+
+const upcomingProjects = computed(() =>
+  projects.value.filter(p => {
+    if (!p.project_target_date) return false;
+    return new Date(p.project_target_date) > today;
+  })
+);
+
+// If a project's target date is today or in the past (but not yet archived), it's active
+// Recalculate: active = target date <= today or no date; upcoming = target date > today
+const recomputedActive = computed(() =>
+  projects.value.filter(p => {
+    if (!p.project_target_date) return true;
+    return new Date(p.project_target_date) <= today;
+  })
+);
+
+// Override: use target date to split: future date = upcoming, past/today/no date = active
+const splitActive = computed(() =>
+  projects.value.filter(p => {
+    if (!p.project_target_date) return true;
+    const d = new Date(p.project_target_date);
+    d.setHours(0,0,0,0);
+    return d <= today;
+  })
+);
+
+const splitUpcoming = computed(() =>
+  projects.value.filter(p => {
+    if (!p.project_target_date) return false;
+    const d = new Date(p.project_target_date);
+    d.setHours(0,0,0,0);
+    return d > today;
+  })
+);
 
 const formatDate = (d) => {
   if (!d) return 'TBD';
@@ -488,188 +563,219 @@ onMounted(fetchProjects);
 .empty-state p { color: var(--text-muted); font-size: 0.95rem; max-width: 380px; margin: 0 auto; }
 
 /* ========================
-   PROJECT CARDS — ANNOUNCEMENT STYLE
+   SECTION HEADERS
    ======================== */
-.project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 2rem; }
+.projects-section { margin-bottom: 0; }
+.projects-section--mt { margin-top: 3.5rem; }
 
-.project-card {
+.projects-section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.5rem; padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+.section-label-group { display: flex; align-items: center; gap: 0.6rem; }
+.section-status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.active-dot  { background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: pulse 2s infinite; }
+.upcoming-dot { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+.section-title { font-size: 1.5rem; font-weight: 900; color: var(--text-primary); margin: 0; letter-spacing: -0.01em; }
+
+.section-count-badge {
+  font-size: 0.72rem; font-weight: 800; padding: 0.35rem 0.9rem;
+  border-radius: 100px; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.active-badge   { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.upcoming-badge { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+/* ========================
+   PROJECT ROW CARDS — ANNOUNCEMENT STYLE
+   ======================== */
+.project-list { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.project-row-card {
+  display: flex;
   background: white;
   border-radius: 20px;
   border: 1px solid var(--border);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 24px rgba(15, 66, 33, 0.06);
+  box-shadow: 0 4px 20px rgba(15, 66, 33, 0.05);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
   animation: cardFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-.project-card:hover { transform: translateY(-5px); box-shadow: 0 20px 48px rgba(15, 66, 33, 0.13); }
+.project-row-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(15, 66, 33, 0.1); }
+.project-row-card--upcoming { opacity: 0.92; }
 
 @keyframes cardFadeUp {
-  from { opacity: 0; transform: translateY(28px); }
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── BANNER ── */
-.card-banner {
+/* ── LEFT: Colored Banner Column ── */
+.row-banner {
   position: relative;
-  padding: 1.4rem 1.6rem 1rem;
+  width: 130px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem 0.75rem;
   overflow: hidden;
+  text-align: center;
 }
-.banner--fgmu { background: linear-gradient(135deg, #0d4a22 0%, #1a6b35 50%, #145e2b 100%); }
-.banner--leau  { background: linear-gradient(135deg, #78350f 0%, #b45309 50%, #92400e 100%); }
+.banner--fgmu { background: linear-gradient(175deg, #0d4a22 0%, #1a6b35 60%, #145e2b 100%); }
+.banner--leau  { background: linear-gradient(175deg, #78350f 0%, #b45309 60%, #92400e 100%); }
+.row-banner--upcoming { opacity: 0.8; }
 
-/* Decorative diagonal-stripe pattern */
 .banner-pattern {
   position: absolute; inset: 0; pointer-events: none;
   background-image: repeating-linear-gradient(
     -45deg,
-    rgba(255,255,255,0.04) 0px,
-    rgba(255,255,255,0.04) 1px,
-    transparent 1px,
-    transparent 12px
+    rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px,
+    transparent 1px, transparent 10px
   );
 }
 
-.banner-office-row {
+.row-banner-icon {
   position: relative; z-index: 1;
-  display: flex; align-items: center; gap: 0.85rem;
-  margin-bottom: 0.85rem;
-}
-
-.banner-office-icon {
-  width: 42px; height: 42px; border-radius: 12px;
+  width: 44px; height: 44px; border-radius: 14px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  margin-bottom: 0.25rem;
 }
-.office-icon--fgmu { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); }
-.office-icon--leau  { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); }
 .banner-svg { width: 22px; height: 22px; color: rgba(255,255,255,0.92); }
 
-.banner-office-text {
-  flex: 1;
-  display: flex; flex-direction: column; gap: 0.15rem;
-}
-.banner-office-label {
-  font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.6);
-  text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.2;
-}
-.banner-office-unit {
-  font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.95);
-  letter-spacing: 0.01em; line-height: 1.3;
-}
-
-.banner-num-seal {
-  flex-shrink: 0;
-  display: flex; flex-direction: column; align-items: center;
-  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 10px; padding: 0.45rem 0.75rem; text-align: center;
-}
-.banner-num { font-size: 0.88rem; font-weight: 900; color: white; line-height: 1; letter-spacing: 0.02em; }
-.banner-num-label { font-size: 0.55rem; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0.2rem; }
-
-.banner-type-row {
+.row-banner-num {
   position: relative; z-index: 1;
-  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
-  flex-wrap: wrap;
+  font-size: 0.72rem; font-weight: 900; color: white;
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px; padding: 0.2rem 0.5rem;
+  letter-spacing: 0.04em;
 }
-.banner-type-pill {
-  display: inline-flex; align-items: center; gap: 0.45rem;
-  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 100px; padding: 0.28rem 0.8rem;
-  font-size: 0.62rem; font-weight: 800; color: rgba(255,255,255,0.95);
-  letter-spacing: 0.1em; text-transform: uppercase;
+.row-banner-unit {
+  position: relative; z-index: 1;
+  font-size: 0.65rem; font-weight: 800; color: rgba(255,255,255,0.65);
+  text-transform: uppercase; letter-spacing: 0.1em;
 }
-.banner-live-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #4ade80; box-shadow: 0 0 6px #4ade80;
-  animation: pulse 2s infinite;
-}
-.banner-date-label { font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.55); }
 
-/* ── BODY ── */
-.card-announcement-body {
-  padding: 1.5rem 1.6rem;
-  display: flex; flex-direction: column; gap: 1rem;
+/* ── RIGHT: Content Area ── */
+.row-content {
+  flex: 1;
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+
+.row-content-top {
+  padding: 0.9rem 1.4rem 0;
+}
+.row-meta {
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+  margin-bottom: 0.3rem;
+}
+.row-type-pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: #f0faf4; border: 1px solid rgba(26,107,53,0.2);
+  border-radius: 100px; padding: 0.22rem 0.7rem;
+  font-size: 0.6rem; font-weight: 800; color: var(--bsu-green-dark);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.row-type-pill--upcoming {
+  background: #fef9ee; border-color: rgba(180,83,9,0.2);
+  color: #92400e;
+}
+.row-date-label { font-size: 0.68rem; font-weight: 600; color: var(--text-muted); }
+.row-office-label { font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.02em; }
+
+.row-title {
+  font-size: 1.2rem; font-weight: 900; color: var(--text-primary);
+  line-height: 1.3; letter-spacing: -0.01em; margin: 0;
+  padding: 0.6rem 1.4rem 0;
+}
+
+.row-location {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.82rem; color: var(--text-secondary); font-weight: 600;
+  padding: 0.35rem 1.4rem 0;
+}
+.loc-icon { width: 14px; height: 14px; flex-shrink: 0; color: var(--bsu-green); }
+
+.row-rule {
+  height: 2px; border-radius: 99px; margin: 0.75rem 1.4rem;
+  background: var(--bsu-green); opacity: 0.15;
+}
+.row-rule.rule--leau { background: #b45309; }
+
+.row-description {
+  font-size: 0.875rem; color: #374151; line-height: 1.65; margin: 0;
+  padding: 0 1.4rem;
+  font-family: Georgia, 'Times New Roman', serif;
   flex: 1;
 }
 
-.announcement-title {
-  font-size: 1.3rem; font-weight: 900; color: var(--text-primary);
-  line-height: 1.3; letter-spacing: -0.015em; margin: 0;
+.row-details {
+  display: flex; align-items: flex-start; gap: 0.75rem; flex-wrap: wrap;
+  padding: 0.85rem 1.4rem;
 }
 
-.announcement-location {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  font-size: 0.83rem; color: var(--text-secondary); font-weight: 600;
+.row-detail-item {
+  display: flex; flex-direction: column; gap: 0.2rem;
+  border-radius: 10px; padding: 0.6rem 0.85rem;
+  border: 1px solid transparent; flex: 1; min-width: 140px;
 }
-.loc-icon { width: 15px; height: 15px; flex-shrink: 0; color: var(--bsu-green); }
-
-.announcement-rule {
-  height: 3px; border-radius: 99px;
-  background: var(--bsu-green); opacity: 0.2;
-}
-.announcement-rule.rule--leau { background: #b45309; }
-
-.announcement-body-text {
-  font-size: 0.9rem; color: #374151; line-height: 1.7;
-  margin: 0; font-family: Georgia, 'Times New Roman', serif;
-}
-
-/* ── DETAILS GRID (table-like info blocks) ── */
-.announcement-details-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;
-}
-
-.detail-block {
-  border-radius: 12px; padding: 0.9rem 1rem;
-  display: flex; flex-direction: column; gap: 0.35rem;
-  border: 1px solid transparent;
-}
-.detail-block--fgmu { background: #f0faf4; border-color: rgba(26,107,53,0.15); }
-.detail-block--leau  { background: #fffbeb; border-color: rgba(180,83,9,0.15); }
+.detail-block--fgmu { background: #f0faf4; border-color: rgba(26,107,53,0.12); }
+.detail-block--leau  { background: #fffbeb; border-color: rgba(180,83,9,0.12); }
 
 .detail-block-label {
   display: flex; align-items: center; gap: 0.3rem;
-  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
+  font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
   letter-spacing: 0.08em; color: var(--text-muted);
 }
 .detail-block--leau .detail-block-label { color: #92400e; }
-.detail-icon { width: 12px; height: 12px; }
+.detail-icon { width: 11px; height: 11px; flex-shrink: 0; }
+.detail-block-value { font-size: 0.88rem; font-weight: 900; color: var(--text-primary); line-height: 1.2; }
 
-.detail-block-value {
-  font-size: 0.92rem; font-weight: 900; color: var(--text-primary);
-  line-height: 1.2;
+.row-advisory {
+  font-size: 0.8rem; color: #4338ca; background: #f8faff;
+  border: 1px solid #c7d7fe; border-left: 3px solid #6366f1;
+  border-radius: 0 8px 8px 0; padding: 0.5rem 0.75rem;
+  flex-basis: 100%; line-height: 1.5; font-style: italic;
 }
+.advisory-label { font-weight: 900; font-style: normal; }
 
-/* ── ADVISORY BOX ── */
-.announcement-advisory {
-  background: #f8faff; border: 1px solid #c7d7fe;
-  border-left: 3px solid #6366f1;
-  border-radius: 0 10px 10px 0; padding: 0.85rem 1rem;
-}
-.advisory-header {
-  display: flex; align-items: center; gap: 0.4rem;
-  font-size: 0.62rem; font-weight: 900; color: #4f46e5;
-  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4rem;
-}
-.advisory-icon { width: 13px; height: 13px; }
-.advisory-text { font-size: 0.84rem; color: #3730a3; line-height: 1.55; margin: 0; font-style: italic; }
-
-/* ── SEAL FOOTER ── */
-.card-seal-footer {
+/* ── Seal Footer ── */
+.row-seal-footer {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.65rem 1.6rem; gap: 0.5rem;
-  font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.08em;
+  padding: 0.5rem 1.4rem; gap: 0.5rem;
+  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.08em; margin-top: auto;
 }
 .seal-footer--fgmu { background: #0d4a22; color: rgba(255,255,255,0.7); }
 .seal-footer--leau  { background: #78350f; color: rgba(255,255,255,0.7); }
+.seal-footer-left { display: flex; align-items: center; gap: 0.35rem; }
+.seal-dot { width: 5px; height: 5px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 5px #4ade80; animation: pulse 2s infinite; display: inline-block; }
+.seal-footer-center { color: rgba(255,255,255,0.45); font-weight: 600; }
+.seal-footer-right  { color: rgba(255,255,255,0.9); }
 
-.seal-footer-left { display: flex; align-items: center; gap: 0.4rem; }
-.seal-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: pulse 2s infinite; }
-.seal-footer-center { color: rgba(255,255,255,0.5); font-weight: 600; letter-spacing: 0.04em; }
-.seal-footer-right { color: rgba(255,255,255,0.9); }
+/* Loading & Empty */
+.loading-state { display: flex; flex-direction: column; align-items: center; padding: 6rem 0; color: var(--text-muted); gap: 1rem; }
+.loading-spinner { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: var(--bsu-green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state { text-align: center; padding: 6rem 2rem; background: white; border-radius: 24px; border: 1px solid var(--border); }
+.empty-icon { width: 72px; height: 72px; background: var(--bsu-green-muted); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+.empty-icon svg { width: 32px; height: 32px; color: var(--bsu-green); }
+.empty-state h3 { font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem; }
+.empty-state p { color: var(--text-muted); font-size: 0.95rem; max-width: 380px; margin: 0 auto; }
+
+/* ========================
+   BANNER LIVE DOT (shared)
+   ======================== */
+.banner-live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4ade80; box-shadow: 0 0 6px #4ade80;
+  animation: pulse 2s infinite; display: inline-block; flex-shrink: 0;
+}
 
 /* ========================
    FOOTER
@@ -698,10 +804,28 @@ onMounted(fetchProjects);
   .stats-strip { flex-direction: column; gap: 1rem; padding: 1rem 1.5rem; }
   .stat-divider { width: 40px; height: 1px; }
 
-  .section-header { flex-direction: column; gap: 1.25rem; }
-  .project-grid { grid-template-columns: 1fr; }
   .page-container { padding: 0 1.25rem; }
   .footer-links { flex-direction: column; gap: 0.75rem; }
   .navbar-inner { padding: 0 1.25rem; }
+
+  .row-banner { width: 90px; padding: 1rem 0.5rem; }
+  .row-banner-icon { width: 36px; height: 36px; }
+  .row-title { font-size: 1rem; }
+  .row-details { flex-direction: column; gap: 0.5rem; }
+  .row-detail-item { min-width: unset; }
+  .row-seal-footer { flex-direction: column; gap: 0.2rem; text-align: center; padding: 0.65rem 1rem; }
+  .seal-footer-center { display: none; }
+}
+
+@media (max-width: 600px) {
+  .project-row-card { flex-direction: column; }
+  .row-banner { width: 100%; height: 90px; flex-direction: row; justify-content: flex-start; padding: 0.75rem 1.25rem; gap: 0.85rem; }
+  .row-banner-num, .row-banner-unit { display: inline; }
+  .row-content-top { padding: 0.75rem 1.25rem 0; }
+  .row-title { padding: 0.4rem 1.25rem 0; }
+  .row-location { padding: 0.3rem 1.25rem 0; }
+  .row-rule { margin: 0.6rem 1.25rem; }
+  .row-description { padding: 0 1.25rem; }
+  .row-details { padding: 0.75rem 1.25rem; }
 }
 </style>
