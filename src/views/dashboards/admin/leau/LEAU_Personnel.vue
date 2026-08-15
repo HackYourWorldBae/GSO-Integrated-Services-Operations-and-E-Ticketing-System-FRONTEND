@@ -256,6 +256,7 @@ import { formatTicketOrProjectLabel, isProjectIdentifier } from '@/utils/project
 const store = useLeauPersonnelStore();
 const groupedPersonnel = computed(() => store.groupedPersonnel);
 
+const isManagementMode = ref(false);
 const expandedTickets = ref({});
 
 const toggleTicketExtension = (workerId, ticketId) => {

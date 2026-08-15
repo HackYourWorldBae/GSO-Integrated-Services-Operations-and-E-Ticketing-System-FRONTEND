@@ -262,6 +262,7 @@ import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
 const store = useTasuPersonnelStore();
 const groupedPersonnel = computed(() => store.groupedPersonnel);
 
+const isManagementMode = ref(false);
 const expandedTickets = ref({});
 
 const toggleTicketExtension = (workerId, ticketId) => {
