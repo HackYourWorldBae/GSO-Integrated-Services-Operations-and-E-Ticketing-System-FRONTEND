@@ -23,11 +23,13 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
           ...p,
           status: p.status === 'available' ? 'Available' : p.status === 'working' ? 'Working' : p.status === 'on_leave' ? 'On Leave' : p.status === 'on_trip' ? 'On Trip' : p.status,
           role: p.specialty,
-          // If they have an active assignment, use it
           assignedTicket: p.assigned_ticket_id || null,
+          isProject: Boolean(p.is_project || (p.assigned_ticket_id && String(p.assigned_ticket_id).includes('-PRJ-'))),
+          projectTitle: p.project_title || null,
           ticketTask: p.ticket_task || null,
           implementationDate: p.implementation_date || null,
           nextAssignmentId: p.next_assignment_id || null,
+          nextIsProject: Boolean(p.next_is_project || (p.next_assignment_id && String(p.next_assignment_id).includes('-PRJ-'))),
           nextTicketTask: p.next_ticket_task || null
         }));
       } else {

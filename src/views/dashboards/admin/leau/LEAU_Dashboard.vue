@@ -106,6 +106,105 @@
           </div>
         </div>
 
+        <!-- Active Scheduled Projects / Announcements Section -->
+        <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <div class="w-2.5 h-6 bg-amber-600 rounded-full"></div>
+                <h3 class="text-xl font-black text-slate-900 tracking-tight">Active Office Projects & Announcements</h3>
+                <span v-if="activeProjects.length > 0" class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-black">
+                  {{ activeProjects.length }} Active
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 font-medium">Scheduled groundskeeping, landscaping, and environmental projects posted for LEAU.</p>
+            </div>
+            <router-link to="/admin/leau/announcements" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+              </svg>
+              Manage Announcements
+            </router-link>
+          </div>
+
+          <div v-if="loadingProjects" class="text-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto mb-2"></div>
+            <p class="text-xs text-slate-400 font-medium">Loading active projects...</p>
+          </div>
+
+          <div v-else-if="activeProjects.length === 0" class="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-200/70">
+            <div class="flex items-center gap-3.5">
+              <div class="p-3 bg-white rounded-xl text-slate-400 border border-slate-200/80 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">No Active Project Announcements</h4>
+                <p class="text-xs text-slate-500">Publish scheduled campus landscaping projects to notify university stakeholders.</p>
+              </div>
+            </div>
+            <router-link to="/admin/leau/announcements" class="text-xs font-bold text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              New Announcement
+            </router-link>
+          </div>
+
+          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div v-for="project in activeProjects" :key="project.id" class="bg-gradient-to-b from-white to-slate-50 border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col relative overflow-hidden">
+              <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-wider rounded-md shadow-xs">
+                    {{ formatProjectNumber(project.id) }}
+                  </span>
+                  <span class="px-2.5 py-0.5 bg-amber-50 text-amber-800 text-[10px] font-extrabold rounded-full border border-amber-200 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    Active Notice
+                  </span>
+                </div>
+                <span class="text-[11px] font-semibold text-slate-400">{{ formatDate(project.submitted_at) }}</span>
+              </div>
+
+              <h4 class="text-base font-black text-slate-900 mb-1 leading-snug">{{ project.project_title }}</h4>
+
+              <div class="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span>{{ project.location || 'BSU Campus' }}</span>
+              </div>
+
+              <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed mb-4">
+                {{ project.description || 'Scheduled groundskeeping and campus landscaping.' }}
+              </p>
+
+              <div class="grid grid-cols-2 gap-2 bg-white p-2.5 rounded-xl border border-slate-100 text-xs mb-3">
+                <div>
+                  <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Target Date</span>
+                  <span class="font-black text-slate-900 text-[11px]">{{ formatDate(project.project_target_date) }}</span>
+                </div>
+                <div>
+                  <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Working Days</span>
+                  <span class="font-black text-slate-900 text-[11px]">{{ formatDuration(project.project_target_duration) }}</span>
+                </div>
+              </div>
+
+              <div v-if="project.project_remarks" class="mb-3 text-[11px] text-slate-600 bg-amber-50/70 border border-amber-100 p-2 rounded-lg italic line-clamp-2">
+                {{ project.project_remarks }}
+              </div>
+
+              <div class="mt-auto pt-2 border-t border-slate-100 flex justify-end">
+                <router-link to="/admin/leau/announcements" class="text-xs font-bold text-amber-700 hover:text-amber-900 flex items-center gap-1">
+                  View in Announcements
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </router-link>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Main Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
@@ -196,8 +295,11 @@ import { onMounted, ref, nextTick } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import Chart from 'chart.js/auto';
 import api from '@/api/client';
+import { formatProjectNumber } from '@/utils/projectFormatter';
 
 const stats = ref({});
+const activeProjects = ref([]);
+const loadingProjects = ref(true);
 
 const leauActivePeriod = ref('Month');
 const leauPeriodFilters = [
@@ -209,6 +311,38 @@ const leauPeriodFilters = [
 
 let leauServiceFreqChart = null;
 let charts = [];
+
+const fetchActiveProjects = async () => {
+  loadingProjects.value = true;
+  try {
+    const token = sessionStorage.getItem('token');
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/projects`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (res.ok) {
+      // Filter out only LEAU projects
+      activeProjects.value = (data.data?.projects || []).filter(p => Number(p.unit_id) === 2);
+    }
+  } catch (err) {
+    console.error('Failed to load active LEAU projects:', err);
+  } finally {
+    loadingProjects.value = false;
+  }
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'TBD';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric'
+  });
+};
+
+const formatDuration = (dur) => {
+  if (!dur) return 'TBD';
+  if (String(dur).toLowerCase().includes('day')) return dur;
+  return `${dur} Working Days`;
+};
 
 function setLeauPeriod(period) {
   leauActivePeriod.value = period;
@@ -377,6 +511,7 @@ const fetchStats = async () => {
 
 onMounted(() => {
   fetchStats();
+  fetchActiveProjects();
 });
 </script>
 

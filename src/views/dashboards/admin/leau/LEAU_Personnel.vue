@@ -117,10 +117,10 @@
                               <span :class="[
                                 'w-1.5 h-1.5 rounded-full animate-pulse',
                                 worker.status === 'Working' ? 'bg-amber-500' :
-                                worker.assignedTicket ? 'bg-blue-500' :
+                                worker.assignedTicket ? (worker.isProject ? 'bg-emerald-500' : 'bg-blue-500') :
                                 worker.status === 'Available' ? 'bg-emerald-500' : 'bg-slate-400'
                               ]"></span>
-                              {{ worker.status === 'Working' ? 'Working' : worker.assignedTicket ? `Assigned to #${worker.assignedTicket}` : (worker.status || 'Available') }}
+                              {{ worker.status === 'Working' ? (worker.isProject ? 'Working on Project' : 'Working') : worker.assignedTicket ? (worker.isProject ? `Assigned to ${formatTicketOrProjectLabel(worker.assignedTicket)}` : `Assigned to #${worker.assignedTicket}`) : (worker.status || 'Available') }}
                             </span>
                             <!-- Improved Change Status Button Below Status Bar -->
                             <button 
@@ -149,26 +149,26 @@
                         v-if="worker.status === 'Working' || worker.assignedTicket" 
                         @click="toggleTicketExtension(worker.id, worker.assignedTicket)"
                         class="h-full min-h-[140px] p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between bg-white shadow-xs hover:shadow-md"
-                        :class="expandedTickets[worker.id] === worker.assignedTicket ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20' : worker.status === 'Working' ? 'border-amber-200 hover:border-amber-400 text-amber-900' : 'border-blue-200 hover:border-blue-400 text-blue-900'"
-                        title="Click to expand brief ticket info"
+                        :class="expandedTickets[worker.id] === worker.assignedTicket ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20' : worker.status === 'Working' ? 'border-amber-200 hover:border-amber-400 text-amber-900' : worker.isProject ? 'border-emerald-200 hover:border-emerald-400 text-emerald-900' : 'border-blue-200 hover:border-blue-400 text-blue-900'"
+                        title="Click to expand brief details"
                       >
                         <div>
                           <div class="flex items-center justify-between gap-2 mb-2">
-                            <span class="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5" :class="worker.status === 'Working' ? 'text-amber-700' : 'text-blue-700'">
-                              <span class="w-2 h-2 rounded-full animate-pulse" :class="worker.status === 'Working' ? 'bg-amber-500' : 'bg-blue-500'"></span>
-                              {{ worker.status === 'Working' ? 'Currently Working On' : 'Currently Assigned To' }}
+                            <span class="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5" :class="worker.status === 'Working' ? 'text-amber-700' : worker.isProject ? 'text-emerald-700' : 'text-blue-700'">
+                              <span class="w-2 h-2 rounded-full animate-pulse" :class="worker.status === 'Working' ? 'bg-amber-500' : worker.isProject ? 'bg-emerald-500' : 'bg-blue-500'"></span>
+                              {{ worker.status === 'Working' ? (worker.isProject ? 'Working on Project' : 'Currently Working On') : (worker.isProject ? 'Assigned to Project' : 'Currently Assigned To') }}
                             </span>
-                            <span class="text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm transition-transform group-hover:scale-105" :class="expandedTickets[worker.id] === worker.assignedTicket ? 'bg-emerald-600 text-white' : worker.status === 'Working' ? 'bg-amber-200/80 text-amber-900' : 'bg-blue-200/80 text-blue-900'">
-                              #{{ worker.assignedTicket }}
+                            <span class="text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm transition-transform group-hover:scale-105" :class="expandedTickets[worker.id] === worker.assignedTicket ? 'bg-emerald-600 text-white' : worker.status === 'Working' ? 'bg-amber-200/80 text-amber-900' : worker.isProject ? 'bg-emerald-100 text-emerald-900' : 'bg-blue-200/80 text-blue-900'">
+                              {{ formatTicketOrProjectLabel(worker.assignedTicket) }}
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" :class="expandedTickets[worker.id] === worker.assignedTicket ? 'rotate-180 text-white' : 'opacity-60'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </span>
                           </div>
-                          <p class="text-sm font-bold leading-snug text-slate-800">{{ worker.ticketTask || 'Landscaping Maintenance Work' }}</p>
+                          <p class="text-sm font-bold leading-snug text-slate-800">{{ worker.ticketTask || (worker.isProject ? 'Office Project Work' : 'Landscaping Maintenance Work') }}</p>
                         </div>
-                        <div v-if="worker.implementationDate" class="mt-3 pt-2.5 border-t flex items-center justify-between text-[10px] font-semibold text-slate-600" :class="worker.status === 'Working' ? 'border-amber-200/60' : 'border-blue-200/60'">
+                        <div v-if="worker.implementationDate" class="mt-3 pt-2.5 border-t flex items-center justify-between text-[10px] font-semibold text-slate-600" :class="worker.status === 'Working' ? 'border-amber-200/60' : worker.isProject ? 'border-emerald-200/60' : 'border-blue-200/60'">
                           <span class="flex items-center gap-1.5">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            Scheduled Date:
+                            Target Date:
                           </span>
                           <strong class="font-bold text-slate-800">{{ worker.implementationDate }}</strong>
                         </div>
@@ -184,7 +184,7 @@
                         @click="toggleTicketExtension(worker.id, worker.nextAssignmentId)"
                         class="h-full min-h-[140px] p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between bg-white shadow-xs hover:shadow-md"
                         :class="expandedTickets[worker.id] === worker.nextAssignmentId ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20' : 'border-purple-200 hover:border-purple-400 text-purple-900'"
-                        title="Click to expand brief ticket info"
+                        title="Click to expand brief details"
                       >
                         <div>
                           <div class="flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">
@@ -193,11 +193,11 @@
                               Next Queued Job
                             </span>
                             <span class="font-black px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm transition-transform group-hover:scale-105" :class="expandedTickets[worker.id] === worker.nextAssignmentId ? 'bg-emerald-600 text-white' : 'bg-purple-100 text-purple-800'">
-                              #{{ worker.nextAssignmentId }}
+                              {{ formatTicketOrProjectLabel(worker.nextAssignmentId) }}
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" :class="expandedTickets[worker.id] === worker.nextAssignmentId ? 'rotate-180 text-white' : 'opacity-60'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </span>
                           </div>
-                          <p class="text-sm font-bold text-slate-800">{{ worker.nextTicketTask || 'Landscaping Maintenance Work' }}</p>
+                          <p class="text-sm font-bold text-slate-800">{{ worker.nextTicketTask || (worker.nextIsProject ? 'Office Project Work' : 'Landscaping Maintenance Work') }}</p>
                         </div>
                         <div class="mt-3 pt-2.5 border-t border-purple-100 flex items-center justify-between text-[10px] font-bold text-purple-700">
                           <span>Status:</span>
@@ -206,12 +206,12 @@
                       </div>
                       <div v-else class="h-full min-h-[140px] p-4 rounded-2xl bg-slate-100/50 border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No Next Job Queued</span>
-                        <p class="text-[11px] text-slate-400 mt-0.5">No upcoming tickets assigned.</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">No upcoming tickets or projects assigned.</p>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Inline Brief Ticket Extension inside container -->
+                  <!-- Inline Brief Ticket / Project Extension inside container -->
                   <div v-if="expandedTickets[worker.id]" class="mt-6 pt-6 border-t border-slate-200/80 animate-fade-in">
                     <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
                       <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
@@ -219,18 +219,18 @@
                       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-800 relative z-10">
                         <div class="flex flex-wrap items-center gap-2.5">
                           <span class="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-widest rounded-full">
-                            Ticket Extension
+                            {{ isProjectIdentifier(expandedTickets[worker.id]) ? 'Project Details' : 'Ticket Extension' }}
                           </span>
-                          <span class="text-lg font-black tracking-tight text-white">#{{ expandedTickets[worker.id] }}</span>
+                          <span class="text-lg font-black tracking-tight text-white">{{ formatTicketOrProjectLabel(expandedTickets[worker.id]) }}</span>
                         </div>
                         <button @click="expandedTickets[worker.id] = null" class="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 hover:text-rose-300 text-slate-300 text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5">
-                          Close Extension
+                          Close
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                       </div>
 
                       <div class="relative z-10">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Task Description</span>
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Task / Scope Description</span>
                         <p class="text-xs font-medium text-slate-300 leading-relaxed bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
                           {{ expandedTickets[worker.id] === worker.assignedTicket ? (worker.ticketTask || 'No details provided.') : (worker.nextTicketTask || 'No details provided.') }}
                         </p>
@@ -251,6 +251,7 @@
 import { onMounted, computed, ref } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useLeauPersonnelStore } from '@/stores/leauPersonnel';
+import { formatTicketOrProjectLabel, isProjectIdentifier } from '@/utils/projectFormatter';
 
 const store = useLeauPersonnelStore();
 const groupedPersonnel = computed(() => store.groupedPersonnel);
@@ -269,8 +270,8 @@ const toggleTicketExtension = (workerId, ticketId) => {
 const toggleWorkerStatus = (worker) => {
   if (worker.status === 'Working' || worker.assignedTicket) {
     alert(worker.assignedTicket
-      ? `Cannot change status: ${worker.name} is assigned to ${worker.assignedTicket}.`
-      : 'Cannot change status of a worker who is currently working on a ticket.');
+      ? `Cannot change status: ${worker.name} is assigned to ${formatTicketOrProjectLabel(worker.assignedTicket)}.`
+      : 'Cannot change status of a worker who is currently working on an assignment.');
     return;
   }
   store.toggleWorkerStatus(worker.id);

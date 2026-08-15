@@ -48,11 +48,11 @@
         <div class="flex justify-between items-end mb-6">
           <div class="max-w-2xl">
             <h2 class="text-3xl font-black tracking-tight text-slate-900 mb-2">Office Projects</h2>
-            <p class="text-sm text-slate-500 font-medium">Manage and publish scheduled maintenance or facility projects to the public dashboard.</p>
+            <p class="text-sm text-slate-500 font-medium">Manage and publish scheduled maintenance or facility projects to the campus announcement board.</p>
           </div>
           <button @click="showAddModal = true" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            New Project
+            New Announcement
           </button>
         </div>
 
@@ -71,46 +71,54 @@
 
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div v-for="project in projects" :key="project.id" class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col relative overflow-hidden group hover:shadow-lg transition-all">
-            <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-emerald-500"></div>
             
-            <div class="flex justify-between items-start mb-4">
-              <span class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">
-                #{{ project.id }}
-              </span>
-              <button @click="openUpdateModal(project)" class="text-xs font-bold text-slate-400 hover:text-emerald-600 transition-colors flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+            <div class="flex justify-between items-center mb-4">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider rounded-lg shadow-sm">
+                  {{ formatProjectNumber(project.id) }}
+                </span>
+                <span class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-extrabold rounded-full border border-emerald-100 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Active Announcement
+                </span>
+              </div>
+              <button @click="openUpdateModal(project)" class="text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                 Update
               </button>
             </div>
 
-            <h3 class="text-lg font-black text-slate-900 mb-1 leading-tight">{{ project.project_title }}</h3>
-            <p class="text-sm font-medium text-slate-500 mb-4 flex items-center gap-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <h3 class="text-xl font-black text-slate-900 mb-1.5 leading-tight">{{ project.project_title }}</h3>
+            
+            <p class="text-sm font-semibold text-slate-500 mb-3 flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               {{ project.location }}
             </p>
 
-            <div class="space-y-2 text-sm bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4 flex-1">
-              <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-                <span class="text-slate-500 font-medium">Target Date</span>
-                <span class="font-bold text-slate-900">{{ formatDate(project.project_target_date) }}</span>
+            <p class="text-sm text-slate-600 leading-relaxed mb-4">
+              {{ project.description || 'Scheduled facility maintenance and operational project.' }}
+            </p>
+
+            <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-100 mb-4">
+              <div>
+                <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Target Date</span>
+                <span class="text-sm font-black text-slate-900">{{ formatDate(project.project_target_date) }}</span>
               </div>
-              <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-                <span class="text-slate-500 font-medium">Est. Duration</span>
-                <span class="font-bold text-slate-900">{{ project.project_target_duration }}</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-slate-500 font-medium">Manpower Req.</span>
-                <span class="font-bold text-slate-900">{{ project.project_manpower }}</span>
+              <div>
+                <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Working Days</span>
+                <span class="text-sm font-black text-slate-900">{{ formatDuration(project.project_target_duration) }}</span>
               </div>
             </div>
 
             <div v-if="project.project_remarks" class="mb-4">
-              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Remarks</p>
-              <p class="text-sm text-slate-700 bg-amber-50 p-3 rounded-xl border border-amber-100 italic">{{ project.project_remarks }}</p>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Remarks / Notes</p>
+              <p class="text-xs text-slate-700 bg-amber-50/80 p-3 rounded-xl border border-amber-100 italic">{{ project.project_remarks }}</p>
             </div>
 
-            <div class="mt-auto">
-              <span class="text-xs text-slate-400">Created: {{ formatDate(project.submitted_at) }}</span>
+            <div class="mt-auto pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+              <span>Published {{ formatDate(project.submitted_at) }}</span>
+              <span class="font-bold text-emerald-600 uppercase text-[10px]">FGMU Notice</span>
             </div>
           </div>
         </div>
@@ -120,7 +128,10 @@
           <div v-if="showAddModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center shrink-0">
-              <h3 class="text-xl font-black text-slate-900 tracking-tight">New Project Announcement</h3>
+              <div>
+                <h3 class="text-xl font-black text-slate-900 tracking-tight">New Project Announcement</h3>
+                <p class="text-xs text-slate-500 font-medium">Post a scheduled maintenance notice for FGMU</p>
+              </div>
               <button @click="showAddModal = false" class="text-slate-400 hover:text-slate-600 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
@@ -138,25 +149,25 @@
                   <input v-model="form.location" type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="E.g., CCS Building">
                 </div>
 
+                <div>
+                  <label class="block text-sm font-bold text-slate-700 mb-1.5">Project Description <span class="text-red-500">*</span></label>
+                  <textarea v-model="form.description" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Provide a brief summary and purpose of the project for campus awareness..."></textarea>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1.5">Target Date <span class="text-red-500">*</span></label>
                     <input v-model="form.target_date" type="date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
                   </div>
                   <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-1.5">Target Duration (Days)</label>
-                    <input v-model="form.duration" type="number" min="1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="3">
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">Working Days</label>
+                    <input v-model="form.duration" type="number" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="E.g., 5">
                   </div>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-bold text-slate-700 mb-1.5">Manpower Needed</label>
-                  <input v-model="form.manpower" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="E.g., 2 Carpenters, 1 Painter">
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-bold text-slate-700 mb-1.5">Remarks / Scope of Work</label>
-                  <textarea v-model="form.remarks" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"></textarea>
+                  <label class="block text-sm font-bold text-slate-700 mb-1.5">Scope of Work / Remarks (Optional)</label>
+                  <textarea v-model="form.remarks" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Any specific advisories, affected areas, or work schedule..."></textarea>
                 </div>
               </form>
             </div>
@@ -227,6 +238,7 @@ import { ref, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+import { formatProjectNumber } from '@/utils/projectFormatter';
 
 export default {
   name: 'FGMU_Announcements',
@@ -241,10 +253,10 @@ export default {
     
     const form = ref({
       title: '',
+      description: '',
       location: '',
       target_date: '',
       duration: '',
-      manpower: '',
       remarks: ''
     });
 
@@ -267,7 +279,7 @@ export default {
         
         if (res.ok) {
           // Filter out only FGMU projects
-          projects.value = (data.data?.projects || []).filter(p => p.unit_id === 1); 
+          projects.value = (data.data?.projects || []).filter(p => Number(p.unit_id) === 1); 
         }
       } catch (err) {
         toast.error('Failed to load projects');
@@ -277,7 +289,7 @@ export default {
     };
 
     const submitProject = async () => {
-      if (!form.value.title || !form.value.location || !form.value.target_date) {
+      if (!form.value.title || !form.value.location || !form.value.target_date || !form.value.description) {
         toast.error('Please fill in all required fields.');
         return;
       }
@@ -289,10 +301,10 @@ export default {
         const payload = {
           unit: 'FGMU',
           title: form.value.title,
+          description: form.value.description,
           location: form.value.location,
           target_date: form.value.target_date,
           duration: form.value.duration ? form.value.duration + ' Working Days' : '',
-          manpower: form.value.manpower,
           remarks: form.value.remarks
         };
 
@@ -309,7 +321,7 @@ export default {
         if (res.ok) {
           toast.success('Project announcement published!');
           showAddModal.value = false;
-          form.value = { title: '', location: '', target_date: '', duration: '', manpower: '', remarks: '' };
+          form.value = { title: '', description: '', location: '', target_date: '', duration: '', remarks: '' };
           fetchProjects();
         } else {
           toast.error(data.message || 'Failed to create project.');
@@ -367,6 +379,12 @@ export default {
       });
     };
 
+    const formatDuration = (dur) => {
+      if (!dur) return 'TBD';
+      if (String(dur).toLowerCase().includes('day')) return dur;
+      return `${dur} Working Days`;
+    };
+
     onMounted(fetchProjects);
 
     return {
@@ -380,7 +398,9 @@ export default {
       submitProject,
       openUpdateModal,
       updateProject,
-      formatDate
+      formatDate,
+      formatDuration,
+      formatProjectNumber
     };
   }
 };

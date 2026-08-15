@@ -38,7 +38,7 @@
     <template #main-content>
       <div class="space-y-8 animate-fade-in max-w-5xl mx-auto">
 
-        <!-- ① Selected Ticket Header -->
+        <!-- ① Selected Ticket / Project Header -->
         <div v-if="selectedTicket" class="p-4 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-slate-900 shadow-xl overflow-hidden relative flex flex-col md:flex-row md:justify-between md:items-center gap-6">
           <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full -mr-24 -mt-24 blur-3xl"></div>
           <div class="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
@@ -48,7 +48,7 @@
             <div>
               <div class="flex items-center gap-3 mb-2">
                 <h3 class="text-2xl font-black text-white tracking-tight">{{ selectedTicket.type }}</h3>
-                <span class="px-2 py-1 bg-white/10 text-white rounded-lg text-[10px] font-black uppercase tracking-widest border border-white/10">{{ selectedTicket.id }}</span>
+                <span class="px-2 py-1 bg-white/10 text-white rounded-lg text-[10px] font-black uppercase tracking-widest border border-white/10">{{ formatTicketOrProjectLabel(selectedTicket.id) }}</span>
               </div>
               <p class="text-slate-400 font-bold flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -57,7 +57,7 @@
             </div>
           </div>
           <div class="relative z-10 flex flex-row gap-4">
-            <button @click="openTicketModal(selectedTicket)" class="px-5 py-2.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-xl transition-colors shadow-sm self-center">Review Ticket</button>
+            <button @click="openTicketModal(selectedTicket)" class="px-5 py-2.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-xl transition-colors shadow-sm self-center">{{ isProjectIdentifier(selectedTicket) ? 'Review Project' : 'Review Ticket' }}</button>
             <router-link to="/dispatcher/leau" class="p-3 bg-white hover:bg-slate-900 hover:text-white text-slate-600 rounded-xl transition-all shadow-sm border border-emerald-100 items-center justify-center flex self-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             </router-link>
@@ -68,8 +68,8 @@
           <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
           </div>
-          <h3 class="text-xl font-black text-slate-900 mb-2">No Ticket Selected</h3>
-          <p class="text-slate-500 font-bold max-w-sm">Please return to the landscaping queue and select a specific ticket to assign personnel.</p>
+          <h3 class="text-xl font-black text-slate-900 mb-2">No Assignment Target Selected</h3>
+          <p class="text-slate-500 font-bold max-w-sm">Please return to the landscaping queue or project announcements and select a specific item to assign personnel.</p>
           <router-link to="/dispatcher/leau" class="mt-8 px-8 py-3 bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-500/20 active:scale-95">Return to Ticket Queue</router-link>
         </div>
 
@@ -79,7 +79,7 @@
           <div class="flex items-center justify-between mb-6 relative z-10">
             <h3 class="text-white font-black text-xl flex items-center gap-3">
               <span class="w-2 h-6 bg-blue-400 rounded-full"></span>
-              Current Assignments for #{{ selectedTicket.id }}
+              Current Assignments for {{ formatTicketOrProjectLabel(selectedTicket.id) }}
             </h3>
             <span class="px-3 py-1 bg-blue-500/20 text-blue-300 text-[10px] font-black uppercase tracking-widest rounded-full border border-blue-500/30">
               {{ currentAssignments.length }} Assigned
@@ -94,12 +94,12 @@
                 </div>
                 <div>
                   <span class="text-white font-bold block">{{ assign.workerName }}</span>
-                  <span class="text-[10px] font-medium text-blue-400 uppercase tracking-widest">Assigned to #{{ assign.ticketId }}</span>
+                  <span class="text-[10px] font-medium text-blue-400 uppercase tracking-widest">Assigned to {{ formatTicketOrProjectLabel(assign.ticketId) }}</span>
                 </div>
               </div>
               <div class="flex items-center gap-4 flex-wrap">
                 <div class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                   <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">{{ assign.implementationDate || 'No date set' }}</span>
                 </div>
                 <button @click="removeAssignment(assign)" class="p-2.5 rounded-xl bg-white/5 text-white/40 hover:text-rose-400 hover:bg-rose-500/10 transition-colors border border-white/5 hover:border-rose-500/30">
@@ -221,7 +221,7 @@
                                 worker.assignedTicket ? 'bg-blue-500' :
                                 worker.status === 'Available' ? 'bg-emerald-500' : 'bg-slate-400'
                               ]"></span>
-                              {{ worker.status === 'Working' ? 'Working' : worker.assignedTicket ? `Assigned to #${worker.assignedTicket}` : worker.status }}
+                              {{ worker.status === 'Working' ? 'Working' : worker.assignedTicket ? `Assigned to ${formatTicketOrProjectLabel(worker.assignedTicket)}` : worker.status }}
                             </span>
                             <!-- Improved Change Status Button Below Status Bar -->
                             <button 
@@ -244,7 +244,7 @@
                                 class="py-2 px-3 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition-all shadow-md shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest"
                                 title="Assign worker">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                Assign to #{{ selectedTicket.id }}
+                                Assign to {{ formatTicketOrProjectLabel(selectedTicket.id) }}
                               </button>
                             </div>
                           </div>
@@ -420,6 +420,7 @@ import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useLeauPersonnelStore } from '@/stores/leauPersonnel';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
+import { formatTicketOrProjectLabel, isProjectIdentifier } from '@/utils/projectFormatter';
 
 const route = useRoute();
 const router = useRouter();
@@ -557,7 +558,7 @@ const assignWorker = (worker) => {
   }
   const dateStr = new Date(selectedTicket.value.implementationDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   store.assignWorker(worker.id, selectedTicket.value.id, dateStr);
-  toast.success(`${worker.name} assigned to ${selectedTicket.value.id}`);
+  toast.success(`${worker.name} assigned to ${formatTicketOrProjectLabel(selectedTicket.value.id)}`);
 };
 
 const removeAssignment = (assign) => {
@@ -580,11 +581,11 @@ const dispatchAll = async () => {
            ticket_id: selectedTicket.value.id,
            personnel_id: assign.workerId,
            implementation_date: selectedTicket.value.implementationDate || '',
-           task_notes: 'Grounds & Landscaping Work'
+           task_notes: isProjectIdentifier(selectedTicket.value) ? (selectedTicket.value.type || 'Office Project Work') : 'Grounds & Landscaping Work'
          });
       }
     }
-    toast.success(`Workers successfully dispatched for ${selectedTicket.value.id}!`);
+    toast.success(`Workers successfully dispatched for ${formatTicketOrProjectLabel(selectedTicket.value.id)}!`);
     router.push('/dispatcher/leau');
   } catch (error) {
     console.error('Dispatch failed:', error);
