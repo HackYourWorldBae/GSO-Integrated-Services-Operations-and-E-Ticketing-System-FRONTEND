@@ -140,16 +140,16 @@
         <template v-else>
 
           <!-- ── ACTIVE PROJECTS SECTION ── -->
-          <section v-if="splitActive.length > 0" class="projects-section">
+          <section v-if="activeProjects.length > 0" class="projects-section">
             <div class="projects-section-header">
               <div class="section-label-group">
                 <span class="section-status-dot active-dot"></span>
                 <h2 class="section-title">Active Projects</h2>
               </div>
-              <span class="section-count-badge active-badge">{{ splitActive.length }} In Progress</span>
+              <span class="section-count-badge active-badge">{{ activeProjects.length }} In Progress</span>
             </div>
             <div class="project-list">
-              <article v-for="(project, index) in splitActive" :key="project.id"
+              <article v-for="(project, index) in activeProjects" :key="project.id"
                        class="project-row-card"
                        :class="Number(project.unit_id) === 1 ? 'project-card--fgmu' : 'project-card--leau'"
                        :style="{ animationDelay: `${index * 60}ms` }">
@@ -227,16 +227,16 @@
           </section>
 
           <!-- ── UPCOMING PROJECTS SECTION ── -->
-          <section v-if="splitUpcoming.length > 0" class="projects-section" :class="{ 'projects-section--mt': splitActive.length > 0 }">
+          <section v-if="upcomingProjects.length > 0" class="projects-section" :class="{ 'projects-section--mt': activeProjects.length > 0 }">
             <div class="projects-section-header">
               <div class="section-label-group">
                 <span class="section-status-dot upcoming-dot"></span>
                 <h2 class="section-title">Upcoming Projects</h2>
               </div>
-              <span class="section-count-badge upcoming-badge">{{ splitUpcoming.length }} Scheduled</span>
+              <span class="section-count-badge upcoming-badge">{{ upcomingProjects.length }} Scheduled</span>
             </div>
             <div class="project-list">
-              <article v-for="(project, index) in splitUpcoming" :key="project.id"
+              <article v-for="(project, index) in upcomingProjects" :key="project.id"
                        class="project-row-card project-row-card--upcoming"
                        :class="Number(project.unit_id) === 1 ? 'project-card--fgmu' : 'project-card--leau'"
                        :style="{ animationDelay: `${index * 60}ms` }">
@@ -355,31 +355,8 @@ const fetchProjects = async () => {
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 
-const activeProjects = computed(() =>
-  projects.value.filter(p => {
-    if (!p.project_target_date) return true; // no date = treat as active
-    return new Date(p.project_target_date) >= today;
-  })
-);
-
-const upcomingProjects = computed(() =>
-  projects.value.filter(p => {
-    if (!p.project_target_date) return false;
-    return new Date(p.project_target_date) > today;
-  })
-);
-
-// If a project's target date is today or in the past (but not yet archived), it's active
-// Recalculate: active = target date <= today or no date; upcoming = target date > today
-const recomputedActive = computed(() =>
-  projects.value.filter(p => {
-    if (!p.project_target_date) return true;
-    return new Date(p.project_target_date) <= today;
-  })
-);
-
 // Override: use target date to split: future date = upcoming, past/today/no date = active
-const splitActive = computed(() =>
+const activeProjects = computed(() =>
   projects.value.filter(p => {
     if (!p.project_target_date) return true;
     const d = new Date(p.project_target_date);
@@ -388,7 +365,7 @@ const splitActive = computed(() =>
   })
 );
 
-const splitUpcoming = computed(() =>
+const upcomingProjects = computed(() =>
   projects.value.filter(p => {
     if (!p.project_target_date) return false;
     const d = new Date(p.project_target_date);
