@@ -1599,7 +1599,7 @@ onMounted(fetchLandingProjects);
    LANDING PROJECT ANNOUNCEMENTS
    ======================== */
 .landing-projects-section {
-  padding: 5rem 0;
+  padding: 3rem 0;
   background: #f7faf8;
   border-top: 1px solid rgba(26,107,53,0.1);
   border-bottom: 1px solid rgba(26,107,53,0.1);
@@ -1609,8 +1609,8 @@ onMounted(fetchLandingProjects);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 2rem;
-  margin-bottom: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
 
