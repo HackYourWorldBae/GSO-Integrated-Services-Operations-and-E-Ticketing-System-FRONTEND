@@ -129,11 +129,13 @@
               <div class="flex items-start gap-2.5 flex-wrap px-5 py-3">
                 <div class="flex flex-col gap-0.5 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2 flex-1 min-w-[120px]">
                   <span class="text-[0.58rem] font-black uppercase tracking-widest text-emerald-700">Target Date</span>
-                  <span class="text-sm font-black text-slate-900">{{ formatDate(project.project_target_date) }}</span>
+                  <span v-if="project.project_target_date" class="text-sm font-black text-slate-900">{{ formatDate(project.project_target_date) }}</span>
+                  <span v-else class="text-sm font-semibold italic text-slate-400">To be Announced...</span>
                 </div>
                 <div class="flex flex-col gap-0.5 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2 flex-1 min-w-[120px]">
                   <span class="text-[0.58rem] font-black uppercase tracking-widest text-emerald-700">Working Days</span>
-                  <span class="text-sm font-black text-slate-900">{{ formatDuration(project.project_target_duration) }}</span>
+                  <span v-if="project.project_target_duration" class="text-sm font-black text-slate-900">{{ formatDuration(project.project_target_duration) }}</span>
+                  <span v-else class="text-sm font-semibold italic text-slate-400">To be Announced...</span>
                 </div>
                 <div v-if="project.project_remarks" class="text-xs text-indigo-700 bg-indigo-50 border border-indigo-200 border-l-2 border-l-indigo-500 rounded-r-xl px-3 py-2 flex-[2] min-w-[200px] italic leading-relaxed">
                   <span class="font-black not-italic">SCOPE: </span>{{ project.project_remarks }}
