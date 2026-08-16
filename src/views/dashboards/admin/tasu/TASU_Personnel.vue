@@ -302,15 +302,13 @@
 
 <script setup>
 import { onMounted, computed, ref } from 'vue';
-import { useToast } from 'vue-toastification';
+import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
 import { useAuthStore } from '@/stores/auth';
 
 const store = useTasuPersonnelStore();
 const authStore = useAuthStore();
-const toast = useToast();
-
 const isAdmin = computed(() => authStore.role === 'admin' || authStore.role === 'unit-admin');
 
 const groupedPersonnel = computed(() => store.groupedPersonnel);

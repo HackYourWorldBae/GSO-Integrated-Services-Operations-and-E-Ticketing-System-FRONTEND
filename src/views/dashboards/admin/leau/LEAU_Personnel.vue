@@ -306,7 +306,7 @@
 
 <script setup>
 import { onMounted, computed, ref } from 'vue';
-import { useToast } from 'vue-toastification';
+import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useLeauPersonnelStore } from '@/stores/leauPersonnel';
 import { useAuthStore } from '@/stores/auth';
@@ -314,8 +314,6 @@ import { formatTicketOrProjectLabel } from '@/utils/projectFormatter';
 
 const store = useLeauPersonnelStore();
 const authStore = useAuthStore();
-const toast = useToast();
-
 const isAdmin = computed(() => authStore.role === 'admin' || authStore.role === 'unit-admin');
 
 const groupedPersonnel = computed(() => store.groupedPersonnel);
