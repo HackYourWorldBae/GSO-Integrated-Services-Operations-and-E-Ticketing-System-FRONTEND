@@ -97,9 +97,8 @@ onMounted(() => {
   formsStore.leauState.sectionA.contact_number  = contact;
 
   // SSU Auto-fill
-  formsStore.ssuVehicleState.name        = fullName;
+  formsStore.ssuVehicleState.applicantName = fullName;
   formsStore.ssuVehicleState.contactNo   = contact;
-  formsStore.ssuVehicleState.accountType = role;
 
   formsStore.ssuIncidentState.reportedBy.printedName = fullName;
   formsStore.ssuIncidentState.reportedBy.roles       = [role];

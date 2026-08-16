@@ -30,10 +30,9 @@ export const useFormsStore = defineStore('forms', () => {
     attachments: []
   });
 
-  const ssuVehicleState = ref({
+  const ssuVehicleState = reactive({
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-    accountType: '',
-    name: '',
+    applicantName: '',
     collegeOffice: '',
     contactNo: '',
     driverName: '',
@@ -87,7 +86,7 @@ export const useFormsStore = defineStore('forms', () => {
     travelOrderAttachments: []
   });
 
-  const clearForms = () => {
+  const clearForms = (formType) => {
     fgmuState.value = {
       sectionA: {
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
@@ -114,31 +113,32 @@ export const useFormsStore = defineStore('forms', () => {
       attachments: []
     };
 
-    ssuVehicleState.value = {
-      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-      accountType: '',
-      name: '',
-      collegeOffice: '',
-      contactNo: '',
-      driverName: '',
-      driverContact: '',
-      houseStreet: '',
-      barangay: '',
-      cityMunicipality: '',
-      province: '',
-      vehicleDetails: {
-        registeredOwner: '',
-        plateNo: '',
-        makeSeries: '',
-        typeColor: ''
-      },
-      privacyAgreed: false,
-      disclosureAgreed: false,
-      signature: '',
-      idTypeNo: '',
-      validUntil: '',
-      attachments: []
-    };
+    if (formType === 'ssu-vehicle') {
+      Object.assign(ssuVehicleState, {
+        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        applicantName: '',
+        collegeOffice: '',
+        contactNo: '',
+        driverName: '',
+        driverContact: '',
+        houseStreet: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        vehicleDetails: {
+          registeredOwner: '',
+          plateNo: '',
+          makeSeries: '',
+          typeColor: ''
+        },
+        privacyAgreed: false,
+        disclosureAgreed: false,
+        signature: '',
+        idTypeNo: '',
+        validUntil: '',
+        attachments: []
+      });
+    }
 
     ssuIncidentState.value = {
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
@@ -188,8 +188,9 @@ export const useFormsStore = defineStore('forms', () => {
         job_description: { required, minLength: minLength(10) }
       }
     },
-    ssuVehicleState: {
-      accountType: { required },
+    'ssu-vehicle': {
+      applicantName: { required },
+      collegeOffice: { required },
       contactNo: { required },
       houseStreet: { required },
       barangay: { required },
