@@ -1,13 +1,13 @@
-import { defineStore } from 'pinia';
+﻿import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import api from '@/api/client';
 
 export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
-  const personnel = ref([]);
+  const personnel  = ref([]);
+  const categories = ref([]);
 
   const groupedPersonnel = computed(() => {
     return personnel.value.reduce((groups, worker) => {
-      // Map specialty to role for frontend backward compatibility
       const role = worker.specialty || worker.role;
       if (!groups[role]) groups[role] = [];
       groups[role].push(worker);
@@ -37,10 +37,43 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
       }
     } catch (error) {
       console.error('Failed to fetch FGMU personnel:', error);
-      if (personnel.value.length === 0) {
-        personnel.value = [];
-      }
+      if (personnel.value.length === 0) personnel.value = [];
     }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('personnel/categories/FGMU');
+      categories.value = response.data?.data?.categories || [];
+    } catch (error) {
+      console.error('Failed to fetch FGMU categories:', error);
+    }
+  };
+
+  const addCategory = async (name) => {
+    const response = await api.post('personnel/categories', { unit_code: 'FGMU', name });
+    await fetchCategories();
+    return response.data;
+  };
+
+  const removeCategory = async (categoryId) => {
+    await api.delete(personnel/categories/);
+    await fetchCategories();
+  };
+
+  const addPersonnel = async ({ firstName, middleInitial, lastName, specialty }) => {
+    const nameParts = [firstName.trim()];
+    if (middleInitial?.trim()) nameParts.push(middleInitial.trim().replace(/\.?$/, '.'));
+    nameParts.push(lastName.trim());
+    const fullName = nameParts.join(' ');
+    const response = await api.post('personnel', { unit_id: 1, name: fullName, specialty });
+    await fetchPersonnel();
+    return response.data;
+  };
+
+  const removePersonnel = async (personnelId) => {
+    await api.delete(personnel/);
+    await fetchPersonnel();
   };
 
   const toggleWorkerStatus = async (workerId) => {
@@ -48,7 +81,7 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
     if (!worker || worker.status === 'Working') return;
     const newStatusBackend = worker.status === 'Available' ? 'on_leave' : 'available';
     try {
-      await api.patch(`personnel/${workerId}/status`, { status: newStatusBackend });
+      await api.patch(personnel//status, { status: newStatusBackend });
       worker.status = worker.status === 'Available' ? 'On Leave' : 'Available';
     } catch (error) {
       console.error('Failed to update worker status:', error);
@@ -59,7 +92,6 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
     const worker = personnel.value.find(w => w.id === workerId);
     if (!worker) return;
     worker.status = status;
-    // Clear assignment data when reverting to Available or On Leave
     if (status === 'Available' || status === 'On Leave') {
       worker.assignedTicket = null;
       worker.ticketTask = null;
@@ -67,17 +99,14 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
     }
   };
 
-  // Assign a worker to a ticket without starting work yet
   const assignWorker = (workerId, ticketId, implementationDate, ticketTask = 'Facilities Maintenance Work') => {
     const worker = personnel.value.find(w => w.id === workerId);
     if (!worker) return;
     worker.assignedTicket = ticketId;
     worker.ticketTask = ticketTask;
     worker.implementationDate = implementationDate;
-    // Status stays Available — the "Assigned" state is driven by assignedTicket
   };
 
-  // Remove an assignment without changing leave/working status
   const unassignWorker = (workerId) => {
     const worker = personnel.value.find(w => w.id === workerId);
     if (!worker) return;
@@ -86,55 +115,27 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
     worker.implementationDate = null;
   };
 
-  // Update implementation date for all workers assigned to a specific ticket
   const updateTicketDate = (ticketId, date) => {
-    personnel.value.forEach(w => {
-      if (w.assignedTicket === ticketId) {
-        w.implementationDate = date;
-      }
-    });
+    personnel.value.forEach(w => { if (w.assignedTicket === ticketId) w.implementationDate = date; });
   };
 
-  // Transition an assigned worker to actively Working
   const startWork = (workerId) => {
     const worker = personnel.value.find(w => w.id === workerId);
     if (!worker || !worker.assignedTicket) return;
     worker.status = 'Working';
   };
 
-  const ticketDatabase = {
-    'FGMU-TIC-42': { id: 'FGMU-TIC-42', type: 'AC Repair', location: 'CET Building R-204', requester: 'Prof. Garcia', status: 'Urgent', desc: 'Server Room AC Unit Servicing', date: 'Apr 28, 2026' },
-    'FGMU-TIC-43': { id: 'FGMU-TIC-43', type: 'Electrical', location: 'Library Hall', requester: 'Ms. Santos', status: 'Pending', desc: 'Library Lighting Replacement', date: 'Apr 28, 2026' },
-    'FGMU-TIC-44': { id: 'FGMU-TIC-44', type: 'Plumbing', location: 'Admin Restroom', requester: 'Engr. Reyes', status: 'Urgent', desc: 'Restroom Pipe Leakage', date: 'Apr 28, 2026' },
-    'FGMU-TIC-45': { id: 'FGMU-TIC-45', type: 'Carpentry', location: 'Gymnasium Stage', requester: 'Coach Mike', status: 'Pending', desc: 'Conference Room Table Repair', date: 'Apr 28, 2026' },
-    'FGMU-TIC-46': { id: 'FGMU-TIC-46', type: 'Painting Works', location: 'Admin Hallway', requester: 'Admin Office', status: 'Pending', desc: 'Hallway Wall Touch-up', date: 'Apr 28, 2026' },
-    'FGMU-TIC-47': { id: 'FGMU-TIC-47', type: 'Welding', location: 'Stairwell B', requester: 'Safety Office', status: 'Pending', desc: 'Handrail Welding Fix', date: 'Apr 29, 2026' },
-    'FGMU-TIC-49': { id: 'FGMU-TIC-49', type: 'Electrical', location: 'Room 302', requester: 'Prof. Cruz', status: 'Pending', desc: 'Projector Power Outlet Installation', date: 'Apr 30, 2026' },
-    'FGMU-TIC-50': { id: 'FGMU-TIC-50', type: 'Plumbing', location: 'Main Building', requester: 'Facilities Dept', status: 'Pending', desc: 'Main Line Valve Repair', date: 'Apr 29, 2026' },
-  };
-
-  const getTicketInfo = (ticketId) => {
-    return ticketDatabase[ticketId] || {
-      id: ticketId,
-      type: 'Facilities Maintenance',
-      location: 'University Building',
-      requester: 'GSO Administration',
-      status: 'Pending',
-      desc: 'Scheduled Facilities Maintenance Task',
-      date: 'May 01, 2026'
-    };
-  };
+  const getTicketInfo = (ticketId) => ({
+    id: ticketId, type: 'Facilities Maintenance', location: 'University Building',
+    requester: 'GSO Administration', status: 'Pending',
+    desc: 'Scheduled Facilities Maintenance Task', date: 'May 01, 2026'
+  });
 
   return {
-    personnel,
-    groupedPersonnel,
-    fetchPersonnel,
-    toggleWorkerStatus,
-    setWorkerStatus,
-    assignWorker,
-    unassignWorker,
-    updateTicketDate,
-    startWork,
-    getTicketInfo,
+    personnel, categories, groupedPersonnel,
+    fetchPersonnel, fetchCategories, addCategory, removeCategory,
+    addPersonnel, removePersonnel,
+    toggleWorkerStatus, setWorkerStatus, assignWorker, unassignWorker,
+    updateTicketDate, startWork, getTicketInfo,
   };
 });

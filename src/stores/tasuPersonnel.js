@@ -1,9 +1,10 @@
-import { defineStore } from 'pinia';
+﻿import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import api from '@/api/client';
 
 export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
   const personnel = ref([]);
+  const categories = ref([]);
 
   const fetchPersonnel = async () => {
     try {
@@ -13,7 +14,6 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
           ...p,
           status: p.status === 'available' ? 'Available' : p.status === 'working' ? 'Working' : p.status === 'on_leave' ? 'On Leave' : p.status === 'on_trip' ? 'On Trip' : p.status,
           role: p.specialty,
-          // If they have an active assignment, use it
           assignedTicket: p.assigned_ticket_id || null,
           ticketTask: p.ticket_task || null,
           implementationDate: p.implementation_date || null,
@@ -31,6 +31,30 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('personnel/categories/TASU');
+      categories.value = response.data?.data?.categories || [];
+    } catch (error) {
+      console.error('Failed to fetch TASU categories:', error);
+    }
+  };
+
+  const addPersonnel = async ({ firstName, middleInitial, lastName, specialty }) => {
+    const nameParts = [firstName.trim()];
+    if (middleInitial?.trim()) nameParts.push(middleInitial.trim().replace(/\.?$/, '.'));
+    nameParts.push(lastName.trim());
+    const fullName = nameParts.join(' ');
+    const response = await api.post('personnel', { unit_id: 4, name: fullName, specialty });
+    await fetchPersonnel();
+    return response.data;
+  };
+
+  const removePersonnel = async (personnelId) => {
+    await api.delete(personnel/);
+    await fetchPersonnel();
+  };
+
   const groupedPersonnel = computed(() => {
     return personnel.value.reduce((groups, worker) => {
       if (!groups[worker.role]) groups[worker.role] = [];
@@ -41,11 +65,10 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
 
   const toggleWorkerStatus = async (workerId) => {
     const worker = personnel.value.find(w => w.id === workerId);
-    // 'On Trip' is TASU's equivalent of 'Working'
     if (!worker || worker.status === 'On Trip') return;
     const newStatusBackend = worker.status === 'Available' ? 'on_leave' : 'available';
     try {
-      await api.patch(`personnel/${workerId}/status`, { status: newStatusBackend });
+      await api.patch(personnel//status, { status: newStatusBackend });
       worker.status = worker.status === 'Available' ? 'On Leave' : 'Available';
     } catch (error) {
       console.error('Failed to update worker status:', error);
@@ -84,7 +107,6 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
     });
   };
 
-  // Transition driver to active trip
   const startWork = (workerId) => {
     const worker = personnel.value.find(w => w.id === workerId);
     if (!worker || !worker.assignedTicket) return;
@@ -93,6 +115,7 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
 
   return {
     personnel,
+    categories,
     groupedPersonnel,
     toggleWorkerStatus,
     setWorkerStatus,
@@ -101,5 +124,8 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
     updateTicketDate,
     startWork,
     fetchPersonnel,
+    fetchCategories,
+    addPersonnel,
+    removePersonnel,
   };
 });
