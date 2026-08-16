@@ -1,4 +1,4 @@
-﻿import { defineStore } from 'pinia';
+import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import api from '@/api/client';
 
@@ -51,7 +51,7 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
   };
 
   const removePersonnel = async (personnelId) => {
-    await api.delete(personnel/);
+    await api.delete(`personnel/${personnelId}`);
     await fetchPersonnel();
   };
 
@@ -68,7 +68,7 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
     if (!worker || worker.status === 'On Trip') return;
     const newStatusBackend = worker.status === 'Available' ? 'on_leave' : 'available';
     try {
-      await api.patch(personnel//status, { status: newStatusBackend });
+      await api.patch(`personnel/${workerId}/status`, { status: newStatusBackend });
       worker.status = worker.status === 'Available' ? 'On Leave' : 'Available';
     } catch (error) {
       console.error('Failed to update worker status:', error);
