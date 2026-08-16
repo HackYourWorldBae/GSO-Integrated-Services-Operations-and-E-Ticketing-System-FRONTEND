@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <MainLayout>
     <template #sidebar-links>
       <router-link to="/admin/leau" class="nav-item">
@@ -42,7 +42,7 @@
             <h2 class="text-3xl font-black tracking-tight text-slate-900 mb-1">LEAU Roster</h2>
             <p class="text-sm text-slate-500 font-medium">Manage and track personnel status and current assignments.</p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3" v-if="isAdmin">
             <button @click="showCategoryModal = true" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-black hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
               Manage Categories
@@ -109,7 +109,7 @@
                                 worker.status === 'Available' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200/60' : 'bg-slate-200 text-slate-500 border border-slate-300'
                               ]">
                               <span :class="['w-1.5 h-1.5 rounded-full animate-pulse', worker.status === 'Working' ? 'bg-amber-500' : worker.assignedTicket ? 'bg-blue-500' : worker.status === 'Available' ? 'bg-emerald-500' : 'bg-slate-400']"></span>
-                              {{ worker.status === 'Working' ? 'Working' : worker.assignedTicket ? Assigned to  : (worker.status || 'Available') }}
+                              {{ worker.status === 'Working' ? 'Working' : worker.assignedTicket ? 'Assigned to'  : (worker.status || 'Available') }}
                             </span>
                             <div class="flex items-center gap-2 w-full sm:w-auto">
                               <button
@@ -122,7 +122,7 @@
                               </button>
                               <!-- Delete button — only if not active -->
                               <button
-                                v-if="worker.status !== 'Working' && !worker.assignedTicket"
+                                v-if="worker.status !== 'Working' && !worker.assignedTicket && isAdmin"
                                 @click="confirmDelete(worker)"
                                 class="mt-1 w-8 h-8 flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all active:scale-95 shrink-0"
                                 title="Remove personnel"
@@ -309,10 +309,14 @@ import { onMounted, computed, ref } from 'vue';
 import { useToast } from 'vue-toastification';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useLeauPersonnelStore } from '@/stores/leauPersonnel';
+import { useAuthStore } from '@/stores/auth';
 import { formatTicketOrProjectLabel } from '@/utils/projectFormatter';
 
-const store  = useLeauPersonnelStore();
-const toast  = useToast();
+const store = useLeauPersonnelStore();
+const authStore = useAuthStore();
+const toast = useToast();
+
+const isAdmin = computed(() => authStore.role === 'admin' || authStore.role === 'unit-admin');
 
 const groupedPersonnel = computed(() => store.groupedPersonnel);
 const expandedTickets  = ref({});
@@ -373,7 +377,7 @@ const deleteCategory = async (cat) => {
   categoryDeleting.value = cat.id;
   try {
     await store.removeCategory(cat.id);
-    toast.success("" category removed.);
+    toast.success(`${cat.name} category removed.`);
   } catch (err) {
     const msg = err?.response?.data?.message || 'Failed to remove category.';
     toast.error(msg);
@@ -394,7 +398,7 @@ const submitDelete = async () => {
   deleteSubmitting.value = true;
   try {
     await store.removePersonnel(workerToDelete.value.id);
-    toast.success(${workerToDelete.value.name} removed from roster.);
+    toast.success(`${workerToDelete.value.name} removed from roster.`);
     workerToDelete.value = null;
   } catch (err) {
     toast.error(err?.response?.data?.message || 'Failed to remove personnel.');

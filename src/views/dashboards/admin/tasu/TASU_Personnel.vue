@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <MainLayout>
     <template #sidebar-links>
       <router-link to="/admin/tasu" class="nav-item">
@@ -44,7 +44,11 @@
             <h2 class="text-3xl font-black tracking-tight text-slate-900 mb-1">TASU Roster</h2>
             <p class="text-sm text-slate-500 font-medium">Manage and track Transportation & Automotive Services Unit personnel status and current assignments.</p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3" v-if="isAdmin">
+            <button @click="showCategoryModal = true" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-black hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+              Manage Categories
+            </button>
             <button @click="openAddModal" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-black transition-all shadow-sm shadow-emerald-200 active:scale-95">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
               Add Personnel
@@ -106,7 +110,7 @@
                                 worker.status === 'Available' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200/60' : 'bg-slate-200 text-slate-500 border border-slate-300'
                               ]">
                               <span :class="['w-1.5 h-1.5 rounded-full animate-pulse', worker.status === 'On Trip' ? 'bg-amber-500' : worker.assignedTicket ? 'bg-blue-500' : worker.status === 'Available' ? 'bg-emerald-500' : 'bg-slate-400']"></span>
-                              {{ worker.status === 'On Trip' ? 'On Trip' : worker.assignedTicket ? Assigned to  : (worker.status || 'Available') }}
+                              {{ worker.status === 'On Trip' ? 'On Trip' : worker.assignedTicket ? 'Assigned to'  : (worker.status || 'Available') }}
                             </span>
                             <div class="flex items-center gap-2 w-full sm:w-auto">
                               <button 
@@ -118,7 +122,7 @@
                                 {{ worker.assignedTicket || worker.status === 'On Trip' ? 'Locked (In Progress)' : worker.status === 'On Leave' ? 'Set to Available' : 'Set to On Leave' }}
                               </button>
                               <button 
-                                v-if="worker.status !== 'On Trip' && !worker.assignedTicket"
+                                v-if="worker.status !== 'On Trip' && !worker.assignedTicket && isAdmin"
                                 @click="confirmDelete(worker)"
                                 class="mt-1 w-8 h-8 flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all active:scale-95 shrink-0"
                                 title="Remove personnel"
@@ -209,8 +213,13 @@
             <div>
               <label class="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wider">Profession <span class="text-red-500">*</span></label>
               <select v-model="addForm.specialty" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
+                <option value="" disabled>Select a profession...</option>
                 <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
               </select>
+              <p v-if="store.categories.length === 0" class="text-xs text-amber-600 font-medium mt-1.5 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                No categories yet. Create one in "Manage Categories" first.
+              </p>
             </div>
             <div class="flex gap-3 pt-2">
               <button @click="showAddModal = false" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-black text-sm hover:bg-slate-50 transition-all">Cancel</button>
@@ -221,7 +230,51 @@
           </div>
         </div>
       </div>
+      <!-- ================================================================== -->
+      <!-- Manage Categories Modal -->
+      <!-- ================================================================== -->
+      <div v-if="showCategoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" @click.self="showCategoryModal = false">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm animate-scale-up overflow-hidden">
+          <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-black text-white">Personnel Categories</h3>
+                <p class="text-slate-400 text-xs font-medium mt-0.5">Manage TASU profession categories</p>
+              </div>
+              <button @click="showCategoryModal = false" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+          </div>
+          <div class="p-6 space-y-4">
+            <!-- Add new category -->
+            <div class="flex gap-2">
+              <input v-model="newCategoryName" @keyup.enter="submitCategory" type="text" placeholder="e.g., Driver" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
+              <button @click="submitCategory" :disabled="categorySubmitting || !newCategoryName.trim()" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-black transition-all active:scale-95 disabled:opacity-50">
+                {{ categorySubmitting ? '...' : 'Add' }}
+              </button>
+            </div>
 
+            <!-- List existing categories -->
+            <div class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
+              <div v-if="store.categories.length === 0" class="text-center py-6 text-sm text-slate-400 font-medium">No categories yet. Add one above.</div>
+              <div v-for="cat in store.categories" :key="cat.id" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-100 group">
+                <span class="text-sm font-bold text-slate-800">{{ cat.name }}</span>
+                <button
+                  v-if="!cat.is_system"
+                  @click="deleteCategory(cat)"
+                  :disabled="categoryDeleting === cat.id"
+                  class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100"
+                  title="Remove category"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+                <span v-else class="text-[9px] font-black text-slate-400 uppercase tracking-wider px-2 py-0.5 bg-slate-200 rounded-full">System</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Delete Confirm Modal -->
       <div v-if="workerToDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" @click.self="workerToDelete = null">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm animate-scale-up p-6">
@@ -252,21 +305,26 @@ import { onMounted, computed, ref } from 'vue';
 import { useToast } from 'vue-toastification';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
+import { useAuthStore } from '@/stores/auth';
 
 const store = useTasuPersonnelStore();
+const authStore = useAuthStore();
 const toast = useToast();
+
+const isAdmin = computed(() => authStore.role === 'admin' || authStore.role === 'unit-admin');
 
 const groupedPersonnel = computed(() => store.groupedPersonnel);
 const expandedTickets  = ref({});
 
 const showAddModal = ref(false);
+const showCategoryModal = ref(false);
 const workerToDelete = ref(null);
 const addForm = ref({ firstName: '', middleInitial: '', lastName: '', specialty: '' });
 const addSubmitting = ref(false);
 const deleteSubmitting = ref(false);
 
 const openAddModal = () => {
-  addForm.value = { firstName: '', middleInitial: '', lastName: '', specialty: 'Driver' };
+  addForm.value = { firstName: '', middleInitial: '', lastName: '', specialty: '' };
   showAddModal.value = true;
 };
 
@@ -288,6 +346,38 @@ const submitAdd = async () => {
   }
 };
 
+const newCategoryName  = ref('');
+const categorySubmitting = ref(false);
+const categoryDeleting = ref(null);
+
+const submitCategory = async () => {
+  if (!newCategoryName.value.trim()) return;
+  categorySubmitting.value = true;
+  try {
+    await store.addCategory(newCategoryName.value.trim());
+    toast.success('Category added!');
+    newCategoryName.value = '';
+  } catch (err) {
+    const msg = err?.response?.data?.message || 'Failed to add category.';
+    toast.error(msg);
+  } finally {
+    categorySubmitting.value = false;
+  }
+};
+
+const deleteCategory = async (cat) => {
+  categoryDeleting.value = cat.id;
+  try {
+    await store.removeCategory(cat.id);
+    toast.success(`${cat.name} category removed.`);
+  } catch (err) {
+    const msg = err?.response?.data?.message || 'Failed to remove category.';
+    toast.error(msg);
+  } finally {
+    categoryDeleting.value = null;
+  }
+};
+
 const confirmDelete = (worker) => {
   workerToDelete.value = worker;
 };
@@ -297,7 +387,7 @@ const submitDelete = async () => {
   deleteSubmitting.value = true;
   try {
     await store.removePersonnel(workerToDelete.value.id);
-    toast.success(${workerToDelete.value.name} removed from roster.);
+    toast.success(`${workerToDelete.value.name} removed from roster.`);
     workerToDelete.value = null;
   } catch (err) {
     toast.error(err?.response?.data?.message || 'Failed to remove personnel.');
