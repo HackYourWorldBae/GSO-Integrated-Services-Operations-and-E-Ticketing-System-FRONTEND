@@ -183,20 +183,13 @@
                   <textarea v-model="form.description" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Provide a brief summary and purpose of the project for campus awareness..."></textarea>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-1.5">Target Date <span class="text-red-500">*</span></label>
-                    <input v-model="form.target_date" type="date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-1.5">Working Days</label>
-                    <input v-model="form.duration" type="number" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="E.g., 5">
-                  </div>
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-bold text-slate-700 mb-1.5">Scope of Work / Remarks (Optional)</label>
-                  <textarea v-model="form.remarks" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Any specific advisories, affected areas, or work schedule..."></textarea>
+                <!-- Info banner: scheduling is handled by dispatcher -->
+                <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <p class="text-xs text-amber-700 font-medium leading-relaxed">
+                    <span class="font-black block mb-0.5">Scheduling is set by the Dispatcher</span>
+                    The implementation date and number of working days will be assigned by the dispatcher when workers are assigned to this project.
+                  </p>
                 </div>
               </form>
             </div>
@@ -283,10 +276,7 @@ export default {
     const form = ref({
       title: '',
       description: '',
-      location: '',
-      target_date: '',
-      duration: '',
-      remarks: ''
+      location: ''
     });
 
     const currentProject = ref(null);
@@ -318,7 +308,7 @@ export default {
     };
 
     const submitProject = async () => {
-      if (!form.value.title || !form.value.location || !form.value.target_date || !form.value.description) {
+      if (!form.value.title || !form.value.location || !form.value.description) {
         toast.error('Please fill in all required fields.');
         return;
       }
@@ -331,10 +321,7 @@ export default {
           unit: 'FGMU',
           title: form.value.title,
           description: form.value.description,
-          location: form.value.location,
-          target_date: form.value.target_date,
-          duration: form.value.duration ? form.value.duration + ' Working Days' : '',
-          remarks: form.value.remarks
+          location: form.value.location
         };
 
         const res = await fetch(`${import.meta.env.VITE_API_URL}/projects`, {
@@ -350,7 +337,7 @@ export default {
         if (res.ok) {
           toast.success('Project announcement published!');
           showAddModal.value = false;
-          form.value = { title: '', description: '', location: '', target_date: '', duration: '', remarks: '' };
+          form.value = { title: '', description: '', location: '' };
           fetchProjects();
         } else {
           toast.error(data.message || 'Failed to create project.');

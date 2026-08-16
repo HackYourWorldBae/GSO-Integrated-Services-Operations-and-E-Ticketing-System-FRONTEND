@@ -114,29 +114,50 @@
         </div>
 
         <!-- NEW: Implementation Schedule Section -->
-        <div v-if="selectedTicket" class="p-4 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden animate-fade-in" style="animation-delay: 0.1s;">
+        <div v-if="selectedTicket" class="p-4 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-white border border-slate-200 shadow-sm flex flex-col gap-6 relative overflow-hidden animate-fade-in" style="animation-delay: 0.1s;">
           <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl pointer-events-none"></div>
           <div class="relative z-10">
             <h3 class="text-xl font-black text-slate-900 flex items-center gap-3 mb-2">
               <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
               Implementation Schedule
             </h3>
-            <p class="text-sm font-medium text-slate-500">Set the target date for when the assigned workers should execute this task.</p>
+            <p class="text-sm font-medium text-slate-500">Set the implementation date and number of working days for this {{ isProjectIdentifier(selectedTicket) ? 'project' : 'task' }}.</p>
           </div>
           
-          <div class="relative z-10 flex items-center gap-4 bg-slate-50 p-3 rounded-3xl border border-slate-200 shadow-inner group transition-all hover:bg-emerald-50/50 hover:border-emerald-200">
-            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 transition-transform group-hover:scale-105 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg>
+          <div class="relative z-10 flex flex-col sm:flex-row items-stretch gap-4">
+            <!-- Date Picker -->
+            <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-3xl border border-slate-200 shadow-inner group transition-all hover:bg-emerald-50/50 hover:border-emerald-200 flex-1">
+              <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 transition-transform group-hover:scale-105 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-600 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              </div>
+              <div class="flex flex-col pr-4 flex-1">
+                <label for="impl-date" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 cursor-pointer group-hover:text-emerald-700 transition-colors">Implementation Date <span class="text-red-500">*</span></label>
+                <input 
+                  id="impl-date" 
+                  type="date" 
+                  v-model="selectedTicket.implementationDate" 
+                  @change="handleTicketDateChange" 
+                  class="bg-transparent text-slate-900 text-base font-black outline-none cursor-pointer min-w-[150px] custom-date-input" 
+                />
+              </div>
             </div>
-            <div class="flex flex-col pr-4">
-              <label for="impl-date" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 cursor-pointer group-hover:text-emerald-700 transition-colors">Target Date</label>
-              <input 
-                id="impl-date" 
-                type="date" 
-                v-model="selectedTicket.implementationDate" 
-                @change="handleTicketDateChange" 
-                class="bg-transparent text-slate-900 text-base font-black outline-none cursor-pointer min-w-[150px] custom-date-input" 
-              />
+
+            <!-- Working Days -->
+            <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-3xl border border-slate-200 shadow-inner group transition-all hover:bg-emerald-50/50 hover:border-emerald-200 flex-1">
+              <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 transition-transform group-hover:scale-105 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-600 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+              </div>
+              <div class="flex flex-col pr-4 flex-1">
+                <label for="working-days" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-emerald-700 transition-colors">Number of Working Days <span class="text-red-500">*</span></label>
+                <input
+                  id="working-days"
+                  type="number"
+                  min="1"
+                  v-model="workingDays"
+                  placeholder="e.g. 5"
+                  class="bg-transparent text-slate-900 text-base font-black outline-none w-full"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -483,6 +504,7 @@ const store = useFgmuPersonnelStore();
 const showTicketModal = ref(false);
 const modalTicket = ref(null);
 const isManagementMode = ref(false);
+const workingDays = ref('');
 
 const openTicketModal = (ticket) => {
   modalTicket.value = ticket;
@@ -637,7 +659,11 @@ onMounted(async () => {
 const assignWorker = (worker) => {
   if (!selectedTicket.value) return;
   if (!selectedTicket.value.implementationDate) {
-    toast.error('Please set an implementation date for the ticket first.');
+    toast.error('Please set an implementation date first.');
+    return;
+  }
+  if (!workingDays.value || Number(workingDays.value) < 1) {
+    toast.error('Please set the number of working days first.');
     return;
   }
   const dateStr = new Date(selectedTicket.value.implementationDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -657,6 +683,14 @@ const dispatchAll = async () => {
     toast.error('No workers assigned to dispatch.');
     return;
   }
+  if (!selectedTicket.value.implementationDate) {
+    toast.error('Please set an implementation date before dispatching.');
+    return;
+  }
+  if (!workingDays.value || Number(workingDays.value) < 1) {
+    toast.error('Please set the number of working days before dispatching.');
+    return;
+  }
   
   try {
     for (const assign of currentAssignments.value) {
@@ -667,6 +701,7 @@ const dispatchAll = async () => {
            ticket_id: selectedTicket.value.id,
            personnel_id: assign.workerId,
            implementation_date: selectedTicket.value.implementationDate || '',
+           working_days: Number(workingDays.value),
            task_notes: isProjectIdentifier(selectedTicket.value) ? (selectedTicket.value.type || 'Office Project Work') : 'Facilities Maintenance Work'
          });
       }
