@@ -482,8 +482,8 @@ const toggleTicketExtension = async (workerId, ticketId) => {
             id: t.id,
             type: t.service_type || t.type || 'Landscaping Task',
             location: t.location,
-            requester: t.is_project ? t.project_target_duration || 'Ongoing' : (t.details?.requesting_personnel || 'End User'),
-            date: t.is_project ? (t.project_target_date ? new Date(t.project_target_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'To be scheduled') : new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            requester: isProjectIdentifier(ticketId) ? t.project_target_duration || 'Ongoing' : (t.details?.requesting_personnel || 'End User'),
+            date: isProjectIdentifier(ticketId) ? (t.project_target_date ? new Date(t.project_target_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'To be scheduled') : new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             desc: t.description || t.job_description || 'No description provided.'
           };
         }
