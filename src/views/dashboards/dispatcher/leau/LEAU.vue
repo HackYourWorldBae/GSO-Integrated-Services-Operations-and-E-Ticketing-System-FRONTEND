@@ -74,10 +74,10 @@
           </div>
         </div>
 
-        <!-- Ticket Table -->
-        <div class="rounded-[2.5rem] bg-white border border-slate-200 p-10 overflow-hidden shadow-sm">
+        <!-- Service Requests Table -->
+        <div class="rounded-[2.5rem] bg-white border border-slate-200 p-10 overflow-hidden shadow-sm mb-8">
           <div class="flex items-center justify-between mb-8">
-            <h3 class="text-2xl font-black text-slate-900 tracking-tight text-emerald-600">Approved Ticket Queue</h3>
+            <h3 class="text-2xl font-black text-slate-900 tracking-tight text-emerald-600">Approved Service Requests</h3>
           </div>
           
           <div class="overflow-x-auto">
@@ -92,7 +92,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-50">
-                <tr v-for="ticket in tickets" :key="ticket.id" class="group hover:bg-slate-50/50 transition-colors">
+                <tr v-for="ticket in regularTickets" :key="ticket.id" class="group hover:bg-slate-50/50 transition-colors">
                   <td class="py-6 px-4">
                     <span class="text-sm font-black text-slate-900">#{{ ticket.id }}</span>
                   </td>
@@ -113,12 +113,67 @@
                   </td>
                   <td class="py-6 px-4 text-right">
                     <button @click="openTicketModal(ticket)" class="px-4 py-2 mr-2 rounded-xl bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors inline-block">
-                      {{ isProjectIdentifier(ticket) ? 'Show Project Info' : 'Show Ticket Info' }}
+                      Show Ticket Info
                     </button>
                     <router-link :to="'/dispatcher/leau/workers?ticket=' + ticket.id" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors inline-block">
                       Assign
                     </router-link>
                   </td>
+                </tr>
+                <tr v-if="regularTickets.length === 0">
+                  <td colspan="5" class="py-12 text-center text-slate-400 font-bold text-sm">No approved service requests at this moment.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Office Projects Table -->
+        <div class="rounded-[2.5rem] bg-white border border-slate-200 p-10 overflow-hidden shadow-sm">
+          <div class="flex items-center justify-between mb-8">
+            <h3 class="text-2xl font-black text-slate-900 tracking-tight text-emerald-600">Approved Office Projects</h3>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left min-w-[750px]">
+              <thead>
+                <tr class="border-b border-slate-100">
+                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Project ID</th>
+                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Project Title</th>
+                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Location</th>
+                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Funding</th>
+                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold text-right pt-2 pb-2">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-50">
+                <tr v-for="ticket in projectTickets" :key="ticket.id" class="group hover:bg-slate-50/50 transition-colors">
+                  <td class="py-6 px-4">
+                    <span class="text-sm font-black text-slate-900">{{ formatProjectNumber ? formatProjectNumber(ticket.id) : ticket.id }}</span>
+                  </td>
+                  <td class="py-6 px-4">
+                    <div class="flex flex-col">
+                      <span class="text-sm font-bold text-slate-900">{{ ticket.type }}</span>
+                    </div>
+                  </td>
+                  <td class="py-6 px-4">
+                    <span class="text-sm font-bold text-slate-700">{{ ticket.location }}</span>
+                  </td>
+                  <td class="py-6 px-4">
+                    <div class="flex flex-col">
+                      <span class="text-sm font-bold text-slate-900">{{ ticket.source_of_fund || 'N/A' }}</span>
+                    </div>
+                  </td>
+                  <td class="py-6 px-4 text-right">
+                    <button @click="openTicketModal(ticket)" class="px-4 py-2 mr-2 rounded-xl bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors inline-block">
+                      Show Project Info
+                    </button>
+                    <router-link :to="'/dispatcher/leau/workers?ticket=' + ticket.id" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors inline-block">
+                      Assign
+                    </router-link>
+                  </td>
+                </tr>
+                <tr v-if="projectTickets.length === 0">
+                  <td colspan="5" class="py-12 text-center text-slate-400 font-bold text-sm">No approved office projects at this moment.</td>
                 </tr>
               </tbody>
             </table>
@@ -284,6 +339,8 @@ const downloadAttachment = async (att) => {
 const tickets = ref([]);
 const stats = ref({ ongoing: 0, resolved: 0 });
 
+const regularTickets = computed(() => tickets.value.filter(t => !isProjectIdentifier(t)));
+const projectTickets = computed(() => tickets.value.filter(t => isProjectIdentifier(t)));
 const unplannedCount = computed(() => tickets.value.length);
 const ongoingCount = computed(() => stats.value.ongoing);
 const resolvedCount = computed(() => stats.value.resolved);
