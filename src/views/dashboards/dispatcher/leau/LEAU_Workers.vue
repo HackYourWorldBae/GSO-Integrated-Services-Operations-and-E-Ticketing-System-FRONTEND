@@ -238,13 +238,13 @@
                               <span>{{ !isManagementMode ? 'Management Disabled' : worker.assignedTicket || worker.status === 'Working' ? 'Locked (In Progress)' : worker.status === 'On Leave' ? 'Set to Available' : 'Set to On Leave' }}</span>
                             </button>
 
-                            <div v-if="!isManagementMode && worker.status === 'Available' && !worker.assignedTicket && selectedTicket" class="w-full pt-1">
+                            <div v-if="!isManagementMode && worker.status !== 'On Leave' && (!worker.assignedTicket || !worker.nextAssignment) && selectedTicket && worker.assignedTicket !== selectedTicket.id && (!worker.nextAssignment || worker.nextAssignment.ticketId !== selectedTicket.id)" class="w-full pt-1">
                               <button
                                 @click="assignWorker(worker)"
                                 class="py-2 px-3 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition-all shadow-md shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest"
                                 title="Assign worker">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                Assign to {{ formatTicketOrProjectLabel(selectedTicket.id) }}
+                                {{ worker.assignedTicket || worker.status === 'Working' ? 'Queue Next: ' : 'Assign to ' }} {{ formatTicketOrProjectLabel(selectedTicket.id) }}
                               </button>
                             </div>
                           </div>
@@ -461,6 +461,7 @@ const store = useLeauPersonnelStore();
 const showTicketModal = ref(false);
 const modalTicket = ref(null);
 const isManagementMode = ref(false);
+const fetchedTicketDetails = ref({});
 
 const openTicketModal = (ticket) => {
   modalTicket.value = ticket;
@@ -469,36 +470,55 @@ const openTicketModal = (ticket) => {
 
 const expandedTickets = ref({});
 
-const toggleTicketExtension = (workerId, ticketId) => {
+const toggleTicketExtension = async (workerId, ticketId) => {
   if (!ticketId) return;
   if (expandedTickets.value[workerId] === ticketId) {
     expandedTickets.value[workerId] = null;
   } else {
     expandedTickets.value[workerId] = ticketId;
+    if (!fetchedTicketDetails.value[ticketId]) {
+      try {
+        const response = await api.get(`tickets/${ticketId}`);
+        if (response.data?.data?.ticket) {
+          const t = response.data.data.ticket;
+          fetchedTicketDetails.value[ticketId] = {
+            id: t.id,
+            type: t.service_type || t.type || 'Landscaping Task',
+            location: t.location,
+            requester: t.details?.requesting_personnel || 'End User',
+            date: new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            desc: t.description || t.job_description || 'No description provided.'
+          };
+        }
+      } catch (err) {
+        console.error('Failed to fetch ticket for extension:', err);
+      }
+    }
   }
 };
 
 const getTicketDetailsForExtension = (ticketId) => {
   if (!ticketId) return {};
-  const t = mockTickets.value.find(mt => mt.id === ticketId);
-  if (t) {
+  if (fetchedTicketDetails.value[ticketId]) return fetchedTicketDetails.value[ticketId];
+  if (selectedTicket.value && selectedTicket.value.id === ticketId) {
     return {
-      id: t.id,
-      type: t.type,
-      location: t.location,
-      requester: t.requester,
-      date: t.submittedAt || 'Scheduled',
-      desc: t.job_description
+      id: selectedTicket.value.id,
+      type: selectedTicket.value.type,
+      location: selectedTicket.value.location,
+      requester: selectedTicket.value.requester,
+      date: selectedTicket.value.submittedAt || 'Scheduled',
+      desc: selectedTicket.value.job_description
     };
   }
-  return store.getTicketInfo(ticketId) || {};
+  return {
+    id: ticketId,
+    type: 'Loading...',
+    location: 'Loading...',
+    requester: 'Loading...',
+    date: '...',
+    desc: 'Loading ticket details...'
+  };
 };
-
-const mockTickets = ref([
-  { id: 'LEAU-TIC-18', type: 'Pruning', location: 'Main Entrance Lobby', requester: 'Admin', status: 'Urgent', jr_no: '02045', college_building: 'Main Entrance', office_room: 'Lobby Planters', source_of_fund: 'General Fund', contact_number: '09123456789', job_description: 'Overgrown branches in the main entrance planters. Needs pruning immediately to avoid blocking the sign.', attachments: [], submittedAt: 'April 15, 2026', implementationDate: '' },
-  { id: 'LEAU-TIC-19', type: 'Watering', location: 'University Oval', requester: 'GSO', status: 'Routine', jr_no: '02046', college_building: 'University Oval', office_room: 'Outer Track', source_of_fund: 'General Fund', contact_number: '09987654321', job_description: 'Regular watering schedule for the newly planted ornamental plants around the oval track.', attachments: [], submittedAt: 'April 15, 2026', implementationDate: '' },
-  { id: 'LEAU-TIC-20', type: 'Fertilizing', location: 'Peace Garden', requester: 'Admin', status: 'Urgent', jr_no: '02047', college_building: 'Peace Garden', office_room: 'Center Plot', source_of_fund: 'Special Projects', contact_number: '09456781234', job_description: 'Yellowing leaves on the centerpiece plants. Apply high-nitrogen fertilizer and monitor.', attachments: ['yellowing_leaves.jpg'], submittedAt: 'April 16, 2026', implementationDate: '' },
-]);
 
 const groupedPersonnel = computed(() => store.groupedPersonnel);
 const selectedTicket = ref(null);
@@ -512,8 +532,8 @@ const handleTicketDateChange = () => {
 
 const currentAssignments = computed(() => {
   if (!selectedTicket.value) return [];
-  return store.personnel.filter(w => w.assignedTicket === selectedTicket.value.id).map(w => ({
-    workerId: w.id, workerName: w.name, ticketId: w.assignedTicket, implementationDate: w.implementationDate,
+  return store.personnel.filter(w => w.assignedTicket === selectedTicket.value.id || (w.nextAssignment && w.nextAssignment.ticketId === selectedTicket.value.id)).map(w => ({
+    workerId: w.id, workerName: w.name, ticketId: selectedTicket.value.id, implementationDate: w.assignedTicket === selectedTicket.value.id ? w.implementationDate : (w.nextAssignment ? w.nextAssignment.date : null),
   }));
 });
 

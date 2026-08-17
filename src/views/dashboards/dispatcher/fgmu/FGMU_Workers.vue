@@ -266,13 +266,13 @@
                               <span>{{ !isManagementMode ? 'Management Disabled' : worker.assignedTicket || worker.status === 'Working' ? 'Locked (In Progress)' : worker.status === 'On Leave' ? 'Set to Available' : 'Set to On Leave' }}</span>
                             </button>
 
-                            <div v-if="!isManagementMode && worker.status === 'Available' && !worker.assignedTicket && selectedTicket" class="w-full pt-1">
+                            <div v-if="!isManagementMode && worker.status !== 'On Leave' && (!worker.assignedTicket || !worker.nextAssignment) && selectedTicket && worker.assignedTicket !== selectedTicket.id && (!worker.nextAssignment || worker.nextAssignment.ticketId !== selectedTicket.id)" class="w-full pt-1">
                               <button
                                 @click="assignWorker(worker)"
                                 class="py-2 px-3 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition-all shadow-md shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest"
                                 title="Assign worker">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                Assign to {{ formatTicketOrProjectLabel(selectedTicket.id) }}
+                                {{ worker.assignedTicket || worker.status === 'Working' ? 'Queue Next: ' : 'Assign to ' }} {{ formatTicketOrProjectLabel(selectedTicket.id) }}
                               </button>
                             </div>
                           </div>
@@ -537,6 +537,7 @@ const showTicketModal = ref(false);
 const modalTicket = ref(null);
 const isManagementMode = ref(false);
 const workingDays = ref('');
+const fetchedTicketDetails = ref({});
 
 const openTicketModal = (ticket) => {
   modalTicket.value = ticket;
@@ -545,61 +546,56 @@ const openTicketModal = (ticket) => {
 
 const expandedTickets = ref({});
 
-const toggleTicketExtension = (workerId, ticketId) => {
+const toggleTicketExtension = async (workerId, ticketId) => {
   if (!ticketId) return;
   if (expandedTickets.value[workerId] === ticketId) {
     expandedTickets.value[workerId] = null;
   } else {
     expandedTickets.value[workerId] = ticketId;
+    if (!fetchedTicketDetails.value[ticketId]) {
+      try {
+        const response = await api.get(`tickets/${ticketId}`);
+        if (response.data?.data?.ticket) {
+          const t = response.data.data.ticket;
+          fetchedTicketDetails.value[ticketId] = {
+            id: t.id,
+            type: t.service_type || t.type || 'Facilities Task',
+            location: t.location,
+            requester: t.details?.requesting_personnel || 'End User',
+            date: new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            desc: t.description || t.job_description || 'No description provided.'
+          };
+        }
+      } catch (err) {
+        console.error('Failed to fetch ticket for extension:', err);
+      }
+    }
   }
 };
 
 const getTicketDetailsForExtension = (ticketId) => {
   if (!ticketId) return {};
-  const t = mockTickets.value.find(mt => mt.id === ticketId);
-  if (t) {
+  if (fetchedTicketDetails.value[ticketId]) return fetchedTicketDetails.value[ticketId];
+  // Fallback to currently selected ticket if it matches
+  if (selectedTicket.value && selectedTicket.value.id === ticketId) {
     return {
-      id: t.id,
-      type: t.type,
-      location: t.location,
-      requester: t.requester,
-      date: t.submittedAt || 'Scheduled',
-      desc: t.job_description
+      id: selectedTicket.value.id,
+      type: selectedTicket.value.type,
+      location: selectedTicket.value.location,
+      requester: selectedTicket.value.requester,
+      date: selectedTicket.value.submittedAt || 'Scheduled',
+      desc: selectedTicket.value.job_description
     };
   }
-  return store.getTicketInfo(ticketId) || {};
+  return {
+    id: ticketId,
+    type: 'Loading...',
+    location: 'Loading...',
+    requester: 'Loading...',
+    date: '...',
+    desc: 'Loading ticket details...'
+  };
 };
-
-const mockTickets = ref([
-  {
-    id: 'FGMU-TIC-42', type: 'AC Repair', location: 'CET Building R-204', requester: 'Prof. Garcia', status: 'Urgent',
-    jr_no: '01245', college_building: 'College of Engineering Complex (CE)', office_room: 'R-204',
-    source_of_fund: 'General Fund', contact_number: '09123456789',
-    job_description: 'The split-type AC unit in R-204 is blowing warm air and showing an error code E3. Needs urgent technician attention.',
-    attachments: ['ac_unit_error_code.jpg', 'room_location.png'], submittedAt: 'April 15, 2026', implementationDate: ''
-  },
-  {
-    id: 'FGMU-TIC-43', type: 'Electrical', location: 'Library Hall', requester: 'Ms. Santos', status: 'Pending',
-    jr_no: '01246', college_building: 'University Library & Information Services', office_room: 'Main Reading Hall',
-    source_of_fund: 'Income', contact_number: '09987654321',
-    job_description: 'Three flickering LED panels in the middle row of the library hall. Disrupting students studying.',
-    attachments: ['flickering_lights_vid.mp4'], submittedAt: 'April 15, 2026', implementationDate: ''
-  },
-  {
-    id: 'FGMU-TIC-44', type: 'Plumbing', location: 'Admin Restroom', requester: 'Engr. Reyes', status: 'Urgent',
-    jr_no: '01247', college_building: 'Administration Building', office_room: 'Ground Floor Restroom',
-    source_of_fund: 'Emergency Fund', contact_number: '09456781234',
-    job_description: 'Major water pipe leak under the sink in the ground floor restroom. Water level is rising.',
-    attachments: ['leak_detail.jpg', 'flooding_area.jpg'], submittedAt: 'April 16, 2026', implementationDate: ''
-  },
-  {
-    id: 'FGMU-TIC-45', type: 'Carpentry', location: 'Gymnasium Stage', requester: 'Coach Mike', status: 'Pending',
-    jr_no: '01248', college_building: 'BSU Gymnasium', office_room: 'Main Stage Area',
-    source_of_fund: 'Sports Development Fund', contact_number: '09771234567',
-    job_description: 'Loose floorboards on the left side of the gymnasium stage. Hazard for upcoming graduation rehearsal.',
-    attachments: ['loose_boards.jpg'], submittedAt: 'April 16, 2026', implementationDate: ''
-  },
-]);
 
 const groupedPersonnel = computed(() => store.groupedPersonnel);
 const selectedTicket = ref(null);
@@ -614,11 +610,11 @@ const handleTicketDateChange = () => {
 // Derive current assignments list from the store based on selected ticket
 const currentAssignments = computed(() => {
   if (!selectedTicket.value) return [];
-  return store.personnel.filter(w => w.assignedTicket === selectedTicket.value.id).map(w => ({
+  return store.personnel.filter(w => w.assignedTicket === selectedTicket.value.id || (w.nextAssignment && w.nextAssignment.ticketId === selectedTicket.value.id)).map(w => ({
     workerId: w.id,
     workerName: w.name,
-    ticketId: w.assignedTicket,
-    implementationDate: w.implementationDate,
+    ticketId: selectedTicket.value.id,
+    implementationDate: w.assignedTicket === selectedTicket.value.id ? w.implementationDate : (w.nextAssignment ? w.nextAssignment.date : null),
   }));
 });
 
@@ -705,7 +701,7 @@ const assignWorker = (worker) => {
 };
 
 const removeAssignment = (assign) => {
-  store.unassignWorker(assign.workerId);
+  store.unassignWorker(assign.workerId, assign.ticketId);
   toast.info(`Removed assignment for ${assign.workerName}`);
 };
 
@@ -726,9 +722,9 @@ const dispatchAll = async () => {
   
   try {
     for (const assign of currentAssignments.value) {
-      // If not yet dispatched to DB (assume worker status Available)
+      // If not yet dispatched to DB (assume worker status Available or they are just queued for next)
       const worker = store.personnel.find(w => w.id === assign.workerId);
-      if (worker && worker.status === 'Available') {
+      if (worker && (worker.status === 'Available' || worker.status === 'Working' || worker.assignedTicket)) {
          await api.post('dispatch/assign', {
            ticket_id: selectedTicket.value.id,
            personnel_id: assign.workerId,

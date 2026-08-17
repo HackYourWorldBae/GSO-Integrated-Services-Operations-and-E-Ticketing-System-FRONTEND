@@ -30,7 +30,12 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
           implementationDate: p.implementation_date || null,
           nextAssignmentId: p.next_assignment_id || null,
           nextIsProject: Boolean(p.next_is_project || (p.next_assignment_id && String(p.next_assignment_id).includes('-PRJ-'))),
-          nextTicketTask: p.next_ticket_task || null
+          nextTicketTask: p.next_ticket_task || null,
+          nextAssignment: p.next_assignment_id ? {
+            ticketId: p.next_assignment_id,
+            task: p.next_ticket_task || 'Janitorial & Landscaping Work',
+            date: 'Scheduled Next'
+          } : null
         }));
       } else {
         personnel.value = [];
@@ -102,17 +107,49 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
   const assignWorker = (workerId, ticketId, implementationDate, ticketTask = 'Janitorial & Landscaping Work') => {
     const worker = personnel.value.find(w => w.id === workerId);
     if (!worker) return;
-    worker.assignedTicket = ticketId;
-    worker.ticketTask = ticketTask;
-    worker.implementationDate = implementationDate;
+    
+    if (worker.assignedTicket || worker.status === 'Working') {
+      worker.nextAssignmentId = ticketId;
+      worker.nextTicketTask = ticketTask;
+      worker.nextAssignment = {
+        ticketId: ticketId,
+        task: ticketTask,
+        date: implementationDate
+      };
+    } else {
+      worker.assignedTicket = ticketId;
+      worker.ticketTask = ticketTask;
+      worker.implementationDate = implementationDate;
+    }
   };
 
-  const unassignWorker = (workerId) => {
+  const unassignWorker = (workerId, ticketId) => {
     const worker = personnel.value.find(w => w.id === workerId);
     if (!worker) return;
-    worker.assignedTicket = null;
-    worker.ticketTask = null;
-    worker.implementationDate = null;
+    
+    if (worker.assignedTicket === ticketId) {
+      worker.assignedTicket = null;
+      worker.ticketTask = null;
+      worker.implementationDate = null;
+      
+      if (worker.nextAssignment) {
+        worker.assignedTicket = worker.nextAssignment.ticketId;
+        worker.ticketTask = worker.nextAssignment.task;
+        worker.implementationDate = worker.nextAssignment.date;
+        worker.nextAssignment = null;
+        worker.nextAssignmentId = null;
+        worker.nextTicketTask = null;
+      }
+    } else if (worker.nextAssignment && worker.nextAssignment.ticketId === ticketId) {
+      worker.nextAssignment = null;
+      worker.nextAssignmentId = null;
+      worker.nextTicketTask = null;
+    } else {
+      // Fallback
+      worker.assignedTicket = null;
+      worker.ticketTask = null;
+      worker.implementationDate = null;
+    }
   };
 
   const updateTicketDate = (ticketId, date) => {
