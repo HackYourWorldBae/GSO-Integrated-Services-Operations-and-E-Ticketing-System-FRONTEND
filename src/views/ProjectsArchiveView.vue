@@ -178,7 +178,7 @@
               <div class="flex items-start gap-2.5 flex-wrap px-5 py-3">
                 <div class="flex flex-col gap-0.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex-1 min-w-[120px]">
                   <span class="text-[0.58rem] font-black uppercase tracking-widest text-slate-500">Actual Start</span>
-                  <span class="text-sm font-black text-slate-900">{{ formatDate(project.project_actual_start || project.assignment?.dispatched_at || project.assignment?.implementation_date || project.project_target_date) }}</span>
+                  <span class="text-sm font-black text-slate-900">{{ formatDate(project.project_actual_start || project.assignment?.implementation_date || project.assignment?.dispatched_at || project.project_target_date) }}</span>
                 </div>
                 <div class="flex flex-col gap-0.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex-1 min-w-[120px]">
                   <span class="text-[0.58rem] font-black uppercase tracking-widest text-slate-500">Actual Completion</span>
