@@ -104,12 +104,16 @@
                 </div>
 
                 <!-- Content Grid for Mobile, Flex for Desktop -->
-                <div class="grid grid-cols-2 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
+                  <div class="flex flex-col flex-1 min-w-0">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ticket Title</span>
+                    <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}</span>
+                  </div>
                   <div class="flex flex-col min-w-[130px]">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Implement Date</span>
                     <span class="text-sm font-bold text-slate-800">{{ formatDate(ticket.assignment?.implementation_date) }}</span>
                   </div>
-                  <div class="flex flex-col flex-1 min-w-0">
+                  <div class="flex flex-col min-w-[130px]">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Worker</span>
                     <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
                   </div>
@@ -195,12 +199,16 @@
                 </div>
 
                 <!-- Content Grid for Mobile, Flex for Desktop -->
-                <div class="grid grid-cols-2 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
+                  <div class="flex flex-col flex-1 min-w-0">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ticket Title</span>
+                    <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}</span>
+                  </div>
                   <div class="flex flex-col min-w-[130px]">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Started</span>
                     <span class="text-sm font-bold text-slate-800">{{ formatDate(ticket.assignment?.dispatched_at || ticket.assignment?.implementation_date) }}</span>
                   </div>
-                  <div class="flex flex-col flex-1 min-w-0">
+                  <div class="flex flex-col min-w-[130px]">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Worker</span>
                     <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
                   </div>
