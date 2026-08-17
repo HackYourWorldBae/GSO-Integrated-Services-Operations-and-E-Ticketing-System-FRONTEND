@@ -197,7 +197,7 @@
             <div class="bg-slate-900 p-8 text-white flex justify-between items-end border-b-4 border-emerald-500 relative">
               <div>
                 <span class="px-3 py-1 bg-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-3 inline-block">Project Details</span>
-                <h3 class="text-3xl font-black tracking-tighter">Office Project <span class="text-emerald-500">({{ formatProjectNumber ? formatProjectNumber(selectedTicket.id) : selectedTicket.id }})</span></h3>
+                <h3 class="text-3xl font-black tracking-tighter">{{ selectedTicket.type }} <span class="text-emerald-500">({{ formatProjectNumber ? formatProjectNumber(selectedTicket.id) : selectedTicket.id }})</span></h3>
                 <p class="text-slate-400 mt-1 font-bold">Published on {{ selectedTicket.submittedAt }}</p>
               </div>
               <button @click="showTicketModal = false" class="absolute top-6 right-8 text-slate-400 hover:text-white transition-colors">
@@ -363,7 +363,7 @@ const fetchDispatchQueue = async () => {
     if (response.data?.data?.tickets) {
       tickets.value = response.data.data.tickets.map(t => ({
         id: t.id,
-        type: t.service_type,
+        type: t.project_title || t.service_type,
         requester: t.details?.requesting_personnel || 'End User',
         location: t.location,
         college_building: t.details?.college_building || t.location,
