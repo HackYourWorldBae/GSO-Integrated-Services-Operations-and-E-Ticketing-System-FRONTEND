@@ -120,13 +120,13 @@
           <p>There are currently no completed projects matching your filter criteria.</p>
         </div>
 
-        <div v-else class="project-grid">
+        <div v-else class="space-y-4">
           <div v-for="(project, index) in filteredProjects" :key="project.id"
-               class="bg-white rounded-[1.5rem] border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group h-full"
+               class="flex bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all group opacity-80 hover:opacity-100"
                :style="{ animationDelay: `${index * 80}ms` }">
-            
-            <!-- Banner top -->
-            <div class="h-28 relative overflow-hidden flex items-center px-5 gap-3" 
+
+            <!-- Left: colored banner column -->
+            <div class="relative flex-shrink-0 w-28 flex flex-col items-center justify-center gap-2 py-5 px-2 overflow-hidden text-center"
                  style="background: linear-gradient(175deg, #1e293b 0%, #334155 60%, #0f172a 100%)">
               <!-- Stripe pattern -->
               <div class="absolute inset-0 pointer-events-none" style="background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,0.04) 0px,rgba(255,255,255,0.04) 1px,transparent 1px,transparent 10px)"></div>
