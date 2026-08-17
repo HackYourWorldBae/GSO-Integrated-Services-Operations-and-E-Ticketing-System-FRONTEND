@@ -149,7 +149,12 @@
                   </div>
 
                   <!-- Title -->
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight mb-2">{{ ticket.service }}</h3>
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight mb-2">{{ ticket.title || ticket.service }}</h3>
+
+                  <!-- Categories / Service Type -->
+                  <div class="flex flex-wrap gap-1.5 mb-2" v-if="ticket.title && ticket.title !== ticket.service">
+                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider border border-slate-200">{{ ticket.service }}</span>
+                  </div>
 
                   <!-- Description -->
                   <p v-if="ticket.description" class="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-3">{{ ticket.description }}</p>
@@ -370,7 +375,12 @@
                       </svg>
                     </div>
                     <div>
-                      <h3 class="text-lg font-black text-slate-900 leading-tight">{{ selectedTicket.service }}</h3>
+                      <h3 class="text-lg font-black text-slate-900 leading-tight">{{ selectedTicket.title || selectedTicket.service }}</h3>
+                      
+                      <!-- Categories / Service Type in Modal -->
+                      <div class="flex flex-wrap gap-1.5 mt-2" v-if="selectedTicket.title && selectedTicket.title !== selectedTicket.service">
+                        <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider border border-slate-200">{{ selectedTicket.service }}</span>
+                      </div>
                       <div class="flex items-center gap-2 mt-1.5 flex-wrap">
                         <span class="text-xs font-mono font-bold text-slate-400">#{{ selectedTicket.ticketId }}</span>
                         <span class="text-slate-300">·</span>
@@ -748,6 +758,7 @@ const fetchTickets = async () => {
       tickets.value = response.data.data.tickets.map(t => ({
         id: t.id,
         ticketId: t.id,
+        title: t.title,
         service: t.service_type,
         unit: t.unit_code,
         description: t.description,

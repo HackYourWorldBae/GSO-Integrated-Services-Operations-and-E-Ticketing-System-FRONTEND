@@ -345,6 +345,7 @@ const fetchDashboardData = async () => {
     if (activeRes.data?.data?.tickets) {
       userTickets.value = activeRes.data.data.tickets.map(t => ({
         ticketId: t.id,
+        title: t.title,
         service: t.service_type,
         status: t.status,
         statusLabel: t.status_label,
@@ -356,6 +357,7 @@ const fetchDashboardData = async () => {
     if (completedRes.data?.data?.tickets) {
       completedTickets.value = completedRes.data.data.tickets.map(t => ({
         ticketId: t.id,
+        title: t.title,
         service: t.service_type,
         status: t.status,
         statusLabel: t.status_label,

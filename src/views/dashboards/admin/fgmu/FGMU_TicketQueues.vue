@@ -64,7 +64,7 @@
                 <div class="space-y-3 w-full">
                   <div class="flex items-center justify-between w-full">
                     <div class="flex items-center gap-3">
-                      <h3 class="text-lg font-black text-slate-900">{{ ticket.service }}</h3>
+                      <h3 class="text-lg font-black text-slate-900">{{ ticket.title || ticket.service }}</h3>
                       <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-amber-50 text-amber-600 border-amber-200">
                         {{ ticket.statusLabel }}
                       </span>
@@ -218,6 +218,7 @@ const fetchQueue = async () => {
       tickets.value = response.data.data.tickets.map(t => ({
         id: t.id,
         ticketId: t.id,
+        title: t.title,
         service: t.service_type,
         description: t.description,
         date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),

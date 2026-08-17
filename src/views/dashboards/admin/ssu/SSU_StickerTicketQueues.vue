@@ -113,7 +113,7 @@
                 <div class="space-y-4 w-full min-w-0">
                   <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full">
                     <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                      <h4 class="text-lg sm:text-xl font-black text-slate-900 break-words">{{ ticket.service }}</h4>
+                      <h4 class="text-lg sm:text-xl font-black text-slate-900 break-words">{{ ticket.title || ticket.service }}</h4>
                       <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap bg-amber-50 text-amber-600 border-amber-200">
                         {{ ticket.statusLabel }}
                       </span>
@@ -233,7 +233,7 @@
                   <div class="space-y-4 w-full min-w-0">
                     <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full">
                       <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <h4 class="text-lg sm:text-xl font-black text-slate-900 break-words">{{ ticket.service }}</h4>
+                        <h4 class="text-lg sm:text-xl font-black text-slate-900 break-words">{{ ticket.title || ticket.service }}</h4>
                         <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap bg-emerald-50 text-emerald-600 border-emerald-200">
                           {{ ticket.statusLabel }}
                         </span>
@@ -389,6 +389,7 @@ const fetchQueue = async () => {
       tickets.value = allSsu.map(t => ({
         id: t.id,
         ticketId: t.id,
+        title: t.title,
         service: t.service_type,
         description: t.description,
         date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
@@ -408,6 +409,7 @@ const fetchQueue = async () => {
       verifiedTickets.value = allSsuVerified.map(t => ({
         id: t.id,
         ticketId: t.id,
+        title: t.title,
         service: t.service_type,
         description: t.description,
         date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),

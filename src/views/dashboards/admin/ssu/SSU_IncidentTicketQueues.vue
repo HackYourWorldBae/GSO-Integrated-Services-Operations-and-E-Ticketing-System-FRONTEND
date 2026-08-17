@@ -312,8 +312,9 @@ const declineReason  = ref('');
  */
 const mapTicket = (t) => ({
   id:                   t.id,
-  ticketId:             t.id,
-  service:              t.service_type,
+  ticketId: t.id,
+        title: t.title,
+        service: t.service_type,
   description:          t.description,
   date:                 new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
   requestedBy:          t.details?.reporter_name || 'Reporter',

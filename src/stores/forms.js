@@ -12,6 +12,7 @@ export const useFormsStore = defineStore('forms', () => {
       source_of_fund: '',
       end_user: '',
       contact_number: '',
+      ticket_title: '',
       job_description: ''
     },
     attachments: []
@@ -25,6 +26,7 @@ export const useFormsStore = defineStore('forms', () => {
       source_of_fund: '',
       end_user: '',
       contact_number: '',
+      ticket_title: '',
       job_description: ''
     },
     attachments: []
@@ -95,6 +97,7 @@ export const useFormsStore = defineStore('forms', () => {
         source_of_fund: '',
         end_user: '',
         contact_number: '',
+        ticket_title: '',
         job_description: ''
       },
       attachments: []
@@ -108,6 +111,7 @@ export const useFormsStore = defineStore('forms', () => {
         source_of_fund: '',
         end_user: '',
         contact_number: '',
+        ticket_title: '',
         job_description: ''
       },
       attachments: []
@@ -178,6 +182,7 @@ export const useFormsStore = defineStore('forms', () => {
       sectionA: {
         college_building: { required },
         office_room: { required },
+        ticket_title: { required },
         job_description: { required, minLength: minLength(10) }
       }
     },
@@ -185,6 +190,7 @@ export const useFormsStore = defineStore('forms', () => {
       sectionA: {
         college_building: { required },
         office_room: { required },
+        ticket_title: { required },
         job_description: { required, minLength: minLength(10) }
       }
     },

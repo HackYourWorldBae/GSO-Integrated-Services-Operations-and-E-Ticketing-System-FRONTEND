@@ -76,7 +76,7 @@
                     <span class="text-sm font-black text-slate-900">#{{ ticket.ticketId }}</span>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <span class="text-sm font-bold text-slate-900">{{ ticket.service }}</span>
+                    <span class="text-sm font-bold text-slate-900">{{ ticket.title || ticket.service }}</span>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
                     <span class="text-sm font-bold text-slate-700">{{ ticket.requestedBy }}</span>
@@ -153,7 +153,7 @@
               </div>
               <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.service }}</p>
+                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.title || selectedTicket.service }}</p>
               </div>
               <div class="col-span-2">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</p>
@@ -255,6 +255,7 @@ const fetchArchives = async () => {
       tickets.value = response.data.data.tickets.map(t => ({
         id: t.id,
         ticketId: t.id,
+        title: t.title,
         service: t.service_type,
         description: t.description,
         date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),

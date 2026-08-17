@@ -71,7 +71,7 @@
                     <span class="text-sm font-black text-slate-900">#{{ ticket.ticketId }}</span>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <span class="text-sm font-bold text-slate-900">{{ ticket.service }}</span>
+                    <span class="text-sm font-bold text-slate-900">{{ ticket.title || ticket.service }}</span>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
                     <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
@@ -145,7 +145,7 @@
               </div>
               <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.service }}</p>
+                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.title || selectedTicket.service }}</p>
               </div>
               <div class="col-span-2">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description / Job Particulars</p>
@@ -298,6 +298,7 @@ onMounted(async () => {
       tickets.value = response.data.data.tickets.map(t => ({
         id: t.id,
         ticketId: t.id,
+        title: t.title,
         service: t.service_type,
         unit: t.unit_code,
         description: t.description,
