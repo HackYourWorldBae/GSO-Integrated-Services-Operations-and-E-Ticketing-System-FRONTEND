@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { useVuelidate } from '@vuelidate/core';
 import { required, requiredIf, minLength } from '@vuelidate/validators';
 
