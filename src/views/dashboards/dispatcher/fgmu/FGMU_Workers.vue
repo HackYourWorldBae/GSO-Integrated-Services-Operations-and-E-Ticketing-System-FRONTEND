@@ -51,7 +51,7 @@
           </div>
           <div class="relative z-10 flex gap-4 md:items-center">
 
-            <button @click="openTicketModal(selectedTicket)" class="px-5 py-2.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-xl transition-colors shadow-sm self-center">{{ isProjectIdentifier(selectedTicket) ? 'Review Project' : 'Review Ticket' }}</button>
+            <button @click="openTicketModal(selectedTicket)" class="px-5 py-2.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-xl transition-colors shadow-sm self-center">{{ isProjectIdentifier(selectedTicket) ? 'Show Project Info' : 'Review Ticket' }}</button>
             <router-link to="/dispatcher/fgmu" class="p-3 bg-white hover:bg-slate-900 hover:text-white text-slate-600 rounded-xl transition-all shadow-sm border border-emerald-100 items-center justify-center flex self-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             </router-link>
@@ -403,59 +403,91 @@
       <div v-if="showTicketModal" class="absolute inset-0 z-[60] overflow-y-auto custom-scrollbar pointer-events-auto bg-slate-900/60 backdrop-blur-sm animate-fade-in">
         <div class="flex min-h-[100dvh] items-center justify-center p-4 md:p-8" @click.self="showTicketModal = false">
           <div class="bg-[#F8FAFC] w-full max-w-4xl h-fit rounded-[3rem] shadow-2xl overflow-hidden relative z-10 animate-scale-up border border-slate-200">
-            <div class="bg-slate-900 p-8 text-white flex justify-between items-end border-b-4 border-emerald-500 relative">
-              <div>
-                <span class="px-3 py-1 bg-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-3 inline-block">Ticket Details</span>
-                <h3 class="text-3xl font-black tracking-tighter">Facilities Request <span class="text-emerald-500">({{ modalTicket?.id }})</span></h3>
-                <p class="text-slate-400 mt-1 font-bold">Submitted on {{ modalTicket?.submittedAt }}</p>
+            <template v-if="isProjectIdentifier(modalTicket)">
+              <div class="bg-slate-900 p-8 text-white flex justify-between items-end border-b-4 border-emerald-500 relative">
+                <div>
+                  <span class="px-3 py-1 bg-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-3 inline-block">Project Details</span>
+                  <h3 class="text-3xl font-black tracking-tighter">Office Project <span class="text-emerald-500">({{ formatProjectNumber ? formatProjectNumber(modalTicket?.id) : modalTicket?.id }})</span></h3>
+                  <p class="text-slate-400 mt-1 font-bold">Published on {{ modalTicket?.submittedAt }}</p>
+                </div>
+                <button @click="showTicketModal = false" class="absolute top-6 right-8 text-slate-400 hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
               </div>
-              <button @click="showTicketModal = false" class="absolute top-6 right-8 text-slate-400 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <div class="p-10 space-y-10">
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="space-y-2">
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">College / Building</label>
-                  <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.college_building }}</p>
+              <div class="p-10 space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Project Title</label>
+                    <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.type }}</p>
+                  </div>
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Location</label>
+                    <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.location }}</p>
+                  </div>
                 </div>
-                <div class="space-y-2">
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Office / Room</label>
-                  <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.office_room }}</p>
-                </div>
-                <div class="space-y-2">
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Source of Fund</label>
-                  <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.source_of_fund }}</p>
-                </div>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-2">
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Requester Name</label>
-                  <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.requester }}</p>
-                </div>
-                <div class="space-y-2">
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact Number</label>
-                  <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.contact_number }}</p>
-                </div>
-              </div>
-              <div class="space-y-3">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Job Description / Particulars</label>
-                <div class="w-full px-8 py-6 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm text-sm font-bold text-slate-700 leading-relaxed italic min-h-[120px]">
-                  "{{ modalTicket?.job_description }}"
-                </div>
-              </div>
-              <div v-if="modalTicket?.attachments && modalTicket?.attachments.length > 0" class="space-y-4">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Submitted Attachments</label>
-                <div class="flex flex-wrap gap-3">
-                  <div v-for="file in modalTicket?.attachments" :key="file.id" @click="downloadAttachment(file)" class="px-5 py-3 bg-white border border-slate-100 rounded-2xl flex items-center gap-4 shadow-sm hover:border-emerald-500 transition-colors group cursor-pointer">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    </div>
-                    <span class="text-xs font-black text-slate-800">{{ file.file_name || 'Attachment' }}</span>
+                <div class="space-y-3">
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Project Description</label>
+                  <div class="w-full px-8 py-6 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm text-sm font-bold text-slate-700 leading-relaxed min-h-[120px]">
+                    {{ modalTicket?.job_description }}
                   </div>
                 </div>
               </div>
-            </div>
+            </template>
+            <template v-else>
+              <div class="bg-slate-900 p-8 text-white flex justify-between items-end border-b-4 border-emerald-500 relative">
+                <div>
+                  <span class="px-3 py-1 bg-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-3 inline-block">Ticket Details</span>
+                  <h3 class="text-3xl font-black tracking-tighter">Facilities Request <span class="text-emerald-500">({{ modalTicket?.id }})</span></h3>
+                  <p class="text-slate-400 mt-1 font-bold">Submitted on {{ modalTicket?.submittedAt }}</p>
+                </div>
+                <button @click="showTicketModal = false" class="absolute top-6 right-8 text-slate-400 hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+              <div class="p-10 space-y-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">College / Building</label>
+                    <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.college_building }}</p>
+                  </div>
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Office / Room</label>
+                    <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.office_room }}</p>
+                  </div>
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Source of Fund</label>
+                    <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.source_of_fund }}</p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Requester Name</label>
+                    <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.requester }}</p>
+                  </div>
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact Number</label>
+                    <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.contact_number }}</p>
+                  </div>
+                </div>
+                <div class="space-y-3">
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Job Description / Particulars</label>
+                  <div class="w-full px-8 py-6 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm text-sm font-bold text-slate-700 leading-relaxed italic min-h-[120px]">
+                    "{{ modalTicket?.job_description }}"
+                  </div>
+                </div>
+                <div v-if="modalTicket?.attachments && modalTicket?.attachments.length > 0" class="space-y-4">
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Submitted Attachments</label>
+                  <div class="flex flex-wrap gap-3">
+                    <div v-for="file in modalTicket?.attachments" :key="file.id" @click="downloadAttachment(file)" class="px-5 py-3 bg-white border border-slate-100 rounded-2xl flex items-center gap-4 shadow-sm hover:border-emerald-500 transition-colors group cursor-pointer">
+                      <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      </div>
+                      <span class="text-xs font-black text-slate-800">{{ file.file_name || 'Attachment' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
             <div class="p-8 bg-slate-50 border-t border-slate-100 flex justify-end">
               <button @click="showTicketModal = false" class="px-8 py-3 rounded-2xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg hover:shadow-emerald-600/20 active:scale-95">
                 Close Detail View
@@ -475,7 +507,7 @@ import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useFgmuPersonnelStore } from '@/stores/fgmuPersonnel';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
-import { formatTicketOrProjectLabel, isProjectIdentifier } from '@/utils/projectFormatter';
+import { formatTicketOrProjectLabel, isProjectIdentifier, formatProjectNumber } from '@/utils/projectFormatter';
 
 const downloadAttachment = async (att) => {
   try {
