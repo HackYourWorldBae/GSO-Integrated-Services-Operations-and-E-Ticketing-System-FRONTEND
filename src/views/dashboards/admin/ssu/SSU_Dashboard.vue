@@ -124,33 +124,7 @@
 
 
 
-          <!-- Service Request Frequency -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-2">
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
-              <h4 class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
-                <div class="w-2 h-6 bg-rose-500 rounded-full"></div>
-                Service Request Frequency
-              </h4>
-              <div class="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
-                <button
-                  v-for="filter in ssuPeriodFilters"
-                  :key="filter.key"
-                  @click="setSsuPeriod(filter.key)"
-                  :class="[
-                    'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all',
-                    ssuActivePeriod === filter.key
-                      ? 'bg-white text-rose-600 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-600'
-                  ]"
-                >
-                  {{ filter.label }}
-                </button>
-              </div>
-            </div>
-            <div class="relative h-64">
-              <canvas id="ssuServiceFreqChart"></canvas>
-            </div>
-          </div>
+          
 
         </div>
 
@@ -175,7 +149,7 @@ const ssuPeriodFilters = [
   { key: 'Year',  label: 'This Year' }
 ];
 
-let ssuServiceFreqChart = null;
+
 let charts = [];
 
 function setSsuPeriod(period) {
@@ -184,7 +158,7 @@ function setSsuPeriod(period) {
     const data = stats.value.service_freq[period] || [];
     ssuServiceFreqChart.data.labels = data.map(d => d.service_type);
     ssuServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
-    ssuServiceFreqChart.update();
+    
   }
 }
 
@@ -260,28 +234,7 @@ const renderCharts = () => {
     }));
   }
 
-  // 5. Service Request Frequency
-  const freqCtx = document.getElementById('fgmuServiceFreqChart') || 
-                  document.getElementById('leauServiceFreqChart') || 
-                  document.getElementById('ssuServiceFreqChart') || 
-                  document.getElementById('tasuServiceFreqChart');
-  if (freqCtx && stats.value.service_freq) {
-    const initData = stats.value.service_freq[ssuActivePeriod.value] || [];
-    ssuServiceFreqChart = new Chart(freqCtx, {
-      type: 'bar',
-      data: {
-        labels: initData.map(d => d.service_type),
-        datasets: [{
-          label: 'Requests',
-          data: initData.map(d => parseInt(d.count)),
-          backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'],
-          borderRadius: 8
-        }]
-      },
-      options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
-    });
-    charts.push(ssuServiceFreqChart);
-  }
+  
 };
 
 const fetchStats = async () => {

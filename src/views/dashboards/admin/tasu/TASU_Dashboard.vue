@@ -148,33 +148,7 @@
             </div>
           </div>
 
-          <!-- Service Request Frequency -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-2">
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
-              <h4 class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
-                <div class="w-2 h-6 bg-blue-500 rounded-full"></div>
-                Service Request Frequency
-              </h4>
-              <div class="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
-                <button
-                  v-for="filter in tasuPeriodFilters"
-                  :key="filter.key"
-                  @click="setTasuPeriod(filter.key)"
-                  :class="[
-                    'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all',
-                    tasuActivePeriod === filter.key
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-600'
-                  ]"
-                >
-                  {{ filter.label }}
-                </button>
-              </div>
-            </div>
-            <div class="relative h-64">
-              <canvas id="tasuServiceFreqChart"></canvas>
-            </div>
-          </div>
+          
 
         </div>
 
@@ -199,7 +173,7 @@ const tasuPeriodFilters = [
   { key: 'Year',  label: 'This Year' }
 ];
 
-let tasuServiceFreqChart = null;
+
 let charts = [];
 
 function setTasuPeriod(period) {
@@ -208,7 +182,7 @@ function setTasuPeriod(period) {
     const data = stats.value.service_freq[period] || [];
     tasuServiceFreqChart.data.labels = data.map(d => d.service_type);
     tasuServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
-    tasuServiceFreqChart.update();
+    
   }
 }
 
@@ -324,28 +298,7 @@ const renderCharts = () => {
     }));
   }
 
-  // 5. Service Request Frequency
-  const freqCtx = document.getElementById('fgmuServiceFreqChart') || 
-                  document.getElementById('leauServiceFreqChart') || 
-                  document.getElementById('ssuServiceFreqChart') || 
-                  document.getElementById('tasuServiceFreqChart');
-  if (freqCtx && stats.value.service_freq) {
-    const initData = stats.value.service_freq[tasuActivePeriod.value] || [];
-    tasuServiceFreqChart = new Chart(freqCtx, {
-      type: 'bar',
-      data: {
-        labels: initData.map(d => d.service_type),
-        datasets: [{
-          label: 'Requests',
-          data: initData.map(d => parseInt(d.count)),
-          backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'],
-          borderRadius: 8
-        }]
-      },
-      options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
-    });
-    charts.push(tasuServiceFreqChart);
-  }
+  
 };
 
 const fetchStats = async () => {
