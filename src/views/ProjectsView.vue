@@ -107,11 +107,6 @@
             <span class="stat-value">{{ upcomingProjects.length }}</span>
             <span class="stat-label">Upcoming Projects</span>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">{{ projects.length }}</span>
-            <span class="stat-label">Total Announced</span>
-          </div>
         </div>
       </div>
     </section>
@@ -351,27 +346,13 @@ const fetchProjects = async () => {
   }
 };
 
-// Determine active vs upcoming by comparing target date to today
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-// Override: use target date to split: future date = upcoming, past/today/no date = active
+// Separate by project status
 const activeProjects = computed(() =>
-  projects.value.filter(p => {
-    if (!p.project_target_date) return true;
-    const d = new Date(p.project_target_date);
-    d.setHours(0,0,0,0);
-    return d <= today;
-  })
+  projects.value.filter(p => p.status === 'processing')
 );
 
 const upcomingProjects = computed(() =>
-  projects.value.filter(p => {
-    if (!p.project_target_date) return false;
-    const d = new Date(p.project_target_date);
-    d.setHours(0,0,0,0);
-    return d > today;
-  })
+  projects.value.filter(p => p.status === 'pending' || p.status === 'approved')
 );
 
 const formatDate = (d) => {

@@ -90,16 +90,6 @@
             <span class="stat-value">{{ projects.length }}</span>
             <span class="stat-label">Completed Projects</span>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">{{ fgmuCount }}</span>
-            <span class="stat-label">FGMU Projects</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">{{ leauCount }}</span>
-            <span class="stat-label">LEAU Projects</span>
-          </div>
         </div>
       </div>
     </section>
@@ -112,11 +102,6 @@
           <div class="section-title-group">
             <h2 class="section-title">Project Archives</h2>
             <p class="section-subtitle">Past facility and grounds projects that have been successfully completed by the General Services Office.</p>
-          </div>
-          <div class="filter-pills">
-            <button @click="filter = 'ALL'" :class="['filter-pill', filter === 'ALL' ? 'filter-pill--active' : '']">All</button>
-            <button @click="filter = 'FGMU'" :class="['filter-pill', filter === 'FGMU' ? 'filter-pill--active' : '']">Facilities (FGMU)</button>
-            <button @click="filter = 'LEAU'" :class="['filter-pill', filter === 'LEAU' ? 'filter-pill--active' : '']">Grounds (LEAU)</button>
           </div>
         </div>
 
@@ -272,7 +257,6 @@ import { formatProjectNumber } from '@/utils/projectFormatter';
 
 const router = useRouter();
 const isMobileMenuOpen = ref(false);
-const filter = ref('ALL');
 const projects = ref([]);
 const loading = ref(true);
 
@@ -291,15 +275,7 @@ const fetchProjects = async () => {
   }
 };
 
-const filteredProjects = computed(() => {
-  if (filter.value === 'ALL') return projects.value;
-  if (filter.value === 'FGMU') return projects.value.filter(p => Number(p.unit_id) === 1);
-  if (filter.value === 'LEAU') return projects.value.filter(p => Number(p.unit_id) === 2);
-  return projects.value;
-});
-
-const fgmuCount = computed(() => projects.value.filter(p => Number(p.unit_id) === 1).length);
-const leauCount = computed(() => projects.value.filter(p => Number(p.unit_id) === 2).length);
+const filteredProjects = computed(() => projects.value);
 
 const formatDate = (d) => {
   if (!d) return 'N/A';
