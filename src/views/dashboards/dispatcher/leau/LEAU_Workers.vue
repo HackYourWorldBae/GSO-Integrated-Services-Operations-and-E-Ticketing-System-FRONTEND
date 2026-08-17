@@ -616,7 +616,8 @@ const assignWorker = (worker) => {
     return;
   }
   const dateStr = new Date(selectedTicket.value.implementationDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  store.assignWorker(worker.id, selectedTicket.value.id, dateStr);
+  const taskDesc = selectedTicket.value.type;
+  store.assignWorker(worker.id, selectedTicket.value.id, dateStr, taskDesc);
   toast.success(`${worker.name} assigned to ${formatTicketOrProjectLabel(selectedTicket.value.id)}`);
 };
 
@@ -641,7 +642,7 @@ const dispatchAll = async () => {
            personnel_id: assign.workerId,
            implementation_date: selectedTicket.value.implementationDate,
            working_days: Number(workingDays.value),
-           task_notes: isProjectIdentifier(selectedTicket.value) ? (selectedTicket.value.type || 'Office Project Work') : (`${selectedTicket.value.type} Work` || 'Janitorial & Landscaping Work')
+           task_notes: isProjectIdentifier(selectedTicket.value) ? (selectedTicket.value.type || 'Office Project Work') : (selectedTicket.value.type || 'Janitorial & Landscaping Work')
          });
       }
     }
