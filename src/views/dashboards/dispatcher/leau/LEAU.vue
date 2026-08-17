@@ -370,7 +370,9 @@ const fetchDispatchQueue = async () => {
     if (response.data?.data?.tickets) {
       tickets.value = response.data.data.tickets.map(t => ({
         id: t.id,
-        type: t.project_title || t.service_type,
+        title: t.title,
+        service: t.service_type,
+        type: t.title || t.project_title || t.service_type,
         requester: t.details?.requesting_personnel || 'End User',
         location: t.location,
         college_building: t.details?.college_building || t.location,

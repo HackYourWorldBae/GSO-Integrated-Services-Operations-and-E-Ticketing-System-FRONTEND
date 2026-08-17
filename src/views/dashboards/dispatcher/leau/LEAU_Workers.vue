@@ -486,7 +486,9 @@ const toggleTicketExtension = async (workerId, ticketId) => {
           const t = response.data.data.ticket;
           fetchedTicketDetails.value[ticketId] = {
             id: t.id,
-            type: t.project_title || t.service_type || t.type || 'Landscaping Task',
+            title: t.title,
+            service: t.service_type,
+            type: t.title || t.project_title || t.service_type || t.type || 'Landscaping Task',
             location: t.location,
             requester: isProjectIdentifier(ticketId) ? t.project_target_duration || 'Ongoing' : (t.details?.requesting_personnel || 'End User'),
             date: isProjectIdentifier(ticketId) ? (t.project_target_date ? new Date(t.project_target_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'To be scheduled') : new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
@@ -569,7 +571,9 @@ onMounted(async () => {
         const t = response.data.data.ticket;
         selectedTicket.value = {
           id: t.id,
-          type: t.project_title || t.service_type || t.type,
+          title: t.title,
+          service: t.service_type,
+          type: t.title || t.project_title || t.service_type || t.type,
           location: t.location,
           requester: t.details?.requesting_personnel || 'End User',
           status: t.status === 'approved' ? 'Pending' : t.status,

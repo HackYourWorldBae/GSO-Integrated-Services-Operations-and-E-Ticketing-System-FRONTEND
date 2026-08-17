@@ -98,6 +98,10 @@
                     </div>
 
                     <div class="col-span-2 p-4 bg-white border border-slate-100 rounded-xl shadow-sm mt-1">
+                      <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nature of Work</p>
+                      <p class="text-xs font-medium text-slate-700 leading-relaxed">{{ ticket.service || selectedTicket?.service }}</p>
+                    </div>
+                    <div class="col-span-2 p-4 bg-white border border-slate-100 rounded-xl shadow-sm mt-1">
                       <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Job Particulars</p>
                       <p class="text-xs font-medium text-slate-600 leading-relaxed italic">"{{ ticket.description }}"</p>
                     </div>

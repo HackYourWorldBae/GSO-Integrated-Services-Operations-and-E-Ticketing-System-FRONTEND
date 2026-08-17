@@ -496,7 +496,9 @@ const toggleTicketExtension = async (workerId, ticketId) => {
         if (t) {
           fetchedTicketDetails.value[ticketId] = {
             id: t.id,
-            type: t.service_type || t.type || 'Facilities Task',
+            title: t.title,
+            service: t.service_type,
+            type: t.title || t.service_type || t.type || 'Facilities Task',
             location: t.location,
             requester: isProjectIdentifier(ticketId) ? t.project_target_duration || 'Ongoing' : (t.details?.requesting_personnel || 'End User'),
             date: isProjectIdentifier(ticketId) ? (t.project_target_date ? new Date(t.project_target_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'To be scheduled') : new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
