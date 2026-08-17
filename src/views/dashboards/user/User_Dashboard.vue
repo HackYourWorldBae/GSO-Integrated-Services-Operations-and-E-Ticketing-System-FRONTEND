@@ -145,7 +145,7 @@
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
                   <p class="text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition-colors truncate">
-                    {{ update.service }}
+                    {{ update.title || update.service }}
                   </p>
                   <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border" :class="getStatusBadge(update.status)">
                     <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(update.status)"></span>
@@ -257,6 +257,7 @@ const recentUpdates = computed(() => {
   const all = [...userTickets.value];
   return all.slice(-6).reverse().map(t => ({
     ticketId: t.ticketId,
+    title: t.title,
     service: t.service,
     unit: t.unit,
     description: `Status is ${t.statusLabel || t.status}`,
