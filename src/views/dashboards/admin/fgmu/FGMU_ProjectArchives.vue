@@ -125,13 +125,11 @@
               <div class="flex items-start gap-2.5 flex-wrap px-5 py-3">
                 <div class="flex flex-col gap-0.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex-1 min-w-[120px]">
                   <span class="text-[0.58rem] font-black uppercase tracking-widest text-slate-500">Actual Start</span>
-                  <span v-if="project.project_actual_start" class="text-sm font-black text-slate-900">{{ formatDate(project.project_actual_start) }}</span>
-                  <span v-else class="text-sm font-semibold italic text-slate-400">N/A</span>
+                  <span class="text-sm font-black text-slate-900">{{ formatDate(project.project_actual_start || project.assignment?.dispatched_at || project.assignment?.implementation_date || project.project_target_date) }}</span>
                 </div>
                 <div class="flex flex-col gap-0.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex-1 min-w-[120px]">
                   <span class="text-[0.58rem] font-black uppercase tracking-widest text-slate-500">Actual Completion</span>
-                  <span v-if="project.project_actual_completion" class="text-sm font-black text-slate-900">{{ formatDate(project.project_actual_completion) }}</span>
-                  <span v-else class="text-sm font-semibold italic text-slate-400">N/A</span>
+                  <span class="text-sm font-black text-slate-900">{{ formatDate(project.project_actual_completion || project.completed_at || project.updated_at) }}</span>
                 </div>
                 <div v-if="project.project_remarks" class="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-r-xl px-3 py-2 flex-[2] min-w-[200px] italic leading-relaxed">
                   <span class="font-black not-italic">REMARKS: </span>{{ project.project_remarks }}

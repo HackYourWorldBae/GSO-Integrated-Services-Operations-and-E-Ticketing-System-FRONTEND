@@ -138,11 +138,11 @@
               </div>
 
               <div class="flex items-center justify-between px-5 py-2 mt-auto text-[0.6rem] font-extrabold uppercase tracking-widest" 
-                   :style="project.status === 'processing' ? 'background:#78350f;color:rgba(255,255,255,0.7)' : (['resolved', 'closed', 'completed'].includes(project.status) ? 'background:#1e293b;color:rgba(255,255,255,0.7)' : 'background:#1e3a8a;color:rgba(255,255,255,0.7)')">
+                   :style="(project.status === 'processing' && project.current_step >= 5) ? 'background:#78350f;color:rgba(255,255,255,0.7)' : (['resolved', 'closed', 'completed'].includes(project.status) ? 'background:#1e293b;color:rgba(255,255,255,0.7)' : 'background:#1e3a8a;color:rgba(255,255,255,0.7)')">
                 <span class="flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full" 
-                        :class="project.status === 'processing' ? 'bg-amber-400 shadow-[0_0_5px_#fbbf24] animate-pulse' : (['resolved', 'closed', 'completed'].includes(project.status) ? 'bg-slate-400' : 'bg-blue-400 shadow-[0_0_5px_#60a5fa] animate-pulse')"></span>
-                  {{ project.status === 'processing' ? 'Active Notice' : (['resolved', 'closed', 'completed'].includes(project.status) ? 'Completed Notice' : 'Upcoming Notice') }}
+                        :class="(project.status === 'processing' && project.current_step >= 5) ? 'bg-amber-400 shadow-[0_0_5px_#fbbf24] animate-pulse' : (['resolved', 'closed', 'completed'].includes(project.status) ? 'bg-slate-400' : 'bg-blue-400 shadow-[0_0_5px_#60a5fa] animate-pulse')"></span>
+                  {{ (project.status === 'processing' && project.current_step >= 5) ? 'Active Notice' : (['resolved', 'closed', 'completed'].includes(project.status) ? 'Completed Notice' : 'Upcoming Notice') }}
                 </span>
                 <span style="color:rgba(255,255,255,0.4);font-weight:600">BSU — General Services Office</span>
                 <span style="color:rgba(255,255,255,0.9)">Official Announcement</span>
