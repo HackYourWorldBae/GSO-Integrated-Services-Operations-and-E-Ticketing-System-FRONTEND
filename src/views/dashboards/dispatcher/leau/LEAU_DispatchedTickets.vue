@@ -101,7 +101,7 @@
                 <div class="grid grid-cols-2 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
                   <div class="flex flex-col min-w-[130px]">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Implement Date</span>
-                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
+                    <span class="text-sm font-bold text-slate-800">{{ formatDate(ticket.assignment?.implementation_date) }}</span>
                   </div>
                   <div class="flex flex-col flex-1 min-w-0">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Worker</span>
@@ -144,7 +144,7 @@
                 </div>
                 <div>
                   <h3 class="text-xl font-black text-white tracking-tight">Actively Performed Tickets</h3>
-                  <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Duration updates every hour</p>
+                  <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Duration updates every minute</p>
                 </div>
               </div>
               <div class="flex items-center self-start sm:self-auto gap-2 px-4 py-2 bg-emerald-500/15 rounded-2xl border border-emerald-500/25 backdrop-blur-sm">
@@ -192,7 +192,7 @@
                 <div class="grid grid-cols-2 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
                   <div class="flex flex-col min-w-[130px]">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Started</span>
-                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
+                    <span class="text-sm font-bold text-slate-800">{{ formatDate(ticket.assignment?.dispatched_at || ticket.assignment?.implementation_date) }}</span>
                   </div>
                   <div class="flex flex-col flex-1 min-w-0">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Worker</span>
@@ -317,9 +317,16 @@ const fetchTickets = async () => {
   }
 };
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return 'N/A';
+  const parsed = new Date(dateStr.replace(' ', 'T') + 'Z');
+  if (isNaN(parsed.getTime())) return dateStr;
+  return parsed.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+};
+
 /**
  * Recomputes the elapsed duration for every active ticket and writes it into
- * the liveDurations map. Called once on mount, then every hour.
+ * the liveDurations map. Called once on mount, then every minute.
  */
 const refreshDurations = () => {
   for (const ticket of activeTickets.value) {
@@ -394,7 +401,7 @@ const computeDuration = (assignment) => {
   if (!startRaw) return null;
 
   // Append 'Z' to treat the backend Y-m-d H:i:s string as UTC
-  const startStr = startRaw.replace(' ', 'T'); // Parsed as local time
+  const startStr = startRaw.replace(' ', 'T') + 'Z'; 
   const startDate = new Date(startStr);
   if (isNaN(startDate.getTime())) return null;
 
