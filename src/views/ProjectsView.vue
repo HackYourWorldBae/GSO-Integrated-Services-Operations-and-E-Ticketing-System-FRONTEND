@@ -213,8 +213,8 @@
                   <!-- Seal footer strip -->
                   <div class="row-seal-footer" :class="Number(project.unit_id) === 1 ? 'seal-footer--fgmu' : 'seal-footer--leau'">
                     <span class="seal-footer-left">
-                      <span class="seal-dot" :style="project.status === 'processing' ? 'background:#4ade80;box-shadow:0 0 5px #4ade80' : 'background:#60a5fa;box-shadow:0 0 5px #60a5fa'"></span> 
-                      {{ project.status === 'processing' ? 'Active Notice' : 'Upcoming Notice' }}
+                      <span class="seal-dot" :style="(project.status === 'processing' && project.current_step >= 5) ? 'background:#4ade80;box-shadow:0 0 5px #4ade80' : 'background:#60a5fa;box-shadow:0 0 5px #60a5fa'"></span> 
+                      {{ (project.status === 'processing' && project.current_step >= 5) ? 'Active Notice' : 'Upcoming Notice' }}
                     </span>
                     <span class="seal-footer-center">BSU — General Services Office</span>
                     <span class="seal-footer-right">Official Announcement</span>
@@ -289,8 +289,8 @@
                   </div>
                   <div class="row-seal-footer" :class="Number(project.unit_id) === 1 ? 'seal-footer--fgmu' : 'seal-footer--leau'" style="opacity:0.7">
                     <span class="seal-footer-left">
-                      <span class="seal-dot" :style="project.status === 'processing' ? 'background:#4ade80;box-shadow:0 0 5px #4ade80' : 'background:#60a5fa;box-shadow:0 0 5px #60a5fa'"></span> 
-                      {{ project.status === 'processing' ? 'Active Notice' : 'Upcoming Notice' }}
+                      <span class="seal-dot" :style="(project.status === 'processing' && project.current_step >= 5) ? 'background:#4ade80;box-shadow:0 0 5px #4ade80' : 'background:#60a5fa;box-shadow:0 0 5px #60a5fa'"></span> 
+                      {{ (project.status === 'processing' && project.current_step >= 5) ? 'Active Notice' : 'Upcoming Notice' }}
                     </span>
                     <span class="seal-footer-center">BSU — General Services Office</span>
                     <span class="seal-footer-right">Official Announcement</span>
@@ -354,11 +354,11 @@ const fetchProjects = async () => {
 
 // Separate by project status
 const activeProjects = computed(() =>
-  projects.value.filter(p => p.status === 'processing')
+  projects.value.filter(p => p.status === 'processing' && p.current_step >= 5)
 );
 
 const upcomingProjects = computed(() =>
-  projects.value.filter(p => p.status === 'pending' || p.status === 'approved')
+  projects.value.filter(p => p.status === 'pending' || p.status === 'approved' || (p.status === 'processing' && p.current_step < 5))
 );
 
 const formatDate = (d) => {
