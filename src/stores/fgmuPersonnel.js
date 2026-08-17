@@ -27,14 +27,14 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
           isProject: Boolean(p.is_project || (p.assigned_ticket_id && String(p.assigned_ticket_id).includes('-PRJ-'))),
           projectTitle: p.project_title || null,
           ticketTask: p.ticket_task || null,
-          implementationDate: p.implementation_date || null,
+          implementationDate: p.implementation_date ? new Date(p.implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null,
           nextAssignmentId: p.next_assignment_id || null,
           nextIsProject: Boolean(p.next_is_project || (p.next_assignment_id && String(p.next_assignment_id).includes('-PRJ-'))),
           nextTicketTask: p.next_ticket_task || null,
           nextAssignment: p.next_assignment_id ? {
             ticketId: p.next_assignment_id,
             task: p.next_ticket_task || 'Facilities Maintenance Work',
-            date: 'Scheduled Next'
+            date: p.next_implementation_date ? new Date(p.next_implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Scheduled Next'
           } : null
         }));
       } else {

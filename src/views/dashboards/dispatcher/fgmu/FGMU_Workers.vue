@@ -297,11 +297,11 @@
                               {{ worker.status === 'Working' ? 'Currently Working On' : 'Currently Assigned To' }}
                             </span>
                             <span class="text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm transition-transform group-hover:scale-105" :class="expandedTickets[worker.id] === worker.assignedTicket ? 'bg-emerald-600 text-white' : worker.status === 'Working' ? 'bg-amber-200/80 text-amber-900' : 'bg-blue-200/80 text-blue-900'">
-                              #{{ worker.assignedTicket }}
+                              {{ formatTicketOrProjectLabel(worker.assignedTicket) }}
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" :class="expandedTickets[worker.id] === worker.assignedTicket ? 'rotate-180 text-white' : 'opacity-60'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </span>
                           </div>
-                          <p class="text-sm font-bold leading-snug text-slate-800">{{ worker.ticketTask || 'Facilities Maintenance Work' }}</p>
+                          <p class="text-sm font-bold leading-snug text-slate-800">{{ worker.ticketTask || 'Assigned Work' }}</p>
                         </div>
                         <div v-if="worker.implementationDate" class="mt-3 pt-2.5 border-t flex items-center justify-between text-[10px] font-semibold text-slate-600" :class="worker.status === 'Working' ? 'border-amber-200/60' : 'border-blue-200/60'">
                           <span class="flex items-center gap-1.5">
@@ -331,11 +331,11 @@
                               Next Queued Job
                             </span>
                             <span class="font-black px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm transition-transform group-hover:scale-105" :class="expandedTickets[worker.id] === worker.nextAssignment.ticketId ? 'bg-emerald-600 text-white' : 'bg-purple-100 text-purple-800'">
-                              #{{ worker.nextAssignment.ticketId }}
+                              {{ formatTicketOrProjectLabel(worker.nextAssignment.ticketId) }}
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" :class="expandedTickets[worker.id] === worker.nextAssignment.ticketId ? 'rotate-180 text-white' : 'opacity-60'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </span>
                           </div>
-                          <p class="text-sm font-bold text-slate-800">{{ worker.nextAssignment.task }}</p>
+                          <p class="text-sm font-bold text-slate-800">{{ worker.nextAssignment.task || 'Assigned Work' }}</p>
                         </div>
                         <div class="mt-3 pt-2.5 border-t border-purple-100 flex items-center justify-between text-[10px] font-bold text-purple-700">
                           <span>Target Date:</span>
@@ -356,10 +356,7 @@
 
                       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-800 relative z-10">
                         <div class="flex flex-wrap items-center gap-2.5">
-                          <span class="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-widest rounded-full">
-                            Ticket Extension
-                          </span>
-                          <span class="text-lg font-black tracking-tight text-white">#{{ expandedTickets[worker.id] }}</span>
+                          <span class="text-lg font-black tracking-tight text-white">{{ formatTicketOrProjectLabel(expandedTickets[worker.id]) }}</span>
                           <span class="text-xs font-bold text-slate-400">({{ getTicketDetailsForExtension(expandedTickets[worker.id]).type }})</span>
                         </div>
                         <button @click="expandedTickets[worker.id] = null" class="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 hover:text-rose-300 text-slate-300 text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5">
@@ -374,17 +371,17 @@
                           <span class="text-xs font-bold text-slate-100 block truncate">{{ getTicketDetailsForExtension(expandedTickets[worker.id]).location }}</span>
                         </div>
                         <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Requester</span>
+                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">{{ isProjectIdentifier(expandedTickets[worker.id]) ? 'Duration' : 'Requester' }}</span>
                           <span class="text-xs font-bold text-slate-100 block truncate">{{ getTicketDetailsForExtension(expandedTickets[worker.id]).requester }}</span>
                         </div>
                         <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Scheduled Date</span>
+                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">{{ isProjectIdentifier(expandedTickets[worker.id]) ? 'Target Date' : 'Scheduled Date' }}</span>
                           <span class="text-xs font-bold text-emerald-400 block truncate">{{ getTicketDetailsForExtension(expandedTickets[worker.id]).date }}</span>
                         </div>
                       </div>
 
                       <div class="relative z-10">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Job Description</span>
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">{{ isProjectIdentifier(expandedTickets[worker.id]) ? 'Project Description' : 'Job Description' }}</span>
                         <p class="text-xs font-medium text-slate-300 leading-relaxed bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">{{ getTicketDetailsForExtension(expandedTickets[worker.id]).desc }}</p>
                       </div>
                     </div>
@@ -561,8 +558,8 @@ const toggleTicketExtension = async (workerId, ticketId) => {
             id: t.id,
             type: t.service_type || t.type || 'Facilities Task',
             location: t.location,
-            requester: t.details?.requesting_personnel || 'End User',
-            date: new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            requester: t.is_project ? t.project_target_duration || 'Ongoing' : (t.details?.requesting_personnel || 'End User'),
+            date: t.is_project ? (t.project_target_date ? new Date(t.project_target_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'To be scheduled') : new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             desc: t.description || t.job_description || 'No description provided.'
           };
         }
@@ -582,8 +579,8 @@ const getTicketDetailsForExtension = (ticketId) => {
       id: selectedTicket.value.id,
       type: selectedTicket.value.type,
       location: selectedTicket.value.location,
-      requester: selectedTicket.value.requester,
-      date: selectedTicket.value.submittedAt || 'Scheduled',
+      requester: isProjectIdentifier(selectedTicket.value) ? (workingDays.value ? `${workingDays.value} Working Days` : 'Duration Set') : selectedTicket.value.requester,
+      date: selectedTicket.value.implementationDate ? new Date(selectedTicket.value.implementationDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (selectedTicket.value.submittedAt || 'Scheduled'),
       desc: selectedTicket.value.job_description
     };
   }
@@ -730,7 +727,7 @@ const dispatchAll = async () => {
            personnel_id: assign.workerId,
            implementation_date: selectedTicket.value.implementationDate || '',
            working_days: Number(workingDays.value),
-           task_notes: isProjectIdentifier(selectedTicket.value) ? (selectedTicket.value.type || 'Office Project Work') : 'Facilities Maintenance Work'
+           task_notes: isProjectIdentifier(selectedTicket.value) ? (selectedTicket.value.type || 'Office Project Work') : (`${selectedTicket.value.type} Work` || 'Facilities Task')
          });
       }
     }
