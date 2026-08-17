@@ -62,21 +62,11 @@ const _today = new Date();
 _today.setHours(0, 0, 0, 0);
 
 const landingActive = computed(() =>
-  landingProjects.value.filter(p => {
-    if (!p.project_target_date) return true;
-    const d = new Date(p.project_target_date);
-    d.setHours(0, 0, 0, 0);
-    return d <= _today;
-  })
+  landingProjects.value.filter(p => p.status === 'processing')
 );
 
 const landingUpcoming = computed(() =>
-  landingProjects.value.filter(p => {
-    if (!p.project_target_date) return false;
-    const d = new Date(p.project_target_date);
-    d.setHours(0, 0, 0, 0);
-    return d > _today;
-  })
+  landingProjects.value.filter(p => p.status === 'pending' || p.status === 'approved')
 );
 
 const formatLandingDate = (d) => {
@@ -424,9 +414,9 @@ onMounted(fetchLandingProjects);
             <div class="landing-proj-content">
               <div class="landing-proj-meta">
                 <span class="landing-proj-badge"
-                      :class="landingActive.includes(project) ? 'badge-active' : 'badge-upcoming'">
+                      :class="project.status === 'processing' ? 'badge-active' : 'badge-upcoming'">
                   <span class="landing-proj-badge-dot"></span>
-                  {{ landingActive.includes(project) ? 'ACTIVE' : 'UPCOMING' }}
+                  {{ project.status === 'processing' ? 'ACTIVE' : 'UPCOMING' }}
                 </span>
                 <span class="landing-proj-date">{{ formatLandingDate(project.submitted_at) }}</span>
               </div>

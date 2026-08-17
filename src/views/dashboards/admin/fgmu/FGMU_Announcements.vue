@@ -26,13 +26,19 @@
         <span class="text">Announcements</span>
       </router-link>
       <div class="mt-8 mb-4 px-4">
-        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Archived Tickets</p>
+        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Archives</p>
       </div>
       <router-link to="/admin/fgmu/archives" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
         </svg>
-        <span class="text">Archives</span>
+        <span class="text">Archived Tickets</span>
+      </router-link>
+      <router-link to="/admin/fgmu/project-archives" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <span class="text">Archived Projects</span>
       </router-link>
     </template>
 
@@ -143,8 +149,13 @@
               </div>
 
               <!-- Seal footer -->
-              <div class="flex items-center justify-between px-5 py-2 mt-auto text-[0.6rem] font-extrabold uppercase tracking-widest" style="background:#0d4a22;color:rgba(255,255,255,0.7)">
-                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_5px_#4ade80] animate-pulse"></span> Active Notice</span>
+              <div class="flex items-center justify-between px-5 py-2 mt-auto text-[0.6rem] font-extrabold uppercase tracking-widest" 
+                   :style="project.status === 'processing' ? 'background:#0d4a22;color:rgba(255,255,255,0.7)' : (['resolved', 'closed', 'completed'].includes(project.status) ? 'background:#1e293b;color:rgba(255,255,255,0.7)' : 'background:#1e3a8a;color:rgba(255,255,255,0.7)')">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full" 
+                        :class="project.status === 'processing' ? 'bg-green-400 shadow-[0_0_5px_#4ade80] animate-pulse' : (['resolved', 'closed', 'completed'].includes(project.status) ? 'bg-slate-400' : 'bg-blue-400 shadow-[0_0_5px_#60a5fa] animate-pulse')"></span>
+                  {{ project.status === 'processing' ? 'Active Notice' : (['resolved', 'closed', 'completed'].includes(project.status) ? 'Completed Notice' : 'Upcoming Notice') }}
+                </span>
                 <span style="color:rgba(255,255,255,0.4);font-weight:600">BSU — General Services Office</span>
                 <span style="color:rgba(255,255,255,0.9)">Official Announcement</span>
               </div>

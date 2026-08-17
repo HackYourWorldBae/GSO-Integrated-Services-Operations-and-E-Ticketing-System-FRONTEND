@@ -212,7 +212,10 @@
 
                   <!-- Seal footer strip -->
                   <div class="row-seal-footer" :class="Number(project.unit_id) === 1 ? 'seal-footer--fgmu' : 'seal-footer--leau'">
-                    <span class="seal-footer-left"><span class="seal-dot"></span> Active Notice</span>
+                    <span class="seal-footer-left">
+                      <span class="seal-dot" :style="project.status === 'processing' ? 'background:#4ade80;box-shadow:0 0 5px #4ade80' : 'background:#60a5fa;box-shadow:0 0 5px #60a5fa'"></span> 
+                      {{ project.status === 'processing' ? 'Active Notice' : 'Upcoming Notice' }}
+                    </span>
                     <span class="seal-footer-center">BSU — General Services Office</span>
                     <span class="seal-footer-right">Official Announcement</span>
                   </div>
@@ -285,7 +288,10 @@
                     </div>
                   </div>
                   <div class="row-seal-footer" :class="Number(project.unit_id) === 1 ? 'seal-footer--fgmu' : 'seal-footer--leau'" style="opacity:0.7">
-                    <span class="seal-footer-left"><span class="seal-dot" style="background:#f59e0b;box-shadow:0 0 6px #f59e0b"></span> Upcoming</span>
+                    <span class="seal-footer-left">
+                      <span class="seal-dot" :style="project.status === 'processing' ? 'background:#4ade80;box-shadow:0 0 5px #4ade80' : 'background:#60a5fa;box-shadow:0 0 5px #60a5fa'"></span> 
+                      {{ project.status === 'processing' ? 'Active Notice' : 'Upcoming Notice' }}
+                    </span>
                     <span class="seal-footer-center">BSU — General Services Office</span>
                     <span class="seal-footer-right">Official Announcement</span>
                   </div>

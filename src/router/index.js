@@ -46,6 +46,8 @@ const FGMU_Announcements = () => import('../views/dashboards/admin/fgmu/FGMU_Ann
 const LEAU_Announcements = () => import('../views/dashboards/admin/leau/LEAU_Announcements.vue');
 const ProjectsView = () => import('../views/ProjectsView.vue');
 const ProjectsArchiveView = () => import('../views/ProjectsArchiveView.vue');
+const FGMU_ProjectArchives = () => import('../views/dashboards/admin/fgmu/FGMU_ProjectArchives.vue');
+const LEAU_ProjectArchives = () => import('../views/dashboards/admin/leau/LEAU_ProjectArchives.vue');
 
 
 const router = createRouter({
@@ -126,6 +128,11 @@ const router = createRouter({
       component: FGMU_Announcements
     },
     {
+      path: '/admin/fgmu/project-archives',
+      name: 'fgmu-admin-project-archives',
+      component: FGMU_ProjectArchives
+    },
+    {
       path: '/admin/leau',
       name: 'leau-dashboard',
       component: LEAU_Dashboard
@@ -149,6 +156,11 @@ const router = createRouter({
       path: '/admin/leau/announcements',
       name: 'leau-admin-announcements',
       component: LEAU_Announcements
+    },
+    {
+      path: '/admin/leau/project-archives',
+      name: 'leau-admin-project-archives',
+      component: LEAU_ProjectArchives
     },
     {
       path: '/admin/ssu',
