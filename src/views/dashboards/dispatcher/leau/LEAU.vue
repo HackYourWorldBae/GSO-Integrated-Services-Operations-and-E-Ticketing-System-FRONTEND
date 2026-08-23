@@ -91,7 +91,7 @@
               <thead>
                 <tr class="border-b border-slate-100">
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Ticket ID</th>
-                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Type</th>
+                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Job</th>
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Requester</th>
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Status</th>
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold text-right pt-2 pb-2">Action</th>
@@ -105,7 +105,6 @@
                   <td class="py-6 px-4">
                     <div class="flex flex-col">
                       <span class="text-sm font-bold text-slate-900">{{ ticket.type }}</span>
-                      <span class="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">{{ ticket.location }}</span>
                     </div>
                   </td>
                   <td class="py-6 px-4">
@@ -271,15 +270,9 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div class="space-y-2">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Requester Name</label>
-                <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ selectedTicket.requester }}</p>
-              </div>
-              <div class="space-y-2">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact Number</label>
-                <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ selectedTicket.contact_number }}</p>
-              </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Requester Name</label>
+              <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ selectedTicket.requester }}</p>
             </div>
 
             <div class="space-y-3">
