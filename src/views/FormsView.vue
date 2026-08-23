@@ -184,9 +184,12 @@ const handleFinalSubmit = async () => {
 
   isSubmitting.value = true;
   // Build the payload (don't send File objects in JSON)
+  const fgmuDetails = hasFGMU.value ? { ...formsStore.fgmuState.sectionA, ticket_title: formsStore.fgmuState.sectionA.job_description } : null;
+  const leauDetails = hasLEAU.value ? { ...formsStore.leauState.sectionA, ticket_title: formsStore.leauState.sectionA.job_description } : null;
+
   const finalRequest = {
-    fgmu: hasFGMU.value ? { details: formsStore.fgmuState.sectionA, services: fgmuServices.value } : null,
-    leau: hasLEAU.value ? { details: formsStore.leauState.sectionA, services: leauServices.value } : null,
+    fgmu: hasFGMU.value ? { details: fgmuDetails, services: fgmuServices.value } : null,
+    leau: hasLEAU.value ? { details: leauDetails, services: leauServices.value } : null,
     ssu: hasSSU.value ? { 
       vehiclePass: hasVehiclePass.value ? formsStore.ssuVehicleState : null,
       incidentReport: hasIncidentReport.value ? formsStore.ssuIncidentState : null

@@ -149,7 +149,7 @@
                   </div>
 
                   <!-- Title -->
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight mb-2">{{ ticket.title || ticket.service }}</h3>
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight mb-2 truncate" :title="ticket.title || ticket.service">{{ ticket.title || ticket.service }}</h3>
 
                   <!-- Categories / Service Type -->
                   <div class="flex flex-wrap gap-1.5 mb-2" v-if="ticket.title && ticket.title !== ticket.service">

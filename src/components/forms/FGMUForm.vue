@@ -92,18 +92,7 @@ const removeFile = (idx) => {
       </div>
 
       <div class="space-y-6">
-        <div class="space-y-3 relative pb-2">
-          <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.fgmuState.sectionA.ticket_title.$error ? 'text-red-500' : 'text-slate-400'">Request Title</label>
-          <input 
-            v-model="formsStore.fgmuState.sectionA.ticket_title" 
-            @blur="formsStore.v$.fgmuState.sectionA.ticket_title.$touch()"
-            type="text" 
-            placeholder="A brief title for this request..." 
-            class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
-            :class="formsStore.v$.fgmuState.sectionA.ticket_title.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-emerald-500'" 
-          />
-          <p v-if="formsStore.v$.fgmuState.sectionA.ticket_title.$error" class="text-xs font-bold text-red-500 absolute -bottom-3 left-1 animate-fade-in">This field is required</p>
-        </div>
+
 
         <div class="space-y-3 relative pb-4">
           <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.fgmuState.sectionA.job_description.$error ? 'text-red-500' : 'text-slate-400'">Job Description / Particulars</label>
