@@ -60,12 +60,16 @@ const selectOption = (item) => {
   isOpen.value = false;
 };
 
+const handleInput = () => {
+  emit('update:modelValue', searchQuery.value);
+  isOpen.value = true;
+};
+
 const handleClickOutside = (event) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
     isOpen.value = false;
-    // Reset search query to modelValue if they click away without selecting
     if (searchQuery.value !== props.modelValue) {
-      searchQuery.value = props.modelValue;
+      emit('update:modelValue', searchQuery.value);
     }
   }
 };
@@ -104,6 +108,7 @@ const groupTextClass = computed(() => {
       <input
         type="text"
         v-model="searchQuery"
+        @input="handleInput"
         @focus="isOpen = true"
         :placeholder="placeholder"
         class="w-full h-14 px-6 pr-12 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:bg-white text-sm font-bold outline-none transition-all shadow-sm text-slate-700"
@@ -140,11 +145,14 @@ const groupTextClass = computed(() => {
             </div>
           </div>
         </template>
-        <div v-else class="p-6 text-center">
-          <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          </div>
-          <p class="text-sm font-bold text-slate-400">No matches found</p>
+        <div v-else class="p-4 text-center">
+          <p class="text-[11px] font-bold text-slate-500 mb-2">Not in the list?</p>
+          <button 
+            @click="selectOption(searchQuery)"
+            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black uppercase tracking-widest rounded-xl transition-colors w-full"
+          >
+            Use "{{ searchQuery }}"
+          </button>
         </div>
       </div>
     </div>
