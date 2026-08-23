@@ -74,22 +74,26 @@
                 <div class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black italic shadow-sm">+92% Health</div>
               </div>
               
-              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Job Orders</p>
-                   <p class="text-2xl font-black text-slate-900">45</p>
+              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-5 gap-3 relative z-10">
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Total</p>
+                   <p class="text-xl font-black text-slate-900">{{ unitStats.fgmu.total || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Avg Response</p>
-                   <p class="text-2xl font-black text-slate-900">1.2<span class="text-xs text-slate-500 ml-1">hrs</span></p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Pending</p>
+                   <p class="text-xl font-black text-amber-600">{{ unitStats.fgmu.pending || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Preventive Maint.</p>
-                   <p class="text-2xl font-black text-blue-600">88%</p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Dispatched</p>
+                   <p class="text-xl font-black text-blue-600">{{ unitStats.fgmu.scheduled || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Critical Issues</p>
-                   <p class="text-2xl font-black text-rose-500 animate-pulse">2</p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Active</p>
+                   <p class="text-xl font-black text-emerald-500">{{ unitStats.fgmu.active_working || 0 }}</p>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Completed</p>
+                   <p class="text-xl font-black text-emerald-600">{{ unitStats.fgmu.resolved || 0 }}</p>
                 </div>
               </div>
 
@@ -113,22 +117,26 @@
                 <div class="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-black italic shadow-sm">Attention</div>
               </div>
               
-              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Acreage Maintained</p>
-                   <p class="text-2xl font-black text-slate-900">12.5<span class="text-xs text-slate-500 ml-1">ha</span></p>
+              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-5 gap-3 relative z-10">
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Total</p>
+                   <p class="text-xl font-black text-slate-900">{{ unitStats.leau.total || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Aesthetic Rating</p>
-                   <p class="text-2xl font-black text-slate-900">4.8<span class="text-xs text-slate-500 ml-1">/5</span></p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Pending</p>
+                   <p class="text-xl font-black text-amber-600">{{ unitStats.leau.pending || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Equip. Readiness</p>
-                   <p class="text-2xl font-black text-emerald-600">95%</p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Dispatched</p>
+                   <p class="text-xl font-black text-blue-600">{{ unitStats.leau.scheduled || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Material Supply</p>
-                   <p class="text-2xl font-black text-amber-500">Low</p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Active</p>
+                   <p class="text-xl font-black text-emerald-500">{{ unitStats.leau.active_working || 0 }}</p>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Completed</p>
+                   <p class="text-xl font-black text-emerald-600">{{ unitStats.leau.resolved || 0 }}</p>
                 </div>
               </div>
 
@@ -152,22 +160,26 @@
                 <div class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black italic shadow-sm">+12% Incidents</div>
               </div>
               
-              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Patrols</p>
-                   <p class="text-2xl font-black text-slate-900">14</p>
+              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-5 gap-3 relative z-10">
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Total</p>
+                   <p class="text-xl font-black text-slate-900">{{ unitStats.ssu.total || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vehicle Passes</p>
-                   <p class="text-2xl font-black text-slate-900">842</p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Pending</p>
+                   <p class="text-xl font-black text-amber-600">{{ unitStats.ssu.pending || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Logged Incidents</p>
-                   <p class="text-2xl font-black text-rose-600">8</p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Dispatched</p>
+                   <p class="text-xl font-black text-blue-600">{{ unitStats.ssu.scheduled || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">CCTV Uptime</p>
-                   <p class="text-2xl font-black text-emerald-500">99.8%</p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Active</p>
+                   <p class="text-xl font-black text-emerald-500">{{ unitStats.ssu.active_working || 0 }}</p>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Completed</p>
+                   <p class="text-xl font-black text-emerald-600">{{ unitStats.ssu.resolved || 0 }}</p>
                 </div>
               </div>
 
@@ -191,22 +203,26 @@
                 <div class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black italic shadow-sm">Optimal</div>
               </div>
               
-              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fleet Availability</p>
-                   <p class="text-2xl font-black text-emerald-600">78%</p>
+              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-5 gap-3 relative z-10">
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Total</p>
+                   <p class="text-xl font-black text-slate-900">{{ unitStats.tasu.total || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Trips</p>
-                   <p class="text-2xl font-black text-slate-900">12</p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Pending</p>
+                   <p class="text-xl font-black text-amber-600">{{ unitStats.tasu.pending || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fuel Efficiency</p>
-                   <p class="text-2xl font-black text-slate-900">9.4<span class="text-xs text-slate-500 ml-1">km/l</span></p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Dispatched</p>
+                   <p class="text-xl font-black text-blue-600">{{ unitStats.tasu.scheduled || 0 }}</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Dispatched</p>
-                   <p class="text-2xl font-black text-amber-600">8</p>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Active</p>
+                   <p class="text-xl font-black text-emerald-500">{{ unitStats.tasu.active_working || 0 }}</p>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
+                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-tight">Completed</p>
+                   <p class="text-xl font-black text-emerald-600">{{ unitStats.tasu.resolved || 0 }}</p>
                 </div>
               </div>
 
@@ -233,15 +249,30 @@ import Chart from 'chart.js/auto';
 import api from '@/api/client';
 
 const stats = ref({});
+const unitStats = ref({
+  fgmu: {},
+  leau: {},
+  ssu: {},
+  tasu: {}
+});
 
 const fetchStats = async () => {
   try {
-    const response = await api.get('tickets/stats/ALL');
-    if (response.data?.data?.stats) {
-      stats.value = response.data.data.stats;
-    }
+    const [globalRes, fgmuRes, leauRes, ssuRes, tasuRes] = await Promise.all([
+      api.get('tickets/stats/ALL'),
+      api.get('tickets/stats/FGMU'),
+      api.get('tickets/stats/LEAU'),
+      api.get('tickets/stats/SSU'),
+      api.get('tickets/stats/TASU')
+    ]);
+    
+    if (globalRes.data?.data?.stats) stats.value = globalRes.data.data.stats;
+    if (fgmuRes.data?.data?.stats) unitStats.value.fgmu = fgmuRes.data.data.stats;
+    if (leauRes.data?.data?.stats) unitStats.value.leau = leauRes.data.data.stats;
+    if (ssuRes.data?.data?.stats) unitStats.value.ssu = ssuRes.data.data.stats;
+    if (tasuRes.data?.data?.stats) unitStats.value.tasu = tasuRes.data.data.stats;
   } catch (error) {
-    console.error('Failed to fetch global stats:', error);
+    console.error('Failed to fetch stats:', error);
   }
 };
 
