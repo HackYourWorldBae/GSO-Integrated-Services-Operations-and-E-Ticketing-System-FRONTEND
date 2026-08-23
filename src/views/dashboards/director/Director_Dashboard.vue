@@ -55,28 +55,6 @@
         <!-- Institutional Oversight Analytics -->
         <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
           
-          <!-- Radar Institutional Comparison -->
-          <div class="xl:col-span-12 p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex flex-col md:flex-row gap-12 items-center">
-            <div class="flex-1 w-full h-[500px] relative">
-              <h4 class="text-xl font-black text-slate-900 mb-2 italic">Institutional Service Health Radar</h4>
-              <p class="text-xs text-slate-400 font-bold mb-8 uppercase tracking-widest">Comparative multi-unit performance monitoring</p>
-              <div class="h-[400px]">
-                <canvas id="institutionalHealthRadar"></canvas>
-              </div>
-            </div>
-            <div class="w-full md:w-72 space-y-6">
-               <div class="p-6 rounded-3xl bg-slate-50 border border-slate-100">
-                  <h5 class="text-[10px] font-black text-emerald-600 uppercase mb-3">Institutional Star</h5>
-                  <p class="text-lg font-black text-slate-900 leading-tight">FGMU (Facilities)</p>
-                  <p class="text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-tight">Highest delivery score</p>
-               </div>
-               <div class="p-6 rounded-3xl bg-slate-50 border border-slate-100">
-                  <h5 class="text-[10px] font-black text-amber-600 uppercase mb-3">Needs Attention</h5>
-                  <p class="text-lg font-black text-slate-900 leading-tight">LEAU (Landscaping)</p>
-                  <p class="text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-tight">Material replenishment delay</p>
-               </div>
-            </div>
-          </div>
 
           <!-- Unit Specific Analytics (Expanded and Detailed) -->
           <div class="xl:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -266,33 +244,6 @@ const fetchStats = async () => {
 onMounted(() => {
   fetchStats();
 
-  // Institutional Health Radar
-  const radarCtx = document.getElementById('institutionalHealthRadar');
-  new Chart(radarCtx, {
-    type: 'radar',
-    data: {
-      labels: ['Service Quality', 'Efficiency', 'Timeliness', 'Resource Health', 'Operational Readiness'],
-      datasets: [
-        { label: 'FGMU', data: [95, 88, 92, 85, 98], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3 },
-        { label: 'LEAU', data: [85, 82, 90, 65, 88], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 3 },
-        { label: 'SSU', data: [92, 95, 88, 98, 95], borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.1)', borderWidth: 3 },
-        { label: 'TASU', data: [88, 90, 85, 92, 94], borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)', borderWidth: 3 }
-      ]
-    },
-    options: {
-      scales: {
-        r: {
-          min: 0, max: 100, ticks: { display: false },
-          pointLabels: { font: { family: 'Inter', weight: '900', size: 12 }, color: '#1e293b' }
-        }
-      },
-      plugins: {
-        legend: { position: 'right', labels: { font: { weight: '800' }, padding: 20 } }
-      },
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
 
   // Small Summary Charts (Executive Quadrants)
   ['fgmu', 'leau', 'ssu', 'tasu'].forEach(unit => {
