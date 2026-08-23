@@ -26,7 +26,7 @@
       <div class="space-y-10 animate-fade-in pb-12">
         
         <!-- Institutional KPI Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div class="p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl border-b-4 border-b-emerald-500">
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Requests</p>
             <div class="flex items-end justify-between">
@@ -46,45 +46,9 @@
             <p class="mt-4 text-[11px] text-slate-500 font-medium italic">Across all units</p>
           </div>
 
-          <div class="p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl border-b-4 border-b-amber-500">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Urgent Attention</p>
-            <div class="flex items-end justify-between">
-              <h3 class="text-4xl font-black text-slate-900 tabular-nums leading-none">{{ stats.pending || 0 }}</h3>
-              <span class="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-full uppercase tracking-tighter animate-pulse">Critical</span>
-            </div>
-            <p class="mt-4 text-[11px] text-slate-500 font-medium">Pending Approvals</p>
-          </div>
-
-          <div class="p-6 rounded-[2rem] bg-slate-900 shadow-2xl border-b-4 border-b-slate-700">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Active Processing</p>
-            <div class="flex items-end justify-between text-white">
-              <h3 class="text-4xl font-black tabular-nums leading-none">{{ stats.processing || 0 }}</h3>
-              <div class="p-2 bg-white/10 rounded-xl">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-              </div>
-            </div>
-            <p class="mt-4 text-[11px] text-slate-400 font-medium">Across all sub-units</p>
-          </div>
         </div>
 
-        <!-- Director Intelligence Briefing -->
-        <div class="p-8 rounded-[2.5rem] bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-2xl relative overflow-hidden group">
-          <div class="absolute top-4 right-4 animate-bounce">
-            <div class="p-3 bg-white/20 backdrop-blur-md rounded-2xl border border-white/20">
-               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </div>
-          </div>
-          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-            <div class="max-w-3xl">
-              <h3 class="text-3xl font-black tracking-tight mb-3">Institutional Intelligence Briefing</h3>
-              <p class="text-emerald-50 text-sm font-medium leading-relaxed italic opacity-90">"Institutional oversight suggests a strong 90% completion rate in FGMU, but LEAU requires material replenishment. SSU has increased vigilance in Zone B due to recent incidents. TASU fleet availability is currently optimal at 80%."</p>
-            </div>
-            <div class="flex flex-col items-center justify-center text-center p-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-[2rem] w-full md:w-auto">
-              <span class="text-4xl font-black tabular-nums">1.2M</span>
-              <span class="text-[10px] uppercase font-bold tracking-[0.2em] mt-2">Saved Institutional Operating Cost</span>
-            </div>
-          </div>
-        </div>
+
 
         <!-- Institutional Oversight Analytics -->
         <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
