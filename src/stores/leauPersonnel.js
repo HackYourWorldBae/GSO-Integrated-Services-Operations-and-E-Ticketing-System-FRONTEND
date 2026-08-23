@@ -66,6 +66,13 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
     await fetchCategories();
   };
 
+  const updateCategory = async (categoryId, name) => {
+    const response = await api.patch(`personnel/categories/${categoryId}`, { name });
+    await fetchCategories();
+    await fetchPersonnel();
+    return response.data;
+  };
+
   const addPersonnel = async ({ firstName, middleInitial, lastName, specialty }) => {
     const nameParts = [firstName.trim()];
     if (middleInitial?.trim()) nameParts.push(middleInitial.trim().replace(/\.?$/, '.'));
@@ -170,7 +177,7 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
 
   return {
     personnel, categories, groupedPersonnel,
-    fetchPersonnel, fetchCategories, addCategory, removeCategory,
+    fetchPersonnel, fetchCategories, addCategory, removeCategory, updateCategory,
     addPersonnel, removePersonnel,
     toggleWorkerStatus, setWorkerStatus, assignWorker, unassignWorker,
     updateTicketDate, startWork, getTicketInfo,

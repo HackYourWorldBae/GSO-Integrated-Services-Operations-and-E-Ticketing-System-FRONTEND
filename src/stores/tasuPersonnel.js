@@ -51,6 +51,13 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
     await fetchCategories();
   };
 
+  const updateCategory = async (categoryId, name) => {
+    const response = await api.patch(`personnel/categories/${categoryId}`, { name });
+    await fetchCategories();
+    await fetchPersonnel();
+    return response.data;
+  };
+
   const addPersonnel = async ({ firstName, middleInitial, lastName, specialty }) => {
     const nameParts = [firstName.trim()];
     if (middleInitial?.trim()) nameParts.push(middleInitial.trim().replace(/\.?$/, '.'));
@@ -140,5 +147,6 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
     removePersonnel,
     addCategory,
     removeCategory,
+    updateCategory,
   };
 });

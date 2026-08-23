@@ -322,17 +322,38 @@
             <div class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
               <div v-if="store.categories.length === 0" class="text-center py-6 text-sm text-slate-400 font-medium">No categories yet. Add one above.</div>
               <div v-for="cat in store.categories" :key="cat.id" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-100 group">
-                <span class="text-sm font-bold text-slate-800">{{ cat.name }}</span>
-                <button
-                  v-if="!cat.is_system"
-                  @click="deleteCategory(cat)"
-                  :disabled="categoryDeleting === cat.id"
-                  class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100"
-                  title="Remove category"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                </button>
-                <span v-else class="text-[9px] font-black text-slate-400 uppercase tracking-wider px-2 py-0.5 bg-slate-200 rounded-full">System</span>
+                <template v-if="editingCategory === cat.id">
+                  <div class="flex items-center gap-2 w-full">
+                    <input v-model="editingCategoryName" @keyup.enter="saveCategory(cat)" @keyup.esc="cancelEditingCategory" type="text" class="flex-1 bg-white border border-slate-300 rounded-lg px-2 py-1 text-sm outline-none focus:border-emerald-500" autofocus />
+                    <button @click="saveCategory(cat)" :disabled="categoryUpdating" class="w-7 h-7 flex items-center justify-center rounded-lg text-emerald-600 hover:bg-emerald-100 transition-all" title="Save">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    </button>
+                    <button @click="cancelEditingCategory" class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 transition-all" title="Cancel">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                </template>
+                <template v-else>
+                  <span class="text-sm font-bold text-slate-800">{{ cat.name }}</span>
+                  <div v-if="!cat.is_system" class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      @click="startEditingCategory(cat)"
+                      class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all"
+                      title="Edit category"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    </button>
+                    <button
+                      @click="deleteCategory(cat)"
+                      :disabled="categoryDeleting === cat.id"
+                      class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all"
+                      title="Remove category"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  </div>
+                  <span v-else class="text-[9px] font-black text-slate-400 uppercase tracking-wider px-2 py-0.5 bg-slate-200 rounded-full">System</span>
+                </template>
               </div>
             </div>
           </div>
@@ -422,6 +443,37 @@ const submitAdd = async () => {
 const newCategoryName  = ref('');
 const categorySubmitting = ref(false);
 const categoryDeleting = ref(null);
+const editingCategory = ref(null);
+const editingCategoryName = ref('');
+const categoryUpdating = ref(false);
+
+const startEditingCategory = (cat) => {
+  editingCategory.value = cat.id;
+  editingCategoryName.value = cat.name;
+};
+
+const cancelEditingCategory = () => {
+  editingCategory.value = null;
+  editingCategoryName.value = '';
+};
+
+const saveCategory = async (cat) => {
+  if (!editingCategoryName.value.trim() || editingCategoryName.value.trim() === cat.name) {
+    cancelEditingCategory();
+    return;
+  }
+  categoryUpdating.value = true;
+  try {
+    await store.updateCategory(cat.id, editingCategoryName.value.trim());
+    toast.success('Category updated.');
+    cancelEditingCategory();
+  } catch (err) {
+    const msg = err?.response?.data?.message || 'Failed to update category.';
+    toast.error(msg);
+  } finally {
+    categoryUpdating.value = false;
+  }
+};
 
 const submitCategory = async () => {
   if (!newCategoryName.value.trim()) return;

@@ -66,6 +66,14 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
     await fetchCategories();
   };
 
+  const updateCategory = async (categoryId, name) => {
+    const response = await api.patch(`personnel/categories/${categoryId}`, { name });
+    await fetchCategories();
+    // After updating category, fetch personnel to sync changed specialties
+    await fetchPersonnel();
+    return response.data;
+  };
+
   const addPersonnel = async ({ firstName, middleInitial, lastName, specialty }) => {
     const nameParts = [firstName.trim()];
     if (middleInitial?.trim()) nameParts.push(middleInitial.trim().replace(/\.?$/, '.'));
@@ -170,7 +178,7 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
 
   return {
     personnel, categories, groupedPersonnel,
-    fetchPersonnel, fetchCategories, addCategory, removeCategory,
+    fetchPersonnel, fetchCategories, addCategory, removeCategory, updateCategory,
     addPersonnel, removePersonnel,
     toggleWorkerStatus, setWorkerStatus, assignWorker, unassignWorker,
     updateTicketDate, startWork, getTicketInfo,
