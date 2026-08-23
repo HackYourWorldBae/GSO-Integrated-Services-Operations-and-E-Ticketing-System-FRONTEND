@@ -156,8 +156,7 @@
                     <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider border border-slate-200">{{ ticket.service }}</span>
                   </div>
 
-                  <!-- Description -->
-                  <p v-if="ticket.description" class="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-3">{{ ticket.description }}</p>
+
 
                   <!-- Dates Row -->
                   <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
@@ -687,7 +686,7 @@ const DigitalFormCard = defineComponent({
         h(FormRow, { label: 'Office / Room', value: props.ticket.office_room || 'N/A' }),
         ...(props.ticket.implementationDate ? [h(FormRow, { label: 'Implementation Date', value: props.ticket.implementationDate })] : []),
       ]),
-      h(FormRow, { label: 'Job Particulars', value: props.ticket.description, full: true }),
+
       ...(props.ticket.attachments?.length ? [h(AttachmentList, { attachments: props.ticket.attachments, onDownload: (att) => emit('download', att) })] : []),
     ]);
   },

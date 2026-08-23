@@ -147,12 +147,7 @@
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.title || selectedTicket.service }}</p>
               </div>
-              <div class="col-span-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description / Job Particulars</p>
-                <div class="p-4 bg-white border border-slate-200 rounded-xl">
-                  <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
-                </div>
-              </div>
+
 
               <!-- Dedicated Decline Reason Section (If Applicable) -->
               <div v-if="selectedTicket.declineReason" class="col-span-2">
