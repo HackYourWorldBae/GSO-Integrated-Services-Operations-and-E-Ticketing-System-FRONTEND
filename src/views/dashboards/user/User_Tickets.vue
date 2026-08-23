@@ -271,13 +271,16 @@
 
                 <!-- Star Ratings -->
                 <div v-if="satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-4 rounded-xl border border-slate-200 space-y-3 animate-fade-in">
-                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1">2. Service Quality Rating <span class="text-rose-500">*</span></label>
+                  <div class="mb-3">
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-0.5">2. Service Quality Rating <span class="text-rose-500">*</span></label>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">(1-Poor, 2-Fair, 3-Satisfactory, 4-Very Satisfactory, 5-Outstanding)</p>
+                  </div>
                   <div v-for="(label, key) in ratingCriteria" :key="key" class="flex items-center justify-between gap-3">
                     <span class="text-xs text-slate-600 font-medium flex-1">{{ label }}</span>
                     <div class="flex gap-1">
                       <button v-for="star in 5" :key="star" @click="satisfactionForm.ratings[key] = star"
                         :class="['w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all active:scale-95',
-                          satisfactionForm.ratings[key] >= star ? 'bg-amber-100 text-amber-600 border border-amber-200' : 'bg-slate-50 text-slate-300 border border-slate-100']">
+                          satisfactionForm.ratings[key] === star ? 'bg-amber-100 text-amber-600 border border-amber-200' : 'bg-slate-50 text-slate-300 border border-slate-100']">
                         {{ star }}
                       </button>
                     </div>
@@ -976,16 +979,14 @@ const completionOptions = [
 ];
 
 const ratingCriteria = {
-  courtesy:    'Courtesy of Personnel',
   quality:     'Quality of Work / Service',
   efficiency:  'Efficiency / Work Discipline',
   timeliness:  'Timeliness of Completion',
-  cleanliness: 'Cleanliness of Area (if applicable)',
 };
 
 const satisfactionForm = ref({
   completionStatus: '',
-  ratings: { courtesy: 0, quality: 0, efficiency: 0, timeliness: 0, cleanliness: 0 },
+  ratings: { quality: 0, efficiency: 0, timeliness: 0 },
   beyondTimeReasons:   { personnelAbsent: false, extendedBreak: false, additionalWork: false },
   notCompletedReasons: { lackWorkingDays: false, lackMaterials: false, lackSkills: false },
   remarks: '',
@@ -994,7 +995,7 @@ const satisfactionForm = ref({
 const resetForm = () => {
   satisfactionForm.value = {
     completionStatus: '',
-    ratings: { courtesy: 0, quality: 0, efficiency: 0, timeliness: 0, cleanliness: 0 },
+    ratings: { quality: 0, efficiency: 0, timeliness: 0 },
     beyondTimeReasons:   { personnelAbsent: false, extendedBreak: false, additionalWork: false },
     notCompletedReasons: { lackWorkingDays: false, lackMaterials: false, lackSkills: false },
     remarks: '',
