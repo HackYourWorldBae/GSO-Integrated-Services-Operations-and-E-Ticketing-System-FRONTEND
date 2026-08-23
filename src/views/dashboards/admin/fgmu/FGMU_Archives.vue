@@ -204,7 +204,7 @@
                   End-User Service Feedback
                 </p>
                 <div class="p-5 bg-white border border-slate-200 rounded-xl shadow-sm">
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
                       <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.quality_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
                       <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Quality</span>
@@ -216,10 +216,6 @@
                     <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
                       <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.timeliness_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
                       <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Timeliness</span>
-                    </div>
-                    <div class="flex flex-col items-center p-3 bg-slate-50 rounded-lg">
-                      <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.courtesy_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
-                      <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Courtesy</span>
                     </div>
                   </div>
                   <div v-if="selectedTicket.feedback.remarks" class="pt-4 border-t border-slate-100">

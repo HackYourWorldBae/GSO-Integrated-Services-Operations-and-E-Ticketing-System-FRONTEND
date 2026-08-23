@@ -1030,11 +1030,9 @@ const closeTicket = async (ticket) => {
     const payload = {
       ticket_id: ticket.ticketId || ticket.id,
       completion_status:  satisfactionForm.value.completionStatus,
-      courtesy_rating:    satisfactionForm.value.ratings.courtesy,
       quality_rating:     satisfactionForm.value.ratings.quality,
       efficiency_rating:  satisfactionForm.value.ratings.efficiency,
       timeliness_rating:  satisfactionForm.value.ratings.timeliness,
-      cleanliness_rating: satisfactionForm.value.ratings.cleanliness,
       remarks:            satisfactionForm.value.remarks,
       delay_reasons:      [],
     };
