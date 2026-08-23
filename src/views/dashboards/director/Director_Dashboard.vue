@@ -57,12 +57,13 @@
           
 
           <!-- Unit Specific Analytics (Expanded and Detailed) -->
-          <div class="xl:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="xl:col-span-12 flex flex-col gap-8">
             
             <!-- FGMU Detailed Analytics -->
-            <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex flex-col group hover:-translate-y-1 transition-transform relative overflow-hidden">
+            <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex flex-col lg:flex-row gap-8 items-center group hover:-translate-y-1 transition-transform relative overflow-hidden">
               <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-              <div class="flex items-center justify-between mb-8 relative z-10">
+              
+              <div class="flex-shrink-0 w-full lg:w-1/4 flex flex-col sm:flex-row lg:flex-col justify-between items-start sm:items-center lg:items-start gap-4 relative z-10">
                 <div class="flex items-center gap-4">
                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xl">F</div>
                    <div>
@@ -73,7 +74,7 @@
                 <div class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black italic shadow-sm">+92% Health</div>
               </div>
               
-              <div class="grid grid-cols-2 gap-4 mb-8 relative z-10">
+              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Job Orders</p>
                    <p class="text-2xl font-black text-slate-900">45</p>
@@ -92,26 +93,27 @@
                 </div>
               </div>
 
-              <div class="h-[150px] relative mt-auto">
+              <div class="flex-shrink-0 w-full lg:w-1/4 h-[100px] relative">
                 <canvas id="fgmuSummaryChart"></canvas>
               </div>
             </div>
 
             <!-- LEAU Detailed Analytics -->
-            <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex flex-col group hover:-translate-y-1 transition-transform relative overflow-hidden">
+            <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex flex-col lg:flex-row gap-8 items-center group hover:-translate-y-1 transition-transform relative overflow-hidden">
               <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-              <div class="flex items-center justify-between mb-8 relative z-10">
+              
+              <div class="flex-shrink-0 w-full lg:w-1/4 flex flex-col sm:flex-row lg:flex-col justify-between items-start sm:items-center lg:items-start gap-4 relative z-10">
                 <div class="flex items-center gap-4">
                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xl">L</div>
                    <div>
-                     <h3 class="text-xl font-black text-slate-900 leading-tight">Landscaping & Environment</h3>
+                     <h3 class="text-xl font-black text-slate-900 leading-tight">Landscaping & Env</h3>
                      <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">LEAU Operations</span>
                    </div>
                 </div>
                 <div class="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-black italic shadow-sm">Attention</div>
               </div>
               
-              <div class="grid grid-cols-2 gap-4 mb-8 relative z-10">
+              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Acreage Maintained</p>
                    <p class="text-2xl font-black text-slate-900">12.5<span class="text-xs text-slate-500 ml-1">ha</span></p>
@@ -130,15 +132,16 @@
                 </div>
               </div>
 
-              <div class="h-[150px] relative mt-auto">
+              <div class="flex-shrink-0 w-full lg:w-1/4 h-[100px] relative">
                 <canvas id="leauSummaryChart"></canvas>
               </div>
             </div>
 
             <!-- SSU Detailed Analytics -->
-            <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex flex-col group hover:-translate-y-1 transition-transform relative overflow-hidden">
+            <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex flex-col lg:flex-row gap-8 items-center group hover:-translate-y-1 transition-transform relative overflow-hidden">
               <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-              <div class="flex items-center justify-between mb-8 relative z-10">
+              
+              <div class="flex-shrink-0 w-full lg:w-1/4 flex flex-col sm:flex-row lg:flex-col justify-between items-start sm:items-center lg:items-start gap-4 relative z-10">
                 <div class="flex items-center gap-4">
                    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-black text-xl">S</div>
                    <div>
@@ -149,7 +152,7 @@
                 <div class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black italic shadow-sm">+12% Incidents</div>
               </div>
               
-              <div class="grid grid-cols-2 gap-4 mb-8 relative z-10">
+              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Patrols</p>
                    <p class="text-2xl font-black text-slate-900">14</p>
@@ -168,26 +171,27 @@
                 </div>
               </div>
 
-              <div class="h-[150px] relative mt-auto">
+              <div class="flex-shrink-0 w-full lg:w-1/4 h-[100px] relative">
                 <canvas id="ssuSummaryChart"></canvas>
               </div>
             </div>
 
             <!-- TASU Detailed Analytics -->
-            <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex flex-col group hover:-translate-y-1 transition-transform relative overflow-hidden">
+            <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex flex-col lg:flex-row gap-8 items-center group hover:-translate-y-1 transition-transform relative overflow-hidden">
               <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-              <div class="flex items-center justify-between mb-8 relative z-10">
+              
+              <div class="flex-shrink-0 w-full lg:w-1/4 flex flex-col sm:flex-row lg:flex-col justify-between items-start sm:items-center lg:items-start gap-4 relative z-10">
                 <div class="flex items-center gap-4">
                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-xl">T</div>
                    <div>
-                     <h3 class="text-xl font-black text-slate-900 leading-tight">Transportation & Assets</h3>
+                     <h3 class="text-xl font-black text-slate-900 leading-tight">Transport & Assets</h3>
                      <span class="text-[10px] font-black text-amber-600 uppercase tracking-widest">TASU Operations</span>
                    </div>
                 </div>
                 <div class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black italic shadow-sm">Optimal</div>
               </div>
               
-              <div class="grid grid-cols-2 gap-4 mb-8 relative z-10">
+              <div class="flex-grow w-full lg:w-1/2 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fleet Availability</p>
                    <p class="text-2xl font-black text-emerald-600">78%</p>
@@ -206,7 +210,7 @@
                 </div>
               </div>
 
-              <div class="h-[150px] relative mt-auto">
+              <div class="flex-shrink-0 w-full lg:w-1/4 h-[100px] relative">
                 <canvas id="tasuSummaryChart"></canvas>
               </div>
             </div>
