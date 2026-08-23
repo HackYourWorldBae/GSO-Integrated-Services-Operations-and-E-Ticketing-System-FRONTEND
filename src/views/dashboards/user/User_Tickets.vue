@@ -1015,7 +1015,7 @@ const isFormValid = computed(() => {
   if (!form.completionStatus) return false;
   if (form.completionStatus === 'on-time' || form.completionStatus === 'beyond-time') {
     const r = form.ratings;
-    return r.courtesy > 0 && r.quality > 0 && r.efficiency > 0 && r.timeliness > 0;
+    return r.quality > 0 && r.efficiency > 0 && r.timeliness > 0;
   }
   if (form.completionStatus === 'not-completed') {
     const nr = form.notCompletedReasons;
