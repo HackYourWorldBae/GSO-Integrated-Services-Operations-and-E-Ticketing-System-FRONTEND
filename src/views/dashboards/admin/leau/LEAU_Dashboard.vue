@@ -220,8 +220,25 @@
               <div class="w-2 h-6 bg-teal-500 rounded-full"></div>
               Evaluation Averages
             </h4>
-            <div class="flex-1 relative">
-              <canvas id="performanceRadar"></canvas>
+            <div class="flex-1 flex flex-col justify-center space-y-6 mt-4">
+              <div v-for="(metric, idx) in [
+                { label: 'Quality', val: safeVal(stats?.feedback_averages?.avg_quality) },
+                { label: 'Efficiency', val: safeVal(stats?.feedback_averages?.avg_efficiency) },
+                { label: 'Timeliness', val: safeVal(stats?.feedback_averages?.avg_timeliness) }
+              ]" :key="idx" class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-black text-slate-700 uppercase tracking-widest">{{ metric.label }}</span>
+                  <span class="text-xl font-black text-slate-900">{{ metric.val.toFixed(1) }}</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-amber-400 rounded-full" :style="{ width: (metric.val / 5 * 100) + '%' }"></div>
+                  </div>
+                  <div class="flex gap-0.5 text-amber-400">
+                    <svg v-for="i in 5" :key="i" class="w-4 h-4" :class="i <= Math.round(metric.val) ? 'fill-current' : 'text-slate-200 fill-current'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -359,38 +376,7 @@ const renderCharts = () => {
     return map[code] || code.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
   };
 
-  // 1. Performance Radar Chart
-  const radarCtx = document.getElementById('performanceRadar');
-  if (radarCtx && stats.value.feedback_averages) {
-    const avg = stats.value.feedback_averages;
-    charts.push(new Chart(radarCtx, {
-      type: 'radar',
-      data: {
-        labels: ['Quality', 'Efficiency', 'Timeliness'],
-        datasets: [{
-          label: 'Current Avg (1-5)',
-          data: [safeVal(avg.avg_quality), safeVal(avg.avg_efficiency), safeVal(avg.avg_timeliness)],
-          backgroundColor: 'rgba(20, 184, 166, 0.2)', // teal-500 with opacity
-          borderColor: '#14b8a6', // teal-500
-          pointBackgroundColor: '#14b8a6',
-          borderWidth: 3
-        }, {
-          label: 'Target Score',
-          data: [4.5, 4.5, 4.5],
-          backgroundColor: 'rgba(226, 232, 240, 0.1)',
-          borderColor: '#94a3b8',
-          borderDash: [5, 5],
-          borderWidth: 1,
-          pointRadius: 0
-        }]
-      },
-      options: {
-        scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, display: false } } },
-        plugins: { legend: { position: 'bottom' } },
-        responsive: true, maintainAspectRatio: false
-      }
-    }));
-  }
+
 
   // 2. Completion Health Doughnut
   const completionCtx = document.getElementById('leauCompletionDoughnut');
