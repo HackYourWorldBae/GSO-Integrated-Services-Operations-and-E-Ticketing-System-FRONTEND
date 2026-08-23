@@ -356,12 +356,13 @@ function setFgmuPeriod(period) {
   }
 }
 
+const safeVal = (val) => parseFloat(val) || 0;
+
 const renderCharts = () => {
   // Destroy existing charts to prevent memory leaks if re-rendered
   charts.forEach(c => c.destroy());
   charts = [];
 
-  const safeVal = (val) => parseFloat(val) || 0;
 
   const formatReason = (code) => {
     if (!code) return 'None';
