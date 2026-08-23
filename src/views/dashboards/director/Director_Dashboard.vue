@@ -30,7 +30,9 @@
           <div class="p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl border-b-4 border-b-emerald-500">
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Requests</p>
             <div class="flex items-end justify-between">
-              <h3 class="text-4xl font-black text-slate-900 tabular-nums leading-none">{{ stats.total || 0 }}</h3>
+              <h3 class="text-4xl font-black text-slate-900 tabular-nums leading-none">
+                {{ ((stats.pending || 0) + (stats.approved || 0) + (stats.processing || 0)) || 0 }}
+              </h3>
             </div>
             <div class="mt-4 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
               <div class="h-full bg-emerald-500 rounded-full" style="width: 100%"></div>
