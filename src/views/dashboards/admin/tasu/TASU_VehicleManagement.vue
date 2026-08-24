@@ -123,7 +123,7 @@
 
         <!-- Add New Vehicle Modal -->
         <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-          <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative">
+          <div class="bg-white rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
             <button @click="closeAddModal" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
