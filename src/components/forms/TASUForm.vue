@@ -94,13 +94,21 @@ const removeFile = (idx) => {
               theme="amber"
               placeholder="Type to search office/college..."
               :class="{'border-red-500': formsStore.v$.tasuVehicleState.officeCollegeDepartment.$error}"
-              @blur="formsStore.v$.tasuVehicleState.officeCollegeDepartment.$touch()"
+              @blur="formsStore.v$.tasuVehicleState.officeCollegeDepartment.$touch(); formsStore.v$.tasuVehicleState.agencyAddress.$touch()"
             />
-            <p v-if="formsStore.v$.tasuVehicleState.officeCollegeDepartment.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Required</p>
+            <p v-if="formsStore.v$.tasuVehicleState.officeCollegeDepartment.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Either Office or Agency is required</p>
           </div>
-          <div class="space-y-3">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Agency/Address (if non-BSU)</label>
-            <input v-model="formsStore.tasuVehicleState.agencyAddress" type="text" placeholder="Enter Agency/Address" class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-amber-500 focus:bg-white text-sm font-bold outline-none transition-all shadow-sm" />
+          <div class="space-y-3 relative pb-4">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.tasuVehicleState.agencyAddress.$error ? 'text-red-500' : 'text-slate-400'">Agency/Address (if non-BSU)</label>
+            <input 
+              v-model="formsStore.tasuVehicleState.agencyAddress" 
+              @blur="formsStore.v$.tasuVehicleState.agencyAddress.$touch(); formsStore.v$.tasuVehicleState.officeCollegeDepartment.$touch()"
+              type="text" 
+              placeholder="Enter Agency/Address" 
+              class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:border-amber-500 focus:bg-white text-sm font-bold outline-none transition-all shadow-sm"
+              :class="formsStore.v$.tasuVehicleState.agencyAddress.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50'"
+            />
+            <p v-if="formsStore.v$.tasuVehicleState.agencyAddress.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Either Office or Agency is required</p>
           </div>
         </div>
       </div>

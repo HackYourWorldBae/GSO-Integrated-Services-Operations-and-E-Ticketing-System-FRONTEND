@@ -217,7 +217,8 @@ export const useFormsStore = defineStore('forms', () => {
     },
     tasuVehicleState: {
       requestingPersonnel: { required },
-      officeCollegeDepartment: { required },
+      officeCollegeDepartment: { required: requiredIf(() => !tasuVehicleState.value.agencyAddress) },
+      agencyAddress: { required: requiredIf(() => !tasuVehicleState.value.officeCollegeDepartment) },
       numberOfPassengers: { required },
       dateOfTravel: { required },
       destination: { required },
