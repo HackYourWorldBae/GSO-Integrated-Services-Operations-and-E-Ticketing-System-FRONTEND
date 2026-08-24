@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import api from '@/utils/api';
+import apiClient from '@/api/client';
 
 export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
   const vehicles = ref([]);
@@ -8,7 +8,7 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
 
   const fetchVehicles = async () => {
     try {
-      const response = await api.get('tasu/vehicles');
+      const response = await apiClient.get('tasu/vehicles');
       if (response.data?.data?.vehicles) {
         vehicles.value = response.data.data.vehicles.map(v => ({
           id: v.id,
@@ -40,7 +40,7 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
     v.status = newStatusStr;
     
     try {
-      await api.patch(`tasu/vehicles/${vehicleId}/status`, { status: newBackendStatus });
+      await apiClient.patch(`tasu/vehicles/${vehicleId}/status`, { status: newBackendStatus });
     } catch (error) {
       console.error('Failed to update vehicle status:', error);
       v.status = previousStatus; // revert
@@ -52,7 +52,7 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
     // This expects the UI friendly status ('Available', 'In Use', etc)
     const backendStatus = newStatus === 'Available' ? 'available' : (newStatus === 'In Use' ? 'in_use' : (newStatus === 'Under Maintenance' ? 'maintenance' : 'reserved'));
     try {
-      await api.patch(`tasu/vehicles/${vehicleId}/status`, { status: backendStatus });
+      await apiClient.patch(`tasu/vehicles/${vehicleId}/status`, { status: backendStatus });
       await fetchVehicles();
     } catch (error) {
        console.error('Failed to update status', error);
@@ -71,7 +71,7 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
         category: vehicleData.category,
         image_url: vehicleData.image
       };
-      await api.post('tasu/vehicles', payload);
+      await apiClient.post('tasu/vehicles', payload);
       await fetchVehicles();
     } catch (error) {
       console.error('Failed to add vehicle:', error);
@@ -90,7 +90,7 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
         category: vehicleData.category,
         image_url: vehicleData.image
       };
-      await api.put(`tasu/vehicles/${vehicleId}`, payload);
+      await apiClient.put(`tasu/vehicles/${vehicleId}`, payload);
       await fetchVehicles();
     } catch (error) {
       console.error('Failed to update vehicle:', error);
