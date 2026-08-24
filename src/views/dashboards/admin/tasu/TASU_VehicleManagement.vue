@@ -56,8 +56,16 @@
         <div class="flex items-center justify-between bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm transition-all hover:shadow-xl hover:shadow-emerald-500/5">
           <div class="flex items-center gap-6">
             <div class="flex -space-x-4 overflow-hidden">
-               <img v-for="i in 3" :key="i" class="inline-block h-12 w-12 rounded-full ring-4 ring-white object-cover" src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=150" alt="">
-               <div class="flex items-center justify-center h-12 w-12 rounded-full bg-slate-100 ring-4 ring-white text-xs font-black text-slate-400 font-sans">+14</div>
+               <template v-for="(v, index) in activeFleetAvatars" :key="v.id || index">
+                 <img v-if="v.image" :src="v.image" class="inline-block h-12 w-12 rounded-full ring-4 ring-white object-cover bg-white" alt="Vehicle Thumbnail">
+                 <div v-else class="inline-block h-12 w-12 rounded-full ring-4 ring-white bg-slate-100 flex items-center justify-center">
+                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                     <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                     <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
+                   </svg>
+                 </div>
+               </template>
+               <div v-if="remainingFleetCount > 0" class="flex items-center justify-center h-12 w-12 rounded-full bg-slate-100 ring-4 ring-white text-xs font-black text-slate-400 font-sans">+{{ remainingFleetCount }}</div>
             </div>
             <div>
               <h3 class="text-lg font-black text-slate-900 tracking-tight">Active Fleet Control</h3>
@@ -75,8 +83,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div v-for="vehicle in vehicles" :key="vehicle.id" class="group relative bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
             <!-- Vehicle Image Backdrop -->
-            <div class="h-56 overflow-hidden relative">
-              <img :src="vehicle.image" :alt="vehicle.name" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+            <div class="h-56 overflow-hidden relative bg-slate-100 flex items-center justify-center">
+              <img v-if="vehicle.image" :src="vehicle.image" :alt="vehicle.name" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-slate-300 transition-transform duration-700 group-hover:scale-110" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
+              </svg>
               <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
               <div class="absolute top-6 left-6">
                 <span :class="['px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 shadow-sm backdrop-blur-md', vehicle.status === 'Available' ? 'bg-emerald-500/20 text-emerald-100 border-emerald-400/30' : 'bg-red-500/20 text-red-100 border-red-400/30']">
@@ -172,8 +184,9 @@
                   <input v-model="vehicleForm.engine" required type="text" placeholder="e.g. 2800 cc / Euro 4" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
                 </div>
                 <div class="col-span-2">
-                  <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Image URL (Optional)</label>
-                  <input v-model="vehicleForm.image" type="text" placeholder="https://..." class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
+                  <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Image Thumbnail (Optional)</label>
+                  <input @change="handleImageUpload" type="file" accept="image/*" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
+                  <p v-if="vehicleForm.image && !vehicleForm.imageFile" class="text-xs text-slate-400 mt-2">Current image will be kept if no new file is uploaded.</p>
                 </div>
               </div>
               <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end gap-3">
@@ -198,6 +211,14 @@ import { toast } from 'vue3-toastify';
 const store = useTasuVehiclesStore();
 const vehicles = computed(() => store.vehicles);
 
+const activeFleetAvatars = computed(() => {
+  return vehicles.value.slice(0, 4);
+});
+
+const remainingFleetCount = computed(() => {
+  return vehicles.value.length > 4 ? vehicles.value.length - 4 : 0;
+});
+
 onMounted(async () => {
   await store.fetchVehicles();
 });
@@ -214,8 +235,18 @@ const vehicleForm = ref({
   fuel: 'Diesel',
   model: '2026',
   engine: '',
-  image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/2019_Toyota_HiAce_GL_Grandia_Tourer_2.8.jpg/800px-2019_Toyota_HiAce_GL_Grandia_Tourer_2.8.jpg'
+  image: '',
+  imageFile: null
 });
+
+const handleImageUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    vehicleForm.value.imageFile = file;
+  } else {
+    vehicleForm.value.imageFile = null;
+  }
+};
 
 const openEditModal = (vehicle) => {
   isEditing.value = true;
@@ -234,7 +265,8 @@ const closeAddModal = () => {
     fuel: 'Diesel',
     model: '2026',
     engine: '',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/2019_Toyota_HiAce_GL_Grandia_Tourer_2.8.jpg/800px-2019_Toyota_HiAce_GL_Grandia_Tourer_2.8.jpg'
+    image: '',
+    imageFile: null
   };
 };
 

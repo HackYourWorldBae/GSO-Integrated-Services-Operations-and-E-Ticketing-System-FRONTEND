@@ -62,16 +62,20 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
 
   const addVehicle = async (vehicleData) => {
     try {
-      const payload = {
-        plate_no: vehicleData.plate,
-        model_name: vehicleData.name,
-        model_year: vehicleData.model,
-        fuel_type: vehicleData.fuel,
-        engine_specs: vehicleData.engine,
-        category: vehicleData.category,
-        image_url: vehicleData.image
-      };
-      await apiClient.post('tasu/vehicles', payload);
+      const formData = new FormData();
+      formData.append('plate_no', vehicleData.plate);
+      formData.append('model_name', vehicleData.name);
+      formData.append('model_year', vehicleData.model);
+      formData.append('fuel_type', vehicleData.fuel);
+      formData.append('engine_specs', vehicleData.engine);
+      formData.append('category', vehicleData.category);
+      if (vehicleData.imageFile) {
+        formData.append('image', vehicleData.imageFile);
+      }
+      
+      await apiClient.post('tasu/vehicles', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       await fetchVehicles();
     } catch (error) {
       console.error('Failed to add vehicle:', error);
@@ -81,16 +85,23 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
 
   const updateVehicle = async (vehicleId, vehicleData) => {
     try {
-      const payload = {
-        plate_no: vehicleData.plate,
-        model_name: vehicleData.name,
-        model_year: vehicleData.model,
-        fuel_type: vehicleData.fuel,
-        engine_specs: vehicleData.engine,
-        category: vehicleData.category,
-        image_url: vehicleData.image
-      };
-      await apiClient.put(`tasu/vehicles/${vehicleId}`, payload);
+      const formData = new FormData();
+      formData.append('plate_no', vehicleData.plate);
+      formData.append('model_name', vehicleData.name);
+      formData.append('model_year', vehicleData.model);
+      formData.append('fuel_type', vehicleData.fuel);
+      formData.append('engine_specs', vehicleData.engine);
+      formData.append('category', vehicleData.category);
+      if (vehicleData.image) {
+        formData.append('image_url', vehicleData.image);
+      }
+      if (vehicleData.imageFile) {
+        formData.append('image', vehicleData.imageFile);
+      }
+
+      await apiClient.post(`tasu/vehicles/${vehicleId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       await fetchVehicles();
     } catch (error) {
       console.error('Failed to update vehicle:', error);
