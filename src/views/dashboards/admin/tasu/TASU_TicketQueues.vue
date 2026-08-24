@@ -48,58 +48,61 @@
       <div class="flex flex-col">
         <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">Ticket Queues</h2>
         <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">TASU Booking Approval Queue</p>
+<template>
+  <MainLayout>
+    <template #sidebar-links>
+      <router-link to="/admin/tasu" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+        </svg>
+        <span class="text">TASU Home</span>
+      </router-link>
+      <router-link to="/admin/tasu/vehicles" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+        </svg>
+        <span class="text">Vehicle Management</span>
+      </router-link>
+      <router-link to="/admin/tasu/queues" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <span class="text">Ticket Queues</span>
+      </router-link>
+      <router-link to="/admin/tasu/personnel" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <span class="text">Personnel Management</span>
+      </router-link>
+      <router-link to="/admin/tasu/dispatch" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="text">Dispatch Board</span>
+      </router-link>
+      <div class="mt-8 mb-4 px-4">
+        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Archived Tickets</p>
+      </div>
+      <router-link to="/admin/tasu/archives" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+        </svg>
+        <span class="text">Archives</span>
+      </router-link>
+    </template>
+
+    <template #header-title>
+      <div class="flex flex-col">
+        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">Ticket Queues</h2>
+        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">TASU Booking Approval Queue</p>
       </div>
     </template>
 
     <template #main-content>
       <div class="space-y-6 animate-fade-in relative pb-12">
-
-        <!-- Analytics Summary -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="p-5 rounded-[1.75rem] bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all flex items-center gap-4">
-            <div class="p-3 rounded-2xl bg-amber-50 text-amber-500 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Pending</p>
-              <p class="text-3xl font-black text-slate-900 tabular-nums leading-none">{{ pendingCount }}</p>
-              <p class="text-[10px] font-semibold text-slate-400 mt-0.5">Awaiting approval</p>
-            </div>
-          </div>
-
-          <div class="p-5 rounded-[1.75rem] bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all flex items-center gap-4">
-            <div class="p-3 rounded-2xl bg-blue-50 text-blue-500 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Dispatched & Scheduled</p>
-              <p class="text-3xl font-black text-slate-900 tabular-nums leading-none">{{ scheduledCount }}</p>
-              <p class="text-[10px] font-semibold text-slate-400 mt-0.5">Approved & queued</p>
-            </div>
-          </div>
-
-          <div class="p-5 rounded-[1.75rem] bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all flex items-center gap-4">
-            <div class="p-3 rounded-2xl bg-blue-50 text-blue-600 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Active Dispatches</p>
-              <p class="text-3xl font-black text-slate-900 tabular-nums leading-none">{{ activeCount }}</p>
-              <p class="text-[10px] font-semibold text-slate-400 mt-0.5">Currently in progress</p>
-            </div>
-          </div>
-
-          <div class="p-5 rounded-[1.75rem] bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all flex items-center gap-4">
-            <div class="p-3 rounded-2xl bg-slate-100 text-slate-500 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Completed</p>
-              <p class="text-3xl font-black text-slate-900 tabular-nums leading-none">{{ completedCount }}</p>
-              <p class="text-[10px] font-semibold text-slate-400 mt-0.5">Successfully resolved</p>
-            </div>
-          </div>
-        </div>
 
         <div class="grid grid-cols-1 gap-4">
           <div v-for="ticket in tickets" :key="ticket.id" class="group relative overflow-hidden bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all">
@@ -258,11 +261,6 @@ const downloadAttachment = async (att) => {
 
 const tickets = ref([]);
 
-const pendingCount = ref(0);
-const scheduledCount = ref(0);
-const activeCount = ref(0);
-const completedCount = ref(0);
-
 const fetchQueue = async () => {
   try {
     const response = await api.get('tickets/queue/TASU');
@@ -271,39 +269,6 @@ const fetchQueue = async () => {
         id: t.id,
         ticketId: t.id,
         title: t.title,
-        service: t.service_type,
-        description: t.description,
-        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        requestedBy: 'End User', // Ideally fetched from user relation
-        location: t.location,
-        office_room: t.office_room,
-        attachments: t.attachments || [],
-        isDeclining: false,
-        declineReason: ''
-      }));
-    }
-  } catch (error) {
-    console.error('Failed to fetch TASU queue:', error);
-  }
-
-  try {
-    const statsResponse = await api.get('tickets/stats/TASU');
-    if (statsResponse.data?.data?.stats) {
-      const stats = statsResponse.data.data.stats;
-      pendingCount.value = parseInt(stats.pending || 0);
-      scheduledCount.value = parseInt(stats.scheduled || 0);
-      activeCount.value = parseInt(stats.active_working || 0);
-      completedCount.value = parseInt(stats.resolved || 0);
-    }
-  } catch (error) {
-    console.error('Failed to fetch TASU stats:', error);
-  }
-};
-
-let pollingInterval = null;
-
-onMounted(() => {
-  fetchQueue();
   // Smart polling every 5 seconds
   pollingInterval = setInterval(() => {
     const isInteracting = tickets.value.some(t => t.isDeclining);
