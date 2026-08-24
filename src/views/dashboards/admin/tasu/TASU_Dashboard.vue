@@ -75,7 +75,7 @@
               <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full uppercase tracking-tighter">Pending TO</span>
             </div>
             <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.pending || 0 }}</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Travel Orders Awaiting VP</p>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Tickets Awaiting Approval</p>
           </div>
 
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
@@ -86,7 +86,7 @@
               <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-tighter">Active Trips</span>
             </div>
             <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.processing || 0 }}</h3>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Trip Tickets Issued & Scheduled</p>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Vehicles Currently on Travel</p>
           </div>
 
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all">
