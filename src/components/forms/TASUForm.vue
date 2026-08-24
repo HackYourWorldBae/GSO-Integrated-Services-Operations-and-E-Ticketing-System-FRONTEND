@@ -31,10 +31,12 @@ const handleFile = (e) => {
     }
   });
   if (e.target) e.target.value = '';
+  formsStore.v$.tasuVehicleState.travelOrderAttachments.$touch();
 };
 
 const removeFile = (idx) => {
   formsStore.tasuVehicleState.travelOrderAttachments.splice(idx, 1);
+  formsStore.v$.tasuVehicleState.travelOrderAttachments.$touch();
 };
 </script>
 
@@ -135,10 +137,9 @@ const removeFile = (idx) => {
             <input 
               v-model="formsStore.tasuVehicleState.dateOfTravel" 
               @blur="formsStore.v$.tasuVehicleState.dateOfTravel.$touch()"
-              type="text" 
-              readonly 
-              class="w-full h-14 px-6 rounded-2xl border-2 text-sm font-bold outline-none cursor-not-allowed"
-              :class="formsStore.v$.tasuVehicleState.dateOfTravel.$error ? 'border-red-500 bg-red-50 text-red-900' : 'border-amber-500/20 bg-amber-100/30 text-slate-900'" 
+              type="date" 
+              class="w-full h-14 px-6 rounded-2xl border-2 focus:bg-white text-sm font-bold outline-none transition-all shadow-sm"
+              :class="formsStore.v$.tasuVehicleState.dateOfTravel.$error ? 'border-red-500 bg-red-50 text-red-900 focus:border-red-500' : 'bg-slate-50 border-slate-50 focus:border-purple-500'" 
             />
             <p v-if="formsStore.v$.tasuVehicleState.dateOfTravel.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Required</p>
           </div>
@@ -170,20 +171,21 @@ const removeFile = (idx) => {
         </div>
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-4 relative pb-4">
         <div class="flex items-center gap-3">
            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
            </div>
-           <h4 class="text-sm font-black text-slate-900 uppercase tracking-widest">Travel Order Document</h4>
+           <h4 class="text-sm font-black uppercase tracking-widest" :class="formsStore.v$.tasuVehicleState.travelOrderAttachments.$error ? 'text-red-500' : 'text-slate-900'">Travel Order Document</h4>
         </div>
         <p class="text-[10px] text-slate-400 font-bold ml-11 uppercase tracking-widest leading-none">Please attach your approved Travel Order here</p>
         
-        <div @click="$refs.fileInput.click()" class="w-full p-8 rounded-[2rem] border-3 border-dashed border-slate-100 hover:border-amber-500 hover:bg-amber-50/50 transition-all cursor-pointer text-center group">
+        <div @click="$refs.fileInput.click()" class="w-full p-8 rounded-[2rem] border-3 border-dashed border-slate-100 hover:border-amber-500 hover:bg-amber-50/50 transition-all cursor-pointer text-center group" :class="formsStore.v$.tasuVehicleState.travelOrderAttachments.$error ? 'border-red-500 bg-red-50' : ''">
           <input type="file" ref="fileInput" multiple @change="handleFile" class="hidden" />
           <p class="text-sm font-black text-slate-600 group-hover:text-amber-700 transition-colors">Click to upload Travel Order file</p>
           <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Supports PNG, JPG, PDF</p>
         </div>
+        <p v-if="formsStore.v$.tasuVehicleState.travelOrderAttachments.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-11 animate-fade-in">Travel Order is required</p>
         <div v-if="formsStore.tasuVehicleState.travelOrderAttachments.length > 0" class="flex flex-wrap gap-3 animate-fade-in mt-4">
           <div v-for="(f, i) in formsStore.tasuVehicleState.travelOrderAttachments" :key="f.name" class="px-5 py-3 bg-white border border-slate-100 rounded-2xl flex items-center gap-4 shadow-sm">
             <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">

@@ -224,7 +224,8 @@ export const useFormsStore = defineStore('forms', () => {
       numberOfPassengers: { required },
       dateOfTravel: { required },
       destination: { required },
-      purposeOfTravel: { required, minLength: minLength(10) }
+      purposeOfTravel: { required, minLength: minLength(10) },
+      travelOrderAttachments: { required, minLength: minLength(1) }
     }
   }));
 

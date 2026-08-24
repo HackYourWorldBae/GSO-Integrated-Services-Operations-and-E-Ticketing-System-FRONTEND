@@ -263,7 +263,6 @@ const handleLogout = () => {
 
 // --- TOGGLE ---
 const toggleService = (catTitle, service) => {
-  if (service === 'Book A University Vehicle') return;
   const key = `${catTitle}-${service}`;
   selectedServices[key] = !selectedServices[key];
 };
@@ -309,9 +308,6 @@ const removeCustomService = (catTitle, service) => {
     }
   });
 };
-
-// --- NAVIGATION ---
-const goToVehicleAvailability = () => router.push('/services/vehicle-availability');
 
 // --- SUBMIT ---
 const handleSubmit = () => {
@@ -438,22 +434,8 @@ const handleSubmit = () => {
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
                   <template v-for="service in category.services" :key="service">
 
-                    <!-- Special: Book A University Vehicle -->
-                    <div
-                      v-if="service === 'Book A University Vehicle'"
-                      @click="goToVehicleAvailability"
-                      class="group relative cursor-pointer select-none rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 transition-all duration-300 border-2 flex flex-col items-center justify-center gap-2.5 sm:gap-3 text-center min-h-[130px] sm:min-h-[145px] bg-gradient-to-br from-emerald-600 to-teal-700 border-emerald-500 text-white shadow-md shadow-emerald-700/20 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-700/30"
-                    >
-                      <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center bg-white/15 text-white border border-white/20" v-html="getServiceIcon(service)"></div>
-                      <span class="text-[11px] sm:text-xs font-black leading-tight text-center uppercase tracking-wide">Book A University Vehicle</span>
-                      <div class="absolute bottom-2.5 right-2.5 w-6 h-6 rounded-full bg-white/15 flex items-center justify-center group-hover:bg-white group-hover:text-emerald-700 transition-all duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                      </div>
-                    </div>
-
                     <!-- Regular: Checkable Service Card -->
                     <div
-                      v-else
                       @click="toggleService(category.title, service)"
                       class="group relative cursor-pointer select-none rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 transition-all duration-300 border-2 flex flex-col items-center justify-center gap-2.5 sm:gap-3 text-center min-h-[130px] sm:min-h-[145px]"
                       :class="selectedServices[`${category.title}-${service}`]

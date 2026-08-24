@@ -22,6 +22,7 @@ const FGMU_Workers = () => import('../views/dashboards/dispatcher/fgmu/FGMU_Work
 const LEAU_Dispatcher = () => import('../views/dashboards/dispatcher/leau/LEAU.vue');
 const LEAU_Workers = () => import('../views/dashboards/dispatcher/leau/LEAU_Workers.vue');
 const TASU_Dispatcher = () => import('../views/dashboards/dispatcher/tasu/TASU.vue');
+
 const TASU_Drivers = () => import('../views/dashboards/dispatcher/tasu/TASU_Drivers.vue');
 const FGMU_DispatchedTickets = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatchedTickets.vue');
 const LEAU_DispatchedTickets = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatchedTickets.vue');
@@ -35,7 +36,6 @@ const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
 const TASU_VehicleManagement = () => import('../views/dashboards/admin/tasu/TASU_VehicleManagement.vue');
 const TASU_DispatchBoard = () => import('../views/dashboards/admin/tasu/TASU_DispatchBoard.vue');
-const VehicleAvailabilityView = () => import('../views/VehicleAvailabilityView.vue');
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
 const LEAU_Personnel = () => import('../views/dashboards/admin/leau/LEAU_Personnel.vue');
 const TASU_Personnel = () => import('../views/dashboards/admin/tasu/TASU_Personnel.vue');
@@ -299,11 +299,6 @@ const router = createRouter({
       path: '/dispatcher/leau/project-archives',
       name: 'leau-dispatcher-project-archives',
       component: LEAU_DispatcherProjectArchives
-    },
-    {
-      path: '/services/vehicle-availability',
-      name: 'vehicle-availability',
-      component: VehicleAvailabilityView
     },
     {
       path: '/services/forms',
