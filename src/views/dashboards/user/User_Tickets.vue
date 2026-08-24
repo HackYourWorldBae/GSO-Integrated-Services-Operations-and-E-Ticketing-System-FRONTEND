@@ -495,7 +495,7 @@
                             <div v-if="showDigitalForm" class="mt-3 animate-fade-in">
                               <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                                 <FormRow label="Destination" :value="selectedTicket.destination" />
-                                <FormRow label="Passengers" :value="selectedTicket.passengers" />
+                                <FormRow label="No. of Passengers" :value="selectedTicket.passengers" />
                                 <FormRow label="Date of Travel" :value="selectedTicket.dateOfTravel" />
                                 <FormRow label="Purpose of Travel" :value="selectedTicket.purpose" full />
                               </div>
@@ -775,7 +775,7 @@ const fetchTickets = async () => {
           ? `${t.details.house_street}, ${t.details.barangay}, ${t.details.city_municipality}, ${t.details.province}`
           : (t.details?.complete_address || ''),
         destination: t.details?.destination || 'N/A',
-        passengers: t.details?.number_of_passengers || t.details?.numberOfPassengers || 'N/A',
+        passengers: t.details?.num_passengers || t.details?.number_of_passengers || t.details?.numberOfPassengers || 'N/A',
         dateOfTravel: t.details?.date_of_travel || t.details?.dateOfTravel || 'N/A',
         purpose: t.details?.purpose_of_travel || t.details?.purposeOfTravel || t.details?.purpose || 'N/A',
         attachments: t.attachments || [],
