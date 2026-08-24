@@ -67,22 +67,9 @@ const removeFile = (idx) => {
         <div class="h-1.5 w-24 bg-amber-500 mx-auto rounded-full mt-2"></div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8">
-        <div class="space-y-3">
-          <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Date of Request</label>
-          <input v-model="formsStore.tasuVehicleState.date" type="text" readonly class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 border-slate-50 text-slate-900 text-sm font-bold outline-none cursor-not-allowed" />
-        </div>
-        <div class="space-y-3 relative pb-4">
-          <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.tasuVehicleState.time.$error ? 'text-red-500' : 'text-slate-400'">Time</label>
-          <input 
-            v-model="formsStore.tasuVehicleState.time" 
-            @blur="formsStore.v$.tasuVehicleState.time.$touch()"
-            type="time" 
-            class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
-            :class="formsStore.v$.tasuVehicleState.time.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-purple-500'" 
-          />
-          <p v-if="formsStore.v$.tasuVehicleState.time.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Required</p>
-        </div>
+      <div class="space-y-3">
+        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Date of Request</label>
+        <input v-model="formsStore.tasuVehicleState.date" type="text" readonly class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 border-slate-50 text-slate-900 text-sm font-bold outline-none cursor-not-allowed" />
       </div>
 
       <div class="space-y-8">
@@ -125,6 +112,7 @@ const removeFile = (idx) => {
             <input 
               v-model="formsStore.tasuVehicleState.numberOfPassengers" 
               @blur="formsStore.v$.tasuVehicleState.numberOfPassengers.$touch()"
+              @wheel.prevent
               type="number" 
               placeholder="0" 
               class="w-full h-14 px-6 rounded-2xl bg-white border-2 text-sm font-bold outline-none shadow-sm transition-all"
@@ -151,7 +139,7 @@ const removeFile = (idx) => {
             v-model="formsStore.tasuVehicleState.destination" 
             @blur="formsStore.v$.tasuVehicleState.destination.$touch()"
             type="text" 
-            placeholder="Complete address of destination" 
+            placeholder="Destination name/Destination address" 
             class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
             :class="formsStore.v$.tasuVehicleState.destination.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-purple-500'" 
           />
@@ -179,6 +167,7 @@ const removeFile = (idx) => {
            <h4 class="text-sm font-black uppercase tracking-widest" :class="formsStore.v$.tasuVehicleState.travelOrderAttachments.$error ? 'text-red-500' : 'text-slate-900'">Travel Order Document</h4>
         </div>
         <p class="text-[10px] text-slate-400 font-bold ml-11 uppercase tracking-widest leading-none">Please attach your approved Travel Order here</p>
+        <p class="text-[10px] text-amber-600 font-black ml-11 uppercase tracking-widest leading-none">Important: Ensure that the Travel Order is already signed and approved before attaching.</p>
         
         <div @click="$refs.fileInput.click()" class="w-full p-8 rounded-[2rem] border-3 border-dashed border-slate-100 hover:border-amber-500 hover:bg-amber-50/50 transition-all cursor-pointer text-center group" :class="formsStore.v$.tasuVehicleState.travelOrderAttachments.$error ? 'border-red-500 bg-red-50' : ''">
           <input type="file" ref="fileInput" multiple @change="handleFile" class="hidden" />

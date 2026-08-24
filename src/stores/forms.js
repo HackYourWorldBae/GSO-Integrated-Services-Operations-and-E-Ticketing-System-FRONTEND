@@ -75,7 +75,6 @@ export const useFormsStore = defineStore('forms', () => {
 
   const tasuVehicleState = ref({
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-    time: '',
     requestingPersonnel: '',
     officeCollegeDepartment: '',
     agencyAddress: '',
@@ -160,7 +159,6 @@ export const useFormsStore = defineStore('forms', () => {
 
     tasuVehicleState.value = {
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-      time: '',
       requestingPersonnel: '',
       officeCollegeDepartment: '',
       agencyAddress: '',
@@ -218,7 +216,6 @@ export const useFormsStore = defineStore('forms', () => {
       }
     },
     tasuVehicleState: {
-      time: { required },
       requestingPersonnel: { required },
       officeCollegeDepartment: { required },
       numberOfPassengers: { required },
