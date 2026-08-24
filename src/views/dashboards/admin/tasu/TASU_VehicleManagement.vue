@@ -92,12 +92,11 @@
                     <h3 class="text-xl font-black text-slate-900 tracking-tight mb-1">{{ vehicle.name }}</h3>
                     <p class="text-sm text-slate-400 font-bold uppercase tracking-widest leading-none">{{ vehicle.plate }}</p>
                   </div>
-                  <div class="p-3 bg-slate-100 rounded-2xl text-slate-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1" />
+                  <button @click="openEditModal(vehicle)" class="p-3 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-600 rounded-2xl text-slate-400 transition-colors shadow-sm" title="Edit Vehicle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
-                  </div>
+                  </button>
                </div>
 
                <div class="grid grid-cols-2 gap-4">
@@ -131,23 +130,23 @@
               </svg>
             </button>
             <div class="mb-6">
-              <span class="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full bg-emerald-50 text-emerald-600 mb-2 inline-block">Fleet Expansion</span>
-              <h3 class="text-2xl font-black text-slate-900">Add New Vehicle</h3>
-              <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Register a new unit to TASU active fleet</p>
+              <span class="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full bg-emerald-50 text-emerald-600 mb-2 inline-block">{{ isEditing ? 'Update Fleet' : 'Fleet Expansion' }}</span>
+              <h3 class="text-2xl font-black text-slate-900">{{ isEditing ? 'Edit Vehicle' : 'Add New Vehicle' }}</h3>
+              <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">{{ isEditing ? 'Update details of the vehicle' : 'Register a new unit to TASU active fleet' }}</p>
             </div>
-            <form @submit.prevent="submitNewVehicle" class="space-y-4">
+            <form @submit.prevent="submitVehicleForm" class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Vehicle Name / Unit</label>
-                  <input v-model="newVehicle.name" required type="text" placeholder="e.g. Toyota Coaster Deluxe" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
+                  <input v-model="vehicleForm.name" required type="text" placeholder="e.g. Toyota Coaster Deluxe" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
                 </div>
                 <div>
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Plate Number</label>
-                  <input v-model="newVehicle.plate" required type="text" placeholder="e.g. SYA 8890" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all uppercase" />
+                  <input v-model="vehicleForm.plate" required type="text" placeholder="e.g. SYA 8890" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all uppercase" />
                 </div>
                 <div>
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Category</label>
-                  <select v-model="newVehicle.category" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
+                  <select v-model="vehicleForm.category" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
                     <option value="Van">Van</option>
                     <option value="Bus">Bus</option>
                     <option value="Pickup">Pickup</option>
@@ -157,7 +156,7 @@
                 </div>
                 <div>
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Fuel Type</label>
-                  <select v-model="newVehicle.fuel" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
+                  <select v-model="vehicleForm.fuel" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
                     <option value="Diesel">Diesel</option>
                     <option value="Gasoline">Gasoline</option>
                     <option value="Electric / Hybrid">Electric / Hybrid</option>
@@ -165,20 +164,20 @@
                 </div>
                 <div>
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Model Year</label>
-                  <input v-model="newVehicle.model" required type="text" placeholder="e.g. 2026" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
+                  <input v-model="vehicleForm.model" required type="text" placeholder="e.g. 2026" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
                 </div>
                 <div class="col-span-2">
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Engine / Displacement</label>
-                  <input v-model="newVehicle.engine" required type="text" placeholder="e.g. 2800 cc / Euro 4" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
+                  <input v-model="vehicleForm.engine" required type="text" placeholder="e.g. 2800 cc / Euro 4" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
                 </div>
                 <div class="col-span-2">
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Image URL (Optional)</label>
-                  <input v-model="newVehicle.image" type="text" placeholder="https://..." class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
+                  <input v-model="vehicleForm.image" type="text" placeholder="https://..." class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
                 </div>
               </div>
               <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end gap-3">
                 <button type="button" @click="closeAddModal" class="px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl text-sm hover:bg-slate-200 transition-colors">Cancel</button>
-                <button type="submit" class="px-8 py-3 bg-emerald-600 text-white font-bold rounded-xl text-sm shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 transition-all hover:-translate-y-0.5">Add Vehicle</button>
+                <button type="submit" class="px-8 py-3 bg-emerald-600 text-white font-bold rounded-xl text-sm shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 transition-all hover:-translate-y-0.5" :disabled="isSubmitting">{{ isEditing ? (isSubmitting ? 'Updating...' : 'Update Vehicle') : (isSubmitting ? 'Adding...' : 'Add Vehicle') }}</button>
               </div>
             </form>
           </div>
@@ -189,7 +188,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuVehiclesStore } from '@/stores/tasuVehicles';
 import { toast } from 'vue3-toastify';
@@ -197,8 +196,16 @@ import { toast } from 'vue3-toastify';
 const store = useTasuVehiclesStore();
 const vehicles = computed(() => store.vehicles);
 
+onMounted(async () => {
+  await store.fetchVehicles();
+});
+
 const showAddModal = ref(false);
-const newVehicle = ref({
+const isEditing = ref(false);
+const isSubmitting = ref(false);
+
+const vehicleForm = ref({
+  id: null,
   name: '',
   plate: '',
   category: 'Van',
@@ -208,9 +215,17 @@ const newVehicle = ref({
   image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/2019_Toyota_HiAce_GL_Grandia_Tourer_2.8.jpg/800px-2019_Toyota_HiAce_GL_Grandia_Tourer_2.8.jpg'
 });
 
+const openEditModal = (vehicle) => {
+  isEditing.value = true;
+  vehicleForm.value = { ...vehicle };
+  showAddModal.value = true;
+};
+
 const closeAddModal = () => {
   showAddModal.value = false;
-  newVehicle.value = {
+  isEditing.value = false;
+  vehicleForm.value = {
+    id: null,
     name: '',
     plate: '',
     category: 'Van',
@@ -221,15 +236,31 @@ const closeAddModal = () => {
   };
 };
 
-const submitNewVehicle = () => {
-  store.addVehicle({ ...newVehicle.value });
-  toast.success(`Successfully added ${newVehicle.value.name} (${newVehicle.value.plate})`);
-  closeAddModal();
+const submitVehicleForm = async () => {
+  isSubmitting.value = true;
+  try {
+    if (isEditing.value) {
+      await store.updateVehicle(vehicleForm.value.id, { ...vehicleForm.value });
+      toast.success(`Successfully updated ${vehicleForm.value.name} (${vehicleForm.value.plate})`);
+    } else {
+      await store.addVehicle({ ...vehicleForm.value });
+      toast.success(`Successfully added ${vehicleForm.value.name} (${vehicleForm.value.plate})`);
+    }
+    closeAddModal();
+  } catch (error) {
+    toast.error('An error occurred. Please try again.');
+  } finally {
+    isSubmitting.value = false;
+  }
 };
 
-const toggleStatus = (vehicle) => {
-  store.toggleVehicleStatus(vehicle.id);
-  toast.info(`${vehicle.name} marked as ${vehicle.status}`);
+const toggleStatus = async (vehicle) => {
+  try {
+    await store.toggleVehicleStatus(vehicle.id);
+    toast.info(`${vehicle.name} status updated.`);
+  } catch (error) {
+    toast.error('Failed to update vehicle status.');
+  }
 };
 </script>
 

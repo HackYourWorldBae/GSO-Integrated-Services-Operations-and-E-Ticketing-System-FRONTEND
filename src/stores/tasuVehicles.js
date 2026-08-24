@@ -1,38 +1,104 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
+import api from '@/utils/api';
 
 export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
-  const vehicles = ref([
-  ]);
+  const vehicles = ref([]);
+  const bookings = ref([]);
 
-  // Initial rich bookings spanning July 2026 (current week July 13-19, and the full month of July 2026),
-  // as well as earlier dates in March/April.
-  const bookings = ref([
-  ]);
-
-  const toggleVehicleStatus = (vehicleId) => {
-    const v = vehicles.value.find(item => item.id === vehicleId);
-    if (v) {
-      v.status = v.status === 'Available' ? 'Under Maintenance' : 'Available';
+  const fetchVehicles = async () => {
+    try {
+      const response = await api.get('tasu/vehicles');
+      if (response.data?.data?.vehicles) {
+        vehicles.value = response.data.data.vehicles.map(v => ({
+          id: v.id,
+          name: v.model_name,
+          plate: v.plate_no,
+          category: v.category,
+          fuel: v.fuel_type,
+          model: v.model_year,
+          engine: v.engine_specs,
+          image: v.image_url,
+          status: v.status === 'available' ? 'Available' : (v.status === 'in_use' ? 'In Use' : (v.status === 'maintenance' ? 'Under Maintenance' : 'Reserved'))
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch vehicles:', error);
     }
   };
 
-  const updateVehicleStatus = (vehicleId, newStatus) => {
+  const toggleVehicleStatus = async (vehicleId) => {
     const v = vehicles.value.find(item => item.id === vehicleId);
-    if (v) {
-      v.status = newStatus;
+    if (!v) return;
+    
+    // Toggle logically for the UI
+    const newStatusStr = v.status === 'Available' ? 'Under Maintenance' : 'Available';
+    const newBackendStatus = newStatusStr === 'Available' ? 'available' : 'maintenance';
+    
+    // Optimistic UI update
+    const previousStatus = v.status;
+    v.status = newStatusStr;
+    
+    try {
+      await api.patch(`tasu/vehicles/${vehicleId}/status`, { status: newBackendStatus });
+    } catch (error) {
+      console.error('Failed to update vehicle status:', error);
+      v.status = previousStatus; // revert
+      throw error;
     }
   };
 
-  const addVehicle = (vehicleData) => {
-    const newId = vehicles.value.length > 0 ? Math.max(...vehicles.value.map(v => v.id)) + 1 : 1;
-    vehicles.value.push({
-      id: newId,
-      status: 'Available',
-      ...vehicleData
-    });
+  const updateVehicleStatus = async (vehicleId, newStatus) => {
+    // This expects the UI friendly status ('Available', 'In Use', etc)
+    const backendStatus = newStatus === 'Available' ? 'available' : (newStatus === 'In Use' ? 'in_use' : (newStatus === 'Under Maintenance' ? 'maintenance' : 'reserved'));
+    try {
+      await api.patch(`tasu/vehicles/${vehicleId}/status`, { status: backendStatus });
+      await fetchVehicles();
+    } catch (error) {
+       console.error('Failed to update status', error);
+       throw error;
+    }
   };
 
+  const addVehicle = async (vehicleData) => {
+    try {
+      const payload = {
+        plate_no: vehicleData.plate,
+        model_name: vehicleData.name,
+        model_year: vehicleData.model,
+        fuel_type: vehicleData.fuel,
+        engine_specs: vehicleData.engine,
+        category: vehicleData.category,
+        image_url: vehicleData.image
+      };
+      await api.post('tasu/vehicles', payload);
+      await fetchVehicles();
+    } catch (error) {
+      console.error('Failed to add vehicle:', error);
+      throw error;
+    }
+  };
+
+  const updateVehicle = async (vehicleId, vehicleData) => {
+    try {
+      const payload = {
+        plate_no: vehicleData.plate,
+        model_name: vehicleData.name,
+        model_year: vehicleData.model,
+        fuel_type: vehicleData.fuel,
+        engine_specs: vehicleData.engine,
+        category: vehicleData.category,
+        image_url: vehicleData.image
+      };
+      await api.put(`tasu/vehicles/${vehicleId}`, payload);
+      await fetchVehicles();
+    } catch (error) {
+      console.error('Failed to update vehicle:', error);
+      throw error;
+    }
+  };
+
+  // Mock booking implementations are retained for now as they are not part of the vehicle API changes
   const addBooking = (bookingData) => {
     const newId = 'dsp-' + (Date.now().toString().slice(-5));
     const newBooking = {
@@ -68,15 +134,15 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
   return {
     vehicles,
     bookings,
+    fetchVehicles,
     toggleVehicleStatus,
     updateVehicleStatus,
     addVehicle,
+    updateVehicle,
     addBooking,
     updateBooking,
     deleteBooking,
     getBookingsForVehicleAndDate,
     getBookingsForDateRange
   };
-}, {
-  persist: true
 });
