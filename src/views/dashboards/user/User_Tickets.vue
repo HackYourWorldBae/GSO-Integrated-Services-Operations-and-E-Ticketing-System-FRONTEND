@@ -496,8 +496,7 @@
                               <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                                 <FormRow label="Destination" :value="selectedTicket.destination" />
                                 <FormRow label="Passengers" :value="selectedTicket.passengers" />
-                                <FormRow label="Departure" :value="selectedTicket.time" />
-                                <FormRow label="Return" :value="selectedTicket.return_time" />
+                                <FormRow label="Date of Travel" :value="selectedTicket.dateOfTravel" />
                                 <FormRow label="Purpose of Travel" :value="selectedTicket.purpose" full />
                               </div>
                               <AttachmentList v-if="selectedTicket.attachments?.length" :attachments="selectedTicket.attachments" @download="downloadAttachment" />
@@ -775,6 +774,10 @@ const fetchTickets = async () => {
         address: t.details?.house_street
           ? `${t.details.house_street}, ${t.details.barangay}, ${t.details.city_municipality}, ${t.details.province}`
           : (t.details?.complete_address || ''),
+        destination: t.details?.destination || 'N/A',
+        passengers: t.details?.number_of_passengers || t.details?.numberOfPassengers || 'N/A',
+        dateOfTravel: t.details?.date_of_travel || t.details?.dateOfTravel || 'N/A',
+        purpose: t.details?.purpose_of_travel || t.details?.purposeOfTravel || t.details?.purpose || 'N/A',
         attachments: t.attachments || [],
         declineReason: t.decline_reason || '',
         currentStep: parseInt(t.current_step) || 1,
