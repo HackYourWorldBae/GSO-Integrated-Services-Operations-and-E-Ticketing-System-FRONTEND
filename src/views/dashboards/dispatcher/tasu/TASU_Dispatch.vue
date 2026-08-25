@@ -155,7 +155,7 @@
                   {{ role }}s
                   <span class="text-[9px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{{ driversGroup.length }}</span>
                 </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 gap-4">
                   <div v-for="driver in driversGroup" :key="driver.id"
                     :class="['p-6 rounded-3xl border transition-all flex flex-col gap-3 group',
                       driver.status === 'On Trip' ? 'border-amber-200 bg-amber-50/50' :
