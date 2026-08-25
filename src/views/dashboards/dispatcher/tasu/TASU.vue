@@ -8,11 +8,11 @@
         </svg>
         <span class="text">Trip Requests</span>
       </router-link>
-      <router-link to="/dispatcher/tasu/drivers" class="nav-item">
+      <router-link to="/dispatcher/tasu/dispatch" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <span class="text">Assign Drivers</span>
+        <span class="text">Dispatch</span>
       </router-link>
       <router-link to="/dispatcher/tasu/dispatched" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -58,7 +58,7 @@
               </div>
               <span class="text-[10px] font-black text-emerald-500/40 uppercase tracking-widest">Active</span>
             </div>
-            <h3 class="text-4xl font-black text-slate-900 tabular-nums">12</h3>
+            <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ stats.active }}</h3>
             <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Vehicles Dispatched</p>
           </div>
 
@@ -69,22 +69,22 @@
               </div>
               <span class="text-[10px] font-black text-blue-400/40 uppercase tracking-widest">Complete</span>
             </div>
-            <h3 class="text-4xl font-black text-slate-900 tabular-nums">19</h3>
+            <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ stats.complete }}</h3>
             <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Trips Finished</p>
           </div>
         </div>
 
-        <!-- Banner explaining pre-booked vehicles and driver assignment tab -->
+        <!-- Banner explaining dispatch workflow -->
         <div class="p-5 bg-emerald-50 border border-emerald-200 rounded-[2rem] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
           <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shrink-0 shadow-sm">🚗</div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shrink-0 shadow-sm">📋</div>
             <div>
-              <h4 class="text-xs font-black text-emerald-900 uppercase tracking-wider">Vehicle Units Pre-Selected by Requestors</h4>
-              <p class="text-xs font-bold text-emerald-700 mt-0.5">Requestors choose their desired vehicle unit on the Services page. Assign drivers directly via the <strong class="underline">Assign Drivers</strong> tab.</p>
+              <h4 class="text-xs font-black text-emerald-900 uppercase tracking-wider">Dispatch Center</h4>
+              <p class="text-xs font-bold text-emerald-700 mt-0.5">Assign available vehicles and drivers to approved trip requests via the <strong class="underline">Dispatch</strong> tab.</p>
             </div>
           </div>
-          <button @click="router.push('/dispatcher/tasu/drivers')" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 font-black text-xs uppercase tracking-widest transition-all shadow-sm shrink-0 active:scale-95">
-            Open Assign Drivers Tab ➔
+          <button @click="router.push('/dispatcher/tasu/dispatch')" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 font-black text-xs uppercase tracking-widest transition-all shadow-sm shrink-0 active:scale-95">
+            Open Dispatch Tab ➔
           </button>
         </div>
 
@@ -148,7 +148,7 @@
                       
                       <!-- Direct Button to Assign Drivers Tab -->
                       <button v-if="!trip.assignedDriver" @click="goToAssignDriversTab(trip)" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 shadow-md shadow-emerald-500/20 transition-all inline-flex items-center gap-1.5 active:scale-95">
-                        <span>Assign Driver</span>
+                        <span>Dispatch Trip</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                       </button>
                       <button v-else @click="confirmDispatch(trip)" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 shadow-md shadow-blue-500/20 transition-all inline-block italic active:scale-95">
@@ -290,6 +290,23 @@ const showTicketModal = ref(false);
 const modalTicket = ref(null);
 
 const trips = ref([]);
+const stats = ref({
+  active: 0,
+  complete: 0
+});
+
+const fetchStats = async () => {
+  try {
+    const response = await api.get('tickets/stats/TASU');
+    if (response.data?.data?.stats) {
+      const dbStats = response.data.data.stats;
+      stats.value.active = parseInt(dbStats.active_working || 0) + parseInt(dbStats.scheduled || 0);
+      stats.value.complete = dbStats.resolved || 0;
+    }
+  } catch (error) {
+    console.error('Failed to fetch stats:', error);
+  }
+};
 
 const fetchTrips = async () => {
   try {
@@ -334,6 +351,7 @@ const fetchTrips = async () => {
 
 onMounted(() => {
   fetchTrips();
+  fetchStats();
 });
 
 const openTicketModal = (trip) => {
@@ -341,9 +359,9 @@ const openTicketModal = (trip) => {
   showTicketModal.value = true;
 };
 
-// Directly navigate to Assign Drivers tab passing the trip ID query parameter without opening any pop-up modal
+// Directly navigate to Dispatch tab passing the trip ID query parameter without opening any pop-up modal
 const goToAssignDriversTab = (trip) => {
-  router.push({ path: '/dispatcher/tasu/drivers', query: { trip: trip.id } });
+  router.push({ path: '/dispatcher/tasu/dispatch', query: { trip: trip.id } });
 };
 
 const confirmDispatch = (trip) => {

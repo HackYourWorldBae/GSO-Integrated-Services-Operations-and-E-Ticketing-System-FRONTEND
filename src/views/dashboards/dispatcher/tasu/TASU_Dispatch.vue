@@ -8,11 +8,11 @@
         </svg>
         <span class="text">Trip Requests</span>
       </router-link>
-      <router-link to="/dispatcher/tasu/drivers" class="nav-item">
+      <router-link to="/dispatcher/tasu/dispatch" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <span class="text">Assign Drivers</span>
+        <span class="text">Dispatch</span>
       </router-link>
       <router-link to="/dispatcher/tasu/dispatched" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -72,28 +72,28 @@
            <router-link to="/dispatcher/tasu" class="mt-8 px-8 py-3 bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-500/20 active:scale-95">Return to Trip Queue</router-link>
         </div>
 
-        <!-- ② Current Assignments Panel (between trip header and driver list) -->
-        <div v-if="selectedTrip && currentAssignments.length > 0" class="p-8 rounded-[2.5rem] bg-slate-900 shadow-xl overflow-hidden relative max-w-5xl mx-auto">
+        <!-- ② Staged Dispatch Panel (between trip header and driver list) -->
+        <div v-if="selectedTrip && assignmentsToDispatch.length > 0" class="p-8 rounded-[2.5rem] bg-slate-900 shadow-xl overflow-hidden relative max-w-5xl mx-auto">
           <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
           <div class="flex items-center justify-between mb-6 relative z-10">
             <h3 class="text-white font-black text-xl flex items-center gap-3">
               <span class="w-2 h-6 bg-blue-400 rounded-full"></span>
-              Current Assignments for #{{ selectedTrip.id }}
+              Staged Dispatch for #{{ selectedTrip.id }}
             </h3>
             <span class="px-3 py-1 bg-blue-500/20 text-blue-300 text-[10px] font-black uppercase tracking-widest rounded-full border border-blue-500/30">
-              {{ currentAssignments.length }} Assigned
+              {{ assignmentsToDispatch.length }} Staged
             </span>
           </div>
           <div class="space-y-3 relative z-10">
-            <div v-for="assign in currentAssignments" :key="assign.driverId"
+            <div v-for="(assign, index) in assignmentsToDispatch" :key="index"
               class="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm gap-4">
               <div class="flex items-center gap-5">
                 <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-black shrink-0">
                   {{ assign.driverName.charAt(0) }}
                 </div>
                 <div>
-                  <span class="text-white font-bold block">{{ assign.driverName }}</span>
-                  <span class="text-[10px] font-medium text-blue-400 uppercase tracking-widest">Assigned to #{{ assign.tripId }}</span>
+                  <span class="text-white font-bold block">{{ assign.driverName }}</span><span class="text-xs text-blue-300 font-semibold block mb-1">{{ assign.vehicleName }} ({{ assign.vehiclePlate }})</span>
+                  <span class="text-[10px] font-medium text-blue-400 uppercase tracking-widest">Assigned to #{{ selectedTrip.id }}</span>
                 </div>
               </div>
               <div class="flex items-center gap-4 flex-wrap">
@@ -101,7 +101,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                   <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">{{ assign.implementationDate || 'No date set' }}</span>
                 </div>
-                <button @click="removeAssignment(assign)" class="p-2.5 rounded-xl bg-white/5 text-white/40 hover:text-rose-400 hover:bg-rose-500/10 transition-colors border border-white/5 hover:border-rose-500/30">
+                <button @click="assignmentsToDispatch.splice(index, 1)" class="p-2.5 rounded-xl bg-white/5 text-white/40 hover:text-rose-400 hover:bg-rose-500/10 transition-colors border border-white/5 hover:border-rose-500/30">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
@@ -157,7 +157,7 @@
                     :class="['p-6 rounded-3xl border transition-all flex flex-col gap-3 group',
                       driver.status === 'On Trip' ? 'border-amber-200 bg-amber-50/50' :
                       driver.assignedTicket ? 'border-blue-200 bg-blue-50/30' :
-                      'border-slate-100 hover:border-emerald-200 hover:shadow-md']">
+                      'border-slate-100 hover:border-emerald-200 hover:shadow-md', stagedDriver?.id === driver.id ? 'ring-2 ring-emerald-500 border-emerald-500 shadow-md' : '']">
                     <div class="flex items-center justify-between">
                       <div class="flex items-center gap-4">
                         <div :class="['w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg transition-colors',
@@ -191,10 +191,10 @@
                     </div>
                     <div v-if="!isManagementMode && driver.status === 'Available' && !driver.assignedTicket && selectedTrip"
                       class="flex items-center gap-2 pt-1 border-t border-slate-100">
-                      <button @click="assignDriver(driver)"
-                        class="py-2.5 px-4 w-full rounded-xl bg-slate-900 text-white hover:bg-emerald-600 transition-colors shadow-lg shadow-slate-200 active:scale-95 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest" title="Assign driver">
+                      <button @click="stagedDriver = driver"
+                        class="py-2.5 px-4 w-full rounded-xl stagedDriver?.id === driver.id ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-white hover:bg-emerald-600' transition-colors shadow-lg shadow-slate-200 active:scale-95 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest" title="Select driver">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                        Assign to Trip
+                        {{ stagedDriver?.id === driver.id ? 'Selected' : 'Select Driver' }}
                       </button>
                     </div>
                   </div>
@@ -208,7 +208,55 @@
     </template>
 
     <template #modal-overlay>
-      <!-- Ticket Detail Modal Overlay -->
+      
+        <!-- ④ Vehicle Pool -->
+        <div class="space-y-6 max-w-5xl mx-auto mt-8">
+          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+              <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
+                <span class="w-2 h-6 bg-blue-500 rounded-full"></span>
+                Available Vehicles
+              </h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div v-for="vehicle in vehicles" :key="vehicle.id"
+                :class="['p-6 rounded-3xl border transition-all flex flex-col gap-3 group cursor-pointer',
+                  vehicle.status === 'Available' ? 'border-slate-100 hover:border-blue-200 hover:shadow-md' : 'opacity-60 bg-slate-50 border-slate-100 cursor-not-allowed',
+                  stagedVehicle?.id === vehicle.id ? 'ring-2 ring-blue-500 border-blue-500 shadow-md' : ''
+                ]"
+                @click="vehicle.status === 'Available' && (stagedVehicle = vehicle)">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-lg">
+                      {{ vehicle.name.charAt(0) }}
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-slate-900">{{ vehicle.name }} ({{ vehicle.plate }})</h4>
+                      <p class="text-[10px] text-slate-500 font-medium uppercase tracking-widest">{{ vehicle.category }}</p>
+                    </div>
+                  </div>
+                  <span :class="['flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest',
+                    vehicle.status === 'Available' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-500']">
+                    {{ vehicle.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑤ Stage Assignment Button -->
+        <div v-if="selectedTrip" class="max-w-5xl mx-auto mt-8 flex justify-end">
+          <button @click="stageAssignment" :disabled="!stagedDriver || !stagedVehicle"
+            :class="['px-8 py-4 font-black text-sm uppercase tracking-widest rounded-2xl transition-all shadow-lg flex items-center gap-2',
+            (!stagedDriver || !stagedVehicle) ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-slate-900/20 active:scale-95']">
+            Stage Dispatch Assignment
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+          </button>
+        </div>
+
+
+    <!-- Ticket Detail Modal Overlay -->
       <div v-if="showTicketModal" class="absolute inset-0 z-[60] overflow-y-auto custom-scrollbar pointer-events-auto bg-slate-900/60 backdrop-blur-sm animate-fade-in">
         <div class="flex min-h-[100dvh] items-center justify-center p-4 md:p-8" @click.self="showTicketModal = false">
         
@@ -295,14 +343,14 @@
 
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
+import { useTasuVehiclesStore } from '@/stores/tasuVehicles';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 
 const downloadAttachment = async (att) => {
-  // att can be a plain filename string (mock data) or a full attachment object from the API
   if (typeof att === 'string') return;
   try {
     const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
@@ -324,33 +372,52 @@ const downloadAttachment = async (att) => {
 };
 
 const route = useRoute();
+const router = useRouter();
 const store = useTasuPersonnelStore();
+const vehicleStore = useTasuVehiclesStore();
 
 const showTicketModal = ref(false);
 const modalTicket = ref(null);
 const isManagementMode = ref(false);
-const pendingDates = reactive({});
 
 const openTicketModal = (trip) => {
   modalTicket.value = trip;
   showTicketModal.value = true;
 };
 
-const mockTrips = ref([
-  { id: 'TASU-TIC-11', destination: 'City Campus', date: 'Oct 28, 2026', time: '08:00 AM', return_time: '12:00 PM', requester: 'OVP-Academic', office: 'Office of VP for Academics', passengers: 4, places_to_visit: 'City Campus Main Building, College of Nursing', purpose: 'Accreditation Visit Evaluation', attachments: ['Travel_Order.pdf'], implementationDate: '' },
-  { id: 'TASU-TIC-12', destination: 'South Field', date: 'Oct 28, 2026', time: '10:30 AM', return_time: '04:00 PM', requester: 'COA Auditor', office: 'Commission on Audit', passengers: 2, places_to_visit: 'South Field Extension, Agronomy Dept', purpose: 'On-site facilities inventory check', attachments: ['COA_Memo.pdf'], implementationDate: '' },
-  { id: 'TASU-TIC-13', destination: 'Regional Office', date: 'Oct 29, 2026', time: '07:00 AM', return_time: '06:00 PM', requester: 'University President', office: 'Office of the President', passengers: 3, places_to_visit: 'CHED Regional Office', purpose: 'Annual Planning Conference', attachments: ['Invitation_CHED.pdf'], implementationDate: '' },
-]);
-
 const groupedPersonnel = computed(() => store.groupedPersonnel);
-const selectedTrip = ref(null);
+const vehicles = computed(() => vehicleStore.vehicles);
 
-const currentAssignments = computed(() => {
-  if (!selectedTrip.value) return [];
-  return store.personnel.filter(d => d.assignedTicket === selectedTrip.value.id).map(d => ({
-    driverId: d.id, driverName: d.name, tripId: d.assignedTicket, implementationDate: d.implementationDate,
-  }));
-});
+const selectedTrip = ref(null);
+const stagedDriver = ref(null);
+const stagedVehicle = ref(null);
+const assignmentsToDispatch = ref([]);
+
+const fetchTripDetails = async (id) => {
+  try {
+    const response = await api.get(`tickets/${id}`);
+    if (response.data?.data?.ticket) {
+      const t = response.data.data.ticket;
+      const details = t.tasu_details || {};
+      selectedTrip.value = {
+        id: t.id,
+        destination: details.destination || t.location || 'Unknown',
+        date: new Date(details.date_of_travel || t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: 'N/A',
+        return_time: 'N/A',
+        requester: details.requesting_personnel || 'Unknown Requester',
+        office: details.office_college_department || details.agency_address || 'Unknown Office',
+        passengers: details.number_of_passengers || 0,
+        places_to_visit: details.destination || 'N/A',
+        purpose: details.purpose_of_travel || t.description || 'N/A',
+        attachments: t.attachments || [],
+      };
+    }
+  } catch (err) { 
+    console.error('Failed to load trip', err);
+    toast.error('Could not load trip details.');
+  }
+};
 
 const toggleManagementStatus = (driver) => {
   if (!isManagementMode.value || driver.status === 'On Trip' || driver.assignedTicket) return;
@@ -359,28 +426,50 @@ const toggleManagementStatus = (driver) => {
 
 onMounted(() => {
   const tripId = route.query.trip;
-  selectedTrip.value = tripId ? mockTrips.value.find(t => t.id === tripId) ?? null : null;
+  if (tripId) {
+    fetchTripDetails(tripId);
+  }
   store.fetchPersonnel();
+  vehicleStore.fetchVehicles();
 });
 
-const assignDriver = (driver) => {
-  if (!selectedTrip.value) return;
-  const dateStr = selectedTrip.value.date || 'Oct 28, 2026';
-  store.assignWorker(driver.id, selectedTrip.value.id, dateStr);
-  toast.success(`${driver.name} assigned to ${selectedTrip.value.id}`);
+const stageAssignment = () => {
+  if (!stagedDriver.value || !stagedVehicle.value) {
+     toast.error('Please select both a driver and a vehicle.');
+     return;
+  }
+  assignmentsToDispatch.value.push({
+    driverId: stagedDriver.value.id,
+    driverName: stagedDriver.value.name,
+    vehicleId: stagedVehicle.value.id,
+    vehicleName: stagedVehicle.value.name,
+    vehiclePlate: stagedVehicle.value.plate,
+    implementationDate: selectedTrip.value.date
+  });
+  stagedDriver.value = null;
+  stagedVehicle.value = null;
+  toast.success('Assignment staged! Click Dispatch to finalize.');
 };
 
-const removeAssignment = (assign) => {
-  store.unassignWorker(assign.driverId);
-  toast.info(`Removed assignment for ${assign.driverName}`);
-};
-
-const dispatchAll = () => {
-  if (!selectedTrip.value) return;
-  currentAssignments.value.forEach(a => store.startWork(a.driverId));
-  const trip = mockTrips.value.find(t => t.id === selectedTrip.value.id);
-  if (trip) trip.status = 'Dispatched';
-  toast.success(`All drivers dispatched for ${selectedTrip.value.id}!`);
+const dispatchAll = async () => {
+  if (!selectedTrip.value || assignmentsToDispatch.value.length === 0) return;
+  
+  try {
+    for (const assign of assignmentsToDispatch.value) {
+       await api.post('dispatch/assign', {
+         ticket_id: selectedTrip.value.id,
+         personnel_id: assign.driverId,
+         vehicle_id: assign.vehicleId,
+         implementation_date: assign.implementationDate
+       });
+    }
+    toast.success(`Successfully dispatched assignments!`);
+    assignmentsToDispatch.value = [];
+    router.push('/dispatcher/tasu');
+  } catch (e) {
+    console.error(e);
+    toast.error('Failed to dispatch assignments.');
+  }
 };
 </script>
 

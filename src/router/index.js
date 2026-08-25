@@ -23,7 +23,7 @@ const LEAU_Dispatcher = () => import('../views/dashboards/dispatcher/leau/LEAU.v
 const LEAU_Workers = () => import('../views/dashboards/dispatcher/leau/LEAU_Workers.vue');
 const TASU_Dispatcher = () => import('../views/dashboards/dispatcher/tasu/TASU.vue');
 
-const TASU_Drivers = () => import('../views/dashboards/dispatcher/tasu/TASU_Drivers.vue');
+const TASU_Dispatch = () => import('../views/dashboards/dispatcher/tasu/TASU_Dispatch.vue');
 const FGMU_DispatchedTickets = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatchedTickets.vue');
 const LEAU_DispatchedTickets = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatchedTickets.vue');
 const TASU_DispatchedTickets = () => import('../views/dashboards/dispatcher/tasu/TASU_DispatchedTickets.vue');
@@ -256,9 +256,9 @@ const router = createRouter({
       component: TASU_Dispatcher
     },
     {
-      path: '/dispatcher/tasu/drivers',
-      name: 'tasu-drivers',
-      component: TASU_Drivers
+      path: '/dispatcher/tasu/dispatch',
+      name: 'tasu-dispatch',
+      component: TASU_Dispatch
     },
     {
       path: '/dispatcher/fgmu/dispatched',
