@@ -47,7 +47,7 @@
               </div>
               <span class="text-[10px] font-black text-amber-500/40 uppercase tracking-widest">Queue</span>
             </div>
-            <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ mockTrips.length }}</h3>
+            <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ trips.length }}</h3>
             <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Pending Trips</p>
           </div>
 
@@ -108,7 +108,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-50">
-                <tr v-for="trip in mockTrips" :key="trip.id" class="group hover:bg-slate-50/50 transition-colors">
+                <tr v-for="trip in trips" :key="trip.id" class="group hover:bg-slate-50/50 transition-colors">
                   <td class="py-6 px-4">
                     <span class="text-sm font-black text-slate-900">#{{ trip.id }}</span>
                   </td>
@@ -258,14 +258,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 
 const downloadAttachment = async (att) => {
-  // att can be a plain filename string (mock data) or a full attachment object from the API
   if (typeof att === 'string') return;
   try {
     const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
@@ -290,11 +289,52 @@ const router = useRouter();
 const showTicketModal = ref(false);
 const modalTicket = ref(null);
 
-const mockTrips = ref([
-  { id: 'TASU-TIC-11', destination: 'City Campus', date: 'Oct 28, 2026', time: '08:00 AM', return_time: '12:00 PM', requester: 'OVP-Academic', office: 'Office of VP for Academics', passengers: 4, places_to_visit: 'City Campus Main Building, College of Nursing', purpose: 'Accreditation Visit Evaluation', attachments: ['Travel_Order.pdf'], requestedVehicle: 'Toyota HiAce Commuter (SBA-1234)', assignedDriver: null, showDigitalForm: false },
-  { id: 'TASU-TIC-12', destination: 'South Field', date: 'Oct 28, 2026', time: '10:30 AM', return_time: '04:00 PM', requester: 'COA Auditor', office: 'Commission on Audit', passengers: 2, places_to_visit: 'South Field Extension, Agronomy Dept', purpose: 'On-site facilities inventory check', attachments: ['COA_Memo.pdf'], requestedVehicle: 'Nissan Urvan Shuttle (SAC-1399)', assignedDriver: null, showDigitalForm: false },
-  { id: 'TASU-TIC-13', destination: 'Regional Office', date: 'Oct 29, 2026', time: '07:00 AM', return_time: '06:00 PM', requester: 'University President', office: 'Office of the President', passengers: 3, places_to_visit: 'CHED Regional Office', purpose: 'Annual Planning Conference', attachments: ['Invitation_CHED.pdf'], requestedVehicle: 'Mitsubishi Coaster Bus (TRANS-01)', assignedDriver: null, showDigitalForm: false },
-]);
+const trips = ref([]);
+
+const fetchTrips = async () => {
+  try {
+    const response = await api.get('tickets/dispatch/TASU');
+    if (response.data?.data?.tickets) {
+      trips.value = response.data.data.tickets.map(t => {
+        const details = t.tasu_details || {};
+        const assignments = t.assignments || [];
+        // Extract assigned driver and vehicle if available in assignments
+        let assignedDriver = null;
+        let requestedVehicle = 'Not specified';
+        
+        if (assignments.length > 0) {
+           assignedDriver = assignments[0].personnel_name || null;
+           requestedVehicle = assignments[0].vehicle_name ? `${assignments[0].vehicle_name} (${assignments[0].vehicle_plate})` : 'Not specified';
+        }
+
+        return {
+          id: t.id,
+          ticketId: t.id,
+          destination: details.destination || t.location || 'Unknown Destination',
+          date: new Date(details.date_of_travel || t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          time: 'N/A', // Time might be in date_of_travel or separate field
+          return_time: 'N/A',
+          requester: details.requesting_personnel || 'Unknown Requester',
+          office: details.office_college_department || details.agency_address || 'Unknown Office',
+          passengers: details.number_of_passengers || 0,
+          places_to_visit: details.destination || 'N/A',
+          purpose: details.purpose_of_travel || t.description || 'N/A',
+          attachments: t.attachments || [],
+          requestedVehicle: requestedVehicle,
+          assignedDriver: assignedDriver,
+          showDigitalForm: false
+        };
+      });
+    }
+  } catch (error) {
+    console.error('Failed to fetch trip requests:', error);
+    toast.error('Failed to load trip requests.');
+  }
+};
+
+onMounted(() => {
+  fetchTrips();
+});
 
 const openTicketModal = (trip) => {
   modalTicket.value = trip;
@@ -308,7 +348,7 @@ const goToAssignDriversTab = (trip) => {
 
 const confirmDispatch = (trip) => {
   toast.success(`Trip ${trip.id} dispatched! Digital Trip Ticket issued.`);
-  mockTrips.value = mockTrips.value.filter(t => t.id !== trip.id);
+  trips.value = trips.value.filter(t => t.id !== trip.id);
 };
 </script>
 
