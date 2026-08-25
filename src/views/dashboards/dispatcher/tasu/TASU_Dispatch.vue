@@ -115,9 +115,12 @@
           </div>
         </div>
 
-        <!-- ③ Driver Pool -->
-        <div class="space-y-6 max-w-5xl mx-auto">
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-200 shadow-sm">
+        <!-- ③ Selection Pools -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 max-w-[1400px] mx-auto mt-8">
+          
+          <!-- Driver Pool -->
+          <div class="space-y-6 h-full flex flex-col">
+            <div class="p-8 rounded-[2.5rem] bg-white border border-slate-200 shadow-sm h-full flex-1">
             <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
               <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
                 <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
@@ -202,51 +205,48 @@
               </div>
             </div>
           </div>
-        </div>
+          </div>
 
-      </div>
-    </template>
-
-    <template #modal-overlay>
-      
-        <!-- ④ Vehicle Pool -->
-        <div class="space-y-6 max-w-5xl mx-auto mt-8">
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-200 shadow-sm">
-            <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
-              <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
-                <span class="w-2 h-6 bg-blue-500 rounded-full"></span>
-                Available Vehicles
-              </h3>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div v-for="vehicle in vehicles" :key="vehicle.id"
-                :class="['p-6 rounded-3xl border transition-all flex flex-col gap-3 group cursor-pointer',
-                  vehicle.status === 'Available' ? 'border-slate-100 hover:border-blue-200 hover:shadow-md' : 'opacity-60 bg-slate-50 border-slate-100 cursor-not-allowed',
-                  stagedVehicle?.id === vehicle.id ? 'ring-2 ring-blue-500 border-blue-500 shadow-md' : ''
-                ]"
-                @click="vehicle.status === 'Available' && (stagedVehicle = vehicle)">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-lg">
-                      {{ vehicle.name.charAt(0) }}
+          <!-- ④ Vehicle Pool -->
+          <div class="space-y-6 h-full flex flex-col">
+            <div class="p-8 rounded-[2.5rem] bg-white border border-slate-200 shadow-sm flex-1">
+              <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+                <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
+                  <span class="w-2 h-6 bg-blue-500 rounded-full"></span>
+                  Available Vehicles
+                </h3>
+              </div>
+              <div class="grid grid-cols-1 gap-4">
+                <div v-for="vehicle in vehicles" :key="vehicle.id"
+                  :class="['p-6 rounded-3xl border transition-all flex flex-col gap-3 group cursor-pointer',
+                    vehicle.status === 'Available' ? 'border-slate-100 hover:border-blue-200 hover:shadow-md' : 'opacity-60 bg-slate-50 border-slate-100 cursor-not-allowed',
+                    stagedVehicle?.id === vehicle.id ? 'ring-2 ring-blue-500 border-blue-500 shadow-md' : ''
+                  ]"
+                  @click="vehicle.status === 'Available' && (stagedVehicle = vehicle)">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                      <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-lg">
+                        {{ vehicle.name.charAt(0) }}
+                      </div>
+                      <div>
+                        <h4 class="font-bold text-slate-900">{{ vehicle.name }} ({{ vehicle.plate }})</h4>
+                        <p class="text-[10px] text-slate-500 font-medium uppercase tracking-widest">{{ vehicle.category }}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 class="font-bold text-slate-900">{{ vehicle.name }} ({{ vehicle.plate }})</h4>
-                      <p class="text-[10px] text-slate-500 font-medium uppercase tracking-widest">{{ vehicle.category }}</p>
-                    </div>
+                    <span :class="['flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest',
+                      vehicle.status === 'Available' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-500']">
+                      {{ vehicle.status }}
+                    </span>
                   </div>
-                  <span :class="['flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest',
-                    vehicle.status === 'Available' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-500']">
-                    {{ vehicle.status }}
-                  </span>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+
+        </div> <!-- End of grid -->
 
         <!-- ⑤ Stage Assignment Button -->
-        <div v-if="selectedTrip" class="max-w-5xl mx-auto mt-8 flex justify-end">
+        <div v-if="selectedTrip" class="max-w-[1400px] mx-auto mt-8 flex justify-end">
           <button @click="stageAssignment" :disabled="!stagedDriver || !stagedVehicle"
             :class="['px-8 py-4 font-black text-sm uppercase tracking-widest rounded-2xl transition-all shadow-lg flex items-center gap-2',
             (!stagedDriver || !stagedVehicle) ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-slate-900/20 active:scale-95']">
@@ -255,7 +255,10 @@
           </button>
         </div>
 
+      </div>
+    </template>
 
+    <template #modal-overlay>
     <!-- Ticket Detail Modal Overlay -->
       <div v-if="showTicketModal" class="absolute inset-0 z-[60] overflow-y-auto custom-scrollbar pointer-events-auto bg-slate-900/60 backdrop-blur-sm animate-fade-in">
         <div class="flex min-h-[100dvh] items-center justify-center p-4 md:p-8" @click.self="showTicketModal = false">
