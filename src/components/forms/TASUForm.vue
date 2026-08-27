@@ -80,7 +80,7 @@ const removeFile = (idx) => {
             @blur="formsStore.v$.tasuVehicleState.requestingPersonnel.$touch()"
             type="text" 
             class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
-            :class="formsStore.v$.tasuVehicleState.requestingPersonnel.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-purple-500'" 
+            :class="formsStore.v$.tasuVehicleState.requestingPersonnel.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-amber-500'" 
           />
           <p v-if="formsStore.v$.tasuVehicleState.requestingPersonnel.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Required</p>
         </div>
@@ -134,8 +134,8 @@ const removeFile = (idx) => {
               v-model="formsStore.tasuVehicleState.dateOfTravel" 
               @blur="formsStore.v$.tasuVehicleState.dateOfTravel.$touch()"
               type="date" 
-              class="w-full h-14 px-6 rounded-2xl border-2 focus:bg-white text-sm font-bold outline-none transition-all shadow-sm"
-              :class="formsStore.v$.tasuVehicleState.dateOfTravel.$error ? 'border-red-500 bg-red-50 text-red-900 focus:border-red-500' : 'bg-slate-50 border-slate-50 focus:border-purple-500'" 
+              class="w-full h-14 px-6 rounded-2xl bg-white border-2 text-sm font-bold outline-none transition-all shadow-sm"
+              :class="formsStore.v$.tasuVehicleState.dateOfTravel.$error ? 'border-red-500 bg-red-50 text-red-900 focus:border-red-500' : 'border-white focus:border-amber-500'" 
             />
             <p v-if="formsStore.v$.tasuVehicleState.dateOfTravel.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Required</p>
           </div>
@@ -148,8 +148,8 @@ const removeFile = (idx) => {
             @blur="formsStore.v$.tasuVehicleState.destination.$touch()"
             type="text" 
             placeholder="Destination name/Destination address" 
-            class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
-            :class="formsStore.v$.tasuVehicleState.destination.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-purple-500'" 
+            class="w-full h-14 px-6 rounded-2xl bg-white border-2 text-sm font-bold outline-none shadow-sm transition-all"
+            :class="formsStore.v$.tasuVehicleState.destination.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-white focus:border-amber-500'" 
           />
           <p v-if="formsStore.v$.tasuVehicleState.destination.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Required</p>
         </div>
