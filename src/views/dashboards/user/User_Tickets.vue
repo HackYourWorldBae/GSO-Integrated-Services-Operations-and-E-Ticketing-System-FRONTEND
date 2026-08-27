@@ -525,7 +525,7 @@
 
                           <!-- ---- TASU: Assigned Driver/Vehicle (Step 3) ---- -->
                           <template v-if="selectedTicket.unit === 'TASU' && index === 2 && selectedTicket.currentStep >= (index + 1)">
-                            <div v-if="selectedTicket.assignedVehicle" class="mt-3 grid grid-cols-2 gap-2">
+                            <div v-if="selectedTicket.assignedVehicle" class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
                               <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
                                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Vehicle</p>
                                 <p class="text-xs font-bold text-slate-700">{{ selectedTicket.assignedVehicle }}</p>
@@ -533,6 +533,10 @@
                               <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
                                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Driver</p>
                                 <p class="text-xs font-bold text-slate-700">{{ selectedTicket.assignedDriver }}</p>
+                              </div>
+                              <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver Contact</p>
+                                <p class="text-xs font-bold text-slate-700">{{ selectedTicket.assignedContact || 'N/A' }}</p>
                               </div>
                             </div>
                           </template>
@@ -783,6 +787,7 @@ const fetchTickets = async () => {
         currentStep: parseInt(t.current_step) || 1,
         assignedVehicle: t.assignment?.vehicle_name || null,
         assignedDriver: t.assignment?.personnel_name || null,
+        assignedContact: t.assignment?.personnel_contact || null,
         implementationDate: t.assignment?.implementation_date
           ? new Date(t.assignment.implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
           : null,
@@ -918,6 +923,7 @@ const unitSteps = {
     { label: 'Request Submission', description: 'Client submits Vehicle Request and Travel Order Letter.' },
     { label: 'Approval',           description: 'Unit Head checks availability and approves request.' },
     { label: 'Assignment',         description: 'Dispatcher assigns a driver and a specific vehicle.' },
+    { label: 'On Route',           description: 'The driver and vehicle have departed and are currently on route.' },
     { label: 'Close-out',          description: 'Driver marks the trip as "Accomplished".' },
   ],
 };

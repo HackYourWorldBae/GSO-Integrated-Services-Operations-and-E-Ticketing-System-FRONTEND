@@ -58,12 +58,26 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
     return response.data;
   };
 
-  const addPersonnel = async ({ firstName, middleInitial, lastName, specialty }) => {
+  const addPersonnel = async ({ firstName, middleInitial, lastName, specialty, contactNumber }) => {
     const nameParts = [firstName.trim()];
     if (middleInitial?.trim()) nameParts.push(middleInitial.trim().replace(/\.?$/, '.'));
     nameParts.push(lastName.trim());
     const fullName = nameParts.join(' ');
-    const response = await api.post('personnel', { unit_id: 4, name: fullName, specialty });
+    const payload = { unit_id: 4, name: fullName, specialty };
+    if (contactNumber) payload.contact_number = contactNumber.trim();
+    const response = await api.post('personnel', payload);
+    await fetchPersonnel();
+    return response.data;
+  };
+
+  const updatePersonnel = async (personnelId, { firstName, middleInitial, lastName, specialty, contactNumber }) => {
+    const nameParts = [firstName.trim()];
+    if (middleInitial?.trim()) nameParts.push(middleInitial.trim().replace(/\.?$/, '.'));
+    nameParts.push(lastName.trim());
+    const fullName = nameParts.join(' ');
+    const payload = { name: fullName, specialty };
+    if (contactNumber !== undefined) payload.contact_number = contactNumber ? contactNumber.trim() : '';
+    const response = await api.put(`personnel/${personnelId}`, payload);
     await fetchPersonnel();
     return response.data;
   };
@@ -144,6 +158,7 @@ export const useTasuPersonnelStore = defineStore('tasuPersonnel', () => {
     fetchPersonnel,
     fetchCategories,
     addPersonnel,
+    updatePersonnel,
     removePersonnel,
     addCategory,
     removeCategory,

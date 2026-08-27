@@ -136,6 +136,14 @@
                                 {{ worker.assignedTicket || worker.status === 'On Trip' ? 'Locked (In Progress)' : worker.status === 'On Leave' ? 'Set to Available' : 'Set to On Leave' }}
                               </button>
                               <button 
+                                v-if="isAdmin"
+                                @click="openEditModal(worker)"
+                                class="mt-1 w-8 h-8 flex items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white transition-all active:scale-95 shrink-0"
+                                title="Edit personnel"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                              </button>
+                              <button 
                                 v-if="worker.status !== 'On Trip' && !worker.assignedTicket && isAdmin"
                                 @click="confirmDelete(worker)"
                                 class="mt-1 w-8 h-8 flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all active:scale-95 shrink-0"
@@ -195,16 +203,16 @@
         </div>
       </div>
 
-      <!-- Add Personnel Modal -->
-      <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" @click.self="showAddModal = false">
+      <!-- Add/Edit Personnel Modal -->
+      <div v-if="showPersonnelModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" @click.self="showPersonnelModal = false">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md animate-scale-up overflow-hidden">
           <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-6">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-lg font-black text-white">Add New Personnel</h3>
-                <p class="text-emerald-100 text-xs font-medium mt-0.5">Add a new TASU driver to the roster</p>
+                <h3 class="text-lg font-black text-white">{{ isEditing ? 'Edit Personnel' : 'Add New Personnel' }}</h3>
+                <p class="text-emerald-100 text-xs font-medium mt-0.5">{{ isEditing ? 'Update TASU driver info' : 'Add a new TASU driver to the roster' }}</p>
               </div>
-              <button @click="showAddModal = false" class="w-8 h-8 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors">
+              <button @click="showPersonnelModal = false" class="w-8 h-8 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -213,20 +221,20 @@
             <div class="grid grid-cols-3 gap-3">
               <div class="col-span-2">
                 <label class="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wider">First Name <span class="text-red-500">*</span></label>
-                <input v-model="addForm.firstName" type="text" placeholder="Juan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
+                <input v-model="personnelForm.firstName" type="text" placeholder="Juan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
               </div>
               <div>
                 <label class="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wider">M.I.</label>
-                <input v-model="addForm.middleInitial" type="text" maxlength="2" placeholder="C" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
+                <input v-model="personnelForm.middleInitial" type="text" maxlength="2" placeholder="C" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
               </div>
             </div>
             <div>
               <label class="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wider">Last Name <span class="text-red-500">*</span></label>
-              <input v-model="addForm.lastName" type="text" placeholder="Dela Cruz" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
+              <input v-model="personnelForm.lastName" type="text" placeholder="Dela Cruz" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
             </div>
             <div>
               <label class="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wider">Profession <span class="text-red-500">*</span></label>
-              <select v-model="addForm.specialty" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
+              <select v-model="personnelForm.specialty" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
                 <option value="" disabled>Select a profession...</option>
                 <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
               </select>
@@ -235,10 +243,14 @@
                 No categories yet. Create one in "Manage Categories" first.
               </p>
             </div>
+            <div>
+              <label class="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wider">Contact Number <span class="text-slate-400 font-medium">(Optional, 11-digit)</span></label>
+              <input v-model="personnelForm.contactNumber" type="text" placeholder="09xxxxxxxxx" maxlength="11" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
+            </div>
             <div class="flex gap-3 pt-2">
-              <button @click="showAddModal = false" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-black text-sm hover:bg-slate-50 transition-all">Cancel</button>
-              <button @click="submitAdd" :disabled="addSubmitting" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm transition-all active:scale-95 disabled:opacity-60">
-                {{ addSubmitting ? 'Adding...' : 'Add to Roster' }}
+              <button @click="showPersonnelModal = false" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-black text-sm hover:bg-slate-50 transition-all">Cancel</button>
+              <button @click="submitPersonnel" :disabled="formSubmitting" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm transition-all active:scale-95 disabled:opacity-60">
+                {{ formSubmitting ? (isEditing ? 'Updating...' : 'Adding...') : (isEditing ? 'Save Changes' : 'Add to Roster') }}
               </button>
             </div>
           </div>
@@ -348,33 +360,76 @@ const isAdmin = computed(() => authStore.role === 'admin' || authStore.role === 
 const groupedPersonnel = computed(() => store.groupedPersonnel);
 const expandedTickets  = ref({});
 
-const showAddModal = ref(false);
+const showPersonnelModal = ref(false);
 const showCategoryModal = ref(false);
 const workerToDelete = ref(null);
-const addForm = ref({ firstName: '', middleInitial: '', lastName: '', specialty: '' });
-const addSubmitting = ref(false);
+const personnelForm = ref({ firstName: '', middleInitial: '', lastName: '', specialty: '', contactNumber: '' });
+const isEditing = ref(false);
+const editingId = ref(null);
+const formSubmitting = ref(false);
 const deleteSubmitting = ref(false);
 
 const openAddModal = () => {
-  addForm.value = { firstName: '', middleInitial: '', lastName: '', specialty: '' };
-  showAddModal.value = true;
+  personnelForm.value = { firstName: '', middleInitial: '', lastName: '', specialty: '', contactNumber: '' };
+  isEditing.value = false;
+  editingId.value = null;
+  showPersonnelModal.value = true;
 };
 
-const submitAdd = async () => {
-  const { firstName, lastName, specialty } = addForm.value;
+const openEditModal = (worker) => {
+  // Try to split name roughly, backend just stores full name
+  const parts = worker.name.split(' ');
+  let first = '', mi = '', last = '';
+  if (parts.length > 2) {
+    last = parts.pop();
+    if (parts[parts.length - 1].length === 2 && parts[parts.length - 1].endsWith('.')) {
+      mi = parts.pop();
+    }
+    first = parts.join(' ');
+  } else if (parts.length === 2) {
+    first = parts[0];
+    last = parts[1];
+  } else {
+    first = worker.name;
+  }
+  
+  personnelForm.value = {
+    firstName: first,
+    middleInitial: mi.replace('.', ''),
+    lastName: last,
+    specialty: worker.role,
+    contactNumber: worker.contact_number || ''
+  };
+  isEditing.value = true;
+  editingId.value = worker.id;
+  showPersonnelModal.value = true;
+};
+
+const submitPersonnel = async () => {
+  const { firstName, lastName, specialty, contactNumber } = personnelForm.value;
   if (!firstName.trim() || !lastName.trim() || !specialty) {
     toast.error('Please fill in all required fields.');
     return;
   }
-  addSubmitting.value = true;
+  if (contactNumber && !/^[0-9]{11}$/.test(contactNumber)) {
+    toast.error('Contact Number must be exactly 11 digits.');
+    return;
+  }
+
+  formSubmitting.value = true;
   try {
-    await store.addPersonnel(addForm.value);
-    toast.success('Personnel added to roster!');
-    showAddModal.value = false;
+    if (isEditing.value) {
+      await store.updatePersonnel(editingId.value, personnelForm.value);
+      toast.success('Personnel updated successfully!');
+    } else {
+      await store.addPersonnel(personnelForm.value);
+      toast.success('Personnel added to roster!');
+    }
+    showPersonnelModal.value = false;
   } catch (err) {
-    toast.error(err?.response?.data?.message || 'Failed to add personnel.');
+    toast.error(err?.response?.data?.message || 'Failed to save personnel.');
   } finally {
-    addSubmitting.value = false;
+    formSubmitting.value = false;
   }
 };
 
