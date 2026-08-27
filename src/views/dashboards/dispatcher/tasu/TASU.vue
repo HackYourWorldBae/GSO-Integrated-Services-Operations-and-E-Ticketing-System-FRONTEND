@@ -101,7 +101,7 @@
                 <tr class="border-b border-slate-100">
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Trip ID</th>
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Destination</th>
-                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Date & Time</th>
+                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Date of Travel</th>
 
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold text-right pt-2 pb-2">Action</th>
                 </tr>
