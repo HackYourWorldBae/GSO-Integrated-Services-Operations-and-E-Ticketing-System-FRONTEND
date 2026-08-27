@@ -319,6 +319,7 @@
                       :key="day.dateStr" 
                       :class="['p-1.5 relative min-h-[75px] flex flex-col justify-center items-center transition-colors', day.isToday ? 'bg-emerald-500/5' : day.isWeekend ? 'bg-slate-50/40' : 'hover:bg-slate-100/60']"
                       @click.self="openNewScheduleModal(unit, day.dateStr)"
+                    >
                       <!-- If there are bookings on this specific day of the month -->
                       <div v-if="getVehicleDayBookings(unit.id, day.dateStr).length > 0" class="w-full space-y-1">
                         <div 

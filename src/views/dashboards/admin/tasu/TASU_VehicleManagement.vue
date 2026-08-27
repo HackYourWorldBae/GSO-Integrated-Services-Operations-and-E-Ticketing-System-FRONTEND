@@ -55,7 +55,7 @@
       <div class="space-y-8 animate-fade-in">
         <div class="flex items-center justify-between bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm transition-all hover:shadow-xl hover:shadow-emerald-500/5">
           <div class="flex items-center gap-6">
-            <div class="flex -space-x-4 overflow-hidden">
+            <div class="flex -space-x-4 p-1">
                <template v-for="(v, index) in activeFleetAvatars" :key="v.id || index">
                  <img v-if="v.image" :src="v.image" class="inline-block h-12 w-12 rounded-full ring-4 ring-white object-cover bg-white" alt="Vehicle Thumbnail">
                  <div v-else class="inline-block h-12 w-12 rounded-full ring-4 ring-white bg-slate-100 flex items-center justify-center">
