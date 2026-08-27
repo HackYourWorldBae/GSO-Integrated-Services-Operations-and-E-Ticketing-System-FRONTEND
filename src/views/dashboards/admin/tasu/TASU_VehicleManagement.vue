@@ -58,8 +58,8 @@
             <div class="flex -space-x-4 p-1">
                <template v-for="(v, index) in activeFleetAvatars" :key="v.id || index">
                  <img v-if="v.image" :src="v.image" class="inline-block h-12 w-12 rounded-full ring-4 ring-white object-cover bg-white" alt="Vehicle Thumbnail">
-                 <div v-else class="inline-block h-12 w-12 rounded-full ring-4 ring-white bg-slate-100 flex items-center justify-center">
-                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                 <div v-else class="inline-flex h-12 w-12 rounded-full ring-4 ring-white bg-slate-100 items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
                      <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
                      <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
                    </svg>
@@ -85,7 +85,7 @@
             <!-- Vehicle Image Backdrop -->
             <div class="h-56 overflow-hidden relative bg-slate-100 flex items-center justify-center">
               <img v-if="vehicle.image" :src="vehicle.image" :alt="vehicle.name" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-slate-300 transition-transform duration-700 group-hover:scale-110" viewBox="0 0 20 20" fill="currentColor">
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-slate-300 transition-transform duration-700 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
                 <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
               </svg>

@@ -211,7 +211,7 @@ const router = createRouter({
     },
     {
       path: '/admin/tasu/dispatch',
-      name: 'tasu-dispatch',
+      name: 'tasu-admin-dispatch',
       component: TASU_DispatchBoard
     },
     {
