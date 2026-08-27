@@ -433,7 +433,7 @@ const computeDuration = (assignment) => {
   if (!startRaw) return null;
 
   // Append 'Z' to treat the backend Y-m-d H:i:s string as UTC
-  const startStr = startRaw.replace(' ', 'T'); // Parsed as local time
+  const startStr = startRaw.replace(' ', 'T') + 'Z';
   const startDate = new Date(startStr);
   if (isNaN(startDate.getTime())) return null;
 
