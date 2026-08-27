@@ -170,7 +170,7 @@
                 </div>
                 <div>
                   <h3 class="text-xl font-black text-white tracking-tight">On Route / Active Trips</h3>
-                  <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Duration updates every hour</p>
+                  <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Duration updates every minute</p>
                 </div>
               </div>
               <div class="flex items-center self-start sm:self-auto gap-2 px-4 py-2 bg-emerald-500/15 rounded-2xl border border-emerald-500/25 backdrop-blur-sm">
