@@ -119,13 +119,34 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                     <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
                   </div>
-                  <button
-                    @click="initiateAction('depart', ticket.id)"
-                    :disabled="loading"
-                    class="w-full sm:w-auto shrink-0 px-5 py-3 md:py-2.5 rounded-xl bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
-                  >
-                    Depart Early
-                  </button>
+                  
+                  <div class="flex gap-2">
+                    <button
+                      @click="downloadDocument(ticket, 'Driver Travel Order')"
+                      title="Download Driver Travel Order"
+                      class="px-3 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-all active:scale-95 flex items-center justify-center shrink-0"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </button>
+                    <button
+                      @click="downloadDocument(ticket, 'Trip Ticket')"
+                      title="Download Trip Ticket"
+                      class="px-3 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-all active:scale-95 flex items-center justify-center shrink-0"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </button>
+                    <button
+                      @click="initiateAction('depart', ticket.id)"
+                      :disabled="loading"
+                      class="w-full sm:w-auto shrink-0 px-5 py-3 md:py-2.5 rounded-xl bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                    >
+                      Depart Early
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -307,6 +328,7 @@ import { ref, reactive, onMounted, onUnmounted, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+import { generateDocx } from '@/utils/docxGenerator';
 
 const tickets = ref([]);
 const loading = ref(false);
@@ -429,6 +451,48 @@ const computeDuration = (assignment) => {
     return minutes > 0 ? `${hours}h ${minutes}m` : `${hours} hour${hours !== 1 ? 's' : ''}`;
   }
   return `${minutes} min${minutes !== 1 ? 's' : ''}`;
+};
+
+/**
+ * Downloads a generated .docx file based on ticket details
+ */
+const downloadDocument = async (ticket, type) => {
+  try {
+    loading.value = true;
+    
+    // Check if the document was attached during dispatch
+    if (!ticket.attachments || ticket.attachments.length === 0) {
+      toast.error(`No attachments found for this ticket.`);
+      return;
+    }
+
+    const docAttachment = ticket.attachments.find(att => att.file_name && att.file_name.includes(type));
+    
+    if (!docAttachment) {
+      toast.error(`${type} has not been generated for this ticket yet.`);
+      return;
+    }
+    
+    toast.info(`Downloading ${type}...`);
+    
+    // Use the backend endpoint to download the attachment
+    const response = await api.get(`attachments/${docAttachment.id}`, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: docAttachment.file_type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', docAttachment.file_name || `${type} - ${ticket.id}.docx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    
+    toast.success(`${type} downloaded successfully!`);
+  } catch (error) {
+    console.error('Document download error:', error);
+    toast.error(`Failed to download ${type}.`);
+  } finally {
+    loading.value = false;
+  }
 };
 
 onMounted(() => {

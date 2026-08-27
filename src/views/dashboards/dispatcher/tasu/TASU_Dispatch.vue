@@ -352,6 +352,7 @@ import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
 import { useTasuVehiclesStore } from '@/stores/tasuVehicles';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
+import { generateDocxBlob } from '@/utils/docxGenerator';
 
 const downloadAttachment = async (att) => {
   if (typeof att === 'string') return;
@@ -465,6 +466,57 @@ const dispatchAll = async () => {
          vehicle_id: assign.vehicleId,
          implementation_date: assign.implementationDate
        });
+       
+       // Generate and attach documents
+       try {
+          const dateFormatted = selectedTrip.value.date ? new Date(selectedTrip.value.date).toLocaleDateString('en-US', {
+            month: 'long', day: 'numeric', year: 'numeric'
+          }) : '';
+          
+          const templateData = {
+            destination: selectedTrip.value.destination || '',
+            date_of_travel: selectedTrip.value.date || '',
+            date: dateFormatted || selectedTrip.value.date || '',
+            request_time: selectedTrip.value.time || '',
+            time: selectedTrip.value.time || '',
+            requesting_personnel: selectedTrip.value.requester || '',
+            requester: selectedTrip.value.requester || '',
+            office_college_department: selectedTrip.value.office || '',
+            office: selectedTrip.value.office || '',
+            num_passengers: selectedTrip.value.passengers || '',
+            passengers: selectedTrip.value.passengers || '',
+            purpose_of_travel: selectedTrip.value.purpose || '',
+            purpose: selectedTrip.value.purpose || '',
+            driver_name: assign.driverName || '',
+            vehicle_name: assign.vehicleName || '',
+            plate_no: assign.vehiclePlate || '',
+            vehicle: assign.vehicleName || '',
+            'Destination': selectedTrip.value.destination || '',
+            'Date of Travel': dateFormatted || selectedTrip.value.date || '',
+            'Time': selectedTrip.value.time || '',
+            'Requesting Personnel': selectedTrip.value.requester || '',
+            'Office': selectedTrip.value.office || '',
+            'Number of Passengers': selectedTrip.value.passengers || '',
+            'Purpose of Travel': selectedTrip.value.purpose || '',
+            'Driver Name': assign.driverName || '',
+            'Vehicle Name': assign.vehicleName || '',
+            'Plate Number': assign.vehiclePlate || ''
+          };
+          
+          const travelOrderBlob = await generateDocxBlob('/templates/Driver Travel Order.docx', templateData);
+          const tripTicketBlob = await generateDocxBlob('/templates/Trip Ticket.docx', templateData);
+          
+          const formData = new FormData();
+          formData.append('attachments[]', travelOrderBlob, `Driver Travel Order - ${selectedTrip.value.id}.docx`);
+          formData.append('attachments[]', tripTicketBlob, `Trip Ticket - ${selectedTrip.value.id}.docx`);
+          
+          await api.post(`tickets/${selectedTrip.value.id}/attachments`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' }
+          });
+       } catch (docErr) {
+          console.error('Document auto-generation failed', docErr);
+          toast.warning('Dispatch successful, but document auto-generation failed.');
+       }
     }
     toast.success(`Successfully dispatched assignments!`);
     assignmentsToDispatch.value = [];
