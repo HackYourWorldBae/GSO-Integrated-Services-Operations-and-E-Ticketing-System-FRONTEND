@@ -502,9 +502,7 @@ const dispatchAll = async () => {
           formData.append('attachments[]', travelOrderBlob, `Driver Travel Order - ${selectedTrip.value.id}.docx`);
           formData.append('attachments[]', tripTicketBlob, `Trip Ticket - ${selectedTrip.value.id}.docx`);
           
-          await api.post(`tickets/${selectedTrip.value.id}/attachments`, formData, {
-              headers: { 'Content-Type': 'multipart/form-data' }
-          });
+          await api.post(`tickets/${selectedTrip.value.id}/attachments`, formData);
        } catch (docErr) {
           console.error('Document auto-generation failed', docErr);
           toast.warning('Dispatch successful, but document auto-generation failed.');

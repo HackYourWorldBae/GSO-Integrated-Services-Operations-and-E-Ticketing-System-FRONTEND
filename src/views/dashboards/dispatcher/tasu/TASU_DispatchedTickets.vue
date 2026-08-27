@@ -124,20 +124,22 @@
                     <button
                       @click="downloadDocument(ticket, 'Driver Travel Order')"
                       title="Download Driver Travel Order"
-                      class="px-3 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-all active:scale-95 flex items-center justify-center shrink-0"
+                      class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 hover:text-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
+                      View Travel Order
                     </button>
                     <button
                       @click="downloadDocument(ticket, 'Trip Ticket')"
                       title="Download Trip Ticket"
-                      class="px-3 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-all active:scale-95 flex items-center justify-center shrink-0"
+                      class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 hover:text-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
+                      View Trip Ticket
                     </button>
                     <button
                       @click="initiateAction('depart', ticket.id)"
