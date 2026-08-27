@@ -102,8 +102,7 @@
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Trip ID</th>
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Destination</th>
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Date & Time</th>
-                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Requested Vehicle (Pre-Booked)</th>
-                  <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold">Assigned Driver</th>
+
                   <th class="pb-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 font-bold text-right pt-2 pb-2">Action</th>
                 </tr>
               </thead>
@@ -122,24 +121,7 @@
                       <span class="text-[10px] text-slate-400 font-medium">{{ trip.time }} - {{ trip.return_time }}</span>
                     </div>
                   </td>
-                  <td class="py-6 px-4">
-                    <div class="flex items-center gap-2">
-                      <span class="text-lg">🚐</span>
-                      <div>
-                        <span class="text-xs font-black text-emerald-800 block leading-tight">{{ trip.requestedVehicle }}</span>
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-1.5 py-0.5 rounded">Fixed / Pre-Booked</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="py-6 px-4">
-                    <div v-if="trip.assignedDriver" class="flex items-center gap-2">
-                       <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 font-black text-xs flex items-center justify-center">🧑</span>
-                       <span class="text-xs font-black text-slate-800">{{ trip.assignedDriver }}</span>
-                    </div>
-                    <span v-else class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-200 inline-flex items-center gap-1">
-                      <span>⚠️ Unassigned</span>
-                    </span>
-                  </td>
+
                   <td class="py-6 px-4 text-right">
                     <div class="flex items-center justify-end gap-2">
                       <button @click="openTicketModal(trip)" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors inline-block active:scale-95">
