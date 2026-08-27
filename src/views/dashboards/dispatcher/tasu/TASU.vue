@@ -198,18 +198,10 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 gap-8">
               <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Date of Trip</label>
                 <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.date }}</p>
-              </div>
-              <div class="space-y-2">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Time of Departure</label>
-                <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.time }}</p>
-              </div>
-              <div class="space-y-2">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Expected Time of Return</label>
-                <p class="text-sm font-bold text-slate-900 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">{{ modalTicket?.return_time }}</p>
               </div>
             </div>
             
