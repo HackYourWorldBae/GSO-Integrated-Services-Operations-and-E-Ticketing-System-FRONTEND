@@ -74,19 +74,7 @@
           </div>
         </div>
 
-        <!-- Banner explaining dispatch workflow -->
-        <div class="p-5 bg-emerald-50 border border-emerald-200 rounded-[2rem] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
-          <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shrink-0 shadow-sm">📋</div>
-            <div>
-              <h4 class="text-xs font-black text-emerald-900 uppercase tracking-wider">Dispatch Center</h4>
-              <p class="text-xs font-bold text-emerald-700 mt-0.5">Assign available vehicles and drivers to approved trip requests via the <strong class="underline">Dispatch</strong> tab.</p>
-            </div>
-          </div>
-          <button @click="router.push('/dispatcher/tasu/dispatch')" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 font-black text-xs uppercase tracking-widest transition-all shadow-sm shrink-0 active:scale-95">
-            Open Dispatch Tab ➔
-          </button>
-        </div>
+
 
         <!-- Trip Request Table -->
         <div class="rounded-[2.5rem] bg-white border border-slate-200 p-10 overflow-hidden shadow-sm">
