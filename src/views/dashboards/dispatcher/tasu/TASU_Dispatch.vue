@@ -401,16 +401,16 @@ const fetchTripDetails = async (id) => {
     const response = await api.get(`tickets/${id}`);
     if (response.data?.data?.ticket) {
       const t = response.data.data.ticket;
-      const details = t.tasu_details || {};
+      const details = t.details || t.tasu_details || {};
       selectedTrip.value = {
         id: t.id,
         destination: details.destination || t.location || 'Unknown',
         date: new Date(details.date_of_travel || t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         time: 'N/A',
         return_time: 'N/A',
-        requester: details.requesting_personnel || 'Unknown Requester',
+        requester: details.requesting_personnel || details.requestingPersonnel || t.user_name || 'Unknown Requester',
         office: details.office_college_department || details.agency_address || 'Unknown Office',
-        passengers: details.number_of_passengers || 0,
+        passengers: details.num_passengers ?? details.number_of_passengers ?? details.numberOfPassengers ?? t.num_passengers ?? 0,
         places_to_visit: details.destination || 'N/A',
         purpose: details.purpose_of_travel || t.description || 'N/A',
         attachments: t.attachments || [],

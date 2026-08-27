@@ -96,7 +96,7 @@
                     </div>
                     <div>
                       <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Passenger Count</p>
-                      <p class="text-xs font-bold text-slate-700">{{ ticket.passengers }} Persons</p>
+                      <p class="text-xs font-bold text-slate-700">{{ ticket.passengers }} {{ Number(ticket.passengers) === 1 ? 'Person' : 'Persons' }}</p>
                     </div>
 
                     <div class="col-span-2">
@@ -217,20 +217,29 @@ const fetchQueue = async () => {
   try {
     const response = await api.get('tickets/queue/TASU');
     if (response.data?.data?.tickets) {
-      tickets.value = response.data.data.tickets.map(t => ({
-        id: t.id,
-        ticketId: t.id,
-        title: t.title,
-        service: t.service_type,
-        description: t.description,
-        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        requestedBy: 'End User', // Ideally fetched from user relation
-        location: t.location,
-        office_room: t.office_room,
-        attachments: t.attachments || [],
-        isDeclining: false,
-        declineReason: ''
-      }));
+      tickets.value = response.data.data.tickets.map(t => {
+        const details = t.details || t.tasu_details || {};
+        const passengerCount = details.num_passengers ?? details.number_of_passengers ?? details.numberOfPassengers ?? t.num_passengers ?? 1;
+        return {
+          id: t.id,
+          ticketId: t.id,
+          title: t.title,
+          service: t.service_type,
+          statusLabel: t.status_label || 'Pending Approval',
+          description: details.purpose_of_travel || details.purposeOfTravel || t.description || 'N/A',
+          date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          requestedBy: details.requesting_personnel || details.requestingPersonnel || t.user_name || 'End User',
+          destination: details.destination || t.location || 'N/A',
+          passengers: passengerCount,
+          dateOfTravel: details.date_of_travel || details.dateOfTravel || 'N/A',
+          officeCollegeDepartment: details.office_college_department || details.agency_address || 'N/A',
+          location: t.location,
+          office_room: t.office_room,
+          attachments: t.attachments || [],
+          isDeclining: false,
+          declineReason: ''
+        };
+      });
     }
   } catch (error) {
     console.error('Failed to fetch TASU queue:', error);
