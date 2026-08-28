@@ -465,34 +465,77 @@ const dispatchAll = async () => {
             month: 'long', day: 'numeric', year: 'numeric'
           }) : '';
           
+          const tripIdStr = String(selectedTrip.value.id || '');
+          const vehicleAndPlate = [assign.vehicleName, assign.vehiclePlate].filter(Boolean).join(' - ');
+
           const templateData = {
+            // Ticket Numbers & IDs
+            ticket_id: tripIdStr,
+            ticket_number: tripIdStr,
+            ticket_no: tripIdStr,
+            ticketNumber: tripIdStr,
+            'Ticket Number': tripIdStr,
+            'Ticket No': tripIdStr,
+            'Ticket ID': tripIdStr,
+
+            // Driver
+            driver_name: assign.driverName || '',
+            driver_full_name: assign.driverName || '',
+            driverName: assign.driverName || '',
+            'Driver Name': assign.driverName || '',
+            'Driver Full Name': assign.driverName || '',
+            'Drivers Full Name': assign.driverName || '',
+            driver: assign.driverName || '',
+
+            // Destination
             destination: selectedTrip.value.destination || '',
+            'Destination': selectedTrip.value.destination || '',
+            places_to_visit: selectedTrip.value.places_to_visit || selectedTrip.value.destination || '',
+
+            // Dates & Times
             date_of_travel: selectedTrip.value.date || '',
+            travel_date: selectedTrip.value.date || '',
             date: dateFormatted || selectedTrip.value.date || '',
+            'Date of Travel': dateFormatted || selectedTrip.value.date || '',
+            'Travel Date': dateFormatted || selectedTrip.value.date || '',
+            'Date': dateFormatted || selectedTrip.value.date || '',
             request_time: selectedTrip.value.time || '',
             time: selectedTrip.value.time || '',
+            'Time': selectedTrip.value.time || '',
+            'Request Time': selectedTrip.value.time || '',
+
+            // Requester & Office
             requesting_personnel: selectedTrip.value.requester || '',
             requester: selectedTrip.value.requester || '',
+            'Requesting Personnel': selectedTrip.value.requester || '',
+            'Requester': selectedTrip.value.requester || '',
             office_college_department: selectedTrip.value.office || '',
             office: selectedTrip.value.office || '',
-            num_passengers: selectedTrip.value.passengers || '',
-            passengers: selectedTrip.value.passengers || '',
+            department: selectedTrip.value.office || '',
+            'Office': selectedTrip.value.office || '',
+
+            // Passengers & Purpose
+            num_passengers: String(selectedTrip.value.passengers ?? ''),
+            passengers: String(selectedTrip.value.passengers ?? ''),
+            'Number of Passengers': String(selectedTrip.value.passengers ?? ''),
+            'Passengers': String(selectedTrip.value.passengers ?? ''),
             purpose_of_travel: selectedTrip.value.purpose || '',
             purpose: selectedTrip.value.purpose || '',
-            driver_name: assign.driverName || '',
-            vehicle_name: assign.vehicleName || '',
-            plate_no: assign.vehiclePlate || '',
-            vehicle: assign.vehicleName || '',
-            'Destination': selectedTrip.value.destination || '',
-            'Date of Travel': dateFormatted || selectedTrip.value.date || '',
-            'Time': selectedTrip.value.time || '',
-            'Requesting Personnel': selectedTrip.value.requester || '',
-            'Office': selectedTrip.value.office || '',
-            'Number of Passengers': selectedTrip.value.passengers || '',
             'Purpose of Travel': selectedTrip.value.purpose || '',
-            'Driver Name': assign.driverName || '',
+            'Purpose': selectedTrip.value.purpose || '',
+
+            // Vehicle & Plate
+            vehicle_name: assign.vehicleName || '',
+            vehicle: assign.vehicleName || '',
             'Vehicle Name': assign.vehicleName || '',
-            'Plate Number': assign.vehiclePlate || ''
+            'Vehicle': assign.vehicleName || '',
+            plate_no: assign.vehiclePlate || '',
+            plate_number: assign.vehiclePlate || '',
+            'Plate Number': assign.vehiclePlate || '',
+            'Plate No': assign.vehiclePlate || '',
+            vehicle_and_plate: vehicleAndPlate,
+            'BSU Vehicle & Plate Number': vehicleAndPlate,
+            'Vehicle & Plate Number': vehicleAndPlate,
           };
           
           const travelOrderBlob = await generateDocxBlob('/templates/Driver Travel Order.docx', templateData);
@@ -502,7 +545,9 @@ const dispatchAll = async () => {
           formData.append('attachments[]', travelOrderBlob, `Driver Travel Order - ${selectedTrip.value.id}.docx`);
           formData.append('attachments[]', tripTicketBlob, `Trip Ticket - ${selectedTrip.value.id}.docx`);
           
-          await api.post(`tickets/${selectedTrip.value.id}/attachments`, formData);
+          await api.post(`tickets/${selectedTrip.value.id}/attachments`, formData, {
+            headers: { 'Content-Type': undefined }
+          });
        } catch (docErr) {
           console.error('Document auto-generation failed', docErr);
           toast.warning('Dispatch successful, but document auto-generation failed.');

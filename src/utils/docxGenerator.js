@@ -8,10 +8,10 @@ import { saveAs } from 'file-saver';
  * @param {Object} data - The data object to fill the template with.
  * @returns {Promise<Blob>} The generated document as a Blob.
  */
-export const generateDocxBlob = async (templatePath, data) => {
+export const generateDocxBlob = async (templatePath, data, options = {}) => {
   const response = await fetch(templatePath);
   if (!response.ok) {
-    throw new Error(`Failed to fetch template from ${templatePath}`);
+    throw new Error(`Failed to fetch template from ${templatePath} (HTTP ${response.status})`);
   }
   const arrayBuffer = await response.arrayBuffer();
 
@@ -19,11 +19,22 @@ export const generateDocxBlob = async (templatePath, data) => {
   const doc = new Docxtemplater(zip, {
     paragraphLoop: true,
     linebreaks: true,
-    delimiters: { start: '(', end: ')' }
+    delimiters: options.delimiters || { start: '{', end: '}' },
+    nullGetter: () => '', // Fallback missing variables to empty string safely
   });
 
-  // Render the document (replace placeholders with data)
-  doc.render(data);
+  try {
+    // Render the document (replace placeholders with data)
+    doc.render(data);
+  } catch (error) {
+    console.error('Docxtemplater rendering error:', error);
+    if (error.properties && error.properties.errors) {
+      error.properties.errors.forEach((e, idx) => {
+        console.error(`Tag error #${idx + 1}:`, e.message, e.properties);
+      });
+    }
+    throw error;
+  }
 
   // Generate a blob
   return doc.getZip().generate({
