@@ -7,34 +7,46 @@ const router = useRouter();
 // Mobile menu
 const isMobileMenuOpen = ref(false);
 
-// Services data
+// Services data — icons are SVG path definitions rendered inline
 const services = [
   {
-    icon: '🔧',
+    iconPaths: [
+      // Wrench / maintenance icon (Heroicons outline)
+      'M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z',
+    ],
     title: 'Facilities & Grounds',
     unit: 'FGMU',
     description: 'Submit maintenance, repair, and facilities requests for campus buildings and grounds.',
     color: 'service-icon-green',
   },
   {
-    icon: '🌿',
+    iconPaths: [
+      // Leaf / landscaping icon (Heroicons outline)
+      'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
+    ],
     title: 'Landscaping & Aesthetics',
     unit: 'LEAU',
     description: 'Request grounds maintenance, landscaping, sanitation, and environmental aesthetic services.',
     color: 'service-icon-gold',
   },
   {
-    icon: '🛡️',
+    iconPaths: [
+      // Shield check icon (Heroicons outline)
+      'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+    ],
     title: 'Security Services',
     unit: 'SSU',
     description: 'Request security assistance, incident reporting, and campus vehicle pass sticker.',
     color: 'service-icon-slate',
   },
   {
-    icon: '🚐',
+    iconPaths: [
+      // Truck / transport icon (Heroicons outline)
+      'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+    ],
     title: 'Transport Services',
     unit: 'TASU',
-    description: 'Book a university vehicle.',
+    description: 'Book a university vehicle for official campus transport needs.',
     color: 'service-icon-teal',
   },
 ];
@@ -285,39 +297,71 @@ onMounted(fetchLandingProjects);
             </p>
             <div class="about-highlights">
               <div class="highlight-item">
-                <span class="highlight-icon">✅</span>
+                <span class="highlight-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                </span>
                 <span>Paperless request processing</span>
               </div>
               <div class="highlight-item">
-                <span class="highlight-icon">⚡</span>
+                <span class="highlight-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </span>
                 <span>Real-time status tracking</span>
               </div>
               <div class="highlight-item">
-                <span class="highlight-icon">🔒</span>
+                <span class="highlight-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                  </svg>
+                </span>
                 <span>Secure BSU staff access</span>
               </div>
             </div>
           </div>
 
+
           <div class="about-visual">
             <div class="about-card-stack">
               <div class="about-badge-card card-1">
-                <span class="card-emoji">🏛️</span>
-                <span>FGMU - Facilities & Grounds</span>
+                <span class="card-icon card-icon--green" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </span>
+                <span>FGMU — Facilities &amp; Grounds</span>
               </div>
               <div class="about-badge-card card-2">
-                <span class="card-emoji">🌿</span>
-                <span>LEAU - Landscaping & Aesthetics</span>
+                <span class="card-icon card-icon--gold" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a10 10 0 000 20M12 2C6.477 2 2 6.477 2 12M12 2c2.761 0 5 4.477 5 10s-2.239 10-5 10M12 2c-2.761 0-5 4.477-5 10s2.239 10 5 10" />
+                  </svg>
+                </span>
+                <span>LEAU — Landscaping &amp; Aesthetics</span>
               </div>
               <div class="about-badge-card card-3">
-                <span class="card-emoji">🛡️</span>
-                <span>SSU - Security Services</span>
+                <span class="card-icon card-icon--slate" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </span>
+                <span>SSU — Security Services</span>
               </div>
               <div class="about-badge-card card-4">
-                <span class="card-emoji">🚌</span>
-                <span>TASU - Transport & Automotive</span>
+                <span class="card-icon card-icon--teal" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13" rx="2"/>
+                    <path d="M16 8h4l3 5v3h-7V8z" />
+                    <circle cx="5.5" cy="18.5" r="2.5"/>
+                    <circle cx="18.5" cy="18.5" r="2.5"/>
+                  </svg>
+                </span>
+                <span>TASU — Transport &amp; Automotive</span>
               </div>
-
             </div>
           </div>
         </div>
@@ -342,8 +386,10 @@ onMounted(fetchLandingProjects);
             :key="service.unit"
             class="service-card"
           >
-            <div class="service-icon-wrap" :class="service.color">
-              <span class="service-icon">{{ service.icon }}</span>
+            <div class="service-icon-wrap" :class="service.color" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="service-icon-svg">
+                <path v-for="(d, i) in service.iconPaths" :key="i" :d="d" />
+              </svg>
             </div>
             <div class="service-unit-badge">{{ service.unit }}</div>
             <h3 class="service-title">{{ service.title }}</h3>
@@ -1301,7 +1347,25 @@ onMounted(fetchLandingProjects);
   white-space: nowrap;
 }
 
-.card-emoji { font-size: 1.25rem; }
+.card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.card-icon--green { background: rgba(26, 107, 53, 0.15); color: var(--bsu-green); }
+.card-icon--gold  { background: rgba(200, 168, 0, 0.15); color: var(--bsu-gold-dark); }
+.card-icon--slate { background: rgba(71, 85, 105, 0.12); color: #475569; }
+.card-icon--teal  { background: rgba(13, 74, 34, 0.12); color: var(--bsu-green-dark); }
 
 .card-1 { top: 5%; left: -10px; animation: cardFloat 5s ease-in-out infinite; }
 .card-2 { top: 30%; right: -10px; animation: cardFloat 6s ease-in-out 1s infinite; }
@@ -1374,7 +1438,11 @@ onMounted(fetchLandingProjects);
 .service-icon-slate { background: linear-gradient(135deg, #475569 0%, #64748b 100%); }
 .service-icon-teal  { background: linear-gradient(135deg, #0d4a22 0%, #1a6b35 100%); }
 
-.service-icon { font-size: 1.75rem; }
+.service-icon-svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
 
 .service-unit-badge {
   display: inline-block;
