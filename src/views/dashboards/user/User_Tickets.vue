@@ -187,80 +187,67 @@
 
                   <!-- TASU Dispatched: Driver & Vehicle Assignment Extension -->
                   <div
-                    v-if="ticket.unit === 'TASU' && (ticket.assignedDriver || ticket.assignedVehicle)"
-                    class="mt-3.5 p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-50 to-orange-50/50 border border-amber-200/90 shadow-xs flex flex-col gap-3 animate-fade-in"
+                    v-if="ticket.unit === 'TASU' && (ticket.assignedDriver || ticket.assignedVehicle) && !ticket.isClosed && ticket.status !== 'closed' && ticket.status !== 'completed'"
+                    class="mt-4 p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-50 to-orange-50/50 border border-amber-200 shadow-sm flex flex-col gap-3.5 animate-fade-in"
                   >
                     <!-- Header -->
                     <div class="flex items-center justify-between gap-2 flex-wrap">
-                      <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
-                        <h4 class="text-xs font-black text-amber-900 uppercase tracking-wider">
-                          Assigned Dispatch Details
+                      <div class="flex items-center gap-2.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
+                        <h4 class="text-xs sm:text-sm font-black text-amber-950 uppercase tracking-wider">
+                          Assigned Trip Details
                         </h4>
                       </div>
-                      <span class="text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-200/80 text-amber-900 border border-amber-300/60">
+                      <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-amber-200/80 text-amber-900 border border-amber-300">
                         {{ ticket.statusLabel || 'Dispatched' }}
                       </span>
                     </div>
 
                     <!-- Details Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <!-- Vehicle -->
-                      <div class="p-3 bg-white/90 backdrop-blur-xs border border-amber-200/70 rounded-xl flex items-center gap-3 shadow-2xs">
-                        <div class="w-8 h-8 rounded-lg bg-amber-100/80 text-amber-700 flex items-center justify-center shrink-0">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div class="p-3.5 bg-white/95 backdrop-blur-xs border border-amber-200/80 rounded-xl flex items-center gap-3.5 shadow-xs">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
                           </svg>
                         </div>
                         <div class="min-w-0">
-                          <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Vehicle</p>
-                          <p class="text-xs font-bold text-slate-800 truncate">{{ ticket.assignedVehicle || 'Assigned Fleet Vehicle' }}</p>
+                          <p class="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Vehicle</p>
+                          <p class="text-sm sm:text-base font-black text-slate-900 truncate">{{ ticket.assignedVehicle || 'Assigned Fleet Vehicle' }}</p>
                         </div>
                       </div>
 
                       <!-- Driver -->
-                      <div class="p-3 bg-white/90 backdrop-blur-xs border border-amber-200/70 rounded-xl flex items-center gap-3 shadow-2xs">
-                        <div class="w-8 h-8 rounded-lg bg-amber-100/80 text-amber-700 flex items-center justify-center shrink-0">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div class="p-3.5 bg-white/95 backdrop-blur-xs border border-amber-200/80 rounded-xl flex items-center gap-3.5 shadow-xs">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                           </svg>
                         </div>
                         <div class="min-w-0">
-                          <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Driver</p>
-                          <p class="text-xs font-bold text-slate-800 truncate">{{ ticket.assignedDriver || 'Assigned Driver' }}</p>
+                          <p class="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Driver</p>
+                          <p class="text-sm sm:text-base font-black text-slate-900 truncate">{{ ticket.assignedDriver || 'Assigned Driver' }}</p>
                         </div>
                       </div>
 
                       <!-- Driver Direct Contact -->
-                      <div class="p-3 bg-white/90 backdrop-blur-xs border border-amber-200/70 rounded-xl flex items-center justify-between gap-2 shadow-2xs">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                            </svg>
-                          </div>
-                          <div class="min-w-0">
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Driver Contact</p>
-                            <p class="text-xs font-black text-slate-900 truncate">{{ ticket.assignedContact || 'No number listed' }}</p>
-                          </div>
-                        </div>
-                        <a
-                          v-if="ticket.assignedContact"
-                          :href="'tel:' + ticket.assignedContact"
-                          class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shrink-0 shadow-2xs active:scale-95 transition-all cursor-pointer"
-                          title="Call Driver Now"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      <div class="p-3.5 bg-white/95 backdrop-blur-xs border border-amber-200/80 rounded-xl flex items-center gap-3.5 shadow-xs">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                           </svg>
-                          Call
-                        </a>
+                        </div>
+                        <div class="min-w-0">
+                          <p class="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Driver Contact</p>
+                          <p class="text-sm sm:text-base font-black text-emerald-800 truncate tracking-wide font-mono">{{ ticket.assignedContact || 'No number listed' }}</p>
+                        </div>
                       </div>
                     </div>
 
                     <!-- Communication Instruction Callout -->
-                    <div class="flex items-start gap-2 pt-1 border-t border-amber-200/60 text-amber-900 text-[11px] font-semibold leading-relaxed">
+                    <div class="flex items-start gap-2.5 pt-2 border-t border-amber-200/70 text-amber-950 text-xs sm:text-[13px] font-bold leading-relaxed">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                       </svg>

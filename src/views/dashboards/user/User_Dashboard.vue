@@ -155,20 +155,20 @@
                 <p class="text-xs text-slate-400 mt-0.5 truncate">Ticket <span class="font-bold text-slate-500">{{ update.ticketId }}</span></p>
 
                 <!-- TASU Dispatched: Driver & Vehicle Mini Extension -->
-                <div v-if="update.unit === 'TASU' && (update.assignedDriver || update.assignedVehicle)" class="mt-2 p-2.5 bg-amber-50/80 border border-amber-200/80 rounded-xl flex flex-col gap-1.5 text-xs">
-                  <div class="flex items-center gap-3 flex-wrap text-[11px] font-bold text-slate-700">
-                    <span v-if="update.assignedVehicle" class="flex items-center gap-1 text-slate-800">
-                      🚗 <strong class="text-slate-900">{{ update.assignedVehicle }}</strong>
+                <div v-if="update.unit === 'TASU' && (update.assignedDriver || update.assignedVehicle) && update.status !== 'closed' && update.status !== 'completed'" class="mt-2.5 p-3 bg-amber-50/90 border border-amber-200 rounded-xl flex flex-col gap-2 text-xs">
+                  <div class="flex items-center gap-3.5 flex-wrap text-xs font-bold text-slate-700">
+                    <span v-if="update.assignedVehicle" class="flex items-center gap-1.5 text-slate-800">
+                      🚗 <strong class="text-slate-900 font-black">{{ update.assignedVehicle }}</strong>
                     </span>
-                    <span v-if="update.assignedDriver" class="flex items-center gap-1 text-slate-800">
-                      👤 <strong class="text-slate-900">{{ update.assignedDriver }}</strong>
+                    <span v-if="update.assignedDriver" class="flex items-center gap-1.5 text-slate-800">
+                      👤 <strong class="text-slate-900 font-black">{{ update.assignedDriver }}</strong>
                     </span>
-                    <a v-if="update.assignedContact" :href="'tel:' + update.assignedContact" @click.stop class="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-800 font-black bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                    <span v-if="update.assignedContact" class="inline-flex items-center gap-1 text-emerald-800 font-black bg-emerald-100/90 px-2.5 py-0.5 rounded-md font-mono text-xs">
                       📞 {{ update.assignedContact }}
-                    </a>
+                    </span>
                   </div>
-                  <p class="text-[10px] text-amber-800 font-semibold leading-tight">
-                    💡 Call driver directly for pickup timing and trip coordination.
+                  <p class="text-[11px] text-amber-900 font-bold leading-tight">
+                    💡 Call or message the driver for departure coordination and pickup.
                   </p>
                 </div>
 
