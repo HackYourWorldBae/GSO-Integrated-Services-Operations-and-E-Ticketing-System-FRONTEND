@@ -91,7 +91,9 @@
               </svg>
               <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
               <div class="absolute top-6 left-6">
-                <span :class="['px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 shadow-sm backdrop-blur-md', vehicle.status === 'Available' ? 'bg-emerald-500/20 text-emerald-100 border-emerald-400/30' : 'bg-red-500/20 text-red-100 border-red-400/30']">
+                <span :class="['px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 shadow-sm backdrop-blur-md', 
+                  vehicle.status === 'Available' ? 'bg-emerald-500/20 text-emerald-100 border-emerald-400/30' : 
+                  (vehicle.status === 'In Use' ? 'bg-amber-500/20 text-amber-100 border-amber-400/30' : 'bg-rose-500/20 text-rose-100 border-rose-400/30')]">
                   {{ vehicle.status }}
                 </span>
               </div>
@@ -124,8 +126,18 @@
 
                <!-- Status Toggle -->
                 <div class="pt-4 flex items-center justify-between border-t border-slate-50">
-                  <span class="text-sm font-bold text-slate-500">Operation Status</span>
-                  <button @click="toggleStatus(vehicle)" :class="['relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none shadow-inner', vehicle.status === 'Available' ? 'bg-emerald-500' : 'bg-red-500']">
+                  <div>
+                    <span class="text-sm font-bold text-slate-500 block">Operation Status</span>
+                    <span v-if="vehicle.status === 'In Use'" class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Locked (On Active Trip)</span>
+                  </div>
+                  <button 
+                    @click="toggleStatus(vehicle)" 
+                    :disabled="vehicle.status === 'In Use'"
+                    :class="['relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none shadow-inner', 
+                      vehicle.status === 'In Use' ? 'bg-amber-500 opacity-80 cursor-not-allowed' : 
+                      (vehicle.status === 'Available' ? 'bg-emerald-500 cursor-pointer' : 'bg-rose-500 cursor-pointer')]"
+                    :title="vehicle.status === 'In Use' ? 'Cannot change status while on active trip' : 'Toggle between Available and Under Maintenance'"
+                  >
                     <span :class="['inline-block h-6 w-6 transform rounded-full bg-white transition-transform shadow-md', vehicle.status === 'Available' ? 'translate-x-7' : 'translate-x-1']" />
                   </button>
                </div>
@@ -289,6 +301,10 @@ const submitVehicleForm = async () => {
 };
 
 const toggleStatus = async (vehicle) => {
+  if (vehicle.status === 'In Use') {
+    toast.warning('Vehicle is currently dispatched on an active trip and cannot be toggled.');
+    return;
+  }
   try {
     await store.toggleVehicleStatus(vehicle.id);
     toast.info(`${vehicle.name} status updated.`);

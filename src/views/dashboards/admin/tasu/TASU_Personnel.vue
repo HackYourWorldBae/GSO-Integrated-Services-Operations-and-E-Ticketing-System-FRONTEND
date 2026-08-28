@@ -170,7 +170,7 @@
                           <p class="text-sm font-bold leading-snug text-slate-800">{{ worker.ticketTask || 'Driving Work' }}</p>
                         </div>
                         <div v-if="worker.implementationDate" class="mt-3 pt-2.5 border-t flex items-center justify-between text-[10px] font-semibold text-slate-600 border-blue-200/60">
-                          <span>Target Date:</span>
+                          <span>Departure Date:</span>
                           <strong class="font-bold text-slate-800">{{ worker.implementationDate }}</strong>
                         </div>
                       </div>
@@ -178,7 +178,7 @@
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No Active Assignment</span>
                         <p class="text-[11px] text-slate-400 mt-0.5">Worker is currently {{ worker.status ? worker.status.toLowerCase() : 'unavailable' }}.</p>
                       </div>
-                      <div v-if="worker.nextAssignmentId" class="h-full min-h-[140px] p-4 rounded-2xl border border-purple-200 hover:border-purple-400 transition-all flex flex-col justify-between bg-white shadow-xs hover:shadow-md">
+                      <div v-if="worker.nextAssignmentId" @click="toggleTicketExtension(worker.id, worker.nextAssignmentId)" class="h-full min-h-[140px] p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between bg-white shadow-xs hover:shadow-md" :class="expandedTickets[worker.id] === worker.nextAssignmentId ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20' : 'border-purple-200 hover:border-purple-400'">
                         <div>
                           <span class="text-[9px] font-black uppercase tracking-widest text-purple-600 flex items-center gap-1.5 mb-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
@@ -193,6 +193,61 @@
                       <div v-else class="h-full min-h-[140px] p-4 rounded-2xl bg-slate-100/50 border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No Next Job Queued</span>
                         <p class="text-[11px] text-slate-400 mt-0.5">No upcoming tickets or projects assigned.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Inline Brief Ticket Extension inside container -->
+                  <div v-if="expandedTickets[worker.id]" class="mt-6 pt-6 border-t border-slate-200/80 animate-fade-in">
+                    <div v-if="getTicketDetailsForExtension(expandedTickets[worker.id])" class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
+                      <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+
+                      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-800 relative z-10">
+                        <div class="flex flex-wrap items-center gap-2.5">
+                          <span class="text-lg font-black tracking-tight text-white">{{ expandedTickets[worker.id] }}</span>
+                          <span class="text-xs font-bold text-slate-400">({{ getTicketDetailsForExtension(expandedTickets[worker.id]).type }})</span>
+                        </div>
+                        <button @click="expandedTickets[worker.id] = null" class="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 hover:text-rose-300 text-slate-300 text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5 cursor-pointer">
+                          Close Extension
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                      </div>
+
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 relative z-10">
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Destination</span>
+                          <span class="text-xs font-bold text-slate-100 block truncate">{{ getTicketDetailsForExtension(expandedTickets[worker.id]).destination }}</span>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Requester / Office</span>
+                          <span class="text-xs font-bold text-slate-100 block truncate">{{ getTicketDetailsForExtension(expandedTickets[worker.id]).requester }}</span>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Departure Date</span>
+                          <span class="text-xs font-bold text-emerald-400 block truncate">{{ getTicketDetailsForExtension(expandedTickets[worker.id]).date }}</span>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 relative z-10">
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Vehicle</span>
+                          <span class="text-xs font-bold text-slate-100 block truncate">{{ getTicketDetailsForExtension(expandedTickets[worker.id]).vehicle }}</span>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Passengers</span>
+                          <span class="text-xs font-bold text-slate-100 block truncate">{{ getTicketDetailsForExtension(expandedTickets[worker.id]).passengers }}</span>
+                        </div>
+                      </div>
+
+                      <div class="relative z-10">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Purpose of Travel</span>
+                        <p class="text-xs font-medium text-slate-300 leading-relaxed bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">{{ getTicketDetailsForExtension(expandedTickets[worker.id]).desc }}</p>
+                      </div>
+                    </div>
+                    <div v-else class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg flex items-center justify-center">
+                      <div class="flex items-center gap-2 text-slate-400 text-xs">
+                        <svg class="animate-spin h-4 w-4 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span>Loading ticket details...</span>
                       </div>
                     </div>
                   </div>
@@ -352,6 +407,7 @@ import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
 import { useAuthStore } from '@/stores/auth';
+import api from '@/api/client';
 
 const store = useTasuPersonnelStore();
 const authStore = useAuthStore();
@@ -359,6 +415,7 @@ const isAdmin = computed(() => authStore.role === 'admin' || authStore.role === 
 
 const groupedPersonnel = computed(() => store.groupedPersonnel);
 const expandedTickets  = ref({});
+const fetchedTicketDetails = ref({});
 
 const showPersonnelModal = ref(false);
 const showCategoryModal = ref(false);
@@ -519,9 +576,44 @@ const toggleWorkerStatus = (worker) => {
   store.toggleWorkerStatus(worker.id);
 };
 
-const toggleTicketExtension = (workerId, ticketId) => {
+const getTicketDetailsForExtension = (ticketId) => {
+  return fetchedTicketDetails.value[ticketId] || null;
+};
+
+const toggleTicketExtension = async (workerId, ticketId) => {
   if (!ticketId) return;
-  expandedTickets.value[workerId] = expandedTickets.value[workerId] === ticketId ? null : ticketId;
+  if (expandedTickets.value[workerId] === ticketId) {
+    expandedTickets.value[workerId] = null;
+  } else {
+    expandedTickets.value[workerId] = ticketId;
+    if (!fetchedTicketDetails.value[ticketId]) {
+      try {
+        const response = await api.get(`tickets/${ticketId}`);
+        const t = response.data?.data?.ticket;
+        if (t) {
+          const details = t.details || t.tasu_details || {};
+          const dest = details.destination || t.location || 'N/A';
+          const req = details.requesting_personnel || details.requestingPersonnel || t.user_name || 'Unknown Requester';
+          const off = details.office_college_department || details.agency_address || '';
+          const travelDate = details.date_of_travel || t.submitted_at || t.created_at;
+          const formattedDate = travelDate ? new Date(travelDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+          
+          fetchedTicketDetails.value[ticketId] = {
+            id: t.id,
+            type: t.service_type || 'Vehicle Request',
+            destination: dest,
+            requester: off ? `${req} (${off})` : req,
+            date: formattedDate,
+            desc: details.purpose_of_travel || t.description || 'No purpose of travel provided.',
+            passengers: String(details.num_passengers ?? details.number_of_passengers ?? 'N/A'),
+            vehicle: [t.assignment?.vehicle_name, t.assignment?.plate_no].filter(Boolean).join(' - ') || details.vehicle_name || 'Assigned Vehicle'
+          };
+        }
+      } catch (e) {
+        console.error('Failed to fetch brief ticket details', e);
+      }
+    }
+  }
 };
 
 onMounted(() => {

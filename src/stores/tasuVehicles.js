@@ -29,7 +29,7 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
 
   const toggleVehicleStatus = async (vehicleId) => {
     const v = vehicles.value.find(item => item.id === vehicleId);
-    if (!v) return;
+    if (!v || v.status === 'In Use') return;
     
     // Toggle logically for the UI
     const newStatusStr = v.status === 'Available' ? 'Under Maintenance' : 'Available';
