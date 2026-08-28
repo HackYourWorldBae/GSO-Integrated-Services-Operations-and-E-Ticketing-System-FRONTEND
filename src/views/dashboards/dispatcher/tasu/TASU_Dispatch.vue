@@ -495,6 +495,7 @@ const dispatchAll = async () => {
             // Dates & Times
             date_of_travel: selectedTrip.value.date || '',
             travel_date: selectedTrip.value.date || '',
+            'travel date': dateFormatted || selectedTrip.value.date || '',
             date: dateFormatted || selectedTrip.value.date || '',
             'Date of Travel': dateFormatted || selectedTrip.value.date || '',
             'Travel Date': dateFormatted || selectedTrip.value.date || '',
@@ -549,8 +550,12 @@ const dispatchAll = async () => {
             headers: { 'Content-Type': undefined }
           });
        } catch (docErr) {
-          console.error('Document auto-generation failed', docErr);
-          toast.warning('Dispatch successful, but document auto-generation failed.');
+          console.error('Document auto-generation failed:', docErr);
+          const backendErrors = docErr.response?.data?.errors;
+          const backendMsg = docErr.response?.data?.message || docErr.message;
+          const fullErr = Array.isArray(backendErrors) ? `${backendMsg} (${backendErrors.join(', ')})` : backendMsg;
+          console.error('Backend error response:', docErr.response?.data);
+          toast.warning(`Dispatch successful, but document auto-generation failed: ${fullErr}`);
        }
     }
     toast.success(`Successfully dispatched assignments!`);
