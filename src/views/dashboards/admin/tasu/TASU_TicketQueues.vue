@@ -180,33 +180,44 @@
           </div>
         </div>
       </div>
+
+      <!-- Document & Attachment Viewer Modal -->
+      <DocumentViewerModal
+        v-model:isOpen="viewerModal.isOpen"
+        :title="viewerModal.title"
+        :fileName="viewerModal.fileName"
+        :fileBlob="viewerModal.fileBlob"
+      />
     </template>
   </MainLayout>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
+
+const viewerModal = reactive({
+  isOpen: false,
+  title: '',
+  fileName: '',
+  fileBlob: null
+});
 
 const downloadAttachment = async (att) => {
   try {
     const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
-    if (att.file_type && att.file_type.startsWith('image/')) {
-      window.open(url, '_blank');
-    } else {
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', att.file_name || 'attachment');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
+    const blob = new Blob([response.data], { type: att.file_type || 'application/octet-stream' });
+    
+    viewerModal.title = att.file_name || 'Document Attachment';
+    viewerModal.fileName = att.file_name || 'attachment';
+    viewerModal.fileBlob = blob;
+    viewerModal.isOpen = true;
   } catch (error) {
-    console.error('Failed to download attachment', error);
-    alert('Failed to download attachment.');
+    console.error('Failed to preview attachment', error);
+    toast.error('Failed to preview attachment.');
   }
 };
 

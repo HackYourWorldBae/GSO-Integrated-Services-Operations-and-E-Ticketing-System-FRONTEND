@@ -82,73 +82,64 @@
               <div
                 v-for="ticket in scheduledTickets"
                 :key="ticket.id"
-                class="group flex flex-col md:flex-row md:items-center gap-4 py-5 px-4 hover:bg-slate-50 border-b border-transparent hover:border-slate-100 rounded-2xl transition-all duration-200 cursor-default sm:-mx-4"
+                class="group flex flex-col xl:flex-row xl:items-center justify-between gap-4 py-5 px-4 hover:bg-slate-50 border-b border-transparent hover:border-slate-100 rounded-2xl transition-all duration-200 cursor-default"
               >
-                <!-- Mobile Header Row: ID & Status -->
-                <div class="flex items-center justify-between w-full md:w-auto md:shrink-0">
-                  <div class="flex items-center gap-4 min-w-0">
-                    <div class="w-1 h-12 rounded-full bg-amber-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
-                    <div class="h-12 px-3 min-w-[4.5rem] rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
-                      <span class="text-xs font-black text-amber-700 leading-none">#{{ ticket.id }}</span>
+                <!-- Left Details: ID, Departure, Driver & Vehicle, Status -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 flex-1 min-w-0">
+                  <div class="flex items-center gap-3 shrink-0">
+                    <div class="w-1.5 h-12 rounded-full bg-amber-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
+                    <div class="h-11 px-3.5 min-w-[5rem] rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+                      <span class="text-xs font-black text-amber-800 leading-none">#{{ ticket.id }}</span>
                     </div>
                   </div>
-                  <!-- Mobile Status Chip -->
-                  <div class="flex md:hidden items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Departure Date</span>
+                      <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
+                    </div>
+                    <div class="flex flex-col min-w-0 sm:col-span-1 lg:col-span-2">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Driver & Vehicle</span>
+                      <span class="text-sm font-bold text-slate-900 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                      <span class="text-[11px] text-slate-500 font-medium truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200/80 rounded-xl shrink-0 self-start sm:self-center">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting Departure</span>
                   </div>
                 </div>
 
-                <!-- Content Grid for Mobile, Flex for Desktop -->
-                <div class="grid grid-cols-2 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
-                  <div class="flex flex-col min-w-[130px]">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Departure</span>
-                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
-                  </div>
-                  <div class="flex flex-col flex-1 min-w-0">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver & Vehicle</span>
-                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
-                    <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
-                  </div>
-                </div>
-
-                <!-- Actions (Desktop & Mobile) -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4 w-full md:w-auto mt-2 md:mt-0 md:shrink-0">
-                  <!-- Desktop Status Chip -->
-                  <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
-                  </div>
-                  
-                  <div class="flex gap-2">
-                    <button
-                      @click="downloadDocument(ticket, 'Driver Travel Order')"
-                      title="Download Driver Travel Order"
-                      class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 hover:text-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      View Travel Order
-                    </button>
-                    <button
-                      @click="downloadDocument(ticket, 'Trip Ticket')"
-                      title="Download Trip Ticket"
-                      class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 hover:text-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      View Trip Ticket
-                    </button>
-                    <button
-                      @click="initiateAction('depart', ticket.id)"
-                      :disabled="loading"
-                      class="w-full sm:w-auto shrink-0 px-5 py-3 md:py-2.5 rounded-xl bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
-                    >
-                      Depart Early
-                    </button>
-                  </div>
+                <!-- Right Actions: Documents & Depart Action -->
+                <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap justify-start xl:justify-end shrink-0 pt-2 xl:pt-0 border-t xl:border-t-0 border-slate-100">
+                  <button
+                    @click="downloadDocument(ticket, 'Driver Travel Order')"
+                    title="Download Driver Travel Order"
+                    class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Travel Order</span>
+                  </button>
+                  <button
+                    @click="downloadDocument(ticket, 'Trip Ticket')"
+                    title="Download Trip Ticket"
+                    class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Trip Ticket</span>
+                  </button>
+                  <button
+                    @click="initiateAction('depart', ticket.id)"
+                    :disabled="loading"
+                    class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider hover:shadow-md hover:shadow-amber-500/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer disabled:opacity-50"
+                  >
+                    Depart Early
+                  </button>
                 </div>
               </div>
             </div>
@@ -199,53 +190,45 @@
               <div
                 v-for="ticket in activeTickets"
                 :key="ticket.id"
-                class="group flex flex-col md:flex-row md:items-center gap-4 py-5 px-4 hover:bg-slate-50 border-b border-transparent hover:border-slate-100 rounded-2xl transition-all duration-200 cursor-default sm:-mx-4"
+                class="group flex flex-col xl:flex-row xl:items-center justify-between gap-4 py-5 px-4 hover:bg-slate-50 border-b border-transparent hover:border-slate-100 rounded-2xl transition-all duration-200 cursor-default"
               >
-                <!-- Mobile Header Row: ID & Status -->
-                <div class="flex items-center justify-between w-full md:w-auto md:shrink-0">
-                  <div class="flex items-center gap-4 min-w-0">
-                    <div class="w-1 h-12 rounded-full bg-emerald-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
-                    <div class="h-12 px-3 min-w-[4.5rem] rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                <!-- Left Details: ID, Departure, Driver & Vehicle -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 flex-1 min-w-0">
+                  <div class="flex items-center gap-3 shrink-0">
+                    <div class="w-1.5 h-12 rounded-full bg-emerald-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
+                    <div class="h-11 px-3.5 min-w-[5rem] rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
                       <span class="text-xs font-black text-emerald-600 leading-none">#{{ ticket.id }}</span>
                     </div>
                   </div>
-                  <!-- Mobile Status Chip -->
-                  <div class="flex md:hidden items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl shrink-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">On Route</span>
-                  </div>
-                </div>
 
-                <!-- Content Grid for Mobile, Flex for Desktop -->
-                <div class="grid grid-cols-2 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
-                  <div class="flex flex-col min-w-[130px]">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Departed</span>
-                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
-                  </div>
-                  <div class="flex flex-col flex-1 min-w-0">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver & Vehicle</span>
-                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
-                    <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
-                  </div>
-                </div>
-
-                <!-- Actions (Desktop & Mobile) -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4 w-full md:w-auto mt-2 md:mt-0 md:shrink-0">
-                  <div class="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
-                    <!-- Live Duration -->
-                    <div class="flex flex-col md:items-center shrink-0 w-full sm:w-auto">
-                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 hidden md:block">Elapsed</span>
-                      <div class="flex items-center justify-center gap-1.5 px-3 py-2 md:py-1.5 bg-slate-900 rounded-xl w-full sm:w-auto">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-xs font-black text-white tracking-wide">
-                          {{ liveDurations[ticket.id] || '—' }} <span class="md:hidden ml-1 text-[10px] font-medium text-slate-400 uppercase">elapsed</span>
-                        </span>
-                      </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Departed Date</span>
+                      <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.implementation_date || 'N/A' }}</span>
                     </div>
-                    <!-- Desktop Status Chip -->
-                    <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl shrink-0">
+                    <div class="flex flex-col min-w-0 sm:col-span-1 lg:col-span-2">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Driver & Vehicle</span>
+                      <span class="text-sm font-bold text-slate-900 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                      <span class="text-[11px] text-slate-500 font-medium truncate">{{ ticket.assignment?.vehicle_name || 'No vehicle assigned' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Actions: Elapsed, Status, and Job Finished Action -->
+                <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap justify-between xl:justify-end shrink-0 pt-2 xl:pt-0 border-t xl:border-t-0 border-slate-100">
+                  <div class="flex items-center gap-2.5">
+                    <!-- Live Duration -->
+                    <div class="flex items-center gap-1.5 px-3 py-2 bg-slate-900 rounded-xl">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-xs font-black text-white tracking-wide">
+                        {{ liveDurations[ticket.id] || '—' }}
+                      </span>
+                    </div>
+
+                    <!-- Status Chip -->
+                    <div class="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200/80 rounded-xl shrink-0">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">On Route</span>
                     </div>
@@ -254,7 +237,7 @@
                   <button
                     @click="initiateAction('finish', ticket.id)"
                     :disabled="loading"
-                    class="w-full sm:w-auto shrink-0 px-5 py-3 md:py-2.5 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                    class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider hover:shadow-md hover:shadow-emerald-500/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer disabled:opacity-50"
                   >
                     Job Finished
                   </button>
@@ -323,11 +306,20 @@
       </div>
     </Transition>
   </Teleport>
+
+  <!-- In-Website Document Viewer Modal -->
+  <DocumentViewerModal
+    v-model:isOpen="viewerModal.isOpen"
+    :title="viewerModal.title"
+    :fileName="viewerModal.fileName"
+    :fileBlob="viewerModal.fileBlob"
+  />
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import { generateDocx } from '@/utils/docxGenerator';
@@ -337,6 +329,13 @@ const loading = ref(false);
 const showConfirmModal = ref(false);
 const pendingTicketId = ref(null);
 const pendingAction = ref(null); // 'depart' | 'finish'
+
+const viewerModal = reactive({
+  isOpen: false,
+  title: '',
+  fileName: '',
+  fileBlob: null
+});
 
 /** Keyed by ticket.id → human-friendly elapsed duration string. Updated every hour. */
 const liveDurations = reactive({});
@@ -456,9 +455,9 @@ const computeDuration = (assignment) => {
 };
 
 /**
- * Downloads a generated .docx file based on ticket details
+ * Opens in-website preview of the generated document with download option
  */
-const downloadDocument = async (ticket, type) => {
+const viewDocument = async (ticket, type) => {
   try {
     loading.value = true;
     
@@ -475,27 +474,25 @@ const downloadDocument = async (ticket, type) => {
       return;
     }
     
-    toast.info(`Downloading ${type}...`);
-    
-    // Use the backend endpoint to download the attachment
+    // Fetch attachment blob from backend
     const response = await api.get(`attachments/${docAttachment.id}`, { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([response.data], { type: docAttachment.file_type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', docAttachment.file_name || `${type} - ${ticket.id}.docx`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    
-    toast.success(`${type} downloaded successfully!`);
+    const blob = new Blob([response.data], { 
+      type: docAttachment.file_type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+    });
+
+    viewerModal.title = `${type} — #${ticket.id}`;
+    viewerModal.fileName = docAttachment.file_name || `${type} - ${ticket.id}.docx`;
+    viewerModal.fileBlob = blob;
+    viewerModal.isOpen = true;
   } catch (error) {
-    console.error('Document download error:', error);
-    toast.error(`Failed to download ${type}.`);
+    console.error('Document preview error:', error);
+    toast.error(`Failed to load ${type} preview.`);
   } finally {
     loading.value = false;
   }
 };
+
+const downloadDocument = viewDocument; // alias for template buttons
 
 onMounted(() => {
   fetchTickets();

@@ -192,59 +192,45 @@
         </div>
       </div>
       
-      <!-- Image Viewer Modal -->
-      <div v-if="showImageModal" class="absolute inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeImageModal">
-        <div class="relative bg-white rounded-2xl p-2 max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
-          <button @click="closeImageModal" class="absolute -top-4 -right-4 bg-white text-slate-500 hover:text-slate-700 p-2 rounded-full shadow-lg transition-colors z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <div class="overflow-auto rounded-xl flex items-center justify-center bg-slate-100 min-h-[200px] min-w-[200px]">
-            <img :src="selectedImageUrl" alt="Attachment Preview" class="max-w-full max-h-[85vh] object-contain rounded-xl" />
-          </div>
-        </div>
-      </div>
+      <!-- Document & Attachment Viewer Modal -->
+      <DocumentViewerModal
+        v-model:isOpen="viewerModal.isOpen"
+        :title="viewerModal.title"
+        :fileName="viewerModal.fileName"
+        :fileBlob="viewerModal.fileBlob"
+      />
     </template>
   </MainLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import api from '@/api/client';
+import { toast } from 'vue3-toastify';
 
 const tickets = ref([]);
 
-const showImageModal = ref(false);
-const selectedImageUrl = ref('');
-
-const closeImageModal = () => {
-  showImageModal.value = false;
-  if (selectedImageUrl.value) {
-    window.URL.revokeObjectURL(selectedImageUrl.value);
-    selectedImageUrl.value = '';
-  }
-};
+const viewerModal = reactive({
+  isOpen: false,
+  title: '',
+  fileName: '',
+  fileBlob: null
+});
 
 const downloadAttachment = async (att) => {
   try {
     const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
-    if (att.file_type && att.file_type.startsWith('image/')) {
-        selectedImageUrl.value = url;
-        showImageModal.value = true;
-    } else {
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', att.file_name || 'attachment');
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-    }
+    const blob = new Blob([response.data], { type: att.file_type || 'application/octet-stream' });
+    
+    viewerModal.title = att.file_name || 'Document Attachment';
+    viewerModal.fileName = att.file_name || 'attachment';
+    viewerModal.fileBlob = blob;
+    viewerModal.isOpen = true;
   } catch (error) {
-    console.error('Failed to download attachment', error);
-    alert(`Failed to download attachment: ${error.response?.data?.message || error.message}`);
+    console.error('Failed to preview attachment', error);
+    toast.error(`Failed to load attachment: ${error.response?.data?.message || error.message}`);
   }
 };
 
