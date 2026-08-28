@@ -1013,9 +1013,8 @@ const resetForm = () => {
 
 const isFeedbackEligible = (ticket) => {
   if (!ticket || ticket.isClosed) return false;
+  // Ratings currently supported for FGMU and LEAU at completed step 6
   if (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') return ticket.currentStep === 6;
-  if (ticket.unit === 'SSU') return false;
-  if (ticket.unit === 'TASU') return ticket.currentStep === 4;
   return false;
 };
 
