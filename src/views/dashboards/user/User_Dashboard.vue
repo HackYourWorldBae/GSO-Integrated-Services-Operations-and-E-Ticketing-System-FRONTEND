@@ -153,6 +153,25 @@
                   </span>
                 </div>
                 <p class="text-xs text-slate-400 mt-0.5 truncate">Ticket <span class="font-bold text-slate-500">{{ update.ticketId }}</span></p>
+
+                <!-- TASU Dispatched: Driver & Vehicle Mini Extension -->
+                <div v-if="update.unit === 'TASU' && (update.assignedDriver || update.assignedVehicle)" class="mt-2 p-2.5 bg-amber-50/80 border border-amber-200/80 rounded-xl flex flex-col gap-1.5 text-xs">
+                  <div class="flex items-center gap-3 flex-wrap text-[11px] font-bold text-slate-700">
+                    <span v-if="update.assignedVehicle" class="flex items-center gap-1 text-slate-800">
+                      🚗 <strong class="text-slate-900">{{ update.assignedVehicle }}</strong>
+                    </span>
+                    <span v-if="update.assignedDriver" class="flex items-center gap-1 text-slate-800">
+                      👤 <strong class="text-slate-900">{{ update.assignedDriver }}</strong>
+                    </span>
+                    <a v-if="update.assignedContact" :href="'tel:' + update.assignedContact" @click.stop class="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-800 font-black bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                      📞 {{ update.assignedContact }}
+                    </a>
+                  </div>
+                  <p class="text-[10px] text-amber-800 font-semibold leading-tight">
+                    💡 Call driver directly for pickup timing and trip coordination.
+                  </p>
+                </div>
+
                 <div v-if="update.status === 'resolved' && (update.unit === 'FGMU' || update.unit === 'LEAU')" class="mt-1.5 flex items-center gap-1.5 text-amber-600">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
@@ -351,7 +370,10 @@ const fetchDashboardData = async () => {
         status: t.status,
         statusLabel: t.status_label,
         date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        unit: t.unit_code
+        unit: t.unit_code,
+        assignedVehicle: t.assignment?.vehicle_name || null,
+        assignedDriver: t.assignment?.personnel_name || null,
+        assignedContact: t.assignment?.personnel_contact || null,
       }));
     }
 
