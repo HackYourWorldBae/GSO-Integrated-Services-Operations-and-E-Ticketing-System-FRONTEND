@@ -47,173 +47,276 @@
     <template #header-title>
       <div class="flex flex-col">
         <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">Dispatch Board</h2>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Fleet Scheduling &amp; Operations View</p>
+        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Active Vehicle Departures &amp; Trip Schedule</p>
       </div>
     </template>
 
     <template #main-content>
       <div class="space-y-8 animate-fade-in pb-16">
         
-        <!-- Top Stats Overview (3 Column Metric Cards) -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
-          <div class="p-6 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+        <!-- Top Stats Overview (4 Column Metric Cards) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-5 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
             <div class="p-3.5 rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
             </div>
             <div>
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Fleet Units</p>
               <p class="text-2xl font-black text-slate-900 tabular-nums leading-none">{{ allVehicles.length }}</p>
-              <p class="text-[10px] font-bold text-emerald-600 mt-1">{{ availableVehiclesCount }} Available now</p>
+              <p class="text-[10px] font-bold text-emerald-600 mt-1">{{ availableVehiclesCount }} Available</p>
             </div>
           </div>
 
-          <div class="p-6 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div class="p-5 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
             <div class="p-3.5 rounded-2xl bg-amber-50 text-amber-600 shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             </div>
             <div>
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Active On Trip</p>
-              <p class="text-2xl font-black text-slate-900 tabular-nums leading-none">{{ inProgressCount }}</p>
-              <p class="text-[10px] font-bold text-amber-600 mt-1">Currently in transit</p>
+              <p class="text-2xl font-black text-slate-900 tabular-nums leading-none">{{ inTransitCount }}</p>
+              <p class="text-[10px] font-bold text-amber-600 mt-1">Currently on route</p>
             </div>
           </div>
 
-          <div class="p-6 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div class="p-5 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+            <div class="p-3.5 rounded-2xl bg-blue-50 text-blue-600 shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            </div>
+            <div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Scheduled Trips</p>
+              <p class="text-2xl font-black text-slate-900 tabular-nums leading-none">{{ scheduledDispatchesCount }}</p>
+              <p class="text-[10px] font-bold text-blue-600 mt-1">Dispatched &amp; ready</p>
+            </div>
+          </div>
+
+          <div class="p-5 rounded-[2rem] bg-white border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
             <div class="p-3.5 rounded-2xl bg-indigo-50 text-indigo-600 shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
             </div>
             <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Drivers Available</p>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Available Drivers</p>
               <p class="text-2xl font-black text-slate-900 tabular-nums leading-none">{{ availableDriversCount }} / {{ drivers.length }}</p>
               <p class="text-[10px] font-bold text-indigo-600 mt-1">Ready for assignment</p>
             </div>
           </div>
         </div>
 
-        <!-- Dashboard Monthly Header & Navigation Toolbar -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-[2.25rem] border border-slate-200 shadow-sm">
+        <!-- Active Trip Departures Control Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-[2.25rem] border border-slate-200 shadow-sm">
           <div class="flex items-center gap-4">
-            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100 shrink-0">
+            <div class="p-3.5 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100 shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div>
-              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5 block">Fleet Booking Schedule Matrix</span>
-              <h3 class="text-2xl font-black text-slate-900 tracking-tight">{{ periodTitle }}</h3>
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5 block">Fleet Departures &amp; Itineraries</span>
+              <h3 class="text-xl font-black text-slate-900 tracking-tight">Active Dispatched &amp; Approved Trips</h3>
             </div>
           </div>
 
-          <!-- Date Navigation -->
-          <div class="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
-            <button @click="prevMonth" title="Previous Month" class="p-2.5 bg-white border border-slate-200/80 rounded-xl text-slate-600 hover:text-emerald-600 hover:border-emerald-300 transition-all active:scale-95 shadow-xs">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+          <!-- Search & Filter Controls -->
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Filter Tabs -->
+            <div class="flex items-center gap-1 bg-slate-100 p-1.5 rounded-2xl border border-slate-200/60">
+              <button 
+                @click="activeTab = 'all'" 
+                :class="['px-3.5 py-1.5 rounded-xl font-black text-[11px] uppercase tracking-wider transition-all', activeTab === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900']"
+              >
+                All ({{ activeTrips.length }})
+              </button>
+              <button 
+                @click="activeTab = 'in_progress'" 
+                :class="['px-3.5 py-1.5 rounded-xl font-black text-[11px] uppercase tracking-wider transition-all', activeTab === 'in_progress' ? 'bg-white text-amber-700 shadow-xs' : 'text-slate-500 hover:text-slate-900']"
+              >
+                On Route ({{ inTransitCount }})
+              </button>
+              <button 
+                @click="activeTab = 'scheduled'" 
+                :class="['px-3.5 py-1.5 rounded-xl font-black text-[11px] uppercase tracking-wider transition-all', activeTab === 'scheduled' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-500 hover:text-slate-900']"
+              >
+                Dispatched ({{ scheduledDispatchesCount }})
+              </button>
+            </div>
+
+            <!-- Search input -->
+            <div class="relative min-w-[220px]">
+              <input 
+                v-model="searchQuery" 
+                type="text" 
+                placeholder="Search trip, plate, driver..." 
+                class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              />
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-            </button>
-            <button @click="resetToday" class="px-4 py-2 bg-white border border-slate-200/80 rounded-xl text-xs font-black text-slate-700 uppercase tracking-wider hover:border-emerald-400 hover:text-emerald-700 transition-all active:scale-95 shadow-xs">
-              Current Month
-            </button>
-            <button @click="nextMonth" title="Next Month" class="p-2.5 bg-white border border-slate-200/80 rounded-xl text-slate-600 hover:text-emerald-600 hover:border-emerald-300 transition-all active:scale-95 shadow-xs">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+            </div>
           </div>
         </div>
 
         <!-- ========================================================= -->
-        <!-- MONTHLY SHIFT BOARD VIEW (Timeline Matrix & Grid) -->
+        <!-- ACTIVE DISPATCHES & DEPARTURE CARDS GRID -->
         <!-- ========================================================= -->
-        <div class="space-y-4">
-          
-          <!-- Monthly Sub-Toolbar & Trip Category Legend -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 text-white px-6 py-4 rounded-[2rem] shadow-xl">
-            <div class="flex items-center gap-3">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <p class="text-xs font-bold text-slate-300">Scroll horizontally across the month to inspect booked and dispatched trips per vehicle unit</p>
-            </div>
-            <div class="flex flex-wrap items-center gap-4 text-[11px] font-bold text-slate-300">
-              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Regular / Shuttle</div>
-              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Educational</div>
-              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> VIP / Guest</div>
-              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Admin Official</div>
-              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span> Logistics</div>
-            </div>
+        
+        <!-- Loading State -->
+        <div v-if="isLoading" class="flex flex-col items-center justify-center py-24 bg-white rounded-[2.5rem] border border-slate-200 shadow-sm gap-3">
+          <div class="w-10 h-10 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Loading active departures &amp; trip information...</p>
+        </div>
+
+        <!-- Empty State (No Active Trips) -->
+        <div v-else-if="filteredTrips.length === 0" class="flex flex-col items-center justify-center py-20 px-6 text-center bg-white rounded-[2.5rem] border border-slate-200 shadow-sm">
+          <div class="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 border border-emerald-100 shadow-xs">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
+          <h4 class="text-lg font-black text-slate-900 tracking-tight">No Active Trips at this time</h4>
+          <p class="text-xs text-slate-500 max-w-md font-medium mt-1">All university fleet vehicles are currently parked in the motor pool or no pending departures match your search.</p>
+          <div class="mt-6 flex items-center gap-3">
+            <router-link to="/admin/tasu/queues" class="px-5 py-2.5 bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm">
+              Check Ticket Queues
+            </router-link>
+            <router-link to="/admin/tasu/vehicles" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black uppercase tracking-wider rounded-xl transition-all">
+              Fleet Units List
+            </router-link>
+          </div>
+        </div>
 
-          <!-- Horizontal Monthly Fleet Timeline -->
-          <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto max-h-[750px] custom-scrollbar">
-              <div :style="{ minWidth: `${260 + monthDays.length * 75}px` }">
-                
-                <!-- Days of Month Header -->
-                <div 
-                  class="grid divide-x divide-slate-100 border-b border-slate-200 bg-slate-50/90 sticky top-0 z-30"
-                  :style="{ gridTemplateColumns: `260px repeat(${monthDays.length}, minmax(72px, 1fr))` }"
-                >
-                  <div class="p-4 flex items-center justify-between sticky left-0 z-40 bg-slate-100/95 backdrop-blur-md border-r border-slate-200 shadow-sm">
-                    <span class="text-[11px] font-black text-slate-700 uppercase tracking-widest">Fleet Unit ({{ allVehicles.length }})</span>
-                    <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{{ monthDays.length }} Days</span>
-                  </div>
-                  <div 
-                    v-for="day in monthDays" 
-                    :key="day.dateStr" 
-                    :class="['p-3 flex flex-col items-center justify-center text-center transition-colors', day.isToday ? 'bg-emerald-500 text-white font-bold' : day.isWeekend ? 'bg-slate-100/60 text-slate-500' : 'text-slate-800']"
-                  >
-                    <span :class="['text-[9px] font-black uppercase tracking-tighter', day.isToday ? 'text-emerald-100' : 'text-slate-400']">{{ day.dayName }}</span>
-                    <span class="text-base font-black tabular-nums leading-tight">{{ day.dayNumber }}</span>
-                  </div>
+        <!-- Active Trip Cards Grid -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div 
+            v-for="trip in filteredTrips" 
+            :key="trip.id"
+            class="bg-white rounded-[2rem] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all flex flex-col justify-between overflow-hidden group"
+          >
+            <!-- Card Header: Departure Date & Status Pill -->
+            <div class="p-6 pb-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <div class="p-2 rounded-xl bg-emerald-100/80 text-emerald-800 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
                 </div>
-
-                <!-- Vehicle x Days of Month Rows -->
-                <div class="divide-y divide-slate-100">
-                  <div 
-                    v-for="unit in allVehicles" 
-                    :key="unit.id" 
-                    class="grid divide-x divide-slate-100 group hover:bg-slate-50/50 transition-colors"
-                    :style="{ gridTemplateColumns: `260px repeat(${monthDays.length}, minmax(72px, 1fr))` }"
-                  >
-                    <!-- Sticky Left Column: Vehicle Info -->
-                    <div class="p-3.5 sticky left-0 z-20 bg-white group-hover:bg-slate-50 border-r border-slate-200 flex items-center gap-3 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
-                      <img :src="unit.image || '/bsu-logo.png'" :alt="unit.name" class="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200 shadow-xs" />
-                      <div class="min-w-0 flex-1">
-                        <h4 class="text-xs font-black text-slate-900 truncate" :title="unit.name">{{ unit.name }}</h4>
-                        <div class="flex items-center justify-between mt-1">
-                          <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{{ unit.plate }}</span>
-                          <span :class="['px-1.5 py-0.5 rounded text-[8px] font-black uppercase', unit.status === 'Available' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600']">{{ unit.status === 'Available' ? 'Ready' : 'Maint.' }}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Daily Cells across Month -->
-                    <div 
-                      v-for="day in monthDays" 
-                      :key="day.dateStr" 
-                      :class="['p-1.5 relative min-h-[80px] flex flex-col justify-center items-center transition-colors', day.isToday ? 'bg-emerald-500/5' : day.isWeekend ? 'bg-slate-50/40' : 'hover:bg-slate-100/60']"
-                    >
-                      <!-- If there are bookings on this specific day of the month -->
-                      <div v-if="getVehicleDayBookings(unit.id, day.dateStr).length > 0" class="w-full space-y-1">
-                        <div 
-                          v-for="booking in getVehicleDayBookings(unit.id, day.dateStr)" 
-                          :key="booking.id" 
-                          @click="openBookingDetails(booking, unit, day)" 
-                          :class="['p-1.5 rounded-lg text-left shadow-xs cursor-pointer transition-all hover:scale-105 border text-[9px] font-black truncate', getMonthlyPillStyle(booking.type)]"
-                          :title="`${booking.time}: ${booking.destination} (${booking.requestor}) - Driver: ${booking.driver}`"
-                        >
-                          <div class="flex items-center justify-between">
-                            <span class="truncate">{{ booking.destination }}</span>
-                          </div>
-                          <div class="text-[7px] opacity-80 uppercase font-bold truncate mt-0.5">🧑 {{ booking.driver ? booking.driver.split(' ')[0] : 'No Driver' }}</div>
-                        </div>
-                      </div>
-
-                      <!-- Empty slot marker -->
-                      <div v-else class="w-2 h-2 rounded-full bg-slate-200/50"></div>
-                    </div>
-                  </div>
+                <div>
+                  <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Date of Departure</span>
+                  <p class="text-xs font-black text-slate-900 leading-tight">{{ formatTripDate(trip.date) }}</p>
                 </div>
               </div>
+
+              <!-- Status Badge -->
+              <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-xs', getTripStatusBadge(trip.status)]">
+                {{ trip.status }}
+              </span>
+            </div>
+
+            <!-- Card Body: Vehicle, Driver, & Destination Details -->
+            <div class="p-6 space-y-4 flex-1">
+              
+              <!-- Assigned Vehicle & Driver Info -->
+              <div class="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-100 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <img :src="trip.vehicleImage || '/bsu-logo.png'" :alt="trip.vehicleName" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-xs shrink-0 bg-white" />
+                  <div class="min-w-0">
+                    <h5 class="text-xs font-black text-slate-900 truncate" :title="trip.vehicleName">{{ trip.vehicleName }}</h5>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <span class="text-[9px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ trip.vehiclePlate }}</span>
+                      <span v-if="trip.vehicleCategory" class="text-[8px] font-bold text-slate-500 uppercase">{{ trip.vehicleCategory }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Driver Badge -->
+                <div class="text-right shrink-0">
+                  <span class="text-[8px] font-black uppercase tracking-wider text-slate-400 block">Driver</span>
+                  <span class="text-[10px] font-black text-slate-800 bg-white px-2 py-0.5 rounded-lg border border-slate-200 shadow-xs inline-block">
+                    🧑 {{ trip.driver ? trip.driver.split(' ')[0] : 'Unassigned' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Destination & Schedule Time -->
+              <div>
+                <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold mb-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  </svg>
+                  <span class="uppercase tracking-widest text-[9px]">Destination &amp; Route</span>
+                </div>
+                <h4 class="text-sm font-black text-slate-900 line-clamp-2 leading-snug" :title="trip.destination">
+                  {{ trip.destination }}
+                </h4>
+              </div>
+
+              <!-- Requester & Passenger Info -->
+              <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-[11px]">
+                <div>
+                  <span class="text-[8px] font-black uppercase tracking-wider text-slate-400 block">Requester / Office</span>
+                  <p class="font-bold text-slate-700 truncate" :title="trip.requestor">{{ trip.requestor }}</p>
+                </div>
+                <div>
+                  <span class="text-[8px] font-black uppercase tracking-wider text-slate-400 block">Time Schedule</span>
+                  <p class="font-bold text-slate-700 truncate">{{ trip.time }}</p>
+                </div>
+              </div>
+
+              <!-- Purpose Note Snippet (if available) -->
+              <div v-if="trip.notes" class="p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-[10px] text-slate-600 font-medium line-clamp-2 leading-relaxed">
+                <span class="font-black text-slate-700">Purpose:</span> {{ trip.notes }}
+              </div>
+            </div>
+
+            <!-- Card Footer: View Details Action -->
+            <div class="p-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-3">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Ticket #{{ trip.id }}</span>
+              <button 
+                @click="openBookingDetails(trip)" 
+                class="px-4 py-2 bg-slate-900 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center gap-1.5 active:scale-95 cursor-pointer"
+              >
+                <span>View Full Slip</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- FLEET QUICK STATUS & AVAILABILITY AT MOTOR POOL -->
+        <!-- ========================================================= -->
+        <div class="p-8 rounded-[2.5rem] bg-white border border-slate-200 shadow-sm space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="text-base font-black text-slate-900 tracking-tight">University Fleet Status Summary</h4>
+                <p class="text-xs text-slate-500 font-medium">Quick motor pool inventory overview of all registered TASU vehicles</p>
+              </div>
+            </div>
+
+            <router-link to="/admin/tasu/vehicles" class="text-xs font-black text-emerald-700 hover:text-emerald-800 flex items-center gap-1">
+              <span>Manage Vehicles Fleet</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+            </router-link>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+            <div 
+              v-for="v in allVehicles" 
+              :key="v.id" 
+              class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-100/60 transition-all flex flex-col justify-between"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[9px] font-black text-slate-600 uppercase">{{ v.plate }}</span>
+                <span :class="['w-2 h-2 rounded-full', v.status === 'Available' ? 'bg-emerald-500' : (v.status === 'In Use' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500')]"></span>
+              </div>
+              <h6 class="text-xs font-black text-slate-900 truncate" :title="v.name">{{ v.name }}</h6>
+              <span class="text-[8px] font-bold text-slate-400 uppercase mt-0.5">{{ v.category }} • {{ v.status }}</span>
             </div>
           </div>
         </div>
@@ -231,15 +334,15 @@
           
           <div class="mb-6">
             <div class="flex items-center gap-2 mb-3">
-              <span :class="['px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border', getStatusBadgeStyle(selectedBooking.booking.status)]">
-                {{ selectedBooking.booking.status }}
+              <span :class="['px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border shadow-xs', getTripStatusBadge(selectedBooking.status)]">
+                {{ selectedBooking.status }}
               </span>
               <span class="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full bg-slate-100 text-slate-600">
-                ID: {{ selectedBooking.booking.id }}
+                Ticket #{{ selectedBooking.id }}
               </span>
             </div>
-            <h3 class="text-2xl font-black text-slate-900 leading-tight">{{ selectedBooking.booking.destination }}</h3>
-            <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mt-1">{{ selectedBooking.unit.name }} • Plate: {{ selectedBooking.unit.plate }}</p>
+            <h3 class="text-2xl font-black text-slate-900 leading-tight">{{ selectedBooking.destination }}</h3>
+            <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mt-1">{{ selectedBooking.vehicleName }} • Plate: {{ selectedBooking.vehiclePlate }}</p>
           </div>
 
           <div class="space-y-4">
@@ -249,8 +352,8 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
                 <div class="min-w-0">
-                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Trip Date</p>
-                  <p class="text-xs font-black text-slate-900 truncate">{{ selectedBooking.booking.date }}</p>
+                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Date of Departure</p>
+                  <p class="text-xs font-black text-slate-900 truncate">{{ formatTripDate(selectedBooking.date) }}</p>
                 </div>
               </div>
 
@@ -260,7 +363,7 @@
                 </div>
                 <div class="min-w-0">
                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Time Schedule</p>
-                  <p class="text-xs font-black text-slate-900 truncate">{{ selectedBooking.booking.time }}</p>
+                  <p class="text-xs font-black text-slate-900 truncate">{{ selectedBooking.time }}</p>
                 </div>
               </div>
             </div>
@@ -271,8 +374,8 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 </div>
                 <div class="min-w-0">
-                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Requestor / Dept</p>
-                  <p class="text-xs font-black text-slate-900 truncate">{{ selectedBooking.booking.requestor }}</p>
+                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Requestor / Office</p>
+                  <p class="text-xs font-black text-slate-900 truncate">{{ selectedBooking.requestor }}</p>
                 </div>
               </div>
 
@@ -282,7 +385,7 @@
                 </div>
                 <div class="min-w-0">
                   <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Passenger Count</p>
-                  <p class="text-xs font-black text-slate-900 truncate">{{ selectedBooking.booking.passengers || 1 }} Persons</p>
+                  <p class="text-xs font-black text-slate-900 truncate">{{ selectedBooking.passengers || 1 }} Persons</p>
                 </div>
               </div>
             </div>
@@ -290,10 +393,10 @@
             <!-- Assigned Driver Status -->
             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between gap-4">
               <div>
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Assigned Professional Driver</p>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Assigned University Driver</p>
                 <p class="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                  <span v-if="selectedBooking.booking.driver">🧑 {{ selectedBooking.booking.driver }}</span>
-                  <span v-else class="text-amber-600 font-bold">⚠️ Unassigned</span>
+                  <span v-if="selectedBooking.driver && selectedBooking.driver !== 'Unassigned'">🧑 {{ selectedBooking.driver }}</span>
+                  <span v-else class="text-amber-600 font-bold">⚠️ Unassigned Driver</span>
                 </p>
               </div>
               <router-link 
@@ -305,9 +408,9 @@
               </router-link>
             </div>
 
-            <div v-if="selectedBooking.booking.notes" class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <div v-if="selectedBooking.notes" class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
               <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Trip Particulars / Purpose</p>
-              <p class="text-xs font-medium text-slate-700 leading-relaxed">{{ selectedBooking.booking.notes }}</p>
+              <p class="text-xs font-medium text-slate-700 leading-relaxed">{{ selectedBooking.notes }}</p>
             </div>
           </div>
 
@@ -339,184 +442,186 @@ const personnelStore = useTasuPersonnelStore();
 // Fleet and Personnel data
 const allVehicles = computed(() => vehiclesStore.vehicles);
 const drivers = computed(() => personnelStore.personnel);
-const dispatchBookings = ref([]);
+const activeTrips = ref([]);
+const isLoading = ref(true);
 
-// Current displayed Month (defaults to current active month)
-const currentMonth = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+// Selected trip modal
 const selectedBooking = ref(null);
 
-// Combined Bookings from API + Store
-const allBookings = computed(() => {
-  if (dispatchBookings.value.length > 0) {
-    return dispatchBookings.value;
-  }
-  return vehiclesStore.bookings || [];
-});
+// Search & Filter State
+const searchQuery = ref('');
+const activeTab = ref('all'); // 'all' | 'in_progress' | 'scheduled'
 
-// Computed Stats
+// Computed Counts
 const availableVehiclesCount = computed(() => allVehicles.value.filter(v => v.status === 'Available').length);
 const availableDriversCount = computed(() => drivers.value.filter(d => d.status === 'Available').length);
-const inProgressCount = computed(() => allBookings.value.filter(b => b.status === 'In Progress' || b.status === 'On Route / In Progress').length);
+const inTransitCount = computed(() => activeTrips.value.filter(t => t.status === 'On Route / In Progress' || t.status === 'In Progress').length);
+const scheduledDispatchesCount = computed(() => activeTrips.value.filter(t => t.status === 'Dispatched' || t.status === 'Scheduled' || t.status === 'Approved').length);
 
-// Period Title
-const periodTitle = computed(() => {
-  return currentMonth.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-});
+// Filtered Trips based on active tab and search query
+const filteredTrips = computed(() => {
+  return activeTrips.value.filter(trip => {
+    // Tab Filter
+    let matchesTab = true;
+    if (activeTab.value === 'in_progress') {
+      matchesTab = trip.status === 'On Route / In Progress' || trip.status === 'In Progress';
+    } else if (activeTab.value === 'scheduled') {
+      matchesTab = trip.status === 'Dispatched' || trip.status === 'Scheduled' || trip.status === 'Approved';
+    }
 
-// Monthly Days Computed (All days in currentMonth)
-const monthDays = computed(() => {
-  const days = [];
-  const year = currentMonth.value.getFullYear();
-  const month = currentMonth.value.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  const dayNameStrings = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    // Search Query Filter
+    const q = searchQuery.value.toLowerCase().trim();
+    const matchesSearch = !q ||
+      trip.destination.toLowerCase().includes(q) ||
+      trip.vehicleName.toLowerCase().includes(q) ||
+      trip.vehiclePlate.toLowerCase().includes(q) ||
+      trip.requestor.toLowerCase().includes(q) ||
+      trip.driver.toLowerCase().includes(q) ||
+      String(trip.id).includes(q);
 
-  for (let i = 1; i <= daysInMonth; i++) {
-    const d = new Date(year, month, i);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const dateStr = `${yyyy}-${mm}-${dd}`;
-    const dayOfWeek = d.getDay();
-
-    days.push({
-      dayNumber: i,
-      dayName: dayNameStrings[dayOfWeek],
-      dateStr: dateStr,
-      isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
-      isToday: dateStr === todayStr
-    });
-  }
-  return days;
-});
-
-// Navigation Functions
-const prevMonth = () => {
-  const newDate = new Date(currentMonth.value);
-  newDate.setMonth(newDate.getMonth() - 1);
-  currentMonth.value = newDate;
-};
-
-const nextMonth = () => {
-  const newDate = new Date(currentMonth.value);
-  newDate.setMonth(newDate.getMonth() + 1);
-  currentMonth.value = newDate;
-};
-
-const resetToday = () => {
-  currentMonth.value = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  toast.success('Reset to current month');
-};
-
-// Retrieve Bookings for exact vehicle and date
-const getVehicleDayBookings = (vehicleId, dateStr) => {
-  return allBookings.value.filter(b => {
-    const matchesVehicle = String(b.vehicleId) === String(vehicleId);
-    // Normalize date strings
-    const bookingDateStr = b.date ? String(b.date).slice(0, 10) : '';
-    return matchesVehicle && bookingDateStr === dateStr;
+    return matchesTab && matchesSearch;
   });
-};
+});
 
-const openBookingDetails = (booking, unit, day) => {
-  selectedBooking.value = { booking, unit, day };
-};
-
-const fetchDispatchBoardData = async () => {
+const formatTripDate = (dateVal) => {
+  if (!dateVal) return 'Date Pending';
   try {
-    const response = await api.get('tasu/dispatch');
-    if (response.data?.data?.dispatch) {
-      const rawData = response.data.data.dispatch;
-      // Filter items that have actual assigned trips / dates
-      dispatchBookings.value = rawData
-        .filter(item => item.ticket_id && (item.date_of_travel || item.implementation_date))
-        .map(item => {
-          let dateStr = item.date_of_travel || item.implementation_date || '';
-          if (dateStr && dateStr.includes('T')) dateStr = dateStr.split('T')[0];
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return dateVal;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch {
+    return dateVal;
+  }
+};
 
-          return {
+const getTripStatusBadge = (status) => {
+  switch (status) {
+    case 'On Route / In Progress':
+    case 'In Progress':
+      return 'bg-amber-500 text-white border-amber-500 animate-pulse';
+    case 'Dispatched':
+    case 'Scheduled':
+      return 'bg-blue-600 text-white border-blue-600';
+    case 'Approved':
+      return 'bg-emerald-600 text-white border-emerald-600';
+    default:
+      return 'bg-slate-700 text-white border-slate-700';
+  }
+};
+
+const openBookingDetails = (trip) => {
+  selectedBooking.value = trip;
+};
+
+const fetchActiveTrips = async () => {
+  isLoading.value = true;
+  try {
+    const [dispatchRes, activeTicketsRes] = await Promise.allSettled([
+      api.get('tasu/dispatch'),
+      api.get('tickets/active/TASU')
+    ]);
+
+    const tripsMap = new Map();
+
+    // 1. Process tasu/dispatch data
+    if (dispatchRes.status === 'fulfilled' && dispatchRes.value.data?.data?.dispatch) {
+      const raw = dispatchRes.value.data.data.dispatch;
+      raw.forEach(item => {
+        // Exclude closed/resolved/declined trips or unassigned placeholders without dates
+        if (item.ticket_id && (item.date_of_travel || item.implementation_date)) {
+          let dateStr = item.date_of_travel || item.implementation_date || '';
+          if (dateStr.includes('T')) dateStr = dateStr.split('T')[0];
+
+          const status = item.status_label || (item.booking_status === 'processing' ? 'Dispatched' : 'Approved');
+
+          tripsMap.set(String(item.ticket_id), {
             id: item.ticket_id,
-            vehicleId: item.vehicle_id || item.id,
+            vehicleId: item.vehicle_id,
+            vehicleName: item.model_name || 'Vehicle Unit',
+            vehiclePlate: item.plate_no || 'Plate N/A',
+            vehicleCategory: item.category || 'Van',
+            vehicleImage: item.image_url,
             date: dateStr,
             time: item.request_time ? `${item.request_time}${item.return_time ? ' - ' + item.return_time : ''}` : 'Official Travel',
-            type: 'regular',
             destination: item.destination || 'University Travel',
-            requestor: item.requesting_personnel ? `${item.requesting_personnel}${item.office_college_department ? ' (' + item.office_college_department + ')' : ''}` : (item.office_college_department || 'University Office'),
+            requestor: item.requesting_personnel ? `${item.requesting_personnel}${item.office_college_department ? ' • ' + item.office_college_department : ''}` : (item.office_college_department || 'University Office'),
             driver: item.assigned_driver || 'Unassigned',
             passengers: item.num_passengers || 1,
-            status: item.status_label || (item.booking_status === 'resolved' || item.booking_status === 'closed' ? 'Completed' : (item.booking_status === 'processing' ? 'In Progress' : 'Scheduled')),
+            status: status,
             notes: item.purpose_of_travel || item.dispatcher_notes || item.task_notes || ''
-          };
-        });
+          });
+        }
+      });
     }
+
+    // 2. Process active dispatched tickets from tickets/active/TASU
+    if (activeTicketsRes.status === 'fulfilled' && activeTicketsRes.value.data?.data?.tickets) {
+      const tickets = activeTicketsRes.value.data.data.tickets;
+      tickets.forEach(t => {
+        const details = t.details || t.tasu_details || {};
+        const assignment = t.assignments && t.assignments[0] ? t.assignments[0] : null;
+
+        const ticketId = String(t.id);
+        const existing = tripsMap.get(ticketId) || {};
+
+        let travelDate = details.date_of_travel || t.date_of_travel || existing.date || t.submitted_at;
+        if (travelDate && String(travelDate).includes('T')) travelDate = String(travelDate).split('T')[0];
+
+        tripsMap.set(ticketId, {
+          id: t.id,
+          vehicleId: assignment?.vehicle_id || existing.vehicleId,
+          vehicleName: assignment?.model_name || existing.vehicleName || 'Vehicle Unit',
+          vehiclePlate: assignment?.plate_no || existing.vehiclePlate || 'Assigned Unit',
+          vehicleCategory: assignment?.category || existing.vehicleCategory || 'Transport',
+          vehicleImage: assignment?.image_url || existing.vehicleImage,
+          date: travelDate,
+          time: details.request_time ? `${details.request_time}${details.return_time ? ' - ' + details.return_time : ''}` : (existing.time || 'Official Trip'),
+          destination: details.destination || t.location || existing.destination || 'University Trip',
+          requestor: details.requesting_personnel ? `${details.requesting_personnel}${details.office_college_department ? ' • ' + details.office_college_department : ''}` : (t.user_name || existing.requestor || 'University Office'),
+          driver: assignment?.personnel_name || assignment?.driver_name || existing.driver || 'Unassigned',
+          passengers: details.num_passengers || existing.passengers || 1,
+          status: t.status_label || (t.status === 'processing' ? 'On Route / In Progress' : 'Dispatched'),
+          notes: details.purpose_of_travel || t.description || existing.notes || ''
+        });
+      });
+    }
+
+    // Convert map to sorted array (soonest departures first)
+    activeTrips.value = Array.from(tripsMap.values()).sort((a, b) => {
+      const dateA = new Date(a.date).getTime() || 0;
+      const dateB = new Date(b.date).getTime() || 0;
+      return dateA - dateB;
+    });
+
   } catch (err) {
-    console.error('Failed to fetch dispatch board bookings:', err);
+    console.error('Failed to fetch active trips:', err);
+  } finally {
+    isLoading.value = false;
   }
 };
 
-const printDispatchSlip = (item) => {
-  toast.success(`Printing official Trip Ticket for ${item.booking.destination} (${item.unit.plate})...`);
+const printDispatchSlip = (trip) => {
+  toast.success(`Printing official Trip Ticket for ${trip.destination} (${trip.vehiclePlate})...`);
   setTimeout(() => {
     window.print();
   }, 500);
-};
-
-// Style Helpers
-const getMonthlyPillStyle = (type) => {
-  switch (type) {
-    case 'regular': return 'bg-emerald-100 text-emerald-800 border-emerald-300';
-    case 'educational': return 'bg-blue-100 text-blue-800 border-blue-300';
-    case 'vip': return 'bg-amber-100 text-amber-800 border-amber-300 font-bold';
-    case 'admin': return 'bg-indigo-100 text-indigo-800 border-indigo-300';
-    case 'logistics': return 'bg-slate-200 text-slate-800 border-slate-300';
-    default: return 'bg-emerald-100 text-emerald-800 border-emerald-300';
-  }
-};
-
-const getStatusBadgeStyle = (status) => {
-  switch (status) {
-    case 'Completed': return 'bg-emerald-600 text-white border-emerald-600';
-    case 'In Progress': return 'bg-amber-500 text-white border-amber-500 animate-pulse';
-    case 'Scheduled': return 'bg-blue-600 text-white border-blue-600';
-    case 'Cancelled': return 'bg-rose-500 text-white border-rose-500';
-    default: return 'bg-slate-600 text-white border-slate-600';
-  }
 };
 
 onMounted(async () => {
   await Promise.allSettled([
     vehiclesStore.fetchVehicles(),
     personnelStore.fetchPersonnel(),
-    fetchDispatchBoardData()
+    fetchActiveTrips()
   ]);
 });
 </script>
 
 <style scoped>
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in {
   animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Custom scrollbar styling for wide monthly matrix */
-.custom-scrollbar::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 9999px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
 }
 </style>
