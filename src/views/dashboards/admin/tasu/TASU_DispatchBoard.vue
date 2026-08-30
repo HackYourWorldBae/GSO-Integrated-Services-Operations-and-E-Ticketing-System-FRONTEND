@@ -183,100 +183,136 @@
           </div>
         </div>
 
-        <!-- Active Trip Cards Grid -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Active Trip Rows List -->
+        <div v-else class="space-y-4">
           <div 
             v-for="trip in filteredTrips" 
             :key="trip.id"
-            class="bg-white rounded-[2rem] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all flex flex-col justify-between overflow-hidden group"
+            class="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 group"
           >
-            <!-- Card Header: Departure Date & Status Pill -->
-            <div class="p-6 pb-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3">
-              <div class="flex items-center gap-2">
-                <div class="p-2 rounded-xl bg-emerald-100/80 text-emerald-800 shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <!-- Left Section: Vehicle Image & Vehicle Info -->
+            <div class="flex items-center gap-4 sm:gap-5 min-w-[260px] lg:max-w-[320px]">
+              <!-- Vehicle Thumbnail -->
+              <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 shadow-xs flex items-center justify-center">
+                <img v-if="trip.vehicleImage" :src="trip.vehicleImage" :alt="trip.vehicleName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div v-else class="flex flex-col items-center justify-center text-slate-300 p-2 text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                    <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
                   </svg>
                 </div>
-                <div>
-                  <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Date of Departure</span>
-                  <p class="text-xs font-black text-slate-900 leading-tight">{{ formatTripDate(trip.date) }}</p>
-                </div>
+                <span class="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-xs text-[10px] font-black text-white uppercase tracking-wider">
+                  {{ trip.vehicleCategory || 'Transport' }}
+                </span>
               </div>
 
-              <!-- Status Badge -->
-              <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-xs', getTripStatusBadge(trip.status)]">
-                {{ trip.status }}
-              </span>
-            </div>
-
-            <!-- Card Body: Vehicle, Driver, & Destination Details -->
-            <div class="p-6 space-y-4 flex-1">
-              
-              <!-- Assigned Vehicle & Driver Info -->
-              <div class="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-100 flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <img :src="trip.vehicleImage || '/bsu-logo.png'" :alt="trip.vehicleName" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-xs shrink-0 bg-white" />
-                  <div class="min-w-0">
-                    <h5 class="text-xs font-black text-slate-900 truncate" :title="trip.vehicleName">{{ trip.vehicleName }}</h5>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                      <span class="text-[9px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ trip.vehiclePlate }}</span>
-                      <span v-if="trip.vehicleCategory" class="text-[8px] font-bold text-slate-500 uppercase">{{ trip.vehicleCategory }}</span>
-                    </div>
-                  </div>
+              <!-- Vehicle Details -->
+              <div class="space-y-1.5 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-lg text-xs font-black tracking-wider uppercase">
+                    {{ trip.vehiclePlate }}
+                  </span>
+                  <span class="text-xs font-bold text-slate-400">#{{ trip.id }}</span>
                 </div>
-
-                <!-- Driver Badge -->
-                <div class="text-right shrink-0">
-                  <span class="text-[8px] font-black uppercase tracking-wider text-slate-400 block">Driver</span>
-                  <span class="text-[10px] font-black text-slate-800 bg-white px-2 py-0.5 rounded-lg border border-slate-200 shadow-xs inline-block">
-                    🧑 {{ trip.driver ? trip.driver.split(' ')[0] : 'Unassigned' }}
+                <h4 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug truncate" :title="trip.vehicleName">
+                  {{ trip.vehicleName }}
+                </h4>
+                <div class="flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                  <span class="text-slate-400">Driver:</span>
+                  <span :class="trip.driver && trip.driver !== 'Unassigned' ? 'text-slate-900 font-black' : 'text-amber-600 font-bold'">
+                    🧑 {{ trip.driver || 'Unassigned' }}
                   </span>
                 </div>
               </div>
+            </div>
 
-              <!-- Destination & Schedule Time -->
-              <div>
-                <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold mb-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  </svg>
-                  <span class="uppercase tracking-widest text-[9px]">Destination &amp; Route</span>
+            <!-- Middle Section: Destination, Itinerary, Schedule & Requestor -->
+            <div class="flex-1 space-y-3 lg:border-l lg:border-r lg:border-slate-100 lg:px-8 py-1 min-w-0">
+              <!-- Destination & Status Pill -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    </svg>
+                  </div>
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug truncate" :title="trip.destination">
+                    {{ trip.destination }}
+                  </h3>
                 </div>
-                <h4 class="text-sm font-black text-slate-900 line-clamp-2 leading-snug" :title="trip.destination">
-                  {{ trip.destination }}
-                </h4>
+                
+                <span :class="['px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border shadow-2xs inline-flex items-center gap-1.5 self-start sm:self-auto shrink-0', getTripStatusBadge(trip.status)]">
+                  <span class="w-2 h-2 rounded-full" :class="isOnRoute(trip) ? 'bg-amber-500 animate-ping' : 'bg-blue-500'"></span>
+                  {{ trip.status }}
+                </span>
               </div>
 
-              <!-- Requester & Passenger Info -->
-              <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-[11px]">
-                <div>
-                  <span class="text-[8px] font-black uppercase tracking-wider text-slate-400 block">Requester / Office</span>
-                  <p class="font-bold text-slate-700 truncate" :title="trip.requestor">{{ trip.requestor }}</p>
+              <!-- Date, Time, Requesting Office & Passenger Metrics -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
+                <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div class="p-1.5 rounded-xl bg-white text-emerald-600 shadow-2xs shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block leading-none mb-0.5">Departure Date</span>
+                    <span class="font-black text-slate-800 truncate block">{{ formatTripDate(trip.date) }}</span>
+                  </div>
                 </div>
-                <div>
-                  <span class="text-[8px] font-black uppercase tracking-wider text-slate-400 block">Time Schedule</span>
-                  <p class="font-bold text-slate-700 truncate">{{ trip.time }}</p>
+
+                <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div class="p-1.5 rounded-xl bg-white text-blue-600 shadow-2xs shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block leading-none mb-0.5">Time Schedule</span>
+                    <span class="font-black text-slate-800 truncate block">{{ trip.time }}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div class="p-1.5 rounded-xl bg-white text-indigo-600 shadow-2xs shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block leading-none mb-0.5">Requestor &amp; Pax</span>
+                    <span class="font-black text-slate-800 truncate block" :title="trip.requestor">{{ trip.requestor }} • {{ trip.passengers }} pax</span>
+                  </div>
                 </div>
               </div>
 
               <!-- Purpose Note Snippet (if available) -->
-              <div v-if="trip.notes" class="p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-[10px] text-slate-600 font-medium line-clamp-2 leading-relaxed">
-                <span class="font-black text-slate-700">Purpose:</span> {{ trip.notes }}
+              <div v-if="trip.notes" class="text-xs text-slate-600 bg-slate-50/80 px-3.5 py-2 rounded-xl border border-slate-100 line-clamp-1 leading-relaxed">
+                <span class="font-black text-slate-700">Purpose / Details:</span> {{ trip.notes }}
               </div>
             </div>
 
-            <!-- Card Footer: View Details Action -->
-            <div class="p-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-3">
-              <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Ticket #{{ trip.id }}</span>
+            <!-- Right Section: Actions -->
+            <div class="flex lg:flex-col items-center justify-end gap-2.5 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
               <button 
                 @click="openBookingDetails(trip)" 
-                class="px-4 py-2 bg-slate-900 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                class="w-full lg:w-36 px-4 py-2.5 bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
               >
-                <span>View Full Slip</span>
+                <span>View Slip</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                 </svg>
+              </button>
+
+              <button 
+                @click="printDispatchSlip(trip)" 
+                class="w-full lg:w-36 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                title="Print Official Dispatch Slip"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                <span>Print</span>
               </button>
             </div>
           </div>
@@ -334,15 +370,15 @@
           
           <div class="mb-6">
             <div class="flex items-center gap-2 mb-3">
-              <span :class="['px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border shadow-xs', getTripStatusBadge(selectedBooking.status)]">
+              <span :class="['px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full border shadow-xs', getTripStatusBadge(selectedBooking.status)]">
                 {{ selectedBooking.status }}
               </span>
-              <span class="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full bg-slate-100 text-slate-600">
+              <span class="px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full bg-slate-100 text-slate-600">
                 Ticket #{{ selectedBooking.id }}
               </span>
             </div>
             <h3 class="text-2xl font-black text-slate-900 leading-tight">{{ selectedBooking.destination }}</h3>
-            <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mt-1">{{ selectedBooking.vehicleName }} • Plate: {{ selectedBooking.vehiclePlate }}</p>
+            <p class="text-sm font-bold text-emerald-600 uppercase tracking-widest mt-1">{{ selectedBooking.vehicleName }} • Plate: {{ selectedBooking.vehiclePlate }}</p>
           </div>
 
           <div class="space-y-4">
@@ -352,8 +388,8 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
                 <div class="min-w-0">
-                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Date of Departure</p>
-                  <p class="text-xs font-black text-slate-900 truncate">{{ formatTripDate(selectedBooking.date) }}</p>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Date of Departure</p>
+                  <p class="text-sm font-black text-slate-900 truncate">{{ formatTripDate(selectedBooking.date) }}</p>
                 </div>
               </div>
 
@@ -362,8 +398,8 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <div class="min-w-0">
-                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Time Schedule</p>
-                  <p class="text-xs font-black text-slate-900 truncate">{{ selectedBooking.time }}</p>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Time Schedule</p>
+                  <p class="text-sm font-black text-slate-900 truncate">{{ selectedBooking.time }}</p>
                 </div>
               </div>
             </div>
@@ -374,8 +410,8 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 </div>
                 <div class="min-w-0">
-                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Requestor / Office</p>
-                  <p class="text-xs font-black text-slate-900 truncate">{{ selectedBooking.requestor }}</p>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Requestor / Office</p>
+                  <p class="text-sm font-black text-slate-900 truncate">{{ selectedBooking.requestor }}</p>
                 </div>
               </div>
 
@@ -384,8 +420,8 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                 </div>
                 <div class="min-w-0">
-                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Passenger Count</p>
-                  <p class="text-xs font-black text-slate-900 truncate">{{ selectedBooking.passengers || 1 }} Persons</p>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Passenger Count</p>
+                  <p class="text-sm font-black text-slate-900 truncate">{{ selectedBooking.passengers || 1 }} Persons</p>
                 </div>
               </div>
             </div>
@@ -393,24 +429,24 @@
             <!-- Assigned Driver Status -->
             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between gap-4">
               <div>
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Assigned University Driver</p>
-                <p class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Assigned University Driver</p>
+                <p class="text-sm font-black text-slate-900 flex items-center gap-1.5">
                   <span v-if="selectedBooking.driver && selectedBooking.driver !== 'Unassigned'">🧑 {{ selectedBooking.driver }}</span>
                   <span v-else class="text-amber-600 font-bold">⚠️ Unassigned Driver</span>
                 </p>
               </div>
               <router-link 
                 to="/admin/tasu/personnel" 
-                class="px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-black uppercase tracking-wider transition-all border border-emerald-200/60 shrink-0 flex items-center gap-1 active:scale-95"
+                class="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-black uppercase tracking-wider transition-all border border-emerald-200/60 shrink-0 flex items-center gap-1 active:scale-95"
               >
                 <span>Personnel Roster</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
               </router-link>
             </div>
 
             <div v-if="selectedBooking.notes" class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Trip Particulars / Purpose</p>
-              <p class="text-xs font-medium text-slate-700 leading-relaxed">{{ selectedBooking.notes }}</p>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Trip Particulars / Purpose</p>
+              <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedBooking.notes }}</p>
             </div>
           </div>
 
@@ -452,11 +488,24 @@ const selectedBooking = ref(null);
 const searchQuery = ref('');
 const activeTab = ref('all'); // 'all' | 'in_progress' | 'scheduled'
 
+// Helper status matchers
+const isOnRoute = (trip) => {
+  const s = (trip?.status || '').toLowerCase();
+  const raw = (trip?.rawStatus || '').toLowerCase();
+  return s.includes('route') || s.includes('in progress') || s.includes('started') || raw === 'in_progress' || raw === 'on_trip';
+};
+
+const isScheduled = (trip) => {
+  const s = (trip?.status || '').toLowerCase();
+  const raw = (trip?.rawStatus || '').toLowerCase();
+  return s.includes('dispatch') || s.includes('waiting') || s.includes('schedul') || s.includes('approv') || raw === 'processing' || raw === 'approved';
+};
+
 // Computed Counts
 const availableVehiclesCount = computed(() => allVehicles.value.filter(v => v.status === 'Available').length);
 const availableDriversCount = computed(() => drivers.value.filter(d => d.status === 'Available').length);
-const inTransitCount = computed(() => activeTrips.value.filter(t => t.status === 'On Route / In Progress' || t.status === 'In Progress').length);
-const scheduledDispatchesCount = computed(() => activeTrips.value.filter(t => t.status === 'Dispatched' || t.status === 'Scheduled' || t.status === 'Approved').length);
+const inTransitCount = computed(() => activeTrips.value.filter(t => isOnRoute(t)).length);
+const scheduledDispatchesCount = computed(() => activeTrips.value.filter(t => !isOnRoute(t) && isScheduled(t)).length);
 
 // Filtered Trips based on active tab and search query
 const filteredTrips = computed(() => {
@@ -464,20 +513,20 @@ const filteredTrips = computed(() => {
     // Tab Filter
     let matchesTab = true;
     if (activeTab.value === 'in_progress') {
-      matchesTab = trip.status === 'On Route / In Progress' || trip.status === 'In Progress';
+      matchesTab = isOnRoute(trip);
     } else if (activeTab.value === 'scheduled') {
-      matchesTab = trip.status === 'Dispatched' || trip.status === 'Scheduled' || trip.status === 'Approved';
+      matchesTab = !isOnRoute(trip) && isScheduled(trip);
     }
 
     // Search Query Filter
     const q = searchQuery.value.toLowerCase().trim();
     const matchesSearch = !q ||
-      trip.destination.toLowerCase().includes(q) ||
-      trip.vehicleName.toLowerCase().includes(q) ||
-      trip.vehiclePlate.toLowerCase().includes(q) ||
-      trip.requestor.toLowerCase().includes(q) ||
-      trip.driver.toLowerCase().includes(q) ||
-      String(trip.id).includes(q);
+      (trip.destination || '').toLowerCase().includes(q) ||
+      (trip.vehicleName || '').toLowerCase().includes(q) ||
+      (trip.vehiclePlate || '').toLowerCase().includes(q) ||
+      (trip.requestor || '').toLowerCase().includes(q) ||
+      (trip.driver || '').toLowerCase().includes(q) ||
+      String(trip.id || '').toLowerCase().includes(q);
 
     return matchesTab && matchesSearch;
   });
@@ -495,18 +544,17 @@ const formatTripDate = (dateVal) => {
 };
 
 const getTripStatusBadge = (status) => {
-  switch (status) {
-    case 'On Route / In Progress':
-    case 'In Progress':
-      return 'bg-amber-500 text-white border-amber-500 animate-pulse';
-    case 'Dispatched':
-    case 'Scheduled':
-      return 'bg-blue-600 text-white border-blue-600';
-    case 'Approved':
-      return 'bg-emerald-600 text-white border-emerald-600';
-    default:
-      return 'bg-slate-700 text-white border-slate-700';
+  const s = (status || '').toLowerCase();
+  if (s.includes('route') || s.includes('in progress') || s.includes('started')) {
+    return 'bg-amber-50 text-amber-700 border-amber-200 font-black';
   }
+  if (s.includes('dispatch') || s.includes('waiting') || s.includes('schedul')) {
+    return 'bg-blue-50 text-blue-700 border-blue-200 font-black';
+  }
+  if (s.includes('approv')) {
+    return 'bg-emerald-50 text-emerald-700 border-emerald-200 font-black';
+  }
+  return 'bg-slate-100 text-slate-700 border-slate-200 font-bold';
 };
 
 const openBookingDetails = (trip) => {
@@ -516,9 +564,10 @@ const openBookingDetails = (trip) => {
 const fetchActiveTrips = async () => {
   isLoading.value = true;
   try {
-    const [dispatchRes, activeTicketsRes] = await Promise.allSettled([
+    const [dispatchRes, activeTicketsRes, queueRes] = await Promise.allSettled([
       api.get('tasu/dispatch'),
-      api.get('tickets/active/TASU')
+      api.get('tickets/active/TASU'),
+      api.get('tickets/dispatch/TASU')
     ]);
 
     const tripsMap = new Map();
@@ -527,12 +576,11 @@ const fetchActiveTrips = async () => {
     if (dispatchRes.status === 'fulfilled' && dispatchRes.value.data?.data?.dispatch) {
       const raw = dispatchRes.value.data.data.dispatch;
       raw.forEach(item => {
-        // Exclude closed/resolved/declined trips or unassigned placeholders without dates
-        if (item.ticket_id && (item.date_of_travel || item.implementation_date)) {
-          let dateStr = item.date_of_travel || item.implementation_date || '';
+        if (item.ticket_id) {
+          let dateStr = item.date_of_travel || item.implementation_date || item.submitted_at || '';
           if (dateStr.includes('T')) dateStr = dateStr.split('T')[0];
 
-          const status = item.status_label || (item.booking_status === 'processing' ? 'Dispatched' : 'Approved');
+          const status = item.status_label || (item.booking_status === 'processing' ? 'Dispatched - Waiting for Departure' : 'Approved');
 
           tripsMap.set(String(item.ticket_id), {
             id: item.ticket_id,
@@ -548,6 +596,7 @@ const fetchActiveTrips = async () => {
             driver: item.assigned_driver || 'Unassigned',
             passengers: item.num_passengers || 1,
             status: status,
+            rawStatus: item.booking_status || 'processing',
             notes: item.purpose_of_travel || item.dispatcher_notes || item.task_notes || ''
           });
         }
@@ -559,7 +608,7 @@ const fetchActiveTrips = async () => {
       const tickets = activeTicketsRes.value.data.data.tickets;
       tickets.forEach(t => {
         const details = t.details || t.tasu_details || {};
-        const assignment = t.assignments && t.assignments[0] ? t.assignments[0] : null;
+        const assignment = t.assignments && t.assignments[0] ? t.assignments[0] : (t.assignment || null);
 
         const ticketId = String(t.id);
         const existing = tripsMap.get(ticketId) || {};
@@ -580,9 +629,41 @@ const fetchActiveTrips = async () => {
           requestor: details.requesting_personnel ? `${details.requesting_personnel}${details.office_college_department ? ' • ' + details.office_college_department : ''}` : (t.user_name || existing.requestor || 'University Office'),
           driver: assignment?.personnel_name || assignment?.driver_name || existing.driver || 'Unassigned',
           passengers: details.num_passengers || existing.passengers || 1,
-          status: t.status_label || (t.status === 'processing' ? 'On Route / In Progress' : 'Dispatched'),
+          status: t.status_label || existing.status || (t.status === 'processing' ? 'Dispatched - Waiting for Departure' : 'Approved'),
+          rawStatus: t.status || 'processing',
           notes: details.purpose_of_travel || t.description || existing.notes || ''
         });
+      });
+    }
+
+    // 3. Process dispatch queue tickets from tickets/dispatch/TASU
+    if (queueRes.status === 'fulfilled' && queueRes.value.data?.data?.tickets) {
+      const queueTickets = queueRes.value.data.data.tickets;
+      queueTickets.forEach(t => {
+        const ticketId = String(t.id);
+        if (!tripsMap.has(ticketId)) {
+          const details = t.details || t.tasu_details || {};
+          let travelDate = details.date_of_travel || t.date_of_travel || t.submitted_at;
+          if (travelDate && String(travelDate).includes('T')) travelDate = String(travelDate).split('T')[0];
+
+          tripsMap.set(ticketId, {
+            id: t.id,
+            vehicleId: null,
+            vehicleName: 'Pending Unit Assignment',
+            vehiclePlate: 'Pending',
+            vehicleCategory: 'Transport',
+            vehicleImage: null,
+            date: travelDate,
+            time: details.request_time ? `${details.request_time}${details.return_time ? ' - ' + details.return_time : ''}` : 'Official Trip',
+            destination: details.destination || t.location || 'University Trip',
+            requestor: details.requesting_personnel ? `${details.requesting_personnel}${details.office_college_department ? ' • ' + details.office_college_department : ''}` : (t.user_name || 'University Office'),
+            driver: 'Unassigned',
+            passengers: details.num_passengers || 1,
+            status: t.status_label || 'Approved - Awaiting Dispatch',
+            rawStatus: t.status || 'approved',
+            notes: details.purpose_of_travel || t.description || ''
+          });
+        }
       });
     }
 
