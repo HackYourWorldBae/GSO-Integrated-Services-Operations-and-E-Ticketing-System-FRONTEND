@@ -188,12 +188,12 @@
           <div 
             v-for="trip in filteredTrips" 
             :key="trip.id"
-            class="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 group"
+            class="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all p-6 sm:p-7 flex flex-col xl:flex-row xl:items-center justify-between gap-6 group"
           >
             <!-- Left Section: Vehicle Image & Vehicle Info -->
-            <div class="flex items-center gap-4 sm:gap-5 min-w-[260px] lg:max-w-[320px]">
+            <div class="flex items-center gap-5 min-w-[280px] xl:max-w-[340px] shrink-0">
               <!-- Vehicle Thumbnail -->
-              <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 shadow-xs flex items-center justify-center">
+              <div class="relative w-22 h-22 sm:w-26 sm:h-26 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 shadow-xs flex items-center justify-center">
                 <img v-if="trip.vehicleImage" :src="trip.vehicleImage" :alt="trip.vehicleName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div v-else class="flex flex-col items-center justify-center text-slate-300 p-2 text-center">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
@@ -201,7 +201,7 @@
                     <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
                   </svg>
                 </div>
-                <span class="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-xs text-[10px] font-black text-white uppercase tracking-wider">
+                <span class="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-md bg-slate-900/85 backdrop-blur-xs text-[10px] font-black text-white uppercase tracking-wider">
                   {{ trip.vehicleCategory || 'Transport' }}
                 </span>
               </div>
@@ -214,105 +214,100 @@
                   </span>
                   <span class="text-xs font-bold text-slate-400">#{{ trip.id }}</span>
                 </div>
-                <h4 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug truncate" :title="trip.vehicleName">
+                <h4 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug">
                   {{ trip.vehicleName }}
                 </h4>
-                <div class="flex items-center gap-1.5 text-xs font-bold text-slate-600">
-                  <span class="text-slate-400">Driver:</span>
-                  <span :class="trip.driver && trip.driver !== 'Unassigned' ? 'text-slate-900 font-black' : 'text-amber-600 font-bold'">
-                    🧑 {{ trip.driver || 'Unassigned' }}
+                <div class="flex items-center gap-1.5 text-xs">
+                  <span class="font-bold text-slate-400">Driver:</span>
+                  <span :class="trip.driver && trip.driver !== 'Unassigned' ? 'text-slate-800 font-black' : 'text-amber-600 font-bold'">
+                    {{ trip.driver || 'Unassigned' }}
                   </span>
                 </div>
               </div>
             </div>
 
-            <!-- Middle Section: Destination, Itinerary, Schedule & Requestor -->
-            <div class="flex-1 space-y-3 lg:border-l lg:border-r lg:border-slate-100 lg:px-8 py-1 min-w-0">
+            <!-- Middle Section: Destination, Departure Date, Requestor Name & Requesting College -->
+            <div class="flex-1 space-y-4 xl:border-l xl:border-r xl:border-slate-100 xl:px-8 py-1 min-w-0">
               <!-- Destination & Status Pill -->
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div class="flex items-center gap-2 min-w-0">
-                  <div class="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="p-2 rounded-xl bg-rose-50 text-rose-600 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     </svg>
                   </div>
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug truncate" :title="trip.destination">
+                  <h3 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-snug">
                     {{ trip.destination }}
                   </h3>
                 </div>
                 
-                <span :class="['px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border shadow-2xs inline-flex items-center gap-1.5 self-start sm:self-auto shrink-0', getTripStatusBadge(trip.status)]">
+                <span :class="['px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border shadow-2xs inline-flex items-center gap-2 self-start sm:self-auto shrink-0', getTripStatusBadge(trip.status)]">
                   <span class="w-2 h-2 rounded-full" :class="isOnRoute(trip) ? 'bg-amber-500 animate-ping' : 'bg-blue-500'"></span>
                   {{ trip.status }}
                 </span>
               </div>
 
-              <!-- Date, Time, Requesting Office & Passenger Metrics -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
-                <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-2xl border border-slate-100">
-                  <div class="p-1.5 rounded-xl bg-white text-emerald-600 shadow-2xs shrink-0">
+              <!-- Information Grid: Departure Date, Requestor Name, Requesting College -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                <!-- Departure Date -->
+                <div class="flex items-start gap-3 p-3.5 bg-slate-50/90 rounded-2xl border border-slate-100/90">
+                  <div class="p-2 rounded-xl bg-white text-emerald-600 shadow-2xs shrink-0 mt-0.5">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div class="min-w-0">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block leading-none mb-0.5">Departure Date</span>
-                    <span class="font-black text-slate-800 truncate block">{{ formatTripDate(trip.date) }}</span>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Departure Date</span>
+                    <span class="text-sm font-black text-slate-800 block break-words">{{ formatTripDate(trip.date) }}</span>
                   </div>
                 </div>
 
-                <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-2xl border border-slate-100">
-                  <div class="p-1.5 rounded-xl bg-white text-blue-600 shadow-2xs shrink-0">
+                <!-- Requestor Name -->
+                <div class="flex items-start gap-3 p-3.5 bg-slate-50/90 rounded-2xl border border-slate-100/90">
+                  <div class="p-2 rounded-xl bg-white text-blue-600 shadow-2xs shrink-0 mt-0.5">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                   <div class="min-w-0">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block leading-none mb-0.5">Time Schedule</span>
-                    <span class="font-black text-slate-800 truncate block">{{ trip.time }}</span>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Requestor Name</span>
+                    <span class="text-sm font-black text-slate-800 block break-words">{{ trip.requestorName }}</span>
                   </div>
                 </div>
 
-                <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-2xl border border-slate-100">
-                  <div class="p-1.5 rounded-xl bg-white text-indigo-600 shadow-2xs shrink-0">
+                <!-- Requesting College / Office & Passengers -->
+                <div class="flex items-start gap-3 p-3.5 bg-slate-50/90 rounded-2xl border border-slate-100/90">
+                  <div class="p-2 rounded-xl bg-white text-indigo-600 shadow-2xs shrink-0 mt-0.5">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                   </div>
                   <div class="min-w-0">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block leading-none mb-0.5">Requestor &amp; Pax</span>
-                    <span class="font-black text-slate-800 truncate block" :title="trip.requestor">{{ trip.requestor }} • {{ trip.passengers }} pax</span>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Requesting College / Office</span>
+                    <span class="text-sm font-black text-slate-800 block break-words">
+                      {{ trip.requestingCollege }}
+                      <span class="text-xs font-bold text-slate-500 block mt-0.5">({{ trip.passengers }} passengers)</span>
+                    </span>
                   </div>
                 </div>
               </div>
 
               <!-- Purpose Note Snippet (if available) -->
-              <div v-if="trip.notes" class="text-xs text-slate-600 bg-slate-50/80 px-3.5 py-2 rounded-xl border border-slate-100 line-clamp-1 leading-relaxed">
+              <div v-if="trip.notes" class="text-xs sm:text-sm text-slate-600 bg-slate-50/80 px-4 py-2.5 rounded-2xl border border-slate-100/90 leading-relaxed">
                 <span class="font-black text-slate-700">Purpose / Details:</span> {{ trip.notes }}
               </div>
             </div>
 
-            <!-- Right Section: Actions -->
-            <div class="flex lg:flex-col items-center justify-end gap-2.5 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+            <!-- Right Section: Action Button -->
+            <div class="flex items-center justify-end shrink-0 pt-3 xl:pt-0 border-t xl:border-t-0 border-slate-100">
               <button 
                 @click="openBookingDetails(trip)" 
-                class="w-full lg:w-36 px-4 py-2.5 bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                class="w-full xl:w-48 px-5 py-3.5 bg-slate-900 hover:bg-emerald-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider rounded-2xl transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
               >
-                <span>View Slip</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <span>View Trip Details</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
-
-              <button 
-                @click="printDispatchSlip(trip)" 
-                class="w-full lg:w-36 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
-                title="Print Official Dispatch Slip"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                </svg>
-                <span>Print</span>
               </button>
             </div>
           </div>
@@ -363,14 +358,14 @@
       <!-- TRIP DETAILS & VIEWING MODAL -->
       <!-- ========================================================= -->
       <div v-if="selectedBooking" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in">
-        <div class="bg-white rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl relative border border-slate-100 max-h-[90vh] overflow-y-auto">
-          <button @click="selectedBooking = null" class="absolute top-6 right-6 p-2 rounded-full bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
+        <div class="bg-white rounded-[2.5rem] p-8 max-w-xl w-full shadow-2xl relative border border-slate-100 max-h-[90vh] overflow-y-auto">
+          <button @click="selectedBooking = null" class="absolute top-6 right-6 p-2 rounded-full bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
           
           <div class="mb-6">
             <div class="flex items-center gap-2 mb-3">
-              <span :class="['px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full border shadow-xs', getTripStatusBadge(selectedBooking.status)]">
+              <span :class="['px-3.5 py-1 text-xs font-black uppercase tracking-widest rounded-full border shadow-2xs', getTripStatusBadge(selectedBooking.status)]">
                 {{ selectedBooking.status }}
               </span>
               <span class="px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full bg-slate-100 text-slate-600">
@@ -382,46 +377,48 @@
           </div>
 
           <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div class="flex items-center gap-3.5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <div class="p-2.5 bg-white rounded-xl text-emerald-600 shadow-sm shrink-0">
+            <!-- Departure Date & Passengers -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="flex items-start gap-3.5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div class="p-2.5 bg-white rounded-xl text-emerald-600 shadow-2xs shrink-0 mt-0.5">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
                 <div class="min-w-0">
                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Date of Departure</p>
-                  <p class="text-sm font-black text-slate-900 truncate">{{ formatTripDate(selectedBooking.date) }}</p>
+                  <p class="text-base font-black text-slate-900 break-words">{{ formatTripDate(selectedBooking.date) }}</p>
                 </div>
               </div>
 
-              <div class="flex items-center gap-3.5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <div class="p-2.5 bg-white rounded-xl text-emerald-600 shadow-sm shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div class="min-w-0">
-                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Time Schedule</p>
-                  <p class="text-sm font-black text-slate-900 truncate">{{ selectedBooking.time }}</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div class="flex items-center gap-3.5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <div class="p-2.5 bg-white rounded-xl text-blue-600 shadow-sm shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                </div>
-                <div class="min-w-0">
-                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Requestor / Office</p>
-                  <p class="text-sm font-black text-slate-900 truncate">{{ selectedBooking.requestor }}</p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-3.5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <div class="p-2.5 bg-white rounded-xl text-amber-600 shadow-sm shrink-0">
+              <div class="flex items-start gap-3.5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div class="p-2.5 bg-white rounded-xl text-amber-600 shadow-2xs shrink-0 mt-0.5">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                 </div>
                 <div class="min-w-0">
                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Passenger Count</p>
-                  <p class="text-sm font-black text-slate-900 truncate">{{ selectedBooking.passengers || 1 }} Persons</p>
+                  <p class="text-base font-black text-slate-900">{{ selectedBooking.passengers || 1 }} Persons</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Requestor Name & Requesting College/Office -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="flex items-start gap-3.5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div class="p-2.5 bg-white rounded-xl text-blue-600 shadow-2xs shrink-0 mt-0.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Requestor Name</p>
+                  <p class="text-sm font-black text-slate-900 break-words">{{ selectedBooking.requestorName }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3.5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div class="p-2.5 bg-white rounded-xl text-indigo-600 shadow-2xs shrink-0 mt-0.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Requesting College / Office</p>
+                  <p class="text-sm font-black text-slate-900 break-words">{{ selectedBooking.requestingCollege }}</p>
                 </div>
               </div>
             </div>
@@ -430,9 +427,9 @@
             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between gap-4">
               <div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Assigned University Driver</p>
-                <p class="text-sm font-black text-slate-900 flex items-center gap-1.5">
-                  <span v-if="selectedBooking.driver && selectedBooking.driver !== 'Unassigned'">🧑 {{ selectedBooking.driver }}</span>
-                  <span v-else class="text-amber-600 font-bold">⚠️ Unassigned Driver</span>
+                <p class="text-sm font-black text-slate-900">
+                  <span v-if="selectedBooking.driver && selectedBooking.driver !== 'Unassigned'">{{ selectedBooking.driver }}</span>
+                  <span v-else class="text-amber-600 font-bold">Unassigned Driver</span>
                 </p>
               </div>
               <router-link 
@@ -450,11 +447,9 @@
             </div>
           </div>
 
-          <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
-            <button @click="selectedBooking = null" class="px-6 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-200 transition-colors uppercase tracking-widest">Close</button>
-            <button @click="printDispatchSlip(selectedBooking)" class="px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 transition-all hover:-translate-y-0.5 uppercase tracking-widest flex items-center gap-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-              Print Slip
+          <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-end">
+            <button @click="selectedBooking = null" class="w-full sm:w-auto px-8 py-3 bg-slate-900 hover:bg-emerald-600 text-white font-black rounded-xl text-xs uppercase tracking-widest transition-all cursor-pointer shadow-sm active:scale-95">
+              Close Trip Details
             </button>
           </div>
         </div>
@@ -469,7 +464,6 @@ import { onMounted, ref, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuVehiclesStore } from '@/stores/tasuVehicles';
 import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
-import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 
 const vehiclesStore = useTasuVehiclesStore();
@@ -524,7 +518,8 @@ const filteredTrips = computed(() => {
       (trip.destination || '').toLowerCase().includes(q) ||
       (trip.vehicleName || '').toLowerCase().includes(q) ||
       (trip.vehiclePlate || '').toLowerCase().includes(q) ||
-      (trip.requestor || '').toLowerCase().includes(q) ||
+      (trip.requestorName || '').toLowerCase().includes(q) ||
+      (trip.requestingCollege || '').toLowerCase().includes(q) ||
       (trip.driver || '').toLowerCase().includes(q) ||
       String(trip.id || '').toLowerCase().includes(q);
 
@@ -590,9 +585,9 @@ const fetchActiveTrips = async () => {
             vehicleCategory: item.category || 'Van',
             vehicleImage: item.image_url,
             date: dateStr,
-            time: item.request_time ? `${item.request_time}${item.return_time ? ' - ' + item.return_time : ''}` : 'Official Travel',
             destination: item.destination || 'University Travel',
-            requestor: item.requesting_personnel ? `${item.requesting_personnel}${item.office_college_department ? ' • ' + item.office_college_department : ''}` : (item.office_college_department || 'University Office'),
+            requestorName: item.requesting_personnel || 'Requestor Pending',
+            requestingCollege: item.office_college_department || item.agency_address || 'University Office',
             driver: item.assigned_driver || 'Unassigned',
             passengers: item.num_passengers || 1,
             status: status,
@@ -624,9 +619,9 @@ const fetchActiveTrips = async () => {
           vehicleCategory: assignment?.category || existing.vehicleCategory || 'Transport',
           vehicleImage: assignment?.image_url || existing.vehicleImage,
           date: travelDate,
-          time: details.request_time ? `${details.request_time}${details.return_time ? ' - ' + details.return_time : ''}` : (existing.time || 'Official Trip'),
           destination: details.destination || t.location || existing.destination || 'University Trip',
-          requestor: details.requesting_personnel ? `${details.requesting_personnel}${details.office_college_department ? ' • ' + details.office_college_department : ''}` : (t.user_name || existing.requestor || 'University Office'),
+          requestorName: details.requesting_personnel || t.user_name || existing.requestorName || 'Requestor Pending',
+          requestingCollege: details.office_college_department || t.office_room || t.location || existing.requestingCollege || 'University Office',
           driver: assignment?.personnel_name || assignment?.driver_name || existing.driver || 'Unassigned',
           passengers: details.num_passengers || existing.passengers || 1,
           status: t.status_label || existing.status || (t.status === 'processing' ? 'Dispatched - Waiting for Departure' : 'Approved'),
@@ -654,9 +649,9 @@ const fetchActiveTrips = async () => {
             vehicleCategory: 'Transport',
             vehicleImage: null,
             date: travelDate,
-            time: details.request_time ? `${details.request_time}${details.return_time ? ' - ' + details.return_time : ''}` : 'Official Trip',
             destination: details.destination || t.location || 'University Trip',
-            requestor: details.requesting_personnel ? `${details.requesting_personnel}${details.office_college_department ? ' • ' + details.office_college_department : ''}` : (t.user_name || 'University Office'),
+            requestorName: details.requesting_personnel || t.user_name || 'Requestor Pending',
+            requestingCollege: details.office_college_department || t.office_room || t.location || 'University Office',
             driver: 'Unassigned',
             passengers: details.num_passengers || 1,
             status: t.status_label || 'Approved - Awaiting Dispatch',
@@ -679,13 +674,6 @@ const fetchActiveTrips = async () => {
   } finally {
     isLoading.value = false;
   }
-};
-
-const printDispatchSlip = (trip) => {
-  toast.success(`Printing official Trip Ticket for ${trip.destination} (${trip.vehiclePlate})...`);
-  setTimeout(() => {
-    window.print();
-  }, 500);
 };
 
 onMounted(async () => {
