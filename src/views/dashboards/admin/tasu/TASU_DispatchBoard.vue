@@ -184,131 +184,128 @@
         </div>
 
         <!-- Active Trip Rows List -->
-        <div v-else class="space-y-4">
+        <div v-else class="space-y-5">
           <div 
             v-for="trip in filteredTrips" 
             :key="trip.id"
-            class="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all p-6 sm:p-7 flex flex-col xl:flex-row xl:items-center justify-between gap-6 group"
+            class="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all p-6 sm:p-7 flex flex-col gap-5 group"
           >
-            <!-- Left Section: Vehicle Image & Vehicle Info -->
-            <div class="flex items-center gap-5 min-w-[280px] xl:max-w-[340px] shrink-0">
-              <!-- Vehicle Thumbnail -->
-              <div class="relative w-22 h-22 sm:w-26 sm:h-26 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 shadow-xs flex items-center justify-center">
-                <img v-if="trip.vehicleImage" :src="trip.vehicleImage" :alt="trip.vehicleName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div v-else class="flex flex-col items-center justify-center text-slate-300 p-2 text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                    <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
-                  </svg>
-                </div>
-                <span class="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-md bg-slate-900/85 backdrop-blur-xs text-[10px] font-black text-white uppercase tracking-wider">
-                  {{ trip.vehicleCategory || 'Transport' }}
-                </span>
-              </div>
-
-              <!-- Vehicle Details -->
-              <div class="space-y-1.5 min-w-0">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-lg text-xs font-black tracking-wider uppercase">
-                    {{ trip.vehiclePlate }}
-                  </span>
-                  <span class="text-xs font-bold text-slate-400">#{{ trip.id }}</span>
-                </div>
-                <h4 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug">
-                  {{ trip.vehicleName }}
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs">
-                  <span class="font-bold text-slate-400">Driver:</span>
-                  <span :class="trip.driver && trip.driver !== 'Unassigned' ? 'text-slate-800 font-black' : 'text-amber-600 font-bold'">
-                    {{ trip.driver || 'Unassigned' }}
+            <!-- Top Tier: Vehicle Info (Left) & Destination / Status / Action (Right) -->
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <!-- Left: Vehicle Thumbnail & Details -->
+              <div class="flex items-center gap-4 sm:gap-5 min-w-0">
+                <!-- Vehicle Thumbnail -->
+                <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 shadow-xs flex items-center justify-center">
+                  <img v-if="trip.vehicleImage" :src="trip.vehicleImage" :alt="trip.vehicleName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div v-else class="flex flex-col items-center justify-center text-slate-300 p-2 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                      <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
+                    </svg>
+                  </div>
+                  <span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-md bg-slate-900/85 backdrop-blur-xs text-[9px] font-black text-white uppercase tracking-wider">
+                    {{ trip.vehicleCategory || 'Transport' }}
                   </span>
                 </div>
-              </div>
-            </div>
 
-            <!-- Middle Section: Destination, Departure Date, Requestor Name & Requesting College -->
-            <div class="flex-1 space-y-4 xl:border-l xl:border-r xl:border-slate-100 xl:px-8 py-1 min-w-0">
-              <!-- Destination & Status Pill -->
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="p-2 rounded-xl bg-rose-50 text-rose-600 shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    </svg>
+                <!-- Vehicle Details -->
+                <div class="space-y-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-lg text-xs font-black tracking-wider uppercase">
+                      {{ trip.vehiclePlate }}
+                    </span>
+                    <span class="text-xs font-bold text-slate-400">#{{ trip.id }}</span>
                   </div>
-                  <h3 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-snug">
-                    {{ trip.destination }}
-                  </h3>
-                </div>
-                
-                <span :class="['px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border shadow-2xs inline-flex items-center gap-2 self-start sm:self-auto shrink-0', getTripStatusBadge(trip.status)]">
-                  <span class="w-2 h-2 rounded-full" :class="isOnRoute(trip) ? 'bg-amber-500 animate-ping' : 'bg-blue-500'"></span>
-                  {{ trip.status }}
-                </span>
-              </div>
-
-              <!-- Information Grid: Departure Date, Requestor Name, Requesting College -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-                <!-- Departure Date -->
-                <div class="flex items-start gap-3 p-3.5 bg-slate-50/90 rounded-2xl border border-slate-100/90">
-                  <div class="p-2 rounded-xl bg-white text-emerald-600 shadow-2xs shrink-0 mt-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Departure Date</span>
-                    <span class="text-sm font-black text-slate-800 block break-words">{{ formatTripDate(trip.date) }}</span>
-                  </div>
-                </div>
-
-                <!-- Requestor Name -->
-                <div class="flex items-start gap-3 p-3.5 bg-slate-50/90 rounded-2xl border border-slate-100/90">
-                  <div class="p-2 rounded-xl bg-white text-blue-600 shadow-2xs shrink-0 mt-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Requestor Name</span>
-                    <span class="text-sm font-black text-slate-800 block break-words">{{ trip.requestorName }}</span>
-                  </div>
-                </div>
-
-                <!-- Requesting College / Office & Passengers -->
-                <div class="flex items-start gap-3 p-3.5 bg-slate-50/90 rounded-2xl border border-slate-100/90">
-                  <div class="p-2 rounded-xl bg-white text-indigo-600 shadow-2xs shrink-0 mt-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Requesting College / Office</span>
-                    <span class="text-sm font-black text-slate-800 block break-words">
-                      {{ trip.requestingCollege }}
-                      <span class="text-xs font-bold text-slate-500 block mt-0.5">({{ trip.passengers }} passengers)</span>
+                  <h4 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug break-words">
+                    {{ trip.vehicleName }}
+                  </h4>
+                  <div class="flex items-center gap-1.5 text-xs">
+                    <span class="font-bold text-slate-400">Driver:</span>
+                    <span :class="trip.driver && trip.driver !== 'Unassigned' ? 'text-slate-800 font-black' : 'text-amber-600 font-bold'">
+                      {{ trip.driver || 'Unassigned' }}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <!-- Purpose Note Snippet (if available) -->
-              <div v-if="trip.notes" class="text-xs sm:text-sm text-slate-600 bg-slate-50/80 px-4 py-2.5 rounded-2xl border border-slate-100/90 leading-relaxed">
-                <span class="font-black text-slate-700">Purpose / Details:</span> {{ trip.notes }}
+              <!-- Right: Destination, Status Badge & Action Button -->
+              <div class="flex flex-col sm:flex-row sm:items-center lg:justify-end gap-3 shrink-0">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    </svg>
+                  </div>
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug" :title="trip.destination">
+                    {{ trip.destination }}
+                  </h3>
+                </div>
+
+                <span :class="['px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border shadow-2xs inline-flex items-center gap-1.5 self-start sm:self-auto shrink-0', getTripStatusBadge(trip.status)]">
+                  <span class="w-2 h-2 rounded-full" :class="isOnRoute(trip) ? 'bg-amber-500 animate-ping' : 'bg-blue-500'"></span>
+                  {{ trip.status }}
+                </span>
+
+                <button 
+                  @click="openBookingDetails(trip)" 
+                  class="px-5 py-2.5 bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                >
+                  <span>View Trip Details</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
             </div>
 
-            <!-- Right Section: Action Button -->
-            <div class="flex items-center justify-end shrink-0 pt-3 xl:pt-0 border-t xl:border-t-0 border-slate-100">
-              <button 
-                @click="openBookingDetails(trip)" 
-                class="w-full xl:w-48 px-5 py-3.5 bg-slate-900 hover:bg-emerald-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider rounded-2xl transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
-              >
-                <span>View Trip Details</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+            <!-- Bottom Tier: Information Cards Grid (Departure Date, Requestor Name, Requesting College) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Departure Date -->
+              <div class="flex items-start gap-3.5 p-4 bg-slate-50/90 rounded-2xl border border-slate-100/90">
+                <div class="p-2 rounded-xl bg-white text-emerald-600 shadow-2xs shrink-0 mt-0.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div class="min-w-0">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Departure Date</span>
+                  <span class="text-sm sm:text-base font-black text-slate-800 block break-words">{{ formatTripDate(trip.date) }}</span>
+                </div>
+              </div>
+
+              <!-- Requestor Name -->
+              <div class="flex items-start gap-3.5 p-4 bg-slate-50/90 rounded-2xl border border-slate-100/90">
+                <div class="p-2 rounded-xl bg-white text-blue-600 shadow-2xs shrink-0 mt-0.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div class="min-w-0">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Requestor Name</span>
+                  <span class="text-sm sm:text-base font-black text-slate-800 block break-words">{{ trip.requestorName }}</span>
+                </div>
+              </div>
+
+              <!-- Requesting College / Office & Passengers -->
+              <div class="flex items-start gap-3.5 p-4 bg-slate-50/90 rounded-2xl border border-slate-100/90">
+                <div class="p-2 rounded-xl bg-white text-indigo-600 shadow-2xs shrink-0 mt-0.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <div class="min-w-0">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Requesting College / Office</span>
+                  <span class="text-sm sm:text-base font-black text-slate-800 block break-words">
+                    {{ trip.requestingCollege }}
+                    <span class="text-xs font-bold text-slate-500 block mt-0.5">({{ trip.passengers }} passengers)</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Purpose Note Snippet (if available) -->
+            <div v-if="trip.notes" class="text-xs sm:text-sm text-slate-600 bg-slate-50/80 px-4 py-3 rounded-2xl border border-slate-100/90 leading-relaxed">
+              <span class="font-black text-slate-700">Purpose / Details:</span> {{ trip.notes }}
             </div>
           </div>
         </div>
@@ -336,18 +333,54 @@
             </router-link>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+          <!-- Large, Legible Vehicle Fleet Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
             <div 
               v-for="v in allVehicles" 
               :key="v.id" 
-              class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-100/60 transition-all flex flex-col justify-between"
+              class="p-5 rounded-3xl border border-slate-200/90 bg-white hover:bg-slate-50/50 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col justify-between gap-4 group"
             >
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-[9px] font-black text-slate-600 uppercase">{{ v.plate }}</span>
-                <span :class="['w-2 h-2 rounded-full', v.status === 'Available' ? 'bg-emerald-500' : (v.status === 'In Use' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500')]"></span>
+              <!-- Top Row: Thumbnail, Plate & Status Pill -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <!-- Vehicle Thumbnail -->
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200/80 shrink-0 overflow-hidden flex items-center justify-center shadow-2xs">
+                    <img v-if="v.image" :src="v.image" :alt="v.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                      <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
+                    </svg>
+                  </div>
+
+                  <div class="min-w-0">
+                    <span class="px-2.5 py-0.5 bg-slate-100 text-slate-800 border border-slate-200 rounded-md text-xs font-black uppercase tracking-wider block w-fit mb-0.5">
+                      {{ v.plate }}
+                    </span>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block">
+                      {{ v.category || 'Fleet Unit' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Status Badge -->
+                <span :class="['px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 shrink-0 border shadow-2xs', 
+                  v.status === 'Available' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (v.status === 'In Use' ? 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse' : 'bg-rose-50 text-rose-700 border-rose-200')]">
+                  <span :class="['w-2 h-2 rounded-full', v.status === 'Available' ? 'bg-emerald-500' : (v.status === 'In Use' ? 'bg-amber-500' : 'bg-rose-500')]"></span>
+                  {{ v.status }}
+                </span>
               </div>
-              <h6 class="text-xs font-black text-slate-900 truncate" :title="v.name">{{ v.name }}</h6>
-              <span class="text-[8px] font-bold text-slate-400 uppercase mt-0.5">{{ v.category }} • {{ v.status }}</span>
+
+              <!-- Full Vehicle Name & Specifications -->
+              <div class="min-w-0 space-y-1">
+                <h5 class="text-sm sm:text-base font-black text-slate-900 leading-snug break-words">
+                  {{ v.name }}
+                </h5>
+                <p v-if="v.model || v.fuel" class="text-xs font-medium text-slate-500">
+                  <span v-if="v.model">{{ v.model }} Year Model</span>
+                  <span v-if="v.model && v.fuel"> • </span>
+                  <span v-if="v.fuel">{{ v.fuel }}</span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
