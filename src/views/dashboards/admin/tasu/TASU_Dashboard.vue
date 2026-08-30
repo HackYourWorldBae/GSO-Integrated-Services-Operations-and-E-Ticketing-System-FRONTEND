@@ -101,55 +101,59 @@
           </div>
         </div>
 
-        <!-- Main Charts Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
-          <!-- Booking Pipeline -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col h-[400px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-amber-500 rounded-full"></div>
-              Booking Lifecycle Pipeline
-            </h4>
-            <div class="flex-1 relative">
-              <canvas id="bookingPipelineChart"></canvas>
+        <!-- Fleet Activity Analytics Section -->
+        <div class="p-8 sm:p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
+            <div class="flex items-center gap-3.5">
+              <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100 shrink-0 shadow-xs">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-xl font-black text-slate-900 tracking-tight">Fleet Activity (Trip Frequency)</h3>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Total completed &amp; active trip dispatches recorded per university vehicle unit</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <router-link to="/admin/tasu/dispatch" class="px-5 py-2.5 bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center gap-2">
+                <span>Open Dispatch Board</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </router-link>
             </div>
           </div>
 
-          <!-- Travel Purpose Distribution -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px] lg:h-[400px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
-              Authorized Travel Intent
-            </h4>
-            <div class="flex-1 relative">
-              <canvas id="travelPurposeDoughnut"></canvas>
-            </div>
+          <!-- Loading State -->
+          <div v-if="isLoading" class="flex flex-col items-center justify-center py-20 gap-3">
+            <div class="w-10 h-10 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Loading fleet analytics data...</p>
           </div>
 
-          <!-- Fleet Usage Heatmap -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col h-[350px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-blue-500 rounded-full"></div>
-              Fleet Activity (Trip Frequency)
-            </h4>
-            <div class="flex-1 relative">
+          <!-- Fleet Chart Container -->
+          <div v-else class="space-y-6">
+            <div class="relative w-full h-[420px] p-2">
               <canvas id="fleetActivityChart"></canvas>
             </div>
-          </div>
 
-          <!-- Fuel Consumption Trends -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col h-[350px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-slate-900 rounded-full"></div>
-              Fuel Performance (Liters Used)
-            </h4>
-            <div class="flex-1 relative">
-              <canvas id="fuelTrendChart"></canvas>
+            <!-- Fleet Summary Footer Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-500">Tracked Fleet Units</span>
+                <span class="text-sm font-black text-slate-900">{{ fleetData.length }} Units</span>
+              </div>
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-500">Total Recorded Dispatches</span>
+                <span class="text-sm font-black text-emerald-600">{{ totalFleetDispatches }} Trips</span>
+              </div>
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-500">Most Utilized Vehicle</span>
+                <span class="text-sm font-black text-blue-600 truncate max-w-[150px]">{{ mostUtilizedVehicleName }}</span>
+              </div>
             </div>
           </div>
-
-          
-
         </div>
 
       </div>
@@ -158,177 +162,158 @@
 </template>
 
 <script setup>
-import { onMounted, ref, nextTick } from 'vue';
+import { onMounted, onUnmounted, ref, computed, nextTick } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import { useTasuVehiclesStore } from '@/stores/tasuVehicles';
 import Chart from 'chart.js/auto';
 import api from '@/api/client';
 
+const vehiclesStore = useTasuVehiclesStore();
 const stats = ref({});
+const isLoading = ref(true);
+let fleetChartInstance = null;
 
-const tasuActivePeriod = ref('Month');
-const tasuPeriodFilters = [
-  { key: 'Day',   label: 'This Day' },
-  { key: 'Week',  label: 'This Week' },
-  { key: 'Month', label: 'This Month' },
-  { key: 'Year',  label: 'This Year' }
-];
-
-
-let charts = [];
-
-function setTasuPeriod(period) {
-  tasuActivePeriod.value = period;
-  if (tasuServiceFreqChart && stats.value.service_freq) {
-    const data = stats.value.service_freq[period] || [];
-    tasuServiceFreqChart.data.labels = data.map(d => d.service_type);
-    tasuServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
-    
+const fleetData = computed(() => {
+  if (stats.value.fleet_activity && stats.value.fleet_activity.length > 0) {
+    return stats.value.fleet_activity;
   }
-}
+  // Fallback to vehicles from vehiclesStore if backend doesn't have fleet_activity
+  if (vehiclesStore.vehicles && vehiclesStore.vehicles.length > 0) {
+    return vehiclesStore.vehicles.map(v => ({
+      id: v.id,
+      model_name: v.name,
+      plate_no: v.plate,
+      category: v.category || 'Vehicle',
+      trip_count: 0
+    }));
+  }
+  return [];
+});
+
+const totalFleetDispatches = computed(() => {
+  return fleetData.value.reduce((acc, item) => acc + (parseInt(item.trip_count) || 0), 0);
+});
+
+const mostUtilizedVehicleName = computed(() => {
+  if (fleetData.value.length === 0) return 'None';
+  const top = [...fleetData.value].sort((a, b) => (parseInt(b.trip_count) || 0) - (parseInt(a.trip_count) || 0))[0];
+  if (!top || (parseInt(top.trip_count) || 0) === 0) return top ? top.model_name : 'None';
+  return `${top.model_name} (${top.trip_count} trips)`;
+});
 
 const renderCharts = () => {
-  // Destroy existing charts to prevent memory leaks if re-rendered
-  charts.forEach(c => c.destroy());
-  charts = [];
+  if (fleetChartInstance) {
+    fleetChartInstance.destroy();
+    fleetChartInstance = null;
+  }
 
-  const safeVal = (val) => parseFloat(val) || 0;
+  const canvas = document.getElementById('fleetActivityChart');
+  if (!canvas || fleetData.value.length === 0) return;
 
-  const formatReason = (code) => {
-    if (!code) return 'None';
-    const map = {
-      personnelAbsent: "Personnel Absent",
-      extendedBreak: "Extended Break Period",
-      additionalWork: "Additional Work",
-      lackWorkingDays: "Lack of Working Days",
-      lackMaterials: "Lack of Materials / Tools",
-      lackSkills: "Lack of Skills"
-    };
-    return map[code] || code.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-  };
+  const labels = fleetData.value.map(item => `${item.model_name} (${item.plate_no})`);
+  const counts = fleetData.value.map(item => parseInt(item.trip_count) || 0);
 
-  // 1. Performance Radar Chart
-  const radarCtx = document.getElementById('performanceRadar');
-  if (radarCtx && stats.value.feedback_averages) {
-    const avg = stats.value.feedback_averages;
-    charts.push(new Chart(radarCtx, {
-      type: 'radar',
-      data: {
-        labels: ['Quality', 'Efficiency', 'Timeliness'],
-        datasets: [{
-          label: 'Current Avg (1-5)',
-          data: [safeVal(avg.avg_quality), safeVal(avg.avg_efficiency), safeVal(avg.avg_timeliness)],
-          backgroundColor: 'rgba(16, 185, 129, 0.2)',
-          borderColor: '#10b981',
-          pointBackgroundColor: '#10b981',
-          borderWidth: 3
-        }, {
-          label: 'Target Score',
-          data: [4.5, 4.5, 4.5],
-          backgroundColor: 'rgba(226, 232, 240, 0.1)',
-          borderColor: '#94a3b8',
-          borderDash: [5, 5],
-          borderWidth: 1,
-          pointRadius: 0
-        }]
+  fleetChartInstance = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Trip Dispatches',
+          data: counts,
+          backgroundColor: '#10b981',
+          hoverBackgroundColor: '#059669',
+          borderRadius: 8,
+          borderSkipped: false,
+          maxBarThickness: 45
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: '#0f172a',
+          titleFont: { size: 12, weight: 'bold' },
+          bodyFont: { size: 11 },
+          padding: 12,
+          cornerRadius: 10,
+          callbacks: {
+            label: function(context) {
+              const count = context.parsed.y;
+              return ` ${count} ${count === 1 ? 'Dispatch Trip' : 'Dispatch Trips'}`;
+            }
+          }
+        }
       },
-      options: {
-        scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, display: false } } },
-        plugins: { legend: { position: 'bottom' } },
-        responsive: true, maintainAspectRatio: false
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            color: '#64748b',
+            font: { size: 10, weight: 'bold' },
+            maxRotation: 45,
+            minRotation: 0
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: '#f1f5f9' },
+          ticks: {
+            color: '#64748b',
+            font: { size: 11, weight: 'bold' },
+            stepSize: 1,
+            precision: 0
+          }
+        }
       }
-    }));
-  }
-
-  // 2. Completion Health Doughnut
-  const completionCtx = document.getElementById('completionDoughnut');
-  if (completionCtx && stats.value.completion_health) {
-    const health = stats.value.completion_health;
-    const onTime = health.find(h => h.completion_status === 'on-time')?.count || 0;
-    const beyondTime = health.find(h => h.completion_status === 'beyond-time')?.count || 0;
-    const notCompleted = health.find(h => h.completion_status === 'not-completed')?.count || 0;
-    
-    charts.push(new Chart(completionCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['On-time', 'Beyond Time', 'Not Completed'],
-        datasets: [{
-          data: [onTime, beyondTime, notCompleted],
-          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-          hoverOffset: 15, borderRadius: 10, borderWidth: 4, borderColor: '#ffffff'
-        }]
-      },
-      options: {
-        plugins: { legend: { position: 'bottom' } },
-        cutout: '70%', responsive: true, maintainAspectRatio: false
-      }
-    }));
-  }
-
-  // 3. Delay Reasons
-  const delayCtx = document.getElementById('delayReasonsChart');
-  if (delayCtx && stats.value.delay_reasons) {
-    charts.push(new Chart(delayCtx, {
-      type: 'bar',
-      data: {
-        labels: stats.value.delay_reasons.map(r => formatReason(r.reason_code)) || ['None'],
-        datasets: [{
-          label: 'Occurrences',
-          data: stats.value.delay_reasons.map(r => parseInt(r.count)) || [0],
-          backgroundColor: '#f59e0b', borderRadius: 6
-        }]
-      },
-      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
-    }));
-  }
-
-  // 4. Non-Completion
-  const nonCompCtx = document.getElementById('nonCompletionChart');
-  if (nonCompCtx && stats.value.non_completion) {
-    charts.push(new Chart(nonCompCtx, {
-      type: 'bar',
-      data: {
-        labels: stats.value.non_completion.map(r => formatReason(r.reason_code)) || ['None'],
-        datasets: [{
-          label: 'Occurrences',
-          data: stats.value.non_completion.map(r => parseInt(r.count)) || [0],
-          backgroundColor: '#ef4444', borderRadius: 6
-        }]
-      },
-      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
-    }));
-  }
-
-  
+    }
+  });
 };
 
 const fetchStats = async () => {
+  isLoading.value = true;
   try {
-    const response = await api.get('tickets/stats/TASU');
-    if (response.data?.data?.stats) {
-      stats.value = response.data.data.stats;
-      nextTick(() => {
-        renderCharts();
-      });
+    const [statsRes] = await Promise.allSettled([
+      api.get('tickets/stats/TASU'),
+      vehiclesStore.fetchVehicles()
+    ]);
+
+    if (statsRes.status === 'fulfilled' && statsRes.value?.data?.data?.stats) {
+      stats.value = statsRes.value.data.data.stats;
     }
   } catch (error) {
     console.error('Failed to fetch TASU stats:', error);
+  } finally {
+    isLoading.value = false;
+    await nextTick();
+    renderCharts();
   }
 };
 
 onMounted(() => {
   fetchStats();
 });
+
+onUnmounted(() => {
+  if (fleetChartInstance) {
+    fleetChartInstance.destroy();
+    fleetChartInstance = null;
+  }
+});
 </script>
 
 <style scoped>
 .animate-fade-in {
-  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 </style>
-
