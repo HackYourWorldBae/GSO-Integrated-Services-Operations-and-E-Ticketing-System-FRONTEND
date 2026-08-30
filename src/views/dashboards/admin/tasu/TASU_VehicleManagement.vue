@@ -197,8 +197,20 @@
                 </div>
                 <div class="col-span-2">
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Image Thumbnail (Optional)</label>
-                  <input @change="handleImageUpload" type="file" accept="image/*" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
-                  <p v-if="vehicleForm.image && !vehicleForm.imageFile" class="text-xs text-slate-400 mt-2">Current image will be kept if no new file is uploaded.</p>
+                  <div class="flex items-center gap-4">
+                    <div v-if="imagePreviewUrl || vehicleForm.image" class="relative w-16 h-16 rounded-2xl overflow-hidden border border-slate-200 shrink-0 bg-slate-100 shadow-sm">
+                      <img :src="imagePreviewUrl || vehicleForm.image" alt="Thumbnail Preview" class="w-full h-full object-cover" />
+                      <button type="button" @click="clearImage" class="absolute top-1 right-1 p-0.5 bg-rose-600 text-white rounded-full hover:bg-rose-700 transition-colors shadow" title="Remove Image">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="flex-1">
+                      <input ref="fileInputRef" @change="handleImageUpload" type="file" accept="image/*" class="w-full p-3 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
+                    </div>
+                  </div>
+                  <p v-if="vehicleForm.image && !vehicleForm.imageFile" class="text-[11px] text-slate-400 mt-1">Current image will be kept if no new file is selected.</p>
                 </div>
               </div>
               <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end gap-3">
@@ -238,6 +250,8 @@ onMounted(async () => {
 const showAddModal = ref(false);
 const isEditing = ref(false);
 const isSubmitting = ref(false);
+const fileInputRef = ref(null);
+const imagePreviewUrl = ref(null);
 
 const vehicleForm = ref({
   id: null,
@@ -255,20 +269,36 @@ const handleImageUpload = (event) => {
   const file = event.target.files[0];
   if (file) {
     vehicleForm.value.imageFile = file;
+    imagePreviewUrl.value = URL.createObjectURL(file);
   } else {
     vehicleForm.value.imageFile = null;
+    imagePreviewUrl.value = null;
+  }
+};
+
+const clearImage = () => {
+  vehicleForm.value.imageFile = null;
+  vehicleForm.value.image = '';
+  imagePreviewUrl.value = null;
+  if (fileInputRef.value) {
+    fileInputRef.value.value = '';
   }
 };
 
 const openEditModal = (vehicle) => {
   isEditing.value = true;
-  vehicleForm.value = { ...vehicle };
+  vehicleForm.value = { ...vehicle, imageFile: null };
+  imagePreviewUrl.value = null;
   showAddModal.value = true;
 };
 
 const closeAddModal = () => {
   showAddModal.value = false;
   isEditing.value = false;
+  imagePreviewUrl.value = null;
+  if (fileInputRef.value) {
+    fileInputRef.value.value = '';
+  }
   vehicleForm.value = {
     id: null,
     name: '',
@@ -294,7 +324,8 @@ const submitVehicleForm = async () => {
     }
     closeAddModal();
   } catch (error) {
-    toast.error('An error occurred. Please try again.');
+    const errorMsg = error.response?.data?.message || error.message || 'An error occurred. Please try again.';
+    toast.error(errorMsg);
   } finally {
     isSubmitting.value = false;
   }

@@ -73,7 +73,9 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
         formData.append('image', vehicleData.imageFile);
       }
       
-      await apiClient.post('tasu/vehicles', formData);
+      await apiClient.post('tasu/vehicles', formData, {
+        headers: { 'Content-Type': undefined }
+      });
       await fetchVehicles();
     } catch (error) {
       console.error('Failed to add vehicle:', error);
@@ -97,7 +99,9 @@ export const useTasuVehiclesStore = defineStore('tasuVehicles', () => {
         formData.append('image', vehicleData.imageFile);
       }
 
-      await apiClient.post(`tasu/vehicles/${vehicleId}`, formData);
+      await apiClient.post(`tasu/vehicles/${vehicleId}`, formData, {
+        headers: { 'Content-Type': undefined }
+      });
       await fetchVehicles();
     } catch (error) {
       console.error('Failed to update vehicle:', error);
