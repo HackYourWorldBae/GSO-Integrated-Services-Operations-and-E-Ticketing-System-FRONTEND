@@ -47,7 +47,7 @@
     <template #header-title>
       <div class="flex flex-col">
         <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">Dispatch Board</h2>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Fleet Scheduling & Operations Control</p>
+        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Fleet Scheduling &amp; Operations View</p>
       </div>
     </template>
 
@@ -99,34 +99,25 @@
               </svg>
             </div>
             <div>
-              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5 block">Full Month Dispatch Matrix</span>
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5 block">Fleet Booking Schedule Matrix</span>
               <h3 class="text-2xl font-black text-slate-900 tracking-tight">{{ periodTitle }}</h3>
             </div>
           </div>
 
-          <!-- Date Navigation & New Dispatch Action -->
-          <div class="flex flex-wrap items-center gap-3">
-            <!-- Date Navigation -->
-            <div class="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
-              <button @click="prevMonth" title="Previous Month" class="p-2.5 bg-white border border-slate-200/80 rounded-xl text-slate-600 hover:text-emerald-600 hover:border-emerald-300 transition-all active:scale-95 shadow-xs">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button @click="resetToday" class="px-4 py-2 bg-white border border-slate-200/80 rounded-xl text-xs font-black text-slate-700 uppercase tracking-wider hover:border-emerald-400 hover:text-emerald-700 transition-all active:scale-95 shadow-xs">
-                Current Month
-              </button>
-              <button @click="nextMonth" title="Next Month" class="p-2.5 bg-white border border-slate-200/80 rounded-xl text-slate-600 hover:text-emerald-600 hover:border-emerald-300 transition-all active:scale-95 shadow-xs">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-
-            <!-- New Dispatch Button -->
-            <button @click="openNewScheduleModal()" class="px-6 py-3 bg-emerald-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition-all hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" /></svg>
-              New Dispatch
+          <!-- Date Navigation -->
+          <div class="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
+            <button @click="prevMonth" title="Previous Month" class="p-2.5 bg-white border border-slate-200/80 rounded-xl text-slate-600 hover:text-emerald-600 hover:border-emerald-300 transition-all active:scale-95 shadow-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button @click="resetToday" class="px-4 py-2 bg-white border border-slate-200/80 rounded-xl text-xs font-black text-slate-700 uppercase tracking-wider hover:border-emerald-400 hover:text-emerald-700 transition-all active:scale-95 shadow-xs">
+              Current Month
+            </button>
+            <button @click="nextMonth" title="Next Month" class="p-2.5 bg-white border border-slate-200/80 rounded-xl text-slate-600 hover:text-emerald-600 hover:border-emerald-300 transition-all active:scale-95 shadow-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
         </div>
@@ -140,7 +131,7 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 text-white px-6 py-4 rounded-[2rem] shadow-xl">
             <div class="flex items-center gap-3">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <p class="text-xs font-bold text-slate-300">Scroll horizontally across the month to inspect or assign trips per vehicle unit</p>
+              <p class="text-xs font-bold text-slate-300">Scroll horizontally across the month to inspect booked and dispatched trips per vehicle unit</p>
             </div>
             <div class="flex flex-wrap items-center gap-4 text-[11px] font-bold text-slate-300">
               <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Regular / Shuttle</div>
@@ -200,7 +191,6 @@
                       v-for="day in monthDays" 
                       :key="day.dateStr" 
                       :class="['p-1.5 relative min-h-[80px] flex flex-col justify-center items-center transition-colors', day.isToday ? 'bg-emerald-500/5' : day.isWeekend ? 'bg-slate-50/40' : 'hover:bg-slate-100/60']"
-                      @click.self="openNewScheduleModal(unit, day.dateStr)"
                     >
                       <!-- If there are bookings on this specific day of the month -->
                       <div v-if="getVehicleDayBookings(unit.id, day.dateStr).length > 0" class="w-full space-y-1">
@@ -218,15 +208,8 @@
                         </div>
                       </div>
 
-                      <!-- Empty plus on hover -->
-                      <button 
-                        v-else 
-                        @click="openNewScheduleModal(unit, day.dateStr)"
-                        class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all text-xs font-bold opacity-0 group-hover:opacity-60 hover:!opacity-100 flex items-center justify-center"
-                        title="Add dispatch trip for this date"
-                      >
-                        +
-                      </button>
+                      <!-- Empty slot marker -->
+                      <div v-else class="w-2 h-2 rounded-full bg-slate-200/50"></div>
                     </div>
                   </div>
                 </div>
@@ -238,7 +221,7 @@
       </div>
 
       <!-- ========================================================= -->
-      <!-- MODAL 1: TRIP DETAILS & MANAGEMENT MODAL -->
+      <!-- TRIP DETAILS & VIEWING MODAL -->
       <!-- ========================================================= -->
       <div v-if="selectedBooking" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in">
         <div class="bg-white rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl relative border border-slate-100 max-h-[90vh] overflow-y-auto">
@@ -257,21 +240,6 @@
             </div>
             <h3 class="text-2xl font-black text-slate-900 leading-tight">{{ selectedBooking.booking.destination }}</h3>
             <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mt-1">{{ selectedBooking.unit.name }} • Plate: {{ selectedBooking.unit.plate }}</p>
-          </div>
-
-          <!-- Trip Status Control Selector -->
-          <div class="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Change Operation Status</label>
-            <div class="grid grid-cols-4 gap-2">
-              <button 
-                v-for="st in ['Scheduled', 'In Progress', 'Completed', 'Cancelled']" 
-                :key="st"
-                @click="changeTripStatus(selectedBooking.booking.id, st)"
-                :class="['py-2 px-1 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all text-center', selectedBooking.booking.status === st ? getStatusActiveButtonStyle(st) : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-100']"
-              >
-                {{ st }}
-              </button>
-            </div>
           </div>
 
           <div class="space-y-4">
@@ -319,136 +287,37 @@
               </div>
             </div>
 
-            <!-- Assigned Driver Status & Redirect to Assign Drivers Tab -->
+            <!-- Assigned Driver Status -->
             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between gap-4">
               <div>
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Assigned Professional Driver</p>
                 <p class="text-xs font-black text-slate-900 flex items-center gap-1.5">
                   <span v-if="selectedBooking.booking.driver">🧑 {{ selectedBooking.booking.driver }}</span>
-                  <span v-else class="text-amber-600 font-bold">⚠️ Unassigned (Assigned via Assign Drivers Tab)</span>
+                  <span v-else class="text-amber-600 font-bold">⚠️ Unassigned</span>
                 </p>
               </div>
-              <button 
-                type="button" 
-                @click="goToAssignDriversTab()" 
-                class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 text-[10px] font-black uppercase tracking-wider transition-all shadow-sm shrink-0 flex items-center gap-1 active:scale-95"
+              <router-link 
+                to="/admin/tasu/personnel" 
+                class="px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-black uppercase tracking-wider transition-all border border-emerald-200/60 shrink-0 flex items-center gap-1 active:scale-95"
               >
-                <span>Assign in Personnel Tab</span>
+                <span>Personnel Roster</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-              </button>
+              </router-link>
             </div>
 
             <div v-if="selectedBooking.booking.notes" class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Trip Particulars / Notes</p>
+              <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Trip Particulars / Purpose</p>
               <p class="text-xs font-medium text-slate-700 leading-relaxed">{{ selectedBooking.booking.notes }}</p>
             </div>
           </div>
 
-          <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between gap-3">
-            <button @click="deleteTrip(selectedBooking.booking.id)" class="px-5 py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white font-bold rounded-xl text-xs transition-all uppercase tracking-wider flex items-center gap-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-              Delete Trip
+          <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
+            <button @click="selectedBooking = null" class="px-6 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-200 transition-colors uppercase tracking-widest">Close</button>
+            <button @click="printDispatchSlip(selectedBooking)" class="px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 transition-all hover:-translate-y-0.5 uppercase tracking-widest flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+              Print Slip
             </button>
-            <div class="flex items-center gap-2">
-              <button @click="selectedBooking = null" class="px-6 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-200 transition-colors uppercase tracking-widest">Close</button>
-              <button @click="printDispatchSlip(selectedBooking)" class="px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 transition-all hover:-translate-y-0.5 uppercase tracking-widest flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                Print Slip
-              </button>
-            </div>
           </div>
-        </div>
-      </div>
-
-      <!-- ========================================================= -->
-      <!-- MODAL 2: SCHEDULE NEW TRIP DISPATCH MODAL -->
-      <!-- ========================================================= -->
-      <div v-if="showScheduleModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in">
-        <div class="bg-white rounded-[2.5rem] p-8 max-w-xl w-full shadow-2xl relative border border-slate-100 max-h-[92vh] overflow-y-auto">
-          <button @click="showScheduleModal = false" class="absolute top-6 right-6 p-2 rounded-full bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-
-          <div class="mb-6">
-            <span class="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full bg-emerald-50 text-emerald-600 mb-2 inline-block">Dispatch Order Creation</span>
-            <h3 class="text-2xl font-black text-slate-900">Schedule Trip Dispatch</h3>
-            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Assign a vehicle unit and driver for official transport</p>
-          </div>
-
-          <form @submit.prevent="submitNewDispatch" class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div class="col-span-2 p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 flex items-center justify-between">
-                <div>
-                  <span class="text-[9px] font-black uppercase tracking-widest text-emerald-600 mb-0.5 block">Requested Vehicle Unit</span>
-                  <p class="text-sm font-black text-slate-900 flex items-center gap-2">
-                    <span>🚗 {{ getVehicleNameById(newDispatch.vehicleId) }}</span>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-black bg-white text-emerald-700 border border-emerald-300">{{ getVehiclePlateById(newDispatch.vehicleId) }}</span>
-                  </p>
-                </div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter bg-white/80 px-2.5 py-1 rounded-lg border border-slate-200">Selected</span>
-              </div>
-
-              <div>
-                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Trip Date *</label>
-                <input v-model="newDispatch.date" required type="date" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
-              </div>
-
-              <div>
-                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Time Schedule *</label>
-                <input v-model="newDispatch.time" required type="text" placeholder="e.g. 08:00 AM - 01:00 PM" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
-              </div>
-
-              <div>
-                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Trip Type *</label>
-                <select v-model="newDispatch.type" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
-                  <option value="regular">Regular / Shuttle</option>
-                  <option value="educational">Educational / Field Trip</option>
-                  <option value="vip">VIP / Guest Transport</option>
-                  <option value="admin">Admin / Official Business</option>
-                  <option value="logistics">Logistics / Supply Transfer</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Passenger Count</label>
-                <input v-model.number="newDispatch.passengers" type="number" min="1" max="60" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
-              </div>
-
-              <div class="col-span-2">
-                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Destination & Purpose *</label>
-                <input v-model="newDispatch.destination" required type="text" placeholder="e.g. Baguio Convention Center - Cultural Convocation" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
-              </div>
-
-              <div class="col-span-2">
-                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Requestor / Office *</label>
-                <input v-model="newDispatch.requestor" required type="text" placeholder="e.g. Dr. Emily Watson (College of Science)" class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
-              </div>
-
-              <div class="col-span-2 p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
-                <div>
-                  <span class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-0.5 block">Driver Assignment Control</span>
-                  <p class="text-xs font-bold text-slate-700">Driver can be assigned or managed from the <strong class="text-emerald-700 font-black">Personnel Management</strong> tab.</p>
-                </div>
-                <button 
-                  type="button" 
-                  @click="goToAssignDriversTab()" 
-                  class="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-[10px] font-black uppercase tracking-wider transition-all shrink-0 active:scale-95"
-                >
-                  Open Personnel Tab ➔
-                </button>
-              </div>
-
-              <div class="col-span-2">
-                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Travel Particulars / Travel Order Notes</label>
-                <textarea v-model="newDispatch.notes" rows="2" placeholder="Optional notes, travel order numbers, or specific route instructions..." class="w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none"></textarea>
-              </div>
-            </div>
-
-            <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end gap-3">
-              <button type="button" @click="showScheduleModal = false" class="px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-slate-200 transition-colors">Cancel</button>
-              <button type="submit" class="px-8 py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 transition-all hover:-translate-y-0.5 uppercase tracking-widest">Confirm & Schedule</button>
-            </div>
-          </form>
         </div>
       </div>
 
@@ -458,51 +327,36 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuVehiclesStore } from '@/stores/tasuVehicles';
 import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
 import { toast } from 'vue3-toastify';
+import api from '@/api/client';
 
-const router = useRouter();
 const vehiclesStore = useTasuVehiclesStore();
 const personnelStore = useTasuPersonnelStore();
 
 // Fleet and Personnel data
 const allVehicles = computed(() => vehiclesStore.vehicles);
-const bookings = computed(() => vehiclesStore.bookings);
 const drivers = computed(() => personnelStore.personnel);
+const dispatchBookings = ref([]);
 
 // Current displayed Month (defaults to current active month)
 const currentMonth = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
-
 const selectedBooking = ref(null);
-const showScheduleModal = ref(false);
 
-const getTodayDateString = () => {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-};
-
-const newDispatch = ref({
-  vehicleId: '',
-  date: getTodayDateString(),
-  time: '08:00 AM - 12:00 PM',
-  type: 'regular',
-  destination: '',
-  requestor: '',
-  driver: '',
-  passengers: 8,
-  notes: ''
+// Combined Bookings from API + Store
+const allBookings = computed(() => {
+  if (dispatchBookings.value.length > 0) {
+    return dispatchBookings.value;
+  }
+  return vehiclesStore.bookings || [];
 });
 
 // Computed Stats
 const availableVehiclesCount = computed(() => allVehicles.value.filter(v => v.status === 'Available').length);
 const availableDriversCount = computed(() => drivers.value.filter(d => d.status === 'Available').length);
-const inProgressCount = computed(() => bookings.value.filter(b => b.status === 'In Progress').length);
+const inProgressCount = computed(() => allBookings.value.filter(b => b.status === 'In Progress' || b.status === 'On Route / In Progress').length);
 
 // Period Title
 const periodTitle = computed(() => {
@@ -558,57 +412,48 @@ const resetToday = () => {
 
 // Retrieve Bookings for exact vehicle and date
 const getVehicleDayBookings = (vehicleId, dateStr) => {
-  return bookings.value.filter(b => b.vehicleId === vehicleId && b.date === dateStr);
+  return allBookings.value.filter(b => {
+    const matchesVehicle = String(b.vehicleId) === String(vehicleId);
+    // Normalize date strings
+    const bookingDateStr = b.date ? String(b.date).slice(0, 10) : '';
+    return matchesVehicle && bookingDateStr === dateStr;
+  });
 };
 
 const openBookingDetails = (booking, unit, day) => {
   selectedBooking.value = { booking, unit, day };
 };
 
-const openNewScheduleModal = (unit = null, dateStr = null) => {
-  newDispatch.value.vehicleId = unit ? unit.id : (allVehicles.value[0]?.id || 1);
-  newDispatch.value.date = dateStr || getTodayDateString();
-  newDispatch.value.time = '08:00 AM - 12:00 PM';
-  newDispatch.value.type = 'regular';
-  newDispatch.value.destination = '';
-  newDispatch.value.requestor = '';
-  newDispatch.value.driver = '';
-  newDispatch.value.notes = '';
-  showScheduleModal.value = true;
-};
+const fetchDispatchBoardData = async () => {
+  try {
+    const response = await api.get('tasu/dispatch');
+    if (response.data?.data?.dispatch) {
+      const rawData = response.data.data.dispatch;
+      // Filter items that have actual assigned trips / dates
+      dispatchBookings.value = rawData
+        .filter(item => item.ticket_id && (item.date_of_travel || item.implementation_date))
+        .map(item => {
+          let dateStr = item.date_of_travel || item.implementation_date || '';
+          if (dateStr && dateStr.includes('T')) dateStr = dateStr.split('T')[0];
 
-const goToAssignDriversTab = () => {
-  router.push('/admin/tasu/personnel');
-};
-
-const getVehicleNameById = (id) => {
-  const v = allVehicles.value.find(item => item.id === id);
-  return v ? v.name : 'Vehicle Unit';
-};
-
-const getVehiclePlateById = (id) => {
-  const v = allVehicles.value.find(item => item.id === id);
-  return v ? v.plate : 'Plate N/A';
-};
-
-const submitNewDispatch = () => {
-  vehiclesStore.addBooking({ ...newDispatch.value });
-  toast.success(`Dispatched vehicle unit for trip to ${newDispatch.value.destination}`);
-  showScheduleModal.value = false;
-};
-
-const changeTripStatus = (bookingId, newStatus) => {
-  vehiclesStore.updateBooking(bookingId, { status: newStatus });
-  if (selectedBooking.value && selectedBooking.value.booking.id === bookingId) {
-    selectedBooking.value.booking.status = newStatus;
+          return {
+            id: item.ticket_id,
+            vehicleId: item.vehicle_id || item.id,
+            date: dateStr,
+            time: item.request_time ? `${item.request_time}${item.return_time ? ' - ' + item.return_time : ''}` : 'Official Travel',
+            type: 'regular',
+            destination: item.destination || 'University Travel',
+            requestor: item.requesting_personnel ? `${item.requesting_personnel}${item.office_college_department ? ' (' + item.office_college_department + ')' : ''}` : (item.office_college_department || 'University Office'),
+            driver: item.assigned_driver || 'Unassigned',
+            passengers: item.num_passengers || 1,
+            status: item.status_label || (item.booking_status === 'resolved' || item.booking_status === 'closed' ? 'Completed' : (item.booking_status === 'processing' ? 'In Progress' : 'Scheduled')),
+            notes: item.purpose_of_travel || item.dispatcher_notes || item.task_notes || ''
+          };
+        });
+    }
+  } catch (err) {
+    console.error('Failed to fetch dispatch board bookings:', err);
   }
-  toast.info(`Status updated to: ${newStatus}`);
-};
-
-const deleteTrip = (bookingId) => {
-  vehiclesStore.deleteBooking(bookingId);
-  selectedBooking.value = null;
-  toast.error('Dispatch order deleted from schedule');
 };
 
 const printDispatchSlip = (item) => {
@@ -640,19 +485,12 @@ const getStatusBadgeStyle = (status) => {
   }
 };
 
-const getStatusActiveButtonStyle = (status) => {
-  switch (status) {
-    case 'Completed': return 'bg-emerald-600 text-white shadow-md';
-    case 'In Progress': return 'bg-amber-500 text-white shadow-md';
-    case 'Scheduled': return 'bg-blue-600 text-white shadow-md';
-    case 'Cancelled': return 'bg-rose-600 text-white shadow-md';
-    default: return 'bg-slate-600 text-white shadow-md';
-  }
-};
-
-onMounted(() => {
-  vehiclesStore.fetchVehicles();
-  personnelStore.fetchPersonnel();
+onMounted(async () => {
+  await Promise.allSettled([
+    vehiclesStore.fetchVehicles(),
+    personnelStore.fetchPersonnel(),
+    fetchDispatchBoardData()
+  ]);
 });
 </script>
 
