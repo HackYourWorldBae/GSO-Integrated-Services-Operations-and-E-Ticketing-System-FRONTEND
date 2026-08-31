@@ -15,6 +15,10 @@ const SSU_StickerTicketQueues = () => import('../views/dashboards/admin/ssu/SSU_
 const TASU_Dashboard = () => import('../views/dashboards/admin/tasu/TASU_Dashboard.vue');
 const TASU_TicketQueues = () => import('../views/dashboards/admin/tasu/TASU_TicketQueues.vue');
 const Director_Dashboard = () => import('../views/dashboards/director/Director_Dashboard.vue');
+const Director_FGMU = () => import('../views/dashboards/director/Director_FGMU.vue');
+const Director_LEAU = () => import('../views/dashboards/director/Director_LEAU.vue');
+const Director_SSU = () => import('../views/dashboards/director/Director_SSU.vue');
+const Director_TASU = () => import('../views/dashboards/director/Director_TASU.vue');
 const OrganizationalChart = () => import('../views/dashboards/director/OrganizationalChart.vue');
 const FormsView = () => import('../views/FormsView.vue');
 const FGMU_Dispatcher = () => import('../views/dashboards/dispatcher/fgmu/FGMU.vue');
@@ -223,6 +227,26 @@ const router = createRouter({
       path: '/director/dashboard',
       name: 'director-dashboard',
       component: Director_Dashboard
+    },
+    {
+      path: '/director/fgmu',
+      name: 'director-fgmu',
+      component: Director_FGMU
+    },
+    {
+      path: '/director/leau',
+      name: 'director-leau',
+      component: Director_LEAU
+    },
+    {
+      path: '/director/ssu',
+      name: 'director-ssu',
+      component: Director_SSU
+    },
+    {
+      path: '/director/tasu',
+      name: 'director-tasu',
+      component: Director_TASU
     },
     {
       path: '/director/organizational-chart',
