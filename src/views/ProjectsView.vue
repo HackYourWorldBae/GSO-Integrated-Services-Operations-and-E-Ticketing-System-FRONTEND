@@ -174,7 +174,7 @@
                       </span>
                       <span class="row-date-label">Published {{ formatDate(project.submitted_at) }}</span>
                     </div>
-                    <div class="row-office-label">{{ Number(project.unit_id) === 1 ? 'Facilities &amp; Grounds Maintenance Unit (FGMU)' : 'Landscaping &amp; Environmental Affairs Unit (LEAU)' }}</div>
+                    <div class="row-office-label">{{ Number(project.unit_id) === 1 ? 'Facilities &amp; Grounds Maintenance Unit (FGMU)' : 'Landscaping &amp; Environmental Aesthetics Unit (LEAU)' }}</div>
                   </div>
 
                   <h3 class="row-title">{{ project.project_title }}</h3>
@@ -262,7 +262,7 @@
                       </span>
                       <span class="row-date-label">Published {{ formatDate(project.submitted_at) }}</span>
                     </div>
-                    <div class="row-office-label">{{ Number(project.unit_id) === 1 ? 'Facilities &amp; Grounds Maintenance Unit (FGMU)' : 'Landscaping &amp; Environmental Affairs Unit (LEAU)' }}</div>
+                    <div class="row-office-label">{{ Number(project.unit_id) === 1 ? 'Facilities &amp; Grounds Maintenance Unit (FGMU)' : 'Landscaping &amp; Environmental Aesthetics Unit (LEAU)' }}</div>
                   </div>
 
                   <h3 class="row-title">{{ project.project_title }}</h3>

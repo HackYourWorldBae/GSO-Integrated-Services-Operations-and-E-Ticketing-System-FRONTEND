@@ -184,7 +184,6 @@
                       <span class="text-xl font-black text-slate-800">{{ selectedTicket.feedback.timeliness_rating }} <span class="text-xs text-slate-400">/ 5</span></span>
                       <span class="text-[9px] font-bold text-slate-500 uppercase mt-1">Timeliness</span>
                     </div>
-
                   </div>
                   <div v-if="selectedTicket.feedback.remarks" class="pt-4 border-t border-slate-100">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Your Additional Remarks</p>
@@ -192,6 +191,61 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Dedicated Materials Used & Receipt Section (For FGMU/LEAU or tickets with materials) -->
+              <div v-if="selectedTicket.unit === 'FGMU' || selectedTicket.unit === 'LEAU' || (selectedTicket.materials && selectedTicket.materials.length > 0)" class="col-span-2 mt-2">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    Receipt of Materials Used
+                  </p>
+                  <button
+                    type="button"
+                    @click="openReceiptModal(selectedTicket)"
+                    class="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>View / Print Receipt Slip</span>
+                  </button>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                  <div v-if="!selectedTicket.materials || selectedTicket.materials.length === 0" class="p-4 text-center text-xs text-slate-500 italic bg-slate-50">
+                    Labor & maintenance service only (No materials billed).
+                  </div>
+                  <div v-else>
+                    <table class="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                          <th class="py-2.5 px-3">Item Description</th>
+                          <th class="py-2.5 px-3 text-center">Qty</th>
+                          <th class="py-2.5 px-3 text-right">Unit Price</th>
+                          <th class="py-2.5 px-3 text-right">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100">
+                        <tr v-for="(mat, mIdx) in selectedTicket.materials" :key="mIdx" class="hover:bg-slate-50/50">
+                          <td class="py-2 px-3 font-semibold text-slate-800">{{ mat.material_name || mat.name }}</td>
+                          <td class="py-2 px-3 text-center font-medium text-slate-600">{{ mat.quantity }} {{ mat.unit_measurement || mat.unit || '' }}</td>
+                          <td class="py-2 px-3 text-right font-medium text-slate-600">₱{{ formatPrice(mat.unit_price) }}</td>
+                          <td class="py-2 px-3 text-right font-bold text-slate-900">₱{{ formatPrice(mat.total_price || (mat.quantity * mat.unit_price)) }}</td>
+                        </tr>
+                      </tbody>
+                      <tfoot>
+                        <tr class="bg-emerald-50/70 border-t border-emerald-100 font-bold">
+                          <td colspan="3" class="py-2.5 px-3 text-right text-[10px] uppercase tracking-wider text-emerald-800">Total Material Cost:</td>
+                          <td class="py-2.5 px-3 text-right text-xs font-black text-emerald-800">₱{{ formatPrice(selectedTicket.total_material_cost) }}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
               <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="col-span-2">
                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments / Photos</p>
                  <div class="flex flex-col gap-2">
@@ -228,19 +282,41 @@
         :fileName="viewerModal.fileName"
         :fileBlob="viewerModal.fileBlob"
       />
+
+      <!-- Material Receipt Modal -->
+      <MaterialReceiptModal
+        v-model:isOpen="showReceiptModal"
+        :ticket="selectedReceiptTicket"
+      />
     </template>
   </MainLayout>
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
+import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 
 const authStore = useAuthStore();
+
+const showReceiptModal = ref(false);
+const selectedReceiptTicket = ref(null);
+
+const openReceiptModal = (ticket) => {
+  selectedReceiptTicket.value = ticket;
+  showReceiptModal.value = true;
+};
+
+const formatPrice = (val) => {
+  return Number(val || 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
 
 const viewerModal = reactive({
   isOpen: false,
@@ -267,7 +343,6 @@ const downloadAttachment = async (att) => {
 const userName = ref(authStore.user?.first_name || authStore.fullName || 'User');
 
 const tickets = ref([]);
-import { onMounted } from 'vue';
 
 onMounted(async () => {
   try {
@@ -278,19 +353,27 @@ onMounted(async () => {
         ticketId: t.id,
         title: t.title,
         service: t.service_type,
+        service_type: t.service_type,
         unit: t.unit_code,
+        unit_code: t.unit_code,
+        unit_id: t.unit_id,
         description: t.description,
         status: t.status,
         statusLabel: t.status_label,
         date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        completed_at: t.completed_at || t.updated_at,
         requestedBy: userName.value,
-        location: t.location,
-        office_room: t.office_room,
+        location: t.location || t.details?.college_building || 'N/A',
+        office_room: t.office_room || t.details?.office_room || 'N/A',
         attachments: t.attachments || [],
         isDeclining: false,
         declineReason: t.decline_reason || '',
         currentStep: parseInt(t.current_step) || 1,
-        assignedWorker: t.assigned_worker,
+        assignedWorker: t.assignment?.personnel_name || t.assigned_worker || 'Unassigned',
+        assignment: t.assignment || null,
+        details: t.details || null,
+        materials: t.materials || [],
+        total_material_cost: t.total_material_cost || 0,
         implementationDate: t.scheduled_date,
         isClosed: t.status === 'completed' || t.status === 'closed',
         feedback: t.feedback || null

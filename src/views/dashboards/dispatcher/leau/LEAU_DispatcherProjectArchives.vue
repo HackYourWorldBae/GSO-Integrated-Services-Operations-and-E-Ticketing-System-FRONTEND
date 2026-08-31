@@ -90,7 +90,7 @@
                   <span class="text-[0.65rem] font-medium text-slate-400">Completed {{ formatDate(project.completed_at) }}</span>
                 </div>
               </div>
-              <p class="text-[0.68rem] font-semibold text-slate-400 px-5 mt-0.5">Landscaping &amp; Environmental Affairs Unit (LEAU)</p>
+              <p class="text-[0.68rem] font-semibold text-slate-400 px-5 mt-0.5">Landscaping &amp; Environmental Aesthetics Unit (LEAU)</p>
 
               <h3 class="text-lg font-black text-slate-900 leading-tight tracking-tight px-5 mt-1.5">{{ project.project_title }}</h3>
 

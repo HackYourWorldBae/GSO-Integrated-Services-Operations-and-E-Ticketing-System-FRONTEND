@@ -237,11 +237,14 @@
                   </div>
 
                   <button
-                    @click="initiateAction('finish', ticket.id)"
+                    @click="openMaterialCompletionModal(ticket)"
                     :disabled="loading"
-                    class="w-full sm:w-auto shrink-0 px-5 py-3 md:py-2.5 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                    class="w-full sm:w-auto shrink-0 px-5 py-3 md:py-2.5 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    Job Finished
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Job Finished</span>
                   </button>
                 </div>
               </div>
@@ -253,7 +256,22 @@
     </template>
   </MainLayout>
 
-  <!-- Custom Confirm Modal -->
+  <!-- Complete Job & Material Liquidation Modal -->
+  <CompleteJobMaterialModal
+    v-model:isOpen="showMaterialModal"
+    :ticket="selectedTicketForCompletion"
+    :elapsedDuration="liveDurations[selectedTicketForCompletion?.id] || ''"
+    unitCode="LEAU"
+    @completed="handleJobCompleted"
+  />
+
+  <!-- Material Receipt Modal -->
+  <MaterialReceiptModal
+    v-model:isOpen="showReceiptModal"
+    :ticket="receiptTicket"
+  />
+
+  <!-- Start Early Confirm Modal -->
   <Teleport to="body">
     <Transition name="modal">
       <div
@@ -262,37 +280,28 @@
         @click.self="closeConfirmModal"
       >
         <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl">
-          <div
-            class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
-            :class="pendingAction === 'finish' ? 'bg-emerald-100' : 'bg-amber-100'"
-          >
-            <svg v-if="pendingAction === 'finish'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 bg-amber-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <h3 class="text-2xl font-black text-slate-900 text-center mb-2">
-            {{ pendingAction === 'finish' ? 'Mark Job as Completed?' : 'Start Job Early?' }}
+            Start Job Early?
           </h3>
           <p class="text-slate-500 text-center font-medium mb-8">
-            {{ pendingAction === 'finish'
-              ? 'This will complete the job and free up the assigned worker.'
-              : 'This will move the ticket to Actively Performed regardless of the implementation date.' }}
+            This will move the ticket to Actively Performed regardless of the scheduled implementation date.
           </p>
           <div class="flex gap-4">
-            <button @click="closeConfirmModal" class="w-full px-6 py-4 bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-200 transition-all active:scale-95">
+            <button @click="closeConfirmModal" class="w-full px-6 py-4 bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-200 transition-all active:scale-95 cursor-pointer">
               Cancel
             </button>
             <button
               @click="executeConfirmedAction"
               :disabled="loading"
-              class="w-full px-6 py-4 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-60"
-              :class="pendingAction === 'finish' ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20' : 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/20'"
+              class="w-full px-6 py-4 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-60 bg-amber-600 hover:bg-amber-500 shadow-amber-600/20 cursor-pointer"
             >
-              {{ pendingAction === 'finish' ? 'Yes, Complete Job' : 'Yes, Start Now' }}
+              Yes, Start Now
             </button>
           </div>
         </div>
@@ -304,6 +313,8 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue';
+import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 
@@ -311,9 +322,15 @@ const tickets = ref([]);
 const loading = ref(false);
 const showConfirmModal = ref(false);
 const pendingTicketId = ref(null);
-const pendingAction = ref(null); // 'start' | 'finish'
+const pendingAction = ref(null); // 'start'
 
-/** Keyed by ticket.id → human-friendly elapsed duration string. Updated every hour. */
+// Material completion & receipt modals
+const showMaterialModal = ref(false);
+const selectedTicketForCompletion = ref(null);
+const showReceiptModal = ref(false);
+const receiptTicket = ref(null);
+
+/** Keyed by ticket.id → human-friendly elapsed duration string. Updated every minute. */
 const liveDurations = reactive({});
 
 let durationRefreshTimer = null;
@@ -363,8 +380,6 @@ const closeConfirmModal = () => {
 const executeConfirmedAction = async () => {
   if (pendingAction.value === 'start') {
     await performStartEarly(pendingTicketId.value);
-  } else if (pendingAction.value === 'finish') {
-    await performJobFinished(pendingTicketId.value);
   }
   closeConfirmModal();
 };
@@ -383,25 +398,24 @@ const performStartEarly = async (ticketId) => {
   }
 };
 
-const performJobFinished = async (ticketId) => {
-  loading.value = true;
-  try {
-    const ticket = tickets.value.find(t => t.id === ticketId);
-    await api.patch(`/tickets/${ticketId}/complete`);
+const openMaterialCompletionModal = (ticket) => {
+  selectedTicketForCompletion.value = ticket;
+  showMaterialModal.value = true;
+};
 
-    const duration = computeDuration(ticket?.assignment);
-    const message  = duration
-      ? `Ticket #${ticketId} completed in ${duration}.`
-      : `Ticket #${ticketId} has been marked as completed.`;
+const handleJobCompleted = (result) => {
+  const completedTicket = selectedTicketForCompletion.value;
+  receiptTicket.value = {
+    ...completedTicket,
+    materials: result.materials || [],
+    total_material_cost: result.totalCost || 0,
+    completed_at: new Date().toISOString(),
+  };
 
-    toast.success(message);
-    await fetchTickets();
-  } catch (error) {
-    console.error(error);
-    toast.error(error.response?.data?.message || 'Failed to complete ticket.');
-  } finally {
-    loading.value = false;
-  }
+  fetchTickets();
+
+  // Show Material Receipt modal immediately after completion
+  showReceiptModal.value = true;
 };
 
 /**
@@ -468,3 +482,4 @@ onUnmounted(() => {
   transform: scale(0.95) translateY(8px);
 }
 </style>
+
