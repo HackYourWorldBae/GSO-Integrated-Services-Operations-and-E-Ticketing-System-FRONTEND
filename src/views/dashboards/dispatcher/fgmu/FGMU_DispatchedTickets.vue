@@ -104,16 +104,25 @@
                 </div>
 
                 <!-- Content Grid for Mobile, Flex for Desktop -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
                   <div class="flex flex-col flex-1 min-w-0">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ticket Title</span>
                     <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}</span>
                   </div>
-                  <div class="flex flex-col min-w-[130px]">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Implement Date</span>
+                  <div class="flex flex-col min-w-[120px]">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Date</span>
                     <span class="text-sm font-bold text-slate-800">{{ formatDate(ticket.assignment?.implementation_date) }}</span>
                   </div>
-                  <div class="flex flex-col min-w-[130px]">
+                  <div class="flex flex-col min-w-[110px]">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Duration</span>
+                    <span class="text-sm font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/60 inline-flex items-center gap-1 w-fit">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {{ (ticket.working_days || ticket.assignment?.working_days) ? `${ticket.working_days || ticket.assignment?.working_days} Day(s)` : 'N/A' }}
+                    </span>
+                  </div>
+                  <div class="flex flex-col min-w-[120px]">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Worker</span>
                     <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
                   </div>
@@ -199,16 +208,25 @@
                 </div>
 
                 <!-- Content Grid for Mobile, Flex for Desktop -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
                   <div class="flex flex-col flex-1 min-w-0">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ticket Title</span>
                     <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}</span>
                   </div>
-                  <div class="flex flex-col min-w-[130px]">
+                  <div class="flex flex-col min-w-[120px]">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Started</span>
                     <span class="text-sm font-bold text-slate-800">{{ formatDate(ticket.assignment?.dispatched_at || ticket.assignment?.implementation_date) }}</span>
                   </div>
-                  <div class="flex flex-col min-w-[130px]">
+                  <div class="flex flex-col min-w-[110px]">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Duration</span>
+                    <span class="text-sm font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60 inline-flex items-center gap-1 w-fit">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {{ (ticket.working_days || ticket.assignment?.working_days) ? `${ticket.working_days || ticket.assignment?.working_days} Day(s)` : 'N/A' }}
+                    </span>
+                  </div>
+                  <div class="flex flex-col min-w-[120px]">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Worker</span>
                     <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
                   </div>

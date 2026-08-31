@@ -162,7 +162,7 @@
                   <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
                     <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                       </svg>
                       Submitted {{ ticket.date }}
                     </div>
@@ -171,6 +171,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                       </svg>
                       Scheduled: {{ ticket.implementationDate }}
+                    </div>
+                    <div v-if="ticket.workingDays" class="flex items-center gap-1.5 text-xs text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Target: {{ ticket.workingDays }} Working Day(s)
                     </div>
                   </div>
 
@@ -761,6 +767,7 @@ const DigitalFormCard = defineComponent({
         h(FormRow, { label: 'Location', value: props.ticket.location || 'Main Campus' }),
         h(FormRow, { label: 'Office / Room', value: props.ticket.office_room || 'N/A' }),
         ...(props.ticket.implementationDate ? [h(FormRow, { label: 'Implementation Date', value: props.ticket.implementationDate })] : []),
+        ...(props.ticket.workingDays ? [h(FormRow, { label: 'Target Working Days', value: `${props.ticket.workingDays} Day(s)` })] : []),
       ]),
 
       ...(props.ticket.attachments?.length ? [h(AttachmentList, { attachments: props.ticket.attachments, onDownload: (att) => emit('download', att) })] : []),
@@ -861,6 +868,7 @@ const fetchTickets = async () => {
         implementationDate: t.assignment?.implementation_date
           ? new Date(t.assignment.implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
           : null,
+        workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
         isClosed: t.status === 'completed' || t.status === 'closed',
         // SSU Incident Report specific fields
         isUnderInvestigation: Number(t.is_under_investigation) === 1,
@@ -1007,7 +1015,8 @@ const getSteps = (ticket) => {
   steps = steps.map(s => ({ ...s }));
 
   if (ticket.implementationDate && (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') && steps.length > 3) {
-    steps[3].description = `Dispatcher assigned workers and scheduled implementation for ${ticket.implementationDate}.`;
+    const durationText = ticket.workingDays ? ` (${ticket.workingDays} working days expected)` : '';
+    steps[3].description = `Dispatcher assigned workers and scheduled implementation for ${ticket.implementationDate}${durationText}.`;
   }
 
   if (ticket.status === 'declined' || ticket.status === 'rejected') {

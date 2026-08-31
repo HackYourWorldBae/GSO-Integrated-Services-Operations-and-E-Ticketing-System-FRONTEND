@@ -163,7 +163,11 @@
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.title || selectedTicket.service }}</p>
               </div>
-              <div>
+              <div v-if="selectedTicket.workingDays">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Duration</p>
+                <p class="text-base font-semibold text-emerald-800">{{ selectedTicket.workingDays }} Working Day(s)</p>
+              </div>
+              <div :class="{ 'col-span-2': !selectedTicket.workingDays }">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Location / Office</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.location }} - {{ selectedTicket.office_room }}</p>
               </div>
@@ -404,6 +408,7 @@ const fetchArchives = async () => {
         details: t.details || null,
         materials: t.materials || [],
         total_material_cost: t.total_material_cost || 0,
+        workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
         feedback: t.feedback || null,
         unit_code: 'LEAU',
         unit_id: 2,

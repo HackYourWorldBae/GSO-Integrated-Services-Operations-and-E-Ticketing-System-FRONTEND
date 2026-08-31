@@ -160,6 +160,7 @@
                   type="number"
                   min="1"
                   v-model="workingDays"
+                  @wheel.prevent="$event.target.blur()"
                   placeholder="e.g. 5"
                   class="bg-transparent text-slate-900 text-base font-black outline-none w-full"
                 />

@@ -20,4 +20,11 @@ app.use(Vue3Toastify, {
   theme: 'colored',
   clearOnUrlChange: false,
 });
+// Prevent mouse wheel from inadvertently changing values on focused number inputs
+document.addEventListener('wheel', () => {
+  if (document.activeElement && document.activeElement.type === 'number') {
+    document.activeElement.blur();
+  }
+}, { passive: true });
+
 app.mount('#app')

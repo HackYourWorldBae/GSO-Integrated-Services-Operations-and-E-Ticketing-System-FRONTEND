@@ -147,6 +147,10 @@
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.title || selectedTicket.service }}</p>
               </div>
+              <div v-if="selectedTicket.workingDays">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Duration</p>
+                <p class="text-base font-semibold text-emerald-800">{{ selectedTicket.workingDays }} Working Day(s)</p>
+              </div>
 
 
               <!-- Dedicated Decline Reason Section (If Applicable) -->
@@ -375,6 +379,7 @@ onMounted(async () => {
         materials: t.materials || [],
         total_material_cost: t.total_material_cost || 0,
         implementationDate: t.scheduled_date,
+        workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
         isClosed: t.status === 'completed' || t.status === 'closed',
         feedback: t.feedback || null
       }));
