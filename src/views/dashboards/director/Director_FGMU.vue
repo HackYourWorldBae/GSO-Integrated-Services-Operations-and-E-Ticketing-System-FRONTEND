@@ -156,16 +156,16 @@
           </div>
         </div>
 
-        <!-- Main Charts Grid -->
+        <!-- Evaluation Averages & Job Completion Health (Words & Numbers) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          <!-- Performance Radar / Evaluation Averages -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px] lg:h-[400px]">
+          <!-- Performance Evaluation Averages -->
+          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px]">
             <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
               <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
               Evaluation Averages
             </h4>
-            <div class="flex-1 flex flex-col justify-center space-y-6 mt-4">
+            <div class="flex-1 flex flex-col justify-center space-y-6">
               <div v-for="(metric, idx) in [
                 { label: 'Quality', val: safeVal(stats?.feedback_averages?.avg_quality) },
                 { label: 'Efficiency', val: safeVal(stats?.feedback_averages?.avg_efficiency) },
@@ -187,39 +187,175 @@
             </div>
           </div>
 
-          <!-- Completion Status -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px] lg:h-[400px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-slate-400 rounded-full"></div>
-              Job Completion Health
-            </h4>
-            <div class="flex-1 relative">
-              <canvas id="directorFgmuCompletionDoughnut"></canvas>
+          <!-- Job Completion Health (Words & Numbers) -->
+          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-6">
+                <h4 class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
+                  <div class="w-2 h-6 bg-slate-800 rounded-full"></div>
+                  Job Completion Health
+                </h4>
+                <span class="px-3 py-1 bg-slate-100 text-slate-700 text-[10px] font-black rounded-full uppercase tracking-wider">
+                  {{ completionStats.total }} Evaluated Jobs
+                </span>
+              </div>
+
+              <!-- 3 Metric Cards Breakdown -->
+              <div class="space-y-3.5">
+                <!-- On-Time -->
+                <div class="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-100 flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                      <span class="text-xs font-black text-slate-800 uppercase tracking-wider">On-Time Completion</span>
+                    </div>
+                    <div class="flex items-baseline gap-1.5">
+                      <span class="text-xl font-black text-emerald-700 tabular-nums">{{ completionStats.onTime }}</span>
+                      <span class="text-xs font-bold text-emerald-600">({{ completionStats.onTimePercent }}%)</span>
+                    </div>
+                  </div>
+                  <div class="w-full h-2 bg-emerald-200/50 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" :style="{ width: completionStats.onTimePercent + '%' }"></div>
+                  </div>
+                  <p class="text-[11px] text-slate-500 font-medium">Jobs completed strictly within scheduled timeframe</p>
+                </div>
+
+                <!-- Beyond Time / Delayed -->
+                <div class="p-4 rounded-2xl bg-amber-50/60 border border-amber-100 flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                      <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Completed Beyond Time</span>
+                    </div>
+                    <div class="flex items-baseline gap-1.5">
+                      <span class="text-xl font-black text-amber-700 tabular-nums">{{ completionStats.beyondTime }}</span>
+                      <span class="text-xs font-bold text-amber-600">({{ completionStats.beyondTimePercent }}%)</span>
+                    </div>
+                  </div>
+                  <div class="w-full h-2 bg-amber-200/50 rounded-full overflow-hidden">
+                    <div class="h-full bg-amber-500 rounded-full transition-all duration-500" :style="{ width: completionStats.beyondTimePercent + '%' }"></div>
+                  </div>
+                  <p class="text-[11px] text-slate-500 font-medium">Finished with reported timeline extensions or delays</p>
+                </div>
+
+                <!-- Not Completed / Halted -->
+                <div class="p-4 rounded-2xl bg-rose-50/60 border border-rose-100 flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                      <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Not Completed / Halted</span>
+                    </div>
+                    <div class="flex items-baseline gap-1.5">
+                      <span class="text-xl font-black text-rose-700 tabular-nums">{{ completionStats.notCompleted }}</span>
+                      <span class="text-xs font-bold text-rose-600">({{ completionStats.notCompletedPercent }}%)</span>
+                    </div>
+                  </div>
+                  <div class="w-full h-2 bg-rose-200/50 rounded-full overflow-hidden">
+                    <div class="h-full bg-rose-500 rounded-full transition-all duration-500" :style="{ width: completionStats.notCompletedPercent + '%' }"></div>
+                  </div>
+                  <p class="text-[11px] text-slate-500 font-medium">Work stalled or unfulfilled due to site constraints</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Delay Analysis -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-2">
-            <div class="flex items-center justify-between mb-8">
-              <h4 class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
-                <div class="w-2 h-6 bg-amber-500 rounded-full"></div>
-                Root Cause Analysis (Why Delays Happen)
-              </h4>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic leading-none">Improvement Focus</p>
+          <!-- Delay & Barrier Root Cause Analysis (Ranked Words & Numbers) -->
+          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-2 space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h4 class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
+                  <div class="w-2 h-6 bg-amber-500 rounded-full"></div>
+                  Root Cause Analysis (Why Delays & Barriers Happen)
+                </h4>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Top reported operational factors causing timeline extensions or work stoppages</p>
+              </div>
+              <span class="text-[10px] font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase tracking-wider border border-amber-100">
+                Improvement Focus
+              </span>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div class="space-y-6">
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Completed Beyond Time (Reasons)</p>
-                <div class="relative h-48">
-                  <canvas id="directorFgmuDelayReasonsChart"></canvas>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              
+              <!-- Delay Reasons List -->
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    Completed Beyond Time (Delay Factors)
+                  </p>
+                  <span class="text-[11px] font-bold text-slate-400">{{ delayReasonsList.length }} Reasons</span>
+                </div>
+
+                <div v-if="delayReasonsList.length === 0" class="p-6 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+                  <p class="text-xs font-bold text-slate-500">No Delay Reasons Reported</p>
+                  <p class="text-[11px] text-slate-400 mt-1">All recorded jobs were finished on-time without reported delay factors.</p>
+                </div>
+
+                <div v-else class="space-y-3">
+                  <div 
+                    v-for="(item, idx) in delayReasonsList" 
+                    :key="item.code"
+                    class="p-4 rounded-2xl bg-amber-50/40 border border-amber-100/80 flex flex-col gap-2 hover:bg-amber-50 transition-colors"
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-2.5">
+                        <span class="w-5 h-5 rounded-full bg-amber-200/80 text-amber-800 text-[10px] font-black flex items-center justify-center">
+                          {{ idx + 1 }}
+                        </span>
+                        <span class="text-xs font-black text-slate-800">{{ item.name }}</span>
+                      </div>
+                      <div class="flex items-baseline gap-1 shrink-0">
+                        <span class="text-sm font-black text-amber-700 tabular-nums">{{ item.count }}</span>
+                        <span class="text-[10px] font-bold text-slate-500">{{ item.count === 1 ? 'ticket' : 'tickets' }}</span>
+                      </div>
+                    </div>
+                    <div class="w-full h-1.5 bg-amber-100 rounded-full overflow-hidden">
+                      <div class="h-full bg-amber-500 rounded-full" :style="{ width: item.percent + '%' }"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="space-y-6">
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Not Completed/Performed (Barriers)</p>
-                <div class="relative h-48">
-                  <canvas id="directorFgmuNonCompletionChart"></canvas>
+
+              <!-- Non-Completion Barriers List -->
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                    Not Completed / Performed (Barriers)
+                  </p>
+                  <span class="text-[11px] font-bold text-slate-400">{{ nonCompletionList.length }} Barriers</span>
+                </div>
+
+                <div v-if="nonCompletionList.length === 0" class="p-6 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+                  <p class="text-xs font-bold text-slate-500">No Non-Completion Barriers Reported</p>
+                  <p class="text-[11px] text-slate-400 mt-1">No tasks were left uncompleted or halted due to barriers.</p>
+                </div>
+
+                <div v-else class="space-y-3">
+                  <div 
+                    v-for="(item, idx) in nonCompletionList" 
+                    :key="item.code"
+                    class="p-4 rounded-2xl bg-rose-50/40 border border-rose-100/80 flex flex-col gap-2 hover:bg-rose-50 transition-colors"
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-2.5">
+                        <span class="w-5 h-5 rounded-full bg-rose-200/80 text-rose-800 text-[10px] font-black flex items-center justify-center">
+                          {{ idx + 1 }}
+                        </span>
+                        <span class="text-xs font-black text-slate-800">{{ item.name }}</span>
+                      </div>
+                      <div class="flex items-baseline gap-1 shrink-0">
+                        <span class="text-sm font-black text-rose-700 tabular-nums">{{ item.count }}</span>
+                        <span class="text-[10px] font-bold text-slate-500">{{ item.count === 1 ? 'ticket' : 'tickets' }}</span>
+                      </div>
+                    </div>
+                    <div class="w-full h-1.5 bg-rose-100 rounded-full overflow-hidden">
+                      <div class="h-full bg-rose-500 rounded-full" :style="{ width: item.percent + '%' }"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
 
@@ -231,18 +367,15 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, nextTick } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
-import Chart from 'chart.js/auto';
 import api from '@/api/client';
 import { formatProjectNumber } from '@/utils/projectFormatter';
 
 const stats = ref({});
 const activeProjects = ref([]);
 const loadingProjects = ref(true);
-
-let charts = [];
 
 const fetchActiveProjects = async () => {
   loadingProjects.value = true;
@@ -273,90 +406,66 @@ const formatDuration = (dur) => {
 
 const safeVal = (val) => parseFloat(val) || 0;
 
-const renderCharts = () => {
-  charts.forEach(c => c.destroy());
-  charts = [];
-
-  const formatReason = (code) => {
-    if (!code) return 'None';
-    const map = {
-      personnelAbsent: "Personnel Absent",
-      extendedBreak: "Extended Break Period",
-      additionalWork: "Additional Work",
-      lackWorkingDays: "Lack of Working Days",
-      lackMaterials: "Lack of Materials / Tools",
-      lackSkills: "Lack of Skills"
-    };
-    return map[code] || code.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+const formatReason = (code) => {
+  if (!code) return 'None';
+  const map = {
+    personnelAbsent: "Personnel Absent",
+    extendedBreak: "Extended Break Period",
+    additionalWork: "Additional Work Requested",
+    lackWorkingDays: "Lack of Working Days",
+    lackMaterials: "Lack of Materials / Tools",
+    lackSkills: "Lack of Skills / Expertise"
   };
-
-  // 1. Completion Health Doughnut
-  const completionCtx = document.getElementById('directorFgmuCompletionDoughnut');
-  if (completionCtx && stats.value.completion_health) {
-    const health = stats.value.completion_health;
-    const onTime = health.find(h => h.completion_status === 'on-time')?.count || 0;
-    const beyondTime = health.find(h => h.completion_status === 'beyond-time')?.count || 0;
-    const notCompleted = health.find(h => h.completion_status === 'not-completed')?.count || 0;
-    
-    charts.push(new Chart(completionCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['On-time', 'Beyond Time', 'Not Completed'],
-        datasets: [{
-          data: [onTime, beyondTime, notCompleted],
-          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-          hoverOffset: 15, borderRadius: 10, borderWidth: 4, borderColor: '#ffffff'
-        }]
-      },
-      options: {
-        plugins: { legend: { position: 'bottom' } },
-        cutout: '70%', responsive: true, maintainAspectRatio: false
-      }
-    }));
-  }
-
-  // 2. Delay Reasons
-  const delayCtx = document.getElementById('directorFgmuDelayReasonsChart');
-  if (delayCtx && stats.value.delay_reasons) {
-    charts.push(new Chart(delayCtx, {
-      type: 'bar',
-      data: {
-        labels: stats.value.delay_reasons.map(r => formatReason(r.reason_code)) || ['None'],
-        datasets: [{
-          label: 'Occurrences',
-          data: stats.value.delay_reasons.map(r => parseInt(r.count)) || [0],
-          backgroundColor: '#f59e0b', borderRadius: 6
-        }]
-      },
-      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
-    }));
-  }
-
-  // 3. Non-Completion
-  const nonCompCtx = document.getElementById('directorFgmuNonCompletionChart');
-  if (nonCompCtx && stats.value.non_completion) {
-    charts.push(new Chart(nonCompCtx, {
-      type: 'bar',
-      data: {
-        labels: stats.value.non_completion.map(r => formatReason(r.reason_code)) || ['None'],
-        datasets: [{
-          label: 'Occurrences',
-          data: stats.value.non_completion.map(r => parseInt(r.count)) || [0],
-          backgroundColor: '#ef4444', borderRadius: 6
-        }]
-      },
-      options: { indexAxis: 'y', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
-    }));
-  }
+  return map[code] || code.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
 };
+
+const completionStats = computed(() => {
+  const health = stats.value?.completion_health || [];
+  const onTime = parseInt(health.find(h => h.completion_status === 'on-time')?.count || 0);
+  const beyondTime = parseInt(health.find(h => h.completion_status === 'beyond-time')?.count || 0);
+  const notCompleted = parseInt(health.find(h => h.completion_status === 'not-completed')?.count || 0);
+  const total = onTime + beyondTime + notCompleted;
+  
+  const getPercent = (count) => total > 0 ? Math.round((count / total) * 100) : 0;
+  
+  return {
+    onTime,
+    beyondTime,
+    notCompleted,
+    total,
+    onTimePercent: getPercent(onTime),
+    beyondTimePercent: getPercent(beyondTime),
+    notCompletedPercent: getPercent(notCompleted)
+  };
+});
+
+const delayReasonsList = computed(() => {
+  const items = stats.value?.delay_reasons || [];
+  const total = items.reduce((acc, r) => acc + parseInt(r.count || 0), 0);
+  return items.map(r => ({
+    code: r.reason_code,
+    name: formatReason(r.reason_code),
+    count: parseInt(r.count || 0),
+    percent: total > 0 ? Math.round((parseInt(r.count || 0) / total) * 100) : 0
+  })).sort((a, b) => b.count - a.count);
+});
+
+const nonCompletionList = computed(() => {
+  const items = stats.value?.non_completion || [];
+  const total = items.reduce((acc, r) => acc + parseInt(r.count || 0), 0);
+  return items.map(r => ({
+    code: r.reason_code,
+    name: formatReason(r.reason_code),
+    count: parseInt(r.count || 0),
+    percent: total > 0 ? Math.round((parseInt(r.count || 0) / total) * 100) : 0
+  })).sort((a, b) => b.count - a.count);
+});
 
 const fetchStats = async () => {
   try {
     const response = await api.get('tickets/stats/FGMU');
     if (response.data?.data?.stats) {
       stats.value = response.data.data.stats;
-      await nextTick();
-      renderCharts();
     }
   } catch (error) {
     console.error('Failed to fetch FGMU stats:', error);
@@ -366,11 +475,6 @@ const fetchStats = async () => {
 onMounted(() => {
   fetchStats();
   fetchActiveProjects();
-});
-
-onUnmounted(() => {
-  charts.forEach(c => c.destroy());
-  charts = [];
 });
 </script>
 
