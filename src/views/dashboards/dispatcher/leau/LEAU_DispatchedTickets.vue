@@ -86,61 +86,61 @@
               <div
                 v-for="ticket in scheduledTickets"
                 :key="ticket.id"
-                class="group flex flex-col md:flex-row md:items-center gap-4 py-5 px-4 hover:bg-slate-50 border-b border-transparent hover:border-slate-100 rounded-2xl transition-all duration-200 cursor-default sm:-mx-4"
+                class="group flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4 py-5 px-4 hover:bg-slate-50 border-b border-transparent hover:border-slate-100 rounded-2xl transition-all duration-200 cursor-default"
               >
-                <!-- Mobile Header Row: ID & Status -->
-                <div class="flex items-center justify-between w-full md:w-auto md:shrink-0">
-                  <div class="flex items-center gap-4 min-w-0">
-                    <div class="w-1 h-12 rounded-full bg-amber-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
-                    <div class="h-12 px-3 min-w-[4.5rem] rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+                <!-- Left Details: ID, Title, Dates, Worker -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 flex-1 min-w-0">
+                  <div class="flex items-center gap-3 shrink-0">
+                    <div class="w-1.5 h-12 rounded-full bg-amber-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
+                    <div class="h-11 px-3.5 min-w-[5rem] rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
                       <span class="text-xs font-black text-amber-700 leading-none">#{{ ticket.id }}</span>
                     </div>
                   </div>
-                  <!-- Mobile Status Chip -->
-                  <div class="flex md:hidden items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ticket Title</span>
+                      <span class="text-sm font-bold text-slate-800 truncate" :title="ticket.title || ticket.project_title || ticket.service_type || 'N/A'">
+                        {{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}
+                      </span>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Date</span>
+                      <span class="text-sm font-bold text-slate-800 truncate">{{ formatDate(ticket.assignment?.implementation_date) }}</span>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Duration</span>
+                      <span class="text-sm font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/60 inline-flex items-center gap-1 w-fit">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ (ticket.working_days || ticket.assignment?.working_days) ? `${ticket.working_days || ticket.assignment?.working_days} Day(s)` : 'N/A' }}
+                      </span>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Worker</span>
+                      <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                    </div>
                   </div>
                 </div>
 
-                <!-- Content Grid for Mobile, Flex for Desktop -->
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
-                  <div class="flex flex-col flex-1 min-w-0">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ticket Title</span>
-                    <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}</span>
-                  </div>
-                  <div class="flex flex-col min-w-[120px]">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Date</span>
-                    <span class="text-sm font-bold text-slate-800">{{ formatDate(ticket.assignment?.implementation_date) }}</span>
-                  </div>
-                  <div class="flex flex-col min-w-[110px]">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Duration</span>
-                    <span class="text-sm font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/60 inline-flex items-center gap-1 w-fit">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {{ (ticket.working_days || ticket.assignment?.working_days) ? `${ticket.working_days || ticket.assignment?.working_days} Day(s)` : 'N/A' }}
-                    </span>
-                  </div>
-                  <div class="flex flex-col min-w-[120px]">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Worker</span>
-                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
-                  </div>
-                </div>
-
-                <!-- Actions (Desktop & Mobile) -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4 w-full md:w-auto mt-2 md:mt-0 md:shrink-0">
-                  <!-- Desktop Status Chip -->
-                  <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
+                <!-- Right Actions: Status & Start Early Action -->
+                <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap justify-between 2xl:justify-end shrink-0 pt-3 2xl:pt-0 border-t 2xl:border-t-0 border-slate-100">
+                  <div class="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200/80 rounded-xl shrink-0">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                     <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Awaiting</span>
                   </div>
+
                   <button
                     @click="initiateAction('start', ticket.id)"
                     :disabled="loading"
-                    class="w-full sm:w-auto shrink-0 px-5 py-3 md:py-2.5 rounded-xl bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                    class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider hover:shadow-md hover:shadow-amber-500/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
-                    Start Early
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Start Early</span>
                   </button>
                 </div>
               </div>
@@ -190,65 +190,59 @@
               <div
                 v-for="ticket in activeTickets"
                 :key="ticket.id"
-                class="group flex flex-col md:flex-row md:items-center gap-4 py-5 px-4 hover:bg-slate-50 border-b border-transparent hover:border-slate-100 rounded-2xl transition-all duration-200 cursor-default sm:-mx-4"
+                class="group flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4 py-5 px-4 hover:bg-slate-50 border-b border-transparent hover:border-slate-100 rounded-2xl transition-all duration-200 cursor-default"
               >
-                <!-- Mobile Header Row: ID & Status -->
-                <div class="flex items-center justify-between w-full md:w-auto md:shrink-0">
-                  <div class="flex items-center gap-4 min-w-0">
-                    <div class="w-1 h-12 rounded-full bg-emerald-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
-                    <div class="h-12 px-3 min-w-[4.5rem] rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                <!-- Left Details: ID, Title, Dates, Worker -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 flex-1 min-w-0">
+                  <div class="flex items-center gap-3 shrink-0">
+                    <div class="w-1.5 h-12 rounded-full bg-emerald-500 group-hover:h-14 transition-all duration-300 shrink-0"></div>
+                    <div class="h-11 px-3.5 min-w-[5rem] rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
                       <span class="text-xs font-black text-emerald-600 leading-none">#{{ ticket.id }}</span>
                     </div>
                   </div>
-                  <!-- Mobile Status Chip -->
-                  <div class="flex md:hidden items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl shrink-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">In Progress</span>
-                  </div>
-                </div>
 
-                <!-- Content Grid for Mobile, Flex for Desktop -->
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 w-full md:flex md:flex-1 md:items-center md:gap-5">
-                  <div class="flex flex-col flex-1 min-w-0">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ticket Title</span>
-                    <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}</span>
-                  </div>
-                  <div class="flex flex-col min-w-[120px]">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Started</span>
-                    <span class="text-sm font-bold text-slate-800">{{ formatDate(ticket.assignment?.dispatched_at || ticket.assignment?.implementation_date) }}</span>
-                  </div>
-                  <div class="flex flex-col min-w-[110px]">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Duration</span>
-                    <span class="text-sm font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60 inline-flex items-center gap-1 w-fit">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {{ (ticket.working_days || ticket.assignment?.working_days) ? `${ticket.working_days || ticket.assignment?.working_days} Day(s)` : 'N/A' }}
-                    </span>
-                  </div>
-                  <div class="flex flex-col min-w-[120px]">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Worker</span>
-                    <span class="text-sm font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
-                  </div>
-                </div>
-
-                <!-- Actions (Desktop & Mobile) -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4 w-full md:w-auto mt-2 md:mt-0 md:shrink-0">
-                  <div class="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
-                    <!-- Live Duration -->
-                    <div class="flex flex-col md:items-center shrink-0 w-full sm:w-auto">
-                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 hidden md:block">Elapsed</span>
-                      <div class="flex items-center justify-center gap-1.5 px-3 py-2 md:py-1.5 bg-slate-900 rounded-xl w-full sm:w-auto">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-xs font-black text-white tracking-wide">
-                          {{ liveDurations[ticket.id] || '—' }} <span class="md:hidden ml-1 text-[10px] font-medium text-slate-400 uppercase">elapsed</span>
-                        </span>
-                      </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ticket Title</span>
+                      <span class="text-sm font-bold text-slate-800 truncate" :title="ticket.title || ticket.project_title || ticket.service_type || 'N/A'">
+                        {{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}
+                      </span>
                     </div>
-                    <!-- Desktop Status Chip -->
-                    <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl shrink-0">
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Started</span>
+                      <span class="text-sm font-bold text-slate-800 truncate">{{ formatDate(ticket.assignment?.dispatched_at || ticket.assignment?.implementation_date) }}</span>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Duration</span>
+                      <span class="text-sm font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60 inline-flex items-center gap-1 w-fit">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ (ticket.working_days || ticket.assignment?.working_days) ? `${ticket.working_days || ticket.assignment?.working_days} Day(s)` : 'N/A' }}
+                      </span>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Worker</span>
+                      <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Actions: Elapsed, Status & Job Finished Action -->
+                <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap justify-between 2xl:justify-end shrink-0 pt-3 2xl:pt-0 border-t 2xl:border-t-0 border-slate-100">
+                  <div class="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+                    <!-- Live Duration -->
+                    <div class="flex items-center gap-1.5 px-3 py-2 bg-slate-900 rounded-xl shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-xs font-black text-white tracking-wide">
+                        {{ liveDurations[ticket.id] || '—' }}
+                      </span>
+                    </div>
+
+                    <!-- Status Chip -->
+                    <div class="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200/80 rounded-xl shrink-0">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">In Progress</span>
                     </div>
@@ -257,7 +251,7 @@
                   <button
                     @click="openMaterialCompletionModal(ticket)"
                     :disabled="loading"
-                    class="w-full sm:w-auto shrink-0 px-5 py-3 md:py-2.5 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                    class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider hover:shadow-md hover:shadow-emerald-500/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
