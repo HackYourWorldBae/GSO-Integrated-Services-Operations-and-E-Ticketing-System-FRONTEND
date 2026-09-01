@@ -385,7 +385,7 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, onUnmounted, computed, ref } from 'vue';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useLeauPersonnelStore } from '@/stores/leauPersonnel';
@@ -564,12 +564,19 @@ const toggleTicketExtension = async (workerId, ticketId) => {
   }
 };
 
-// ── Lifecycle ──────────────────────────────────────────────────────────────
+let pollingInterval = null;
+
 onMounted(() => {
   store.fetchPersonnel();
   store.fetchCategories();
-  const interval = setInterval(() => store.fetchPersonnel(), 5000);
-  // Note: interval cleanup handled by Vue unmount in production
+  pollingInterval = setInterval(() => {
+    if (document.hidden) return;
+    store.fetchPersonnel();
+  }, 15000);
+});
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval);
 });
 </script>
 

@@ -402,7 +402,7 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, onUnmounted, computed, ref } from 'vue';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useTasuPersonnelStore } from '@/stores/tasuPersonnel';
@@ -616,10 +616,19 @@ const toggleTicketExtension = async (workerId, ticketId) => {
   }
 };
 
+let pollingInterval = null;
+
 onMounted(() => {
   store.fetchPersonnel();
   store.fetchCategories();
-  const interval = setInterval(() => store.fetchPersonnel(), 5000);
+  pollingInterval = setInterval(() => {
+    if (document.hidden) return;
+    store.fetchPersonnel();
+  }, 15000);
+});
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval);
 });
 </script>
 

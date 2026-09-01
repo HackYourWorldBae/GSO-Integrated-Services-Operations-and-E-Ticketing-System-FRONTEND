@@ -361,11 +361,12 @@ onMounted(() => {
   fetchQueue();
   fetchCompletedCount();
   pollingInterval = setInterval(() => {
+    if (document.hidden) return;
     const isInteracting = !!notationTicket.value || !!resolveTicket.value || !!declineTicket.value;
     if (!isInteracting) {
       fetchQueue();
     }
-  }, 5000);
+  }, 10000);
 });
 
 onUnmounted(() => {

@@ -436,11 +436,12 @@ let pollingInterval = null;
 onMounted(() => {
   fetchQueue();
   pollingInterval = setInterval(() => {
+    if (document.hidden) return;
     const isInteracting = tickets.value.some(t => t.isDeclining) || verifiedTickets.value.some(t => t.isDeclining);
     if (!isInteracting) {
       fetchQueue();
     }
-  }, 5000);
+  }, 10000);
 });
 
 onUnmounted(() => {

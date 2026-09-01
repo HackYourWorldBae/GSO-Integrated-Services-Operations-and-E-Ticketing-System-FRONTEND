@@ -337,13 +337,9 @@ const handleOutsideClick = (event) => {
 };
 
 let notificationInterval = null;
+let removeRouterHook = null;
 
 onMounted(() => {
-  // Auth guard — checks both Pinia reactive state AND sessionStorage directly.
-  // Pinia's persist plugin rehydrates asynchronously, so the reactive token.value
-  // may briefly be null right after navigation even if a valid session exists.
-  // Reading sessionStorage directly here acts as a synchronous fallback.
-  // sessionStorage is tab-isolated, so each tab only sees its own session.
   const piniaToken = authStore.token;
   const localToken = (() => {
     try {
@@ -357,7 +353,6 @@ onMounted(() => {
     return;
   }
 
-  // If Pinia wasn't hydrated yet but sessionStorage had the token, sync it now
   if (!piniaToken && localToken) {
     authStore._setAuth(authStore.user, authStore.role, localToken);
   }
@@ -366,11 +361,14 @@ onMounted(() => {
   userRole.value = authStore.capitalizedRole;
 
   fetchNotifications();
-  notificationInterval = setInterval(fetchNotifications, 10000);
+  notificationInterval = setInterval(() => {
+    if (document.hidden) return;
+    fetchNotifications();
+  }, 20000);
 
   document.addEventListener('click', handleOutsideClick);
 
-  router.afterEach(() => {
+  removeRouterHook = router.afterEach(() => {
     if (window.innerWidth < 768) {
       isMobileSidebarOpen.value = false;
     }
@@ -380,6 +378,7 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleOutsideClick);
   if (notificationInterval) clearInterval(notificationInterval);
+  if (removeRouterHook) removeRouterHook();
 });
 
 const handleLogout = () => {

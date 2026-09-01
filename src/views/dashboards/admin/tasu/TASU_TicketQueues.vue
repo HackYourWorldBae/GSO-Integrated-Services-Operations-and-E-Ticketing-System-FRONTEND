@@ -263,13 +263,13 @@ let pollingInterval = null;
 
 onMounted(() => {
   fetchQueue();
-  // Smart polling every 5 seconds
   pollingInterval = setInterval(() => {
+    if (document.hidden) return;
     const isInteracting = tickets.value.some(t => t.isDeclining);
     if (!isInteracting) {
       fetchQueue();
     }
-  }, 5000);
+  }, 10000);
 });
 
 onUnmounted(() => {

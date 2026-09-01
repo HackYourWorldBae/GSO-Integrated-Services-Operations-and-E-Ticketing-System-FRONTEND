@@ -134,7 +134,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, nextTick } from 'vue';
+import { onMounted, onUnmounted, ref, nextTick } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import Chart from 'chart.js/auto';
 import api from '@/api/client';
@@ -253,6 +253,11 @@ const fetchStats = async () => {
 
 onMounted(() => {
   fetchStats();
+});
+
+onUnmounted(() => {
+  charts.forEach(c => c.destroy());
+  charts = [];
 });
 </script>
 

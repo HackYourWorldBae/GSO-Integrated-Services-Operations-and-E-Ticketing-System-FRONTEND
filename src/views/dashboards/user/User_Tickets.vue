@@ -911,7 +911,10 @@ onMounted(() => {
   userName.value = authStore.user?.first_name || authStore.fullName || 'User';
 
   fetchTickets();
-  pollingInterval = setInterval(fetchTickets, 5000);
+  pollingInterval = setInterval(() => {
+    if (document.hidden) return;
+    fetchTickets();
+  }, 15000);
 });
 
 onUnmounted(() => {

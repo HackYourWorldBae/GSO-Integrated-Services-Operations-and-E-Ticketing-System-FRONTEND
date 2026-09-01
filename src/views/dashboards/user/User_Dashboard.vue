@@ -398,7 +398,10 @@ let pollingInterval = null;
 onMounted(() => {
   userName.value = authStore.user?.first_name || authStore.fullName || 'User';
   fetchDashboardData();
-  pollingInterval = setInterval(fetchDashboardData, 5000);
+  pollingInterval = setInterval(() => {
+    if (document.hidden) return;
+    fetchDashboardData();
+  }, 15000);
 });
 
 onUnmounted(() => {
