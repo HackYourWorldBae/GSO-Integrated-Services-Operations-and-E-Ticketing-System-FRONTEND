@@ -275,6 +275,49 @@
                 </div>
               </div>
 
+              <!-- Dedicated Official FGMU Job Request Form Section -->
+              <div v-if="selectedTicket.feedback || selectedTicket.status === 'closed' || selectedTicket.status === 'resolved'" class="col-span-2 mt-2">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Official Job Request Form
+                  </p>
+                  <button
+                    type="button"
+                    @click="openJobRequestForm(selectedTicket)"
+                    class="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>View / Print Job Request Form</span>
+                  </button>
+                </div>
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-800">QM-GSO-FGMU-01 Job Request Form</p>
+                      <p class="text-[10px] text-slate-400">Official document filled with job particulars, personnel, and evaluation</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    @click="openJobRequestForm(selectedTicket)"
+                    class="text-xs font-bold text-emerald-600 hover:text-emerald-700 underline cursor-pointer"
+                  >
+                    Open Document
+                  </button>
+                </div>
+              </div>
+
               <!-- Attachments / Photos -->
               <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="col-span-2 mt-2">
                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments / Photos</p>
@@ -305,19 +348,13 @@
         </div>
       </div>
       
-      <!-- Image Viewer Modal -->
-      <div v-if="showImageModal" class="absolute inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeImageModal">
-        <div class="relative bg-white rounded-2xl p-2 max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
-          <button @click="closeImageModal" class="absolute -top-4 -right-4 bg-white text-slate-500 hover:text-slate-700 p-2 rounded-full shadow-lg transition-colors z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <div class="overflow-auto rounded-xl flex items-center justify-center bg-slate-100 min-h-[200px] min-w-[200px]">
-            <img :src="selectedImageUrl" alt="Attachment Preview" class="max-w-full max-h-[85vh] object-contain rounded-xl" />
-          </div>
-        </div>
-      </div>
+      <!-- Document & Attachment Viewer Modal -->
+      <DocumentViewerModal
+        v-model:isOpen="viewerModal.isOpen"
+        :title="viewerModal.title"
+        :fileName="viewerModal.fileName"
+        :fileBlob="viewerModal.fileBlob"
+      />
 
       <!-- Material Receipt Modal -->
       <MaterialReceiptModal
@@ -329,15 +366,22 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
+import { generateFgmuJobRequestFormBlob } from '@/utils/fgmuDocxGenerator';
 import api from '@/api/client';
+import { toast } from 'vue3-toastify';
 
 const tickets = ref([]);
 
-const showImageModal = ref(false);
-const selectedImageUrl = ref('');
+const viewerModal = reactive({
+  isOpen: false,
+  title: '',
+  fileName: '',
+  fileBlob: null
+});
 
 const showReceiptModal = ref(false);
 const selectedReceiptTicket = ref(null);
@@ -354,32 +398,47 @@ const formatPrice = (val) => {
   });
 };
 
-const closeImageModal = () => {
-  showImageModal.value = false;
-  if (selectedImageUrl.value) {
-    window.URL.revokeObjectURL(selectedImageUrl.value);
-    selectedImageUrl.value = '';
+const openJobRequestForm = async (ticket) => {
+  try {
+    const ticketId = ticket.ticketId || ticket.id;
+    viewerModal.title = `FGMU Job Request Form - #${ticketId}`;
+    viewerModal.fileName = `FGMU Job Request Form - #${ticketId}.docx`;
+
+    // Check if attachment exists in ticket attachments
+    const existingAtt = (ticket.attachments || []).find(a => 
+      (a.file_name && a.file_name.toLowerCase().includes('job request form')) ||
+      (a.file_name && a.file_name.toLowerCase().includes('fgmu'))
+    );
+
+    if (existingAtt) {
+      const response = await api.get(`attachments/${existingAtt.id}`, { responseType: 'blob' });
+      viewerModal.fileBlob = new Blob([response.data], {
+        type: existingAtt.file_type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
+    } else {
+      const blob = await generateFgmuJobRequestFormBlob(ticket, ticket.feedback);
+      viewerModal.fileBlob = blob;
+    }
+
+    viewerModal.isOpen = true;
+  } catch (err) {
+    console.error('Failed to open FGMU Job Request Form:', err);
+    toast.error('Failed to load Job Request Form document preview.');
   }
 };
 
 const downloadAttachment = async (att) => {
   try {
     const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
-    if (att.file_type && att.file_type.startsWith('image/')) {
-        selectedImageUrl.value = url;
-        showImageModal.value = true;
-    } else {
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', att.file_name || 'attachment');
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-    }
+    const blob = new Blob([response.data], { type: att.file_type || 'application/octet-stream' });
+    
+    viewerModal.title = att.file_name || 'Document Attachment';
+    viewerModal.fileName = att.file_name || 'attachment';
+    viewerModal.fileBlob = blob;
+    viewerModal.isOpen = true;
   } catch (error) {
-    console.error('Failed to download attachment', error);
-    alert(`Failed to download attachment: ${error.response?.data?.message || error.message}`);
+    console.error('Failed to preview attachment', error);
+    toast.error(`Failed to load attachment: ${error.response?.data?.message || error.message || 'Unknown error'}`);
   }
 };
 

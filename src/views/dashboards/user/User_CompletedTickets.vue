@@ -250,6 +250,49 @@
                 </div>
               </div>
 
+              <!-- Dedicated Official FGMU Job Request Form Section -->
+              <div v-if="selectedTicket.unit === 'FGMU' || selectedTicket.unit_code === 'FGMU' || selectedTicket.unit_id === 1" class="col-span-2 mt-2">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Official Job Request Form
+                  </p>
+                  <button
+                    type="button"
+                    @click="openJobRequestForm(selectedTicket)"
+                    class="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>View / Print Job Request Form</span>
+                  </button>
+                </div>
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-800">QM-GSO-FGMU-01 Job Request Form</p>
+                      <p class="text-[10px] text-slate-400">Official document filled with job particulars, personnel, and evaluation</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    @click="openJobRequestForm(selectedTicket)"
+                    class="text-xs font-bold text-emerald-600 hover:text-emerald-700 underline cursor-pointer"
+                  >
+                    Open Document
+                  </button>
+                </div>
+              </div>
+
               <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="col-span-2">
                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments / Photos</p>
                  <div class="flex flex-col gap-2">
@@ -301,6 +344,7 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
+import { generateFgmuJobRequestFormBlob } from '@/utils/fgmuDocxGenerator';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
@@ -328,6 +372,35 @@ const viewerModal = reactive({
   fileName: '',
   fileBlob: null
 });
+
+const openJobRequestForm = async (ticket) => {
+  try {
+    const ticketId = ticket.ticketId || ticket.id;
+    viewerModal.title = `FGMU Job Request Form - #${ticketId}`;
+    viewerModal.fileName = `FGMU Job Request Form - #${ticketId}.docx`;
+
+    // Check if attachment exists
+    const existingAtt = (ticket.attachments || []).find(a => 
+      (a.file_name && a.file_name.toLowerCase().includes('job request form')) ||
+      (a.file_name && a.file_name.toLowerCase().includes('fgmu'))
+    );
+
+    if (existingAtt) {
+      const response = await api.get(`attachments/${existingAtt.id}`, { responseType: 'blob' });
+      viewerModal.fileBlob = new Blob([response.data], {
+        type: existingAtt.file_type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
+    } else {
+      const blob = await generateFgmuJobRequestFormBlob(ticket, ticket.feedback);
+      viewerModal.fileBlob = blob;
+    }
+
+    viewerModal.isOpen = true;
+  } catch (err) {
+    console.error('Failed to open FGMU Job Request Form:', err);
+    toast.error('Failed to load Job Request Form document preview.');
+  }
+};
 
 const downloadAttachment = async (att) => {
   try {

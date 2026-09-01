@@ -641,6 +641,21 @@
                     <p v-else class="text-sm text-slate-500">
                       Thank you for your feedback! This ticket has been successfully closed.
                     </p>
+
+                    <!-- Official FGMU Job Request Form Action -->
+                    <div v-if="selectedTicket.unit === 'FGMU' || selectedTicket.unit_code === 'FGMU' || selectedTicket.unit_id === 1" class="mt-5 pt-4 border-t border-slate-200/80 w-full flex flex-col items-center">
+                      <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Official Service Document</p>
+                      <button
+                        type="button"
+                        @click="openJobRequestFormViewer(selectedTicket)"
+                        class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-emerald-600/20 active:scale-95 flex items-center gap-2 cursor-pointer"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>View Official Job Request Form</span>
+                      </button>
+                    </div>
                   </div>
 
                 </div>
@@ -665,37 +680,41 @@
         </Transition>
       </Teleport>
 
-      <!-- Image Viewer Modal -->
-      <Teleport to="body">
-        <div v-if="showImageModal" class="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeImageModal">
-          <div class="relative bg-white rounded-2xl p-2 max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
-            <button @click="closeImageModal" class="absolute -top-4 -right-4 bg-white text-slate-500 hover:text-slate-700 p-2 rounded-full shadow-lg transition-colors z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <div class="overflow-auto rounded-xl flex items-center justify-center bg-slate-100 min-h-[200px] min-w-[200px]">
-              <img :src="selectedImageUrl" alt="Attachment Preview" class="max-w-full max-h-[85vh] object-contain rounded-xl" />
-            </div>
-          </div>
-        </div>
-      </Teleport>
+      <!-- Document & Attachment Viewer Modal -->
+      <DocumentViewerModal
+        v-model:isOpen="viewerModal.isOpen"
+        :title="viewerModal.title"
+        :fileName="viewerModal.fileName"
+        :fileBlob="viewerModal.fileBlob"
+        :fileUrl="viewerModal.fileUrl"
+      />
     </template>
   </MainLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, defineComponent, h } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted, defineComponent, h } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
+import { attachFgmuJobRequestForm, generateFgmuJobRequestFormBlob } from '@/utils/fgmuDocxGenerator';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
+import { toast } from 'vue3-toastify';
 
 const authStore = useAuthStore();
 
 const ratingTicketId = ref(null);
 const showToast = ref(false);
 const toastMessage = ref('');
+
+const viewerModal = reactive({
+  isOpen: false,
+  title: '',
+  fileName: '',
+  fileBlob: null,
+  fileUrl: '',
+});
 
 const toggleRatingForm = (ticket) => {
   if (ratingTicketId.value === ticket.ticketId) {
@@ -734,7 +753,7 @@ const AttachmentList = defineComponent({
           h('div', { class: 'space-y-1.5' }, props.attachments.map(att =>
             h('button', {
               key: att.id,
-              class: 'w-full flex items-center gap-3 p-2.5 bg-white border border-slate-200 rounded-xl hover:border-emerald-400 transition-colors text-left group',
+              class: 'w-full flex items-center gap-3 p-2.5 bg-white border border-slate-200 rounded-xl hover:border-emerald-400 transition-colors text-left group cursor-pointer',
               onClick: () => emit('download', att),
             }, [
               h('div', { class: 'w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 flex-shrink-0 group-hover:bg-emerald-100 transition-colors' },
@@ -792,36 +811,50 @@ const CheckboxItem = defineComponent({
   },
 });
 
-// ---- Attachment download ----
-const showImageModal = ref(false);
-const selectedImageUrl = ref('');
-
-const closeImageModal = () => {
-  showImageModal.value = false;
-  if (selectedImageUrl.value) {
-    window.URL.revokeObjectURL(selectedImageUrl.value);
-    selectedImageUrl.value = '';
-  }
-};
-
+// ---- Document & Attachment Preview ----
 const downloadAttachment = async (att) => {
   try {
     const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
-    if (att.file_type?.startsWith('image/')) {
-      selectedImageUrl.value = url;
-      showImageModal.value = true;
-    } else {
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', att.file_name || 'attachment');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
+    const blob = new Blob([response.data], { type: att.file_type || 'application/octet-stream' });
+    
+    viewerModal.title = att.file_name || 'Document Attachment';
+    viewerModal.fileName = att.file_name || 'attachment';
+    viewerModal.fileBlob = blob;
+    viewerModal.fileUrl = '';
+    viewerModal.isOpen = true;
   } catch (error) {
-    console.error('Failed to download attachment', error);
-    alert(`Failed to download attachment: ${error.response?.data?.message || error.message}`);
+    console.error('Failed to preview attachment', error);
+    toast.error(`Failed to load attachment: ${error.response?.data?.message || error.message || 'Unknown error'}`);
+  }
+};
+
+const openJobRequestFormViewer = async (ticket) => {
+  try {
+    const ticketId = ticket.ticketId || ticket.id;
+    viewerModal.title = `FGMU Job Request Form - #${ticketId}`;
+    viewerModal.fileName = `FGMU Job Request Form - #${ticketId}.docx`;
+    
+    // Check if attachment already exists in ticket attachments
+    const existingAtt = (ticket.attachments || []).find(a => 
+      (a.file_name && a.file_name.toLowerCase().includes('job request form')) ||
+      (a.file_name && a.file_name.toLowerCase().includes('fgmu'))
+    );
+    
+    if (existingAtt) {
+      const response = await api.get(`attachments/${existingAtt.id}`, { responseType: 'blob' });
+      viewerModal.fileBlob = new Blob([response.data], {
+        type: existingAtt.file_type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
+    } else {
+      const blob = await generateFgmuJobRequestFormBlob(ticket, ticket.feedback);
+      viewerModal.fileBlob = blob;
+    }
+    
+    viewerModal.fileUrl = '';
+    viewerModal.isOpen = true;
+  } catch (err) {
+    console.error('Failed to open FGMU Job Request Form:', err);
+    toast.error('Failed to load Job Request Form document preview.');
   }
 };
 
@@ -1143,6 +1176,15 @@ const closeTicket = async (ticket) => {
     ticket.isClosed    = true;
     ticket.status      = 'closed';
     ticket.statusLabel = 'Closed';
+
+    // Auto-generate and attach official FGMU Job Request Form if FGMU ticket
+    if (ticket.unit === 'FGMU' || ticket.unit_code === 'FGMU' || ticket.unit_id === 1) {
+      try {
+        await attachFgmuJobRequestForm(ticket, payload);
+      } catch (docErr) {
+        console.error('Failed to auto-attach FGMU Job Request Form docx:', docErr);
+      }
+    }
     
     // Show toast message
     toastMessage.value = `Thanks for the honest evaluation, #${ticket.ticketId || ticket.id} is now complete and closed!`;
