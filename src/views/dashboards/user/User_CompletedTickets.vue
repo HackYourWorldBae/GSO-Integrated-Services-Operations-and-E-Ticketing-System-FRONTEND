@@ -438,6 +438,7 @@ onMounted(async () => {
         status: t.status,
         statusLabel: t.status_label,
         date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        submitted_at: t.submitted_at,
         completed_at: t.completed_at || t.updated_at,
         requestedBy: userName.value,
         location: t.location || t.details?.college_building || 'N/A',
@@ -448,11 +449,13 @@ onMounted(async () => {
         currentStep: parseInt(t.current_step) || 1,
         assignedWorker: t.assignment?.personnel_name || t.assigned_worker || 'Unassigned',
         assignment: t.assignment || null,
+        assignments: t.assignments || [],
         details: t.details || null,
         materials: t.materials || [],
         total_material_cost: t.total_material_cost || 0,
         implementationDate: t.scheduled_date,
         workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
+        working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
         isClosed: t.status === 'completed' || t.status === 'closed',
         feedback: t.feedback || null
       }));

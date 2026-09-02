@@ -205,20 +205,14 @@ const renderPreview = async () => {
         docxContainerRef.value.innerHTML = '';
         await renderAsync(blob, docxContainerRef.value, undefined, {
           className: 'docx-preview',
-          // inWrapper: true  — let docx-preview own the page wrapper so each page
-          // is rendered as a proper A4/letter-sized block with correct margins.
           inWrapper: true,
-          // ignoreWidth: true — fill the container width instead of trying to
-          // match the exact docx pixel width which can clip inside max-w-4xl.
-          ignoreWidth: true,
+          ignoreWidth: false,
           ignoreHeight: false,
           breakPages: true,
           renderHeaders: true,
           renderFooters: true,
           renderFootnotes: true,
           renderEndnotes: true,
-          // useBase64URL: true is critical for embedded images (college logo, etc.)
-          // to decode and display correctly in the browser.
           useBase64URL: true,
         });
       }
@@ -286,87 +280,46 @@ const printDocument = () => {
 <style>
 /*
  * Global styles for the docx-preview renderer.
- *
- * docx-preview injects its own DOM hierarchy outside of Vue's scoped CSS,
- * so all rules here must be global (no `scoped` attribute) and must target
- * the library's own class names directly:
- *   .docx-wrapper  — the outer scroll container injected by docx-preview
- *   .docx          — each rendered page (A4/Letter block)
- *   .docx-header   — the page header section (contains logo + college name)
- *   .docx-footer   — the page footer section
- *   .docx-body     — the main body content section
+ * docx-preview computes exact table cell borders, column widths, font sizes,
+ * and page layouts from OpenXML. We preserve these styles without ad-hoc overrides.
  */
 
 /* ── Outer wrapper ─────────────────────────────────────────────────────── */
+.docx-render-paper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .docx-render-paper .docx-wrapper {
-  background: #f1f5f9; /* slate-100 canvas background */
-  padding: 2rem 1rem;
+  background: transparent !important;
+  padding: 1rem 0 !important;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  min-height: 600px;
+  gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ── Individual page block ─────────────────────────────────────────────── */
-.docx-render-paper .docx {
-  background: #ffffff;
-  box-shadow: 0 4px 24px 0 rgba(15, 23, 42, 0.10), 0 1.5px 4px 0 rgba(15,23,42,0.06);
-  border-radius: 6px;
-  border: 1px solid #e2e8f0; /* slate-200 */
-  /* docx-preview sets explicit width/height from the docx page dimensions.
-     We allow it to flow naturally within our container. */
+.docx-render-paper .docx-preview {
+  background: #ffffff !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
   box-sizing: border-box;
-  overflow: hidden;
-}
-
-/* ── Header section (college logo + document title text) ───────────────── */
-.docx-render-paper .docx-header {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* ── Footer section ────────────────────────────────────────────────────── */
-.docx-render-paper .docx-footer {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
 }
 
 /* ── All images inside the rendered document ───────────────────────────── */
-/*
- * This is the critical rule for the college logo:
- * Without it, images inside .docx-header may collapse to 0x0 or be hidden
- * because no inherited display/sizing rules reach into the injected sections.
- */
-.docx-render-paper .docx img,
-.docx-render-paper .docx-header img,
-.docx-render-paper .docx-footer img,
-.docx-render-paper .docx-body img {
+.docx-render-paper .docx-preview img {
   display: inline-block;
   max-width: 100%;
   height: auto;
   vertical-align: middle;
-}
-
-/* ── Tables ─────────────────────────────────────────────────────────────── */
-.docx-render-paper .docx table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.docx-render-paper .docx td,
-.docx-render-paper .docx th {
-  border: 1px solid #cbd5e1;
-  padding: 4px 8px;
-  vertical-align: top;
-}
-
-/* ── Paragraphs ─────────────────────────────────────────────────────────── */
-.docx-render-paper .docx p {
-  margin: 0;
-  line-height: 1.5;
 }
 
 /* ── Modal transition ───────────────────────────────────────────────────── */
@@ -378,5 +331,34 @@ const printDocument = () => {
 .doc-modal-enter-from,
 .doc-modal-leave-to {
   opacity: 0;
+}
+
+/* ── Print Media Optimization ───────────────────────────────────────────── */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .docx-render-paper,
+  .docx-render-paper * {
+    visibility: visible;
+  }
+  .docx-render-paper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .docx-render-paper .docx-wrapper {
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+  .docx-render-paper .docx-preview {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    page-break-after: always;
+  }
 }
 </style>

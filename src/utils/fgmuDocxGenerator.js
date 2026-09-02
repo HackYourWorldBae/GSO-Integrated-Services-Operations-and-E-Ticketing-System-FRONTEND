@@ -63,18 +63,19 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
   );
 
   // Extract building & room
-  const building = details.college_building || ticket.location || details.location || 'N/A';
-  const room = details.office_room || ticket.office_room || 'N/A';
-  const fund = details.source_of_fund || 'N/A';
+  const building = details.college_building || ticket.location || details.location || ticket.college_building || 'N/A';
+  const room = details.office_room || ticket.office_room || ticket.officeRoom || 'N/A';
+  const fund = details.source_of_fund || ticket.source_of_fund || ticket.sourceOfFund || 'N/A';
 
   // Requestor name
-  const requestor = details.end_user || details.requesting_personnel || ticket.requestedBy || ticket.user_name || 'N/A';
+  const requestor = details.end_user || details.requesting_personnel || ticket.requestedBy || ticket.requested_by || ticket.user_name || ticket.requester || 'N/A';
 
   // Working days duration
   const workingDays = String(
     ticket.working_days ||
     ticket.project_working_days ||
     assignment.working_days ||
+    ticket.workingDays ||
     'N/A'
   );
 
@@ -84,22 +85,47 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     ticket.job_description ||
     ticket.title ||
     ticket.service_type ||
+    ticket.service ||
     'General maintenance and repair service.'
   ).trim();
 
-  // Parse assigned personnel into Personnel_1 .. Personnel_4
-  const rawPersonnel = assignment.personnel_name || ticket.assignedWorker || '';
-  const personnelList = rawPersonnel
-    ? rawPersonnel.split(',').map(name => name.trim()).filter(Boolean)
-    : [];
+  // Robust parsing of assigned personnel into Personnel_1 .. Personnel_4
+  let personnelNames = [];
+  if (Array.isArray(ticket.assignments) && ticket.assignments.length > 0) {
+    personnelNames = ticket.assignments
+      .map(a => a.personnel_name || a.assigned_to_name || a.name)
+      .filter(Boolean);
+  } else if (Array.isArray(ticket.personnel) && ticket.personnel.length > 0) {
+    personnelNames = ticket.personnel
+      .map(p => (typeof p === 'string' ? p : (p.name || p.personnel_name)))
+      .filter(Boolean);
+  } else {
+    const rawPersonnel = 
+      assignment.personnel_name || 
+      ticket.assignedWorker || 
+      ticket.assignedDriver || 
+      ticket.assigned_worker || 
+      ticket.assigned_personnel || 
+      '';
+    if (rawPersonnel && typeof rawPersonnel === 'string') {
+      personnelNames = rawPersonnel.split(/[,;\n]+/).map(n => n.trim()).filter(Boolean);
+    }
+  }
 
-  const personnel1 = personnelList[0] || (typeof rawPersonnel === 'string' && rawPersonnel !== 'Unassigned' ? rawPersonnel : '');
-  const personnel2 = personnelList[1] || '';
-  const personnel3 = personnelList[2] || '';
-  const personnel4 = personnelList[3] || '';
+  // Deduplicate and filter out 'Unassigned', 'N/A', 'None', etc.
+  personnelNames = Array.from(new Set(personnelNames))
+    .filter(name => {
+      const lower = String(name).toLowerCase().trim();
+      return lower !== 'unassigned' && lower !== 'n/a' && lower !== 'none' && lower !== '';
+    });
+
+  const personnel1 = personnelNames[0] || '';
+  const personnel2 = personnelNames[1] || '';
+  const personnel3 = personnelNames[2] || '';
+  const personnel4 = personnelNames[3] || '';
 
   // Performance evaluation / remarks
-  const remarks = (feedback.remarks || '').trim() || 'Work completed satisfactorily.';
+  const remarks = (feedback.remarks || ticket.remarks || '').trim() || 'Work completed satisfactorily.';
 
   return {
     Date: dateFiling,

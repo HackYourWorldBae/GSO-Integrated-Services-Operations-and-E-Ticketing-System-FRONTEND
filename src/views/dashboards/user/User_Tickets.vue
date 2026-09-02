@@ -895,13 +895,23 @@ const fetchTickets = async () => {
         attachments: t.attachments || [],
         declineReason: t.decline_reason || '',
         currentStep: parseInt(t.current_step) || 1,
+        assignment: t.assignment || null,
+        assignments: t.assignments || [],
+        assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
         assignedVehicle: t.assignment?.vehicle_name || null,
         assignedDriver: t.assignment?.personnel_name || null,
         assignedContact: t.assignment?.personnel_contact || null,
+        details: t.details || null,
+        feedback: t.feedback || null,
+        materials: t.materials || [],
+        total_material_cost: t.total_material_cost || 0,
+        submitted_at: t.submitted_at,
+        completed_at: t.completed_at || t.updated_at,
         implementationDate: t.assignment?.implementation_date
           ? new Date(t.assignment.implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
           : null,
         workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
+        working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
         isClosed: t.status === 'completed' || t.status === 'closed',
         // SSU Incident Report specific fields
         isUnderInvestigation: Number(t.is_under_investigation) === 1,
