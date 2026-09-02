@@ -20,6 +20,12 @@ app.use(Vue3Toastify, {
   theme: 'colored',
   clearOnUrlChange: false,
 });
+// Auto-recover if a new deployment changed asset chunk hashes while user has app open
+window.addEventListener('vite:preloadError', (event) => {
+  event.preventDefault();
+  window.location.reload();
+});
+
 // Prevent mouse wheel from inadvertently changing values on focused number inputs
 document.addEventListener('wheel', () => {
   if (document.activeElement && document.activeElement.type === 'number') {

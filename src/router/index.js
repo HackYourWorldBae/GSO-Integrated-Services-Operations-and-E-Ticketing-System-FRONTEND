@@ -387,4 +387,21 @@ if (typeof window !== 'undefined') {
   });
 }
 
+// Auto-recover from dynamic import chunk failures when a new deployment invalidates old chunk hashes
+router.onError((error, to) => {
+  const isDynamicImportError =
+    error?.message?.includes('Failed to fetch dynamically imported module') ||
+    error?.message?.includes('Importing a module script failed') ||
+    error?.message?.includes('Expected a JavaScript-or-Wasm module script');
+
+  if (isDynamicImportError) {
+    console.warn('New deployment detected, reloading page to fetch latest code bundle...', error);
+    if (to?.fullPath) {
+      window.location.href = to.fullPath;
+    } else {
+      window.location.reload();
+    }
+  }
+});
+
 export default router;
