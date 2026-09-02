@@ -457,7 +457,9 @@ const computeDuration = (assignment) => {
 /**
  * Opens in-website preview of the generated document with download option
  */
-const viewDocument = async (ticket, type) => {
+import { handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
+
+const downloadDocument = async (ticket, type) => {
   try {
     loading.value = true;
     
@@ -474,25 +476,21 @@ const viewDocument = async (ticket, type) => {
       return;
     }
     
-    // Fetch attachment blob from backend
-    const response = await api.get(`attachments/${docAttachment.id}`, { responseType: 'blob' });
-    const blob = new Blob([response.data], { 
-      type: docAttachment.file_type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+    await handleAttachmentClick(docAttachment, (blob, att) => {
+      viewerModal.title = `${type} — #${ticket.id}`;
+      viewerModal.fileName = att.file_name || `${type} - ${ticket.id}.pdf`;
+      viewerModal.fileBlob = blob;
+      viewerModal.isOpen = true;
     });
-
-    viewerModal.title = `${type} — #${ticket.id}`;
-    viewerModal.fileName = docAttachment.file_name || `${type} - ${ticket.id}.docx`;
-    viewerModal.fileBlob = blob;
-    viewerModal.isOpen = true;
   } catch (error) {
-    console.error('Document preview error:', error);
-    toast.error(`Failed to load ${type} preview.`);
+    console.error('Document error:', error);
+    toast.error(`Failed to process ${type}.`);
   } finally {
     loading.value = false;
   }
 };
 
-const downloadDocument = viewDocument; // alias for template buttons
+const viewDocument = downloadDocument;
 
 onMounted(() => {
   fetchTickets();

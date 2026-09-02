@@ -740,6 +740,8 @@ const FormRow = defineComponent({
   },
 });
 
+import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
+
 /**
  * Attachment list renderer for FGMU/LEAU/TASU digital forms.
  */
@@ -749,24 +751,53 @@ const AttachmentList = defineComponent({
   setup(props, { emit }) {
     return () => props.attachments?.length
       ? h('div', { class: 'mt-3 pt-3 border-t border-slate-200' }, [
-          h('p', { class: 'text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2' }, 'Attachments'),
-          h('div', { class: 'space-y-1.5' }, props.attachments.map(att =>
-            h('button', {
+          h('p', { class: 'text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2' }, 'Attachments & Documents'),
+          h('div', { class: 'space-y-2' }, props.attachments.map(att => {
+            const isWord = isDocxFile(att.file_name, att.file_type);
+            const isPdf = isPdfFile(att.file_name, att.file_type);
+
+            return h('div', {
               key: att.id,
-              class: 'w-full flex items-center gap-3 p-2.5 bg-white border border-slate-200 rounded-xl hover:border-emerald-400 transition-colors text-left group cursor-pointer',
-              onClick: () => emit('download', att),
+              class: 'w-full flex items-center justify-between p-2.5 bg-white border border-slate-200 rounded-xl hover:border-emerald-400 transition-all shadow-xs group',
             }, [
-              h('div', { class: 'w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 flex-shrink-0 group-hover:bg-emerald-100 transition-colors' },
-                h('svg', { xmlns: 'http://www.w3.org/2000/svg', class: 'h-4 w-4', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' },
-                  h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13' })
-                )
-              ),
-              h('div', { class: 'flex-1 min-w-0' }, [
-                h('p', { class: 'text-xs font-bold text-slate-700 truncate group-hover:text-emerald-700 transition-colors' }, att.file_name || 'Attachment'),
-                h('p', { class: 'text-[10px] text-slate-400' }, att.file_size_bytes ? `${(att.file_size_bytes / 1024).toFixed(1)} KB` : 'Unknown'),
+              h('div', { class: 'flex items-center gap-3 min-w-0 flex-1 cursor-pointer', onClick: () => emit('download', att) }, [
+                h('div', {
+                  class: `w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                    isWord ? 'bg-blue-50 text-blue-600 group-hover:bg-blue-100' :
+                    isPdf ? 'bg-rose-50 text-rose-600 group-hover:bg-rose-100' :
+                    'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100'
+                  }`
+                }, [
+                  h('svg', { xmlns: 'http://www.w3.org/2000/svg', class: 'h-4 w-4', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' },
+                    h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z' })
+                  )
+                ]),
+                h('div', { class: 'min-w-0 flex-1' }, [
+                  h('p', { class: 'text-xs font-bold text-slate-700 truncate group-hover:text-emerald-700 transition-colors' }, att.file_name || 'Attachment'),
+                  h('p', { class: 'text-[10px] text-slate-400 font-medium' }, [
+                    att.file_size_bytes ? `${(att.file_size_bytes / 1024).toFixed(1)} KB` : 'Attached File',
+                    h('span', { class: 'mx-1' }, '•'),
+                    h('span', { class: isWord ? 'text-blue-600 font-bold' : isPdf ? 'text-rose-600 font-bold' : 'text-slate-500' }, isWord ? 'DOCX (Auto-download)' : isPdf ? 'PDF Document' : 'File')
+                  ]),
+                ]),
               ]),
-            ])
-          )),
+              h('div', { class: 'flex items-center gap-1.5 shrink-0 ml-2' }, [
+                // If PDF, show explicit View button
+                isPdf ? h('button', {
+                  type: 'button',
+                  onClick: () => emit('download', att),
+                  class: 'px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer',
+                }, 'Preview') : null,
+                // Direct download button for all
+                h('button', {
+                  type: 'button',
+                  onClick: () => downloadAttachmentDirectly(att),
+                  class: 'px-2.5 py-1 text-[10px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer',
+                  title: 'Download file'
+                }, 'Download'),
+              ]),
+            ]);
+          })),
         ])
       : null;
   },
@@ -813,19 +844,13 @@ const CheckboxItem = defineComponent({
 
 // ---- Document & Attachment Preview ----
 const downloadAttachment = async (att) => {
-  try {
-    const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
-    const blob = new Blob([response.data], { type: att.file_type || 'application/octet-stream' });
-    
+  await handleAttachmentClick(att, (blob, att) => {
     viewerModal.title = att.file_name || 'Document Attachment';
-    viewerModal.fileName = att.file_name || 'attachment';
+    viewerModal.fileName = att.file_name || 'attachment.pdf';
     viewerModal.fileBlob = blob;
     viewerModal.fileUrl = '';
     viewerModal.isOpen = true;
-  } catch (error) {
-    console.error('Failed to preview attachment', error);
-    toast.error(`Failed to load attachment: ${error.response?.data?.message || error.message || 'Unknown error'}`);
-  }
+  });
 };
 
 const openJobRequestFormViewer = async (ticket) => {
@@ -834,17 +859,16 @@ const openJobRequestFormViewer = async (ticket) => {
     viewerModal.title = `FGMU Job Request Form - #${ticketId}`;
     viewerModal.fileName = `FGMU Job Request Form - #${ticketId}.pdf`;
     
-    // Check if attachment already exists in ticket attachments
-    const existingAtt = (ticket.attachments || []).find(a => 
-      (a.file_name && a.file_name.toLowerCase().includes('job request form')) ||
-      (a.file_name && a.file_name.toLowerCase().includes('fgmu'))
+    // Check if PDF attachment already exists in ticket attachments
+    const existingPdfAtt = (ticket.attachments || []).find(a => 
+      a.file_name && 
+      (a.file_name.toLowerCase().includes('job request form') || a.file_name.toLowerCase().includes('fgmu')) &&
+      a.file_name.toLowerCase().endsWith('.pdf')
     );
     
-    if (existingAtt) {
-      const response = await api.get(`attachments/${existingAtt.id}`, { responseType: 'blob' });
-      viewerModal.fileBlob = new Blob([response.data], {
-        type: existingAtt.file_type || 'application/pdf'
-      });
+    if (existingPdfAtt) {
+      const response = await api.get(`attachments/${existingPdfAtt.id}`, { responseType: 'blob' });
+      viewerModal.fileBlob = new Blob([response.data], { type: 'application/pdf' });
     } else {
       const blob = await generateFgmuJobRequestFormBlob(ticket, ticket.feedback);
       viewerModal.fileBlob = blob;

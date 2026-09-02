@@ -33,6 +33,19 @@
 
             <!-- Action Toolbar Buttons -->
             <div class="flex items-center gap-2 shrink-0">
+              <!-- Open in New Tab (PDF/Image) -->
+              <button 
+                v-if="isPdf || isImage"
+                @click="openInNewTab" 
+                class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                title="Open document in a new browser tab"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                <span class="hidden sm:inline">New Tab</span>
+              </button>
+
               <button 
                 @click="downloadFile" 
                 class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95"
@@ -251,6 +264,24 @@ watch(
 const emitClose = () => {
   emit('update:isOpen', false);
   emit('close');
+};
+
+const openInNewTab = () => {
+  try {
+    if (pdfBlobUrl.value) {
+      window.open(pdfBlobUrl.value, '_blank');
+    } else if (imageUrl.value) {
+      window.open(imageUrl.value, '_blank');
+    } else if (props.fileBlob) {
+      const url = URL.createObjectURL(props.fileBlob);
+      window.open(url, '_blank');
+    } else if (props.fileUrl) {
+      window.open(props.fileUrl, '_blank');
+    }
+  } catch (e) {
+    console.error('Failed to open document in new tab:', e);
+    toast.error('Could not open in new tab.');
+  }
 };
 
 const downloadFile = () => {

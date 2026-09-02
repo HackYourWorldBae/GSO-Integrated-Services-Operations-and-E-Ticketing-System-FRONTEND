@@ -330,6 +330,8 @@ const buildDocDefinition = (data, logoDataUrl) => {
   };
 };
 
+import { generateDocxBlob, generateDocx } from '@/utils/docxGenerator';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Public API
 // ─────────────────────────────────────────────────────────────────────────────
@@ -368,6 +370,17 @@ export const generateFgmuJobRequestFormBlob = async (ticket, feedbackData = null
 };
 
 /**
+ * Generates the FGMU Job Request Form as a Word (.docx) Blob.
+ * @param {Object} ticket
+ * @param {Object|null} feedbackData
+ * @returns {Promise<Blob>}
+ */
+export const generateFgmuJobRequestFormDocxBlob = async (ticket, feedbackData = null) => {
+  const templateData = buildFgmuTemplateData(ticket, feedbackData);
+  return await generateDocxBlob('/templates/FGMU Job Request Form.docx', templateData);
+};
+
+/**
  * Triggers a browser PDF download for the FGMU Job Request Form.
  * @param {Object} ticket
  * @param {Object|null} feedbackData
@@ -385,7 +398,38 @@ export const downloadFgmuJobRequestForm = async (ticket, feedbackData = null) =>
 };
 
 /**
- * Generates the PDF and uploads it to the backend as a ticket attachment.
+ * Triggers a browser DOCX download for the FGMU Job Request Form.
+ * @param {Object} ticket
+ * @param {Object|null} feedbackData
+ */
+export const downloadFgmuJobRequestFormDocx = async (ticket, feedbackData = null) => {
+  const ticketId = ticket.ticketId || ticket.id || 'document';
+  const templateData = buildFgmuTemplateData(ticket, feedbackData);
+  await generateDocx(
+    '/templates/FGMU Job Request Form.docx',
+    templateData,
+    `FGMU Job Request Form - #${ticketId}.docx`
+  );
+};
+
+/**
+ * Opens the FGMU Job Request Form PDF in a new browser tab.
+ * @param {Object} ticket
+ * @param {Object|null} feedbackData
+ */
+export const openFgmuJobRequestFormInNewTab = async (ticket, feedbackData = null) => {
+  const [pdfMake, data, logoDataUrl] = await Promise.all([
+    getPdfMake(),
+    buildFgmuTemplateData(ticket, feedbackData),
+    getLogoDataUrl(),
+  ]);
+  const docDef = buildDocDefinition(data, logoDataUrl);
+  pdfMake.createPdf(docDef).open();
+};
+
+/**
+ * Generates BOTH the PDF and DOCX versions of the FGMU Job Request Form
+ * and uploads both as permanent attachments to the ticket.
  * @param {Object} ticket
  * @param {Object|null} feedbackData
  * @returns {Promise<Object>} API response
@@ -394,13 +438,24 @@ export const attachFgmuJobRequestForm = async (ticket, feedbackData = null) => {
   const ticketId = ticket.ticketId || ticket.id;
   if (!ticketId) throw new Error('Ticket ID is required to attach document.');
 
-  const pdfBlob = await generateFgmuJobRequestFormBlob(ticket, feedbackData);
-  const fileName = `FGMU Job Request Form - #${ticketId}.pdf`;
+  // Concurrently generate BOTH PDF and DOCX files
+  const [pdfBlob, docxBlob] = await Promise.all([
+    generateFgmuJobRequestFormBlob(ticket, feedbackData),
+    generateFgmuJobRequestFormDocxBlob(ticket, feedbackData).catch(err => {
+      console.warn('DOCX template generation fallback warning:', err);
+      return null;
+    }),
+  ]);
 
   const formData = new FormData();
-  formData.append('attachments[]', pdfBlob, fileName);
+  formData.append('attachments[]', pdfBlob, `FGMU Job Request Form - #${ticketId}.pdf`);
+
+  if (docxBlob) {
+    formData.append('attachments[]', docxBlob, `FGMU Job Request Form - #${ticketId}.docx`);
+  }
 
   return await api.post(`tickets/${ticketId}/attachments`, formData, {
     headers: { 'Content-Type': undefined },
   });
 };
+

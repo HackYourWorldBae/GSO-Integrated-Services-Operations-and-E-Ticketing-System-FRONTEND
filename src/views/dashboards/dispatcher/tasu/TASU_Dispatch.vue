@@ -560,6 +560,8 @@ import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 import { generateDocxBlob } from '@/utils/docxGenerator';
 
+import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
+
 const viewerModal = reactive({
   isOpen: false,
   title: '',
@@ -569,18 +571,12 @@ const viewerModal = reactive({
 
 const downloadAttachment = async (att) => {
   if (typeof att === 'string') return;
-  try {
-    const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
-    const blob = new Blob([response.data], { type: att.file_type || 'application/octet-stream' });
-    
+  await handleAttachmentClick(att, (blob, att) => {
     viewerModal.title = att.file_name || 'Document Attachment';
-    viewerModal.fileName = att.file_name || 'attachment';
+    viewerModal.fileName = att.file_name || 'attachment.pdf';
     viewerModal.fileBlob = blob;
     viewerModal.isOpen = true;
-  } catch (error) {
-    console.error('Failed to preview attachment', error);
-    toast.error('Failed to preview attachment.');
-  }
+  });
 };
 
 const route = useRoute();

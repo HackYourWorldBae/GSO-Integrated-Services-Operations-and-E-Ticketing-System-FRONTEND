@@ -226,24 +226,28 @@ import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 
+import { isDocxFile, isPdfFile, isImageFile, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
+
 const downloadAttachment = async (att) => {
   if (typeof att === 'string') return;
   try {
+    const isWord = isDocxFile(att.file_name, att.file_type);
+    if (isWord) {
+      await downloadAttachmentDirectly(att);
+      return;
+    }
     const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
-    if (att.file_type && att.file_type.startsWith('image/')) {
+    const isPdf = isPdfFile(att.file_name, att.file_type);
+    const mime = isPdf ? 'application/pdf' : (att.file_type || 'application/octet-stream');
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: mime }));
+    if (isPdf || isImageFile(att.file_name, att.file_type)) {
       window.open(url, '_blank');
     } else {
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', att.file_name || 'attachment');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      await downloadAttachmentDirectly(att);
     }
   } catch (error) {
-    console.error('Failed to download attachment', error);
-    alert('Failed to download attachment.');
+    console.error('Failed to handle attachment', error);
+    toast.error('Failed to process attachment.');
   }
 };
 

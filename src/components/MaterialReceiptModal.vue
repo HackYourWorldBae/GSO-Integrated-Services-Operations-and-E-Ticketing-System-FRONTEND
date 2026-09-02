@@ -23,16 +23,43 @@
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
+              <!-- Open PDF in New Tab -->
+              <button
+                type="button"
+                @click="openInNewTab"
+                class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                title="Open official PDF slip in new browser tab"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                <span class="hidden sm:inline">New Tab</span>
+              </button>
+
+              <!-- Download PDF -->
+              <button
+                type="button"
+                @click="downloadPdf"
+                class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"
+                title="Download official material slip as PDF"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Download PDF</span>
+              </button>
+
+              <!-- Print -->
               <button
                 type="button"
                 @click="printReceipt"
-                class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"
+                class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 hidden sm:flex"
                 title="Print official material slip"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
-                <span>Print Official Slip</span>
+                <span>Print</span>
               </button>
 
               <button
@@ -222,6 +249,18 @@
           <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0 print:hidden">
             <span class="text-xs text-slate-500 font-medium hidden sm:inline">Benguet State University • General Services Office</span>
             <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+              <!-- Download PDF -->
+              <button
+                type="button"
+                @click="downloadPdf"
+                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Download PDF</span>
+              </button>
+
               <button
                 type="button"
                 @click="printReceipt"
@@ -232,10 +271,11 @@
                 </svg>
                 <span>Print</span>
               </button>
+
               <button
                 type="button"
                 @click="emitClose"
-                class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer"
+                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 Close
               </button>
@@ -250,6 +290,8 @@
 
 <script setup>
 import { computed } from 'vue';
+import { toast } from 'vue3-toastify';
+import { downloadMaterialSlipPdf, openMaterialSlipPdfInNewTab } from '@/utils/materialSlipPdfGenerator';
 
 const props = defineProps({
   isOpen: {
@@ -263,6 +305,27 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:isOpen', 'close']);
+
+const downloadPdf = async () => {
+  if (!props.ticket) return;
+  try {
+    await downloadMaterialSlipPdf(props.ticket);
+    toast.success('Material slip PDF downloaded!');
+  } catch (err) {
+    console.error('Failed to download material slip PDF:', err);
+    toast.error('Failed to generate PDF download.');
+  }
+};
+
+const openInNewTab = async () => {
+  if (!props.ticket) return;
+  try {
+    await openMaterialSlipPdfInNewTab(props.ticket);
+  } catch (err) {
+    console.error('Failed to open material slip PDF in new tab:', err);
+    toast.error('Failed to open PDF in new tab.');
+  }
+};
 
 const unitCode = computed(() => {
   if (props.ticket?.unit_id === 2 || props.ticket?.unit_code === 'LEAU' || props.ticket?.unit === 'LEAU') {

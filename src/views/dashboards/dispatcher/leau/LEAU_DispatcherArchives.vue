@@ -275,21 +275,51 @@
                 </div>
               </div>
 
-              <!-- Attachments / Photos -->
+              <!-- Attachments & Official Documents -->
               <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="col-span-2 mt-2">
-                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments / Photos</p>
+                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments & Official Documents</p>
                  <div class="flex flex-col gap-2">
-                   <a v-for="att in selectedTicket.attachments" :key="att.id" @click.prevent="downloadAttachment(att)" class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-colors shadow-sm cursor-pointer group">
-                     <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
-                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                       </svg>
+                   <div v-for="att in selectedTicket.attachments" :key="att.id" class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-colors shadow-xs group">
+                     <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" @click.prevent="downloadAttachment(att)">
+                       <div :class="`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                         isDocxFile(att.file_name, att.file_type) ? 'bg-blue-50 text-blue-600 group-hover:bg-blue-100' :
+                         isPdfFile(att.file_name, att.file_type) ? 'bg-rose-50 text-rose-600 group-hover:bg-rose-100' :
+                         'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100'
+                       }`">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                         </svg>
+                       </div>
+                       <div class="flex flex-col overflow-hidden min-w-0 flex-1">
+                          <span class="text-xs font-bold text-slate-700 truncate group-hover:text-emerald-700 transition-colors">{{ att.file_name || 'Attachment' }}</span>
+                          <span class="text-[10px] font-bold text-slate-400">
+                            {{ att.file_size_bytes ? (att.file_size_bytes / 1024).toFixed(1) + ' KB' : 'File' }}
+                            <span class="mx-1">•</span>
+                            <span :class="isDocxFile(att.file_name, att.file_type) ? 'text-blue-600' : isPdfFile(att.file_name, att.file_type) ? 'text-rose-600' : 'text-slate-500'">
+                              {{ isDocxFile(att.file_name, att.file_type) ? 'DOCX (Auto-download)' : isPdfFile(att.file_name, att.file_type) ? 'PDF Document' : 'Attachment' }}
+                            </span>
+                          </span>
+                       </div>
                      </div>
-                     <div class="flex flex-col overflow-hidden">
-                        <span class="text-xs font-bold text-slate-700 truncate group-hover:text-emerald-700 transition-colors">{{ att.file_name || 'Attachment' }}</span>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase">{{ att.file_size_bytes ? (att.file_size_bytes / 1024).toFixed(1) + ' KB' : 'Unknown Size' }}</span>
+                     <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                       <button
+                         v-if="isPdfFile(att.file_name, att.file_type)"
+                         type="button"
+                         @click="downloadAttachment(att)"
+                         class="px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer"
+                       >
+                         Preview
+                       </button>
+                       <button
+                         type="button"
+                         @click="downloadAttachmentDirectly(att)"
+                         class="px-2.5 py-1 text-[10px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+                         title="Download file"
+                       >
+                         Download
+                       </button>
                      </div>
-                   </a>
+                   </div>
                  </div>
               </div>
             </div>
@@ -305,19 +335,13 @@
         </div>
       </div>
 
-      <!-- Image Viewer Modal -->
-      <div v-if="showImageModal" class="absolute inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeImageModal">
-        <div class="relative bg-white rounded-2xl p-2 max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
-          <button @click="closeImageModal" class="absolute -top-4 -right-4 bg-white text-slate-500 hover:text-slate-700 p-2 rounded-full shadow-lg transition-colors z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <div class="overflow-auto rounded-xl flex items-center justify-center bg-slate-100 min-h-[200px] min-w-[200px]">
-            <img :src="selectedImageUrl" alt="Attachment Preview" class="max-w-full max-h-[85vh] object-contain rounded-xl" />
-          </div>
-        </div>
-      </div>
+      <!-- Document & Attachment Viewer Modal -->
+      <DocumentViewerModal
+        v-model:isOpen="viewerModal.isOpen"
+        :title="viewerModal.title"
+        :fileName="viewerModal.fileName"
+        :fileBlob="viewerModal.fileBlob"
+      />
 
       <!-- Material Receipt Modal -->
       <MaterialReceiptModal
@@ -329,15 +353,22 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
+import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
 import api from '@/api/client';
+import { toast } from 'vue3-toastify';
 
 const tickets = ref([]);
 
-const showImageModal = ref(false);
-const selectedImageUrl = ref('');
+const viewerModal = reactive({
+  isOpen: false,
+  title: '',
+  fileName: '',
+  fileBlob: null
+});
 
 const showReceiptModal = ref(false);
 const selectedReceiptTicket = ref(null);
@@ -354,33 +385,13 @@ const formatPrice = (val) => {
   });
 };
 
-const closeImageModal = () => {
-  showImageModal.value = false;
-  if (selectedImageUrl.value) {
-    window.URL.revokeObjectURL(selectedImageUrl.value);
-    selectedImageUrl.value = '';
-  }
-};
-
 const downloadAttachment = async (att) => {
-  try {
-    const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
-    if (att.file_type && att.file_type.startsWith('image/')) {
-        selectedImageUrl.value = url;
-        showImageModal.value = true;
-    } else {
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', att.file_name || 'attachment');
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-    }
-  } catch (error) {
-    console.error('Failed to download attachment', error);
-    alert(`Failed to download attachment: ${error.response?.data?.message || error.message}`);
-  }
+  await handleAttachmentClick(att, (blob, att) => {
+    viewerModal.title = att.file_name || 'Document Attachment';
+    viewerModal.fileName = att.file_name || 'attachment.pdf';
+    viewerModal.fileBlob = blob;
+    viewerModal.isOpen = true;
+  });
 };
 
 const fetchArchives = async () => {
