@@ -697,7 +697,7 @@ import { ref, reactive, computed, onMounted, onUnmounted, defineComponent, h } f
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import { attachFgmuJobRequestForm, generateFgmuJobRequestFormBlob } from '@/utils/fgmuDocxGenerator';
+import { attachFgmuJobRequestForm, generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
@@ -832,7 +832,7 @@ const openJobRequestFormViewer = async (ticket) => {
   try {
     const ticketId = ticket.ticketId || ticket.id;
     viewerModal.title = `FGMU Job Request Form - #${ticketId}`;
-    viewerModal.fileName = `FGMU Job Request Form - #${ticketId}.docx`;
+    viewerModal.fileName = `FGMU Job Request Form - #${ticketId}.pdf`;
     
     // Check if attachment already exists in ticket attachments
     const existingAtt = (ticket.attachments || []).find(a => 
@@ -843,7 +843,7 @@ const openJobRequestFormViewer = async (ticket) => {
     if (existingAtt) {
       const response = await api.get(`attachments/${existingAtt.id}`, { responseType: 'blob' });
       viewerModal.fileBlob = new Blob([response.data], {
-        type: existingAtt.file_type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        type: existingAtt.file_type || 'application/pdf'
       });
     } else {
       const blob = await generateFgmuJobRequestFormBlob(ticket, ticket.feedback);

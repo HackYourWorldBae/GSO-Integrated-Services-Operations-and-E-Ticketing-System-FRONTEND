@@ -17,6 +17,7 @@
     "docx-preview": "^0.4.0",
     "docxtemplater": "^3.69.3",
     "file-saver": "^2.0.5",
+    "pdfmake": "^0.3.11",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "pizzip": "^3.2.0",
