@@ -10,21 +10,8 @@
 
 import api from '@/api/client';
 import { loadImageAsPngDataUrl } from '@/utils/imageUtils';
+import { getPdfMake } from '@/utils/pdfmakeInit';
 
-/** Lazy-loaded pdfmake instance */
-let _pdfMake = null;
-
-async function getPdfMake() {
-  if (!_pdfMake) {
-    const [{ default: pdfMake }, { default: pdfFonts }] = await Promise.all([
-      import('pdfmake/build/pdfmake'),
-      import('pdfmake/build/vfs_fonts'),
-    ]);
-    pdfMake.vfs = pdfFonts.pdfMake.vfs;
-    _pdfMake = pdfMake;
-  }
-  return _pdfMake;
-}
 
 let cachedLogoDataUrl = null;
 
@@ -452,11 +439,15 @@ export const downloadMaterialSlipPdf = async (ticket) => {
  * @param {Object} ticket
  */
 export const openMaterialSlipPdfInNewTab = async (ticket) => {
-  const [pdfMake, logoDataUrl] = await Promise.all([
-    getPdfMake(),
-    getLogoDataUrl(),
-  ]);
-  const data = buildMaterialSlipData(ticket);
-  const docDef = buildMaterialSlipDocDefinition(data, logoDataUrl);
-  pdfMake.createPdf(docDef).open();
+  const blob = await generateMaterialSlipPdfBlob(ticket);
+  const blobUrl = URL.createObjectURL(blob);
+  const win = window.open(blobUrl, '_blank');
+  if (!win) {
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
 };

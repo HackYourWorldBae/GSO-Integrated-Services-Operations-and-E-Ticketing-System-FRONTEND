@@ -268,15 +268,22 @@ const emitClose = () => {
 
 const openInNewTab = () => {
   try {
-    if (pdfBlobUrl.value) {
-      window.open(pdfBlobUrl.value, '_blank');
-    } else if (imageUrl.value) {
-      window.open(imageUrl.value, '_blank');
-    } else if (props.fileBlob) {
-      const url = URL.createObjectURL(props.fileBlob);
-      window.open(url, '_blank');
-    } else if (props.fileUrl) {
-      window.open(props.fileUrl, '_blank');
+    let url = pdfBlobUrl.value || imageUrl.value;
+    if (!url && props.fileBlob) {
+      url = URL.createObjectURL(props.fileBlob);
+    } else if (!url && props.fileUrl) {
+      url = props.fileUrl;
+    }
+    if (url) {
+      const win = window.open(url, '_blank');
+      if (!win) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
     }
   } catch (e) {
     console.error('Failed to open document in new tab:', e);

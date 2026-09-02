@@ -16,21 +16,8 @@
 
 import api from '@/api/client';
 import { loadImageAsPngDataUrl } from '@/utils/imageUtils';
-
-/** Lazy-loaded pdfmake instance — only fetched on first document generation. */
-let _pdfMake = null;
-
-async function getPdfMake() {
-  if (!_pdfMake) {
-    const [{ default: pdfMake }, { default: pdfFonts }] = await Promise.all([
-      import('pdfmake/build/pdfmake'),
-      import('pdfmake/build/vfs_fonts'),
-    ]);
-    pdfMake.vfs = pdfFonts.pdfMake.vfs;
-    _pdfMake = pdfMake;
-  }
-  return _pdfMake;
-}
+import { getPdfMake } from '@/utils/pdfmakeInit';
+import { generateDocxBlob, generateDocx } from '@/utils/docxGenerator';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Date Formatting
@@ -330,8 +317,6 @@ const buildDocDefinition = (data, logoDataUrl) => {
   };
 };
 
-import { generateDocxBlob, generateDocx } from '@/utils/docxGenerator';
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Public API
 // ─────────────────────────────────────────────────────────────────────────────
@@ -418,13 +403,17 @@ export const downloadFgmuJobRequestFormDocx = async (ticket, feedbackData = null
  * @param {Object|null} feedbackData
  */
 export const openFgmuJobRequestFormInNewTab = async (ticket, feedbackData = null) => {
-  const [pdfMake, data, logoDataUrl] = await Promise.all([
-    getPdfMake(),
-    buildFgmuTemplateData(ticket, feedbackData),
-    getLogoDataUrl(),
-  ]);
-  const docDef = buildDocDefinition(data, logoDataUrl);
-  pdfMake.createPdf(docDef).open();
+  const blob = await generateFgmuJobRequestFormBlob(ticket, feedbackData);
+  const blobUrl = URL.createObjectURL(blob);
+  const win = window.open(blobUrl, '_blank');
+  if (!win) {
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
 };
 
 /**
