@@ -8,7 +8,7 @@ import apiClient from './client';
 // ============================================================================
 
 /**
- * Get system-wide analytics across all four sub-units.
+ * Get system-wide analytics across all sub-units.
  * Returns ticket volumes, completion rates, monthly trends, and feedback averages.
  */
 export const fetchAnalytics = () =>
@@ -16,7 +16,7 @@ export const fetchAnalytics = () =>
 
 /**
  * Get per-unit analytics breakdown including top delay reasons.
- * @param {string} unitCode - 'FGMU' | 'LEAU' | 'SSU' | 'TASU'
+ * @param {string} unitCode - 'FGMU' | 'LEAU' | 'SSU'
  */
 export const fetchUnitAnalytics = (unitCode) =>
   apiClient.get(`/director/analytics/${unitCode}`);

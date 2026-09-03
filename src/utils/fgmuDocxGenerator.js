@@ -103,7 +103,6 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     const rawPersonnel = 
       assignment.personnel_name || 
       ticket.assignedWorker || 
-      ticket.assignedDriver || 
       ticket.assigned_worker || 
       ticket.assigned_personnel || 
       '';

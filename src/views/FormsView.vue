@@ -8,9 +8,7 @@ import SearchableDropdown from '@/components/SearchableDropdown.vue';
 import api from '@/api/client';
 import FGMUForm from '@/components/forms/FGMUForm.vue';
 import LEAUForm from '@/components/forms/LEAUForm.vue';
-import SSUVehiclePassForm from '@/components/forms/SSUVehiclePassForm.vue';
 import SSUIncidentReportForm from '@/components/forms/SSUIncidentReportForm.vue';
-import TASUForm from '@/components/forms/TASUForm.vue';
 
 import { useAuthStore } from '@/stores/auth';
 
@@ -38,78 +36,59 @@ const locations = [
       'College of Human Kinetics Building (CHK)',
       'College of Veterinary Medicine / Animal Clinic (CVM)',
       'College of Forestry Building (CF)',
-      'College of Nursing Building (CN)',
-      'College of Numeracy and Applied Sciences (CNAS)',
-      'College of Social Sciences Building (CSS)',
-      'College of Public Administration & Governance (CPAG)'
+      'College of Public Administration & Governance (CPAG)',
+      'College of Arts and Humanities (CAH)',
+      'College of Social Sciences (CSS)'
     ]
   },
   {
-    group: 'Administrative Offices',
+    group: 'Administration & Support',
     items: [
-      'Administration Building (Office of the President / Registrar)',
-      'ICT Office & Server Center',
-      'Planning and Development Office',
-      'Finance and Management Services',
-      'Office of Student Services (OSS)',
-      'Graduate School Office (GS)'
-    ]
-  },
-  {
-    group: 'Facilities & Others',
-    items: [
-      'University Library & Information Services',
-      'University Health Services (Clinic)',
+      'General Services Office (GSO)',
+      'Administration Building (Admin)',
+      'Student Center / OSA',
+      'University Library',
       'BSU Gymnasium',
-      'BSU Athletic Oval & Grandstand',
-      'University Museum',
-      'University Canteen',
-      'Ladies Dormitory 1',
-      'Ladies Dormitory 2',
-      'Men’s Dormitory',
-      'Research and Extension Complex',
-      'NPRCRTC (Root Crops Research Center)',
-      'Food Processing Center',
+      'BSU Clinic / Health Services',
+      'BSU Security Headquarters',
+      'Motorpool Depot',
+      'Research & Extension Complex',
+      'Northern Philippines Root Crop Center (NPRCRTC)',
+      'Institute of Highland Farming Systems (IHFSA)',
+      'Cordillera Organic Agriculture R&D Center (COARDC)'
+    ]
+  },
+  {
+    group: 'Auxiliary & Commercial',
+    items: [
+      'BSU Agri-Based Technology Incubator (ATBI)',
       'BSU Bakery',
-      'BSU Marketing Center',
-      'Poultry & Livestock Research Area'
+      'BSU Marketing Center / Canteen',
+      'University Dormitory / Housing',
+      'BSU Strawberry Farm Compound',
+      'Poultry / Livestock Project Area'
     ]
   }
 ];
 
 // State moved to src/stores/forms.js
 
-onMounted(() => {
-  // Redirect to login if not authenticated
-  if (!authStore.isAuthenticated) {
-    router.push({ name: 'login' });
-    return;
-  }
+onMounted(async () => {
+  // Populate default requestor info
+  user.value = authStore.user;
+  const fullName = user.value?.full_name || `${user.value?.first_name || ''} ${user.value?.last_name || ''}`.trim() || 'John Requestor';
+  const contact  = user.value?.contact_no || user.value?.contact_number || user.value?.phone || '';
+  const role     = user.value?.role || 'Staff / Faculty';
 
-  // Auto-fill form fields from the authenticated user's profile
-  const fullName = authStore.fullName;
-  const contact  = authStore.user?.contact_number || '';
-  const role     = authStore.capitalizedRole;
-
+  // FGMU & LEAU Auto-fill
   formsStore.fgmuState.sectionA.end_user        = fullName;
   formsStore.fgmuState.sectionA.contact_number  = contact;
   formsStore.leauState.sectionA.end_user        = fullName;
   formsStore.leauState.sectionA.contact_number  = contact;
 
   // SSU Auto-fill
-  formsStore.ssuVehicleState.applicantName = fullName;
-  formsStore.ssuVehicleState.contactNo   = contact;
-
   formsStore.ssuIncidentState.reportedBy.printedName = fullName;
   formsStore.ssuIncidentState.reportedBy.roles       = [role];
-
-  formsStore.tasuVehicleState.requestingPersonnel = fullName;
-
-  const storedBooking = localStorage.getItem('pendingVehicleBooking');
-  if (storedBooking) {
-    const booking = JSON.parse(storedBooking);
-    formsStore.tasuVehicleState.dateOfTravel = booking.date;
-  }
 
   const storedServices = localStorage.getItem('selectedServices');
   const storedOthers = localStorage.getItem('otherSpecifics');
@@ -141,25 +120,20 @@ const selectedList = computed(() => {
 const FGMU_CATEGORIES = ['Structure & Finishes', 'Utilities & Mechanical'];
 const LEAU_CATEGORIES = ['Janitorial & Landscaping'];
 const SSU_CATEGORIES = ['Security Services'];
-const TASU_CATEGORIES = ['Transportation Services'];
 
 const fgmuServices = computed(() => selectedList.value.filter(s => FGMU_CATEGORIES.includes(s.category)));
 const leauServices = computed(() => selectedList.value.filter(s => LEAU_CATEGORIES.includes(s.category)));
 const ssuServices = computed(() => selectedList.value.filter(s => SSU_CATEGORIES.includes(s.category)));
-const tasuServices = computed(() => selectedList.value.filter(s => TASU_CATEGORIES.includes(s.category)));
 const otherServices = computed(() => selectedList.value.filter(s => 
   !FGMU_CATEGORIES.includes(s.category) && 
   !LEAU_CATEGORIES.includes(s.category) &&
-  !SSU_CATEGORIES.includes(s.category) &&
-  !TASU_CATEGORIES.includes(s.category)
+  !SSU_CATEGORIES.includes(s.category)
 ));
 
 const hasFGMU = computed(() => fgmuServices.value.length > 0);
 const hasLEAU = computed(() => leauServices.value.length > 0);
 const hasSSU = computed(() => ssuServices.value.length > 0);
-const hasVehiclePass = computed(() => ssuServices.value.some(s => s.service === 'Vehicle Pass Sticker'));
 const hasIncidentReport = computed(() => ssuServices.value.some(s => s.service === 'Incident Report'));
-const hasTasuVehicle = computed(() => tasuServices.value.some(s => s.service === 'Book A University Vehicle'));
 const hasOthers = computed(() => otherServices.value.length > 0);
 
 // File handlers have been moved to individual form components
@@ -173,9 +147,7 @@ const handleFinalSubmit = async () => {
   
   if (hasFGMU.value && formsStore.v$.fgmuState.$error) isValid = false;
   if (hasLEAU.value && formsStore.v$.leauState.$error) isValid = false;
-  if (hasVehiclePass.value && formsStore.v$.ssuVehicleState.$error) isValid = false;
   if (hasIncidentReport.value && formsStore.v$.ssuIncidentState.$error) isValid = false;
-  if (hasTasuVehicle.value && formsStore.v$.tasuVehicleState.$error) isValid = false;
 
   if (!isValid) {
     toast.error('Please fill in all required fields correctly.');
@@ -191,10 +163,8 @@ const handleFinalSubmit = async () => {
     fgmu: hasFGMU.value ? { details: fgmuDetails, services: fgmuServices.value } : null,
     leau: hasLEAU.value ? { details: leauDetails, services: leauServices.value } : null,
     ssu: hasSSU.value ? { 
-      vehiclePass: hasVehiclePass.value ? formsStore.ssuVehicleState : null,
       incidentReport: hasIncidentReport.value ? formsStore.ssuIncidentState : null
     } : null,
-    tasu: hasTasuVehicle.value ? formsStore.tasuVehicleState : null,
     others: hasOthers.value ? otherServices.value : null,
     submittedAt: new Date().toISOString()
   };
@@ -221,13 +191,6 @@ const handleFinalSubmit = async () => {
         await uploadFiles(tId, formsStore.fgmuState.attachments);
       } else if (tId.startsWith('LEAU')) {
         await uploadFiles(tId, formsStore.leauState.attachments);
-      } else if (tId.startsWith('SSU')) {
-        // Handle SSU vehicle pass attachments if any, or incident report attachments
-        if (hasVehiclePass.value && formsStore.ssuVehicleState.attachments) {
-            await uploadFiles(tId, formsStore.ssuVehicleState.attachments);
-        }
-      } else if (tId.startsWith('TASU')) {
-        await uploadFiles(tId, formsStore.tasuVehicleState.travelOrderAttachments);
       }
     }
 
@@ -236,7 +199,6 @@ const handleFinalSubmit = async () => {
     localStorage.removeItem('selectedServices');
     localStorage.removeItem('otherSpecifics');
     localStorage.removeItem('customDescriptions');
-    localStorage.removeItem('pendingVehicleBooking');
     router.push('/user/dashboard');
   } catch (error) {
     console.error('Submission error:', error);
@@ -289,30 +251,16 @@ const handleFinalSubmit = async () => {
         :locations="locations" 
       />
 
-      <!-- SSU VEHICLE PASS FORM -->
-      <SSUVehiclePassForm 
-        v-if="hasVehiclePass" 
-        :services="ssuServices" 
-        :locations="locations" 
-      />
-      
       <!-- SSU INCIDENT REPORT FORM -->
       <SSUIncidentReportForm 
         v-if="hasIncidentReport" 
         :services="ssuServices" 
       />
 
-      <!-- TASU VEHICLE REQUEST FORM -->
-      <TASUForm 
-        v-if="hasTasuVehicle" 
-        :services="tasuServices" 
-        :locations="locations" 
-      />
-
       <!-- OTHERS PLACEHOLDER -->
       <div v-if="hasOthers" class="p-12 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 text-center slide-up delay-200 opacity-60">
         <h4 class="text-xl font-black text-slate-400 tracking-tight">Additional Unit Details Needed</h4>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Pending Forms for TASU</p>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Pending Additional Forms</p>
         <div class="mt-6 flex flex-wrap justify-center gap-2">
            <span v-for="item in otherServices" :key="item.service" class="px-4 py-2 bg-slate-50 rounded-xl text-[9px] font-black text-slate-400 border border-slate-100">{{ item.service }}</span>
         </div>

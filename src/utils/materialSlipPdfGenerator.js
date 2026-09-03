@@ -73,7 +73,7 @@ export const buildMaterialSlipData = (ticket = {}) => {
   } else if (Array.isArray(ticket.personnel) && ticket.personnel.length > 0) {
     personnelNames = ticket.personnel.map(p => (typeof p === 'string' ? p : (p.name || p.personnel_name))).filter(Boolean);
   } else {
-    const raw = assignment.personnel_name || ticket.assignedWorker || ticket.assignedDriver || ticket.assigned_worker || ticket.assigned_personnel || '';
+    const raw = assignment.personnel_name || ticket.assignedWorker || ticket.assigned_worker || ticket.assigned_personnel || '';
     if (raw && typeof raw === 'string') {
       personnelNames = raw.split(/[,;\n]+/).map(n => n.trim()).filter(Boolean);
     }

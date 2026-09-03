@@ -91,14 +91,8 @@ const getServiceIcon = (service) => {
       `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a2 2 0 0 1-2.79-2.79L14.7 6.3Z"/><path d="m20 13 2 2"/><path d="m5 22 5-5"/><path d="M17 14.7c-.35 2.2-2.15 4-4.35 4.35L8.5 22.25c-1.12.37-2.12-.63-1.75-1.75l3.2-4.15c.35-2.2 2.15-4 4.35-4.35l4.15-3.2c1.12-.37 2.12.63 1.75 1.75l-3.2 4.15Z"/></svg>`,
 
     // SSU – Security Services
-    "Vehicle Pass Sticker":
-      `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="m9 12 2 2 4-4"/></svg>`,
     "Incident Report":
       `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 11v4"/><path d="M12 18h.01"/></svg>`,
-
-    // TASU – Transportation Services
-    "Book A University Vehicle":
-      `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.64 5H8.36a2 2 0 0 0-1.86 1.3L5 10l-2-2"/><path d="M20 10c2 0 2 1 2 2v5c0 1-1 2-2 2h-1c-1 0-1-1-1-2V10Z"/><path d="M4 10c-2 0-2 1-2 2v5c0 1 1 2 2 2h1c1 0 1-1 1-2V10Z"/><circle cx="12" cy="12" r="2"/><line x1="12" y1="18" x2="12" y2="22"/></svg>`,
 
     "Others":
       `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>`
@@ -167,7 +161,7 @@ const subUnits = ref([
     id: 'ssu',
     name: 'SSU',
     fullName: 'Security Services Unit',
-    description: 'Manages campus security operations including access control, vehicle pass issuance, and official incident documentation for the university community.',
+    description: 'Manages campus security operations including access control, campus safety, and official incident documentation for the university community.',
     // Muted warm-stone — not sharp amber
     headerClass: 'bg-stone-700',
     accentText: 'text-stone-300',
@@ -181,33 +175,9 @@ const subUnits = ref([
     categories: [
       {
         title: "Security Services",
-        description: "Vehicle pass sticker processing and official incident report documentation.",
+        description: "Official incident report documentation and campus safety services.",
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>`,
-        services: ["Vehicle Pass Sticker", "Incident Report", "Others"]
-      }
-    ]
-  },
-  {
-    id: 'tasu',
-    name: 'TASU',
-    fullName: 'Transportation and Automotive Services Unit',
-    description: 'Provides official university transportation services, managing vehicle scheduling and dispatch for academic, administrative, and official university functions.',
-    // Muted slate-zinc — not sharp violet
-    headerClass: 'bg-zinc-800',
-    accentText: 'text-zinc-300',
-    accentBg: 'bg-zinc-50',
-    accentIcon: 'text-zinc-600',
-    accentBorder: 'border-zinc-200',
-    accentHover: 'hover:border-zinc-300',
-    accentBadge: 'bg-zinc-100 text-zinc-600 border-zinc-200',
-    unitInitialBg: 'bg-zinc-600',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v5a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4Z"/><path d="M4 18V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9"/><path d="M12 12a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/><path d="M9 18v2"/><path d="M15 18v2"/></svg>`,
-    categories: [
-      {
-        title: "Transportation Services",
-        description: "Book and schedule official university vehicles for approved trips and events.",
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-5h-7v7Z"/><path d="M13 9h4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
-        services: ["Book A University Vehicle", "Others"]
+        services: ["Incident Report", "Others"]
       }
     ]
   }

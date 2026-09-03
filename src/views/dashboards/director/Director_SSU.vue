@@ -62,27 +62,16 @@
         </div>
 
         <!-- Main Charts Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 gap-8">
           
           <!-- Incident Distribution -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px] lg:h-[400px]">
+          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px] lg:h-[450px]">
             <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
               <div class="w-2 h-6 bg-rose-500 rounded-full"></div>
               Incident Heatmap (By Category)
             </h4>
             <div class="flex-1 relative">
               <canvas id="directorSsuIncidentDoughnut"></canvas>
-            </div>
-          </div>
-
-          <!-- Vehicle Pass Pipeline -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col h-[400px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-slate-900 rounded-full"></div>
-              Vehicle Pass Issuance Pipeline
-            </h4>
-            <div class="flex-1 relative">
-              <canvas id="directorSsuPassPipelineChart"></canvas>
             </div>
           </div>
 
@@ -124,37 +113,6 @@ const renderCharts = () => {
       options: {
         plugins: { legend: { position: 'bottom' } },
         cutout: '65%', responsive: true, maintainAspectRatio: false
-      }
-    }));
-  }
-
-  // 2. Vehicle Pass Pipeline
-  const passCtx = document.getElementById('directorSsuPassPipelineChart');
-  if (passCtx && stats.value.pass_pipeline) {
-    const data = stats.value.pass_pipeline;
-    const statuses = ['pending', 'approved', 'resolved', 'cancelled'];
-    const formatStatus = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-    
-    const counts = statuses.map(s => {
-      const match = data.find(d => d.status === s);
-      return match ? parseInt(match.count) : 0;
-    });
-
-    charts.push(new Chart(passCtx, {
-      type: 'bar',
-      data: {
-        labels: statuses.map(formatStatus),
-        datasets: [{
-          label: 'Tickets',
-          data: counts,
-          backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'],
-          borderRadius: 6
-        }]
-      },
-      options: { 
-        indexAxis: 'y', 
-        plugins: { legend: { display: false } }, 
-        responsive: true, maintainAspectRatio: false 
       }
     }));
   }

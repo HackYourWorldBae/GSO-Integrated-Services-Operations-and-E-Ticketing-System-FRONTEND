@@ -11,42 +11,30 @@ const LEAU_Dashboard = () => import('../views/dashboards/admin/leau/LEAU_Dashboa
 const LEAU_TicketQueues = () => import('../views/dashboards/admin/leau/LEAU_TicketQueues.vue');
 const SSU_Dashboard = () => import('../views/dashboards/admin/ssu/SSU_Dashboard.vue');
 const SSU_IncidentTicketQueues = () => import('../views/dashboards/admin/ssu/SSU_IncidentTicketQueues.vue');
-const SSU_StickerTicketQueues = () => import('../views/dashboards/admin/ssu/SSU_StickerTicketQueues.vue');
-const TASU_Dashboard = () => import('../views/dashboards/admin/tasu/TASU_Dashboard.vue');
-const TASU_TicketQueues = () => import('../views/dashboards/admin/tasu/TASU_TicketQueues.vue');
 const Director_Dashboard = () => import('../views/dashboards/director/Director_Dashboard.vue');
 const Director_FGMU = () => import('../views/dashboards/director/Director_FGMU.vue');
 const Director_LEAU = () => import('../views/dashboards/director/Director_LEAU.vue');
 const Director_SSU = () => import('../views/dashboards/director/Director_SSU.vue');
-const Director_TASU = () => import('../views/dashboards/director/Director_TASU.vue');
 const OrganizationalChart = () => import('../views/dashboards/director/OrganizationalChart.vue');
 const FormsView = () => import('../views/FormsView.vue');
 const FGMU_Dispatcher = () => import('../views/dashboards/dispatcher/fgmu/FGMU.vue');
 const FGMU_Workers = () => import('../views/dashboards/dispatcher/fgmu/FGMU_Workers.vue');
 const LEAU_Dispatcher = () => import('../views/dashboards/dispatcher/leau/LEAU.vue');
 const LEAU_Workers = () => import('../views/dashboards/dispatcher/leau/LEAU_Workers.vue');
-const TASU_Dispatcher = () => import('../views/dashboards/dispatcher/tasu/TASU.vue');
 
-const TASU_Dispatch = () => import('../views/dashboards/dispatcher/tasu/TASU_Dispatch.vue');
 const FGMU_DispatchedTickets = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatchedTickets.vue');
 const LEAU_DispatchedTickets = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatchedTickets.vue');
-const TASU_DispatchedTickets = () => import('../views/dashboards/dispatcher/tasu/TASU_DispatchedTickets.vue');
 const FGMU_DispatcherProjectArchives = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatcherProjectArchives.vue');
 const LEAU_DispatcherProjectArchives = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatcherProjectArchives.vue');
 const FGMU_DispatcherArchives = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatcherArchives.vue');
 const LEAU_DispatcherArchives = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatcherArchives.vue');
-const TASU_DispatcherArchives = () => import('../views/dashboards/dispatcher/tasu/TASU_DispatcherArchives.vue');
 const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
-const TASU_VehicleManagement = () => import('../views/dashboards/admin/tasu/TASU_VehicleManagement.vue');
-const TASU_DispatchBoard = () => import('../views/dashboards/admin/tasu/TASU_DispatchBoard.vue');
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
 const LEAU_Personnel = () => import('../views/dashboards/admin/leau/LEAU_Personnel.vue');
-const TASU_Personnel = () => import('../views/dashboards/admin/tasu/TASU_Personnel.vue');
 const FGMU_Archives = () => import('../views/dashboards/admin/fgmu/FGMU_Archives.vue');
 const LEAU_Archives = () => import('../views/dashboards/admin/leau/LEAU_Archives.vue');
 const SSU_Archives = () => import('../views/dashboards/admin/ssu/SSU_Archives.vue');
-const TASU_Archives = () => import('../views/dashboards/admin/tasu/TASU_Archives.vue');
 const User_CompletedTickets = () => import('../views/dashboards/user/User_CompletedTickets.vue');
 const FGMU_Announcements = () => import('../views/dashboards/admin/fgmu/FGMU_Announcements.vue');
 const LEAU_Announcements = () => import('../views/dashboards/admin/leau/LEAU_Announcements.vue');
@@ -179,49 +167,9 @@ const router = createRouter({
       component: SSU_IncidentTicketQueues
     },
     {
-      path: '/admin/ssu/queues/stickers',
-      name: 'ssu-sticker-queues',
-      component: SSU_StickerTicketQueues
-    },
-    {
-      path: '/admin/ssu/queues/stickers/verified',
-      name: 'ssu-verified-sticker-queues',
-      component: SSU_StickerTicketQueues
-    },
-    {
       path: '/admin/ssu/archives',
       name: 'ssu-admin-archives',
       component: SSU_Archives
-    },
-    {
-      path: '/admin/tasu',
-      name: 'tasu-dashboard',
-      component: TASU_Dashboard
-    },
-    {
-      path: '/admin/tasu/queues',
-      name: 'tasu-ticket-queues',
-      component: TASU_TicketQueues
-    },
-    {
-      path: '/admin/tasu/personnel',
-      name: 'tasu-admin-personnel',
-      component: TASU_Personnel
-    },
-    {
-      path: '/admin/tasu/vehicles',
-      name: 'tasu-vehicles',
-      component: TASU_VehicleManagement
-    },
-    {
-      path: '/admin/tasu/dispatch',
-      name: 'tasu-admin-dispatch',
-      component: TASU_DispatchBoard
-    },
-    {
-      path: '/admin/tasu/archives',
-      name: 'tasu-admin-archives',
-      component: TASU_Archives
     },
     {
       path: '/director/dashboard',
@@ -242,11 +190,6 @@ const router = createRouter({
       path: '/director/ssu',
       name: 'director-ssu',
       component: Director_SSU
-    },
-    {
-      path: '/director/tasu',
-      name: 'director-tasu',
-      component: Director_TASU
     },
     {
       path: '/director/organizational-chart',
@@ -275,16 +218,6 @@ const router = createRouter({
       component: LEAU_Workers
     },
     {
-      path: '/dispatcher/tasu',
-      name: 'tasu-dispatcher',
-      component: TASU_Dispatcher
-    },
-    {
-      path: '/dispatcher/tasu/dispatch',
-      name: 'tasu-dispatch',
-      component: TASU_Dispatch
-    },
-    {
       path: '/dispatcher/fgmu/dispatched',
       name: 'fgmu-dispatched-tickets',
       component: FGMU_DispatchedTickets
@@ -295,11 +228,6 @@ const router = createRouter({
       component: LEAU_DispatchedTickets
     },
     {
-      path: '/dispatcher/tasu/dispatched',
-      name: 'tasu-dispatched-tickets',
-      component: TASU_DispatchedTickets
-    },
-    {
       path: '/dispatcher/fgmu/archives',
       name: 'fgmu-dispatcher-archives',
       component: FGMU_DispatcherArchives
@@ -308,11 +236,6 @@ const router = createRouter({
       path: '/dispatcher/leau/archives',
       name: 'leau-dispatcher-archives',
       component: LEAU_DispatcherArchives
-    },
-    {
-      path: '/dispatcher/tasu/archives',
-      name: 'tasu-dispatcher-archives',
-      component: TASU_DispatcherArchives
     },
     {
       path: '/dispatcher/fgmu/project-archives',

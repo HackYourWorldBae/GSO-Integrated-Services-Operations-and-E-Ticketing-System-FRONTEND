@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
-import { ref, computed, reactive } from 'vue';
+import { ref, computed } from 'vue';
 import { useVuelidate } from '@vuelidate/core';
-import { required, requiredIf, minLength } from '@vuelidate/validators';
+import { required, minLength } from '@vuelidate/validators';
 
 export const useFormsStore = defineStore('forms', () => {
   const fgmuState = ref({
@@ -30,31 +30,6 @@ export const useFormsStore = defineStore('forms', () => {
     attachments: []
   });
 
-  const ssuVehicleState = reactive({
-    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-    applicantName: '',
-    collegeOffice: '',
-    contactNo: '',
-    driverName: '',
-    driverContact: '',
-    houseStreet: '',
-    barangay: '',
-    cityMunicipality: '',
-    province: '',
-    vehicleDetails: {
-      registeredOwner: '',
-      plateNo: '',
-      makeSeries: '',
-      typeColor: ''
-    },
-    privacyAgreed: false,
-    disclosureAgreed: false,
-    signature: '',
-    idTypeNo: '',
-    validUntil: '',
-    attachments: []
-  });
-
   const ssuIncidentState = ref({
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
     incidents: [],
@@ -73,19 +48,7 @@ export const useFormsStore = defineStore('forms', () => {
     }
   });
 
-  const tasuVehicleState = ref({
-    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-    requestingPersonnel: '',
-    officeCollegeDepartment: '',
-    agencyAddress: '',
-    numberOfPassengers: '',
-    dateOfTravel: '',
-    destination: '',
-    purposeOfTravel: '',
-    travelOrderAttachments: []
-  });
-
-  const clearForms = (formType) => {
+  const clearForms = () => {
     fgmuState.value = {
       sectionA: {
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
@@ -112,33 +75,6 @@ export const useFormsStore = defineStore('forms', () => {
       attachments: []
     };
 
-    if (formType === 'ssu-vehicle') {
-      Object.assign(ssuVehicleState, {
-        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-        applicantName: '',
-        collegeOffice: '',
-        contactNo: '',
-        driverName: '',
-        driverContact: '',
-        houseStreet: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        vehicleDetails: {
-          registeredOwner: '',
-          plateNo: '',
-          makeSeries: '',
-          typeColor: ''
-        },
-        privacyAgreed: false,
-        disclosureAgreed: false,
-        signature: '',
-        idTypeNo: '',
-        validUntil: '',
-        attachments: []
-      });
-    }
-
     ssuIncidentState.value = {
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       incidents: [],
@@ -157,17 +93,6 @@ export const useFormsStore = defineStore('forms', () => {
       }
     };
 
-    tasuVehicleState.value = {
-      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-      requestingPersonnel: '',
-      officeCollegeDepartment: '',
-      agencyAddress: '',
-      numberOfPassengers: '',
-      dateOfTravel: '',
-      destination: '',
-      purposeOfTravel: '',
-      travelOrderAttachments: []
-    };
     v$.value.$reset();
   };
 
@@ -186,24 +111,6 @@ export const useFormsStore = defineStore('forms', () => {
         job_description: { required, minLength: minLength(10) }
       }
     },
-    'ssu-vehicle': {
-      applicantName: { required },
-      collegeOffice: { required },
-      contactNo: { required },
-      houseStreet: { required },
-      barangay: { required },
-      cityMunicipality: { required },
-      province: { required },
-      vehicleDetails: {
-        registeredOwner: { required },
-        plateNo: { required },
-        makeSeries: { required },
-        typeColor: { required }
-      },
-      privacyAgreed: { required: requiredIf((value) => value === true) },
-      disclosureAgreed: { required: requiredIf((value) => value === true) },
-      signature: { required }
-    },
     ssuIncidentState: {
       incidents: { required },
       who: { required },
@@ -214,33 +121,19 @@ export const useFormsStore = defineStore('forms', () => {
         signature: { required },
         roles: { required }
       }
-    },
-    tasuVehicleState: {
-      requestingPersonnel: { required },
-      officeCollegeDepartment: { required: requiredIf(() => !tasuVehicleState.value.agencyAddress) },
-      agencyAddress: { required: requiredIf(() => !tasuVehicleState.value.officeCollegeDepartment) },
-      numberOfPassengers: { required },
-      dateOfTravel: { required },
-      destination: { required },
-      purposeOfTravel: { required, minLength: minLength(10) },
-      travelOrderAttachments: { required, minLength: minLength(1) }
     }
   }));
 
   const v$ = useVuelidate(rules, { 
     fgmuState, 
     leauState, 
-    ssuVehicleState, 
-    ssuIncidentState, 
-    tasuVehicleState 
+    ssuIncidentState 
   });
 
   return {
     fgmuState,
     leauState,
-    ssuVehicleState,
     ssuIncidentState,
-    tasuVehicleState,
     clearForms,
     v$
   };

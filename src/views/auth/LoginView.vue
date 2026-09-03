@@ -29,27 +29,23 @@ const handleLogin = async () => {
     // Redirect based on role
     if (role === 'admin') {
       const unitId = authStore.user?.unit_id;
-      const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU', 4: 'TASU' };
+      const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
       const unit = authStore.user?.unit_code || authStore.user?.unit || unitMap[unitId] || 'FGMU';
 
       if (unit === 'SSU') {
         router.push('/admin/ssu');
       } else if (unit === 'LEAU') {
         router.push('/admin/leau');
-      } else if (unit === 'TASU') {
-        router.push('/admin/tasu');
       } else {
         router.push('/admin/fgmu');
       }
     } else if (role === 'dispatcher') {
       const unitId = authStore.user?.unit_id;
-      const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU', 4: 'TASU' };
+      const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
       const unit = authStore.user?.unit_code || authStore.user?.unit || unitMap[unitId] || 'FGMU';
       router.push(`/dispatcher/${unit.toLowerCase()}`);
     } else if (role === 'worker') {
       router.push('/worker/dashboard');
-    } else if (role === 'driver') {
-      router.push('/driver/dashboard');
     } else if (role === 'director') {
       router.push('/director/dashboard');
     } else {

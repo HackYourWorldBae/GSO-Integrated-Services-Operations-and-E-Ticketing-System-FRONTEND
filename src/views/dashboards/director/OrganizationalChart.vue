@@ -122,12 +122,6 @@ const units = [
     name: 'Landscaping & Environment', 
     head: 'Dr. M. Bautista', 
     borderColor: 'border-b-emerald-500' 
-  },
-  { 
-    code: 'TASU', 
-    name: 'Transportation & Assets', 
-    head: 'Mr. R. Garcia', 
-    borderColor: 'border-b-amber-500' 
   }
 ];
 </script>

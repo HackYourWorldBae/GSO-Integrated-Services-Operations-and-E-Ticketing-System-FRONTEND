@@ -3,14 +3,14 @@ import apiClient from './client';
 // ============================================================================
 // Dispatch API Module
 //
-// Wraps dispatcher operations: assigning workers/drivers/vehicles,
-// updating job schedules, managing materials, and worker dashboard queries.
-// Consumed by: FGMU/LEAU/TASU Dispatcher views, Worker_Dashboard, Driver_Dashboard
+// Wraps dispatcher operations: assigning workers, updating job schedules,
+// managing materials, and worker dashboard queries.
+// Consumed by: FGMU/LEAU Dispatcher views, Worker_Dashboard
 // ============================================================================
 
 /**
- * Assign a worker/driver (and optionally a vehicle) to an approved ticket.
- * @param {{ ticket_id, personnel_id, vehicle_id?, implementation_date?, task_notes?, dispatcher_notes? }} data
+ * Assign a worker to an approved ticket.
+ * @param {{ ticket_id, personnel_id, implementation_date?, task_notes?, dispatcher_notes? }} data
  */
 export const assignWorker = (data) =>
   apiClient.post('/dispatch/assign', data);
@@ -32,7 +32,7 @@ export const addMaterials = (assignmentId, materials) =>
   apiClient.post(`/dispatch/assignments/${assignmentId}/materials`, { materials });
 
 /**
- * Get a worker's current active job assignment (for Worker / Driver dashboard).
+ * Get a worker's current active job assignment (for Worker dashboard).
  * @param {string} personnelId
  */
 export const fetchWorkerDashboard = (personnelId) =>

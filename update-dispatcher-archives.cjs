@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const units = ['fgmu', 'leau', 'tasu'];
+const units = ['fgmu', 'leau'];
 
 units.forEach(unit => {
     const UNIT = unit.toUpperCase();

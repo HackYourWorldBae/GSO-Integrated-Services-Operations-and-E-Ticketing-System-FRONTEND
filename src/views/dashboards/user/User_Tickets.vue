@@ -191,75 +191,7 @@
                     </div>
                   </div>
 
-                  <!-- TASU Dispatched: Driver & Vehicle Assignment Extension -->
-                  <div
-                    v-if="ticket.unit === 'TASU' && (ticket.assignedDriver || ticket.assignedVehicle) && !ticket.isClosed && ticket.status !== 'closed' && ticket.status !== 'completed'"
-                    class="mt-4 p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-50 to-orange-50/50 border border-amber-200 shadow-sm flex flex-col gap-3.5 animate-fade-in"
-                  >
-                    <!-- Header -->
-                    <div class="flex items-center justify-between gap-2 flex-wrap">
-                      <div class="flex items-center gap-2.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
-                        <h4 class="text-xs sm:text-sm font-black text-amber-950 uppercase tracking-wider">
-                          Assigned Trip Details
-                        </h4>
-                      </div>
-                      <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-amber-200/80 text-amber-900 border border-amber-300">
-                        {{ ticket.statusLabel || 'Dispatched' }}
-                      </span>
-                    </div>
 
-                    <!-- Details Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <!-- Vehicle -->
-                      <div class="p-3.5 bg-white/95 backdrop-blur-xs border border-amber-200/80 rounded-xl flex items-center gap-3.5 shadow-xs">
-                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H12a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 01.8.4l3 4A1 1 0 0122 12v3a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H14V7z" />
-                          </svg>
-                        </div>
-                        <div class="min-w-0">
-                          <p class="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Vehicle</p>
-                          <p class="text-sm sm:text-base font-black text-slate-900 truncate">{{ ticket.assignedVehicle || 'Assigned Fleet Vehicle' }}</p>
-                        </div>
-                      </div>
-
-                      <!-- Driver -->
-                      <div class="p-3.5 bg-white/95 backdrop-blur-xs border border-amber-200/80 rounded-xl flex items-center gap-3.5 shadow-xs">
-                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                        <div class="min-w-0">
-                          <p class="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Driver</p>
-                          <p class="text-sm sm:text-base font-black text-slate-900 truncate">{{ ticket.assignedDriver || 'Assigned Driver' }}</p>
-                        </div>
-                      </div>
-
-                      <!-- Driver Direct Contact -->
-                      <div class="p-3.5 bg-white/95 backdrop-blur-xs border border-amber-200/80 rounded-xl flex items-center gap-3.5 shadow-xs">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                        </div>
-                        <div class="min-w-0">
-                          <p class="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Driver Contact</p>
-                          <p class="text-sm sm:text-base font-black text-emerald-800 truncate tracking-wide font-mono">{{ ticket.assignedContact || 'No number listed' }}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Communication Instruction Callout -->
-                    <div class="flex items-start gap-2.5 pt-2 border-t border-amber-200/70 text-amber-950 text-xs sm:text-[13px] font-bold leading-relaxed">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                      </svg>
-                      <span><strong>Driver Communication:</strong> Please call or message the driver's contact number above for trip coordination, departure timing, and pickup instructions.</span>
-                    </div>
-                  </div>
 
                   <!-- Rate Instruction -->
                   <div v-if="isFeedbackEligible(ticket)" class="mt-3 flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl animate-fade-in">
@@ -523,25 +455,6 @@
                             </div>
                           </template>
 
-                          <!-- ---- SSU: Vehicle Pass Application (Step 1) ---- -->
-                          <template v-if="selectedTicket.unit === 'SSU' && selectedTicket.service === 'Vehicle Pass Application' && index === 0">
-                            <button v-if="selectedTicket.currentStep >= 1" @click="showDigitalForm = !showDigitalForm" class="mt-3 px-3.5 py-2 bg-white border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-600 hover:text-blue-700 text-xs font-bold rounded-lg transition-all flex items-center gap-2 shadow-sm active:scale-95">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              {{ showDigitalForm ? 'Hide Form' : 'View Application' }}
-                            </button>
-                            <div v-if="showDigitalForm" class="mt-3 animate-fade-in">
-                              <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                                <FormRow label="Plate No." :value="selectedTicket.plate_no" />
-                                <FormRow label="Vehicle Type" :value="selectedTicket.vehicle_type" />
-                                <FormRow label="Make/Series" :value="selectedTicket.make_series" />
-                                <FormRow label="Color" :value="selectedTicket.color" />
-                                <FormRow label="Address" :value="selectedTicket.address" />
-                              </div>
-                            </div>
-                          </template>
-
                           <!-- ---- SSU: Incident Report (Step 1) ---- -->
                           <template v-if="selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && index === 0">
                             <button v-if="selectedTicket.currentStep >= 1" @click="showDigitalForm = !showDigitalForm" class="mt-3 px-3.5 py-2 bg-white border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-slate-600 hover:text-rose-700 text-xs font-bold rounded-lg transition-all flex items-center gap-2 shadow-sm active:scale-95">
@@ -557,25 +470,6 @@
                                 <FormRow label="Where" :value="selectedTicket.where" />
                                 <FormRow label="Narrative (How)" :value="selectedTicket.how" full />
                               </div>
-                            </div>
-                          </template>
-
-                          <!-- ---- TASU: Trip Details (Step 1) ---- -->
-                          <template v-if="selectedTicket.unit === 'TASU' && index === 0">
-                            <button v-if="selectedTicket.currentStep >= 1" @click="showDigitalForm = !showDigitalForm" class="mt-3 px-3.5 py-2 bg-white border border-slate-200 hover:border-amber-300 hover:bg-amber-50 text-slate-600 hover:text-amber-700 text-xs font-bold rounded-lg transition-all flex items-center gap-2 shadow-sm active:scale-95">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              {{ showDigitalForm ? 'Hide Details' : 'View Trip Details' }}
-                            </button>
-                            <div v-if="showDigitalForm" class="mt-3 animate-fade-in">
-                              <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                                <FormRow label="Destination" :value="selectedTicket.destination" />
-                                <FormRow label="No. of Passengers" :value="selectedTicket.passengers" />
-                                <FormRow label="Date of Travel" :value="selectedTicket.dateOfTravel" />
-                                <FormRow label="Purpose of Travel" :value="selectedTicket.purpose" full />
-                              </div>
-                              <AttachmentList v-if="selectedTicket.attachments?.length" :attachments="selectedTicket.attachments" @download="downloadAttachment" />
                             </div>
                           </template>
 
@@ -596,24 +490,6 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                                 Notation Added
                               </span>
-                            </div>
-                          </template>
-
-                          <!-- ---- TASU: Assigned Driver/Vehicle (Step 3) ---- -->
-                          <template v-if="selectedTicket.unit === 'TASU' && index === 2 && selectedTicket.currentStep >= (index + 1)">
-                            <div v-if="selectedTicket.assignedVehicle" class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                              <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Vehicle</p>
-                                <p class="text-xs font-bold text-slate-700">{{ selectedTicket.assignedVehicle }}</p>
-                              </div>
-                              <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Driver</p>
-                                <p class="text-xs font-bold text-slate-700">{{ selectedTicket.assignedDriver }}</p>
-                              </div>
-                              <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver Contact</p>
-                                <p class="text-xs font-bold text-slate-700">{{ selectedTicket.assignedContact || 'N/A' }}</p>
-                              </div>
                             </div>
                           </template>
 
@@ -743,7 +619,7 @@ const FormRow = defineComponent({
 import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
 
 /**
- * Attachment list renderer for FGMU/LEAU/TASU digital forms.
+ * Attachment list renderer for FGMU/LEAU/SSU digital forms.
  */
 const AttachmentList = defineComponent({
   props: { attachments: Array },
@@ -922,8 +798,6 @@ const fetchTickets = async () => {
         assignment: t.assignment || null,
         assignments: t.assignments || [],
         assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
-        assignedVehicle: t.assignment?.vehicle_name || null,
-        assignedDriver: t.assignment?.personnel_name || null,
         assignedContact: t.assignment?.personnel_contact || null,
         details: t.details || null,
         feedback: t.feedback || null,
@@ -1052,13 +926,6 @@ const unitSteps = {
     { label: 'Job Finished',        description: 'Workers marked the job as complete.' },
   ],
   SSU: {
-    'Vehicle Pass Application': [
-      { label: 'Application',           description: 'The client fills out the digital Vehicle Pass Application.' },
-      { label: 'Document Upload',       description: "OR/CR and Driver's License digital copies uploaded." },
-      { label: 'Document Verification', description: 'Staff verifies documents.' },
-      { label: 'Status Update',         description: 'Ticket marked as "Approved - Ready for Pickup".' },
-      { label: 'Completion',            description: 'Sticker is ready for pickup at the Security Office.' },
-    ],
     'Incident Report': [
       { label: 'Report Submission',        description: 'The client fills out a digital Incident Report and submits it to SSU.' },
       { label: 'Staff Review',             description: 'SSU staff reviews the incident details.' },
@@ -1067,13 +934,6 @@ const unitSteps = {
       { label: 'Archiving',               description: 'Ticket moved to digital archives for record-keeping.' },
     ],
   },
-  TASU: [
-    { label: 'Request Submission', description: 'Client submits Vehicle Request and Travel Order Letter.' },
-    { label: 'Approval',           description: 'Unit Head checks availability and approves request.' },
-    { label: 'Assignment',         description: 'Dispatcher assigns a driver and a specific vehicle.' },
-    { label: 'On Route',           description: 'The driver and vehicle have departed and are currently on route.' },
-    { label: 'Close-out',          description: 'Driver marks the trip as "Accomplished".' },
-  ],
 };
 
 const getSteps = (ticket) => {

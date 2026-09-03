@@ -361,7 +361,6 @@ const personnelDisplay = computed(() => {
   const raw = 
     props.ticket.assignment?.personnel_name || 
     props.ticket.assignedWorker || 
-    props.ticket.assignedDriver || 
     props.ticket.assigned_worker || 
     props.ticket.assigned_personnel || 
     '';
