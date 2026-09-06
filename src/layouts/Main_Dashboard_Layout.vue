@@ -323,23 +323,55 @@ const handleNotificationClick = async (notif) => {
 
   // 3. Extract ticket ID
   let ticketId = notif.ticket_id;
+  const bogusWords = [
+    'submitted', 'created', 'approved', 'declined', 'cancelled', 
+    'completed', 'resolved', 'dispatched', 'updated', 'review', 
+    'details', 'new', 'under', 'investigation', 'notation', 
+    'request', 'ticket', 'incident', 'report'
+  ];
+
+  if (ticketId && bogusWords.includes(String(ticketId).toLowerCase().trim())) {
+    ticketId = null;
+  }
+
   if (!ticketId) {
     const text = `${notif.title || ''} ${notif.message || ''}`;
-    const match = text.match(/(?:Ticket|Incident|Request)\s*#?([A-Za-z0-9\-_]+)/i) || text.match(/#([A-Za-z0-9\-_]+)/);
-    if (match) {
-      ticketId = match[1];
+
+    // 1. Try standard unit ticket/project code (e.g. FGMU-TIC-4-2026, LEAU-TIC-1-2026, SSU-TIC-2-2026, FGMU-PRJ-1-2026)
+    const codeMatch = text.match(/\b((?:FGMU|LEAU|SSU)-(?:TIC|PRJ|INC)-[A-Za-z0-9\-_]+)\b/i);
+    if (codeMatch) {
+      ticketId = codeMatch[1];
+    } else {
+      // 2. Try explicit labeled hash (e.g. Ticket #12345, Incident #45, Request #67)
+      const labelMatch = text.match(/(?:Ticket|Incident|Request|Report)\s*#\s*([A-Za-z0-9\-_]+)/i);
+      if (labelMatch && !bogusWords.includes(labelMatch[1].toLowerCase())) {
+        ticketId = labelMatch[1];
+      } else {
+        // 3. Try general hash (#ID)
+        const hashMatch = text.match(/#([A-Za-z0-9\-_]+)/);
+        if (hashMatch && !bogusWords.includes(hashMatch[1].toLowerCase())) {
+          ticketId = hashMatch[1];
+        }
+      }
     }
   }
 
   const role = (authStore.user?.role || localStorage.getItem('user_role') || '').toLowerCase();
 
   if (!ticketId) {
-    // If no ticket reference, fallback to user's dashboard
-    if (role === 'admin') router.push('/admin/fgmu');
-    else if (role === 'dispatcher') router.push('/dispatcher/fgmu');
-    else if (role === 'director') router.push('/director/dashboard');
-    else if (role === 'superadmin') router.push('/superadmin/dashboard');
-    else router.push('/user/dashboard');
+    // If no ticket reference, fallback to user's dashboard based on role & unit
+    const unit = (authStore.user?.unit_code || '').toLowerCase();
+    if (role === 'admin') {
+      router.push(['fgmu', 'leau', 'ssu'].includes(unit) ? `/admin/${unit}` : '/admin/fgmu');
+    } else if (role === 'dispatcher') {
+      router.push(['fgmu', 'leau'].includes(unit) ? `/dispatcher/${unit}` : '/dispatcher/fgmu');
+    } else if (role === 'director') {
+      router.push('/director/dashboard');
+    } else if (role === 'superadmin') {
+      router.push('/superadmin/dashboard');
+    } else {
+      router.push('/user/dashboard');
+    }
     return;
   }
 

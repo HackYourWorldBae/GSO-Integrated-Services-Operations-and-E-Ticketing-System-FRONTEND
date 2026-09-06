@@ -670,7 +670,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, defineComponent, h } from 'vue';
+import { ref, reactive, computed, watch, onMounted, onUnmounted, defineComponent, h } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
@@ -933,6 +933,7 @@ const fetchTickets = async () => {
           selectedTicket.value = updated;
         }
       }
+      handleRouteTicket();
     }
   } catch (error) {
     console.error('Failed to fetch tickets:', error);
@@ -945,7 +946,16 @@ const handleRouteTicket = () => {
   const target = route.query.ticketId || route.query.highlight;
   if (target) {
     highlightedTicket.value = target;
+    statusFilter.value = 'all';
     searchQuery.value = target;
+
+    const match = tickets.value.find(t =>
+      String(t.ticketId || t.id).toLowerCase() === String(target).toLowerCase()
+    );
+    if (match && !selectedTicket.value) {
+      openTimeline(match);
+    }
+
     setTimeout(() => {
       const el = document.getElementById(target);
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
