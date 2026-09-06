@@ -14,86 +14,186 @@
     <template #main-content>
       <div class="space-y-8 animate-fade-in pb-12">
         
-        <!-- Key Metrics Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-6 gap-4 sm:gap-6">
-          <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
-            <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="p-3 rounded-2xl bg-slate-900 text-white shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              </div>
-              <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Total Requests</span>
-            </div>
+        <!-- Outcome & Throughput Overview (Top 3 Cards + Historical Drilldown Filter) -->
+        <div class="space-y-4">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 px-1">
             <div>
-              <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
-              <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">All Time</p>
+              <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                <span class="w-2 h-4 rounded-full bg-slate-900"></span>
+                Throughput &amp; Outcome Analytics
+              </h3>
+              <p class="text-[11px] text-slate-400 font-medium">Outcome metrics with multi-year and period drilldown capability</p>
+            </div>
+
+            <!-- Filter Controls (Historical Multi-Year + Period) -->
+            <div class="flex flex-wrap items-center gap-2">
+              <!-- Period Type Tabs -->
+              <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 shadow-inner">
+                <button
+                  v-for="p in periodOptions"
+                  :key="p.key"
+                  @click="changePeriod(p.key)"
+                  class="px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer"
+                  :class="selectedPeriod === p.key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'"
+                >
+                  {{ p.label }}
+                </button>
+              </div>
+
+              <!-- Year Selector (visible when selectedPeriod !== 'all') -->
+              <div v-if="selectedPeriod !== 'all'" class="relative">
+                <select
+                  v-model="selectedYear"
+                  @change="fetchStats"
+                  class="appearance-none pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer"
+                >
+                  <option v-for="yr in availableYears" :key="yr" :value="yr">
+                    Year {{ yr }}
+                  </option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+
+              <!-- Month Selector (shown when selectedPeriod === 'month') -->
+              <div v-if="selectedPeriod === 'month'" class="relative">
+                <select
+                  v-model="selectedMonth"
+                  @change="fetchStats"
+                  class="appearance-none pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer"
+                >
+                  <option v-for="m in monthOptions" :key="m.value" :value="m.value">
+                    {{ m.label }}
+                  </option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+
+              <!-- Quarter Selector (shown when selectedPeriod === 'quarter') -->
+              <div v-if="selectedPeriod === 'quarter'" class="relative">
+                <select
+                  v-model="selectedQuarter"
+                  @change="fetchStats"
+                  class="appearance-none pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer"
+                >
+                  <option v-for="q in quarterOptions" :key="q.value" :value="q.value">
+                    {{ q.label }}
+                  </option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
-            <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="p-3 rounded-2xl bg-amber-50 text-amber-600 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <!-- Top 3 Cards Grid: Total, Resolved, Declined -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <!-- 1. Total Requests -->
+            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <div class="p-3 rounded-2xl bg-slate-900 text-white shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Total Requests</span>
               </div>
-              <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Pending</span>
+              <div>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">{{ timeframeLabel }}</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.pending || 0 }}</h3>
-              <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Awaiting Approval</p>
+
+            <!-- 2. Resolved Tickets -->
+            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Completed</span>
+              </div>
+              <div>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.resolved || 0 }}</h3>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">{{ timeframeLabel }}</p>
+              </div>
+            </div>
+
+            <!-- 3. Declined Requests -->
+            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <div class="p-3 rounded-2xl bg-rose-50 text-rose-600 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                </div>
+                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Declined</span>
+              </div>
+              <div>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.declined || 0 }}</h3>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">{{ timeframeLabel }}</p>
+              </div>
             </div>
           </div>
+        </div>
 
-          <!-- Dispatched & Scheduled -->
-          <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
-            <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="p-3 rounded-2xl bg-blue-50 text-blue-600 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-              </div>
-              <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Dispatched</span>
-            </div>
+        <!-- Live Operations & Queue Status (Bottom 3 Cards) -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between px-1">
             <div>
-              <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.scheduled || 0 }}</h3>
-              <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Scheduled Jobs</p>
+              <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                <span class="w-2 h-4 rounded-full bg-blue-600"></span>
+                Live Operations &amp; Queue Status
+              </h3>
+              <p class="text-[11px] text-slate-400 font-medium">Real-time in-flight tickets awaiting action or currently under service</p>
             </div>
+            <span class="text-[10px] font-black text-blue-700 bg-blue-50 border border-blue-200/60 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+              Live Operations
+            </span>
           </div>
 
-          <!-- Active Dispatches -->
-          <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
-            <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="p-3 rounded-2xl bg-emerald-100 text-emerald-700 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          <!-- Bottom 3 Cards Grid: Pending, Dispatched, Active -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <!-- 1. Pending -->
+            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <div class="p-3 rounded-2xl bg-amber-50 text-amber-600 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Pending</span>
               </div>
-              <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Active</span>
+              <div>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.pending || 0 }}</h3>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Awaiting Approval</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.active_working || 0 }}</h3>
-              <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Work In Progress</p>
-            </div>
-          </div>
 
-          <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
-            <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <!-- 2. Dispatched & Scheduled -->
+            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <div class="p-3 rounded-2xl bg-blue-50 text-blue-600 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </div>
+                <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Dispatched</span>
               </div>
-              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Completed</span>
+              <div>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.scheduled || 0 }}</h3>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Scheduled Jobs</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.resolved || 0 }}</h3>
-              <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Resolved Tickets</p>
-            </div>
-          </div>
 
-          <!-- Declined Requests -->
-          <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
-            <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="p-3 rounded-2xl bg-rose-50 text-rose-600 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+            <!-- 3. Active Dispatches -->
+            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <div class="p-3 rounded-2xl bg-emerald-100 text-emerald-700 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Active</span>
               </div>
-              <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Declined</span>
-            </div>
-            <div>
-              <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.declined || 0 }}</h3>
-              <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Declined Requests</p>
+              <div>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.active_working || 0 }}</h3>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Work In Progress</p>
+              </div>
             </div>
           </div>
         </div>
@@ -485,9 +585,80 @@ const nonCompletionList = computed(() => {
   })).sort((a, b) => b.count - a.count);
 });
 
+const currentYear = new Date().getFullYear();
+const selectedPeriod = ref('all');
+const selectedYear = ref(currentYear);
+const selectedMonth = ref(new Date().getMonth() + 1);
+const selectedQuarter = ref(Math.ceil((new Date().getMonth() + 1) / 3));
+
+const periodOptions = [
+  { key: 'all', label: 'All Time' },
+  { key: 'year', label: 'Annually' },
+  { key: 'quarter', label: 'Quarterly' },
+  { key: 'month', label: 'Monthly' }
+];
+
+const availableYears = computed(() => {
+  const years = stats.value?.available_years;
+  if (Array.isArray(years) && years.length > 0) {
+    return years;
+  }
+  return [currentYear];
+});
+
+const quarterOptions = [
+  { value: 1, label: 'Q1 (Jan - Mar)' },
+  { value: 2, label: 'Q2 (Apr - Jun)' },
+  { value: 3, label: 'Q3 (Jul - Sep)' },
+  { value: 4, label: 'Q4 (Oct - Dec)' }
+];
+
+const monthOptions = [
+  { value: 1, label: 'January' },
+  { value: 2, label: 'February' },
+  { value: 3, label: 'March' },
+  { value: 4, label: 'April' },
+  { value: 5, label: 'May' },
+  { value: 6, label: 'June' },
+  { value: 7, label: 'July' },
+  { value: 8, label: 'August' },
+  { value: 9, label: 'September' },
+  { value: 10, label: 'October' },
+  { value: 11, label: 'November' },
+  { value: 12, label: 'December' }
+];
+
+const timeframeLabel = computed(() => {
+  if (selectedPeriod.value === 'all') return 'All-Time Historical';
+  if (selectedPeriod.value === 'year') return `Full Year ${selectedYear.value}`;
+  if (selectedPeriod.value === 'quarter') return `Q${selectedQuarter.value} ${selectedYear.value}`;
+  if (selectedPeriod.value === 'month') {
+    const m = monthOptions.find(opt => opt.value === selectedMonth.value);
+    return `${m ? m.label : 'Month'} ${selectedYear.value}`;
+  }
+  return 'Filtered Period';
+});
+
+const changePeriod = (key) => {
+  selectedPeriod.value = key;
+  fetchStats();
+};
+
 const fetchStats = async () => {
   try {
-    const response = await api.get('tickets/stats/FGMU');
+    const params = {
+      period: selectedPeriod.value
+    };
+    if (selectedPeriod.value !== 'all') {
+      params.year = selectedYear.value;
+    }
+    if (selectedPeriod.value === 'quarter') {
+      params.quarter = selectedQuarter.value;
+    } else if (selectedPeriod.value === 'month') {
+      params.month = selectedMonth.value;
+    }
+
+    const response = await api.get('tickets/stats/FGMU', { params });
     if (response.data?.data?.stats) {
       stats.value = response.data.data.stats;
     }
