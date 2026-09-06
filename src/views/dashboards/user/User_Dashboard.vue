@@ -71,7 +71,7 @@
         </div>
 
         <!-- Metric Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <div
             v-for="metric in metrics"
             :key="metric.label"
@@ -192,15 +192,17 @@ const userName   = ref('');
 const userTickets      = ref([]);
 const completedTickets = ref([]);
 
-const openTicketsCount    = computed(() => userTickets.value.filter(t => t.status === 'processing' || t.status === 'in_progress').length);
-const pendingTicketsCount = computed(() => userTickets.value.filter(t => t.status === 'pending').length);
-const resolvedTicketsCount = computed(() => completedTickets.value.length);
-const totalRequestsCount  = computed(() => userTickets.value.length + completedTickets.value.length);
+const openTicketsCount     = computed(() => userTickets.value.filter(t => t.status === 'processing' || t.status === 'in_progress').length);
+const pendingTicketsCount  = computed(() => userTickets.value.filter(t => t.status === 'pending').length);
+const resolvedTicketsCount = computed(() => completedTickets.value.filter(t => t.status === 'resolved' || t.status === 'completed' || t.status === 'closed').length);
+const declinedTicketsCount = computed(() => userTickets.value.filter(t => t.status === 'declined' || t.status === 'rejected').length + completedTickets.value.filter(t => t.status === 'declined' || t.status === 'rejected').length);
+const totalRequestsCount   = computed(() => userTickets.value.length + completedTickets.value.length);
 
 // SVG icon components inline for metric cards
 const TicketIcon = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z' })]) };
 const ClockIcon  = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' })]) };
 const CheckIcon  = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' })]) };
+const BanIcon    = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636' })]) };
 const ChartIcon  = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' })]) };
 
 const metrics = computed(() => [
@@ -238,6 +240,18 @@ const metrics = computed(() => [
     labelColor: 'text-emerald-400',
     accentBar: 'bg-gradient-to-r from-emerald-400 to-emerald-600',
     hoverShadow: 'hover:shadow-emerald-500/10',
+    onClick: () => router.push('/user/completed-tickets'),
+  },
+  {
+    label: 'Declined Requests',
+    value: declinedTicketsCount.value,
+    tag: 'Declined',
+    icon: BanIcon,
+    iconBg: 'bg-rose-50',
+    iconColor: 'text-rose-600',
+    labelColor: 'text-rose-400',
+    accentBar: 'bg-gradient-to-r from-rose-400 to-rose-600',
+    hoverShadow: 'hover:shadow-rose-500/10',
     onClick: () => router.push('/user/completed-tickets'),
   },
   {

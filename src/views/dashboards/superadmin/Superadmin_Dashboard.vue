@@ -14,7 +14,7 @@
       <div class="space-y-8 animate-fade-in relative pb-10">
 
         <!-- Top Vitals KPI Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
           <!-- Total Users Card -->
           <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm relative overflow-hidden group hover:border-purple-300 transition-all">
             <div class="flex items-center justify-between mb-4">
@@ -61,6 +61,22 @@
             </div>
             <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.tickets?.completed || 0 }}</h3>
             <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Resolved & Archived</p>
+          </div>
+
+          <!-- Declined Requests Card -->
+          <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm relative overflow-hidden group hover:border-rose-300 transition-all">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <span class="text-[10px] font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200 uppercase tracking-wider">
+                Declined
+              </span>
+            </div>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.tickets?.declined || 0 }}</h3>
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Declined Requests</p>
           </div>
 
           <!-- Units Oversight Card -->
@@ -128,22 +144,27 @@
             </div>
 
             <div class="space-y-3.5">
-              <div v-for="(count, roleName) in stats.users?.by_role || {}" :key="roleName" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+              <div v-for="(count, rName) in stats.users?.by_role" :key="rName" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100/80 transition-colors">
                 <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs" :class="getRoleBadgeClass(roleName)">
-                    {{ (roleName || 'U').charAt(0).toUpperCase() }}
+                  <div class="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-xs font-black uppercase text-slate-700 shadow-xs">
+                    {{ rName.charAt(0) }}
                   </div>
-                  <div>
-                    <span class="text-xs font-black text-slate-900 uppercase tracking-wider">{{ roleName }}</span>
-                    <p class="text-[10px] text-slate-400 font-medium">{{ getRoleDescription(roleName) }}</p>
+                  <span class="text-xs font-bold text-slate-700 capitalize">{{ rName }}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-sm font-black text-slate-900 tabular-nums">{{ count }}</span>
+                  <div class="w-16 bg-slate-200 h-1.5 rounded-full overflow-hidden hidden sm:block">
+                    <div
+                      class="bg-purple-600 h-full rounded-full"
+                      :style="{ width: `${stats.users?.total_users ? (count / stats.users.total_users) * 100 : 0}%` }"
+                    ></div>
                   </div>
                 </div>
-                <span class="text-sm font-black text-slate-800 tabular-nums px-3 py-1 rounded-xl bg-white border border-slate-200">{{ count }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Unit Operational Throughput -->
+          <!-- Unit Health Overview -->
           <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
             <div class="flex items-center justify-between">
               <div>
@@ -163,7 +184,7 @@
                   </div>
                   <router-link to="/admin/fgmu" class="text-xs font-bold text-slate-600 hover:text-slate-900">Inspect Queue →</router-link>
                 </div>
-                <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="grid grid-cols-4 gap-2 text-center">
                   <div class="p-2.5 bg-white rounded-xl border border-slate-200">
                     <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total</span>
                     <span class="text-base font-black text-slate-900 tabular-nums">{{ stats.tickets?.by_unit?.FGMU?.total || 0 }}</span>
@@ -175,6 +196,10 @@
                   <div class="p-2.5 bg-white rounded-xl border border-slate-200">
                     <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider block">Completed</span>
                     <span class="text-base font-black text-emerald-700 tabular-nums">{{ stats.tickets?.by_unit?.FGMU?.completed || 0 }}</span>
+                  </div>
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                    <span class="text-[10px] text-rose-600 font-bold uppercase tracking-wider block">Declined</span>
+                    <span class="text-base font-black text-rose-700 tabular-nums">{{ stats.tickets?.by_unit?.FGMU?.declined || 0 }}</span>
                   </div>
                 </div>
               </div>
@@ -188,7 +213,7 @@
                   </div>
                   <router-link to="/admin/leau" class="text-xs font-bold text-emerald-600 hover:text-emerald-700">Inspect Queue →</router-link>
                 </div>
-                <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="grid grid-cols-4 gap-2 text-center">
                   <div class="p-2.5 bg-white rounded-xl border border-slate-200">
                     <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total</span>
                     <span class="text-base font-black text-slate-900 tabular-nums">{{ stats.tickets?.by_unit?.LEAU?.total || 0 }}</span>
@@ -200,6 +225,10 @@
                   <div class="p-2.5 bg-white rounded-xl border border-slate-200">
                     <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider block">Completed</span>
                     <span class="text-base font-black text-emerald-700 tabular-nums">{{ stats.tickets?.by_unit?.LEAU?.completed || 0 }}</span>
+                  </div>
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                    <span class="text-[10px] text-rose-600 font-bold uppercase tracking-wider block">Declined</span>
+                    <span class="text-base font-black text-rose-700 tabular-nums">{{ stats.tickets?.by_unit?.LEAU?.declined || 0 }}</span>
                   </div>
                 </div>
               </div>
@@ -213,7 +242,7 @@
                   </div>
                   <router-link to="/admin/ssu" class="text-xs font-bold text-stone-600 hover:text-stone-900">Inspect Queue →</router-link>
                 </div>
-                <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="grid grid-cols-4 gap-2 text-center">
                   <div class="p-2.5 bg-white rounded-xl border border-slate-200">
                     <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total</span>
                     <span class="text-base font-black text-slate-900 tabular-nums">{{ stats.tickets?.by_unit?.SSU?.total || 0 }}</span>
@@ -225,6 +254,10 @@
                   <div class="p-2.5 bg-white rounded-xl border border-slate-200">
                     <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider block">Completed</span>
                     <span class="text-base font-black text-emerald-700 tabular-nums">{{ stats.tickets?.by_unit?.SSU?.completed || 0 }}</span>
+                  </div>
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                    <span class="text-[10px] text-rose-600 font-bold uppercase tracking-wider block">Declined</span>
+                    <span class="text-base font-black text-rose-700 tabular-nums">{{ stats.tickets?.by_unit?.SSU?.declined || 0 }}</span>
                   </div>
                 </div>
               </div>

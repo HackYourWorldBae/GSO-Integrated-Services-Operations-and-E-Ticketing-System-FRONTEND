@@ -45,7 +45,7 @@
       <div class="space-y-8 animate-fade-in">
         
         <!-- Dispatcher Stats -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div class="p-8 rounded-[2rem] bg-white border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-6">
               <div class="p-3 rounded-xl bg-amber-50 text-amber-600">
@@ -77,6 +77,17 @@
             </div>
             <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ resolvedCount }}</h3>
             <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Resolved Tickets</p>
+          </div>
+
+          <div class="p-8 rounded-[2rem] bg-white border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-6">
+              <div class="p-3 rounded-xl bg-rose-50 text-rose-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+              </div>
+              <span class="text-[10px] font-black text-rose-400 uppercase tracking-widest">Declined</span>
+            </div>
+            <h3 class="text-4xl font-black text-slate-900 tabular-nums">{{ declinedCount }}</h3>
+            <p class="text-sm text-slate-500 font-bold uppercase tracking-wider">Declined Requests</p>
           </div>
         </div>
 
@@ -395,13 +406,14 @@ const downloadAttachment = async (att) => {
 };
 
 const tickets = ref([]);
-const stats = ref({ ongoing: 0, resolved: 0 });
+const stats = ref({ ongoing: 0, resolved: 0, declined: 0 });
 
 const regularTickets = computed(() => tickets.value.filter(t => !isProjectIdentifier(t)));
 const projectTickets = computed(() => tickets.value.filter(t => isProjectIdentifier(t)));
 const unplannedCount = computed(() => tickets.value.length);
 const ongoingCount = computed(() => stats.value.ongoing);
 const resolvedCount = computed(() => stats.value.resolved);
+const declinedCount = computed(() => stats.value.declined || 0);
 
 const showTicketModal = ref(false);
 const selectedTicket = ref({});
@@ -431,6 +443,7 @@ const fetchStats = async () => {
       const data = response.data.data.stats;
       stats.value.ongoing = parseInt(data.processing || 0);
       stats.value.resolved = parseInt(data.resolved || 0);
+      stats.value.declined = parseInt(data.declined || 0);
     }
   } catch (error) {
     console.error('Failed to fetch LEAU stats:', error);

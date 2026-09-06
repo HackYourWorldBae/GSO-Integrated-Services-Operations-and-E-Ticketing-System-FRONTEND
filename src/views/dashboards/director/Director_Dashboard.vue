@@ -71,18 +71,22 @@
               </p>
 
               <!-- Quick Mini Metrics -->
-              <div class="grid grid-cols-3 gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
+              <div class="grid grid-cols-4 gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
                 <div class="text-center">
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Pending</span>
                   <span class="text-base font-black text-amber-600 tabular-nums">{{ unitStats.fgmu.pending || 0 }}</span>
                 </div>
-                <div class="text-center border-x border-slate-200/60">
+                <div class="text-center border-l border-slate-200/60">
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Active</span>
                   <span class="text-base font-black text-blue-600 tabular-nums">{{ unitStats.fgmu.active_working || 0 }}</span>
                 </div>
-                <div class="text-center">
+                <div class="text-center border-l border-slate-200/60">
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Completed</span>
                   <span class="text-base font-black text-emerald-600 tabular-nums">{{ unitStats.fgmu.resolved || 0 }}</span>
+                </div>
+                <div class="text-center border-l border-slate-200/60">
+                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
+                  <span class="text-base font-black text-rose-600 tabular-nums">{{ unitStats.fgmu.declined || 0 }}</span>
                 </div>
               </div>
             </div>
@@ -123,18 +127,22 @@
               </p>
 
               <!-- Quick Mini Metrics -->
-              <div class="grid grid-cols-3 gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
+              <div class="grid grid-cols-4 gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
                 <div class="text-center">
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Pending</span>
                   <span class="text-base font-black text-amber-600 tabular-nums">{{ unitStats.leau.pending || 0 }}</span>
                 </div>
-                <div class="text-center border-x border-slate-200/60">
+                <div class="text-center border-l border-slate-200/60">
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Active</span>
                   <span class="text-base font-black text-emerald-600 tabular-nums">{{ unitStats.leau.active_working || 0 }}</span>
                 </div>
-                <div class="text-center">
+                <div class="text-center border-l border-slate-200/60">
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Completed</span>
                   <span class="text-base font-black text-emerald-700 tabular-nums">{{ unitStats.leau.resolved || 0 }}</span>
+                </div>
+                <div class="text-center border-l border-slate-200/60">
+                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
+                  <span class="text-base font-black text-rose-600 tabular-nums">{{ unitStats.leau.declined || 0 }}</span>
                 </div>
               </div>
             </div>
@@ -175,18 +183,22 @@
               </p>
 
               <!-- Quick Mini Metrics -->
-              <div class="grid grid-cols-3 gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
+              <div class="grid grid-cols-4 gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
                 <div class="text-center">
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Pending</span>
                   <span class="text-base font-black text-amber-600 tabular-nums">{{ unitStats.ssu.pending || 0 }}</span>
                 </div>
-                <div class="text-center border-x border-slate-200/60">
+                <div class="text-center border-l border-slate-200/60">
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Processing</span>
                   <span class="text-base font-black text-blue-600 tabular-nums">{{ unitStats.ssu.processing || 0 }}</span>
                 </div>
-                <div class="text-center">
+                <div class="text-center border-l border-slate-200/60">
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Completed</span>
                   <span class="text-base font-black text-emerald-600 tabular-nums">{{ unitStats.ssu.resolved || 0 }}</span>
+                </div>
+                <div class="text-center border-l border-slate-200/60">
+                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
+                  <span class="text-base font-black text-rose-600 tabular-nums">{{ unitStats.ssu.declined || 0 }}</span>
                 </div>
               </div>
             </div>

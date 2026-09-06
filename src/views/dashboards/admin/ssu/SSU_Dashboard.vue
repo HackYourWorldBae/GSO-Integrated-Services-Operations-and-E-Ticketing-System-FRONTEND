@@ -37,7 +37,7 @@
       <div class="space-y-8 animate-fade-in pb-12">
         
         <!-- Key Metrics Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all">
             <div class="flex items-center justify-between mb-4">
               <div class="p-3 rounded-2xl bg-slate-900 text-white">
@@ -81,6 +81,21 @@
             <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.resolved || 0 }}</h3>
             <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Resolved Tickets</p>
           </div>
+
+          <!-- Declined Reports -->
+          <div 
+            @click="router.push('/admin/ssu/archives')" 
+            class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <div class="p-3 rounded-2xl bg-rose-50 text-rose-600 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+              </div>
+              <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-full uppercase tracking-tighter">Declined</span>
+            </div>
+            <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.declined || 0 }}</h3>
+            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Declined Reports</p>
+          </div>
         </div>
 
 
@@ -107,10 +122,12 @@
 
 <script setup>
 import { onMounted, onUnmounted, ref, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import Chart from 'chart.js/auto';
 import api from '@/api/client';
 
+const router = useRouter();
 const stats = ref({});
 
 const ssuActivePeriod = ref('Month');
