@@ -121,12 +121,11 @@
                             </span>
                             <div class="flex items-center gap-2 w-full sm:w-auto">
                               <button
-                                @click="toggleWorkerStatus(worker)"
-                                :disabled="worker.status === 'Working' || !!worker.assignedTicket"
+                                @click="handleWorkerStatusClick(worker)"
                                 class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border mt-1"
-                                :class="worker.status === 'Working' || worker.assignedTicket ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60' : worker.status === 'On Leave' ? 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-600 shadow-emerald-500/20 active:scale-95 cursor-pointer' : 'bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-600 border-slate-200 hover:border-rose-200 active:scale-95 cursor-pointer'"
+                                :class="worker.status === 'On Leave' ? 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-amber-500/20 active:scale-95 cursor-pointer' : (worker.status === 'Working' || worker.assignedTicket) ? 'bg-amber-50 hover:bg-rose-50 text-amber-700 hover:text-rose-700 border-amber-200 hover:border-rose-200 active:scale-95 cursor-pointer' : 'bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-600 border-slate-200 hover:border-rose-200 active:scale-95 cursor-pointer'"
                               >
-                                {{ worker.assignedTicket || worker.status === 'Working' ? 'Locked (In Progress)' : worker.status === 'On Leave' ? 'Set to Available' : 'Set to On Leave' }}
+                                {{ worker.status === 'On Leave' ? 'Set to Available' : (worker.assignedTicket || worker.status === 'Working') ? 'Set to Leave (Active Job)' : 'Set to On Leave' }}
                               </button>
                               <!-- Delete button — only if not active -->
                               <button
@@ -380,6 +379,15 @@
         </div>
       </div>
 
+      <!-- Staff Leave & Active Job Handler Modal -->
+      <StaffLeaveModal
+        :is-open="showLeaveModal"
+        :worker="workerForLeaveModal"
+        :available-workers="availableWorkersList"
+        unit-code="LEAU"
+        @close="showLeaveModal = false"
+        @updated="handleLeaveUpdated"
+      />
     </template>
   </MainLayout>
 </template>
@@ -388,6 +396,7 @@
 import { onMounted, onUnmounted, computed, ref } from 'vue';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import StaffLeaveModal from '@/components/StaffLeaveModal.vue';
 import { useLeauPersonnelStore } from '@/stores/leauPersonnel';
 import { useAuthStore } from '@/stores/auth';
 import { formatTicketOrProjectLabel } from '@/utils/projectFormatter';
@@ -410,6 +419,12 @@ const expandedTickets  = ref({});
 const showAddModal      = ref(false);
 const showCategoryModal = ref(false);
 const workerToDelete    = ref(null);
+const showLeaveModal    = ref(false);
+const workerForLeaveModal = ref(null);
+
+const availableWorkersList = computed(() => {
+  return store.personnel.filter(w => w.status === 'Available' && !w.assignedTicket);
+});
 
 // ── Add Personnel ──────────────────────────────────────────────────────────
 const addForm = ref({ firstName: '', middleInitial: '', lastName: '', specialty: '' });
@@ -525,8 +540,23 @@ const submitDelete = async () => {
 
 // ── Status Toggle ──────────────────────────────────────────────────────────
 const toggleWorkerStatus = (worker) => {
-  if (worker.status === 'Working' || worker.assignedTicket) return;
-  store.toggleWorkerStatus(worker.id);
+  handleWorkerStatusClick(worker);
+};
+
+const handleWorkerStatusClick = (worker) => {
+  if (worker.status === 'On Leave') {
+    store.toggleWorkerStatus(worker.id);
+  } else if (worker.status === 'Working' || worker.assignedTicket) {
+    workerForLeaveModal.value = worker;
+    showLeaveModal.value = true;
+  } else {
+    store.toggleWorkerStatus(worker.id);
+  }
+};
+
+const handleLeaveUpdated = async () => {
+  toast.success('Personnel leave status updated successfully.');
+  await store.fetchPersonnel();
 };
 
 const fetchedTicketDetails = ref({});

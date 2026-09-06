@@ -217,6 +217,9 @@
                         </svg>
                         {{ (ticket.working_days || ticket.assignment?.working_days) ? `${ticket.working_days || ticket.assignment?.working_days} Day(s)` : 'N/A' }}
                       </span>
+                      <span v-if="ticket.extension_days > 0" class="mt-0.5 text-[9px] font-black text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded border border-amber-200 w-fit">
+                        +{{ ticket.extension_days }}d Ext
+                      </span>
                     </div>
                     <div class="flex flex-col min-w-0">
                       <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Assigned Worker</span>
@@ -227,8 +230,8 @@
 
                 <!-- Right Actions: Elapsed Timer & Job Finished Action -->
                 <div class="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 w-full lg:w-auto">
-                  <!-- Live Duration -->
-                  <div class="flex items-center gap-1.5 px-3.5 py-2.5 min-h-[44px] bg-slate-900 rounded-xl shrink-0 shadow-xs" title="Elapsed Time">
+                  <!-- Live Duration (Working Hours Only) -->
+                  <div class="flex items-center gap-1.5 px-3.5 py-2.5 min-h-[44px] bg-slate-900 rounded-xl shrink-0 shadow-xs" title="Institutional Working Hours Elapsed">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -236,6 +239,19 @@
                       {{ liveDurations[ticket.id] || '—' }}
                     </span>
                   </div>
+
+                  <!-- Extend Timeline Action -->
+                  <button
+                    @click="openExtensionModal(ticket)"
+                    :disabled="loading"
+                    class="px-3.5 py-2.5 min-h-[44px] rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black uppercase tracking-wider active:scale-95 transition-all flex items-center justify-center gap-1.5"
+                    title="Grant timeline extension due to unforeseen circumstances"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Extend</span>
+                  </button>
 
                   <button
                     @click="openMaterialCompletionModal(ticket)"
@@ -270,6 +286,15 @@
   <MaterialReceiptModal
     v-model:isOpen="showReceiptModal"
     :ticket="receiptTicket"
+  />
+
+  <!-- Ticket Extension Modal -->
+  <TicketExtensionModal
+    :is-open="showExtensionModal"
+    :ticket="ticketToExtend"
+    unit-code="FGMU"
+    @close="showExtensionModal = false"
+    @extended="handleTicketExtended"
   />
 
   <!-- Start Early Confirm Modal -->
@@ -317,6 +342,8 @@ import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
+import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
+import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 
@@ -334,6 +361,10 @@ const showMaterialModal = ref(false);
 const selectedTicketForCompletion = ref(null);
 const showReceiptModal = ref(false);
 const receiptTicket = ref(null);
+
+// Extension Modal
+const showExtensionModal = ref(false);
+const ticketToExtend = ref(null);
 
 /** Keyed by ticket.id → human-friendly elapsed duration string. Updated every minute. */
 const liveDurations = reactive({});
@@ -377,14 +408,22 @@ const formatDate = (dateStr) => {
   return parsed.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 };
 
-/**
- * Recomputes the elapsed duration for every active ticket and writes it into
- * the liveDurations map. Called once on mount, then every minute.
- */
 const refreshDurations = () => {
   for (const ticket of activeTickets.value) {
-    liveDurations[ticket.id] = computeDuration(ticket.assignment);
+    const start = ticket.assignment?.dispatched_at || ticket.assignment?.implementation_date;
+    const dur = calculateWorkingHoursElapsed(start, new Date(), ticket.overtime_hours);
+    liveDurations[ticket.id] = dur.formatted;
   }
+};
+
+const openExtensionModal = (ticket) => {
+  ticketToExtend.value = ticket;
+  showExtensionModal.value = true;
+};
+
+const handleTicketExtended = () => {
+  toast.success(`Extension granted for ticket #${ticketToExtend.value?.id}`);
+  fetchTickets();
 };
 
 const initiateAction = (action, ticketId) => {
@@ -441,36 +480,14 @@ const handleJobCompleted = (result) => {
 };
 
 /**
- * Computes a human-friendly elapsed duration string.
- * Uses dispatched_at (early start) if set, otherwise implementation_date.
+ * Computes working hours duration (skipping weekends & holidays, adding overtime).
  */
-const computeDuration = (assignment) => {
+const computeDuration = (assignment, overtimeHours = 0) => {
   if (!assignment) return null;
-
   const startRaw = assignment.dispatched_at || assignment.implementation_date;
   if (!startRaw) return null;
-
-  // Append 'Z' to treat the backend Y-m-d H:i:s string as UTC
-  const startStr = startRaw.replace(' ', 'T') + 'Z'; 
-  const startDate = new Date(startStr);
-  if (isNaN(startDate.getTime())) return null;
-
-  const totalMs = Date.now() - startDate.getTime();
-  if (totalMs <= 0) return null;
-
-  const totalMinutes = Math.floor(totalMs / 60000);
-  const totalHours   = Math.floor(totalMinutes / 60);
-  const days         = Math.floor(totalHours / 24);
-  const hours        = totalHours % 24;
-  const minutes      = totalMinutes % 60;
-
-  if (days > 0) {
-    return hours > 0 ? `${days}d ${hours}h` : `${days} day${days !== 1 ? 's' : ''}`;
-  }
-  if (hours > 0) {
-    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours} hour${hours !== 1 ? 's' : ''}`;
-  }
-  return `${minutes} min${minutes !== 1 ? 's' : ''}`;
+  const dur = calculateWorkingHoursElapsed(startRaw, new Date(), overtimeHours);
+  return dur.formatted;
 };
 
 onMounted(() => {
