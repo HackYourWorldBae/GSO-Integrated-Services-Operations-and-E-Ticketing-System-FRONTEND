@@ -429,26 +429,32 @@ const handleSubmit = () => {
 
       <!-- ─── INTAKE WIZARD PROGRESS STEPPER (2 STEPS) ─── -->
       <div class="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-8 sm:mb-10 shadow-sm">
-        <div class="flex items-center justify-between max-w-md mx-auto relative px-6 sm:px-12">
-          <!-- Connector line -->
-          <div class="absolute top-5 left-12 right-12 h-0.5 bg-slate-200 -z-0"></div>
+        <div class="max-w-md mx-auto">
+          <div class="flex items-start justify-between">
 
-          <!-- Step 1: Current -->
-          <div class="flex flex-col items-center text-center relative z-10">
-            <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-emerald-600/30 ring-4 ring-emerald-50">
-              1
+            <!-- Step 1: Current -->
+            <div class="flex flex-col items-center text-center w-28 sm:w-32 shrink-0">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-emerald-600/30 ring-4 ring-emerald-50">
+                1
+              </div>
+              <span class="text-xs font-black text-slate-900 mt-2">Select Services</span>
+              <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 1</span>
             </div>
-            <span class="text-xs font-black text-slate-900 mt-2">Select Services</span>
-            <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 1</span>
-          </div>
 
-          <!-- Step 2: Next -->
-          <div class="flex flex-col items-center text-center relative z-10 opacity-60">
-            <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center font-bold text-sm">
-              2
+            <!-- Connector line between steps (never overlaps) -->
+            <div class="flex-1 flex items-center mt-5 -translate-y-1/2 px-2 sm:px-4">
+              <div class="w-full h-0.5 bg-slate-200 rounded-full"></div>
             </div>
-            <span class="text-xs font-bold text-slate-600 mt-2">Fill Out Form</span>
-            <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider hidden sm:block">Step 2</span>
+
+            <!-- Step 2: Next -->
+            <div class="flex flex-col items-center text-center w-28 sm:w-32 shrink-0 opacity-60">
+              <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center font-bold text-sm">
+                2
+              </div>
+              <span class="text-xs font-bold text-slate-600 mt-2">Fill Out Form</span>
+              <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider hidden sm:block">Step 2</span>
+            </div>
+
           </div>
         </div>
       </div>
@@ -482,16 +488,16 @@ const handleSubmit = () => {
         </div>
 
         <!-- Category Intent Filter Tabs -->
-        <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1">
+        <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
           <button
             v-for="tab in categoryTabs"
             :key="tab.id"
             type="button"
             @click="activeCategoryFilter = tab.id"
-            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5"
+            class="w-full sm:w-auto px-3.5 sm:px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center text-center gap-1.5 active:scale-95"
             :class="activeCategoryFilter === tab.id
-              ? 'bg-slate-900 text-white shadow-sm'
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+              ? 'bg-slate-900 text-white shadow-sm ring-2 ring-slate-900/10'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'"
           >
             <span>{{ tab.label }}</span>
           </button>
