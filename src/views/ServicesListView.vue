@@ -423,7 +423,7 @@ const handleSubmit = () => {
           What do you need <span class="text-emerald-600">help</span> with?
         </h2>
         <p class="text-slate-500 mt-2 sm:mt-3 text-sm sm:text-base font-medium max-w-xl">
-          Select services from any unit below. You can pick multiple items across different sections.
+          Select the services you need below. You can pick multiple items across different categories.
         </p>
       </div>
 
@@ -510,35 +510,10 @@ const handleSubmit = () => {
       </div>
 
       <form @submit.prevent="handleSubmit">
-        <div v-if="filteredSubUnits.length > 0" class="space-y-14 sm:space-y-20">
+        <div v-if="filteredSubUnits.length > 0" class="space-y-10 sm:space-y-12">
 
           <!-- ── One section per Sub-Unit ── -->
           <section v-for="unit in filteredSubUnits" :key="unit.id">
-
-            <!-- Unit Header -->
-            <div :class="['rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 mb-6 sm:mb-8 text-white relative overflow-hidden', unit.headerClass]">
-              <!-- Subtle glare blobs -->
-              <div class="absolute top-0 right-0 w-56 h-56 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none"></div>
-              <div class="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full -ml-12 -mb-12 blur-2xl pointer-events-none"></div>
-
-              <div class="relative z-10 flex items-start sm:items-center gap-4 sm:gap-6">
-
-                <!-- Big unit initials -->
-                <div :class="['rounded-2xl flex items-center justify-center shrink-0 border border-white/10', unit.unitInitialBg]"
-                     style="width:64px;height:64px;">
-                  <span class="text-2xl font-black text-white tracking-tight leading-none">{{ unit.name }}</span>
-                </div>
-
-                <div class="flex-1 min-w-0">
-                  <!-- Full unit name -->
-                  <h3 class="text-base sm:text-xl font-black text-white leading-tight tracking-tight">{{ unit.fullName }}</h3>
-                  <p class="mt-1.5 text-white/65 text-xs sm:text-sm leading-relaxed font-medium">{{ unit.description }}</p>
-                </div>
-
-                <!-- Unit icon – visible on desktop only -->
-                <div class="hidden lg:flex w-12 h-12 rounded-xl bg-white/10 items-center justify-center shrink-0 border border-white/10 text-white" v-html="unit.icon"></div>
-              </div>
-            </div>
 
             <!-- Categories within the Unit -->
             <div class="space-y-8 sm:space-y-10">
@@ -547,10 +522,7 @@ const handleSubmit = () => {
                 <!-- Category Sub-Header -->
                 <div class="flex items-center gap-3 mb-4 sm:mb-5">
                   <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', unit.accentBg, unit.accentIcon]" v-html="category.icon"></div>
-                  <div class="min-w-0 flex-1">
-                    <h4 class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ category.title }}</h4>
-                    <p class="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 leading-snug">{{ category.description }}</p>
-                  </div>
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ category.title }}</h3>
                   <div class="flex-1 h-px bg-slate-200 ml-2 hidden sm:block"></div>
                 </div>
 
