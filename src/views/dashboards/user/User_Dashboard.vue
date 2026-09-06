@@ -71,22 +71,22 @@
         </div>
 
         <!-- Metric Cards -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 2xl:grid-cols-5 gap-4">
           <div
             v-for="metric in metrics"
             :key="metric.label"
             @click="metric.onClick"
-            class="group relative bg-white border border-slate-200 rounded-2xl p-5 hover:border-transparent hover:shadow-lg cursor-pointer transition-all duration-300"
+            class="group relative bg-white border border-slate-200 rounded-2xl p-5 hover:border-transparent hover:shadow-lg cursor-pointer transition-all duration-300 flex flex-col justify-between"
             :class="metric.hoverShadow"
           >
             <!-- Top accent bar on hover -->
             <div class="absolute inset-x-0 top-0 h-0.5 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" :class="metric.accentBar"></div>
 
-            <div class="flex items-start justify-between mb-4">
-              <div class="p-2.5 rounded-xl transition-transform duration-300 group-hover:scale-110" :class="metric.iconBg">
+            <div class="flex items-start justify-between gap-2 mb-4">
+              <div class="p-2.5 rounded-xl transition-transform duration-300 group-hover:scale-110 shrink-0" :class="metric.iconBg">
                 <component :is="metric.icon" class="h-5 w-5" :class="metric.iconColor" />
               </div>
-              <span class="text-[10px] font-black uppercase tracking-widest mt-0.5" :class="metric.labelColor">{{ metric.tag }}</span>
+              <span class="text-[10px] font-black uppercase tracking-tight mt-0.5 shrink-0 whitespace-nowrap" :class="metric.labelColor">{{ metric.tag }}</span>
             </div>
             <div>
               <p class="text-3xl font-black text-slate-900 tabular-nums leading-none mb-1">{{ metric.value }}</p>
