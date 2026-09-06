@@ -118,7 +118,7 @@
                 <tr class="bg-slate-50 border-b border-slate-200">
                   <th class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Ticket Reference</th>
                   <th class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Requester</th>
-                  <th class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Service & Nature of Work</th>
+                  <th class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Job Particular & Nature of Work</th>
                   <th class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Location / Room</th>
                   <th class="px-4 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500 text-center">Files</th>
                   <th class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500 text-right">Actions</th>
@@ -190,13 +190,13 @@
                     </div>
                   </td>
 
-                  <!-- Service & Scope -->
+                  <!-- Job Particular & Nature of Work -->
                   <td class="px-6 py-4">
-                    <div class="text-xs font-bold text-slate-900 leading-snug">
-                      {{ ticket.title || ticket.service }}
+                    <div class="text-xs font-bold text-slate-900 leading-snug line-clamp-1 max-w-xs" :title="ticket.description || ticket.title">
+                      {{ ticket.description || ticket.title || 'No particulars specified' }}
                     </div>
                     <div class="text-[11px] text-slate-500 line-clamp-1 max-w-xs mt-0.5 font-normal">
-                      {{ ticket.description || 'No particulars specified' }}
+                      {{ ticket.service || 'General Service' }}
                     </div>
                   </td>
 
@@ -327,13 +327,13 @@
               </span>
             </div>
 
-            <!-- Title & Service -->
+            <!-- Job Particular & Service Type -->
             <div>
               <h4 class="text-sm font-black text-slate-900 leading-snug">
-                {{ ticket.title || ticket.service }}
+                {{ ticket.description || ticket.title || 'No particulars specified' }}
               </h4>
               <p class="text-xs text-slate-500 line-clamp-2 mt-1">
-                {{ ticket.description || 'No particulars specified' }}
+                {{ ticket.service || 'General Service' }}
               </p>
             </div>
 
@@ -427,7 +427,7 @@
                 <span class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
                   #{{ selectedTicketForModal.ticketId }}
                 </span>
-                <h3 class="text-base font-black text-slate-900 mt-1">{{ selectedTicketForModal.title || selectedTicketForModal.service }}</h3>
+                <h3 class="text-base font-black text-slate-900 mt-1">{{ selectedTicketForModal.description || selectedTicketForModal.title || selectedTicketForModal.service }}</h3>
               </div>
             </div>
             <button
@@ -738,6 +738,7 @@ const fetchQueue = async () => {
           ticketId: t.id,
           title: t.title,
           service: t.service_type,
+          service_type: t.service_type,
           description: t.description,
           date: t.submitted_at 
             ? new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
