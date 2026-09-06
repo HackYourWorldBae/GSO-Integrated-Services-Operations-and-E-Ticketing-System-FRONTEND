@@ -363,10 +363,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
 import { formatTicketOrProjectLabel, isProjectIdentifier, formatProjectNumber } from '@/utils/projectFormatter';
+
+const route = useRoute();
 
 const downloadAttachment = async (att) => {
   try {
@@ -396,6 +399,27 @@ const projectTickets = computed(() => tickets.value.filter(t => isProjectIdentif
 const unassignedCount = computed(() => tickets.value.length);
 const ongoingCount = computed(() => stats.value.ongoing);
 const resolvedCount = computed(() => stats.value.resolved);
+
+const showTicketModal = ref(false);
+const selectedTicket = ref({});
+
+const openTicketModal = (ticket) => {
+  selectedTicket.value = ticket;
+  showTicketModal.value = true;
+};
+
+const checkRouteQueryTicket = () => {
+  const targetId = route.query.ticketId || route.query.highlight;
+  if (!targetId || tickets.value.length === 0) return;
+  const match = tickets.value.find(t => String(t.id).toLowerCase() === String(targetId).toLowerCase());
+  if (match) {
+    openTicketModal(match);
+  }
+};
+
+watch(() => route.query.ticketId, () => {
+  checkRouteQueryTicket();
+});
 
 const fetchStats = async () => {
   try {
@@ -431,6 +455,7 @@ const fetchDispatchQueue = async () => {
         }),
         attachments: t.attachments || [],
       }));
+      checkRouteQueryTicket();
     }
   } catch (error) {
     console.error('Failed to fetch FGMU dispatch queue:', error);
@@ -441,14 +466,6 @@ onMounted(() => {
   fetchDispatchQueue();
   fetchStats();
 });
-
-const showTicketModal = ref(false);
-const selectedTicket = ref({});
-
-const openTicketModal = (ticket) => {
-  selectedTicket.value = ticket;
-  showTicketModal.value = true;
-};
 </script>
 
 <style scoped>

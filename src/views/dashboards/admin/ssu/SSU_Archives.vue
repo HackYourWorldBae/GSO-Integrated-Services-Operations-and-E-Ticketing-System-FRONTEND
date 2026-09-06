@@ -208,10 +208,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
 
+const route = useRoute();
 const tickets = ref([]);
 
 const showImageModal = ref(false);
@@ -267,11 +269,27 @@ const fetchArchives = async () => {
         assignedWorker: t.assignments?.[0]?.assigned_to_name || 'Unassigned',
         materials: [] // No materials tracking in this DB yet
       }));
+      checkRouteQueryTicket();
     }
   } catch (error) {
     console.error('Failed to fetch SSU archives:', error);
   }
 };
+
+const checkRouteQueryTicket = () => {
+  const targetId = route.query.ticketId || route.query.highlight;
+  if (!targetId || tickets.value.length === 0) return;
+  const match = tickets.value.find(t => String(t.id || t.ticketId).toLowerCase() === String(targetId).toLowerCase());
+  if (match) {
+    searchQuery.value = String(targetId);
+    applyFilter();
+    viewDetails(match);
+  }
+};
+
+watch(() => route.query.ticketId, () => {
+  checkRouteQueryTicket();
+});
 
 onMounted(() => {
   fetchArchives();

@@ -368,9 +368,9 @@
     </template>
   </MainLayout>
 </template>
-
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
@@ -378,6 +378,8 @@ import { generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+
+const route = useRoute();
 
 import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
 
@@ -484,10 +486,29 @@ onMounted(async () => {
         isClosed: t.status === 'completed' || t.status === 'closed',
         feedback: t.feedback || null
       }));
+      checkRouteTicket();
     }
   } catch (error) {
     console.error('Failed to fetch completed tickets:', error);
   }
+});
+
+const checkRouteTicket = () => {
+  const target = route.query.ticketId || route.query.highlight;
+  if (!target) return;
+  const match = tickets.value.find(t => 
+    String(t.ticketId).toLowerCase() === String(target).toLowerCase() || 
+    String(t.id).toLowerCase() === String(target).toLowerCase()
+  );
+  if (match) {
+    viewDetails(match);
+  } else {
+    searchQuery.value = String(target);
+  }
+};
+
+watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
+  checkRouteTicket();
 });
 
 const searchQuery = ref('');

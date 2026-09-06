@@ -941,14 +941,24 @@ const fetchTickets = async () => {
 
 let pollingInterval = null;
 
-onMounted(() => {
-  if (route.query.highlight) {
-    highlightedTicket.value = route.query.highlight;
+const handleRouteTicket = () => {
+  const target = route.query.ticketId || route.query.highlight;
+  if (target) {
+    highlightedTicket.value = target;
+    searchQuery.value = target;
     setTimeout(() => {
-      const el = document.getElementById(route.query.highlight);
+      const el = document.getElementById(target);
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 200);
+    }, 300);
   }
+};
+
+watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
+  handleRouteTicket();
+});
+
+onMounted(() => {
+  handleRouteTicket();
 
   userName.value = authStore.user?.first_name || authStore.fullName || 'User';
 

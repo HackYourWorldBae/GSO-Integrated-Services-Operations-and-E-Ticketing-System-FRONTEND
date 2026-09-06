@@ -86,7 +86,8 @@
               <div
                 v-for="ticket in scheduledTickets"
                 :key="ticket.id"
-                class="group flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-4 px-4 sm:px-6 hover:bg-slate-50/80 border-b border-slate-100 last:border-b-0 rounded-2xl transition-all duration-200 cursor-default"
+                :id="'ticket-' + ticket.id"
+                :class="['group flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-4 px-4 sm:px-6 hover:bg-slate-50/80 border-b border-slate-100 last:border-b-0 rounded-2xl transition-all duration-200 cursor-default', highlightedTicketId === ticket.id ? 'ring-2 ring-emerald-500 bg-emerald-50/60 shadow-md' : '']"
               >
                 <!-- Left Details: ID & Metadata Columns -->
                 <div class="flex flex-col sm:flex-row sm:items-center gap-4 flex-1 min-w-0">
@@ -185,7 +186,8 @@
               <div
                 v-for="ticket in activeTickets"
                 :key="ticket.id"
-                class="group flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-4 px-4 sm:px-6 hover:bg-slate-50/80 border-b border-slate-100 last:border-b-0 rounded-2xl transition-all duration-200 cursor-default"
+                :id="'ticket-' + ticket.id"
+                :class="['group flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-4 px-4 sm:px-6 hover:bg-slate-50/80 border-b border-slate-100 last:border-b-0 rounded-2xl transition-all duration-200 cursor-default', highlightedTicketId === ticket.id ? 'ring-2 ring-emerald-500 bg-emerald-50/60 shadow-md' : '']"
               >
                 <!-- Left Details: ID & Metadata Columns -->
                 <div class="flex flex-col sm:flex-row sm:items-center gap-4 flex-1 min-w-0">
@@ -310,12 +312,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, computed } from 'vue';
+import { ref, reactive, onMounted, onUnmounted, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+
+const route = useRoute();
+const highlightedTicketId = ref(null);
 
 const tickets = ref([]);
 const loading = ref(false);
@@ -337,11 +343,28 @@ let durationRefreshTimer = null;
 const scheduledTickets = computed(() => tickets.value.filter(t => t.current_step == 4));
 const activeTickets    = computed(() => tickets.value.filter(t => t.current_step == 5));
 
+const checkRouteQueryTicket = () => {
+  const targetId = route.query.ticketId || route.query.highlight;
+  if (!targetId) return;
+  highlightedTicketId.value = targetId;
+  setTimeout(() => {
+    const el = document.getElementById('ticket-' + targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 250);
+};
+
+watch(() => route.query.ticketId, () => {
+  checkRouteQueryTicket();
+});
+
 const fetchTickets = async () => {
   try {
     const res = await api.get('/tickets/active/FGMU');
     tickets.value = res.data.data.tickets;
     refreshDurations();
+    checkRouteQueryTicket();
   } catch (error) {
     console.error('Failed to fetch active tickets', error);
   }

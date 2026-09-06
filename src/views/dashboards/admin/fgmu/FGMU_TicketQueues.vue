@@ -632,12 +632,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 import { FGMU_SERVICES } from '@/constants/services';
 
+const route = useRoute();
 const tickets = ref([]);
 const isLoading = ref(false);
 const searchQuery = ref('');
@@ -749,6 +751,7 @@ const fetchQueue = async () => {
           attachments: t.attachments || [],
         };
       });
+      checkRouteQueryTicket();
     }
   } catch (error) {
     console.error('Failed to fetch FGMU queue:', error);
@@ -756,6 +759,24 @@ const fetchQueue = async () => {
     isLoading.value = false;
   }
 };
+
+const checkRouteQueryTicket = () => {
+  const targetId = route.query.ticketId || route.query.highlight;
+  if (!targetId) return;
+  const match = tickets.value.find(t => 
+    String(t.ticketId).toLowerCase() === String(targetId).toLowerCase() || 
+    String(t.id).toLowerCase() === String(targetId).toLowerCase()
+  );
+  if (match) {
+    selectedTicketForModal.value = match;
+  } else {
+    searchQuery.value = String(targetId);
+  }
+};
+
+watch(() => [route.query.ticketId, route.query._t], () => {
+  checkRouteQueryTicket();
+});
 
 const downloadAttachment = async (att) => {
   try {

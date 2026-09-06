@@ -434,7 +434,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
@@ -443,6 +444,7 @@ import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import { LEAU_SERVICES } from '@/constants/services';
 
+const route = useRoute();
 const tickets = ref([]);
 
 const viewerModal = reactive({
@@ -506,11 +508,31 @@ const fetchArchives = async () => {
         unit_code: 'LEAU',
         unit_id: 2,
       }));
+      checkRouteQueryTicket();
     }
   } catch (error) {
     console.error('Failed to fetch LEAU archives:', error);
   }
 };
+
+const checkRouteQueryTicket = () => {
+  const targetId = route.query.ticketId || route.query.highlight;
+  if (!targetId) return;
+  const match = tickets.value.find(t => 
+    String(t.ticketId).toLowerCase() === String(targetId).toLowerCase() || 
+    String(t.id).toLowerCase() === String(targetId).toLowerCase()
+  );
+  if (match) {
+    viewDetails(match);
+  } else {
+    searchQuery.value = String(targetId);
+    applyFilter();
+  }
+};
+
+watch(() => [route.query.ticketId, route.query._t], () => {
+  checkRouteQueryTicket();
+});
 
 onMounted(() => {
   fetchArchives();

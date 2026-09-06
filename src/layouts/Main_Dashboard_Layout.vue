@@ -108,28 +108,35 @@
                       No notifications yet.
                     </div>
                     <div v-for="notif in notifications" :key="notif.id" 
-                         @click="notif.is_read == 0 ? markAsRead(notif.id) : null"
-                         :class="['p-5 border-b border-slate-50 transition-colors cursor-pointer group relative', notif.is_read == 0 ? 'bg-blue-50/30 hover:bg-blue-50/60' : 'bg-white hover:bg-slate-50 opacity-60 hover:opacity-100']">
+                         @click="handleNotificationClick(notif)"
+                         :class="['p-4 sm:p-5 border-b border-slate-100 transition-all cursor-pointer group relative hover:bg-emerald-50/40', notif.is_read == 0 ? 'bg-blue-50/30' : 'bg-white opacity-70 hover:opacity-100']">
                       
                       <!-- Unread Indicator Dot -->
-                      <div v-if="notif.is_read == 0" class="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
+                      <div v-if="notif.is_read == 0" class="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
 
-                      <div class="flex gap-4 ml-2">
-                        <div :class="['w-10 h-10 rounded-xl flex items-center justify-center shrink-0', notif.type === 'success' ? 'bg-emerald-100 text-emerald-600' : (notif.type === 'warning' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600')]">
-                          <svg v-if="notif.type === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      <div class="flex gap-3 ml-2">
+                        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs', notif.type === 'success' ? 'bg-emerald-100 text-emerald-600' : (notif.type === 'warning' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600')]">
+                          <svg v-if="notif.type === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                           </svg>
-                          <svg v-else-if="notif.type === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          <svg v-else-if="notif.type === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                           </svg>
-                          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         </div>
-                        <div class="space-y-1 overflow-hidden">
-                          <p :class="['text-sm truncate transition-colors group-hover:text-blue-600', notif.is_read == 0 ? 'font-black text-slate-900' : 'font-bold text-slate-500']">{{ notif.title }}</p>
-                          <p :class="['text-xs font-medium leading-relaxed', notif.is_read == 0 ? 'text-slate-600' : 'text-slate-400']">{{ notif.message }}</p>
-                          <p class="text-[10px] text-slate-400 font-bold uppercase pt-1">{{ new Date(notif.created_at).toLocaleString() }}</p>
+                        <div class="space-y-1 overflow-hidden flex-1">
+                          <div class="flex items-center justify-between gap-1">
+                            <p :class="['text-xs truncate transition-colors group-hover:text-emerald-700', notif.is_read == 0 ? 'font-black text-slate-900' : 'font-bold text-slate-600']">{{ notif.title }}</p>
+                          </div>
+                          <p :class="['text-[11px] font-medium leading-relaxed line-clamp-2', notif.is_read == 0 ? 'text-slate-600' : 'text-slate-400']">{{ notif.message }}</p>
+                          <div class="flex items-center justify-between pt-1">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase">{{ new Date(notif.created_at).toLocaleString() }}</span>
+                            <span class="inline-flex items-center gap-0.5 text-[10px] font-black text-emerald-600 group-hover:translate-x-0.5 transition-transform">
+                              View Ticket ›
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -297,6 +304,102 @@ const clearReadNotifications = async () => {
   } catch (error) {
     console.error('Failed to clear notifications:', error);
   }
+};
+
+const handleNotificationClick = async (notif) => {
+  // 1. Optimistically mark as read
+  if (notif.is_read == 0) {
+    notif.is_read = 1;
+    unreadNotificationCount.value = Math.max(0, unreadNotificationCount.value - 1);
+    try {
+      await api.post(`notifications/read/${notif.id}`);
+    } catch (e) {
+      console.error('Failed to mark read:', e);
+    }
+  }
+
+  // 2. Close notification dropdown
+  isNotificationOpen.value = false;
+
+  // 3. Extract ticket ID
+  let ticketId = notif.ticket_id;
+  if (!ticketId) {
+    const text = `${notif.title || ''} ${notif.message || ''}`;
+    const match = text.match(/(?:Ticket|Incident|Request)\s*#?([A-Za-z0-9\-_]+)/i) || text.match(/#([A-Za-z0-9\-_]+)/);
+    if (match) {
+      ticketId = match[1];
+    }
+  }
+
+  const role = (authStore.user?.role || localStorage.getItem('user_role') || '').toLowerCase();
+
+  if (!ticketId) {
+    // If no ticket reference, fallback to user's dashboard
+    if (role === 'admin') router.push('/admin/fgmu');
+    else if (role === 'dispatcher') router.push('/dispatcher/fgmu');
+    else if (role === 'director') router.push('/director/dashboard');
+    else if (role === 'superadmin') router.push('/superadmin/dashboard');
+    else router.push('/user/dashboard');
+    return;
+  }
+
+  // 4. Determine Unit Code and Status Context
+  const text = `${notif.title || ''} ${notif.message || ''}`.toLowerCase();
+  let unitCode = '';
+  const upperTicket = String(ticketId).toUpperCase();
+  if (upperTicket.startsWith('FGMU')) unitCode = 'fgmu';
+  else if (upperTicket.startsWith('LEAU')) unitCode = 'leau';
+  else if (upperTicket.startsWith('SSU')) unitCode = 'ssu';
+  else if (notif.unit_id === 1) unitCode = 'fgmu';
+  else if (notif.unit_id === 2) unitCode = 'leau';
+  else if (notif.unit_id === 3) unitCode = 'ssu';
+  else {
+    const u = (authStore.user?.unit_code || '').toLowerCase();
+    unitCode = u || 'fgmu';
+  }
+
+  const isCompleted = notif.is_archived === 1 || 
+    ['completed', 'resolved', 'declined', 'cancelled', 'closed'].includes(notif.status) ||
+    text.includes('completed') || text.includes('resolved') || text.includes('declined') || text.includes('cancelled');
+
+  const isDispatched = notif.status === 'processing' || text.includes('dispatched') || text.includes('assigned') || text.includes('scheduled');
+
+  let targetPath = '';
+
+  if (role === 'admin') {
+    if (unitCode === 'ssu') {
+      targetPath = isCompleted ? '/admin/ssu/archives' : '/admin/ssu/queues/incidents';
+    } else if (unitCode === 'leau') {
+      targetPath = isCompleted ? '/admin/leau/archives' : '/admin/leau/queues';
+    } else {
+      targetPath = isCompleted ? '/admin/fgmu/archives' : '/admin/fgmu/queues';
+    }
+  } else if (role === 'dispatcher') {
+    if (unitCode === 'leau') {
+      if (isCompleted) targetPath = '/dispatcher/leau/archives';
+      else if (isDispatched) targetPath = '/dispatcher/leau/dispatched';
+      else targetPath = '/dispatcher/leau';
+    } else {
+      if (isCompleted) targetPath = '/dispatcher/fgmu/archives';
+      else if (isDispatched) targetPath = '/dispatcher/fgmu/dispatched';
+      else targetPath = '/dispatcher/fgmu';
+    }
+  } else if (role === 'director') {
+    if (unitCode === 'leau') targetPath = '/director/leau';
+    else if (unitCode === 'ssu') targetPath = '/director/ssu';
+    else targetPath = '/director/fgmu';
+  } else if (role === 'superadmin') {
+    targetPath = '/superadmin/dashboard';
+  } else {
+    // Requestor (student, employee, etc.)
+    targetPath = isCompleted ? '/user/completed-tickets' : '/user/tickets';
+  }
+
+  // 5. Navigate to target path passing ticket reference
+  router.push({
+    path: targetPath,
+    query: { ticketId, highlight: ticketId, _t: Date.now() }
+  });
 };
 
 const handleToggle = () => {

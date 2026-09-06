@@ -85,6 +85,7 @@
               v-for="ticket in pendingTickets"
               :key="ticket.id"
               :ticket="ticket"
+              :is-highlighted="highlightedTicketId === ticket.id"
               @investigate="toggleInvestigate"
               @notation="openNotationEditor"
               @resolve="initiateResolve"
@@ -117,6 +118,7 @@
               v-for="ticket in investigatingTickets"
               :key="ticket.id"
               :ticket="ticket"
+              :is-highlighted="highlightedTicketId === ticket.id"
               variant="investigating"
               @investigate="toggleInvestigate"
               @notation="openNotationEditor"
@@ -244,10 +246,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, defineComponent, h } from 'vue';
+import { ref, computed, onMounted, onUnmounted, defineComponent, h, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
+
+const route = useRoute();
+const highlightedTicketId = ref(null);
 
 // ---- Attachment download ----
 const downloadAttachment = async (att) => {
@@ -329,10 +335,27 @@ const fetchQueue = async () => {
     ];
 
     allTickets.value = merged;
+    checkRouteQueryTicket();
   } catch (error) {
     console.error('Failed to fetch SSU Incident queue:', error);
   }
 };
+
+const checkRouteQueryTicket = () => {
+  const targetId = route.query.ticketId || route.query.highlight;
+  if (!targetId) return;
+  highlightedTicketId.value = targetId;
+  setTimeout(() => {
+    const el = document.getElementById('ticket-' + targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 250);
+};
+
+watch(() => route.query.ticketId, () => {
+  checkRouteQueryTicket();
+});
 
 const fetchCompletedCount = async () => {
   try {
@@ -453,21 +476,26 @@ const confirmDecline = async () => {
 const IncidentTicketCard = defineComponent({
   name: 'IncidentTicketCard',
   props: {
-    ticket:  { type: Object, required: true },
-    variant: { type: String, default: 'pending' }, // 'pending' | 'investigating'
+    ticket:        { type: Object, required: true },
+    variant:       { type: String, default: 'pending' }, // 'pending' | 'investigating'
+    isHighlighted: { type: Boolean, default: false },
   },
   emits: ['investigate', 'notation', 'resolve', 'dismiss', 'download-attachment'],
   setup(props, { emit }) {
     const isInvestigating = computed(() => props.ticket.isUnderInvestigation);
     const hasNotation     = computed(() => props.ticket.hasNotation);
 
-    const borderClass = computed(() =>
-      isInvestigating.value
+    const borderClass = computed(() => {
+      if (props.isHighlighted) {
+        return 'border-rose-500 ring-4 ring-rose-400/40 bg-rose-50/30 shadow-2xl';
+      }
+      return isInvestigating.value
         ? 'border-violet-200/80 bg-violet-50/20'
-        : 'border-rose-100/80 bg-white'
-    );
+        : 'border-rose-100/80 bg-white';
+    });
 
     return () => h('div', {
+      id: 'ticket-' + props.ticket.id,
       class: `group relative overflow-hidden border rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all ${borderClass.value}`,
     }, [
       // -- Main ticket layout --
