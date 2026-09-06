@@ -636,6 +636,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
+import { LEAU_SERVICES } from '@/constants/services';
 
 const tickets = ref([]);
 const isLoading = ref(false);
@@ -655,13 +656,13 @@ const selectedTicketForModal = ref(null);
 
 let pollingInterval = null;
 
-// Distinct categories from loaded tickets
+// All official services from Services page plus any additional loaded from tickets
 const serviceCategories = computed(() => {
-  const set = new Set();
+  const set = new Set(LEAU_SERVICES);
   tickets.value.forEach(t => {
-    if (t.service) set.add(t.service);
+    if (t.service && t.service.trim()) set.add(t.service.trim());
   });
-  return Array.from(set).sort();
+  return Array.from(set);
 });
 
 // Filtered tickets based on search & category
@@ -669,7 +670,11 @@ const filteredTickets = computed(() => {
   let list = tickets.value;
 
   if (selectedServiceFilter.value) {
-    list = list.filter(t => t.service === selectedServiceFilter.value);
+    const target = selectedServiceFilter.value.trim().toLowerCase();
+    list = list.filter(t => {
+      const s = (t.service || t.service_type || '').trim().toLowerCase();
+      return s === target;
+    });
   }
 
   if (searchQuery.value.trim()) {

@@ -52,11 +52,11 @@
             <input v-model="searchQuery" type="text" placeholder="Search Full Ticket Number (e.g. FGMU-TIC-42-2026)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
           </div>
           <div class="flex gap-3 w-full md:w-auto">
-            <select v-model="serviceFilter" class="w-full md:w-48 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer">
+            <select v-model="serviceFilter" @change="applyFilter" class="w-full md:w-56 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
               <option value="">All Services</option>
-              <option value="Equipment Maintenance">Equipment Maintenance</option>
-              <option value="Carpentry Works">Carpentry Works</option>
-              <option value="Plumbing Repair">Plumbing Repair</option>
+              <option v-for="service in serviceCategories" :key="service" :value="service">
+                {{ service }}
+              </option>
             </select>
             <button @click="applyFilter" class="px-6 py-3 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 active:scale-95 transition-all text-sm whitespace-nowrap">
               Apply Filter
@@ -79,7 +79,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="ticket in filteredTickets" :key="ticket.id" class="group transition-all duration-200">
+                <tr v-for="ticket in paginatedTickets" :key="ticket.id" class="group transition-all duration-200">
                   <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all">
                     <span class="text-sm font-black text-slate-900">#{{ ticket.ticketId }}</span>
                   </td>
@@ -120,6 +120,79 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Pagination Toolbar -->
+          <div v-if="filteredTickets.length > 0" class="mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 text-xs text-slate-500">
+              <span>Rows per page:</span>
+              <select
+                v-model="perPage"
+                @change="currentPage = 1"
+                class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 text-xs font-bold focus:outline-none focus:border-emerald-500"
+              >
+                <option :value="10">10</option>
+                <option :value="15">15</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+              </select>
+              <span>
+                Showing <strong class="text-slate-800">{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
+                <strong class="text-slate-800">{{ Math.min(currentPage * perPage, filteredTickets.length) }}</strong> of
+                <strong class="text-slate-800">{{ filteredTickets.length }}</strong> tickets
+              </span>
+            </div>
+
+            <!-- Page Buttons -->
+            <div class="flex items-center gap-1.5">
+              <button
+                @click="currentPage = 1"
+                :disabled="currentPage === 1"
+                class="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold"
+                title="First page"
+              >
+                «
+              </button>
+              <button
+                @click="currentPage--"
+                :disabled="currentPage === 1"
+                class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1"
+              >
+                ‹ Prev
+              </button>
+
+              <template v-for="(page, idx) in displayedPages" :key="idx">
+                <span v-if="page === '...'" class="px-2 text-slate-400 font-bold text-xs">...</span>
+                <button
+                  v-else
+                  @click="currentPage = page"
+                  :class="[
+                    'w-8 h-8 rounded-xl text-xs font-black transition-all',
+                    currentPage === page
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'border border-slate-200 text-slate-600 hover:bg-slate-100'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+              </template>
+
+              <button
+                @click="currentPage++"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1"
+              >
+                Next ›
+              </button>
+              <button
+                @click="currentPage = totalPages"
+                :disabled="currentPage === totalPages"
+                class="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold"
+                title="Last page"
+              >
+                »
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -404,6 +477,7 @@ import { generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
 import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+import { FGMU_SERVICES } from '@/constants/services';
 
 const tickets = ref([]);
 
@@ -514,12 +588,26 @@ const serviceFilter = ref('');
 const activeSearchQuery = ref('');
 const activeServiceFilter = ref('');
 
+// Pagination state
+const currentPage = ref(1);
+const perPage = ref(15);
+
 const showDetailsModal = ref(false);
 const selectedTicket = ref(null);
+
+// All official services from Services catalog plus any present in loaded tickets
+const serviceCategories = computed(() => {
+  const set = new Set(FGMU_SERVICES);
+  tickets.value.forEach(t => {
+    if (t.service && t.service.trim()) set.add(t.service.trim());
+  });
+  return Array.from(set);
+});
 
 const applyFilter = () => {
   activeSearchQuery.value = searchQuery.value.trim().toLowerCase();
   activeServiceFilter.value = serviceFilter.value;
+  currentPage.value = 1;
 };
 
 const filteredTickets = computed(() => {
@@ -527,15 +615,47 @@ const filteredTickets = computed(() => {
     let match = true;
     
     if (activeSearchQuery.value) {
-      match = match && ticket.ticketId.toLowerCase().includes(activeSearchQuery.value);
+      const q = activeSearchQuery.value;
+      const refMatch = ticket.ticketId && String(ticket.ticketId).toLowerCase().includes(q);
+      const reqMatch = ticket.requestedBy && ticket.requestedBy.toLowerCase().includes(q);
+      const srvMatch = ticket.service && ticket.service.toLowerCase().includes(q);
+      const titleMatch = ticket.title && ticket.title.toLowerCase().includes(q);
+      const locMatch = ticket.location && ticket.location.toLowerCase().includes(q);
+      match = match && (refMatch || reqMatch || srvMatch || titleMatch || locMatch);
     }
     
     if (activeServiceFilter.value) {
-      match = match && ticket.service === activeServiceFilter.value;
+      const target = activeServiceFilter.value.trim().toLowerCase();
+      const s = (ticket.service || ticket.service_type || '').trim().toLowerCase();
+      match = match && (s === target);
     }
     
     return match;
   });
+});
+
+const totalPages = computed(() => Math.ceil(filteredTickets.value.length / perPage.value) || 1);
+
+const paginatedTickets = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredTickets.value.slice(start, start + perPage.value);
+});
+
+const displayedPages = computed(() => {
+  const current = currentPage.value;
+  const total = totalPages.value;
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages = [];
+  pages.push(1);
+  if (current > 3) pages.push('...');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
 });
 
 const viewDetails = (ticket) => {
