@@ -237,6 +237,34 @@ const handleFinalSubmit = async () => {
         <p class="text-slate-500 mt-2 sm:mt-4 font-bold text-base sm:text-lg">We've generated specialized forms based on your selected services.</p>
       </div>
 
+      <!-- ─── INTAKE WIZARD PROGRESS STEPPER (2 STEPS) ─── -->
+      <div class="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-8 sm:mb-12 shadow-sm">
+        <div class="flex items-center justify-between max-w-md mx-auto relative px-6 sm:px-12">
+          <!-- Connector line -->
+          <div class="absolute top-5 left-12 right-12 h-0.5 bg-emerald-600 -z-0"></div>
+
+          <!-- Step 1: Completed -->
+          <button type="button" @click="goBack" class="flex flex-col items-center text-center relative z-10 group cursor-pointer" title="Go back to services selection">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-emerald-600/20 group-hover:bg-emerald-700 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <span class="text-xs font-bold text-slate-700 group-hover:text-emerald-700 mt-2 transition-colors">Select Services</span>
+            <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 1</span>
+          </button>
+
+          <!-- Step 2: Current -->
+          <div class="flex flex-col items-center text-center relative z-10">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-emerald-600/30 ring-4 ring-emerald-50">
+              2
+            </div>
+            <span class="text-xs font-black text-slate-900 mt-2">Fill Out Form</span>
+            <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 2</span>
+          </div>
+        </div>
+      </div>
+
       <!-- FGMU FORM SECTION -->
       <FGMUForm 
         v-if="hasFGMU" 

@@ -427,39 +427,28 @@ const handleSubmit = () => {
         </p>
       </div>
 
-      <!-- ─── INTAKE WIZARD PROGRESS STEPPER ─── -->
+      <!-- ─── INTAKE WIZARD PROGRESS STEPPER (2 STEPS) ─── -->
       <div class="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-8 sm:mb-10 shadow-sm">
-        <div class="flex items-center justify-between max-w-2xl mx-auto relative px-2 sm:px-8">
+        <div class="flex items-center justify-between max-w-md mx-auto relative px-6 sm:px-12">
           <!-- Connector line -->
-          <div class="absolute top-5 left-12 right-12 h-0.5 bg-slate-200 -z-0 hidden sm:block">
-            <div class="h-full bg-emerald-600 transition-all duration-500 w-1/4"></div>
-          </div>
+          <div class="absolute top-5 left-12 right-12 h-0.5 bg-slate-200 -z-0"></div>
 
-          <!-- Step 1: Active -->
+          <!-- Step 1: Current -->
           <div class="flex flex-col items-center text-center relative z-10">
             <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-emerald-600/30 ring-4 ring-emerald-50">
               1
             </div>
             <span class="text-xs font-black text-slate-900 mt-2">Select Services</span>
-            <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 1 (Active)</span>
+            <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 1</span>
           </div>
 
-          <!-- Step 2: Request Details & Location -->
+          <!-- Step 2: Next -->
           <div class="flex flex-col items-center text-center relative z-10 opacity-60">
             <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center font-bold text-sm">
               2
             </div>
-            <span class="text-xs font-bold text-slate-600 mt-2">Details & Location</span>
-            <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider hidden sm:block">Intake Form</span>
-          </div>
-
-          <!-- Step 3: Confirmation -->
-          <div class="flex flex-col items-center text-center relative z-10 opacity-60">
-            <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center font-bold text-sm">
-              3
-            </div>
-            <span class="text-xs font-bold text-slate-600 mt-2">Submit & Track</span>
-            <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider hidden sm:block">Ticket Verification</span>
+            <span class="text-xs font-bold text-slate-600 mt-2">Fill Out Form</span>
+            <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider hidden sm:block">Step 2</span>
           </div>
         </div>
       </div>
