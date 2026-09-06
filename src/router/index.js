@@ -42,7 +42,6 @@ const ProjectsView = () => import('../views/ProjectsView.vue');
 const ProjectsArchiveView = () => import('../views/ProjectsArchiveView.vue');
 const FGMU_ProjectArchives = () => import('../views/dashboards/admin/fgmu/FGMU_ProjectArchives.vue');
 const LEAU_ProjectArchives = () => import('../views/dashboards/admin/leau/LEAU_ProjectArchives.vue');
-const Superadmin_Dashboard = () => import('../views/dashboards/superadmin/Superadmin_Dashboard.vue');
 const Superadmin_Users = () => import('../views/dashboards/superadmin/Superadmin_Users.vue');
 const Superadmin_AuditLogs = () => import('../views/dashboards/superadmin/Superadmin_AuditLogs.vue');
 
@@ -200,13 +199,11 @@ const router = createRouter({
     // Superadmin Portal
     {
       path: '/superadmin',
-      redirect: '/superadmin/dashboard'
+      redirect: '/superadmin/users'
     },
     {
       path: '/superadmin/dashboard',
-      name: 'superadmin-dashboard',
-      component: Superadmin_Dashboard,
-      meta: { requiresAuth: true, roles: ['superadmin'] }
+      redirect: '/superadmin/users'
     },
     {
       path: '/superadmin/users',
@@ -358,7 +355,7 @@ router.beforeEach((to, from, next) => {
   // Helper: map a role and unit to its canonical landing view
   const getHomeRoute = (userRole, userUnit) => {
     if (userRole === 'superadmin') {
-      return '/superadmin/dashboard';
+      return '/superadmin/users';
     }
     if (userRole === 'admin') {
       const u = (userUnit || 'fgmu').toLowerCase();
@@ -387,14 +384,14 @@ router.beforeEach((to, from, next) => {
 
     // 3. Enforce Role-Based Access Control
     if (to.meta.roles && Array.isArray(to.meta.roles)) {
-      if (!role || (!to.meta.roles.includes(role) && role !== 'superadmin')) {
+      if (!role || !to.meta.roles.includes(role)) {
         console.warn(`[Router Guard] Access denied to ${to.path}. Required roles: ${to.meta.roles.join(', ')}. Current role: ${role}`);
         return next(getHomeRoute(role, unit));
       }
     }
 
-    // 4. Enforce Sub-Unit Scoping for Admin and Dispatcher (Director and Superadmin have university-wide access)
-    if (to.meta.unit && role !== 'director' && role !== 'superadmin') {
+    // 4. Enforce Sub-Unit Scoping for Admin and Dispatcher (Director has university-wide access)
+    if (to.meta.unit && role !== 'director') {
       const targetUnit = String(to.meta.unit).toUpperCase();
       if (unit && unit !== targetUnit) {
         console.warn(`[Router Guard] Jurisdiction mismatch for ${to.path}. Target unit: ${targetUnit}. Current unit: ${unit}`);

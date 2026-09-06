@@ -51,12 +51,6 @@ const navGroups = computed(() => {
         title: 'Superadmin Controls',
         items: [
           {
-            label: 'System Overview',
-            to: '/superadmin/dashboard',
-            exact: true,
-            icon: 'home'
-          },
-          {
             label: 'User Accounts',
             to: '/superadmin/users',
             icon: 'users'
@@ -65,31 +59,6 @@ const navGroups = computed(() => {
             label: 'Audit Trail',
             to: '/superadmin/logs',
             icon: 'shield'
-          }
-        ]
-      },
-      {
-        title: 'Operational Unit Portals',
-        items: [
-          {
-            label: 'FGMU Management',
-            to: '/admin/fgmu',
-            icon: 'queue'
-          },
-          {
-            label: 'LEAU Management',
-            to: '/admin/leau',
-            icon: 'queue'
-          },
-          {
-            label: 'SSU Management',
-            to: '/admin/ssu',
-            icon: 'shield'
-          },
-          {
-            label: 'Director Analytics',
-            to: '/director',
-            icon: 'chart'
           }
         ]
       }
