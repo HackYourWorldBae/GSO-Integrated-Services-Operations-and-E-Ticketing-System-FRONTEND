@@ -16,6 +16,41 @@ const otherSpecifics = reactive({});
 const tempCustom = reactive({});
 const customDescriptions = reactive({});
 
+// Problem-based Natural Language Search & Category Filters
+const searchQuery = ref('');
+const activeCategoryFilter = ref('all');
+
+const categoryTabs = [
+  { id: 'all', label: 'All Services' },
+  { id: 'fgmu', label: 'Facilities & Repairs' },
+  { id: 'leau', label: 'Grounds & Landscaping' },
+  { id: 'ssu', label: 'Security & Incident' }
+];
+
+// Keyword alias map for natural language problem matching
+const serviceKeywords = {
+  "Plumbing & Sanitary Works": ["leak", "faucet", "pipe", "drain", "toilet", "sink", "water", "clog", "flush", "plumbing", "sewer"],
+  "Electrical Work": ["outlet", "light", "power", "switch", "wire", "electricity", "bulb", "breaker", "blackout", "socket", "short"],
+  "Concrete Works": ["concrete", "cement", "foundation", "slab", "pavement", "crack"],
+  "Masonry Works": ["masonry", "brick", "hollow block", "mortar", "tile", "wall", "plaster"],
+  "Welding & Tinsmith Works": ["welding", "weld", "gate", "metal", "iron", "roof", "gutter", "tinsmith", "steel"],
+  "Carpentry & Joinery": ["carpentry", "wood", "door", "window", "table", "chair", "cabinet", "lock", "hinge", "furniture", "desk"],
+  "Glass & Glazing Works": ["glass", "glazing", "mirror", "window pane", "broken window"],
+  "Painting Works": ["paint", "repainting", "coating", "wall paint", "primer", "stain", "varnish"],
+  "Electronics & Communication Works": ["electronics", "wifi", "internet", "telephone", "cable", "lan", "intercom", "network", "cctv", "audio", "mic"],
+  "Mechanical Works": ["mechanical", "aircon", "ac", "air conditioning", "fan", "motor", "generator", "engine", "ventilation", "hvac"],
+  "Disinfection": ["disinfection", "sanitize", "sanitation", "spray", "virus", "bacteria", "pest", "chemical"],
+  "Cleaning/ Grubbing": ["cleaning", "grubbing", "deep clean", "sweep", "mop", "trash", "debris", "janitorial"],
+  "Hauling": ["hauling", "haul", "move", "transport", "carry", "heavy", "truck", "relocate", "furniture transfer"],
+  "Mowing/ Weeding": ["mowing", "weeding", "grass", "lawn", "weed", "trim", "brush", "mower"],
+  "Planting/ Landscaping": ["planting", "landscaping", "garden", "flower", "beautification", "seedling", "soil"],
+  "Pruning/ Cutting": ["pruning", "cutting", "tree", "branch", "trim tree", "falling branch", "chainsaw"],
+  "Borrowing of plants": ["borrow plants", "plant rental", "potted plants", "decoration plants"],
+  "Stage & Hall Decoration": ["stage decoration", "hall decoration", "event setup", "backdrop", "program", "ceremony"],
+  "Borrowing of tools/ equipment": ["borrow tools", "equipment", "ladder", "wheelbarrow", "shovel", "rake"],
+  "Incident Report": ["incident", "security", "theft", "stolen", "lost", "accident", "trespass", "damage", "blotter", "guard", "safety"]
+};
+
 const confirmModalState = reactive({
   isOpen: false,
   title: '',
@@ -193,6 +228,43 @@ const totalSelected = computed(() =>
   Object.values(selectedServices).filter(v => v === true).length
 );
 
+// Filtered sub-units based on search query and category tabs
+const filteredSubUnits = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase();
+  const filter = activeCategoryFilter.value;
+
+  return subUnits.value
+    .filter(unit => filter === 'all' || unit.id === filter)
+    .map(unit => {
+      const filteredCategories = unit.categories.map(cat => {
+        const matchingServices = cat.services.filter(service => {
+          if (!query) return true;
+          if (service.toLowerCase().includes(query)) return true;
+          if (cat.title.toLowerCase().includes(query)) return true;
+          
+          const keywords = serviceKeywords[service] || [];
+          return keywords.some(kw => kw.includes(query) || query.includes(kw));
+        });
+
+        return {
+          ...cat,
+          services: matchingServices
+        };
+      }).filter(cat => cat.services.length > 0);
+
+      return {
+        ...unit,
+        categories: filteredCategories
+      };
+    }).filter(unit => unit.categories.length > 0);
+});
+
+const totalVisibleServices = computed(() => {
+  return filteredSubUnits.value.reduce((total, unit) => {
+    return total + unit.categories.reduce((catTotal, cat) => catTotal + cat.services.length, 0);
+  }, 0);
+});
+
 // --- INIT ---
 onMounted(() => {
   document.addEventListener('click', (e) => {
@@ -345,7 +417,7 @@ const handleSubmit = () => {
     <main class="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 pt-8 sm:pt-12 pb-44">
 
       <!-- Page Header -->
-      <div class="mb-10 sm:mb-14">
+      <div class="mb-8 sm:mb-10">
         <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest border border-emerald-200 mb-3">Service Request</span>
         <h2 class="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
           What do you need <span class="text-emerald-600">help</span> with?
@@ -355,11 +427,93 @@ const handleSubmit = () => {
         </p>
       </div>
 
+      <!-- ─── INTAKE WIZARD PROGRESS STEPPER ─── -->
+      <div class="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-8 sm:mb-10 shadow-sm">
+        <div class="flex items-center justify-between max-w-2xl mx-auto relative px-2 sm:px-8">
+          <!-- Connector line -->
+          <div class="absolute top-5 left-12 right-12 h-0.5 bg-slate-200 -z-0 hidden sm:block">
+            <div class="h-full bg-emerald-600 transition-all duration-500 w-1/4"></div>
+          </div>
+
+          <!-- Step 1: Active -->
+          <div class="flex flex-col items-center text-center relative z-10">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-emerald-600/30 ring-4 ring-emerald-50">
+              1
+            </div>
+            <span class="text-xs font-black text-slate-900 mt-2">Select Services</span>
+            <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 1 (Active)</span>
+          </div>
+
+          <!-- Step 2: Request Details & Location -->
+          <div class="flex flex-col items-center text-center relative z-10 opacity-60">
+            <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center font-bold text-sm">
+              2
+            </div>
+            <span class="text-xs font-bold text-slate-600 mt-2">Details & Location</span>
+            <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider hidden sm:block">Intake Form</span>
+          </div>
+
+          <!-- Step 3: Confirmation -->
+          <div class="flex flex-col items-center text-center relative z-10 opacity-60">
+            <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center font-bold text-sm">
+              3
+            </div>
+            <span class="text-xs font-bold text-slate-600 mt-2">Submit & Track</span>
+            <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider hidden sm:block">Ticket Verification</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── PROBLEM SEARCH & INTENT FILTERS ─── -->
+      <div class="space-y-4 mb-8 sm:mb-12">
+        <!-- Natural Language Problem Search Bar -->
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-4 sm:pl-5 flex items-center pointer-events-none text-slate-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Describe your issue or search services (e.g. 'pipe leak', 'grass cutting', 'broken outlet', 'aircon')..."
+            class="w-full pl-12 sm:pl-14 pr-10 sm:pr-12 py-3.5 sm:py-4 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm sm:text-base font-semibold placeholder:text-slate-400 placeholder:font-normal shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all"
+          />
+          <button
+            v-if="searchQuery"
+            type="button"
+            @click="searchQuery = ''"
+            class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600"
+            title="Clear search"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Category Intent Filter Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1">
+          <button
+            v-for="tab in categoryTabs"
+            :key="tab.id"
+            type="button"
+            @click="activeCategoryFilter = tab.id"
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5"
+            :class="activeCategoryFilter === tab.id
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+          >
+            <span>{{ tab.label }}</span>
+          </button>
+        </div>
+      </div>
+
       <form @submit.prevent="handleSubmit">
-        <div class="space-y-14 sm:space-y-20">
+        <div v-if="filteredSubUnits.length > 0" class="space-y-14 sm:space-y-20">
 
           <!-- ── One section per Sub-Unit ── -->
-          <section v-for="unit in subUnits" :key="unit.id">
+          <section v-for="unit in filteredSubUnits" :key="unit.id">
 
             <!-- Unit Header -->
             <div :class="['rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 mb-6 sm:mb-8 text-white relative overflow-hidden', unit.headerClass]">
@@ -491,6 +645,26 @@ const handleSubmit = () => {
             </div>
 
           </section>
+        </div>
+
+        <!-- Empty State if no services match -->
+        <div v-else class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-8 sm:p-12 text-center max-w-lg mx-auto shadow-sm my-6">
+          <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <h3 class="text-base sm:text-lg font-black text-slate-900 mb-1">No services found</h3>
+          <p class="text-xs sm:text-sm text-slate-500 max-w-xs mx-auto mb-6">
+            We couldn't find any services matching "<span class="font-bold text-slate-700">{{ searchQuery }}</span>". Try searching general terms like "leak", "door", or "cleaning".
+          </p>
+          <button
+            type="button"
+            @click="searchQuery = ''; activeCategoryFilter = 'all'"
+            class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs sm:text-sm font-bold hover:bg-emerald-700 transition-colors shadow-sm"
+          >
+            Reset Search & Filters
+          </button>
         </div>
       </form>
     </main>

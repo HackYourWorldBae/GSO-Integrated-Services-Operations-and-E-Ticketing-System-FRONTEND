@@ -97,8 +97,8 @@
                     </div>
                   </div>
 
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-5 flex-1 min-w-0 items-center">
-                    <div class="flex flex-col min-w-0 col-span-2 sm:col-span-1">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 flex-1 min-w-0 items-center">
+                    <div class="flex flex-col min-w-0 sm:col-span-2 lg:col-span-1">
                       <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Ticket Title</span>
                       <span class="text-sm font-bold text-slate-800 truncate" :title="ticket.title || ticket.project_title || ticket.service_type || 'N/A'">
                         {{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}
@@ -125,11 +125,11 @@
                 </div>
 
                 <!-- Right Actions: Start Early Action -->
-                <div class="flex items-center gap-2.5 shrink-0 justify-end pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+                <div class="flex items-center gap-2.5 shrink-0 justify-end pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 w-full lg:w-auto">
                   <button
                     @click="initiateAction('start', ticket.id)"
                     :disabled="loading"
-                    class="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-black uppercase tracking-wider hover:shadow-md hover:shadow-amber-500/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                    class="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-black uppercase tracking-wider hover:shadow-md hover:shadow-amber-500/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -196,8 +196,8 @@
                     </div>
                   </div>
 
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-5 flex-1 min-w-0 items-center">
-                    <div class="flex flex-col min-w-0 col-span-2 sm:col-span-1">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 flex-1 min-w-0 items-center">
+                    <div class="flex flex-col min-w-0 sm:col-span-2 lg:col-span-1">
                       <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Ticket Title</span>
                       <span class="text-sm font-bold text-slate-800 truncate" :title="ticket.title || ticket.project_title || ticket.service_type || 'N/A'">
                         {{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}
@@ -224,9 +224,9 @@
                 </div>
 
                 <!-- Right Actions: Elapsed Timer & Job Finished Action -->
-                <div class="flex items-center gap-2.5 shrink-0 justify-end pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+                <div class="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 w-full lg:w-auto">
                   <!-- Live Duration -->
-                  <div class="flex items-center gap-1.5 px-3 py-2 bg-slate-900 rounded-xl shrink-0 shadow-xs" title="Elapsed Time">
+                  <div class="flex items-center gap-1.5 px-3.5 py-2.5 min-h-[44px] bg-slate-900 rounded-xl shrink-0 shadow-xs" title="Elapsed Time">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -238,7 +238,7 @@
                   <button
                     @click="openMaterialCompletionModal(ticket)"
                     :disabled="loading"
-                    class="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider hover:shadow-md hover:shadow-emerald-500/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                    class="flex-1 sm:flex-initial px-5 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider hover:shadow-md hover:shadow-emerald-500/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />

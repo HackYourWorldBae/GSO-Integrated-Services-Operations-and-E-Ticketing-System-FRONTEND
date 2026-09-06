@@ -41,22 +41,18 @@
       
       <!-- Navigation Sections -->
       <div class="flex-1 overflow-y-auto custom-scrollbar pt-6 pb-20 min-w-[288px]">
-        <div class="sidebar-nav space-y-8 px-3" @click="handleNavClick">
-          <!-- Main Menu Section -->
-          <div>
-            <p class="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Main Menu</p>
-            <nav class="space-y-1">
-              <slot name="sidebar-links">
-                <!-- Fallback/Placeholder links -->
-                <a href="#" class="nav-item">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                  <span class="text">Overview</span>
-                </a>
-              </slot>
-            </nav>
-          </div>
+        <div class="sidebar-nav px-3" @click="handleNavClick">
+          <template v-if="$slots['sidebar-links']">
+            <div>
+              <p class="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Main Menu</p>
+              <nav class="space-y-1">
+                <slot name="sidebar-links" />
+              </nav>
+            </div>
+          </template>
+          <template v-else>
+            <AppSidebar />
+          </template>
         </div>
       </div>
     </aside>
@@ -188,6 +184,9 @@
         <div class="fixed bottom-0 left-0 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none -ml-20 -mb-20"></div>
          
         <div class="relative z-10 w-full max-w-7xl mx-auto">
+          <!-- Universal Breadcrumbs -->
+          <AppBreadcrumbs />
+
           <slot name="main-content"></slot>
         </div>
       </main>
@@ -216,6 +215,8 @@ import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import AppSidebar from '@/components/navigation/AppSidebar.vue';
+import AppBreadcrumbs from '@/components/navigation/AppBreadcrumbs.vue';
 import api from '@/api/client';
 
 const router = useRouter();

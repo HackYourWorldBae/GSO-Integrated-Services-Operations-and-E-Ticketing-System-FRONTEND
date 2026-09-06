@@ -81,12 +81,13 @@
         </div>
 
         <!-- Service Requests Table -->
-        <div class="rounded-[2.5rem] bg-white border border-slate-200 p-10 overflow-hidden shadow-sm mb-8">
-          <div class="flex items-center justify-between mb-8">
-            <h3 class="text-2xl font-black text-slate-900 tracking-tight text-emerald-600">Approved Service Requests</h3>
+        <div class="rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200 p-5 sm:p-8 md:p-10 overflow-hidden shadow-sm mb-8">
+          <div class="flex items-center justify-between mb-6 sm:mb-8">
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight text-emerald-600">Approved Service Requests</h3>
           </div>
           
-          <div class="overflow-x-auto">
+          <!-- Desktop Table View -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-separate border-spacing-y-4 min-w-[750px]">
               <thead>
                 <tr class="border-b border-slate-100">
@@ -133,15 +134,42 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Mobile Cards View -->
+          <div class="md:hidden space-y-3.5">
+            <div v-for="ticket in regularTickets" :key="'mob-req-' + ticket.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-slate-200">#{{ ticket.id }}</span>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">{{ ticket.status || 'Approved' }}</span>
+              </div>
+              <div>
+                <h4 class="text-sm font-black text-slate-900 leading-snug">{{ ticket.type }}</h4>
+                <p class="text-xs text-slate-600 font-medium mt-1">Requester: <span class="font-bold text-slate-800">{{ ticket.requester }}</span></p>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Location: <span class="font-bold text-slate-700">{{ ticket.college_building || ticket.location || 'N/A' }}</span> <span v-if="ticket.office_room" class="text-[10px] text-slate-400">({{ ticket.office_room }})</span></p>
+              </div>
+              <div class="flex items-center gap-2 pt-2 border-t border-slate-200/80">
+                <button @click="openTicketModal(ticket)" class="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-colors text-center">
+                  Info
+                </button>
+                <router-link :to="'/dispatcher/fgmu/workers?ticket=' + ticket.id" class="flex-1 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors text-center shadow-xs">
+                  Assign
+                </router-link>
+              </div>
+            </div>
+            <div v-if="regularTickets.length === 0" class="py-8 text-center text-slate-400 font-bold text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+              No approved service requests at this moment.
+            </div>
+          </div>
         </div>
 
         <!-- Office Projects Table -->
-        <div class="rounded-[2.5rem] bg-white border border-slate-200 p-10 overflow-hidden shadow-sm">
-          <div class="flex items-center justify-between mb-8">
-            <h3 class="text-2xl font-black text-slate-900 tracking-tight text-emerald-600">Approved Office Projects</h3>
+        <div class="rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200 p-5 sm:p-8 md:p-10 overflow-hidden shadow-sm">
+          <div class="flex items-center justify-between mb-6 sm:mb-8">
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight text-emerald-600">Approved Office Projects</h3>
           </div>
           
-          <div class="overflow-x-auto">
+          <!-- Desktop Table View -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-separate border-spacing-y-4 min-w-[750px]">
               <thead>
                 <tr class="border-b border-slate-100">
@@ -186,6 +214,32 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile Cards View -->
+          <div class="md:hidden space-y-3.5">
+            <div v-for="ticket in projectTickets" :key="'mob-proj-' + ticket.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-slate-200">{{ formatProjectNumber ? formatProjectNumber(ticket.id) : ticket.id }}</span>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">Office Project</span>
+              </div>
+              <div>
+                <h4 class="text-sm font-black text-slate-900 leading-snug">{{ ticket.type }}</h4>
+                <p class="text-xs text-slate-600 font-medium mt-1">Location: <span class="font-bold text-slate-800">{{ ticket.location }}</span></p>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Funding: <span class="font-bold text-slate-700">{{ ticket.source_of_fund || 'N/A' }}</span></p>
+              </div>
+              <div class="flex items-center gap-2 pt-2 border-t border-slate-200/80">
+                <button @click="openTicketModal(ticket)" class="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-colors text-center">
+                  Info
+                </button>
+                <router-link :to="'/dispatcher/fgmu/workers?ticket=' + ticket.id" class="flex-1 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors text-center shadow-xs">
+                  Assign
+                </router-link>
+              </div>
+            </div>
+            <div v-if="projectTickets.length === 0" class="py-8 text-center text-slate-400 font-bold text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+              No approved office projects at this moment.
+            </div>
           </div>
         </div>
       </div>

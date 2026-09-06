@@ -283,6 +283,7 @@ const getUpdateIconBg = (status) => {
     completed:     'bg-emerald-50',
     resolved:      'bg-emerald-50',
     closed:        'bg-slate-100',
+    cancelled:     'bg-slate-100',
     declined:      'bg-rose-50',
     rejected:      'bg-rose-50',
   };
@@ -299,6 +300,7 @@ const getUpdateIconColor = (status) => {
     completed:     'text-emerald-600',
     resolved:      'text-emerald-600',
     closed:        'text-slate-500',
+    cancelled:     'text-slate-400',
     declined:      'text-rose-500',
     rejected:      'text-rose-500',
   };
@@ -315,6 +317,7 @@ const getStatusBadge = (status) => {
     completed:     'bg-emerald-50 text-emerald-600 border-emerald-200',
     resolved:      'bg-emerald-50 text-emerald-600 border-emerald-200',
     closed:        'bg-slate-100 text-slate-500 border-slate-200',
+    cancelled:     'bg-slate-100 text-slate-600 border-slate-200',
     declined:      'bg-rose-50 text-rose-600 border-rose-200',
     rejected:      'bg-rose-50 text-rose-600 border-rose-200',
   };
@@ -331,6 +334,7 @@ const getStatusDot = (status) => {
     completed:     'bg-emerald-500',
     resolved:      'bg-emerald-500',
     closed:        'bg-slate-400',
+    cancelled:     'bg-slate-400',
     declined:      'bg-rose-500',
     rejected:      'bg-rose-500',
   };

@@ -42,7 +42,9 @@ const ProjectsView = () => import('../views/ProjectsView.vue');
 const ProjectsArchiveView = () => import('../views/ProjectsArchiveView.vue');
 const FGMU_ProjectArchives = () => import('../views/dashboards/admin/fgmu/FGMU_ProjectArchives.vue');
 const LEAU_ProjectArchives = () => import('../views/dashboards/admin/leau/LEAU_ProjectArchives.vue');
-
+const Superadmin_Dashboard = () => import('../views/dashboards/superadmin/Superadmin_Dashboard.vue');
+const Superadmin_Users = () => import('../views/dashboards/superadmin/Superadmin_Users.vue');
+const Superadmin_AuditLogs = () => import('../views/dashboards/superadmin/Superadmin_AuditLogs.vue');
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -72,208 +74,335 @@ const router = createRouter({
       path: '/services',
       name: 'services-list',
       component: ServicesListView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
     },
     {
       path: '/user/dashboard',
       name: 'user-dashboard',
-      component: User_Dashboard
+      component: User_Dashboard,
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
     },
     {
       path: '/user/tickets',
       name: 'user-tickets',
-      component: User_Tickets
+      component: User_Tickets,
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
     },
     {
       path: '/user/edit-profile',
       name: 'user-settings',
-      component: User_Settings
+      component: User_Settings,
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
     },
     {
       path: '/user/completed-tickets',
       name: 'user-completed-tickets',
-      component: User_CompletedTickets
+      component: User_CompletedTickets,
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
     },
 
-    // Sub-unit Dashboards (Auth disabled for testing)
+    // Sub-unit Dashboards — FGMU Admin
     {
       path: '/admin/fgmu',
       name: 'fgmu-dashboard',
-      component: FGMU_Dashboard
+      component: FGMU_Dashboard,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/queues',
       name: 'fgmu-ticket-queues',
-      component: FGMU_TicketQueues
+      component: FGMU_TicketQueues,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/personnel',
       name: 'fgmu-admin-personnel',
-      component: FGMU_Personnel
+      component: FGMU_Personnel,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/archives',
       name: 'fgmu-admin-archives',
-      component: FGMU_Archives
+      component: FGMU_Archives,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/announcements',
       name: 'fgmu-admin-announcements',
-      component: FGMU_Announcements
+      component: FGMU_Announcements,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/project-archives',
       name: 'fgmu-admin-project-archives',
-      component: FGMU_ProjectArchives
+      component: FGMU_ProjectArchives,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
     },
+
+    // Sub-unit Dashboards — LEAU Admin
     {
       path: '/admin/leau',
       name: 'leau-dashboard',
-      component: LEAU_Dashboard
+      component: LEAU_Dashboard,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/queues',
       name: 'leau-ticket-queues',
-      component: LEAU_TicketQueues
+      component: LEAU_TicketQueues,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/personnel',
       name: 'leau-admin-personnel',
-      component: LEAU_Personnel
+      component: LEAU_Personnel,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/archives',
       name: 'leau-admin-archives',
-      component: LEAU_Archives
+      component: LEAU_Archives,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/announcements',
       name: 'leau-admin-announcements',
-      component: LEAU_Announcements
+      component: LEAU_Announcements,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/project-archives',
       name: 'leau-admin-project-archives',
-      component: LEAU_ProjectArchives
+      component: LEAU_ProjectArchives,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
     },
+
+    // Sub-unit Dashboards — SSU Admin
     {
       path: '/admin/ssu',
       name: 'ssu-dashboard',
-      component: SSU_Dashboard
+      component: SSU_Dashboard,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU' }
     },
     {
       path: '/admin/ssu/queues/incidents',
       name: 'ssu-incident-queues',
-      component: SSU_IncidentTicketQueues
+      component: SSU_IncidentTicketQueues,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU' }
     },
     {
       path: '/admin/ssu/archives',
       name: 'ssu-admin-archives',
-      component: SSU_Archives
+      component: SSU_Archives,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU' }
+    },
+
+    // Superadmin Portal
+    {
+      path: '/superadmin',
+      redirect: '/superadmin/dashboard'
+    },
+    {
+      path: '/superadmin/dashboard',
+      name: 'superadmin-dashboard',
+      component: Superadmin_Dashboard,
+      meta: { requiresAuth: true, roles: ['superadmin'] }
+    },
+    {
+      path: '/superadmin/users',
+      name: 'superadmin-users',
+      component: Superadmin_Users,
+      meta: { requiresAuth: true, roles: ['superadmin'] }
+    },
+    {
+      path: '/superadmin/logs',
+      name: 'superadmin-logs',
+      component: Superadmin_AuditLogs,
+      meta: { requiresAuth: true, roles: ['superadmin'] }
+    },
+
+    // Director Dashboards
+    {
+      path: '/director',
+      redirect: '/director/dashboard'
     },
     {
       path: '/director/dashboard',
       name: 'director-dashboard',
-      component: Director_Dashboard
+      component: Director_Dashboard,
+      meta: { requiresAuth: true, roles: ['director'] }
     },
     {
       path: '/director/fgmu',
       name: 'director-fgmu',
-      component: Director_FGMU
+      component: Director_FGMU,
+      meta: { requiresAuth: true, roles: ['director'] }
     },
     {
       path: '/director/leau',
       name: 'director-leau',
-      component: Director_LEAU
+      component: Director_LEAU,
+      meta: { requiresAuth: true, roles: ['director'] }
     },
     {
       path: '/director/ssu',
       name: 'director-ssu',
-      component: Director_SSU
+      component: Director_SSU,
+      meta: { requiresAuth: true, roles: ['director'] }
     },
     {
       path: '/director/organizational-chart',
       name: 'organizational-chart',
-      component: OrganizationalChart
+      component: OrganizationalChart,
+      meta: { requiresAuth: true, roles: ['director'] }
     },
-    // Dispatcher Dashboards
+
+    // Dispatcher Dashboards — FGMU
     {
       path: '/dispatcher/fgmu',
       name: 'fgmu-dispatcher',
-      component: FGMU_Dispatcher
+      component: FGMU_Dispatcher,
+      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'FGMU' }
     },
     {
       path: '/dispatcher/fgmu/workers',
       name: 'fgmu-workers',
-      component: FGMU_Workers
-    },
-    {
-      path: '/dispatcher/leau',
-      name: 'leau-dispatcher',
-      component: LEAU_Dispatcher
-    },
-    {
-      path: '/dispatcher/leau/workers',
-      name: 'leau-workers',
-      component: LEAU_Workers
+      component: FGMU_Workers,
+      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'FGMU' }
     },
     {
       path: '/dispatcher/fgmu/dispatched',
       name: 'fgmu-dispatched-tickets',
-      component: FGMU_DispatchedTickets
-    },
-    {
-      path: '/dispatcher/leau/dispatched',
-      name: 'leau-dispatched-tickets',
-      component: LEAU_DispatchedTickets
+      component: FGMU_DispatchedTickets,
+      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'FGMU' }
     },
     {
       path: '/dispatcher/fgmu/archives',
       name: 'fgmu-dispatcher-archives',
-      component: FGMU_DispatcherArchives
-    },
-    {
-      path: '/dispatcher/leau/archives',
-      name: 'leau-dispatcher-archives',
-      component: LEAU_DispatcherArchives
+      component: FGMU_DispatcherArchives,
+      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'FGMU' }
     },
     {
       path: '/dispatcher/fgmu/project-archives',
       name: 'fgmu-dispatcher-project-archives',
-      component: FGMU_DispatcherProjectArchives
+      component: FGMU_DispatcherProjectArchives,
+      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'FGMU' }
+    },
+
+    // Dispatcher Dashboards — LEAU
+    {
+      path: '/dispatcher/leau',
+      name: 'leau-dispatcher',
+      component: LEAU_Dispatcher,
+      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'LEAU' }
+    },
+    {
+      path: '/dispatcher/leau/workers',
+      name: 'leau-workers',
+      component: LEAU_Workers,
+      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'LEAU' }
+    },
+    {
+      path: '/dispatcher/leau/dispatched',
+      name: 'leau-dispatched-tickets',
+      component: LEAU_DispatchedTickets,
+      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'LEAU' }
+    },
+    {
+      path: '/dispatcher/leau/archives',
+      name: 'leau-dispatcher-archives',
+      component: LEAU_DispatcherArchives,
+      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'LEAU' }
     },
     {
       path: '/dispatcher/leau/project-archives',
       name: 'leau-dispatcher-project-archives',
-      component: LEAU_DispatcherProjectArchives
+      component: LEAU_DispatcherProjectArchives,
+      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'LEAU' }
     },
+
+    // Service Intake Forms
     {
       path: '/services/forms',
       name: 'services-forms',
       component: FormsView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
     }
   ]
 });
 
-// Global Navigation Guard — protect all routes with meta.requiresAuth
+// Global Navigation Guard — enforce authentication, role-based authorization, and unit scoping
 router.beforeEach((to, from, next) => {
-  if (to.meta && to.meta.requiresAuth) {
-    try {
-      // pinia-plugin-persistedstate saves the store under the store id ('auth')
-      // With sessionStorage, each tab has its own isolated auth state.
-      const raw = sessionStorage.getItem('auth');
-      if (!raw) return next({ name: 'login' });
+  let token = null;
+  let user = null;
+  let role = null;
+  let unit = '';
 
+  try {
+    const raw = sessionStorage.getItem('auth');
+    if (raw) {
       const stored = JSON.parse(raw);
-      // Support both flat { token } and nested { state: { token } } structures
-      const token = stored?.token || stored?.state?.token || null;
+      token = stored?.token || stored?.state?.token || sessionStorage.getItem('token') || null;
+      user  = stored?.user  || stored?.state?.user  || null;
+      role  = stored?.role  || stored?.state?.role  || user?.role || null;
+      const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
+      unit  = String(user?.unit_code || user?.unit || unitMap[user?.unit_id] || '').toUpperCase();
+    } else {
+      token = sessionStorage.getItem('token');
+    }
+  } catch {
+    sessionStorage.removeItem('auth');
+    sessionStorage.removeItem('token');
+  }
 
-      if (!token) return next({ name: 'login' });
-    } catch {
-      return next({ name: 'login' });
+  // Helper: map a role and unit to its canonical landing view
+  const getHomeRoute = (userRole, userUnit) => {
+    if (userRole === 'superadmin') {
+      return '/superadmin/dashboard';
+    }
+    if (userRole === 'admin') {
+      const u = (userUnit || 'fgmu').toLowerCase();
+      return ['fgmu', 'leau', 'ssu'].includes(u) ? `/admin/${u}` : '/admin/fgmu';
+    }
+    if (userRole === 'dispatcher') {
+      const u = (userUnit || 'fgmu').toLowerCase();
+      return ['fgmu', 'leau'].includes(u) ? `/dispatcher/${u}` : '/dispatcher/fgmu';
+    }
+    if (userRole === 'director') {
+      return '/director/dashboard';
+    }
+    return '/user/dashboard';
+  };
+
+  // 1. Prevent already-authenticated users from re-visiting login
+  if (to.name === 'login' && token && role) {
+    return next(getHomeRoute(role, unit));
+  }
+
+  // 2. Protect routes requiring authentication
+  if (to.meta && to.meta.requiresAuth) {
+    if (!token) {
+      return next({ name: 'login', query: { redirect: to.fullPath } });
+    }
+
+    // 3. Enforce Role-Based Access Control
+    if (to.meta.roles && Array.isArray(to.meta.roles)) {
+      if (!role || (!to.meta.roles.includes(role) && role !== 'superadmin')) {
+        console.warn(`[Router Guard] Access denied to ${to.path}. Required roles: ${to.meta.roles.join(', ')}. Current role: ${role}`);
+        return next(getHomeRoute(role, unit));
+      }
+    }
+
+    // 4. Enforce Sub-Unit Scoping for Admin and Dispatcher (Director and Superadmin have university-wide access)
+    if (to.meta.unit && role !== 'director' && role !== 'superadmin') {
+      const targetUnit = String(to.meta.unit).toUpperCase();
+      if (unit && unit !== targetUnit) {
+        console.warn(`[Router Guard] Jurisdiction mismatch for ${to.path}. Target unit: ${targetUnit}. Current unit: ${unit}`);
+        return next(getHomeRoute(role, unit));
+      }
     }
   }
+
   next();
 });
 

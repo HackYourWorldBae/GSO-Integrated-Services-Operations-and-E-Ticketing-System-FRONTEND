@@ -223,6 +223,19 @@
                     <span class="text-[10px] font-black text-slate-400 ml-0.5">{{ ticket.currentStep }}/{{ getSteps(ticket).length }}</span>
                   </div>
 
+                  <!-- Cancel Request Button (Pending Only) -->
+                  <button
+                    v-if="ticket.status === 'pending'"
+                    @click="promptCancelTicket(ticket)"
+                    class="flex items-center gap-1.5 px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 font-bold rounded-xl border border-rose-200/70 transition-all text-xs active:scale-95 whitespace-nowrap"
+                    title="Cancel this pending request"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Cancel Request
+                  </button>
+
                   <button
                     @click="openTimeline(ticket)"
                     class="flex items-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all text-xs active:scale-95 whitespace-nowrap"
@@ -402,11 +415,23 @@
                       </div>
                     </div>
                   </div>
-                  <button @click="closeTimeline" class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all active:scale-95 flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <button
+                      v-if="selectedTicket.status === 'pending'"
+                      @click="promptCancelTicket(selectedTicket)"
+                      class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl border border-rose-200/80 transition-all flex items-center gap-1 active:scale-95"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel Request
+                    </button>
+                    <button @click="closeTimeline" class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all active:scale-95 flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 <!-- Modal Body -->
@@ -551,6 +576,82 @@
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
               <p class="text-sm font-medium leading-relaxed">{{ toastMessage }}</p>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
+
+      <!-- Cancel Request Confirmation Modal -->
+      <Teleport to="body">
+        <Transition name="modal">
+          <div
+            v-if="showCancelModal"
+            class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+            @click.self="showCancelModal = false"
+          >
+            <div class="w-full max-w-md bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8 transform transition-all">
+              <div class="flex items-center gap-3.5 mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-black text-slate-900 leading-tight">Cancel Service Request</h3>
+                  <p class="text-xs text-slate-500 font-medium">Ticket <span class="font-mono font-bold text-slate-700">#{{ ticketToCancel?.ticketId }}</span></p>
+                </div>
+              </div>
+
+              <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                Are you sure you want to cancel this request? This action cannot be undone once confirmed.
+              </p>
+
+              <!-- Quick Reasons -->
+              <div class="mb-3">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Reason for Cancellation</label>
+                <div class="flex flex-wrap gap-1.5 mb-2">
+                  <button
+                    v-for="r in ['Problem already solved', 'Submitted by mistake', 'Duplicate request', 'Schedule conflict']"
+                    :key="r"
+                    type="button"
+                    @click="cancellationReason = r"
+                    class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all"
+                    :class="cancellationReason === r ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'"
+                  >
+                    {{ r }}
+                  </button>
+                </div>
+                <textarea
+                  v-model="cancellationReason"
+                  rows="2"
+                  placeholder="Optional details or reason..."
+                  class="w-full text-xs p-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-slate-400 focus:ring-0 transition-all placeholder:text-slate-400"
+                ></textarea>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="flex items-center justify-end gap-2.5 mt-6">
+                <button
+                  type="button"
+                  @click="showCancelModal = false"
+                  class="px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all"
+                  :disabled="isCancelling"
+                >
+                  Keep Request
+                </button>
+                <button
+                  type="button"
+                  @click="executeCancelTicket"
+                  class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-rose-600/20 active:scale-95 flex items-center gap-2"
+                  :disabled="isCancelling"
+                >
+                  <svg v-if="isCancelling" class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                  </svg>
+                  <span>{{ isCancelling ? 'Cancelling...' : 'Confirm Cancellation' }}</span>
+                </button>
+              </div>
             </div>
           </div>
         </Transition>
@@ -871,14 +972,21 @@ const statusCounts = computed(() => ({
   pending:    tickets.value.filter(t => t.status === 'pending').length,
   processing: tickets.value.filter(t => t.status === 'processing').length,
   resolved:   tickets.value.filter(t => t.status === 'resolved').length,
+  cancelled:  tickets.value.filter(t => t.status === 'cancelled').length,
 }));
 
-const statusTabs = computed(() => [
-  { value: 'all',        label: 'All',        count: statusCounts.value.all,        activeClass: 'bg-slate-900 text-white border-slate-900' },
-  { value: 'pending',    label: 'Pending',    count: statusCounts.value.pending,    activeClass: 'bg-amber-50 text-amber-700 border-amber-400' },
-  { value: 'processing', label: 'In Progress', count: statusCounts.value.processing, activeClass: 'bg-blue-50 text-blue-700 border-blue-400' },
-  { value: 'resolved',   label: 'Resolved',   count: statusCounts.value.resolved,   activeClass: 'bg-emerald-50 text-emerald-700 border-emerald-400' },
-]);
+const statusTabs = computed(() => {
+  const tabs = [
+    { value: 'all',        label: 'All',        count: statusCounts.value.all,        activeClass: 'bg-slate-900 text-white border-slate-900' },
+    { value: 'pending',    label: 'Pending',    count: statusCounts.value.pending,    activeClass: 'bg-amber-50 text-amber-700 border-amber-400' },
+    { value: 'processing', label: 'In Progress', count: statusCounts.value.processing, activeClass: 'bg-blue-50 text-blue-700 border-blue-400' },
+    { value: 'resolved',   label: 'Resolved',   count: statusCounts.value.resolved,   activeClass: 'bg-emerald-50 text-emerald-700 border-emerald-400' },
+  ];
+  if (statusCounts.value.cancelled > 0) {
+    tabs.push({ value: 'cancelled', label: 'Cancelled', count: statusCounts.value.cancelled, activeClass: 'bg-slate-100 text-slate-700 border-slate-400' });
+  }
+  return tabs;
+});
 
 const filteredTickets = computed(() => {
   const query = searchQuery.value.toLowerCase();
@@ -905,6 +1013,41 @@ const openTimeline = (ticket) => {
 const closeTimeline = () => {
   selectedTicket.value = null;
   document.body.style.overflow = '';
+};
+
+// ---- Cancel Ticket Modal ----
+const showCancelModal    = ref(false);
+const ticketToCancel     = ref(null);
+const cancellationReason = ref('Problem already solved');
+const isCancelling       = ref(false);
+
+const promptCancelTicket = (ticket) => {
+  ticketToCancel.value     = ticket;
+  cancellationReason.value = 'Problem already solved';
+  showCancelModal.value    = true;
+};
+
+const executeCancelTicket = async () => {
+  if (!ticketToCancel.value) return;
+  isCancelling.value = true;
+  try {
+    const ticketId = ticketToCancel.value.ticketId || ticketToCancel.value.id;
+    await api.patch(`tickets/${ticketId}/cancel`, {
+      reason: cancellationReason.value || 'Cancelled by requestor'
+    });
+    toast.success('Your service request has been cancelled.');
+    showCancelModal.value = false;
+    if (selectedTicket.value && (selectedTicket.value.ticketId === ticketId || selectedTicket.value.id === ticketId)) {
+      closeTimeline();
+    }
+    ticketToCancel.value = null;
+    await fetchTickets();
+  } catch (error) {
+    console.error('Cancellation failed:', error);
+    toast.error(error.response?.data?.message || 'Failed to cancel request. Please try again.');
+  } finally {
+    isCancelling.value = false;
+  }
 };
 
 // ---- Step definitions ----
@@ -1137,6 +1280,7 @@ const getStatusColor = (status) => {
     completed:     'text-emerald-600',
     resolved:      'text-emerald-600',
     closed:        'text-slate-500',
+    cancelled:     'text-slate-400',
     declined:      'text-rose-500',
     rejected:      'text-rose-500',
   };
@@ -1153,6 +1297,7 @@ const getStatusBadge = (status) => {
     completed:     'bg-emerald-50 text-emerald-600 border-emerald-200',
     resolved:      'bg-emerald-50 text-emerald-600 border-emerald-200',
     closed:        'bg-slate-100 text-slate-500 border-slate-300',
+    cancelled:     'bg-slate-100 text-slate-600 border-slate-200',
     declined:      'bg-rose-50 text-rose-600 border-rose-200',
     rejected:      'bg-rose-50 text-rose-600 border-rose-200',
   };
@@ -1169,6 +1314,7 @@ const getStatusDot = (status) => {
     completed:     'bg-emerald-500',
     resolved:      'bg-emerald-500',
     closed:        'bg-slate-400',
+    cancelled:     'bg-slate-400',
     declined:      'bg-rose-500',
     rejected:      'bg-rose-500',
   };
@@ -1184,6 +1330,7 @@ const getStepFill = (status) => {
     scheduled:     'bg-blue-500',
     completed:     'bg-emerald-500',
     resolved:      'bg-emerald-500',
+    cancelled:     'bg-slate-400',
     declined:      'bg-rose-400',
     rejected:      'bg-rose-400',
   };
@@ -1199,6 +1346,7 @@ const getActiveDot = (status) => {
     scheduled:     'bg-blue-500 text-white',
     completed:     'bg-emerald-500 text-white',
     resolved:      'bg-emerald-500 text-white',
+    cancelled:     'bg-slate-400 text-white',
     declined:      'bg-rose-500 text-white',
     rejected:      'bg-rose-500 text-white',
   };
@@ -1214,6 +1362,7 @@ const getActiveStepBadge = (status) => {
     scheduled:     'bg-blue-100 text-blue-700',
     completed:     'bg-emerald-100 text-emerald-700',
     resolved:      'bg-emerald-100 text-emerald-700',
+    cancelled:     'bg-slate-100 text-slate-600',
     declined:      'bg-rose-100 text-rose-700',
     rejected:      'bg-rose-100 text-rose-700',
   };
