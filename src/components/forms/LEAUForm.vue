@@ -1,8 +1,10 @@
 <script setup>
+import { computed } from 'vue';
 import SearchableDropdown from '@/components/SearchableDropdown.vue';
 import { useFormsStore } from '@/stores/forms';
 import { validateAttachment } from '@/utils/security';
 import { toast } from 'vue3-toastify';
+import { getRoomsForBuilding } from '@/constants/locations';
 
 const formsStore = useFormsStore();
 
@@ -15,6 +17,10 @@ const props = defineProps({
     type: Array,
     required: true
   }
+});
+
+const availableRooms = computed(() => {
+  return getRoomsForBuilding(formsStore.leauState.sectionA.college_building);
 });
 
 const handleFile = (e) => {
@@ -68,20 +74,20 @@ const removeFile = (idx) => {
             :options="locations"
             theme="amber"
             placeholder="Type to search building..."
-            :class="{'border-red-500': formsStore.v$.leauState.sectionA.college_building.$error}"
+            :has-error="formsStore.v$.leauState.sectionA.college_building.$error"
             @blur="formsStore.v$.leauState.sectionA.college_building.$touch()"
           />
           <p v-if="formsStore.v$.leauState.sectionA.college_building.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">This field is required</p>
         </div>
         <div class="space-y-3 relative">
           <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.leauState.sectionA.office_room.$error ? 'text-red-500' : 'text-slate-400'">Office / Room</label>
-          <input 
-            v-model="formsStore.leauState.sectionA.office_room" 
+          <SearchableDropdown
+            v-model="formsStore.leauState.sectionA.office_room"
+            :options="availableRooms"
+            theme="amber"
+            placeholder="Select or type room..."
+            :has-error="formsStore.v$.leauState.sectionA.office_room.$error"
             @blur="formsStore.v$.leauState.sectionA.office_room.$touch()"
-            type="text" 
-            placeholder="e.g. Main Lobby" 
-            class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all"
-            :class="formsStore.v$.leauState.sectionA.office_room.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-50 focus:border-amber-500'" 
           />
           <p v-if="formsStore.v$.leauState.sectionA.office_room.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">This field is required</p>
         </div>

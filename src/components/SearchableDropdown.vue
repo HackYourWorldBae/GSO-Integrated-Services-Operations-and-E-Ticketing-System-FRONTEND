@@ -17,46 +17,89 @@ const props = defineProps({
   theme: {
     type: String,
     default: 'emerald' // allows emerald, amber, blue
+  },
+  hasError: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'blur']);
 
 const isOpen = ref(false);
 const searchQuery = ref('');
 const dropdownRef = ref(null);
 
-// Sync query with modelValue initially if needed, or clear it
+// Sync query with modelValue initially if needed, or when modelValue changes externally
 watch(() => props.modelValue, (newVal) => {
   if (newVal !== searchQuery.value) {
-    searchQuery.value = newVal;
+    searchQuery.value = newVal || '';
   }
 }, { immediate: true });
 
-const filteredOptions = computed(() => {
+// Check if options are grouped [{ group: '...', items: [...] }] or flat strings ['...', '...']
+const isGrouped = computed(() => {
+  return Array.isArray(props.options) &&
+    props.options.length > 0 &&
+    typeof props.options[0] === 'object' &&
+    props.options[0] !== null &&
+    'items' in props.options[0];
+});
+
+const filteredGroupedOptions = computed(() => {
+  if (!isGrouped.value) return [];
   if (!searchQuery.value) return props.options;
-  
-  const query = searchQuery.value.toLowerCase();
-  
+
+  const query = searchQuery.value.toLowerCase().trim();
+
   return props.options.map(group => {
     return {
       ...group,
-      items: group.items.filter(item => item.toLowerCase().includes(query))
+      items: (group.items || []).filter(item => String(item).toLowerCase().includes(query))
     };
   }).filter(group => group.items.length > 0);
 });
 
-const toggleDropdown = () => {
-  isOpen.value = !isOpen.value;
-  if (isOpen.value && props.modelValue === searchQuery.value) {
-    // Optionally clear search on open to see all options
-    searchQuery.value = '';
+const filteredFlatOptions = computed(() => {
+  if (isGrouped.value) return [];
+  if (!searchQuery.value) return props.options || [];
+
+  const query = searchQuery.value.toLowerCase().trim();
+  return (props.options || []).filter(item => String(item).toLowerCase().includes(query));
+});
+
+const totalMatchesCount = computed(() => {
+  if (isGrouped.value) {
+    return filteredGroupedOptions.value.reduce((acc, g) => acc + g.items.length, 0);
   }
+  return filteredFlatOptions.value.length;
+});
+
+// Check if current search query exactly matches an existing option
+const hasExactMatch = computed(() => {
+  const query = (searchQuery.value || '').toLowerCase().trim();
+  if (!query) return false;
+
+  if (isGrouped.value) {
+    return props.options.some(g => (g.items || []).some(item => String(item).toLowerCase().trim() === query));
+  }
+  return (props.options || []).some(item => String(item).toLowerCase().trim() === query);
+});
+
+const toggleDropdown = () => {
+  if (props.disabled) return;
+  isOpen.value = !isOpen.value;
 };
 
 const selectOption = (item) => {
-  searchQuery.value = item;
-  emit('update:modelValue', item);
+  const finalValue = (item || '').trim();
+  searchQuery.value = finalValue;
+  emit('update:modelValue', finalValue);
+  emit('blur');
   isOpen.value = false;
 };
 
@@ -65,12 +108,19 @@ const handleInput = () => {
   isOpen.value = true;
 };
 
+const handleEnter = () => {
+  if (searchQuery.value) {
+    selectOption(searchQuery.value);
+  }
+};
+
 const handleClickOutside = (event) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
     isOpen.value = false;
     if (searchQuery.value !== props.modelValue) {
-      emit('update:modelValue', searchQuery.value);
+      emit('update:modelValue', (searchQuery.value || '').trim());
     }
+    emit('blur');
   }
 };
 
@@ -84,12 +134,15 @@ onUnmounted(() => {
 
 // Dynamic theme classes
 const focusBorderClass = computed(() => {
+  if (props.hasError) {
+    return 'border-red-500 focus:border-red-500 text-red-900 bg-red-50/20';
+  }
   const map = {
-    emerald: 'focus:border-emerald-500',
-    amber: 'focus:border-amber-500',
-    blue: 'focus:border-blue-500'
+    emerald: 'border-slate-50 focus:border-emerald-500 text-slate-700',
+    amber: 'border-slate-50 focus:border-amber-500 text-slate-700',
+    blue: 'border-slate-50 focus:border-blue-500 text-slate-700'
   };
-  return map[props.theme] || 'focus:border-emerald-500';
+  return map[props.theme] || 'border-slate-50 focus:border-emerald-500 text-slate-700';
 });
 
 const groupTextClass = computed(() => {
@@ -99,6 +152,15 @@ const groupTextClass = computed(() => {
     blue: 'text-blue-600'
   };
   return map[props.theme] || 'text-emerald-600';
+});
+
+const itemHoverClass = computed(() => {
+  const map = {
+    emerald: 'hover:bg-emerald-50 hover:text-emerald-800',
+    amber: 'hover:bg-amber-50 hover:text-amber-800',
+    blue: 'hover:bg-blue-50 hover:text-blue-800'
+  };
+  return map[props.theme] || 'hover:bg-emerald-50 hover:text-emerald-800';
 });
 </script>
 
@@ -110,8 +172,10 @@ const groupTextClass = computed(() => {
         v-model="searchQuery"
         @input="handleInput"
         @focus="isOpen = true"
+        @keydown.enter.prevent="handleEnter"
         :placeholder="placeholder"
-        class="w-full h-14 px-6 pr-12 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:bg-white text-sm font-bold outline-none transition-all shadow-sm text-slate-700"
+        :disabled="disabled"
+        class="w-full h-14 px-6 pr-12 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
         :class="focusBorderClass"
       />
       <div 
@@ -126,12 +190,14 @@ const groupTextClass = computed(() => {
 
     <!-- Dropdown Menu -->
     <div 
-      v-if="isOpen" 
+      v-if="isOpen && !disabled" 
       class="absolute z-50 w-full mt-2 bg-white rounded-3xl shadow-2xl shadow-slate-200 border border-slate-100 overflow-hidden animate-fade-in"
     >
       <div class="max-h-64 overflow-y-auto p-3 scrollbar-thin">
-        <template v-if="filteredOptions.length > 0">
-          <div v-for="category in filteredOptions" :key="category.group" class="mb-3 last:mb-0">
+        
+        <!-- Grouped Options (e.g. Colleges, Admin, Auxiliary) -->
+        <template v-if="isGrouped && filteredGroupedOptions.length > 0">
+          <div v-for="category in filteredGroupedOptions" :key="category.group" class="mb-3 last:mb-0">
             <div class="px-4 py-2 text-[10px] font-black uppercase tracking-widest bg-slate-50 rounded-xl mb-1" :class="groupTextClass">
               {{ category.group }}
             </div>
@@ -139,21 +205,47 @@ const groupTextClass = computed(() => {
               v-for="loc in category.items" 
               :key="loc"
               @click="selectOption(loc)"
-              class="px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl cursor-pointer transition-colors"
+              class="px-4 py-3 text-sm font-bold text-slate-600 rounded-xl cursor-pointer transition-colors"
+              :class="itemHoverClass"
             >
               {{ loc }}
             </div>
           </div>
         </template>
-        <div v-else class="p-4 text-center">
-          <p class="text-[11px] font-bold text-slate-500 mb-2">Not in the list?</p>
-          <button 
-            @click="selectOption(searchQuery)"
-            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black uppercase tracking-widest rounded-xl transition-colors w-full"
+
+        <!-- Flat Options (e.g. Predefined 3 Rooms for a building) -->
+        <template v-else-if="!isGrouped && filteredFlatOptions.length > 0">
+          <div 
+            v-for="loc in filteredFlatOptions" 
+            :key="loc"
+            @click="selectOption(loc)"
+            class="px-4 py-3 text-sm font-bold text-slate-600 rounded-xl cursor-pointer transition-colors"
+            :class="itemHoverClass"
           >
-            Use "{{ searchQuery }}"
+            {{ loc }}
+          </div>
+        </template>
+
+        <!-- Use Custom Typed Value (When query doesn't match list exactly) -->
+        <div v-if="searchQuery.trim().length > 0 && !hasExactMatch" class="pt-2" :class="totalMatchesCount > 0 ? 'mt-2 border-t border-slate-100' : ''">
+          <div v-if="totalMatchesCount === 0" class="text-center py-2">
+            <p class="text-[11px] font-bold text-slate-400 mb-2">Not in the predefined list?</p>
+          </div>
+          <button 
+            type="button"
+            @click="selectOption(searchQuery)"
+            class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black uppercase tracking-wider rounded-xl transition-colors w-full flex items-center justify-between gap-2"
+          >
+            <span class="truncate">Use typed: "{{ searchQuery.trim() }}"</span>
+            <span class="text-[9px] font-black uppercase tracking-widest bg-white text-slate-500 px-2 py-0.5 rounded-md border border-slate-200 shrink-0">Custom</span>
           </button>
         </div>
+
+        <!-- Empty state when no options exist at all -->
+        <div v-else-if="totalMatchesCount === 0 && searchQuery.trim().length === 0" class="p-4 text-center">
+          <p class="text-xs font-bold text-slate-400">No options available. Type to enter a custom value.</p>
+        </div>
+
       </div>
     </div>
   </div>

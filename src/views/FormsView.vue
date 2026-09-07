@@ -16,6 +16,8 @@ const router = useRouter();
 const formsStore = useFormsStore();
 const authStore = useAuthStore();
 
+import { LOCATIONS } from '@/constants/locations';
+
 // --- STATE ---
 const user = ref(null);
 const selectedServicesRaw = ref({});
@@ -23,53 +25,7 @@ const otherSpecifics = ref({});
 const customDescriptions = ref({});
 const isSubmitting = ref(false);
 
-const locations = [
-  {
-    group: 'Colleges',
-    items: [
-      'College of Agriculture (CA)',
-      'College of Engineering Complex (CE)',
-      'College of Information Sciences Building (CIS)',
-      'College of Natural Sciences Building (CNS)',
-      'College of Home Economics & Technology (Strawberry Hall)',
-      'College of Teacher Education Building (CTE)',
-      'College of Human Kinetics Building (CHK)',
-      'College of Veterinary Medicine / Animal Clinic (CVM)',
-      'College of Forestry Building (CF)',
-      'College of Public Administration & Governance (CPAG)',
-      'College of Arts and Humanities (CAH)',
-      'College of Social Sciences (CSS)'
-    ]
-  },
-  {
-    group: 'Administration & Support',
-    items: [
-      'General Services Office (GSO)',
-      'Administration Building (Admin)',
-      'Student Center / OSA',
-      'University Library',
-      'BSU Gymnasium',
-      'BSU Clinic / Health Services',
-      'BSU Security Headquarters',
-      'Motorpool Depot',
-      'Research & Extension Complex',
-      'Northern Philippines Root Crop Center (NPRCRTC)',
-      'Institute of Highland Farming Systems (IHFSA)',
-      'Cordillera Organic Agriculture R&D Center (COARDC)'
-    ]
-  },
-  {
-    group: 'Auxiliary & Commercial',
-    items: [
-      'BSU Agri-Based Technology Incubator (ATBI)',
-      'BSU Bakery',
-      'BSU Marketing Center / Canteen',
-      'University Dormitory / Housing',
-      'BSU Strawberry Farm Compound',
-      'Poultry / Livestock Project Area'
-    ]
-  }
-];
+const locations = LOCATIONS;
 
 // State moved to src/stores/forms.js
 
