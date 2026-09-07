@@ -192,11 +192,23 @@ const userName   = ref('');
 const userTickets      = ref([]);
 const completedTickets = ref([]);
 
-const openTicketsCount     = computed(() => userTickets.value.filter(t => t.status === 'processing' || t.status === 'in_progress').length);
-const pendingTicketsCount  = computed(() => userTickets.value.filter(t => t.status === 'pending').length);
-const resolvedTicketsCount = computed(() => completedTickets.value.filter(t => t.status === 'resolved' || t.status === 'completed' || t.status === 'closed').length);
-const declinedTicketsCount = computed(() => userTickets.value.filter(t => t.status === 'declined' || t.status === 'rejected').length + completedTickets.value.filter(t => t.status === 'declined' || t.status === 'rejected').length);
-const totalRequestsCount   = computed(() => userTickets.value.length + completedTickets.value.length);
+// Deduplicated unified ticket collection by unique ticket ID
+const allTickets = computed(() => {
+  const map = new Map();
+  for (const t of completedTickets.value) {
+    if (t.ticketId) map.set(t.ticketId, { ...t, isArchived: true });
+  }
+  for (const t of userTickets.value) {
+    if (t.ticketId) map.set(t.ticketId, { ...t, isArchived: false });
+  }
+  return Array.from(map.values());
+});
+
+const openTicketsCount     = computed(() => allTickets.value.filter(t => t.status === 'processing' || t.status === 'in_progress' || t.status === 'approved').length);
+const pendingTicketsCount  = computed(() => allTickets.value.filter(t => t.status === 'pending').length);
+const resolvedTicketsCount = computed(() => allTickets.value.filter(t => t.status === 'resolved' || t.status === 'completed' || t.status === 'closed').length);
+const declinedTicketsCount = computed(() => allTickets.value.filter(t => t.status === 'declined' || t.status === 'rejected').length);
+const totalRequestsCount   = computed(() => allTickets.value.length);
 
 // SVG icon components inline for metric cards
 const TicketIcon = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z' })]) };
@@ -269,8 +281,13 @@ const metrics = computed(() => [
 ]);
 
 const recentUpdates = computed(() => {
-  const all = [...userTickets.value];
-  return all.slice(-6).reverse().map(t => ({
+  const sorted = [...allTickets.value].sort((a, b) => {
+    const timeA = new Date(a.completed_at || a.submitted_at || 0).getTime();
+    const timeB = new Date(b.completed_at || b.submitted_at || 0).getTime();
+    return timeB - timeA;
+  });
+
+  return sorted.slice(0, 6).map(t => ({
     ticketId: t.ticketId,
     title: t.title,
     service: t.service,
@@ -279,11 +296,19 @@ const recentUpdates = computed(() => {
     time: t.date,
     status: t.status,
     statusLabel: t.statusLabel,
+    isArchived: t.isArchived,
   }));
 });
 
 const navigateToTicket = (ticketId) => {
-  router.push({ path: '/user/tickets', query: { highlight: ticketId } });
+  const ticket = allTickets.value.find(t => t.ticketId === ticketId);
+  const isArchived = ticket?.isArchived || ['closed', 'completed', 'declined', 'rejected', 'cancelled'].includes(ticket?.status);
+
+  if (isArchived) {
+    router.push({ path: '/user/completed-tickets', query: { highlight: ticketId } });
+  } else {
+    router.push({ path: '/user/tickets', query: { highlight: ticketId } });
+  }
 };
 
 // Status styling helpers for activity feed
@@ -370,6 +395,8 @@ const fetchDashboardData = async () => {
         status: t.status,
         statusLabel: t.status_label,
         date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        submitted_at: t.submitted_at,
+        completed_at: t.completed_at || t.updated_at,
         unit: t.unit_code
       }));
     }
@@ -381,7 +408,9 @@ const fetchDashboardData = async () => {
         service: t.service_type,
         status: t.status,
         statusLabel: t.status_label,
-        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        date: new Date(t.completed_at || t.updated_at || t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        submitted_at: t.submitted_at,
+        completed_at: t.completed_at || t.updated_at,
         unit: t.unit_code
       }));
     }
