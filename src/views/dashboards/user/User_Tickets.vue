@@ -193,6 +193,54 @@
 
 
 
+                  <!-- Accomplishment Report & Verification Status -->
+                  <div v-if="ticket.accomplishment_report_path" class="mt-3 flex items-start gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl animate-fade-in">
+                    <div class="p-1.5 bg-emerald-100 rounded-lg shrink-0 mt-0.5 text-emerald-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center justify-between gap-2 flex-wrap mb-0.5">
+                        <p class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Service Accomplishment Report Submitted</p>
+                        <span v-if="ticket.verification_status === 'verified_closed'" class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-700 border border-emerald-300 uppercase tracking-wider">Verified & Closed</span>
+                        <span v-else class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-100 text-amber-700 border border-amber-300 uppercase tracking-wider">Pending Verification</span>
+                      </div>
+                      <p v-if="ticket.accomplishment_notes" class="text-xs text-emerald-900 font-medium italic mb-2">"{{ ticket.accomplishment_notes }}"</p>
+                      <div class="flex items-center gap-2 mt-1 flex-wrap">
+                        <button
+                          type="button"
+                          @click="openAccomplishmentReport(ticket)"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          View Accomplishment Report
+                        </button>
+                        <button
+                          v-if="ticket.verification_status !== 'verified_closed' && !ticket.isClosed"
+                          type="button"
+                          @click="verifyAndCloseTicket(ticket)"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50 rounded-lg text-xs font-bold active:scale-95 transition-all cursor-pointer"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          Verify & Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-else-if="ticket.status === 'resolved' && !ticket.isClosed" class="mt-3 flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <p class="text-xs text-amber-800 font-medium">Services are finishing. Awaiting uploaded Accomplishment Report from service personnel before ticket closure can be verified.</p>
+                  </div>
+
                   <!-- Rate Instruction -->
                   <div v-if="isFeedbackEligible(ticket)" class="mt-3 flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl animate-fade-in">
                     <div class="p-1.5 bg-amber-100 rounded-lg shrink-0 mt-0.5">
@@ -859,6 +907,36 @@ const openJobRequestFormViewer = async (ticket) => {
   }
 };
 
+const openAccomplishmentReport = async (ticket) => {
+  try {
+    const ticketId = ticket.ticketId || ticket.id;
+    const res = await api.get(`tickets/${ticketId}/accomplishment`, { responseType: 'blob' });
+    const ext = (ticket.accomplishment_report_path || '').split('.').pop()?.toLowerCase() || 'pdf';
+    const mime = ext === 'pdf' ? 'application/pdf' : `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+    const blob = new Blob([res.data], { type: mime });
+    viewerModal.title = `Accomplishment Report - Ticket #${ticketId}`;
+    viewerModal.fileName = `Accomplishment_Report_${ticketId}.${ext}`;
+    viewerModal.fileBlob = blob;
+    viewerModal.fileUrl = '';
+    viewerModal.isOpen = true;
+  } catch (err) {
+    console.error('Failed to view accomplishment report:', err);
+    toast.error('Unable to load accomplishment report.');
+  }
+};
+
+const verifyAndCloseTicket = async (ticket) => {
+  try {
+    const ticketId = ticket.ticketId || ticket.id;
+    await api.patch(`tickets/${ticketId}/verify-close`);
+    toast.success(`Ticket #${ticketId} verified and officially closed!`);
+    await fetchTickets();
+  } catch (err) {
+    console.error('Failed to verify and close ticket:', err);
+    toast.error(err.response?.data?.message || 'Failed to verify and close ticket.');
+  }
+};
+
 // ---- Route highlight ----
 const route            = useRoute();
 const highlightedTicket = ref(null);
@@ -912,6 +990,14 @@ const fetchTickets = async () => {
         workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
         working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
         isClosed: t.status === 'completed' || t.status === 'closed',
+        accomplishment_report_path: t.accomplishment_report_path || null,
+        accomplishment_notes: t.accomplishment_notes || '',
+        verification_status: t.verification_status || 'pending_report',
+        verified_at: t.verified_at || null,
+        eodb_tier: t.eodb_tier || null,
+        eodb_days: t.eodb_days || null,
+        is_emergency: !!t.is_emergency,
+        is_vip: !!t.is_vip,
         // SSU Incident Report specific fields
         isUnderInvestigation: Number(t.is_under_investigation) === 1,
         hasNotation:          !!t.ssu_notation,

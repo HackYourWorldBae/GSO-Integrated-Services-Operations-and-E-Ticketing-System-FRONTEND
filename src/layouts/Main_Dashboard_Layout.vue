@@ -34,7 +34,7 @@
           <div class="sidebar-header-text">
             <span class="sidebar-app-name">GSO Portal</span>
             <span class="sidebar-app-university">Benguet State University</span>
-            <span class="sidebar-app-sub">Centralized e-Ticketing</span>
+            <span class="sidebar-app-sub">GSO e-Ticketing</span>
           </div>
         </div>
       </div>
@@ -156,8 +156,9 @@
                 @click="toggleDropdown" 
                 class="flex items-center gap-2 p-1.5 pr-1.5 sm:pr-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-emerald-500/30 text-slate-900 transition-all select-none"
               >
-                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0">
-                  {{ userName ? userName.charAt(0).toUpperCase() : 'U' }}
+                <div class="w-8 h-8 rounded-lg overflow-hidden bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0 border border-emerald-500/20">
+                  <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar" class="w-full h-full object-cover" />
+                  <span v-else>{{ userName ? userName.charAt(0).toUpperCase() : 'U' }}</span>
                 </div>
                 <span class="hidden sm:block text-sm font-semibold truncate max-w-[120px]">{{ userName || 'Profile' }}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 transition-transform duration-300 hidden sm:block shrink-0" :class="isDropdownOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -167,13 +168,29 @@
               
               <!-- Dropdown -->
               <Transition name="slide-up">
-                <div v-if="isDropdownOpen" class="absolute top-full right-0 mt-3 w-56 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-50 origin-top-right">
-                  <div class="px-4 py-3 border-b border-slate-100">
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5">Signed in as</p>
-                    <p class="text-sm font-bold text-slate-900 truncate">{{ userName || 'User' }}</p>
+                <div v-if="isDropdownOpen" class="absolute top-full right-0 mt-3 w-60 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-50 origin-top-right">
+                  <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl overflow-hidden bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-sm shrink-0 border border-emerald-200">
+                      <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar" class="w-full h-full object-cover" />
+                      <span v-else>{{ userName ? userName.charAt(0).toUpperCase() : 'U' }}</span>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-[10px] text-slate-400 font-black uppercase tracking-wider mb-0.5">{{ userRole || 'Member' }}</p>
+                      <p class="text-sm font-bold text-slate-900 truncate">{{ userName || 'User' }}</p>
+                    </div>
                   </div>
-                  <div class="p-2">
-                    <button @click="handleLogout" class="w-full text-left px-3 py-2 rounded-xl text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-3">
+                  <div class="p-2 space-y-1">
+                    <router-link
+                      to="/user/edit-profile"
+                      @click="isDropdownOpen = false"
+                      class="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2.5 cursor-pointer"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span>Account Settings</span>
+                    </router-link>
+                    <button @click="handleLogout" class="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2.5 cursor-pointer">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                       Logout
                     </button>
@@ -218,7 +235,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -234,6 +251,12 @@ const isSidebarOpen = ref(true);
 const isMobileSidebarOpen = ref(false);
 const isDropdownOpen = ref(false);
 const isNotificationOpen = ref(false);
+
+const userAvatarUrl = computed(() => {
+  const user = authStore.user;
+  if (!user || !user.avatar_path) return null;
+  return `/api/v1/auth/avatar/${user.id}?v=${user.updated_at || ''}`;
+});
 
 const confirmModalState = reactive({
   isOpen: false,
@@ -476,21 +499,20 @@ let notificationInterval = null;
 let removeRouterHook = null;
 
 onMounted(() => {
-  const piniaToken = authStore.token;
-  const localToken = (() => {
+  const currentUser = authStore.user || (() => {
     try {
       const raw = sessionStorage.getItem('auth');
-      return raw ? JSON.parse(raw)?.token : null;
+      return raw ? JSON.parse(raw)?.user : null;
     } catch { return null; }
   })();
 
-  if (!piniaToken && !localToken) {
+  if (!currentUser) {
     router.push({ name: 'login' });
     return;
   }
 
-  if (!piniaToken && localToken) {
-    authStore._setAuth(authStore.user, authStore.role, localToken);
+  if (!authStore.user && currentUser) {
+    authStore._setAuth(currentUser, currentUser.role);
   }
 
   userName.value = authStore.fullName || 'User';

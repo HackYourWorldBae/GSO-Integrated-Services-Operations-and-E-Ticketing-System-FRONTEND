@@ -376,7 +376,7 @@ const handleSubmit = () => {
         </div>
         <div class="flex flex-col">
           <span class="font-black text-sm sm:text-base text-slate-900 leading-tight tracking-tight">GSO Services</span>
-          <span class="text-[8px] text-emerald-600 font-black tracking-[0.1em] uppercase hidden xs:block">Centralized Services E-Ticketing</span>
+          <span class="text-[8px] text-emerald-600 font-black tracking-[0.1em] uppercase hidden xs:block">GSO Services E-Ticketing</span>
         </div>
       </div>
 

@@ -5,24 +5,19 @@ import { login as apiLogin, logout as apiLogout, getMe, updateProfile as apiUpda
 /**
  * Auth Store — Pinia
  *
- * Manages authentication state: JWT token, user profile, and role.
- * Persisted to sessionStorage (not localStorage) to isolate each browser tab.
- * This prevents concurrent users on the same browser from overwriting each
- * other's tokens, while still surviving same-tab page refreshes.
- *
- * The token property is what the api/client.js interceptor reads to
- * inject the Bearer header on every request.
+ * Manages authentication state: authenticated user profile and role.
+ * Tokens are securely stored and managed via HttpOnly cookies (inaccessible to JS).
+ * Safe user metadata is persisted to sessionStorage for fast UI rendering across same-tab navigations.
  */
 export const useAuthStore = defineStore('auth', () => {
-  const user  = ref(null);
-  const role  = ref(null);
-  const token = ref(null); // JWT access token — read by api/client.js interceptor
+  const user = ref(null);
+  const role = ref(null);
 
   // ---------------------------------------------------------------------------
   // Computed
   // ---------------------------------------------------------------------------
 
-  const isAuthenticated = computed(() => !!token.value);
+  const isAuthenticated = computed(() => !!user.value);
 
   const fullName = computed(() => {
     if (!user.value) return 'Not Provided';
@@ -43,25 +38,24 @@ export const useAuthStore = defineStore('auth', () => {
   // ---------------------------------------------------------------------------
 
   /**
-   * Login via API — validates credentials and stores JWT + user profile.
+   * Login via API — validates credentials.
+   * HttpOnly cookie is set automatically by the backend.
+   * Stores user profile and role in state.
    *
-   * @param {string} identifier  - Student ID (7 digits) or email
+   * @param {string} identifier  - Student ID or email
    * @param {string} password
    * @returns {Promise<{ success: boolean, message: string, role?: string }>}
    */
   const login = async (identifier, password) => {
     try {
       const response = await apiLogin(identifier, password);
-      const { access_token, user: userData } = response.data.data;
+      const { user: userData } = response.data.data;
 
-      token.value = access_token;
-      user.value  = userData;
-      role.value  = userData.role;
-      
-      // Immediately write the token to sessionStorage to avoid async Pinia persistence race
-      // conditions. This ensures api/client.js has it instantly when routing to the dashboard.
-      // sessionStorage keeps each tab isolated, preventing concurrent user session collisions.
-      sessionStorage.setItem('token', access_token);
+      user.value = userData;
+      role.value = userData.role;
+
+      // Clean up any legacy tokens from sessionStorage
+      sessionStorage.removeItem('token');
 
       return { success: true, role: userData.role };
     } catch (err) {
@@ -71,30 +65,49 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   /**
-   * Logout — clears local state and notifies the backend.
+   * Logout — clears local user state, notifies the backend to invalidate
+   * the active session, and deletes the HttpOnly cookie.
    */
   const logout = async () => {
     try {
-      if (token.value) {
-        await apiLogout();
-      }
+      await apiLogout();
     } catch {
-      // Ignore errors on logout — clear state regardless
+      // Ignore errors on logout — clear client state regardless
     } finally {
-      user.value  = null;
-      role.value  = null;
-      token.value = null;
+      user.value = null;
+      role.value = null;
       sessionStorage.removeItem('token');
+      sessionStorage.removeItem('auth');
     }
   };
 
   /**
-   * Refresh the user's profile from the backend (useful after profile edits).
+   * Verify session status against the backend using the HttpOnly cookie.
+   * Useful during app initialization and route validation.
+   */
+  const checkAuth = async () => {
+    try {
+      const response = await getMe();
+      user.value = response.data.data.user;
+      role.value = response.data.data.user.role;
+      return true;
+    } catch {
+      user.value = null;
+      role.value = null;
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('auth');
+      return false;
+    }
+  };
+
+  /**
+   * Refresh the user's profile from the backend (e.g. after profile edits).
    */
   const refreshProfile = async () => {
     try {
       const response = await getMe();
       user.value = response.data.data.user;
+      role.value = response.data.data.user.role;
     } catch {
       // Silently fail — stale data is acceptable here
     }
@@ -115,17 +128,15 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // Internal setter used during SSR or token refresh (not typically called directly)
-  const _setAuth = (userData, userRole, authToken) => {
-    user.value  = userData;
-    role.value  = userRole;
-    token.value = authToken;
+  // Internal setter used during re-hydration
+  const _setAuth = (userData, userRole) => {
+    user.value = userData;
+    role.value = userRole;
   };
 
   return {
     user,
     role,
-    token,
     isAuthenticated,
     fullName,
     contactNumber,
@@ -133,12 +144,14 @@ export const useAuthStore = defineStore('auth', () => {
     unitId,
     login,
     logout,
+    checkAuth,
     refreshProfile,
     updateProfile,
     _setAuth,
   };
 }, {
-  // Use sessionStorage so each tab has its own isolated session.
-  // This prevents concurrent users from overwriting each other's tokens.
-  persist: { storage: sessionStorage },
+  persist: {
+    storage: sessionStorage,
+    pick: ['user', 'role'],
+  },
 });

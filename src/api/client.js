@@ -21,10 +21,8 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  // JWT Bearer token is injected via the request interceptor below.
-  // withCredentials is intentionally NOT set — the API is stateless (JWT, not cookies)
-  // and enabling it forces strict CORS preflight with exact origin matching,
-  // which breaks cross-origin requests when the origin doesn't match exactly.
+  // Automatically send and receive HttpOnly cookies for secure session authentication
+  withCredentials: true,
   timeout: 15000, // 15 second request timeout
 });
 
@@ -37,10 +35,10 @@ apiClient.interceptors.request.use(
     const securityHeaders = getSecurityHeaders?.() ?? {};
     Object.assign(config.headers, securityHeaders);
 
-    // 2. Inject Bearer token from Pinia persisted auth store (sessionStorage, tab-isolated)
+    // 2. Attach Authorization header if a Bearer token is provided
     try {
-      const piniaAuth  = JSON.parse(sessionStorage.getItem('auth') || '{}');
-      const token      = piniaAuth?.token || sessionStorage.getItem('token');
+      const piniaAuth = JSON.parse(sessionStorage.getItem('auth') || '{}');
+      const token     = piniaAuth?.token || sessionStorage.getItem('token');
       if (token) {
         if (typeof config.headers.set === 'function') {
           config.headers.set('Authorization', `Bearer ${token}`);
@@ -49,7 +47,7 @@ apiClient.interceptors.request.use(
         }
       }
     } catch {
-      // Fail silently — the JWT filter on the backend will handle the missing token
+      // Fail silently — the HttpOnly cookie will be automatically used by the browser
     }
 
     // 3. Sanitize outgoing JSON payloads (skip FormData — file uploads handled separately)
@@ -77,10 +75,17 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
+    const errorCode = error.response?.data?.code;
+
     if (typeof window !== 'undefined') {
       if (status === 401) {
-        // Dispatch global event for session expiration / unauthorized access
-        window.dispatchEvent(new CustomEvent('auth:unauthorized', { detail: error }));
+        if (errorCode === 'SESSION_SUPERSEDED') {
+          // Dispatch dedicated event when session was invalidated by another device login
+          window.dispatchEvent(new CustomEvent('auth:session-superseded', { detail: error }));
+        } else {
+          // Dispatch generic unauthorized event (session expired or unauthenticated)
+          window.dispatchEvent(new CustomEvent('auth:unauthorized', { detail: error }));
+        }
       } else if (status === 403) {
         // Dispatch global event for permission / role violations
         window.dispatchEvent(new CustomEvent('auth:forbidden', { detail: error }));

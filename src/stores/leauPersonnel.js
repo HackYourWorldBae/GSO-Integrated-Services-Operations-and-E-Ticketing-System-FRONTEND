@@ -35,7 +35,8 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
             ticketId: p.next_assignment_id,
             task: p.next_ticket_task || 'Janitorial & Landscaping Work',
             date: p.next_implementation_date ? new Date(p.next_implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Scheduled Next'
-          } : null
+          } : null,
+          assignments: Array.isArray(p.assignments) ? p.assignments : []
         }));
       } else {
         personnel.value = [];
@@ -112,51 +113,72 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
     }
   };
 
-  const assignWorker = (workerId, ticketId, implementationDate, ticketTask = 'Janitorial & Landscaping Work') => {
+  const assignWorker = (workerId, ticketId, implementationDate, ticketTask = 'Janitorial & Landscaping Work', isEmergency = false) => {
     const worker = personnel.value.find(w => w.id === workerId);
     if (!worker) return;
-    
-    if (worker.assignedTicket || worker.status === 'Working') {
-      worker.nextAssignmentId = ticketId;
-      worker.nextTicketTask = ticketTask;
+    if (!Array.isArray(worker.assignments)) {
+      worker.assignments = [];
+    }
+
+    const newAssignment = {
+      ticket_id: ticketId,
+      task_notes: ticketTask,
+      implementation_date: implementationDate,
+      is_emergency: isEmergency ? 1 : 0,
+      status: 'pending'
+    };
+
+    if (isEmergency) {
+      worker.assignments.unshift(newAssignment);
+    } else {
+      worker.assignments.push(newAssignment);
+    }
+
+    // Sync legacy properties
+    worker.assignedTicket = worker.assignments[0]?.ticket_id || null;
+    worker.ticketTask = worker.assignments[0]?.task_notes || null;
+    worker.implementationDate = worker.assignments[0]?.implementation_date || null;
+    if (worker.assignments.length > 1) {
+      worker.nextAssignmentId = worker.assignments[1].ticket_id;
+      worker.nextTicketTask = worker.assignments[1].task_notes;
       worker.nextAssignment = {
-        ticketId: ticketId,
-        task: ticketTask,
-        date: implementationDate
+        ticketId: worker.assignments[1].ticket_id,
+        task: worker.assignments[1].task_notes,
+        date: worker.assignments[1].implementation_date
       };
     } else {
-      worker.assignedTicket = ticketId;
-      worker.ticketTask = ticketTask;
-      worker.implementationDate = implementationDate;
+      worker.nextAssignment = null;
+      worker.nextAssignmentId = null;
+      worker.nextTicketTask = null;
     }
   };
 
   const unassignWorker = (workerId, ticketId) => {
     const worker = personnel.value.find(w => w.id === workerId);
     if (!worker) return;
-    
-    if (worker.assignedTicket === ticketId) {
-      worker.assignedTicket = null;
-      worker.ticketTask = null;
-      worker.implementationDate = null;
-      
-      if (worker.nextAssignment) {
-        worker.assignedTicket = worker.nextAssignment.ticketId;
-        worker.ticketTask = worker.nextAssignment.task;
-        worker.implementationDate = worker.nextAssignment.date;
-        worker.nextAssignment = null;
-        worker.nextAssignmentId = null;
-        worker.nextTicketTask = null;
-      }
-    } else if (worker.nextAssignment && worker.nextAssignment.ticketId === ticketId) {
+
+    if (Array.isArray(worker.assignments)) {
+      worker.assignments = worker.assignments.filter(a => String(a.ticket_id) !== String(ticketId) && String(a.id) !== String(ticketId));
+    } else {
+      worker.assignments = [];
+    }
+
+    worker.assignedTicket = worker.assignments[0]?.ticket_id || null;
+    worker.ticketTask = worker.assignments[0]?.task_notes || null;
+    worker.implementationDate = worker.assignments[0]?.implementation_date || null;
+
+    if (worker.assignments.length > 1) {
+      worker.nextAssignmentId = worker.assignments[1].ticket_id;
+      worker.nextTicketTask = worker.assignments[1].task_notes;
+      worker.nextAssignment = {
+        ticketId: worker.assignments[1].ticket_id,
+        task: worker.assignments[1].task_notes,
+        date: worker.assignments[1].implementation_date
+      };
+    } else {
       worker.nextAssignment = null;
       worker.nextAssignmentId = null;
       worker.nextTicketTask = null;
-    } else {
-      // Fallback
-      worker.assignedTicket = null;
-      worker.ticketTask = null;
-      worker.implementationDate = null;
     }
   };
 

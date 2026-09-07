@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import Swal from 'sweetalert2';
 const LandingView = () => import('../views/LandingView.vue');
 const LoginView = () => import('../views/auth/LoginView.vue');
 
@@ -330,7 +331,6 @@ const router = createRouter({
 
 // Global Navigation Guard — enforce authentication, role-based authorization, and unit scoping
 router.beforeEach((to, from, next) => {
-  let token = null;
   let user = null;
   let role = null;
   let unit = '';
@@ -339,17 +339,13 @@ router.beforeEach((to, from, next) => {
     const raw = sessionStorage.getItem('auth');
     if (raw) {
       const stored = JSON.parse(raw);
-      token = stored?.token || stored?.state?.token || sessionStorage.getItem('token') || null;
       user  = stored?.user  || stored?.state?.user  || null;
       role  = stored?.role  || stored?.state?.role  || user?.role || null;
       const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
       unit  = String(user?.unit_code || user?.unit || unitMap[user?.unit_id] || '').toUpperCase();
-    } else {
-      token = sessionStorage.getItem('token');
     }
   } catch {
     sessionStorage.removeItem('auth');
-    sessionStorage.removeItem('token');
   }
 
   // Helper: map a role and unit to its canonical landing view
@@ -372,19 +368,24 @@ router.beforeEach((to, from, next) => {
   };
 
   // 1. Prevent already-authenticated users from re-visiting login
-  if (to.name === 'login' && token && role) {
+  if (to.name === 'login' && user && role) {
     return next(getHomeRoute(role, unit));
   }
 
   // 2. Protect routes requiring authentication
   if (to.meta && to.meta.requiresAuth) {
-    if (!token) {
+    if (!user) {
       return next({ name: 'login', query: { redirect: to.fullPath } });
     }
 
     // 3. Enforce Role-Based Access Control
     if (to.meta.roles && Array.isArray(to.meta.roles)) {
-      if (!role || !to.meta.roles.includes(role)) {
+      const allowedRoles = [...to.meta.roles];
+      // Unit Head (admin) inherits dispatcher routes
+      if (role === 'admin' && allowedRoles.includes('dispatcher')) {
+        allowedRoles.push('admin');
+      }
+      if (!role || !allowedRoles.includes(role)) {
         console.warn(`[Router Guard] Access denied to ${to.path}. Required roles: ${to.meta.roles.join(', ')}. Current role: ${role}`);
         return next(getHomeRoute(role, unit));
       }
@@ -403,33 +404,53 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
-// Listen for 401 Unauthorized API interceptor events.
-// IMPORTANT: Only handle 401s when the user already has a session token.
-// A 401 on the /auth/login endpoint (wrong password) must NOT clear an
-// existing session or trigger a redirect — that's a normal login failure.
+// Listen for Session Superseded (Single Session Per User Enforcement)
 if (typeof window !== 'undefined') {
+  let isNotifyingSuperseded = false;
+
+  window.addEventListener('auth:session-superseded', () => {
+    // Clear client-side session cache immediately
+    sessionStorage.removeItem('auth');
+    sessionStorage.removeItem('token');
+
+    if (!isNotifyingSuperseded) {
+      isNotifyingSuperseded = true;
+      Swal.fire({
+        icon: 'warning',
+        title: 'Session Ended',
+        text: 'Your account was logged in from another device or browser. You have been logged out to protect your account.',
+        confirmButtonColor: '#059669',
+        confirmButtonText: 'Log In Again',
+        allowOutsideClick: false,
+      }).then(() => {
+        isNotifyingSuperseded = false;
+        if (router.currentRoute.value && router.currentRoute.value.name !== 'login') {
+          router.push({ name: 'login' });
+        }
+      });
+    }
+  });
+
+  // Listen for generic 401 Unauthorized API interceptor events
   window.addEventListener('auth:unauthorized', (event) => {
     // Ignore 401s that originate from the login endpoint itself
     const requestUrl = event.detail?.config?.url || '';
     if (requestUrl.includes('auth/login')) return;
 
-    // Only clear and redirect if a session token actually existed
-    const hadToken = (() => {
+    // Only clear and redirect if a session state actually existed
+    const hadUser = (() => {
       try {
         const raw = JSON.parse(sessionStorage.getItem('auth') || '{}');
-        return !!(raw?.token || sessionStorage.getItem('token'));
+        return !!(raw?.user || raw?.state?.user);
       } catch { return false; }
     })();
 
-    if (!hadToken) return;
+    if (!hadUser) return;
 
-    // Clear tokens and redirect to login
+    // Clear session and redirect to login
+    sessionStorage.removeItem('auth');
     sessionStorage.removeItem('token');
-    try {
-      const piniaAuth = JSON.parse(sessionStorage.getItem('auth') || '{}');
-      delete piniaAuth.token;
-      sessionStorage.setItem('auth', JSON.stringify(piniaAuth));
-    } catch (e) {}
+
     if (router.currentRoute.value && router.currentRoute.value.name !== 'login') {
       router.push({ name: 'login' });
     }

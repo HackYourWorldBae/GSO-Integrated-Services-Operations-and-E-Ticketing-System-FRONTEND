@@ -269,6 +269,118 @@
           </div>
         </div>
 
+        <!-- ③ Awaiting Verification & Ticket Closure -->
+        <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 shadow-xl shadow-slate-200/50">
+          <!-- Section Header -->
+          <div class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 px-6 sm:px-10 py-7 overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(16,185,129,0.18),_transparent_60%)]"></div>
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 backdrop-blur-sm flex items-center justify-center border border-emerald-500/30">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-black text-white tracking-tight">Awaiting Verification & Ticket Closure</h3>
+                  <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Proof of completion review & administrative sign-off</p>
+                </div>
+              </div>
+              <div class="flex items-center self-start sm:self-auto gap-2 px-4 py-2 bg-emerald-500/15 rounded-2xl border border-emerald-500/25 backdrop-blur-sm">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span class="text-white font-black text-sm">{{ verificationTickets.length }}</span>
+                <span class="text-emerald-300 text-[10px] font-bold uppercase tracking-widest">Pending Sign-off</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ticket List -->
+          <div class="bg-white px-4 sm:px-6 pb-6">
+            <div v-if="verificationTickets.length === 0" class="py-16 flex flex-col items-center justify-center gap-3">
+              <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p class="text-slate-400 font-bold text-sm">No tickets awaiting verification</p>
+              <p class="text-slate-300 text-xs">Completed jobs requiring sign-off will appear here.</p>
+            </div>
+
+            <div v-else class="divide-y divide-slate-100">
+              <div
+                v-for="ticket in verificationTickets"
+                :key="ticket.id"
+                class="group flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-4 px-4 sm:px-6 hover:bg-slate-50/80 border-b border-slate-100 last:border-b-0 rounded-2xl transition-all duration-200"
+              >
+                <div class="flex items-center gap-4 min-w-0 flex-1">
+                  <!-- Ticket ID -->
+                  <div class="flex flex-col shrink-0 min-w-[100px]">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ticket ID</span>
+                    <span class="text-sm font-black text-slate-900 font-mono tracking-tight">#{{ ticket.id }}</span>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 flex-1 min-w-0 items-center">
+                    <div class="flex flex-col min-w-0 sm:col-span-2 lg:col-span-1">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Ticket Title</span>
+                      <span class="text-sm font-bold text-slate-800 truncate" :title="ticket.title || ticket.project_title || ticket.service_type || 'N/A'">
+                        {{ ticket.title || ticket.project_title || ticket.service_type || 'N/A' }}
+                      </span>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Completed Date</span>
+                      <span class="text-sm font-semibold text-slate-700 truncate">{{ formatDate(ticket.completed_at || ticket.updated_at) }}</span>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Assigned Worker</span>
+                      <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Accomplishment Report</span>
+                      <span v-if="ticket.accomplishment_report_path" class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 inline-flex items-center gap-1.5 w-fit">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                        Report Uploaded
+                      </span>
+                      <span v-else class="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 inline-flex items-center gap-1.5 w-fit">
+                        Pending Report
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 w-full lg:w-auto">
+                  <button
+                    v-if="ticket.accomplishment_report_path"
+                    type="button"
+                    @click="openAccomplishmentModal(ticket)"
+                    class="px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                    title="Preview uploaded accomplishment report"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>View Proof</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    @click="verifyAndCloseTicket(ticket)"
+                    :disabled="loading || !ticket.accomplishment_report_path"
+                    class="px-5 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider shadow-sm shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                    title="Verify accomplishment report and officially close ticket"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Verify & Close</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </template>
   </MainLayout>
@@ -334,6 +446,15 @@
       </div>
     </Transition>
   </Teleport>
+
+  <!-- Document & Attachment Viewer Modal -->
+  <DocumentViewerModal
+    v-model:isOpen="viewerModal.isOpen"
+    :title="viewerModal.title"
+    :fileName="viewerModal.fileName"
+    :fileBlob="viewerModal.fileBlob"
+    :fileUrl="viewerModal.fileUrl"
+  />
 </template>
 
 <script setup>
@@ -343,6 +464,7 @@ import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
+import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
@@ -366,13 +488,53 @@ const receiptTicket = ref(null);
 const showExtensionModal = ref(false);
 const ticketToExtend = ref(null);
 
+// Document / Accomplishment Viewer Modal
+const viewerModal = reactive({
+  isOpen: false,
+  title: '',
+  fileName: '',
+  fileBlob: null,
+  fileUrl: '',
+});
+
 /** Keyed by ticket.id → human-friendly elapsed duration string. Updated every minute. */
 const liveDurations = reactive({});
 
 let durationRefreshTimer = null;
 
-const scheduledTickets = computed(() => tickets.value.filter(t => t.current_step == 4));
-const activeTickets    = computed(() => tickets.value.filter(t => t.current_step == 5));
+const scheduledTickets    = computed(() => tickets.value.filter(t => t.current_step == 4));
+const activeTickets       = computed(() => tickets.value.filter(t => t.current_step == 5));
+const verificationTickets = computed(() => tickets.value.filter(t => t.current_step == 6 || t.status === 'resolved'));
+
+const openAccomplishmentModal = async (ticket) => {
+  try {
+    const res = await api.get(`tickets/${ticket.id}/accomplishment`, { responseType: 'blob' });
+    const ext = (ticket.accomplishment_report_path || '').split('.').pop()?.toLowerCase() || 'pdf';
+    const mime = ext === 'pdf' ? 'application/pdf' : `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+    viewerModal.title = `Accomplishment Report - Ticket #${ticket.id}`;
+    viewerModal.fileName = `Accomplishment_Report_${ticket.id}.${ext}`;
+    viewerModal.fileBlob = new Blob([res.data], { type: mime });
+    viewerModal.fileUrl = '';
+    viewerModal.isOpen = true;
+  } catch (err) {
+    console.error('Failed to view accomplishment report:', err);
+    toast.error('Unable to load accomplishment report.');
+  }
+};
+
+const verifyAndCloseTicket = async (ticket) => {
+  try {
+    loading.value = true;
+    await api.patch(`tickets/${ticket.id}/verify-close`);
+    toast.success(`Ticket #${ticket.id} verified and officially closed.`);
+    await fetchTickets();
+  } catch (err) {
+    console.error('Failed to verify ticket:', err);
+    toast.error(err.response?.data?.message || 'Failed to verify and close ticket.');
+  } finally {
+    loading.value = false;
+  }
+};
 
 const checkRouteQueryTicket = () => {
   const targetId = route.query.ticketId || route.query.highlight;

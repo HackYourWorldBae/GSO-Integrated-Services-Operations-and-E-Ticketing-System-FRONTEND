@@ -166,6 +166,57 @@
                 />
               </div>
             </div>
+
+            <!-- EODB Regulatory Turnaround Days Quick Select (RA 11032) -->
+            <div class="flex flex-col justify-center gap-1.5 bg-slate-50 p-3.5 rounded-3xl border border-slate-200 flex-1">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">EODB SLA Basis (RA 11032)</span>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <button
+                  type="button"
+                  @click="setEodbTier('simple')"
+                  :class="eodbTier === 'simple' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'"
+                  class="px-2.5 py-1 rounded-xl text-[10px] font-black transition-all flex items-center gap-1"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Simple (3d)
+                </button>
+                <button
+                  type="button"
+                  @click="setEodbTier('moderate')"
+                  :class="eodbTier === 'moderate' ? 'bg-amber-600 text-white shadow-xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'"
+                  class="px-2.5 py-1 rounded-xl text-[10px] font-black transition-all flex items-center gap-1"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  Moderate (7d)
+                </button>
+                <button
+                  type="button"
+                  @click="setEodbTier('complex')"
+                  :class="eodbTier === 'complex' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'"
+                  class="px-2.5 py-1 rounded-xl text-[10px] font-black transition-all flex items-center gap-1"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                  Complex (21d)
+                </button>
+              </div>
+            </div>
+
+            <!-- Emergency / Priority Preemption Toggle -->
+            <div class="flex flex-col justify-center gap-1.5 bg-rose-50/60 p-3.5 rounded-3xl border border-rose-200 flex-1">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" v-model="isEmergency" class="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-rose-300" />
+                <span class="text-[10px] font-black uppercase tracking-wider text-rose-800 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                  Emergency / Priority Preemption
+                </span>
+              </label>
+              <div v-if="isEmergency" class="flex items-center gap-2 pt-1 border-t border-rose-200">
+                <input id="pause-ongoing-fgmu" type="checkbox" v-model="pauseCurrent" class="w-3.5 h-3.5 rounded text-rose-600 focus:ring-rose-500 border-rose-300" />
+                <label for="pause-ongoing-fgmu" class="text-[9px] font-bold text-rose-700 cursor-pointer">
+                  Pause current ongoing task on technician
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -273,13 +324,15 @@
                               <span>{{ !isManagementMode ? 'Management Disabled' : worker.assignedTicket || worker.status === 'Working' ? 'Locked (In Progress)' : worker.status === 'On Leave' ? 'Set to Available' : 'Set to On Leave' }}</span>
                             </button>
 
-                            <div v-if="!isManagementMode && worker.status !== 'On Leave' && (!worker.assignedTicket || !worker.nextAssignment) && selectedTicket && worker.assignedTicket !== selectedTicket.id && (!worker.nextAssignment || worker.nextAssignment.ticketId !== selectedTicket.id)" class="w-full pt-1">
+                            <div v-if="!isManagementMode && worker.status !== 'On Leave' && selectedTicket && (!worker.assignments || !worker.assignments.some(a => String(a.ticket_id) === String(selectedTicket.id))) && worker.assignedTicket !== selectedTicket.id && (!worker.nextAssignment || worker.nextAssignment.ticketId !== selectedTicket.id)" class="w-full pt-1">
                               <button
                                 @click="assignWorker(worker)"
-                                class="py-2 px-3 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition-all shadow-md shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest"
+                                class="py-2 px-3 w-full rounded-xl text-white transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest"
+                                :class="isEmergency ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-500/20' : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20'"
                                 title="Assign worker">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                {{ worker.assignedTicket || worker.status === 'Working' ? 'Queue Next: ' : 'Assign to ' }} {{ formatTicketOrProjectLabel(selectedTicket.id) }}
+                                <svg v-if="isEmergency" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                {{ isEmergency ? '⚡ Preempt: ' : (worker.assignedTicket || worker.status === 'Working' ? 'Queue Work: ' : 'Assign to ') }} {{ formatTicketOrProjectLabel(selectedTicket.id) }}
                               </button>
                             </div>
                           </div>
@@ -354,6 +407,17 @@
                         <p class="text-[11px] text-slate-400 mt-0.5">No upcoming tickets assigned.</p>
                       </div>
                     </div>
+                  </div>
+
+                  <!-- Specialist Backlog Counter when holding > 2 tasks -->
+                  <div v-if="worker.assignments && worker.assignments.length > 2" class="mt-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
+                        +{{ worker.assignments.length - 2 }} More In Queue
+                      </span>
+                      <span class="text-xs font-bold text-slate-700">Specialist Active Backlog: {{ worker.assignments.length }} total tasks queued</span>
+                    </div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Organized Priority Queue</span>
                   </div>
 
                   <!-- Inline Brief Ticket Extension inside container -->
@@ -500,6 +564,82 @@
           </div>
         </div>
       </div>
+
+      <!-- Staff Leave Resolution Modal -->
+      <div v-if="isLeaveModalOpen" class="fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up" @click.stop>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug">Staff Leave Workload Resolution</h3>
+                <p class="text-xs text-slate-500 font-medium">{{ selectedLeaveWorker?.name }} has active task assignments</p>
+              </div>
+            </div>
+            <button type="button" @click="isLeaveModalOpen = false" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+
+          <div class="p-3.5 bg-amber-50 rounded-2xl border border-amber-200 text-amber-900 text-xs font-semibold leading-relaxed">
+            Please decide what should happen to {{ selectedLeaveWorker?.name }}'s current active tasks while on leave:
+          </div>
+
+          <div class="space-y-3">
+            <!-- Option 1: Reassign -->
+            <label class="p-3.5 rounded-2xl border cursor-pointer flex flex-col gap-2 transition-all" :class="leaveAction === 'reassign' ? 'border-emerald-500 bg-emerald-50/30 ring-1 ring-emerald-500' : 'border-slate-200 hover:bg-slate-50'">
+              <div class="flex items-center gap-2.5">
+                <input type="radio" value="reassign" v-model="leaveAction" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" />
+                <span class="text-xs font-black text-slate-900">Reassign Tasks to Another Technician</span>
+              </div>
+              <div v-if="leaveAction === 'reassign'" class="pl-6 pt-1">
+                <select v-model="leaveTargetPersonnelId" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold focus:outline-none focus:border-emerald-500">
+                  <option value="">Select replacement technician...</option>
+                  <option v-for="w in store.personnel.filter(p => p.id !== selectedLeaveWorker?.id && p.status !== 'On Leave')" :key="w.id" :value="w.id">
+                    {{ w.name }} ({{ w.role }} - {{ w.status }})
+                  </option>
+                </select>
+              </div>
+            </label>
+
+            <!-- Option 2: Extend -->
+            <label class="p-3.5 rounded-2xl border cursor-pointer flex flex-col gap-2 transition-all" :class="leaveAction === 'extend' ? 'border-amber-500 bg-amber-50/30 ring-1 ring-amber-500' : 'border-slate-200 hover:bg-slate-50'">
+              <div class="flex items-center gap-2.5">
+                <input type="radio" value="extend" v-model="leaveAction" class="w-4 h-4 text-amber-600 focus:ring-amber-500 border-slate-300" />
+                <span class="text-xs font-black text-slate-900">Extend Completion Deadlines</span>
+              </div>
+              <div v-if="leaveAction === 'extend'" class="pl-6 pt-1 flex items-center gap-2">
+                <span class="text-xs text-slate-500 font-medium">Extend by:</span>
+                <input type="number" min="1" max="30" v-model="leaveExtendDays" class="w-20 px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-black" />
+                <span class="text-xs text-slate-500 font-medium">additional days</span>
+              </div>
+            </label>
+
+            <!-- Option 3: Return to Queue -->
+            <label class="p-3.5 rounded-2xl border cursor-pointer flex items-center gap-2.5 transition-all" :class="leaveAction === 'unassign' ? 'border-purple-500 bg-purple-50/30 ring-1 ring-purple-500' : 'border-slate-200 hover:bg-slate-50'">
+              <input type="radio" value="unassign" v-model="leaveAction" class="w-4 h-4 text-purple-600 focus:ring-purple-500 border-slate-300" />
+              <div>
+                <span class="text-xs font-black text-slate-900 block">Return All Tasks to Unit Queue</span>
+                <span class="text-[11px] text-slate-500">Unassign tickets and return them to the FGMU dispatch queue for future scheduling.</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <button type="button" @click="isLeaveModalOpen = false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-200 transition-colors">
+              Cancel
+            </button>
+            <button type="button" @click="handleLeaveResolution" :disabled="isResolvingLeave" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center gap-2">
+              <span v-if="isResolvingLeave" class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span>{{ isResolvingLeave ? 'Processing...' : 'Confirm Leave & Actions' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </template>
   </MainLayout>
 </template>
@@ -541,6 +681,59 @@ const showTicketModal = ref(false);
 const modalTicket = ref(null);
 const isManagementMode = ref(false);
 const workingDays = ref('');
+const eodbTier = ref('moderate');
+const isEmergency = ref(false);
+const pauseCurrent = ref(false);
+
+const setEodbTier = (tier) => {
+  eodbTier.value = tier;
+  if (tier === 'simple') workingDays.value = 3;
+  else if (tier === 'moderate') workingDays.value = 7;
+  else if (tier === 'complex') workingDays.value = 21;
+};
+
+// Staff Leave Workload Resolution State
+const isLeaveModalOpen = ref(false);
+const selectedLeaveWorker = ref(null);
+const leaveAction = ref('unassign'); // 'reassign' | 'extend' | 'unassign'
+const leaveExtendDays = ref(3);
+const leaveTargetPersonnelId = ref('');
+const isResolvingLeave = ref(false);
+
+const openLeaveModal = (worker) => {
+  selectedLeaveWorker.value = worker;
+  leaveAction.value = 'unassign';
+  leaveExtendDays.value = 3;
+  leaveTargetPersonnelId.value = '';
+  isLeaveModalOpen.value = true;
+};
+
+const handleLeaveResolution = async () => {
+  if (!selectedLeaveWorker.value) return;
+  if (leaveAction.value === 'reassign' && !leaveTargetPersonnelId.value) {
+    toast.error('Please choose a replacement technician to reassign tasks.');
+    return;
+  }
+  isResolvingLeave.value = true;
+  try {
+    const payload = {
+      status: 'on_leave',
+      leave_action: leaveAction.value,
+      target_personnel_id: leaveAction.value === 'reassign' ? Number(leaveTargetPersonnelId.value) : null,
+      extension_days: leaveAction.value === 'extend' ? Number(leaveExtendDays.value) : 0
+    };
+    await api.patch(`personnel/${selectedLeaveWorker.value.id}/status`, payload);
+    toast.success(`Leave status and workload resolved for ${selectedLeaveWorker.value.name}!`);
+    isLeaveModalOpen.value = false;
+    await store.fetchPersonnel();
+  } catch (err) {
+    console.error('Failed to resolve staff leave:', err);
+    toast.error(err.response?.data?.message || 'Failed to update leave status.');
+  } finally {
+    isResolvingLeave.value = false;
+  }
+};
+
 const fetchedTicketDetails = ref({});
 
 const openTicketModal = (ticket) => {
@@ -626,21 +819,28 @@ const currentAssignments = computed(() => {
 
 const toggleManagementStatus = (worker) => {
   if (!isManagementMode.value) {
-    if (worker.assignedTicket || worker.status === 'Working') {
-      toast.info(`Worker is locked on assignment (#${worker.assignedTicket || 'Active Work'}).`);
+    if (worker.assignedTicket || worker.status === 'Working' || (worker.assignments && worker.assignments.length > 0)) {
+      toast.info(`Worker has active workload (#${worker.assignedTicket || 'Active Work'}).`);
     } else {
       toast.info('Enable Management Mode above to toggle availability status.');
     }
     return;
   }
-  if (worker.status === 'Working' || worker.assignedTicket) {
-    toast.error(worker.assignedTicket
-      ? `Cannot toggle status: ${worker.name} is currently assigned to #${worker.assignedTicket}. Remove assignment first.`
-      : `Cannot toggle status: ${worker.name} is actively working on a ticket.`);
-    return;
+
+  // If worker is currently Available or Working and dispatcher wants to put them On Leave:
+  if (worker.status !== 'On Leave') {
+    const hasAssignments = worker.status === 'Working' || worker.assignedTicket || (worker.assignments && worker.assignments.length > 0);
+    if (hasAssignments) {
+      openLeaveModal(worker);
+      return;
+    }
+    store.toggleWorkerStatus(worker.id);
+    toast.success(`Status updated for ${worker.name}`);
+  } else {
+    // Setting back from On Leave to Available
+    store.toggleWorkerStatus(worker.id);
+    toast.success(`Status updated for ${worker.name}`);
   }
-  store.toggleWorkerStatus(worker.id);
-  toast.success(`Status updated for ${worker.name}`);
 };
 
 onMounted(async () => {
@@ -704,12 +904,12 @@ const assignWorker = (worker) => {
   }
   const dateStr = new Date(selectedTicket.value.implementationDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const taskDesc = selectedTicket.value.type;
-  store.assignWorker(worker.id, selectedTicket.value.id, dateStr, taskDesc);
+  store.assignWorker(worker.id, selectedTicket.value.id, dateStr, taskDesc, isEmergency.value);
   toast.success(`${worker.name} assigned to ${formatTicketOrProjectLabel(selectedTicket.value.id)}`);
 };
 
 const removeAssignment = (assign) => {
-  store.unassignWorker(assign.workerId, assign.ticketId);
+  store.unassignWorker(assign.workerId, selectedTicket.value?.id);
   toast.info(`Removed assignment for ${assign.workerName}`);
 };
 
@@ -738,7 +938,10 @@ const dispatchAll = async () => {
            personnel_id: assign.workerId,
            implementation_date: selectedTicket.value.implementationDate || '',
            working_days: Number(workingDays.value),
-           task_notes: isProjectIdentifier(selectedTicket.value) ? (selectedTicket.value.type || 'Office Project Work') : (selectedTicket.value.type || 'Facilities Task')
+           task_notes: isProjectIdentifier(selectedTicket.value) ? (selectedTicket.value.type || 'Office Project Work') : (selectedTicket.value.type || 'Facilities Task'),
+           is_emergency: isEmergency.value ? 1 : 0,
+           pause_current: pauseCurrent.value ? 1 : 0,
+           eodb_tier: eodbTier.value || 'moderate'
          });
       }
     }

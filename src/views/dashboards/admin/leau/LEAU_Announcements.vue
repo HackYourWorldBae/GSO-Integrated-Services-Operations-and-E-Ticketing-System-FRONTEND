@@ -267,6 +267,7 @@ import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import { formatProjectNumber } from '@/utils/projectFormatter';
+import { getProjects, createProject, updateProject as apiUpdateProject } from '@/api/projects';
 
 export default {
   name: 'LEAU_Announcements',
@@ -299,16 +300,10 @@ export default {
     const fetchProjects = async () => {
       loading.value = true;
       try {
-        const token = sessionStorage.getItem('token');
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/projects`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        
-        if (res.ok) {
-          // Filter out only LEAU projects
-          projects.value = (data.data?.projects || []).filter(p => Number(p.unit_id) === 2); 
-        }
+        const res = await getProjects();
+        const data = res.data;
+        // Filter out only LEAU projects
+        projects.value = (data.data?.projects || []).filter(p => Number(p.unit_id) === 2); 
       } catch (err) {
         toast.error('Failed to load projects');
       } finally {
@@ -324,8 +319,6 @@ export default {
 
       submitting.value = true;
       try {
-        const token = sessionStorage.getItem('token');
-        
         const payload = {
           unit: 'LEAU',
           title: form.value.title,
@@ -336,26 +329,13 @@ export default {
           remarks: form.value.remarks
         };
 
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/projects`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          toast.success('Project announcement published!');
-          showAddModal.value = false;
-          form.value = { title: '', description: '', location: '', target_date: '', duration: '', remarks: '' };
-          fetchProjects();
-        } else {
-          toast.error(data.message || 'Failed to create project.');
-        }
+        await createProject(payload);
+        toast.success('Project announcement published!');
+        showAddModal.value = false;
+        form.value = { title: '', description: '', location: '', target_date: '', duration: '', remarks: '' };
+        fetchProjects();
       } catch (err) {
-        toast.error('Network error.');
+        toast.error(err.response?.data?.message || 'Failed to create project.');
       } finally {
         submitting.value = false;
       }
@@ -375,26 +355,15 @@ export default {
     const updateProject = async () => {
       submitting.value = true;
       try {
-        const token = sessionStorage.getItem('token');
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/projects${currentProject.value ? '/' + currentProject.value.id : ''}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(updateForm.value)
-        });
+        const projectId = currentProject.value?.id;
+        if (!projectId) return;
 
-        const data = await res.json();
-        if (res.ok) {
-          toast.success('Project updated!');
-          showUpdateModal.value = false;
-          fetchProjects();
-        } else {
-          toast.error(data.message || 'Failed to update project.');
-        }
+        await apiUpdateProject(projectId, updateForm.value);
+        toast.success('Project updated!');
+        showUpdateModal.value = false;
+        fetchProjects();
       } catch (err) {
-        toast.error('Network error.');
+        toast.error(err.response?.data?.message || 'Failed to update project.');
       } finally {
         submitting.value = false;
       }

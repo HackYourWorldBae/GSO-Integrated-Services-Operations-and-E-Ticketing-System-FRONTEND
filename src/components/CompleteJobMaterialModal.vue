@@ -197,6 +197,46 @@
               <p class="text-[11px] text-slate-400 mt-0.5">The receipt will indicate labor / standard maintenance service only.</p>
             </div>
 
+            <!-- Accomplishment Report & Evidence Upload -->
+            <div class="space-y-3 p-4 bg-purple-50/50 border border-purple-200/80 rounded-2xl">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Accomplishment Report / Proof of Completed Service
+                  </h4>
+                  <p class="text-[11px] text-slate-500 font-medium">Upload signed completion report, after photos, or work certificate (PDF, JPG, PNG)</p>
+                </div>
+              </div>
+
+              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <input
+                  type="file"
+                  ref="accomplishmentFileInput"
+                  @change="handleAccomplishmentFileChange"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  class="hidden"
+                />
+                <button
+                  type="button"
+                  @click="$refs.accomplishmentFileInput.click()"
+                  class="px-4 py-2 bg-white hover:bg-purple-50 text-purple-700 border border-purple-300 text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-2 cursor-pointer"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  <span>{{ accomplishmentFile ? 'Change File' : 'Select Accomplishment Report' }}</span>
+                </button>
+                <div v-if="accomplishmentFile" class="flex items-center gap-2 text-xs font-bold text-slate-800 bg-white px-3 py-1.5 rounded-xl border border-purple-200">
+                  <span class="truncate max-w-[200px]">{{ accomplishmentFile.name }}</span>
+                  <button type="button" @click="accomplishmentFile = null" class="text-rose-500 hover:text-rose-700 cursor-pointer">✕</button>
+                </div>
+                <span v-else class="text-[11px] text-slate-400 italic">No accomplishment document selected</span>
+              </div>
+            </div>
+
             <!-- Dispatcher Notes -->
             <div class="space-y-1.5">
               <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest block">
@@ -278,6 +318,11 @@ const emit = defineEmits(['update:isOpen', 'completed', 'close']);
 const noMaterialsUsed = ref(false);
 const dispatcherNotes = ref('');
 const isSubmitting = ref(false);
+const accomplishmentFile = ref(null);
+
+const handleAccomplishmentFileChange = (e) => {
+  accomplishmentFile.value = e.target.files[0] || null;
+};
 
 const materials = ref([
   { material_name: '', quantity: 1, unit_measurement: 'pcs', unit_price: 0 },
@@ -294,6 +339,7 @@ const unitLabel = computed(() => {
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     noMaterialsUsed.value = false;
+    accomplishmentFile.value = null;
     dispatcherNotes.value = props.ticket?.assignment?.dispatcher_notes || '';
     materials.value = [
       { material_name: '', quantity: 1, unit_measurement: 'pcs', unit_price: 0 },
@@ -369,13 +415,23 @@ const submitCompletion = async () => {
 
   isSubmitting.value = true;
   try {
+    // If accomplishment file attached, upload it first
+    if (accomplishmentFile.value) {
+      const formData = new FormData();
+      formData.append('report_file', accomplishmentFile.value);
+      formData.append('notes', dispatcherNotes.value.trim());
+      await api.post(`/tickets/${props.ticket.id}/accomplishment`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+
     const payload = {
       materials: payloadMaterials,
       dispatcher_notes: dispatcherNotes.value.trim(),
     };
 
     const res = await api.patch(`/tickets/${props.ticket.id}/complete`, payload);
-    toast.success(`Ticket #${props.ticket.id} marked as completed.`);
+    toast.success(`Ticket #${props.ticket.id} finished — pending requester/unit head verification.`);
     emit('completed', {
       ticketId: props.ticket.id,
       materials: payloadMaterials,

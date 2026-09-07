@@ -156,6 +156,7 @@ import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import { formatProjectNumber } from '@/utils/projectFormatter';
+import { getProjectArchives } from '@/api/projects';
 
 export default {
   name: 'FGMU_ProjectArchives',
@@ -167,16 +168,10 @@ export default {
     const fetchProjects = async () => {
       loading.value = true;
       try {
-        const token = sessionStorage.getItem('token');
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/projects/archives`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        
-        if (res.ok) {
-          // Filter out only FGMU projects
-          projects.value = (data.data?.projects || []).filter(p => Number(p.unit_id) === 1); 
-        }
+        const res = await getProjectArchives();
+        const data = res.data;
+        // Filter out only FGMU projects
+        projects.value = (data.data?.projects || []).filter(p => Number(p.unit_id) === 1); 
       } catch (err) {
         toast.error('Failed to load project archives');
       } finally {

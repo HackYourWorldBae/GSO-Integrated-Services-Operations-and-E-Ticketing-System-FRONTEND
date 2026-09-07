@@ -99,7 +99,7 @@ const handleLogin = async () => {
       <div class="mb-8 shrink-0 text-left">
         <h2 class="text-emerald-700 font-extrabold text-[10px] sm:text-xs tracking-[0.2em] uppercase mb-2 ml-1">General Services Office</h2>
         <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-2">
-          Centralized <br />
+          GSO <br />
           <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">e-Ticketing</span>
         </h1>
         <p class="text-slate-500 text-xs font-medium">Please sign in to access your dashboard.</p>

@@ -176,7 +176,7 @@ const handleFinalSubmit = async () => {
         </div>
         <div class="flex flex-col whitespace-nowrap">
           <span class="font-black text-base sm:text-lg text-slate-900 leading-tight tracking-tight">Service Intake</span>
-          <span class="text-[8px] text-emerald-600 font-black tracking-[0.1em] uppercase">Centralized Services E-Ticketing</span>
+          <span class="text-[8px] text-emerald-600 font-black tracking-[0.1em] uppercase">GSO Services E-Ticketing</span>
         </div>
       </div>
       <button @click="goBack" class="group flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-slate-500 hover:text-emerald-700 font-bold text-xs sm:text-sm transition-all duration-300">
