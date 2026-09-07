@@ -267,9 +267,52 @@
                 <input v-model="addForm.middleInitial" type="text" maxlength="2" placeholder="C" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
               </div>
             </div>
-            <div>
-              <label class="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wider">Last Name <span class="text-red-500">*</span></label>
-              <input v-model="addForm.lastName" type="text" placeholder="Dela Cruz" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
+            <div class="grid grid-cols-3 gap-3">
+              <div class="col-span-2">
+                <label class="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wider">Last Name <span class="text-red-500">*</span></label>
+                <input v-model="addForm.lastName" type="text" placeholder="Dela Cruz" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">Ext.</label>
+                  <button
+                    type="button"
+                    @click="isCustomExtension = !isCustomExtension; if (!isCustomExtension) addForm.nameExtension = ''"
+                    class="text-[10px] text-emerald-600 hover:text-emerald-700 font-bold transition-colors"
+                  >
+                    {{ isCustomExtension ? 'Select' : 'Type' }}
+                  </button>
+                </div>
+                <input
+                  v-if="isCustomExtension"
+                  v-model="addForm.nameExtension"
+                  type="text"
+                  placeholder="e.g. Jr."
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+                />
+                <select
+                  v-else
+                  v-model="addForm.nameExtension"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-700"
+                >
+                  <option value="">None</option>
+                  <option value="Jr.">Jr.</option>
+                  <option value="Sr.">Sr.</option>
+                  <option value="I">I</option>
+                  <option value="II">II</option>
+                  <option value="III">III</option>
+                  <option value="IV">IV</option>
+                  <option value="V">V</option>
+                  <option value="VI">VI</option>
+                  <option value="VII">VII</option>
+                  <option value="VIII">VIII</option>
+                </select>
+              </div>
+            </div>
+            <!-- Live Preview -->
+            <div v-if="addPreviewFullName" class="px-3 py-2 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-xs text-slate-500 flex items-center justify-between">
+              <span class="font-bold text-slate-600">Full Name Preview:</span>
+              <span class="font-semibold text-emerald-700 truncate max-w-[240px]">{{ addPreviewFullName }}</span>
             </div>
             <div>
               <label class="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wider">Profession <span class="text-red-500">*</span></label>
@@ -426,11 +469,22 @@ const availableWorkersList = computed(() => {
 });
 
 // ── Add Personnel ──────────────────────────────────────────────────────────
-const addForm = ref({ firstName: '', middleInitial: '', lastName: '', specialty: '' });
+const isCustomExtension = ref(false);
+const addForm = ref({ firstName: '', middleInitial: '', lastName: '', nameExtension: '', specialty: '' });
 const addSubmitting = ref(false);
 
+const addPreviewFullName = computed(() => {
+  const parts = [];
+  if (addForm.value.firstName?.trim()) parts.push(addForm.value.firstName.trim());
+  if (addForm.value.middleInitial?.trim()) parts.push(addForm.value.middleInitial.trim().replace(/\.?$/, '.'));
+  if (addForm.value.lastName?.trim()) parts.push(addForm.value.lastName.trim());
+  if (addForm.value.nameExtension?.trim()) parts.push(addForm.value.nameExtension.trim());
+  return parts.length ? parts.join(' ') : '';
+});
+
 const openAddModal = () => {
-  addForm.value = { firstName: '', middleInitial: '', lastName: '', specialty: '' };
+  addForm.value = { firstName: '', middleInitial: '', lastName: '', nameExtension: '', specialty: '' };
+  isCustomExtension.value = false;
   showAddModal.value = true;
 };
 

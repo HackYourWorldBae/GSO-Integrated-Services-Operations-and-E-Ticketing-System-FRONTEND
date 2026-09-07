@@ -73,10 +73,11 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
     return response.data;
   };
 
-  const addPersonnel = async ({ firstName, middleInitial, lastName, specialty }) => {
+  const addPersonnel = async ({ firstName, middleInitial, lastName, nameExtension, specialty }) => {
     const nameParts = [firstName.trim()];
     if (middleInitial?.trim()) nameParts.push(middleInitial.trim().replace(/\.?$/, '.'));
     nameParts.push(lastName.trim());
+    if (nameExtension?.trim()) nameParts.push(nameExtension.trim());
     const fullName = nameParts.join(' ');
     const response = await api.post('personnel', { unit_id: 2, name: fullName, specialty });
     await fetchPersonnel();
