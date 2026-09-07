@@ -526,7 +526,7 @@
   </MainLayout>
 
   <!-- ======================= DETAILS MODAL ======================= -->
-  <div v-if="selectedTicketForModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+  <div v-if="selectedTicketForModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in" @click.self="closeDetailsModal">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-200 animate-scale-up space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between pb-4 border-b border-slate-100">
         <div>
@@ -540,7 +540,7 @@
           </div>
           <h3 class="text-lg font-black text-slate-900 mt-1">Ticket Details</h3>
         </div>
-        <button @click="selectedTicketForModal = null" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100">
+        <button @click="closeDetailsModal" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -589,23 +589,23 @@
 
       <!-- Footer Actions -->
       <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-        <button @click="selectedTicketForModal = null" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">
+        <button @click="closeDetailsModal" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">
           Close
         </button>
         <div v-if="activeTab === 'pending'" class="flex items-center gap-2">
-          <button @click="openDeclineModal(selectedTicketForModal); selectedTicketForModal = null" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100">
+          <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100">
             Decline Request
           </button>
-          <button @click="initiateApproval(selectedTicketForModal); selectedTicketForModal = null" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider">
+          <button @click="initiateApproval(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider">
             Approve Request
           </button>
         </div>
         <div v-else-if="activeTab === 'active'">
-          <button @click="openExtensionModal(selectedTicketForModal); selectedTicketForModal = null" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+          <button @click="openExtensionModal(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>Grant Extension</span>
+            <span>Extend Timeline</span>
           </button>
         </div>
       </div>
@@ -695,7 +695,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
@@ -704,6 +704,25 @@ import { FGMU_SERVICES } from '@/constants/services';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
 
 const route = useRoute();
+const router = useRouter();
+
+let handledRouteQueryTicketId = null;
+let isInitialFetch = true;
+
+const clearRouteQueryTicket = () => {
+  if (route.query.ticketId || route.query.highlight || route.query._t) {
+    const nextQuery = { ...route.query };
+    delete nextQuery.ticketId;
+    delete nextQuery.highlight;
+    delete nextQuery._t;
+    router.replace({ query: nextQuery }).catch(() => {});
+  }
+};
+
+const closeDetailsModal = () => {
+  selectedTicketForModal.value = null;
+  clearRouteQueryTicket();
+};
 
 // 3-Stage Tab Lifecycle
 const activeTab = ref('pending'); // 'pending' | 'approved' | 'active'
@@ -814,6 +833,7 @@ const switchTab = (tab) => {
   activeTab.value = tab;
   currentPage.value = 1;
   searchQuery.value = '';
+  clearRouteQueryTicket();
 };
 
 const getInitials = (name) => {
@@ -883,7 +903,10 @@ const fetchAllQueues = async () => {
     }
 
     updateLiveWorkingDurations();
-    checkRouteQueryTicket();
+    if (isInitialFetch) {
+      checkRouteQueryTicket();
+      isInitialFetch = false;
+    }
   } catch (error) {
     console.error('Failed to fetch FGMU queues:', error);
   } finally {
@@ -909,21 +932,39 @@ const updateLiveWorkingDurations = () => {
 
 const checkRouteQueryTicket = () => {
   const targetId = route.query.ticketId || route.query.highlight;
-  if (!targetId) return;
+  if (!targetId || handledRouteQueryTicketId === String(targetId)) return;
   const allTickets = Object.values(queuesData.value).flat();
+  if (allTickets.length === 0) return;
+
   const match = allTickets.find(t => 
     String(t.ticketId).toLowerCase() === String(targetId).toLowerCase() || 
     String(t.id).toLowerCase() === String(targetId).toLowerCase()
   );
   if (match) {
+    handledRouteQueryTicketId = String(targetId);
     selectedTicketForModal.value = match;
+
+    if (queuesData.value.active?.some(t => String(t.id) === String(match.id))) {
+      activeTab.value = 'active';
+    } else if (queuesData.value.approved?.some(t => String(t.id) === String(match.id))) {
+      activeTab.value = 'approved';
+    } else if (queuesData.value.pending?.some(t => String(t.id) === String(match.id))) {
+      activeTab.value = 'pending';
+    }
+
+    clearRouteQueryTicket();
   } else {
+    handledRouteQueryTicketId = String(targetId);
     searchQuery.value = String(targetId);
+    clearRouteQueryTicket();
   }
 };
 
-watch(() => [route.query.ticketId, route.query._t], () => {
-  checkRouteQueryTicket();
+watch(() => [route.query.ticketId, route.query.highlight, route.query._t], ([newTicketId, newHighlight]) => {
+  if (newTicketId || newHighlight) {
+    handledRouteQueryTicketId = null;
+    checkRouteQueryTicket();
+  }
 });
 
 const downloadAttachment = async (att) => {
