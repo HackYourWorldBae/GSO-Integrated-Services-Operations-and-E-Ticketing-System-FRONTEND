@@ -8,7 +8,8 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
 
   const groupedPersonnel = computed(() => {
     return personnel.value.reduce((groups, worker) => {
-      const role = worker.specialty || worker.role;
+      const rawRole = worker.specialty || worker.role || 'General';
+      const role = typeof rawRole === 'string' && rawRole.trim() ? rawRole.trim() : 'General';
       if (!groups[role]) groups[role] = [];
       groups[role].push(worker);
       return groups;
