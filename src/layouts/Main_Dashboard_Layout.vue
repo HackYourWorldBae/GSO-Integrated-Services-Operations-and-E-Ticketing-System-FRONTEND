@@ -74,8 +74,8 @@
 
         <div class="flex items-center gap-4">
           <slot name="header-actions">
-            <!-- Notifications -->
-            <div class="relative" id="layout-notification-menu">
+            <!-- Notifications (hidden for superadmin) -->
+            <div v-if="!isSuperAdmin" class="relative" id="layout-notification-menu">
               <button 
                 @click="toggleNotification" 
                 class="relative p-2.5 rounded-xl bg-slate-50 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-200"
@@ -243,6 +243,11 @@ const isMobileSidebarOpen = ref(false);
 const isDropdownOpen = ref(false);
 const isNotificationOpen = ref(false);
 
+const isSuperAdmin = computed(() => {
+  const r = (authStore.role || userRole.value || '').toLowerCase();
+  return r === 'superadmin';
+});
+
 const userAvatarUrl = computed(() => {
   const user = authStore.user;
   if (!user || !user.avatar_path) return null;
@@ -282,6 +287,7 @@ const notifications = ref([]);
 const unreadNotificationCount = ref(0);
 
 const fetchNotifications = async () => {
+  if (isSuperAdmin.value) return;
   try {
     const response = await api.get('notifications');
     if (response.data?.data) {
@@ -510,11 +516,13 @@ onMounted(() => {
   userName.value = authStore.fullName || 'User';
   userRole.value = authStore.capitalizedRole;
 
-  fetchNotifications();
-  notificationInterval = setInterval(() => {
-    if (document.hidden) return;
+  if (!isSuperAdmin.value) {
     fetchNotifications();
-  }, 20000);
+    notificationInterval = setInterval(() => {
+      if (document.hidden) return;
+      fetchNotifications();
+    }, 20000);
+  }
 
   document.addEventListener('click', handleOutsideClick);
 
