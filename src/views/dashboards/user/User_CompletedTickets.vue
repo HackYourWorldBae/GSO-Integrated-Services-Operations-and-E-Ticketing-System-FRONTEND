@@ -243,148 +243,57 @@
                 </div>
               </div>
 
-              <!-- Dedicated Materials Used & Receipt Section (For FGMU/LEAU or tickets with materials) -->
-              <div v-if="selectedTicket.unit === 'FGMU' || selectedTicket.unit === 'LEAU' || (selectedTicket.materials && selectedTicket.materials.length > 0)" class="col-span-2 mt-2">
-                <div class="flex items-center justify-between mb-2">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                    Receipt of Materials Used
-                  </p>
-                  <button
-                    type="button"
-                    @click="openReceiptModal(selectedTicket)"
-                    class="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    <span>View / Print Receipt Slip</span>
-                  </button>
-                </div>
-
-                <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-                  <div v-if="!selectedTicket.materials || selectedTicket.materials.length === 0" class="p-4 text-center text-xs text-slate-500 italic bg-slate-50">
-                    Labor & maintenance service only (No materials billed).
-                  </div>
-                  <div v-else>
-                    <table class="w-full text-left text-xs border-collapse">
-                      <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                          <th class="py-2.5 px-3">Item Description</th>
-                          <th class="py-2.5 px-3 text-center">Qty</th>
-                          <th class="py-2.5 px-3 text-right">Unit Price</th>
-                          <th class="py-2.5 px-3 text-right">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-slate-100">
-                        <tr v-for="(mat, mIdx) in selectedTicket.materials" :key="mIdx" class="hover:bg-slate-50/50">
-                          <td class="py-2 px-3 font-semibold text-slate-800">{{ mat.material_name || mat.name }}</td>
-                          <td class="py-2 px-3 text-center font-medium text-slate-600">{{ mat.quantity }} {{ mat.unit_measurement || mat.unit || '' }}</td>
-                          <td class="py-2 px-3 text-right font-medium text-slate-600">₱{{ formatPrice(mat.unit_price) }}</td>
-                          <td class="py-2 px-3 text-right font-bold text-slate-900">₱{{ formatPrice(mat.total_price || (mat.quantity * mat.unit_price)) }}</td>
-                        </tr>
-                      </tbody>
-                      <tfoot>
-                        <tr class="bg-emerald-50/70 border-t border-emerald-100 font-bold">
-                          <td colspan="3" class="py-2.5 px-3 text-right text-[10px] uppercase tracking-wider text-emerald-800">Total Material Cost:</td>
-                          <td class="py-2.5 px-3 text-right text-xs font-black text-emerald-800">₱{{ formatPrice(selectedTicket.total_material_cost) }}</td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Dedicated Official FGMU Job Request Form Section -->
-              <div v-if="selectedTicket.unit === 'FGMU' || selectedTicket.unit_code === 'FGMU' || selectedTicket.unit_id === 1" class="col-span-2 mt-2">
-                <div class="flex items-center justify-between mb-2">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Official Job Request Form
-                  </p>
-                  <button
-                    type="button"
-                    @click="openJobRequestForm(selectedTicket)"
-                    class="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    <span>View / Print Job Request Form</span>
-                  </button>
-                </div>
-                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between text-xs">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="font-bold text-slate-800">QM-GSO-FGMU-01 Job Request Form</p>
-                      <p class="text-[10px] text-slate-400">Official document filled with job particulars, personnel, and evaluation</p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    @click="openJobRequestForm(selectedTicket)"
-                    class="text-xs font-bold text-emerald-600 hover:text-emerald-700 underline cursor-pointer"
-                  >
-                    Open Document
-                  </button>
-                </div>
-              </div>
-
-              <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="col-span-2">
-                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments & Official Documents</p>
-                 <div class="flex flex-col gap-2">
-                   <div v-for="att in selectedTicket.attachments" :key="att.id" class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-colors shadow-xs group">
-                     <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" @click.prevent="downloadAttachment(att)">
-                       <div :class="`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                         isDocxFile(att.file_name, att.file_type) ? 'bg-blue-50 text-blue-600 group-hover:bg-blue-100' :
-                         isPdfFile(att.file_name, att.file_type) ? 'bg-rose-50 text-rose-600 group-hover:bg-rose-100' :
-                         'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100'
-                       }`">
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                         </svg>
-                       </div>
-                       <div class="flex flex-col overflow-hidden min-w-0 flex-1">
-                          <span class="text-xs font-bold text-slate-700 truncate group-hover:text-emerald-700 transition-colors">{{ att.file_name || 'Attachment' }}</span>
-                          <span class="text-[10px] font-bold text-slate-400">
-                            {{ att.file_size_bytes ? (att.file_size_bytes / 1024).toFixed(1) + ' KB' : 'File' }}
-                            <span class="mx-1">•</span>
-                            <span :class="isDocxFile(att.file_name, att.file_type) ? 'text-blue-600' : isPdfFile(att.file_name, att.file_type) ? 'text-rose-600' : 'text-slate-500'">
-                              {{ isDocxFile(att.file_name, att.file_type) ? 'DOCX (Auto-download)' : isPdfFile(att.file_name, att.file_type) ? 'PDF Document' : 'Attachment' }}
-                            </span>
+              <!-- Dedicated Submitted Attachments Section (Client's Own Uploaded Files Only) -->
+              <div v-if="userAttachments && userAttachments.length > 0" class="col-span-2 mt-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                  </svg>
+                  Submitted Attachments
+                </p>
+                <div class="flex flex-col gap-2">
+                  <div v-for="att in userAttachments" :key="att.id" class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-colors shadow-xs group">
+                    <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" @click.prevent="downloadAttachment(att)">
+                      <div :class="`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                        isDocxFile(att.file_name, att.file_type) ? 'bg-blue-50 text-blue-600 group-hover:bg-blue-100' :
+                        isPdfFile(att.file_name, att.file_type) ? 'bg-rose-50 text-rose-600 group-hover:bg-rose-100' :
+                        'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100'
+                      }`">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div class="flex flex-col overflow-hidden min-w-0 flex-1">
+                        <span class="text-xs font-bold text-slate-700 truncate group-hover:text-emerald-700 transition-colors">{{ att.file_name || 'Attachment' }}</span>
+                        <span class="text-[10px] font-bold text-slate-400">
+                          {{ att.file_size_bytes ? (att.file_size_bytes / 1024).toFixed(1) + ' KB' : 'File' }}
+                          <span class="mx-1">•</span>
+                          <span :class="isDocxFile(att.file_name, att.file_type) ? 'text-blue-600' : isPdfFile(att.file_name, att.file_type) ? 'text-rose-600' : 'text-slate-500'">
+                            {{ isDocxFile(att.file_name, att.file_type) ? 'DOCX (Auto-download)' : isPdfFile(att.file_name, att.file_type) ? 'PDF Document' : 'Attachment' }}
                           </span>
-                       </div>
-                     </div>
-                     <div class="flex items-center gap-1.5 shrink-0 ml-2">
-                       <button
-                         v-if="isPdfFile(att.file_name, att.file_type)"
-                         type="button"
-                         @click="downloadAttachment(att)"
-                         class="px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer"
-                       >
-                         Preview
-                       </button>
-                       <button
-                         type="button"
-                         @click="downloadAttachmentDirectly(att)"
-                         class="px-2.5 py-1 text-[10px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
-                         title="Download file"
-                       >
-                         Download
-                       </button>
-                     </div>
-                   </div>
-                 </div>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                      <button
+                        v-if="isPdfFile(att.file_name, att.file_type)"
+                        type="button"
+                        @click="downloadAttachment(att)"
+                        class="px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Preview
+                      </button>
+                      <button
+                        type="button"
+                        @click="downloadAttachmentDirectly(att)"
+                        class="px-2.5 py-1 text-[10px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+                        title="Download file"
+                      >
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -407,11 +316,6 @@
         :fileBlob="viewerModal.fileBlob"
       />
 
-      <!-- Material Receipt Modal -->
-      <MaterialReceiptModal
-        v-model:isOpen="showReceiptModal"
-        :ticket="selectedReceiptTicket"
-      />
 
       <!-- Timeline Progress Modal -->
       <div
@@ -527,12 +431,9 @@ import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
-import { generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
 import { parseDateLocal } from '@/utils/workCalendar';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
-import { toast } from 'vue3-toastify';
 
 const formatDate = (dateStr) => {
   if (!dateStr) return 'N/A';
@@ -547,55 +448,12 @@ import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectl
 
 const authStore = useAuthStore();
 
-const showReceiptModal = ref(false);
-const selectedReceiptTicket = ref(null);
-
-const openReceiptModal = (ticket) => {
-  selectedReceiptTicket.value = ticket;
-  showReceiptModal.value = true;
-};
-
-const formatPrice = (val) => {
-  return Number(val || 0).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
-
 const viewerModal = reactive({
   isOpen: false,
   title: '',
   fileName: '',
   fileBlob: null
 });
-
-const openJobRequestForm = async (ticket) => {
-  try {
-    const ticketId = ticket.ticketId || ticket.id;
-    viewerModal.title = `FGMU Job Request Form - #${ticketId}`;
-    viewerModal.fileName = `FGMU Job Request Form - #${ticketId}.pdf`;
-
-    // Check if PDF attachment exists
-    const existingPdfAtt = (ticket.attachments || []).find(a => 
-      a.file_name &&
-      (a.file_name.toLowerCase().includes('job request form') || a.file_name.toLowerCase().includes('fgmu')) &&
-      a.file_name.toLowerCase().endsWith('.pdf')
-    );
-
-    if (existingPdfAtt) {
-      const response = await api.get(`attachments/${existingPdfAtt.id}`, { responseType: 'blob' });
-      viewerModal.fileBlob = new Blob([response.data], { type: 'application/pdf' });
-    } else {
-      const blob = await generateFgmuJobRequestFormBlob(ticket, ticket.feedback);
-      viewerModal.fileBlob = blob;
-    }
-
-    viewerModal.isOpen = true;
-  } catch (err) {
-    console.error('Failed to open FGMU Job Request Form:', err);
-    toast.error('Failed to load Job Request Form document preview.');
-  }
-};
 
 const downloadAttachment = async (att) => {
   await handleAttachmentClick(att, (blob, att) => {
@@ -694,6 +552,14 @@ const filteredTickets = computed(() => {
 
 const showDetailsModal = ref(false);
 const selectedTicket = ref(null);
+
+const userAttachments = computed(() => {
+  if (!selectedTicket.value?.attachments) return [];
+  return selectedTicket.value.attachments.filter(att => {
+    const name = (att.file_name || '').toLowerCase();
+    return !name.includes('job request form') && !name.includes('receipt slip');
+  });
+});
 
 const viewDetails = (ticket) => {
   selectedTicket.value = ticket;
