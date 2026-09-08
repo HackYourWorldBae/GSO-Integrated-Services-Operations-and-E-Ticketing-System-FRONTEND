@@ -165,9 +165,40 @@
               </div>
               <div v-if="selectedTicket.workingDays">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Duration</p>
-                <p class="text-base font-semibold text-emerald-800">{{ selectedTicket.workingDays }} Working Day(s)</p>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <p class="text-base font-semibold text-emerald-800">{{ selectedTicket.workingDays }} Working Day(s)</p>
+                  <span v-if="selectedTicket.extension_days > 0" class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-100 text-amber-800 border border-amber-200">
+                    +{{ selectedTicket.extension_days }}d Ext
+                  </span>
+                </div>
+              </div>
+              <div v-if="selectedTicket.effective_target_date || selectedTicket.target_completion_date">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Completion Date</p>
+                <p class="text-base font-semibold text-slate-800">{{ formatDate(selectedTicket.effective_target_date || selectedTicket.target_completion_date) }}</p>
               </div>
 
+              <!-- Dedicated Extension Notice Section (If Applicable) -->
+              <div v-if="selectedTicket.is_extended && selectedTicket.extension_days > 0" class="col-span-2">
+                <p class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Timeline Extension Notice
+                </p>
+                <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl shadow-xs">
+                  <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                    <span class="text-xs font-bold text-amber-900">
+                      Approved Extension: +{{ selectedTicket.extension_days }} Working Day{{ selectedTicket.extension_days > 1 ? 's' : '' }}
+                    </span>
+                    <span class="text-xs font-semibold text-amber-800">
+                      Adjusted Target: {{ formatDate(selectedTicket.effective_target_date || selectedTicket.target_completion_date) }}
+                    </span>
+                  </div>
+                  <p v-if="selectedTicket.extension_reason" class="text-xs text-amber-800 font-medium italic mt-1">
+                    <span class="font-bold not-italic text-[10px] uppercase tracking-wider text-amber-900">Reason:</span> "{{ selectedTicket.extension_reason }}"
+                  </p>
+                </div>
+              </div>
 
               <!-- Dedicated Decline Reason Section (If Applicable) -->
               <div v-if="selectedTicket.declineReason" class="col-span-2">
@@ -420,6 +451,29 @@
           <!-- Modal Body -->
           <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
             <div>
+              <!-- Official Timeline Extension Notice Banner in Modal -->
+              <div v-if="selectedTimelineTicket.is_extended && selectedTimelineTicket.extension_days > 0" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in">
+                <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <span class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Timeline Extension Notice</span>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-200 text-amber-800 border border-amber-300 uppercase tracking-wider">
+                      +{{ selectedTimelineTicket.extension_days }} Working Day(s)
+                    </span>
+                  </div>
+                  <p class="text-xs text-amber-900 font-semibold leading-relaxed">
+                    Target completion adjusted to <strong>{{ formatDate(selectedTimelineTicket.effective_target_date || selectedTimelineTicket.target_completion_date) }}</strong> (total duration: {{ selectedTimelineTicket.workingDays }} working days).
+                  </p>
+                  <p v-if="selectedTimelineTicket.extension_reason" class="text-xs text-amber-800 font-medium mt-1 italic">
+                    <span class="font-bold not-italic text-[10px] uppercase tracking-wider text-amber-900">Reason:</span> "{{ selectedTimelineTicket.extension_reason }}"
+                  </p>
+                </div>
+              </div>
+
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Request Progress</p>
               <div class="relative pl-8 space-y-6 before:absolute before:inset-y-2 before:left-[15px] before:w-0.5 before:bg-slate-200">
                 <div v-for="(step, index) in getSteps(selectedTimelineTicket)" :key="index" class="relative">
@@ -475,9 +529,17 @@ import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import { generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
+import { parseDateLocal } from '@/utils/workCalendar';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return 'N/A';
+  const parsed = parseDateLocal(dateStr);
+  if (!parsed || isNaN(parsed.getTime())) return dateStr;
+  return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
 
 const route = useRoute();
 
@@ -580,8 +642,18 @@ onMounted(async () => {
         details: t.details || null,
         materials: t.materials || [],
         total_material_cost: t.total_material_cost || 0,
-        implementationDate: t.scheduled_date,
-        workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
+        implementationDate: t.assignment?.implementation_date
+          ? formatDate(t.assignment.implementation_date)
+          : (t.scheduled_date ? formatDate(t.scheduled_date) : null),
+        extension_days: Number(t.extension_days) || 0,
+        extension_reason: t.extension_reason || '',
+        extended_completion_date: t.extended_completion_date || null,
+        is_extended: !!t.is_extended || (Number(t.extension_days) > 0) || !!t.extended_completion_date,
+        target_completion_date: t.target_completion_date || t.extended_completion_date || null,
+        effective_target_date: t.effective_target_date || t.target_completion_date || t.extended_completion_date || null,
+        base_working_days: Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null,
+        total_working_days: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0),
+        workingDays: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0) || (t.working_days || t.project_working_days || t.assignment?.working_days || null),
         working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
         isClosed: t.status === 'completed' || t.status === 'closed',
         feedback: t.feedback || null
@@ -672,7 +744,8 @@ const getSteps = (ticket) => {
 
   if (ticket.implementationDate && (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') && steps.length > 3) {
     const durationText = ticket.workingDays ? ` (${ticket.workingDays} working days expected)` : '';
-    steps[3].description = `Dispatcher assigned workers and scheduled implementation for ${ticket.implementationDate}${durationText}.`;
+    const extText = ticket.extension_days > 0 ? ` [Extended by +${ticket.extension_days} working day(s) to ${formatDate(ticket.effective_target_date || ticket.target_completion_date)}]` : '';
+    steps[3].description = `Dispatcher assigned workers and scheduled implementation for ${ticket.implementationDate}${durationText}.${extText}`;
   }
 
   if (ticket.status === 'declined' || ticket.status === 'rejected') {

@@ -172,11 +172,43 @@
                       </svg>
                       Scheduled: {{ ticket.implementationDate }}
                     </div>
-                    <div v-if="ticket.workingDays" class="flex items-center gap-1.5 text-xs text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
+                    <div v-if="ticket.workingDays" class="flex items-center gap-1.5 text-xs text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/80">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Target: {{ ticket.workingDays }} Working Day(s)
+                      <span>Target: {{ ticket.workingDays }} Working Day(s)</span>
+                      <span v-if="ticket.extension_days > 0" class="text-[9px] font-black text-amber-700 bg-amber-100 px-1 py-0.2 rounded border border-amber-200">
+                        +{{ ticket.extension_days }}d Ext
+                      </span>
+                    </div>
+                    <div v-if="ticket.effective_target_date || ticket.target_completion_date" class="flex items-center gap-1.5 text-xs text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
+                      </svg>
+                      Target Completion: {{ formatDate(ticket.effective_target_date || ticket.target_completion_date) }}
+                    </div>
+                  </div>
+
+                  <!-- Official Timeline Extension Notice Card -->
+                  <div v-if="ticket.is_extended && ticket.extension_days > 0" class="mt-3 flex items-start gap-3 p-3.5 bg-amber-50/90 border border-amber-200/90 rounded-2xl animate-fade-in shadow-xs">
+                    <div class="p-2 bg-amber-100 rounded-xl shrink-0 mt-0.5 text-amber-700">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1 flex-wrap">
+                        <span class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Official Timeline Extension Notice</span>
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-200 text-amber-800 border border-amber-300 uppercase tracking-wider">
+                          +{{ ticket.extension_days }} Working Day{{ ticket.extension_days > 1 ? 's' : '' }} Extension
+                        </span>
+                      </div>
+                      <p class="text-xs text-amber-900 font-semibold leading-relaxed">
+                        Target completion date has been adjusted to <strong>{{ formatDate(ticket.effective_target_date || ticket.target_completion_date) }}</strong> (total expected duration: {{ ticket.workingDays }} working days).
+                      </p>
+                      <p v-if="ticket.extension_reason" class="text-xs text-amber-800 font-medium mt-1 italic">
+                        <span class="font-bold not-italic text-[10px] uppercase tracking-wider text-amber-900">Reason:</span> "{{ ticket.extension_reason }}"
+                      </p>
                     </div>
                   </div>
 
@@ -439,6 +471,29 @@
 
                   <!-- ========== TIMELINE STEPS ========== -->
                   <div>
+                    <!-- Official Timeline Extension Notice Banner in Modal -->
+                    <div v-if="selectedTicket.is_extended && selectedTicket.extension_days > 0" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in">
+                      <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                          <span class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Timeline Extension Notice</span>
+                          <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-200 text-amber-800 border border-amber-300 uppercase tracking-wider">
+                            +{{ selectedTicket.extension_days }} Working Day(s)
+                          </span>
+                        </div>
+                        <p class="text-xs text-amber-900 font-semibold leading-relaxed">
+                          Target completion adjusted to <strong>{{ formatDate(selectedTicket.effective_target_date || selectedTicket.target_completion_date) }}</strong> (total duration: {{ selectedTicket.workingDays }} working days).
+                        </p>
+                        <p v-if="selectedTicket.extension_reason" class="text-xs text-amber-800 font-medium mt-1 italic">
+                          <span class="font-bold not-italic text-[10px] uppercase tracking-wider text-amber-900">Reason:</span> "{{ selectedTicket.extension_reason }}"
+                        </p>
+                      </div>
+                    </div>
+
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Request Progress</p>
                     <div class="relative pl-8 space-y-6 before:absolute before:inset-y-2 before:left-[15px] before:w-0.5 before:bg-slate-200">
                       <div v-for="(step, index) in getSteps(selectedTicket)" :key="index" class="relative">
@@ -699,9 +754,17 @@ import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import { attachFgmuJobRequestForm, generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
+import { parseDateLocal } from '@/utils/workCalendar';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return 'N/A';
+  const parsed = parseDateLocal(dateStr);
+  if (!parsed || isNaN(parsed.getTime())) return dateStr;
+  return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
 
 const authStore = useAuthStore();
 
@@ -818,7 +881,8 @@ const DigitalFormCard = defineComponent({
         h(FormRow, { label: 'Location', value: props.ticket.location || 'Main Campus' }),
         h(FormRow, { label: 'Office / Room', value: props.ticket.office_room || 'N/A' }),
         ...(props.ticket.implementationDate ? [h(FormRow, { label: 'Implementation Date', value: props.ticket.implementationDate })] : []),
-        ...(props.ticket.workingDays ? [h(FormRow, { label: 'Target Working Days', value: `${props.ticket.workingDays} Day(s)` })] : []),
+        ...(props.ticket.workingDays ? [h(FormRow, { label: 'Target Working Days', value: `${props.ticket.workingDays} Day(s)` + (props.ticket.extension_days > 0 ? ` (+${props.ticket.extension_days}d ext)` : '') })] : []),
+        ...((props.ticket.effective_target_date || props.ticket.target_completion_date) ? [h(FormRow, { label: 'Target Completion Date', value: formatDate(props.ticket.effective_target_date || props.ticket.target_completion_date) })] : []),
       ]),
 
       ...(props.ticket.attachments?.length ? [h(AttachmentList, { attachments: props.ticket.attachments, onDownload: (att) => emit('download', att) })] : []),
@@ -948,9 +1012,17 @@ const fetchTickets = async () => {
       submitted_at: t.submitted_at,
       completed_at: t.completed_at || t.updated_at,
       implementationDate: t.assignment?.implementation_date
-        ? new Date(t.assignment.implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        ? formatDate(t.assignment.implementation_date)
         : null,
-      workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
+      extension_days: Number(t.extension_days) || 0,
+      extension_reason: t.extension_reason || '',
+      extended_completion_date: t.extended_completion_date || null,
+      is_extended: !!t.is_extended || (Number(t.extension_days) > 0) || !!t.extended_completion_date,
+      target_completion_date: t.target_completion_date || t.extended_completion_date || null,
+      effective_target_date: t.effective_target_date || t.target_completion_date || t.extended_completion_date || null,
+      base_working_days: Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null,
+      total_working_days: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0),
+      workingDays: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0) || (t.working_days || t.project_working_days || t.assignment?.working_days || null),
       working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
       isClosed: t.status === 'completed' || t.status === 'closed',
       accomplishment_report_path: t.accomplishment_report_path || null,
@@ -1163,7 +1235,8 @@ const getSteps = (ticket) => {
 
   if (ticket.implementationDate && (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') && steps.length > 3) {
     const durationText = ticket.workingDays ? ` (${ticket.workingDays} working days expected)` : '';
-    steps[3].description = `Dispatcher assigned workers and scheduled implementation for ${ticket.implementationDate}${durationText}.`;
+    const extText = ticket.extension_days > 0 ? ` [Extended by +${ticket.extension_days} working day(s) to ${formatDate(ticket.effective_target_date || ticket.target_completion_date)}]` : '';
+    steps[3].description = `Dispatcher assigned workers and scheduled implementation for ${ticket.implementationDate}${durationText}.${extText}`;
   }
 
   if (ticket.status === 'declined' || ticket.status === 'rejected') {
