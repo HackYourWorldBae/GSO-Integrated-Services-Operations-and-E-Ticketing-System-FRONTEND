@@ -42,3 +42,10 @@ export const updateProfile = (data) =>
  */
 export const changePassword = (data) =>
   apiClient.post('/auth/change-password', data);
+
+/**
+ * Check whether the active session is still valid (1 session per user enforcement).
+ */
+export const checkSessionApi = () =>
+  apiClient.get('/auth/check-session');
+

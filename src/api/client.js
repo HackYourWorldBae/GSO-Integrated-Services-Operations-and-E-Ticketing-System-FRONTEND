@@ -80,11 +80,14 @@ apiClient.interceptors.response.use(
     if (typeof window !== 'undefined') {
       if (status === 401) {
         if (errorCode === 'SESSION_SUPERSEDED') {
+          window.__gso_session_superseded = true;
           // Dispatch dedicated event when session was invalidated by another device login
           window.dispatchEvent(new CustomEvent('auth:session-superseded', { detail: error }));
         } else {
-          // Dispatch generic unauthorized event (session expired or unauthenticated)
-          window.dispatchEvent(new CustomEvent('auth:unauthorized', { detail: error }));
+          // Dispatch generic unauthorized event only if a superseded session modal is not already active
+          if (!window.__gso_session_superseded) {
+            window.dispatchEvent(new CustomEvent('auth:unauthorized', { detail: error }));
+          }
         }
       } else if (status === 403) {
         // Dispatch global event for permission / role violations

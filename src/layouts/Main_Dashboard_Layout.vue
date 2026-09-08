@@ -512,7 +512,8 @@ onMounted(() => {
   }
 
   if (!authStore.user && currentUser) {
-    authStore._setAuth(currentUser, currentUser.role);
+    const currentToken = sessionStorage.getItem('token');
+    authStore._setAuth(currentUser, currentUser.role, currentToken);
   }
 
   userName.value = authStore.fullName || 'User';

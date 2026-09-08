@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Swal from 'sweetalert2';
+import { useAuthStore } from '@/stores/auth';
 const LandingView = () => import('../views/LandingView.vue');
 const LoginView = () => import('../views/auth/LoginView.vue');
 
@@ -374,6 +375,10 @@ router.beforeEach((to, from, next) => {
 
   // 2. Protect routes requiring authentication
   if (to.meta && to.meta.requiresAuth) {
+    if (typeof window !== 'undefined' && window.__gso_session_superseded) {
+      return next({ name: 'login' });
+    }
+
     if (!user) {
       return next({ name: 'login', query: { redirect: to.fullPath } });
     }
@@ -409,21 +414,52 @@ if (typeof window !== 'undefined') {
   let isNotifyingSuperseded = false;
 
   window.addEventListener('auth:session-superseded', () => {
+    window.__gso_session_superseded = true;
+
     // Clear client-side session cache immediately
     sessionStorage.removeItem('auth');
     sessionStorage.removeItem('token');
+
+    // Cleanly reset Pinia auth store state and stop heartbeat
+    try {
+      const authStore = useAuthStore();
+      authStore.user  = null;
+      authStore.role  = null;
+      authStore.token = null;
+      if (typeof authStore.stopSessionHeartbeat === 'function') {
+        authStore.stopSessionHeartbeat();
+      }
+    } catch {
+      // Pinia might not be ready in edge cases
+    }
 
     if (!isNotifyingSuperseded) {
       isNotifyingSuperseded = true;
       Swal.fire({
         icon: 'warning',
         title: 'Session Ended',
-        text: 'Your account was logged in from another device or browser. You have been logged out to protect your account.',
+        html: `
+          <div style="text-align: center; color: #475569; font-size: 14px; line-height: 1.6; padding-top: 4px;">
+            <p style="margin-bottom: 8px; font-weight: 600; color: #1e293b;">
+              Your account was logged in from another device or browser.
+            </p>
+            <p style="margin: 0; color: #64748b; font-size: 13px;">
+              Only one active session is allowed per user account. You have been signed out from this session to keep your account secure.
+            </p>
+          </div>
+        `,
         confirmButtonColor: '#059669',
         confirmButtonText: 'Log In Again',
         allowOutsideClick: false,
+        allowEscapeKey: false,
+        backdrop: 'rgba(15, 23, 42, 0.75)',
+        customClass: {
+          popup: 'rounded-3xl shadow-2xl p-6 border border-slate-100',
+          confirmButton: 'px-6 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-emerald-600/20 transition-all hover:brightness-105',
+        }
       }).then(() => {
         isNotifyingSuperseded = false;
+        window.__gso_session_superseded = false;
         if (router.currentRoute.value && router.currentRoute.value.name !== 'login') {
           router.push({ name: 'login' });
         }
@@ -433,6 +469,9 @@ if (typeof window !== 'undefined') {
 
   // Listen for generic 401 Unauthorized API interceptor events
   window.addEventListener('auth:unauthorized', (event) => {
+    // If a session-superseded notice is already active, suppress generic unauthorized redirects
+    if (window.__gso_session_superseded || isNotifyingSuperseded) return;
+
     // Ignore 401s that originate from the login endpoint itself
     const requestUrl = event.detail?.config?.url || '';
     if (requestUrl.includes('auth/login')) return;
@@ -441,7 +480,7 @@ if (typeof window !== 'undefined') {
     const hadUser = (() => {
       try {
         const raw = JSON.parse(sessionStorage.getItem('auth') || '{}');
-        return !!(raw?.user || raw?.state?.user);
+        return !!(raw?.user || raw?.state?.user || sessionStorage.getItem('token'));
       } catch { return false; }
     })();
 
@@ -450,6 +489,16 @@ if (typeof window !== 'undefined') {
     // Clear session and redirect to login
     sessionStorage.removeItem('auth');
     sessionStorage.removeItem('token');
+
+    try {
+      const authStore = useAuthStore();
+      authStore.user  = null;
+      authStore.role  = null;
+      authStore.token = null;
+      if (typeof authStore.stopSessionHeartbeat === 'function') {
+        authStore.stopSessionHeartbeat();
+      }
+    } catch {}
 
     if (router.currentRoute.value && router.currentRoute.value.name !== 'login') {
       router.push({ name: 'login' });

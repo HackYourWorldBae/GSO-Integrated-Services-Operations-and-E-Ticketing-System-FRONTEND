@@ -1,23 +1,30 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { login as apiLogin, logout as apiLogout, getMe, updateProfile as apiUpdateProfile } from '@/api/auth';
+import {
+  login as apiLogin,
+  logout as apiLogout,
+  getMe,
+  updateProfile as apiUpdateProfile,
+  checkSessionApi,
+} from '@/api/auth';
 
 /**
  * Auth Store — Pinia
  *
- * Manages authentication state: authenticated user profile and role.
- * Tokens are securely stored and managed via HttpOnly cookies (inaccessible to JS).
- * Safe user metadata is persisted to sessionStorage for fast UI rendering across same-tab navigations.
+ * Manages authentication state: authenticated user profile, role, and JWT token.
+ * Persisted to sessionStorage so each browser tab/window maintains its own session credentials.
+ * Includes proactive session heartbeat monitoring for strictly enforcing 1 session per user.
  */
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null);
-  const role = ref(null);
+  const user  = ref(null);
+  const role  = ref(null);
+  const token = ref(typeof window !== 'undefined' ? sessionStorage.getItem('token') || null : null);
 
   // ---------------------------------------------------------------------------
   // Computed
   // ---------------------------------------------------------------------------
 
-  const isAuthenticated = computed(() => !!user.value);
+  const isAuthenticated = computed(() => !!user.value && !!token.value);
 
   const fullName = computed(() => {
     if (!user.value) return 'Not Provided';
@@ -34,13 +41,95 @@ export const useAuthStore = defineStore('auth', () => {
   const unitId = computed(() => user.value?.unit_id ?? null);
 
   // ---------------------------------------------------------------------------
+  // Proactive Session Heartbeat & Verification
+  // ---------------------------------------------------------------------------
+
+  let heartbeatIntervalId = null;
+  let isCheckingSession   = false;
+
+  /**
+   * Verify session status with the backend.
+   * If the account was logged in elsewhere, backend JwtAuthFilter returns 401 SESSION_SUPERSEDED,
+   * which triggers the signed-out modal via the apiClient response interceptor.
+   */
+  const verifySession = async () => {
+    if (typeof window === 'undefined') return;
+    if (window.__gso_session_superseded) return;
+
+    const currentToken = token.value || sessionStorage.getItem('token');
+    if (!currentToken || !user.value) {
+      stopSessionHeartbeat();
+      return;
+    }
+
+    if (isCheckingSession) return;
+    isCheckingSession = true;
+
+    try {
+      await checkSessionApi();
+    } catch (error) {
+      const status = error.response?.status;
+      const code   = error.response?.data?.code;
+
+      if (status === 401 && code === 'SESSION_SUPERSEDED') {
+        stopSessionHeartbeat();
+      }
+    } finally {
+      isCheckingSession = false;
+    }
+  };
+
+  const handleWindowFocusOrVisible = () => {
+    if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+      if (!window.__gso_session_superseded && isAuthenticated.value) {
+        verifySession();
+      }
+    }
+  };
+
+  /**
+   * Start polling session validity to proactively detect logouts on other devices.
+   */
+  const startSessionHeartbeat = () => {
+    stopSessionHeartbeat();
+    if (typeof window === 'undefined') return;
+
+    // Check after a brief delay once UI is settled
+    setTimeout(() => {
+      verifySession();
+    }, 1500);
+
+    // Poll every 6 seconds while session is active
+    heartbeatIntervalId = setInterval(() => {
+      verifySession();
+    }, 6000);
+
+    window.addEventListener('focus', handleWindowFocusOrVisible);
+    document.addEventListener('visibilitychange', handleWindowFocusOrVisible);
+  };
+
+  /**
+   * Stop session polling when logged out or invalidated.
+   */
+  const stopSessionHeartbeat = () => {
+    if (heartbeatIntervalId) {
+      clearInterval(heartbeatIntervalId);
+      heartbeatIntervalId = null;
+    }
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('focus', handleWindowFocusOrVisible);
+      document.removeEventListener('visibilitychange', handleWindowFocusOrVisible);
+    }
+  };
+
+  // ---------------------------------------------------------------------------
   // Actions
   // ---------------------------------------------------------------------------
 
   /**
    * Login via API — validates credentials.
-   * HttpOnly cookie is set automatically by the backend.
-   * Stores user profile and role in state.
+   * Stores user profile, role, and Bearer token.
+   * Starts active session heartbeat monitoring.
    *
    * @param {string} identifier  - Student ID or email
    * @param {string} password
@@ -49,13 +138,22 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (identifier, password) => {
     try {
       const response = await apiLogin(identifier, password);
-      const { user: userData } = response.data.data;
+      const data     = response.data?.data || {};
+      const userData = data.user;
+      const jwtToken = data.access_token;
 
-      user.value = userData;
-      role.value = userData.role;
+      user.value  = userData;
+      role.value  = userData.role;
+      token.value = jwtToken;
 
-      // Clean up any legacy tokens from sessionStorage
-      sessionStorage.removeItem('token');
+      if (jwtToken) {
+        sessionStorage.setItem('token', jwtToken);
+      }
+
+      window.__gso_session_superseded = false;
+
+      // Start proactive session heartbeat
+      startSessionHeartbeat();
 
       return { success: true, role: userData.role };
     } catch (err) {
@@ -65,35 +163,38 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   /**
-   * Logout — clears local user state, notifies the backend to invalidate
-   * the active session, and deletes the HttpOnly cookie.
+   * Logout — clears local user state, notifies backend, stops heartbeat.
    */
   const logout = async () => {
+    stopSessionHeartbeat();
     try {
       await apiLogout();
     } catch {
-      // Ignore errors on logout — clear client state regardless
+      // Clean up client state regardless of network failure
     } finally {
-      user.value = null;
-      role.value = null;
+      user.value  = null;
+      role.value  = null;
+      token.value = null;
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('auth');
     }
   };
 
   /**
-   * Verify session status against the backend using the HttpOnly cookie.
-   * Useful during app initialization and route validation.
+   * Verify session status against the backend using stored credentials.
    */
   const checkAuth = async () => {
     try {
       const response = await getMe();
       user.value = response.data.data.user;
       role.value = response.data.data.user.role;
+      startSessionHeartbeat();
       return true;
     } catch {
-      user.value = null;
-      role.value = null;
+      stopSessionHeartbeat();
+      user.value  = null;
+      role.value  = null;
+      token.value = null;
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('auth');
       return false;
@@ -101,7 +202,7 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   /**
-   * Refresh the user's profile from the backend (e.g. after profile edits).
+   * Refresh current user's profile from the backend.
    */
   const refreshProfile = async () => {
     try {
@@ -109,12 +210,12 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.data.data.user;
       role.value = response.data.data.user.role;
     } catch {
-      // Silently fail — stale data is acceptable here
+      // Silently fail — non-critical profile sync
     }
   };
 
   /**
-   * Update the current user's name or contact number.
+   * Update the current user's profile fields.
    * @param {{ first_name?, last_name?, contact_number? }} data
    */
   const updateProfile = async (data) => {
@@ -129,14 +230,20 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   // Internal setter used during re-hydration
-  const _setAuth = (userData, userRole) => {
+  const _setAuth = (userData, userRole, authToken = null) => {
     user.value = userData;
     role.value = userRole;
+    if (authToken) {
+      token.value = authToken;
+      sessionStorage.setItem('token', authToken);
+    }
+    startSessionHeartbeat();
   };
 
   return {
     user,
     role,
+    token,
     isAuthenticated,
     fullName,
     contactNumber,
@@ -147,11 +254,14 @@ export const useAuthStore = defineStore('auth', () => {
     checkAuth,
     refreshProfile,
     updateProfile,
+    verifySession,
+    startSessionHeartbeat,
+    stopSessionHeartbeat,
     _setAuth,
   };
 }, {
   persist: {
     storage: sessionStorage,
-    pick: ['user', 'role'],
+    pick: ['user', 'role', 'token'],
   },
 });
