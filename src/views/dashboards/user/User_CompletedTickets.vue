@@ -82,13 +82,21 @@
                     <span class="text-xs font-bold text-slate-500">{{ ticket.date }}</span>
                   </td>
                   <td class="py-5 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all text-right">
-                    <button @click="viewDetails(ticket)" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-sm active:scale-95 inline-flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      View Details
-                    </button>
+                    <div class="inline-flex items-center justify-end gap-2">
+                      <button @click="openTimeline(ticket)" class="px-3.5 py-2 bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all text-[11px] active:scale-95 inline-flex items-center gap-1.5 cursor-pointer shadow-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        Track Progress
+                      </button>
+                      <button @click="viewDetails(ticket)" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-[11px] font-bold rounded-xl transition-all shadow-xs active:scale-95 inline-flex items-center gap-1.5 cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        View Details
+                      </button>
+                    </div>
                   </td>
                 </tr>
                 <tr v-if="filteredTickets.length === 0">
@@ -115,11 +123,19 @@
         <div class="bg-white rounded-[2rem] p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-2xl font-black text-slate-900">Completed Ticket Details</h3>
-            <button @click="closeDetailsModal" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full transition-colors active:scale-95">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div class="flex items-center gap-2">
+              <button @click="openTimeline(selectedTicket)" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                Track Progress
+              </button>
+              <button @click="closeDetailsModal" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full transition-colors active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
           
           <div class="space-y-6">
@@ -365,6 +381,90 @@
         v-model:isOpen="showReceiptModal"
         :ticket="selectedReceiptTicket"
       />
+
+      <!-- Timeline Progress Modal -->
+      <div
+        v-if="selectedTimelineTicket"
+        class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+        @click.self="closeTimeline"
+      >
+        <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden" @click.stop>
+          <!-- Modal Header -->
+          <div class="flex items-start justify-between px-6 pt-6 pb-5 border-b border-slate-100 shrink-0">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 bg-emerald-50 text-emerald-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-black text-slate-900 leading-tight">{{ selectedTimelineTicket.title || selectedTimelineTicket.service }}</h3>
+                <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                  <span class="text-xs font-mono font-bold text-slate-400">#{{ selectedTimelineTicket.ticketId }}</span>
+                  <span class="text-slate-300">·</span>
+                  <span class="text-xs font-bold text-slate-500">{{ selectedTimelineTicket.unit }}</span>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border bg-emerald-50 text-emerald-700 border-emerald-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    {{ selectedTimelineTicket.statusLabel }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <button @click="closeTimeline" class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all active:scale-95 flex-shrink-0 cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+            <div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Request Progress</p>
+              <div class="relative pl-8 space-y-6 before:absolute before:inset-y-2 before:left-[15px] before:w-0.5 before:bg-slate-200">
+                <div v-for="(step, index) in getSteps(selectedTimelineTicket)" :key="index" class="relative">
+                  <!-- Step dot -->
+                  <div :class="[
+                    'absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white text-xs font-black transition-all duration-500',
+                    selectedTimelineTicket.currentStep >= (index + 1)
+                      ? 'bg-emerald-500 text-white shadow-emerald-500/30 shadow-md'
+                      : 'bg-slate-200 text-slate-400'
+                  ]">
+                    <svg v-if="selectedTimelineTicket.currentStep >= (index + 1)" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span v-else>{{ index + 1 }}</span>
+                  </div>
+
+                  <!-- Step Content -->
+                  <div class="pt-0.5">
+                    <div class="flex items-center gap-2 mb-0.5">
+                      <h4 :class="['font-bold text-sm leading-tight', selectedTimelineTicket.currentStep >= (index + 1) ? 'text-slate-900' : 'text-slate-400']">
+                        {{ step.label }}
+                      </h4>
+                      <span v-if="index === getSteps(selectedTimelineTicket).length - 1" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700">
+                        Completed
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-500 leading-relaxed">{{ step.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Finalized Card -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center">
+              <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-3 text-emerald-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h4 class="font-black text-slate-900 text-sm mb-1">Ticket Finalized & Archived</h4>
+              <p class="text-xs text-slate-500 leading-relaxed">Thank you for using GSO E-Ticketing. This service request has been completed and archived.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </template>
   </MainLayout>
 </template>
@@ -473,7 +573,7 @@ onMounted(async () => {
         attachments: t.attachments || [],
         isDeclining: false,
         declineReason: t.decline_reason || '',
-        currentStep: parseInt(t.current_step) || 1,
+        currentStep: parseInt(t.current_step) || (['closed', 'completed'].includes(t.status) ? 6 : 1),
         assignedWorker: t.assignment?.personnel_name || t.assigned_worker || 'Unassigned',
         assignment: t.assignment || null,
         assignments: t.assignments || [],
@@ -531,6 +631,69 @@ const viewDetails = (ticket) => {
 const closeDetailsModal = () => {
   showDetailsModal.value = false;
   selectedTicket.value = null;
+};
+
+// ---- Step definitions for completed ticket tracking ----
+const unitSteps = {
+  FGMU: [
+    { label: 'Digital Submission',  description: 'The client completes the required fields in the digital form.' },
+    { label: 'Ticket Creation',     description: 'System generated a Digital Ticket.' },
+    { label: 'Admin Approval',      description: 'Approved by the administration unit.' },
+    { label: 'Dispatch & Schedule', description: 'Dispatcher assigned workers and scheduled implementation.' },
+    { label: 'Job Started',         description: 'Workers have started the job.' },
+    { label: 'Job Finished',        description: 'Workers marked the job as complete.' },
+  ],
+  LEAU: [
+    { label: 'Digital Submission',  description: 'The client completes the required fields in the digital form.' },
+    { label: 'Ticket Creation',     description: 'System generated a Digital Ticket and assigned "Pending Approval" status.' },
+    { label: 'Admin Approval',      description: 'Approved by the administration unit.' },
+    { label: 'Dispatch & Schedule', description: 'Dispatcher assigned workers and scheduled implementation.' },
+    { label: 'Job Started',         description: 'Workers have started the job.' },
+    { label: 'Job Finished',        description: 'Workers marked the job as complete.' },
+  ],
+  SSU: {
+    'Incident Report': [
+      { label: 'Report Submission',        description: 'The client fills out a digital Incident Report and submits it to SSU.' },
+      { label: 'Staff Review',             description: 'SSU staff reviews the incident details.' },
+      { label: 'Action / Investigation',   description: 'SSU staff takes action: logs a recommendation and/or opens an investigation.' },
+      { label: 'Resolution',              description: 'SSU staff marks the incident as resolved.' },
+      { label: 'Archiving',               description: 'Ticket moved to digital archives for record-keeping.' },
+    ],
+  },
+};
+
+const getSteps = (ticket) => {
+  if (!ticket) return [];
+  let steps = ticket.unit === 'SSU'
+    ? [...(unitSteps.SSU[ticket.service] || [])]
+    : [...(unitSteps[ticket.unit] || [])];
+
+  steps = steps.map(s => ({ ...s }));
+
+  if (ticket.implementationDate && (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') && steps.length > 3) {
+    const durationText = ticket.workingDays ? ` (${ticket.workingDays} working days expected)` : '';
+    steps[3].description = `Dispatcher assigned workers and scheduled implementation for ${ticket.implementationDate}${durationText}.`;
+  }
+
+  if (ticket.status === 'declined' || ticket.status === 'rejected') {
+    const reason = ticket.declineReason || 'Request declined by Admin.';
+    if (steps.length > 1) {
+      steps[1] = { label: 'Ticket Declined', description: `Reason: ${reason}` };
+      steps = steps.slice(0, 2);
+    }
+  }
+
+  return steps;
+};
+
+const selectedTimelineTicket = ref(null);
+
+const openTimeline = (ticket) => {
+  selectedTimelineTicket.value = ticket;
+};
+
+const closeTimeline = () => {
+  selectedTimelineTicket.value = null;
 };
 </script>
 

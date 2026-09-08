@@ -193,55 +193,7 @@
 
 
 
-                  <!-- Accomplishment Report & Verification Status -->
-                  <div v-if="ticket.accomplishment_report_path" class="mt-3 flex items-start gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl animate-fade-in">
-                    <div class="p-1.5 bg-emerald-100 rounded-lg shrink-0 mt-0.5 text-emerald-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center justify-between gap-2 flex-wrap mb-0.5">
-                        <p class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Service Accomplishment Report Submitted</p>
-                        <span v-if="ticket.verification_status === 'verified_closed'" class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-700 border border-emerald-300 uppercase tracking-wider">Verified & Closed</span>
-                        <span v-else class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-100 text-amber-700 border border-amber-300 uppercase tracking-wider">Pending Verification</span>
-                      </div>
-                      <p v-if="ticket.accomplishment_notes" class="text-xs text-emerald-900 font-medium italic mb-2">"{{ ticket.accomplishment_notes }}"</p>
-                      <div class="flex items-center gap-2 mt-1 flex-wrap">
-                        <button
-                          type="button"
-                          @click="openAccomplishmentReport(ticket)"
-                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                          View Accomplishment Report
-                        </button>
-                        <button
-                          v-if="ticket.verification_status !== 'verified_closed' && !ticket.isClosed"
-                          type="button"
-                          @click="verifyAndCloseTicket(ticket)"
-                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50 rounded-lg text-xs font-bold active:scale-95 transition-all cursor-pointer"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                          </svg>
-                          Verify & Close
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div v-else-if="ticket.status === 'resolved' && !ticket.isClosed" class="mt-3 flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <p class="text-xs text-amber-800 font-medium">Services are finishing. Awaiting uploaded Accomplishment Report from service personnel before ticket closure can be verified.</p>
-                  </div>
-
-                  <!-- Rate Instruction -->
+                  <!-- Rate Instruction & Action Required Callout -->
                   <div v-if="isFeedbackEligible(ticket)" class="mt-3 flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl animate-fade-in">
                     <div class="p-1.5 bg-amber-100 rounded-lg shrink-0 mt-0.5">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" viewBox="0 0 20 20" fill="currentColor">
@@ -250,7 +202,7 @@
                     </div>
                     <div>
                       <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-0.5">Action Required</p>
-                      <p class="text-xs font-semibold text-amber-800 leading-relaxed">This ticket is completed! Please click the <strong>"Rate"</strong> button to submit your rating and officially close this ticket.</p>
+                      <p class="text-xs font-semibold text-amber-800 leading-relaxed">This service request has been completed! Please click the <strong>"Rate"</strong> button to submit your service evaluation and finalize this ticket.</p>
                     </div>
                   </div>
                 </div>
@@ -573,9 +525,33 @@
 
 
 
+                  <!-- ========== AWAITING RATING STATE IN TIMELINE ========== -->
+                  <div
+                    v-if="isFeedbackEligible(selectedTicket) && !selectedTicket.isClosed"
+                    class="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center"
+                  >
+                    <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-3 text-amber-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                      </svg>
+                    </div>
+                    <h4 class="font-black text-amber-900 text-sm mb-1">Service Complete — Feedback Required</h4>
+                    <p class="text-xs text-amber-700/80 mb-4">The service has been completed by the assigned team. Please rate the service quality to finalize and close this ticket.</p>
+                    <button
+                      type="button"
+                      @click="closeTimeline(); toggleRatingForm(selectedTicket);"
+                      class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-sm shadow-amber-500/20 transition-all active:scale-95 inline-flex items-center gap-2 cursor-pointer"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                      </svg>
+                      Rate Service & Close Ticket
+                    </button>
+                  </div>
+
                   <!-- ========== TICKET CLOSED STATE ========== -->
                   <div
-                    v-if="selectedTicket.isClosed || (selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && selectedTicket.currentStep >= 4)"
+                    v-if="selectedTicket.isClosed || selectedTicket.status === 'closed' || selectedTicket.status === 'completed' || (selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && selectedTicket.currentStep >= 4)"
                     class="bg-slate-50 border border-slate-200 rounded-2xl p-8 flex flex-col items-center text-center"
                   >
                     <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-4">
@@ -907,36 +883,6 @@ const openJobRequestFormViewer = async (ticket) => {
   }
 };
 
-const openAccomplishmentReport = async (ticket) => {
-  try {
-    const ticketId = ticket.ticketId || ticket.id;
-    const res = await api.get(`tickets/${ticketId}/accomplishment`, { responseType: 'blob' });
-    const ext = (ticket.accomplishment_report_path || '').split('.').pop()?.toLowerCase() || 'pdf';
-    const mime = ext === 'pdf' ? 'application/pdf' : `image/${ext === 'jpg' ? 'jpeg' : ext}`;
-    const blob = new Blob([res.data], { type: mime });
-    viewerModal.title = `Accomplishment Report - Ticket #${ticketId}`;
-    viewerModal.fileName = `Accomplishment_Report_${ticketId}.${ext}`;
-    viewerModal.fileBlob = blob;
-    viewerModal.fileUrl = '';
-    viewerModal.isOpen = true;
-  } catch (err) {
-    console.error('Failed to view accomplishment report:', err);
-    toast.error('Unable to load accomplishment report.');
-  }
-};
-
-const verifyAndCloseTicket = async (ticket) => {
-  try {
-    const ticketId = ticket.ticketId || ticket.id;
-    await api.patch(`tickets/${ticketId}/verify-close`);
-    toast.success(`Ticket #${ticketId} verified and officially closed!`);
-    await fetchTickets();
-  } catch (err) {
-    console.error('Failed to verify and close ticket:', err);
-    toast.error(err.response?.data?.message || 'Failed to verify and close ticket.');
-  }
-};
-
 // ---- Route highlight ----
 const route            = useRoute();
 const highlightedTicket = ref(null);
@@ -947,80 +893,96 @@ const tickets  = ref([]);
 
 const fetchTickets = async () => {
   try {
-    const response = await api.get('tickets/my-requests');
-    if (response.data?.data?.tickets) {
-      tickets.value = response.data.data.tickets.map(t => ({
-        id: t.id,
-        ticketId: t.id,
-        title: t.title,
-        service: t.service_type,
-        unit: t.unit_code,
-        description: t.description,
-        status: t.status,
-        statusLabel: t.status_label,
-        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        requestedBy: userName.value,
-        location: t.location,
-        office_room: t.office_room,
-        make_series: t.details?.make_series || '',
-        color: t.details?.type_color || '',
-        address: t.details?.house_street
-          ? `${t.details.house_street}, ${t.details.barangay}, ${t.details.city_municipality}, ${t.details.province}`
-          : (t.details?.complete_address || ''),
-        destination: t.details?.destination || 'N/A',
-        passengers: t.details?.num_passengers || t.details?.number_of_passengers || t.details?.numberOfPassengers || 'N/A',
-        dateOfTravel: t.details?.date_of_travel || t.details?.dateOfTravel || 'N/A',
-        purpose: t.details?.purpose_of_travel || t.details?.purposeOfTravel || t.details?.purpose || 'N/A',
-        attachments: t.attachments || [],
-        declineReason: t.decline_reason || '',
-        currentStep: parseInt(t.current_step) || 1,
-        assignment: t.assignment || null,
-        assignments: t.assignments || [],
-        assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
-        assignedContact: t.assignment?.personnel_contact || null,
-        details: t.details || null,
-        feedback: t.feedback || null,
-        materials: t.materials || [],
-        total_material_cost: t.total_material_cost || 0,
-        submitted_at: t.submitted_at,
-        completed_at: t.completed_at || t.updated_at,
-        implementationDate: t.assignment?.implementation_date
-          ? new Date(t.assignment.implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-          : null,
-        workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
-        working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
-        isClosed: t.status === 'completed' || t.status === 'closed',
-        accomplishment_report_path: t.accomplishment_report_path || null,
-        accomplishment_notes: t.accomplishment_notes || '',
-        verification_status: t.verification_status || 'pending_report',
-        verified_at: t.verified_at || null,
-        eodb_tier: t.eodb_tier || null,
-        eodb_days: t.eodb_days || null,
-        is_emergency: !!t.is_emergency,
-        is_vip: !!t.is_vip,
-        // SSU Incident Report specific fields
-        isUnderInvestigation: Number(t.is_under_investigation) === 1,
-        hasNotation:          !!t.ssu_notation,
-        notation:             t.ssu_notation || '',
-        actionsTaken:         t.ssu_notation || '',
-      }));
-      
-      const ackMap = JSON.parse(localStorage.getItem('gso_ssu_acknowledged_incidents') || '{}');
-      tickets.value.forEach(t => {
-        if (ackMap[t.ticketId]) {
-          Object.assign(t, ackMap[t.ticketId]);
-        }
-      });
+    const [activeRes, completedRes] = await Promise.all([
+      api.get('tickets/my-requests'),
+      api.get('tickets/completed'),
+    ]);
 
-      // Update the timeline modal ticket if it is currently open
-      if (selectedTicket.value) {
-        const updated = tickets.value.find(t => t.ticketId === selectedTicket.value.ticketId);
-        if (updated) {
-          selectedTicket.value = updated;
-        }
-      }
-      handleRouteTicket();
+    const activeList = activeRes.data?.data?.tickets || [];
+    const completedList = completedRes.data?.data?.tickets || [];
+
+    // Deduplicate by ticket ID (active takes precedence)
+    const combinedMap = new Map();
+    for (const t of completedList) {
+      if (t.id) combinedMap.set(String(t.id), t);
     }
+    for (const t of activeList) {
+      if (t.id) combinedMap.set(String(t.id), t);
+    }
+
+    const allList = Array.from(combinedMap.values());
+
+    tickets.value = allList.map(t => ({
+      id: t.id,
+      ticketId: t.id,
+      title: t.title,
+      service: t.service_type,
+      unit: t.unit_code,
+      description: t.description,
+      status: t.status,
+      statusLabel: t.status_label,
+      date: new Date(t.completed_at || t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      requestedBy: userName.value,
+      location: t.location,
+      office_room: t.office_room,
+      make_series: t.details?.make_series || '',
+      color: t.details?.type_color || '',
+      address: t.details?.house_street
+        ? `${t.details.house_street}, ${t.details.barangay}, ${t.details.city_municipality}, ${t.details.province}`
+        : (t.details?.complete_address || ''),
+      destination: t.details?.destination || 'N/A',
+      passengers: t.details?.num_passengers || t.details?.number_of_passengers || t.details?.numberOfPassengers || 'N/A',
+      dateOfTravel: t.details?.date_of_travel || t.details?.dateOfTravel || 'N/A',
+      purpose: t.details?.purpose_of_travel || t.details?.purposeOfTravel || t.details?.purpose || 'N/A',
+      attachments: t.attachments || [],
+      declineReason: t.decline_reason || '',
+      currentStep: parseInt(t.current_step) || (['closed', 'completed'].includes(t.status) ? 6 : 1),
+      assignment: t.assignment || null,
+      assignments: t.assignments || [],
+      assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
+      assignedContact: t.assignment?.personnel_contact || null,
+      details: t.details || null,
+      feedback: t.feedback || null,
+      materials: t.materials || [],
+      total_material_cost: t.total_material_cost || 0,
+      submitted_at: t.submitted_at,
+      completed_at: t.completed_at || t.updated_at,
+      implementationDate: t.assignment?.implementation_date
+        ? new Date(t.assignment.implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : null,
+      workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
+      working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
+      isClosed: t.status === 'completed' || t.status === 'closed',
+      accomplishment_report_path: t.accomplishment_report_path || null,
+      accomplishment_notes: t.accomplishment_notes || '',
+      verification_status: t.verification_status || 'pending_report',
+      verified_at: t.verified_at || null,
+      eodb_tier: t.eodb_tier || null,
+      eodb_days: t.eodb_days || null,
+      is_emergency: !!t.is_emergency,
+      is_vip: !!t.is_vip,
+      // SSU Incident Report specific fields
+      isUnderInvestigation: Number(t.is_under_investigation) === 1,
+      hasNotation:          !!t.ssu_notation,
+      notation:             t.ssu_notation || '',
+      actionsTaken:         t.ssu_notation || '',
+    }));
+
+    const ackMap = JSON.parse(localStorage.getItem('gso_ssu_acknowledged_incidents') || '{}');
+    tickets.value.forEach(t => {
+      if (ackMap[t.ticketId]) {
+        Object.assign(t, ackMap[t.ticketId]);
+      }
+    });
+
+    // Update the timeline modal ticket if it is currently open
+    if (selectedTicket.value) {
+      const updated = tickets.value.find(t => t.ticketId === selectedTicket.value.ticketId);
+      if (updated) {
+        selectedTicket.value = updated;
+      }
+    }
+    handleRouteTicket();
   } catch (error) {
     console.error('Failed to fetch tickets:', error);
   }
@@ -1078,15 +1040,17 @@ const statusCounts = computed(() => ({
   pending:    tickets.value.filter(t => t.status === 'pending').length,
   processing: tickets.value.filter(t => t.status === 'processing').length,
   resolved:   tickets.value.filter(t => t.status === 'resolved').length,
+  completed:  tickets.value.filter(t => t.status === 'completed' || t.status === 'closed').length,
   cancelled:  tickets.value.filter(t => t.status === 'cancelled').length,
 }));
 
 const statusTabs = computed(() => {
   const tabs = [
-    { value: 'all',        label: 'All',        count: statusCounts.value.all,        activeClass: 'bg-slate-900 text-white border-slate-900' },
-    { value: 'pending',    label: 'Pending',    count: statusCounts.value.pending,    activeClass: 'bg-amber-50 text-amber-700 border-amber-400' },
-    { value: 'processing', label: 'In Progress', count: statusCounts.value.processing, activeClass: 'bg-blue-50 text-blue-700 border-blue-400' },
-    { value: 'resolved',   label: 'Resolved',   count: statusCounts.value.resolved,   activeClass: 'bg-emerald-50 text-emerald-700 border-emerald-400' },
+    { value: 'all',        label: 'All',             count: statusCounts.value.all,        activeClass: 'bg-slate-900 text-white border-slate-900' },
+    { value: 'pending',    label: 'Pending',         count: statusCounts.value.pending,    activeClass: 'bg-amber-50 text-amber-700 border-amber-400' },
+    { value: 'processing', label: 'In Progress',     count: statusCounts.value.processing, activeClass: 'bg-blue-50 text-blue-700 border-blue-400' },
+    { value: 'resolved',   label: 'Awaiting Rating', count: statusCounts.value.resolved,   activeClass: 'bg-emerald-50 text-emerald-700 border-emerald-400' },
+    { value: 'completed',  label: 'Completed',       count: statusCounts.value.completed,  activeClass: 'bg-slate-800 text-white border-slate-800' },
   ];
   if (statusCounts.value.cancelled > 0) {
     tabs.push({ value: 'cancelled', label: 'Cancelled', count: statusCounts.value.cancelled, activeClass: 'bg-slate-100 text-slate-700 border-slate-400' });
@@ -1100,7 +1064,11 @@ const filteredTickets = computed(() => {
     const matchesSearch = ticket.ticketId.toLowerCase().includes(query)
       || ticket.service.toLowerCase().includes(query)
       || ticket.unit.toLowerCase().includes(query);
-    const matchesStatus = statusFilter.value === 'all' || ticket.status === statusFilter.value;
+    const matchesStatus = statusFilter.value === 'all'
+      ? true
+      : statusFilter.value === 'completed'
+        ? (ticket.status === 'completed' || ticket.status === 'closed')
+        : ticket.status === statusFilter.value;
     return matchesSearch && matchesStatus;
   });
 });
@@ -1270,9 +1238,9 @@ const resetForm = () => {
 };
 
 const isFeedbackEligible = (ticket) => {
-  if (!ticket || ticket.isClosed) return false;
-  // Ratings currently supported for FGMU and LEAU at completed step 6
-  if (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') return ticket.currentStep === 6;
+  if (!ticket || ticket.isClosed || ticket.status === 'closed' || ticket.status === 'completed') return false;
+  // Ratings supported for FGMU and LEAU at completed step 6 or resolved status
+  if (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') return ticket.currentStep === 6 || ticket.status === 'resolved';
   return false;
 };
 

@@ -269,7 +269,7 @@
           </div>
         </div>
 
-        <!-- ③ Awaiting Verification & Ticket Closure -->
+        <!-- ③ Completed Jobs & Material Liquidation -->
         <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 shadow-xl shadow-slate-200/50">
           <!-- Section Header -->
           <div class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 px-6 sm:px-10 py-7 overflow-hidden">
@@ -282,14 +282,14 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-xl font-black text-white tracking-tight">Awaiting Verification & Ticket Closure</h3>
-                  <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Proof of completion review & administrative sign-off</p>
+                  <h3 class="text-xl font-black text-white tracking-tight">Completed Jobs & Material Liquidation</h3>
+                  <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Work finished & materials recorded • Awaiting requestor rating to finalize</p>
                 </div>
               </div>
               <div class="flex items-center self-start sm:self-auto gap-2 px-4 py-2 bg-emerald-500/15 rounded-2xl border border-emerald-500/25 backdrop-blur-sm">
                 <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                 <span class="text-white font-black text-sm">{{ verificationTickets.length }}</span>
-                <span class="text-emerald-300 text-[10px] font-bold uppercase tracking-widest">Pending Sign-off</span>
+                <span class="text-emerald-300 text-[10px] font-bold uppercase tracking-widest">Awaiting Rating</span>
               </div>
             </div>
           </div>
@@ -302,8 +302,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p class="text-slate-400 font-bold text-sm">No tickets awaiting verification</p>
-              <p class="text-slate-300 text-xs">Completed jobs requiring sign-off will appear here.</p>
+              <p class="text-slate-400 font-bold text-sm">No completed jobs awaiting user rating</p>
+              <p class="text-slate-300 text-xs">Finished jobs will appear here until rated by requestor or officially closed.</p>
             </div>
 
             <div v-else class="divide-y divide-slate-100">
@@ -335,13 +335,10 @@
                       <span class="text-sm font-bold text-slate-800 truncate">{{ ticket.assignment?.personnel_name || 'N/A' }}</span>
                     </div>
                     <div class="flex flex-col min-w-0">
-                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Accomplishment Report</span>
-                      <span v-if="ticket.accomplishment_report_path" class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 inline-flex items-center gap-1.5 w-fit">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
-                        Report Uploaded
-                      </span>
-                      <span v-else class="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 inline-flex items-center gap-1.5 w-fit">
-                        Pending Report
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Status</span>
+                      <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 inline-flex items-center gap-1.5 w-fit">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        Awaiting Requestor Rating
                       </span>
                     </div>
                   </div>
@@ -350,30 +347,28 @@
                 <!-- Right Actions -->
                 <div class="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 w-full lg:w-auto">
                   <button
-                    v-if="ticket.accomplishment_report_path"
                     type="button"
-                    @click="openAccomplishmentModal(ticket)"
+                    @click="openReceiptForTicket(ticket)"
                     class="px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-                    title="Preview uploaded accomplishment report"
+                    title="View material usage receipt"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <span>View Proof</span>
+                    <span>View Receipt</span>
                   </button>
 
                   <button
                     type="button"
                     @click="verifyAndCloseTicket(ticket)"
-                    :disabled="loading || !ticket.accomplishment_report_path"
-                    class="px-5 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider shadow-sm shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
-                    title="Verify accomplishment report and officially close ticket"
+                    :disabled="loading"
+                    class="px-5 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider shadow-sm shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                    title="Officially verify and close ticket"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>Verify & Close</span>
+                    <span>Close Ticket</span>
                   </button>
                 </div>
               </div>
@@ -638,6 +633,11 @@ const handleJobCompleted = (result) => {
   fetchTickets();
 
   // Show Material Receipt modal immediately after completion
+  showReceiptModal.value = true;
+};
+
+const openReceiptForTicket = (ticket) => {
+  receiptTicket.value = ticket;
   showReceiptModal.value = true;
 };
 
