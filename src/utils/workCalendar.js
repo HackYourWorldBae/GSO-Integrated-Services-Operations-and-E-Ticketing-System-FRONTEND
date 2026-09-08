@@ -132,10 +132,46 @@ export function addWorkingDays(startDate, workingDaysToAdd) {
 /**
  * Formats a Date object to YYYY-MM-DD
  */
+/**
+ * Safely parses date inputs without UTC midnight shift.
+ * Date-only strings (YYYY-MM-DD) default to WORK_START_HOUR (8:00 AM) in local time.
+ * SQL datetime strings (YYYY-MM-DD HH:mm:ss) parse using local time components.
+ */
+export function parseDateLocal(input) {
+  if (!input) return null;
+  if (input instanceof Date) {
+    return isNaN(input.getTime()) ? null : new Date(input.getTime());
+  }
+
+  const str = String(input).trim();
+  if (!str) return null;
+
+  // Check if date-only format: YYYY-MM-DD
+  const dateOnlyMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateOnlyMatch) {
+    const [, y, m, d] = dateOnlyMatch;
+    return new Date(Number(y), Number(m) - 1, Number(d), WORK_START_HOUR, 0, 0);
+  }
+
+  // Check if standard SQL datetime: YYYY-MM-DD HH:mm:ss or ISO format
+  const sqlMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (sqlMatch) {
+    const [, y, m, d, h, min, s] = sqlMatch;
+    return new Date(Number(y), Number(m) - 1, Number(d), Number(h), Number(min), Number(s || 0));
+  }
+
+  // Fallback to Date constructor
+  const parsed = new Date(str);
+  return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+/**
+ * Formats a Date object to YYYY-MM-DD
+ */
 export function formatDateToYmd(date) {
   if (!date) return '';
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return '';
+  const d = parseDateLocal(date);
+  if (!d || isNaN(d.getTime())) return '';
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -159,17 +195,12 @@ export function calculateWorkingHoursElapsed(startDateInput, endDateInput = new 
     };
   }
 
-  // Handle UTC or Y-m-d H:i:s strings
-  let start = new Date(startDateInput);
-  if (isNaN(start.getTime())) {
-    const cleanStr = String(startDateInput).replace(' ', 'T');
-    start = new Date(cleanStr);
-  }
-  if (isNaN(start.getTime())) {
+  const start = parseDateLocal(startDateInput);
+  if (!start || isNaN(start.getTime())) {
     return { totalHours: 0, days: 0, hours: 0, minutes: 0, overtime: 0, formatted: '—' };
   }
 
-  const end = new Date(endDateInput);
+  const end = parseDateLocal(endDateInput) || new Date();
   if (start >= end) {
     const ot = Math.max(0, Number(overtimeHours) || 0);
     return {

@@ -919,7 +919,7 @@ const updateLiveWorkingDurations = () => {
   const result = {};
   const activeList = queuesData.value.active || [];
   activeList.forEach(t => {
-    const start = t.assignment?.dispatched_at || t.project_actual_start || t.assignment?.implementation_date;
+    const start = t.assignment?.dispatched_at || t.assignment?.assigned_at || t.project_actual_start || t.assignment?.implementation_date;
     if (start) {
       const duration = calculateWorkingHoursElapsed(start, new Date(), t.overtime_hours);
       result[t.id] = duration.formatted;

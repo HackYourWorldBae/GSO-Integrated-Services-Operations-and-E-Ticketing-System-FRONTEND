@@ -207,7 +207,7 @@
                     </div>
                     <div class="flex flex-col min-w-0">
                       <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Started</span>
-                      <span class="text-sm font-semibold text-slate-700 truncate">{{ formatDate(ticket.assignment?.dispatched_at || ticket.assignment?.implementation_date) }}</span>
+                      <span class="text-sm font-semibold text-slate-700 truncate">{{ formatDate(ticket.assignment?.dispatched_at || ticket.assignment?.assigned_at || ticket.assignment?.implementation_date) }}</span>
                     </div>
                     <div class="flex flex-col min-w-0">
                       <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Target Duration</span>
@@ -460,7 +460,7 @@ import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue'
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
+import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 
@@ -560,14 +560,17 @@ const fetchTickets = async () => {
 
 const formatDate = (dateStr) => {
   if (!dateStr) return 'N/A';
-  const parsed = new Date(dateStr.replace(' ', 'T') + 'Z');
-  if (isNaN(parsed.getTime())) return dateStr;
+  const parsed = parseDateLocal(dateStr);
+  if (!parsed || isNaN(parsed.getTime())) return dateStr;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(dateStr).trim())) {
+    return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
   return parsed.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 };
 
 const refreshDurations = () => {
   for (const ticket of activeTickets.value) {
-    const start = ticket.assignment?.dispatched_at || ticket.assignment?.implementation_date;
+    const start = ticket.assignment?.dispatched_at || ticket.assignment?.assigned_at || ticket.assignment?.implementation_date;
     const dur = calculateWorkingHoursElapsed(start, new Date(), ticket.overtime_hours);
     liveDurations[ticket.id] = dur.formatted;
   }
@@ -646,7 +649,7 @@ const openReceiptForTicket = (ticket) => {
  */
 const computeDuration = (assignment, overtimeHours = 0) => {
   if (!assignment) return null;
-  const startRaw = assignment.dispatched_at || assignment.implementation_date;
+  const startRaw = assignment.dispatched_at || assignment.assigned_at || assignment.implementation_date;
   if (!startRaw) return null;
   const dur = calculateWorkingHoursElapsed(startRaw, new Date(), overtimeHours);
   return dur.formatted;
