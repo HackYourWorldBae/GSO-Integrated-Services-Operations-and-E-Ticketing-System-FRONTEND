@@ -132,6 +132,7 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+import { useAuthStore } from '@/stores/auth';
 
 const isLoading = ref(true);
 const isSaving  = ref(false);
@@ -224,6 +225,10 @@ const saveMatrix = async () => {
       toast.success('Access Role Control Matrix saved successfully!');
       originalState.value = JSON.stringify(matrixState);
       hasUnsavedChanges.value = false;
+
+      // Immediately refresh local permissions
+      const authStore = useAuthStore();
+      authStore.verifySession();
     } else {
       toast.error(res.data?.message || 'Failed to save matrix.');
     }

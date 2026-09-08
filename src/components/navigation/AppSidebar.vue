@@ -6,33 +6,42 @@ import { useAuthStore } from '@/stores/auth';
 const route = useRoute();
 const authStore = useAuthStore();
 
-// Detect active role
+// Detect active role — prioritizing authenticated user's assigned role
 const activeRole = computed(() => {
-  const path = route.path.toLowerCase();
-  if (path.startsWith('/superadmin')) return 'superadmin';
-  if (path.startsWith('/admin')) return 'admin';
-  if (path.startsWith('/dispatcher')) return 'dispatcher';
-  if (path.startsWith('/director')) return 'director';
-  if (path.startsWith('/user')) return 'requestor';
-  
-  // Fallback to authStore role
   const userRole = (authStore.role || '').toLowerCase();
   if (userRole === 'superadmin') return 'superadmin';
   if (userRole === 'admin') return 'admin';
   if (userRole === 'dispatcher') return 'dispatcher';
   if (userRole === 'director') return 'director';
+  if (['student', 'employee', 'worker'].includes(userRole)) return 'requestor';
+
+  // Fallback to route path if authStore role is not yet populated
+  const path = route.path.toLowerCase();
+  if (path.startsWith('/superadmin')) return 'superadmin';
+  if (path.startsWith('/admin')) return 'admin';
+  if (path.startsWith('/dispatcher')) return 'dispatcher';
+  if (path.startsWith('/director')) return 'director';
   return 'requestor';
 });
 
 // Detect active unit for Admin & Dispatcher
 const activeUnit = computed(() => {
+  const userRole = (authStore.role || '').toLowerCase();
+  const unitId = Number(authStore.unitId ?? authStore.user?.unit_id ?? 0);
+
+  // If user belongs to a specific unit and is an operational admin/dispatcher, lock to their unit
+  if (['admin', 'dispatcher'].includes(userRole)) {
+    if (unitId === 1) return 'fgmu';
+    if (unitId === 2) return 'leau';
+    if (unitId === 3) return 'ssu';
+  }
+
+  // Otherwise inspect current path
   const path = route.path.toLowerCase();
   if (path.includes('/fgmu')) return 'fgmu';
   if (path.includes('/leau')) return 'leau';
   if (path.includes('/ssu')) return 'ssu';
 
-  // Fallback to authStore user unit
-  const unitId = Number(authStore.unit_id || authStore.user?.unit_id || 1);
   if (unitId === 2) return 'leau';
   if (unitId === 3) return 'ssu';
   return 'fgmu';
@@ -40,10 +49,23 @@ const activeUnit = computed(() => {
 
 const unitLabel = computed(() => activeUnit.value.toUpperCase());
 
-// Generate navigation menu configuration
-const navGroups = computed(() => {
+// Exact and prefix active matcher
+const isItemActive = (item) => {
+  const currentPath = route.path.toLowerCase();
+  const targetPath = item.to.split('?')[0].toLowerCase();
+
+  if (item.exact) {
+    return currentPath === targetPath;
+  }
+  return currentPath === targetPath || (currentPath.startsWith(targetPath + '/') && targetPath !== '/');
+};
+
+// Generate base navigation menu configurations
+const rawNavGroups = computed(() => {
   const role = activeRole.value;
   const unit = activeUnit.value;
+  const isSSU = unit === 'ssu';
+  const unitUpper = unitLabel.value;
 
   if (role === 'superadmin') {
     return [
@@ -53,12 +75,19 @@ const navGroups = computed(() => {
           {
             label: 'User Accounts',
             to: '/superadmin/users',
-            icon: 'users'
+            icon: 'users',
+            permission: 'users.provision'
+          },
+          {
+            label: 'Access Control Matrix',
+            to: '/superadmin/users?tab=rbac',
+            icon: 'shield',
+            permission: 'system.matrix_control'
           },
           {
             label: 'Audit Trail',
             to: '/superadmin/logs',
-            icon: 'shield'
+            icon: 'archive'
           }
         ]
       }
@@ -66,13 +95,12 @@ const navGroups = computed(() => {
   }
 
   if (role === 'admin') {
-    const isSSU = unit === 'ssu';
     return [
       {
-        title: `${unitLabel.value} Admin Menu`,
+        title: `${unitUpper} Administration`,
         items: [
           {
-            label: `${unitLabel.value} Home`,
+            label: `${unitUpper} Home`,
             to: `/admin/${unit}`,
             exact: true,
             icon: 'home'
@@ -80,20 +108,55 @@ const navGroups = computed(() => {
           {
             label: isSSU ? 'Incident Queues' : 'Ticket Queues',
             to: `/admin/${unit}/queues`,
-            icon: 'queue'
+            icon: 'queue',
+            permission: 'tickets.view_all'
           },
           ...(isSSU ? [] : [
             {
               label: 'Personnel Management',
               to: `/admin/${unit}/personnel`,
-              icon: 'users'
-            },
+              icon: 'users',
+              permission: 'personnel.manage'
+            }
+          ]),
+          // Delegated / Enabled Capabilities from RBAC Matrix:
+          {
+            label: 'Assign Workers',
+            to: `/dispatcher/${unit}/workers`,
+            icon: 'users',
+            permission: 'tickets.assign_worker'
+          },
+          {
+            label: 'Dispatched Tickets',
+            to: `/dispatcher/${unit}/dispatched`,
+            icon: 'dispatch',
+            permission: 'tickets.dispatch'
+          },
+          {
+            label: `${unitUpper} Analytics & Reports`,
+            to: `/director/${unit}`,
+            icon: 'chart',
+            permission: 'reports.view'
+          },
+          ...(isSSU ? [] : [
             {
               label: 'Project Announcements',
               to: `/admin/${unit}/announcements`,
               icon: 'announcement'
             }
-          ])
+          ]),
+          {
+            label: 'User Accounts',
+            to: '/superadmin/users',
+            icon: 'users',
+            permission: 'users.provision'
+          },
+          {
+            label: 'Access Control Matrix',
+            to: '/superadmin/users?tab=rbac',
+            icon: 'shield',
+            permission: 'system.matrix_control'
+          }
         ]
       },
       {
@@ -119,23 +182,51 @@ const navGroups = computed(() => {
   if (role === 'dispatcher') {
     return [
       {
-        title: `${unitLabel.value} Dispatch Menu`,
+        title: `${unitUpper} Dispatch Operations`,
         items: [
           {
             label: 'Queue Overview',
             to: `/dispatcher/${unit}`,
             exact: true,
-            icon: 'home'
+            icon: 'home',
+            permission: 'tickets.dispatch'
           },
           {
             label: 'Assign Workers',
             to: `/dispatcher/${unit}/workers`,
-            icon: 'users'
+            icon: 'users',
+            permission: 'tickets.assign_worker'
           },
           {
             label: 'Dispatched Tickets',
             to: `/dispatcher/${unit}/dispatched`,
-            icon: 'dispatch'
+            icon: 'dispatch',
+            permission: 'tickets.dispatch'
+          },
+          // Delegated / Enabled Capabilities from RBAC Matrix:
+          {
+            label: 'Ticket Approvals',
+            to: `/admin/${unit}/queues`,
+            icon: 'queue',
+            permission: 'tickets.approve_decline'
+          },
+          {
+            label: 'Personnel Management',
+            to: `/admin/${unit}/personnel`,
+            icon: 'users',
+            permission: 'personnel.manage'
+          },
+          {
+            label: `${unitUpper} Analytics & Reports`,
+            to: `/director/${unit}`,
+            icon: 'chart',
+            permission: 'reports.view'
+          },
+          {
+            label: 'User Accounts',
+            to: '/superadmin/users',
+            icon: 'users',
+            permission: 'users.provision'
           }
         ]
       },
@@ -164,24 +255,39 @@ const navGroups = computed(() => {
         items: [
           {
             label: 'Executive Overview',
-            to: '/director',
+            to: '/director/dashboard',
             exact: true,
             icon: 'home'
           },
           {
             label: 'FGMU Analytics',
             to: '/director/fgmu',
-            icon: 'chart'
+            icon: 'chart',
+            permission: 'reports.view'
           },
           {
             label: 'LEAU Analytics',
             to: '/director/leau',
-            icon: 'chart'
+            icon: 'chart',
+            permission: 'reports.view'
           },
           {
             label: 'SSU Analytics',
             to: '/director/ssu',
-            icon: 'shield'
+            icon: 'shield',
+            permission: 'reports.view'
+          },
+          {
+            label: 'University Ticket Queues',
+            to: '/admin/fgmu/queues',
+            icon: 'queue',
+            permission: 'tickets.view_all'
+          },
+          {
+            label: 'User Accounts',
+            to: '/superadmin/users',
+            icon: 'users',
+            permission: 'users.provision'
           },
           {
             label: 'Organizational Chart',
@@ -193,7 +299,7 @@ const navGroups = computed(() => {
     ];
   }
 
-  // Requestor / User Default
+  // Requestor / User Default (Student, Employee, Worker)
   return [
     {
       title: 'Main Menu',
@@ -203,6 +309,12 @@ const navGroups = computed(() => {
           to: '/user/dashboard',
           exact: true,
           icon: 'home'
+        },
+        {
+          label: 'Submit Service Request',
+          to: '/services',
+          icon: 'queue',
+          permission: 'tickets.create'
         },
         {
           label: 'My Service Requests',
@@ -215,6 +327,12 @@ const navGroups = computed(() => {
           icon: 'check'
         },
         {
+          label: 'Unit Ticket Directory',
+          to: `/admin/${unit}/queues`,
+          icon: 'queue',
+          permission: 'tickets.view_all'
+        },
+        {
           label: 'Account Settings',
           to: '/user/edit-profile',
           icon: 'settings'
@@ -222,6 +340,19 @@ const navGroups = computed(() => {
       ]
     }
   ];
+});
+
+// Dynamic filtering based on active user capabilities from RBAC Matrix
+const navGroups = computed(() => {
+  return rawNavGroups.value
+    .map(group => {
+      const items = group.items.filter(item => {
+        if (!item.permission) return true;
+        return authStore.hasPermission(item.permission);
+      });
+      return { ...group, items };
+    })
+    .filter(group => group.items.length > 0);
 });
 </script>
 
@@ -236,8 +367,10 @@ const navGroups = computed(() => {
           v-for="item in group.items"
           :key="item.to"
           :to="item.to"
-          :exact="item.exact"
-          class="nav-item group"
+          :class="[
+            'nav-item group',
+            isItemActive(item) ? 'router-link-active' : ''
+          ]"
         >
           <!-- SVG Icons -->
           <!-- Home -->

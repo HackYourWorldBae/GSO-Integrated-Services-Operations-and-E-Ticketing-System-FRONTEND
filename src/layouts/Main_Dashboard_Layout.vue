@@ -42,17 +42,8 @@
       <!-- Navigation Sections -->
       <div class="flex-1 overflow-y-auto custom-scrollbar pt-6 pb-20 min-w-[288px]">
         <div class="sidebar-nav px-3" @click="handleNavClick">
-          <template v-if="$slots['sidebar-links']">
-            <div>
-              <p class="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Main Menu</p>
-              <nav class="space-y-1">
-                <slot name="sidebar-links" />
-              </nav>
-            </div>
-          </template>
-          <template v-else>
-            <AppSidebar />
-          </template>
+          <AppSidebar />
+          <slot name="sidebar-extra" />
         </div>
       </div>
     </aside>

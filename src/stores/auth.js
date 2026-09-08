@@ -16,9 +16,14 @@ import {
  * Includes proactive session heartbeat monitoring for strictly enforcing 1 session per user.
  */
 export const useAuthStore = defineStore('auth', () => {
-  const user  = ref(null);
-  const role  = ref(null);
-  const token = ref(typeof window !== 'undefined' ? sessionStorage.getItem('token') || null : null);
+  const user        = ref(null);
+  const role        = ref(null);
+  const token       = ref(typeof window !== 'undefined' ? sessionStorage.getItem('token') || null : null);
+  const permissions = ref(
+    typeof window !== 'undefined'
+      ? JSON.parse(sessionStorage.getItem('permissions') || '[]')
+      : []
+  );
 
   // ---------------------------------------------------------------------------
   // Computed
@@ -40,6 +45,52 @@ export const useAuthStore = defineStore('auth', () => {
 
   const unitId = computed(() => user.value?.unit_id ?? null);
 
+  /**
+   * Check whether current user has permission for a specific feature key.
+   * Superadmin always returns true.
+   * Uses real-time synchronized permissions list with role-based fallbacks.
+   */
+  const hasPermission = (featureKey) => {
+    if (!featureKey) return true;
+    if (role.value === 'superadmin') return true;
+
+    const list = Array.isArray(permissions.value) && permissions.value.length > 0
+      ? permissions.value
+      : (user.value?.permissions || []);
+
+    if (list.includes(featureKey)) {
+      return true;
+    }
+
+    // Role default fallback if permissions list is empty / uninitialized
+    if (list.length === 0) {
+      if (role.value === 'admin') {
+        return [
+          'tickets.create', 'tickets.view_all', 'tickets.approve_decline',
+          'tickets.dispatch', 'tickets.assign_worker', 'tickets.complete_work',
+          'tickets.verify_close', 'personnel.manage', 'reports.view'
+        ].includes(featureKey);
+      }
+      if (role.value === 'dispatcher') {
+        return [
+          'tickets.view_all', 'tickets.dispatch', 'tickets.assign_worker',
+          'tickets.complete_work'
+        ].includes(featureKey);
+      }
+      if (role.value === 'director') {
+        return ['reports.view', 'tickets.view_all', 'tickets.verify_close'].includes(featureKey);
+      }
+      if (role.value === 'student' || role.value === 'employee') {
+        return ['tickets.create'].includes(featureKey);
+      }
+      if (role.value === 'worker') {
+        return ['tickets.complete_work'].includes(featureKey);
+      }
+    }
+
+    return false;
+  };
+
   // ---------------------------------------------------------------------------
   // Proactive Session Heartbeat & Verification
   // ---------------------------------------------------------------------------
@@ -51,6 +102,7 @@ export const useAuthStore = defineStore('auth', () => {
    * Verify session status with the backend.
    * If the account was logged in elsewhere, backend JwtAuthFilter returns 401 SESSION_SUPERSEDED,
    * which triggers the signed-out modal via the apiClient response interceptor.
+   * Also synchronizes latest permissions in near real-time without requiring re-login.
    */
   const verifySession = async () => {
     if (typeof window === 'undefined') return;
@@ -66,7 +118,15 @@ export const useAuthStore = defineStore('auth', () => {
     isCheckingSession = true;
 
     try {
-      await checkSessionApi();
+      const res = await checkSessionApi();
+      const serverPermissions = res.data?.data?.permissions;
+      if (Array.isArray(serverPermissions)) {
+        permissions.value = serverPermissions;
+        sessionStorage.setItem('permissions', JSON.stringify(serverPermissions));
+        if (user.value) {
+          user.value.permissions = serverPermissions;
+        }
+      }
     } catch (error) {
       const status = error.response?.status;
       const code   = error.response?.data?.code;
@@ -88,7 +148,8 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   /**
-   * Start polling session validity to proactively detect logouts on other devices.
+   * Start polling session validity to proactively detect logouts on other devices
+   * and continuously synchronize role permissions.
    */
   const startSessionHeartbeat = () => {
     stopSessionHeartbeat();
@@ -128,7 +189,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   /**
    * Login via API — validates credentials.
-   * Stores user profile, role, and Bearer token.
+   * Stores user profile, role, dynamic permissions, and Bearer token.
    * Starts active session heartbeat monitoring.
    *
    * @param {string} identifier  - Student ID or email
@@ -141,14 +202,17 @@ export const useAuthStore = defineStore('auth', () => {
       const data     = response.data?.data || {};
       const userData = data.user;
       const jwtToken = data.access_token;
+      const userPerms = userData.permissions || [];
 
-      user.value  = userData;
-      role.value  = userData.role;
-      token.value = jwtToken;
+      user.value        = userData;
+      role.value        = userData.role;
+      permissions.value = userPerms;
+      token.value       = jwtToken;
 
       if (jwtToken) {
         sessionStorage.setItem('token', jwtToken);
       }
+      sessionStorage.setItem('permissions', JSON.stringify(userPerms));
 
       window.__gso_session_superseded = false;
 
@@ -172,11 +236,13 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       // Clean up client state regardless of network failure
     } finally {
-      user.value  = null;
-      role.value  = null;
-      token.value = null;
+      user.value        = null;
+      role.value        = null;
+      permissions.value = [];
+      token.value       = null;
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('auth');
+      sessionStorage.removeItem('permissions');
     }
   };
 
@@ -186,17 +252,22 @@ export const useAuthStore = defineStore('auth', () => {
   const checkAuth = async () => {
     try {
       const response = await getMe();
-      user.value = response.data.data.user;
-      role.value = response.data.data.user.role;
+      const userData = response.data.data.user;
+      user.value        = userData;
+      role.value        = userData.role;
+      permissions.value = userData.permissions || [];
+      sessionStorage.setItem('permissions', JSON.stringify(permissions.value));
       startSessionHeartbeat();
       return true;
     } catch {
       stopSessionHeartbeat();
-      user.value  = null;
-      role.value  = null;
-      token.value = null;
+      user.value        = null;
+      role.value        = null;
+      permissions.value = [];
+      token.value       = null;
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('auth');
+      sessionStorage.removeItem('permissions');
       return false;
     }
   };
@@ -207,8 +278,13 @@ export const useAuthStore = defineStore('auth', () => {
   const refreshProfile = async () => {
     try {
       const response = await getMe();
-      user.value = response.data.data.user;
-      role.value = response.data.data.user.role;
+      const userData = response.data.data.user;
+      user.value = userData;
+      role.value = userData.role;
+      if (Array.isArray(userData.permissions)) {
+        permissions.value = userData.permissions;
+        sessionStorage.setItem('permissions', JSON.stringify(userData.permissions));
+      }
     } catch {
       // Silently fail — non-critical profile sync
     }
@@ -221,7 +297,12 @@ export const useAuthStore = defineStore('auth', () => {
   const updateProfile = async (data) => {
     try {
       const response = await apiUpdateProfile(data);
-      user.value = response.data.data.user;
+      const userData = response.data.data.user;
+      user.value = userData;
+      if (Array.isArray(userData.permissions)) {
+        permissions.value = userData.permissions;
+        sessionStorage.setItem('permissions', JSON.stringify(userData.permissions));
+      }
       return { success: true };
     } catch (err) {
       const message = err.response?.data?.message || 'Profile update failed.';
@@ -230,9 +311,11 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   // Internal setter used during re-hydration
-  const _setAuth = (userData, userRole, authToken = null) => {
-    user.value = userData;
-    role.value = userRole;
+  const _setAuth = (userData, userRole, authToken = null, userPermissions = null) => {
+    user.value        = userData;
+    role.value        = userRole;
+    permissions.value = userPermissions || userData?.permissions || [];
+    sessionStorage.setItem('permissions', JSON.stringify(permissions.value));
     if (authToken) {
       token.value = authToken;
       sessionStorage.setItem('token', authToken);
@@ -244,11 +327,13 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     role,
     token,
+    permissions,
     isAuthenticated,
     fullName,
     contactNumber,
     capitalizedRole,
     unitId,
+    hasPermission,
     login,
     logout,
     checkAuth,
@@ -262,6 +347,6 @@ export const useAuthStore = defineStore('auth', () => {
 }, {
   persist: {
     storage: sessionStorage,
-    pick: ['user', 'role', 'token'],
+    pick: ['user', 'role', 'token', 'permissions'],
   },
 });

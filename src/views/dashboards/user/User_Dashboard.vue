@@ -59,6 +59,7 @@
               <p class="text-emerald-200/80 text-sm mt-1">Submit a new service request to the GSO in seconds.</p>
             </div>
             <button
+              v-if="authStore.hasPermission('tickets.create')"
               @click="$router.push('/services')"
               class="group flex items-center gap-2.5 bg-white hover:bg-emerald-50 text-emerald-700 font-black px-6 py-3.5 rounded-xl shadow-lg shadow-black/20 transition-all hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap shrink-0"
             >

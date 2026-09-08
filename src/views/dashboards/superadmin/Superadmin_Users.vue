@@ -504,6 +504,7 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router';
 import { ref, reactive, onMounted, watch } from 'vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
@@ -511,7 +512,16 @@ import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import Superadmin_RBAC_Matrix from './Superadmin_RBAC_Matrix.vue';
 import api from '@/api/client';
 
-const activeTab = ref('users');
+const route = useRoute();
+const activeTab = ref(route.query?.tab === 'rbac' ? 'rbac' : 'users');
+
+watch(() => route.query?.tab, (newTab) => {
+  if (newTab === 'rbac') {
+    activeTab.value = 'rbac';
+  } else if (newTab === 'users' || !newTab) {
+    activeTab.value = 'users';
+  }
+});
 const users = ref([]);
 const pagination = reactive({
   total: 0,

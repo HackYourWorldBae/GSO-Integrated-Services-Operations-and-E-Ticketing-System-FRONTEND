@@ -75,31 +75,31 @@ const router = createRouter({
       path: '/services',
       name: 'services-list',
       component: ServicesListView,
-      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
+      meta: { requiresAuth: true, permission: 'tickets.create', roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
     },
     {
       path: '/user/dashboard',
       name: 'user-dashboard',
       component: User_Dashboard,
-      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director', 'worker'] }
     },
     {
       path: '/user/tickets',
       name: 'user-tickets',
       component: User_Tickets,
-      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director', 'worker'] }
     },
     {
       path: '/user/edit-profile',
       name: 'user-settings',
       component: User_Settings,
-      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director', 'worker'] }
     },
     {
       path: '/user/completed-tickets',
       name: 'user-completed-tickets',
       component: User_CompletedTickets,
-      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director', 'worker'] }
     },
 
     // Sub-unit Dashboards — FGMU Admin
@@ -113,13 +113,13 @@ const router = createRouter({
       path: '/admin/fgmu/queues',
       name: 'fgmu-ticket-queues',
       component: FGMU_TicketQueues,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director'], unit: 'FGMU', permission: 'tickets.view_all' }
     },
     {
       path: '/admin/fgmu/personnel',
       name: 'fgmu-admin-personnel',
       component: FGMU_Personnel,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU', permission: 'personnel.manage' }
     },
     {
       path: '/admin/fgmu/archives',
@@ -151,13 +151,13 @@ const router = createRouter({
       path: '/admin/leau/queues',
       name: 'leau-ticket-queues',
       component: LEAU_TicketQueues,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director'], unit: 'LEAU', permission: 'tickets.view_all' }
     },
     {
       path: '/admin/leau/personnel',
       name: 'leau-admin-personnel',
       component: LEAU_Personnel,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU', permission: 'personnel.manage' }
     },
     {
       path: '/admin/leau/archives',
@@ -189,7 +189,7 @@ const router = createRouter({
       path: '/admin/ssu/queues/incidents',
       name: 'ssu-incident-queues',
       component: SSU_IncidentTicketQueues,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director'], unit: 'SSU', permission: 'tickets.view_all' }
     },
     {
       path: '/admin/ssu/archives',
@@ -211,7 +211,7 @@ const router = createRouter({
       path: '/superadmin/users',
       name: 'superadmin-users',
       component: Superadmin_Users,
-      meta: { requiresAuth: true, roles: ['superadmin'] }
+      meta: { requiresAuth: true, roles: ['superadmin', 'admin', 'director'], permission: 'users.provision' }
     },
     {
       path: '/superadmin/logs',
@@ -229,25 +229,25 @@ const router = createRouter({
       path: '/director/dashboard',
       name: 'director-dashboard',
       component: Director_Dashboard,
-      meta: { requiresAuth: true, roles: ['director'] }
+      meta: { requiresAuth: true, roles: ['director', 'admin', 'dispatcher'] }
     },
     {
       path: '/director/fgmu',
       name: 'director-fgmu',
       component: Director_FGMU,
-      meta: { requiresAuth: true, roles: ['director'] }
+      meta: { requiresAuth: true, roles: ['director', 'admin', 'dispatcher'], permission: 'reports.view' }
     },
     {
       path: '/director/leau',
       name: 'director-leau',
       component: Director_LEAU,
-      meta: { requiresAuth: true, roles: ['director'] }
+      meta: { requiresAuth: true, roles: ['director', 'admin', 'dispatcher'], permission: 'reports.view' }
     },
     {
       path: '/director/ssu',
       name: 'director-ssu',
       component: Director_SSU,
-      meta: { requiresAuth: true, roles: ['director'] }
+      meta: { requiresAuth: true, roles: ['director', 'admin', 'dispatcher'], permission: 'reports.view' }
     },
     {
       path: '/director/organizational-chart',
@@ -261,31 +261,31 @@ const router = createRouter({
       path: '/dispatcher/fgmu',
       name: 'fgmu-dispatcher',
       component: FGMU_Dispatcher,
-      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'FGMU', permission: 'tickets.dispatch' }
     },
     {
       path: '/dispatcher/fgmu/workers',
       name: 'fgmu-workers',
       component: FGMU_Workers,
-      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'FGMU', permission: 'tickets.assign_worker' }
     },
     {
       path: '/dispatcher/fgmu/dispatched',
       name: 'fgmu-dispatched-tickets',
       component: FGMU_DispatchedTickets,
-      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'FGMU', permission: 'tickets.dispatch' }
     },
     {
       path: '/dispatcher/fgmu/archives',
       name: 'fgmu-dispatcher-archives',
       component: FGMU_DispatcherArchives,
-      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'FGMU' }
     },
     {
       path: '/dispatcher/fgmu/project-archives',
       name: 'fgmu-dispatcher-project-archives',
       component: FGMU_DispatcherProjectArchives,
-      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'FGMU' }
     },
 
     // Dispatcher Dashboards — LEAU
@@ -293,31 +293,31 @@ const router = createRouter({
       path: '/dispatcher/leau',
       name: 'leau-dispatcher',
       component: LEAU_Dispatcher,
-      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
     {
       path: '/dispatcher/leau/workers',
       name: 'leau-workers',
       component: LEAU_Workers,
-      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'LEAU', permission: 'tickets.assign_worker' }
     },
     {
       path: '/dispatcher/leau/dispatched',
       name: 'leau-dispatched-tickets',
       component: LEAU_DispatchedTickets,
-      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
     {
       path: '/dispatcher/leau/archives',
       name: 'leau-dispatcher-archives',
       component: LEAU_DispatcherArchives,
-      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'LEAU' }
     },
     {
       path: '/dispatcher/leau/project-archives',
       name: 'leau-dispatcher-project-archives',
       component: LEAU_DispatcherProjectArchives,
-      meta: { requiresAuth: true, roles: ['dispatcher'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'LEAU' }
     },
 
     // Service Intake Forms
@@ -325,7 +325,7 @@ const router = createRouter({
       path: '/services/forms',
       name: 'services-forms',
       component: FormsView,
-      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
+      meta: { requiresAuth: true, permission: 'tickets.create', roles: ['student', 'employee', 'admin', 'dispatcher', 'director'] }
     }
   ]
 });
@@ -383,21 +383,38 @@ router.beforeEach((to, from, next) => {
       return next({ name: 'login', query: { redirect: to.fullPath } });
     }
 
-    // 3. Enforce Role-Based Access Control
+    const authStore = useAuthStore();
+
+    // 3. Dynamic Capability Permission Check (from RBAC Matrix)
+    if (to.meta.permission) {
+      // Allow access to user accounts view if user has matrix control capability
+      const isMatrixControlAllowed = to.path === '/superadmin/users' && authStore.hasPermission('system.matrix_control');
+      if (!authStore.hasPermission(to.meta.permission) && !isMatrixControlAllowed) {
+        console.warn(`[Router Guard] Access denied to ${to.path}. Missing required capability: ${to.meta.permission}`);
+        return next(getHomeRoute(role, unit));
+      }
+    }
+
+    // 4. Enforce Role-Based Access Control
     if (to.meta.roles && Array.isArray(to.meta.roles)) {
       const allowedRoles = [...to.meta.roles];
       // Unit Head (admin) inherits dispatcher routes
       if (role === 'admin' && allowedRoles.includes('dispatcher')) {
         allowedRoles.push('admin');
       }
-      if (!role || !allowedRoles.includes(role)) {
+
+      const hasDirectRole = role && allowedRoles.includes(role);
+      const hasDelegatedPermission = to.meta.permission && authStore.hasPermission(to.meta.permission);
+      const isMatrixControlAllowed = to.path === '/superadmin/users' && authStore.hasPermission('system.matrix_control');
+
+      if (!hasDirectRole && !hasDelegatedPermission && !isMatrixControlAllowed && role !== 'superadmin') {
         console.warn(`[Router Guard] Access denied to ${to.path}. Required roles: ${to.meta.roles.join(', ')}. Current role: ${role}`);
         return next(getHomeRoute(role, unit));
       }
     }
 
-    // 4. Enforce Sub-Unit Scoping for Admin and Dispatcher (Director has university-wide access)
-    if (to.meta.unit && role !== 'director') {
+    // 5. Enforce Sub-Unit Scoping for Admin and Dispatcher (Director & Superadmin have university-wide access)
+    if (to.meta.unit && role !== 'director' && role !== 'superadmin') {
       const targetUnit = String(to.meta.unit).toUpperCase();
       if (unit && unit !== targetUnit) {
         console.warn(`[Router Guard] Jurisdiction mismatch for ${to.path}. Target unit: ${targetUnit}. Current unit: ${unit}`);
