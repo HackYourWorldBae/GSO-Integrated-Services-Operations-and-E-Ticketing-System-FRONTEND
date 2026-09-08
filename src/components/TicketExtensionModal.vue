@@ -100,7 +100,7 @@
             <select
               v-model="circumstanceCategory"
               required
-              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:bg-white transition-all mb-2"
+              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:bg-white transition-all"
               :class="isLeau ? 'focus:ring-amber-500/20 focus:border-amber-500' : 'focus:ring-emerald-500/20 focus:border-emerald-500'"
             >
               <option value="" disabled>Select Primary Circumstance</option>
@@ -112,15 +112,6 @@
               <option value="Priority Emergency Task Dispatched">Priority Emergency Task Dispatched</option>
               <option value="Other Unforeseen Circumstance">Other Unforeseen Circumstance</option>
             </select>
-
-            <textarea
-              v-model="reasonDetails"
-              rows="3"
-              required
-              placeholder="Provide specific details (e.g. Roof repair paused due to continuous afternoon downpour)..."
-              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:bg-white transition-all"
-              :class="isLeau ? 'focus:ring-amber-500/20 focus:border-amber-500' : 'focus:ring-emerald-500/20 focus:border-emerald-500'"
-            ></textarea>
           </div>
 
           <!-- Overtime Hours Accounting -->
@@ -200,7 +191,6 @@ const isLeau = computed(() => (props.unitCode || '').toUpperCase() === 'LEAU');
 
 const extensionDays = ref(1);
 const circumstanceCategory = ref('Adverse Weather / Typhoon / Heavy Rain');
-const reasonDetails = ref('');
 const overtimeHours = ref(0);
 const isSubmitting = ref(false);
 const errorMessage = ref('');
@@ -245,7 +235,6 @@ watch(() => props.isOpen, (open) => {
   if (open) {
     extensionDays.value = 1;
     circumstanceCategory.value = 'Adverse Weather / Typhoon / Heavy Rain';
-    reasonDetails.value = '';
     overtimeHours.value = 0;
     errorMessage.value = '';
   }
@@ -256,7 +245,7 @@ const handleSubmit = async () => {
   isSubmitting.value = true;
   errorMessage.value = '';
 
-  const finalReason = `${circumstanceCategory.value}: ${reasonDetails.value.trim()}`;
+  const finalReason = circumstanceCategory.value;
   const extendedDateStr = formatDateToYmd(calculatedNewDate.value);
 
   try {
