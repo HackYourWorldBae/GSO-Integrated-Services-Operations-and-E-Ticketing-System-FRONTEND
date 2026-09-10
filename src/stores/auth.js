@@ -64,17 +64,11 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Role default fallback if permissions list is empty / uninitialized
     if (list.length === 0) {
-      if (role.value === 'admin') {
+      if (role.value === 'admin' || role.value === 'dispatcher') {
         return [
-          'tickets.create', 'tickets.view_all', 'tickets.approve_decline',
+          'tickets.create', 'tickets.approve_decline',
           'tickets.dispatch', 'tickets.assign_worker', 'tickets.complete_work',
-          'tickets.verify_close', 'personnel.manage', 'reports.view'
-        ].includes(featureKey);
-      }
-      if (role.value === 'dispatcher') {
-        return [
-          'tickets.view_all', 'tickets.dispatch', 'tickets.assign_worker',
-          'tickets.complete_work'
+          'tickets.verify_close', 'personnel.manage'
         ].includes(featureKey);
       }
       if (role.value === 'director') {

@@ -94,10 +94,10 @@ const rawNavGroups = computed(() => {
     ];
   }
 
-  if (role === 'admin') {
+  if (role === 'admin' || role === 'dispatcher') {
     return [
       {
-        title: `${unitUpper} Administration`,
+        title: `${unitUpper} Operations`,
         items: [
           {
             label: `${unitUpper} Home`,
@@ -109,41 +109,20 @@ const rawNavGroups = computed(() => {
             {
               label: 'Incident Queues',
               to: '/admin/ssu/queues/incidents',
-              icon: 'shield',
-              permission: 'tickets.view_all'
+              icon: 'shield'
             }
           ] : [
             {
-              label: 'Ticket Queues',
-              to: `/admin/${unit}/queues`,
-              icon: unit === 'fgmu' ? 'tools' : 'leaf',
-              permission: 'tickets.view_all'
-            },
-            {
               label: 'Dispatched Tickets',
               to: `/admin/${unit}/dispatched`,
-              icon: 'dispatch',
-              permission: 'tickets.dispatch'
+              icon: 'dispatch'
             },
             {
               label: 'Personnel & Assignments',
               to: `/admin/${unit}/personnel`,
-              icon: 'users',
-              permission: 'personnel.manage'
+              icon: 'users'
             }
-          ]),
-          {
-            label: `${unitUpper} Analytics & Reports`,
-            to: `/director/${unit}`,
-            icon: unit === 'fgmu' ? 'tools' : unit === 'leau' ? 'leaf' : 'shield',
-            permission: 'reports.view'
-          },
-          {
-            label: 'User Accounts',
-            to: '/superadmin/users',
-            icon: 'users',
-            permission: 'users.provision'
-          }
+          ])
         ]
       },
       {
@@ -151,62 +130,6 @@ const rawNavGroups = computed(() => {
         items: [
           {
             label: isSSU ? 'Archived Incidents' : 'Archived Tickets',
-            to: `/admin/${unit}/archives`,
-            icon: 'archive'
-          }
-        ]
-      }
-    ];
-  }
-
-  if (role === 'dispatcher') {
-    return [
-      {
-        title: `${unitUpper} Operations`,
-        items: [
-          {
-            label: `${unitUpper} Home`,
-            to: `/admin/${unit}`,
-            exact: true,
-            icon: 'home'
-          },
-          {
-            label: 'Ticket Queues',
-            to: `/admin/${unit}/queues`,
-            icon: unit === 'fgmu' ? 'tools' : 'leaf',
-            permission: 'tickets.view_all'
-          },
-          {
-            label: 'Dispatched Tickets',
-            to: `/admin/${unit}/dispatched`,
-            icon: 'dispatch',
-            permission: 'tickets.dispatch'
-          },
-          {
-            label: 'Personnel & Assignments',
-            to: `/admin/${unit}/personnel`,
-            icon: 'users',
-            permission: 'personnel.manage'
-          },
-          {
-            label: `${unitUpper} Analytics & Reports`,
-            to: `/director/${unit}`,
-            icon: unit === 'fgmu' ? 'tools' : 'leaf',
-            permission: 'reports.view'
-          },
-          {
-            label: 'User Accounts',
-            to: '/superadmin/users',
-            icon: 'users',
-            permission: 'users.provision'
-          }
-        ]
-      },
-      {
-        title: 'Archives',
-        items: [
-          {
-            label: 'Archived Tickets',
             to: `/admin/${unit}/archives`,
             icon: 'archive'
           }
@@ -267,17 +190,6 @@ const rawNavGroups = computed(() => {
             permission: 'reports.view'
           }
         ]
-      },
-      {
-        title: 'System Management',
-        items: [
-          {
-            label: 'User Accounts',
-            to: '/superadmin/users',
-            icon: 'users',
-            permission: 'users.provision'
-          }
-        ]
       }
     ];
   }
@@ -302,12 +214,6 @@ const rawNavGroups = computed(() => {
           label: 'Completed Tickets',
           to: '/user/completed-tickets',
           icon: 'check'
-        },
-        {
-          label: 'Unit Ticket Directory',
-          to: `/admin/${unit}/queues`,
-          icon: 'queue',
-          permission: 'tickets.view_all'
         },
         {
           label: 'Account Settings',
