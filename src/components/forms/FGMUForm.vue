@@ -91,7 +91,7 @@ const removeFile = (idx) => {
           <SearchableDropdown
             v-model="formsStore.fgmuState.sectionA.college_building"
             :options="locations"
-            theme="emerald"
+            theme="emerald" 
             placeholder="Select from list or type building..."
             :has-error="formsStore.v$.fgmuState.sectionA.college_building.$error"
             @blur="formsStore.v$.fgmuState.sectionA.college_building.$touch()"
