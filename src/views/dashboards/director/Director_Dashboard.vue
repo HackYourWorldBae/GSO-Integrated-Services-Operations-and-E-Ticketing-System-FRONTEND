@@ -260,7 +260,7 @@
                 Executive Analytics Summary &amp; Compliance Reports
               </h3>
               <p class="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">
-                Generate, preview, and download official institutional performance reports across all GSO sub-units. Evaluates Citizen's Charter SLA execution, service frequencies, and client quality ratings.
+                Generate and download official institutional performance reports across all GSO sub-units. Evaluates Citizen's Charter SLA execution, service frequencies, and client quality ratings.
               </p>
             </div>
 
@@ -367,72 +367,73 @@
 
           <!-- Executive KPI Cards Grid (Consolidated Overview) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- 1. Total Requests -->
-            <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-md flex flex-col justify-between">
+            <!-- 1. Total Requests Filed -->
+            <div class="p-5 rounded-2xl bg-slate-900 text-white shadow-xs flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-3">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Total Workload Filed</span>
-                <span class="px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 text-[9px] font-bold">{{ executiveAnalytics?.filter?.label || 'All' }}</span>
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Total Requests Filed</span>
+                <span class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[9px] font-bold">{{ executiveAnalytics?.filter?.label || 'All' }}</span>
               </div>
               <div class="text-3xl font-black tracking-tight tabular-nums mb-1">
                 {{ executiveAnalytics?.summary?.total_requests ?? 0 }}
               </div>
-              <p class="text-[11px] text-slate-300 font-medium">
-                Combined across FGMU, LEAU, &amp; SSU
+              <p class="text-[11px] text-slate-400 font-medium">
+                Consolidated across FGMU, LEAU, &amp; SSU
               </p>
             </div>
 
-            <!-- 2. Resolution & Completion Rate -->
-            <div class="p-5 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-emerald-950 shadow-xs flex flex-col justify-between">
+            <!-- 2. Resolved & Completed -->
+            <div class="p-5 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-xs flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-3">
-                <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700">Completion Rate</span>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black">
-                  {{ executiveAnalytics?.summary?.completion_rate ?? 0 }}%
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Resolved &amp; Completed</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[9px] font-black">
+                  {{ executiveAnalytics?.summary?.completion_rate ?? 0 }}% Rate
                 </span>
               </div>
-              <div class="text-3xl font-black tracking-tight tabular-nums text-emerald-800 mb-1">
+              <div class="text-3xl font-black tracking-tight tabular-nums text-slate-900 mb-1">
                 {{ executiveAnalytics?.summary?.total_resolved ?? 0 }}
-                <span class="text-xs font-bold text-emerald-600">resolved</span>
+                <span class="text-xs font-bold text-slate-400">resolved</span>
               </div>
-              <div class="w-full h-1.5 bg-emerald-200 rounded-full overflow-hidden mt-1">
+              <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1">
                 <div class="h-full bg-emerald-600 rounded-full transition-all duration-500" :style="{ width: `${executiveAnalytics?.summary?.completion_rate || 0}%` }"></div>
               </div>
             </div>
 
-            <!-- 3. Active Operations -->
-            <div class="p-5 rounded-2xl bg-blue-50/70 border border-blue-100 text-blue-950 shadow-xs flex flex-col justify-between">
+            <!-- 3. Declined / Out of Scope -->
+            <div class="p-5 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-xs flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-3">
-                <span class="text-[10px] font-black uppercase tracking-wider text-blue-700">In Progress / Active</span>
-                <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[9px] font-bold">
-                  {{ executiveAnalytics?.summary?.total_pending ?? 0 }} Pending
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Declined / Out of Scope</span>
+                <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[9px] font-bold">
+                  Disapproved
                 </span>
               </div>
-              <div class="text-3xl font-black tracking-tight tabular-nums text-blue-800 mb-1">
-                {{ (executiveAnalytics?.summary?.total_processing ?? 0) + (executiveAnalytics?.summary?.total_pending ?? 0) }}
+              <div class="text-3xl font-black tracking-tight tabular-nums text-slate-900 mb-1">
+                {{ executiveAnalytics?.summary?.total_declined ?? 0 }}
+                <span class="text-xs font-bold text-slate-400">declined</span>
               </div>
-              <p class="text-[11px] text-blue-600/80 font-medium">
-                {{ executiveAnalytics?.summary?.total_declined ?? 0 }} requests declined/out of scope
+              <p class="text-[11px] text-slate-400 font-medium">
+                Non-compliant or out of administrative scope
               </p>
             </div>
 
             <!-- 4. Client Satisfaction Rating -->
-            <div class="p-5 rounded-2xl bg-amber-50/70 border border-amber-100 text-amber-950 shadow-xs flex flex-col justify-between">
+            <div class="p-5 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-xs flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-3">
-                <span class="text-[10px] font-black uppercase tracking-wider text-amber-700">Client CSAT Score</span>
-                <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[9px] font-black">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Client CSAT Score</span>
+                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/60 text-[9px] font-black">
                   ARTA / ISO 9001
                 </span>
               </div>
               <div class="flex items-baseline gap-2 mb-1">
-                <span class="text-3xl font-black tracking-tight tabular-nums text-amber-800">
+                <span class="text-3xl font-black tracking-tight tabular-nums text-slate-900">
                   {{ executiveAnalytics?.summary?.overall_ratings?.overall_avg ? parseFloat(executiveAnalytics.summary.overall_ratings.overall_avg).toFixed(2) : '5.00' }}
                 </span>
-                <span class="text-xs font-extrabold text-amber-600">/ 5.00</span>
+                <span class="text-xs font-bold text-slate-400">/ 5.00</span>
               </div>
               <div class="flex items-center gap-1 text-amber-500">
                 <svg v-for="i in 5" :key="i" class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                 </svg>
-                <span class="text-[10px] font-bold text-slate-500 ml-1">
+                <span class="text-[10px] font-semibold text-slate-400 ml-1">
                   ({{ executiveAnalytics?.summary?.overall_ratings?.total_feedbacks || 0 }} surveys)
                 </span>
               </div>
@@ -443,126 +444,97 @@
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <span class="w-2 h-3.5 rounded-full bg-emerald-600"></span>
-                Sub-Unit Performance &amp; Workload Matrix ({{ executiveAnalytics?.filter?.label || 'Current Period' }})
+                <span class="w-1.5 h-3 rounded-full bg-slate-900"></span>
+                Sub-Unit Performance Matrix ({{ executiveAnalytics?.filter?.label || 'Current Period' }})
               </h4>
-              <span class="text-[11px] font-bold text-slate-400">Official Institutional Comparison</span>
+              <span class="text-[11px] font-bold text-slate-400">Institutional Unit Summary</span>
             </div>
 
-            <div class="overflow-x-auto rounded-2xl border border-slate-200">
+            <div class="overflow-x-auto rounded-2xl border border-slate-200/80">
               <table class="w-full text-left border-collapse">
                 <thead>
-                  <tr class="bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider">
+                  <tr class="bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-wider border-b border-slate-200">
                     <th class="py-3 px-4">Sub-Unit</th>
                     <th class="py-3 px-3 text-center">Total Requests</th>
                     <th class="py-3 px-3 text-center">Resolved</th>
-                    <th class="py-3 px-3 text-center">Active Work</th>
-                    <th class="py-3 px-3 text-center">Pending Approval</th>
                     <th class="py-3 px-3 text-center">Declined</th>
                     <th class="py-3 px-3 text-center">Completion Rate</th>
-                    <th class="py-3 px-3 text-center">Satisfaction</th>
-                    <th class="py-3 px-4 text-right">Unit Portal</th>
+                    <th class="py-3 px-3 text-center">Client Rating</th>
+                    <th class="py-3 px-4 text-right">Portal</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-xs">
                   <!-- FGMU -->
-                  <tr class="hover:bg-slate-50/80 transition-colors">
+                  <tr class="hover:bg-slate-50/60 transition-colors">
                     <td class="py-3 px-4 font-bold text-slate-900">
-                      <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                        <div>
-                          <div>Facilities Management (FGMU)</div>
-                          <span class="text-[10px] text-slate-400 font-normal">Electrical, Plumbing, Carpentry, HVAC</span>
-                        </div>
-                      </div>
+                      <div>Facilities Management (FGMU)</div>
+                      <span class="text-[10px] text-slate-400 font-normal">Electrical, Plumbing, Carpentry, HVAC</span>
                     </td>
-                    <td class="py-3 px-3 text-center font-bold tabular-nums">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</td>
+                    <td class="py-3 px-3 text-center font-bold tabular-nums text-slate-900">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-bold text-emerald-600 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</td>
-                    <td class="py-3 px-3 text-center font-semibold text-blue-600 tabular-nums">
-                      {{ (executiveAnalytics?.units?.FGMU?.processing ?? 0) + (executiveAnalytics?.units?.FGMU?.active_working ?? 0) }}
-                    </td>
-                    <td class="py-3 px-3 text-center font-semibold text-amber-600 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.pending ?? 0 }}</td>
-                    <td class="py-3 px-3 text-center font-semibold text-rose-600 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</td>
+                    <td class="py-3 px-3 text-center font-semibold text-slate-500 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-black text-slate-800 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.completion_rate ?? 0 }}%</td>
-                    <td class="py-3 px-3 text-center font-bold text-emerald-700 tabular-nums">
+                    <td class="py-3 px-3 text-center font-bold text-slate-700 tabular-nums">
                       {{ executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg ? `${executiveAnalytics.units.FGMU.avg_ratings.overall_avg} ★` : 'N/A' }}
                     </td>
                     <td class="py-3 px-4 text-right">
-                      <router-link to="/director/fgmu" class="text-blue-600 hover:text-blue-800 font-bold text-[11px] hover:underline">
+                      <router-link to="/director/fgmu" class="text-slate-700 hover:text-slate-900 font-bold text-[11px] hover:underline">
                         Inspect &rarr;
                       </router-link>
                     </td>
                   </tr>
 
                   <!-- LEAU -->
-                  <tr class="hover:bg-slate-50/80 transition-colors">
+                  <tr class="hover:bg-slate-50/60 transition-colors">
                     <td class="py-3 px-4 font-bold text-slate-900">
-                      <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <div>
-                          <div>Landscaping &amp; Environment (LEAU)</div>
-                          <span class="text-[10px] text-slate-400 font-normal">Grounds, Campus Ecology, Tree Pruning</span>
-                        </div>
-                      </div>
+                      <div>Landscaping &amp; Environment (LEAU)</div>
+                      <span class="text-[10px] text-slate-400 font-normal">Grounds, Campus Ecology, Tree Pruning</span>
                     </td>
-                    <td class="py-3 px-3 text-center font-bold tabular-nums">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</td>
+                    <td class="py-3 px-3 text-center font-bold tabular-nums text-slate-900">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-bold text-emerald-600 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</td>
-                    <td class="py-3 px-3 text-center font-semibold text-blue-600 tabular-nums">
-                      {{ (executiveAnalytics?.units?.LEAU?.processing ?? 0) + (executiveAnalytics?.units?.LEAU?.active_working ?? 0) }}
-                    </td>
-                    <td class="py-3 px-3 text-center font-semibold text-amber-600 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.pending ?? 0 }}</td>
-                    <td class="py-3 px-3 text-center font-semibold text-rose-600 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</td>
+                    <td class="py-3 px-3 text-center font-semibold text-slate-500 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-black text-slate-800 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.completion_rate ?? 0 }}%</td>
-                    <td class="py-3 px-3 text-center font-bold text-emerald-700 tabular-nums">
+                    <td class="py-3 px-3 text-center font-bold text-slate-700 tabular-nums">
                       {{ executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg ? `${executiveAnalytics.units.LEAU.avg_ratings.overall_avg} ★` : 'N/A' }}
                     </td>
                     <td class="py-3 px-4 text-right">
-                      <router-link to="/director/leau" class="text-emerald-600 hover:text-emerald-800 font-bold text-[11px] hover:underline">
+                      <router-link to="/director/leau" class="text-slate-700 hover:text-slate-900 font-bold text-[11px] hover:underline">
                         Inspect &rarr;
                       </router-link>
                     </td>
                   </tr>
 
                   <!-- SSU -->
-                  <tr class="hover:bg-slate-50/80 transition-colors">
+                  <tr class="hover:bg-slate-50/60 transition-colors">
                     <td class="py-3 px-4 font-bold text-slate-900">
-                      <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                        <div>
-                          <div>Security Services (SSU)</div>
-                          <span class="text-[10px] text-slate-400 font-normal">Campus Safety, Security Incidents</span>
-                        </div>
-                      </div>
+                      <div>Security Services (SSU)</div>
+                      <span class="text-[10px] text-slate-400 font-normal">Campus Safety, Security Services</span>
                     </td>
-                    <td class="py-3 px-3 text-center font-bold tabular-nums">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</td>
+                    <td class="py-3 px-3 text-center font-bold tabular-nums text-slate-900">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-bold text-emerald-600 tabular-nums">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</td>
-                    <td class="py-3 px-3 text-center font-semibold text-blue-600 tabular-nums">{{ executiveAnalytics?.units?.SSU?.processing ?? 0 }}</td>
-                    <td class="py-3 px-3 text-center font-semibold text-amber-600 tabular-nums">{{ executiveAnalytics?.units?.SSU?.pending ?? 0 }}</td>
-                    <td class="py-3 px-3 text-center font-semibold text-rose-600 tabular-nums">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</td>
+                    <td class="py-3 px-3 text-center font-semibold text-slate-500 tabular-nums">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-black text-slate-800 tabular-nums">{{ executiveAnalytics?.units?.SSU?.completion_rate ?? 0 }}%</td>
-                    <td class="py-3 px-3 text-center font-bold text-emerald-700 tabular-nums">
+                    <td class="py-3 px-3 text-center font-bold text-slate-700 tabular-nums">
                       {{ executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg ? `${executiveAnalytics.units.SSU.avg_ratings.overall_avg} ★` : 'N/A' }}
                     </td>
                     <td class="py-3 px-4 text-right">
-                      <router-link to="/director/ssu" class="text-rose-600 hover:text-rose-800 font-bold text-[11px] hover:underline">
+                      <router-link to="/director/ssu" class="text-slate-700 hover:text-slate-900 font-bold text-[11px] hover:underline">
                         Inspect &rarr;
                       </router-link>
                     </td>
                   </tr>
 
                   <!-- Consolidated Total -->
-                  <tr class="bg-emerald-50/40 font-black text-slate-900">
-                    <td class="py-3.5 px-4 text-emerald-900">CONSOLIDATED GSO TOTAL</td>
+                  <tr class="bg-slate-50 font-black text-slate-900 border-t border-slate-200">
+                    <td class="py-3.5 px-4 text-slate-900">CONSOLIDATED GSO TOTAL</td>
                     <td class="py-3.5 px-3 text-center tabular-nums">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</td>
                     <td class="py-3.5 px-3 text-center text-emerald-700 tabular-nums">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</td>
-                    <td class="py-3.5 px-3 text-center text-blue-700 tabular-nums">{{ executiveAnalytics?.summary?.total_processing ?? 0 }}</td>
-                    <td class="py-3.5 px-3 text-center text-amber-700 tabular-nums">{{ executiveAnalytics?.summary?.total_pending ?? 0 }}</td>
-                    <td class="py-3.5 px-3 text-center text-rose-700 tabular-nums">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</td>
-                    <td class="py-3.5 px-3 text-center text-emerald-800 tabular-nums">{{ executiveAnalytics?.summary?.completion_rate ?? 0 }}%</td>
-                    <td class="py-3.5 px-3 text-center text-emerald-800 tabular-nums">
+                    <td class="py-3.5 px-3 text-center text-slate-600 tabular-nums">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</td>
+                    <td class="py-3.5 px-3 text-center text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.completion_rate ?? 0 }}%</td>
+                    <td class="py-3.5 px-3 text-center text-slate-800 tabular-nums">
                       {{ executiveAnalytics?.summary?.overall_ratings?.overall_avg ? `${executiveAnalytics.summary.overall_ratings.overall_avg} ★` : 'N/A' }}
                     </td>
-                    <td class="py-3.5 px-4 text-right text-[10px] text-emerald-800 uppercase tracking-wider">Campus Wide</td>
+                    <td class="py-3.5 px-4 text-right text-[10px] text-slate-500 uppercase tracking-wider">Campus Wide</td>
                   </tr>
                 </tbody>
               </table>
@@ -572,11 +544,9 @@
           <!-- Operational Insights (Service Distribution & SLA Health) -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
             <!-- Left: Service Workload Share -->
-            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-4">
+            <div class="p-5 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-xs">
               <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
+                <span class="w-1.5 h-3 rounded-full bg-slate-900"></span>
                 Top Service Categories &amp; Distribution
               </h4>
 
@@ -586,8 +556,8 @@
                     <span class="truncate">{{ item.name }}</span>
                     <span class="tabular-nums text-slate-500 font-extrabold">{{ item.count }} tickets ({{ item.percent }}%)</span>
                   </div>
-                  <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                    <div class="h-full bg-slate-900 rounded-full" :style="{ width: `${item.percent}%` }"></div>
+                  <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-slate-800 rounded-full" :style="{ width: `${item.percent}%` }"></div>
                   </div>
                 </div>
               </div>
@@ -597,46 +567,44 @@
             </div>
 
             <!-- Right: SLA Compliance & Quality Dimensions -->
-            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-4">
+            <div class="p-5 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-xs">
               <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <span class="w-1.5 h-3 rounded-full bg-slate-900"></span>
                 Citizen's Charter SLA Compliance
               </h4>
 
-              <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="p-3 bg-emerald-100/60 rounded-xl border border-emerald-200/50">
-                  <span class="text-[9px] font-bold text-emerald-800 uppercase tracking-wider block">On-Time</span>
-                  <span class="text-lg font-black text-emerald-800 tabular-nums">{{ executiveAnalytics?.completion_health?.on_time ?? 0 }}</span>
-                  <span class="text-[10px] font-extrabold text-emerald-600 block">{{ executiveAnalytics?.completion_health?.on_time_percent ?? 0 }}%</span>
+              <div class="grid grid-cols-3 gap-2.5 text-center">
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+                  <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">On-Time</span>
+                  <span class="text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.completion_health?.on_time ?? 0 }}</span>
+                  <span class="text-[10px] font-bold text-emerald-700 block">{{ executiveAnalytics?.completion_health?.on_time_percent ?? 0 }}%</span>
                 </div>
-                <div class="p-3 bg-amber-100/60 rounded-xl border border-amber-200/50">
-                  <span class="text-[9px] font-bold text-amber-800 uppercase tracking-wider block">Beyond-Time</span>
-                  <span class="text-lg font-black text-amber-800 tabular-nums">{{ executiveAnalytics?.completion_health?.beyond_time ?? 0 }}</span>
-                  <span class="text-[10px] font-extrabold text-amber-600 block">{{ executiveAnalytics?.completion_health?.beyond_time_percent ?? 0 }}%</span>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+                  <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Beyond-Time</span>
+                  <span class="text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.completion_health?.beyond_time ?? 0 }}</span>
+                  <span class="text-[10px] font-bold text-amber-700 block">{{ executiveAnalytics?.completion_health?.beyond_time_percent ?? 0 }}%</span>
                 </div>
-                <div class="p-3 bg-rose-100/60 rounded-xl border border-rose-200/50">
-                  <span class="text-[9px] font-bold text-rose-800 uppercase tracking-wider block">Incomplete</span>
-                  <span class="text-lg font-black text-rose-800 tabular-nums">{{ executiveAnalytics?.completion_health?.not_completed ?? 0 }}</span>
-                  <span class="text-[10px] font-extrabold text-rose-600 block">{{ executiveAnalytics?.completion_health?.not_completed_percent ?? 0 }}%</span>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+                  <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Incomplete</span>
+                  <span class="text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.completion_health?.not_completed ?? 0 }}</span>
+                  <span class="text-[10px] font-bold text-slate-500 block">{{ executiveAnalytics?.completion_health?.not_completed_percent ?? 0 }}%</span>
                 </div>
               </div>
 
               <!-- Quality Dimensions Grid -->
-              <div class="pt-2 border-t border-slate-200/60 space-y-2">
-                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Quality Dimension Scores (out of 5.0)</span>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                  <div class="p-2 rounded-lg bg-white border border-slate-200/60">
-                    <span class="text-[9px] font-bold text-slate-400 block">Courtesy</span>
+              <div class="pt-2 border-t border-slate-100 space-y-2">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Client Rating Dimensions (out of 5.0)</span>
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                  <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+                    <span class="text-[9px] font-semibold text-slate-400 block">Courtesy</span>
                     <span class="font-extrabold text-slate-900">{{ executiveAnalytics?.summary?.overall_ratings?.avg_courtesy ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_courtesy).toFixed(2) : '5.00' }}</span>
                   </div>
-                  <div class="p-2 rounded-lg bg-white border border-slate-200/60">
-                    <span class="text-[9px] font-bold text-slate-400 block">Work Quality</span>
+                  <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+                    <span class="text-[9px] font-semibold text-slate-400 block">Quality</span>
                     <span class="font-extrabold text-slate-900">{{ executiveAnalytics?.summary?.overall_ratings?.avg_quality ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
                   </div>
-                  <div class="p-2 rounded-lg bg-white border border-slate-200/60">
-                    <span class="text-[9px] font-bold text-slate-400 block">Timeliness</span>
+                  <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+                    <span class="text-[9px] font-semibold text-slate-400 block">Timeliness</span>
                     <span class="font-extrabold text-slate-900">{{ executiveAnalytics?.summary?.overall_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
                   </div>
                 </div>

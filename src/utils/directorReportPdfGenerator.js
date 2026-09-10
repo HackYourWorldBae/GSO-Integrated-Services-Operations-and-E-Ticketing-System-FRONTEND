@@ -207,38 +207,30 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
       },
       {
         table: {
-          widths: ['*', '*', '*', '*', '*'],
+          widths: ['*', '*', '*', '*'],
           body: [
             [
               {
                 stack: [
-                  { text: 'TOTAL TICKETS FILED', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
+                  { text: 'TOTAL REQUESTS FILED', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
                   { text: String(summary.total_requests || 0), fontSize: 15, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
-                  { text: 'All Units Combined', fontSize: 6.5, color: '#6b7280', alignment: 'center' },
+                  { text: 'Consolidated Across Units', fontSize: 6.5, color: '#6b7280', alignment: 'center' },
                 ],
                 fillColor: '#f9fafb',
               },
               {
                 stack: [
-                  { text: 'RESOLVED & CLOSED', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
+                  { text: 'RESOLVED & COMPLETED', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
                   { text: String(summary.total_resolved || 0), fontSize: 15, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
-                  { text: 'Completed Actions', fontSize: 6.5, color: '#6b7280', alignment: 'center' },
+                  { text: 'Closed Service Actions', fontSize: 6.5, color: '#6b7280', alignment: 'center' },
                 ],
                 fillColor: '#f9fafb',
               },
               {
                 stack: [
-                  { text: 'ACTIVE / IN PROGRESS', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
-                  { text: String((summary.total_processing || 0) + (summary.total_pending || 0)), fontSize: 15, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
-                  { text: `${summary.total_pending || 0} Pending Review`, fontSize: 6.5, color: '#6b7280', alignment: 'center' },
-                ],
-                fillColor: '#f9fafb',
-              },
-              {
-                stack: [
-                  { text: 'DECLINED / REJECTED', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
+                  { text: 'DECLINED / OUT OF SCOPE', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
                   { text: String(summary.total_declined || 0), fontSize: 15, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
-                  { text: 'Out of Scope', fontSize: 6.5, color: '#6b7280', alignment: 'center' },
+                  { text: 'Disapproved / Referred', fontSize: 6.5, color: '#6b7280', alignment: 'center' },
                 ],
                 fillColor: '#f9fafb',
               },
@@ -246,7 +238,7 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
                 stack: [
                   { text: 'RESOLUTION RATE', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
                   { text: `${summary.completion_rate || 0}%`, fontSize: 15, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
-                  { text: 'Overall Efficiency', fontSize: 6.5, color: '#6b7280', alignment: 'center' },
+                  { text: 'Compliance Benchmark', fontSize: 6.5, color: '#6b7280', alignment: 'center' },
                 ],
                 fillColor: '#f9fafb',
               },
@@ -277,15 +269,13 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
       {
         table: {
           headerRows: 1,
-          widths: ['*', 45, 45, 45, 45, 45, 55, 50],
+          widths: ['*', 55, 55, 55, 65, 55],
           body: [
             // Header Row
             [
               { text: 'SUB-UNIT', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb' },
               { text: 'TOTAL', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
               { text: 'RESOLVED', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
-              { text: 'ACTIVE', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
-              { text: 'PENDING', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
               { text: 'DECLINED', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
               { text: 'RATE (%)', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
               { text: 'CSAT / 5.0', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
@@ -300,8 +290,6 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               },
               { text: String(units.FGMU?.total || 0), fontSize: 8, alignment: 'center' },
               { text: String(units.FGMU?.resolved || 0), fontSize: 8, bold: true, alignment: 'center' },
-              { text: String((units.FGMU?.processing || 0) + (units.FGMU?.active_working || 0)), fontSize: 8, alignment: 'center' },
-              { text: String(units.FGMU?.pending || 0), fontSize: 8, alignment: 'center' },
               { text: String(units.FGMU?.declined || 0), fontSize: 8, alignment: 'center' },
               { text: `${units.FGMU?.completion_rate || 0}%`, fontSize: 8, bold: true, alignment: 'center' },
               { text: units.FGMU?.avg_ratings?.overall_avg ? `${units.FGMU.avg_ratings.overall_avg}` : 'N/A', fontSize: 8, alignment: 'center' },
@@ -317,8 +305,6 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               },
               { text: String(units.LEAU?.total || 0), fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
               { text: String(units.LEAU?.resolved || 0), fontSize: 8, bold: true, alignment: 'center', fillColor: '#f9fafb' },
-              { text: String((units.LEAU?.processing || 0) + (units.LEAU?.active_working || 0)), fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
-              { text: String(units.LEAU?.pending || 0), fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
               { text: String(units.LEAU?.declined || 0), fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
               { text: `${units.LEAU?.completion_rate || 0}%`, fontSize: 8, bold: true, alignment: 'center', fillColor: '#f9fafb' },
               { text: units.LEAU?.avg_ratings?.overall_avg ? `${units.LEAU.avg_ratings.overall_avg}` : 'N/A', fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
@@ -333,8 +319,6 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               },
               { text: String(units.SSU?.total || 0), fontSize: 8, alignment: 'center' },
               { text: String(units.SSU?.resolved || 0), fontSize: 8, bold: true, alignment: 'center' },
-              { text: String(units.SSU?.processing || 0), fontSize: 8, alignment: 'center' },
-              { text: String(units.SSU?.pending || 0), fontSize: 8, alignment: 'center' },
               { text: String(units.SSU?.declined || 0), fontSize: 8, alignment: 'center' },
               { text: `${units.SSU?.completion_rate || 0}%`, fontSize: 8, bold: true, alignment: 'center' },
               { text: units.SSU?.avg_ratings?.overall_avg ? `${units.SSU.avg_ratings.overall_avg}` : 'N/A', fontSize: 8, alignment: 'center' },
@@ -344,8 +328,6 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               { text: 'CONSOLIDATED GSO TOTAL', bold: true, fontSize: 8, color: '#111827', fillColor: '#f3f4f6' },
               { text: String(summary.total_requests || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
               { text: String(summary.total_resolved || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
-              { text: String(summary.total_processing || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
-              { text: String(summary.total_pending || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
               { text: String(summary.total_declined || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
               { text: `${summary.completion_rate || 0}%`, bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
               { text: ratings.overall_avg ? `${ratings.overall_avg}` : 'N/A', bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
