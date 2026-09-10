@@ -226,10 +226,10 @@
               </p>
             </div>
             <router-link
-              to="/admin/leau/personnel"
+              to="/admin/leau/dispatch"
               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 shrink-0"
             >
-              <span>Manage Roster &amp; Assign</span>
+              <span>Open Ticket Dispatch</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </router-link>
           </div>
@@ -258,10 +258,10 @@
               </div>
 
               <router-link
-                :to="'/admin/leau/personnel?ticket=' + ticket.id"
+                :to="'/admin/leau/dispatch?ticket=' + ticket.id"
                 class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 shrink-0 text-center"
               >
-                Assign Personnel
+                Dispatch Worker
               </router-link>
             </div>
           </div>

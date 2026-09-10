@@ -23,6 +23,8 @@ const FormsView = () => import('../views/FormsView.vue');
 
 const FGMU_DispatchedTickets = () => import('../views/dashboards/admin/fgmu/FGMU_DispatchedTickets.vue');
 const LEAU_DispatchedTickets = () => import('../views/dashboards/admin/leau/LEAU_DispatchedTickets.vue');
+const FGMU_TicketDispatch = () => import('../views/dashboards/admin/fgmu/FGMU_TicketDispatch.vue');
+const LEAU_TicketDispatch = () => import('../views/dashboards/admin/leau/LEAU_TicketDispatch.vue');
 const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
@@ -107,6 +109,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'FGMU', permission: 'tickets.view_all' }
     },
     {
+      path: '/admin/fgmu/dispatch',
+      name: 'fgmu-ticket-dispatch',
+      component: FGMU_TicketDispatch,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU', permission: 'tickets.dispatch' }
+    },
+    {
       path: '/admin/fgmu/dispatched',
       name: 'fgmu-admin-dispatched',
       component: FGMU_DispatchedTickets,
@@ -146,6 +154,12 @@ const router = createRouter({
       name: 'leau-ticket-queues',
       component: LEAU_TicketQueues,
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'LEAU', permission: 'tickets.view_all' }
+    },
+    {
+      path: '/admin/leau/dispatch',
+      name: 'leau-ticket-dispatch',
+      component: LEAU_TicketDispatch,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
     {
       path: '/admin/leau/dispatched',
@@ -269,6 +283,10 @@ const router = createRouter({
       redirect: '/admin/fgmu'
     },
     {
+      path: '/dispatcher/fgmu/dispatch',
+      redirect: to => ({ path: '/admin/fgmu/dispatch', query: to.query })
+    },
+    {
       path: '/dispatcher/fgmu/workers',
       redirect: to => ({ path: '/admin/fgmu/personnel', query: to.query })
     },
@@ -289,6 +307,10 @@ const router = createRouter({
     {
       path: '/dispatcher/leau',
       redirect: '/admin/leau'
+    },
+    {
+      path: '/dispatcher/leau/dispatch',
+      redirect: to => ({ path: '/admin/leau/dispatch', query: to.query })
     },
     {
       path: '/dispatcher/leau/workers',
