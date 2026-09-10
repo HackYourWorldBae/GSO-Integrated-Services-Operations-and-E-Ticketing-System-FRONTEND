@@ -350,12 +350,12 @@
                 <span class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider block">Client Rating Dimensions (out of 5.0)</span>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-center sm:text-left">
-                    <span class="text-xs font-semibold text-slate-400 block mb-0.5">Courtesy</span>
-                    <span class="text-lg sm:text-xl font-extrabold text-slate-900">{{ executiveAnalytics?.summary?.overall_ratings?.avg_courtesy ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_courtesy).toFixed(2) : '5.00' }}</span>
-                  </div>
-                  <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-center sm:text-left">
                     <span class="text-xs font-semibold text-slate-400 block mb-0.5">Quality</span>
                     <span class="text-lg sm:text-xl font-extrabold text-slate-900">{{ executiveAnalytics?.summary?.overall_ratings?.avg_quality ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
+                  </div>
+                  <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-center sm:text-left">
+                    <span class="text-xs font-semibold text-slate-400 block mb-0.5">Efficiency</span>
+                    <span class="text-lg sm:text-xl font-extrabold text-slate-900">{{ executiveAnalytics?.summary?.overall_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
                   </div>
                   <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-center sm:text-left">
                     <span class="text-xs font-semibold text-slate-400 block mb-0.5">Timeliness</span>

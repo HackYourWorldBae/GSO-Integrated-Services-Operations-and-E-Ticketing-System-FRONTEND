@@ -425,13 +425,13 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
                       { text: `${compHealth.not_completed_percent || 0}%`, fontSize: 7.5, alignment: 'center' },
                     ],
                     [
-                      { text: 'Client Courtesy & Demeanor', fontSize: 7.5, fillColor: '#f9fafb' },
-                      { text: ratings.avg_courtesy ? `${parseFloat(ratings.avg_courtesy).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: 'Quality of Workmanship', fontSize: 7.5, fillColor: '#f9fafb' },
+                      { text: ratings.avg_quality ? `${parseFloat(ratings.avg_quality).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
                       { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center', fillColor: '#f9fafb' },
                     ],
                     [
-                      { text: 'Quality of Workmanship', fontSize: 7.5 },
-                      { text: ratings.avg_quality ? `${parseFloat(ratings.avg_quality).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center' },
+                      { text: 'Service Efficiency', fontSize: 7.5 },
+                      { text: ratings.avg_efficiency ? `${parseFloat(ratings.avg_efficiency).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center' },
                       { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center' },
                     ],
                     [
