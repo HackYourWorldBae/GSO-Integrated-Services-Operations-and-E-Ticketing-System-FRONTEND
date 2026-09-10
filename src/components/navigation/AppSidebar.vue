@@ -288,11 +288,6 @@ const rawNavGroups = computed(() => {
             to: '/superadmin/users',
             icon: 'users',
             permission: 'users.provision'
-          },
-          {
-            label: 'Organizational Chart',
-            to: '/director/org-chart',
-            icon: 'hierarchy'
           }
         ]
       }

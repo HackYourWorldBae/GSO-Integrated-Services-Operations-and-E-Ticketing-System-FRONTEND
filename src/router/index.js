@@ -17,7 +17,6 @@ const Director_Dashboard = () => import('../views/dashboards/director/Director_D
 const Director_FGMU = () => import('../views/dashboards/director/Director_FGMU.vue');
 const Director_LEAU = () => import('../views/dashboards/director/Director_LEAU.vue');
 const Director_SSU = () => import('../views/dashboards/director/Director_SSU.vue');
-const OrganizationalChart = () => import('../views/dashboards/director/OrganizationalChart.vue');
 const FormsView = () => import('../views/FormsView.vue');
 const FGMU_Dispatcher = () => import('../views/dashboards/dispatcher/fgmu/FGMU.vue');
 const FGMU_Workers = () => import('../views/dashboards/dispatcher/fgmu/FGMU_Workers.vue');
@@ -251,9 +250,11 @@ const router = createRouter({
     },
     {
       path: '/director/organizational-chart',
-      name: 'organizational-chart',
-      component: OrganizationalChart,
-      meta: { requiresAuth: true, roles: ['director'] }
+      redirect: '/director/dashboard'
+    },
+    {
+      path: '/director/org-chart',
+      redirect: '/director/dashboard'
     },
 
     // Dispatcher Dashboards — FGMU

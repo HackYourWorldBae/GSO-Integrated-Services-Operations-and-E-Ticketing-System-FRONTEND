@@ -74,8 +74,6 @@ const breadcrumbs = computed(() => {
     crumbs.push({ label: 'My Tickets', to: null });
   } else if (path.includes('/edit-profile')) {
     crumbs.push({ label: 'Account Settings', to: null });
-  } else if (path.includes('/org-chart')) {
-    crumbs.push({ label: 'Organizational Chart', to: null });
   } else if (path.includes('/forms')) {
     crumbs.push({ label: 'Request Intake Form', to: null });
   }
