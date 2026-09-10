@@ -58,10 +58,6 @@ const breadcrumbs = computed(() => {
     crumbs.push({ label: path.includes('/ssu') ? 'Incident Queues' : 'Ticket Queues', to: null });
   } else if (path.includes('/personnel')) {
     crumbs.push({ label: 'Personnel Management', to: null });
-  } else if (path.includes('/announcements')) {
-    crumbs.push({ label: 'Project Announcements', to: null });
-  } else if (path.includes('/project-archives')) {
-    crumbs.push({ label: 'Project Archives', to: null });
   } else if (path.includes('/archives')) {
     crumbs.push({ label: 'Archives', to: null });
   } else if (path.includes('/workers')) {

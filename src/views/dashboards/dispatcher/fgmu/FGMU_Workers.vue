@@ -26,12 +26,6 @@
         </svg>
         <span class="text">Archives</span>
       </router-link>
-      <router-link to="/dispatcher/fgmu/project-archives" class="nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
-        <span class="text">Project Archives</span>
-      </router-link>
     </template>
 
     <template #header-title>
@@ -69,7 +63,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
           </div>
           <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">No Assignment Target Selected</h3>
-          <p class="text-slate-500 font-medium max-w-sm">Please return to the ticket queue or project announcements and click the "Assign" button on a specific item to dispatch workers.</p>
+          <p class="text-slate-500 font-medium max-w-sm">Please return to the ticket queue and click the "Assign" button on a specific item to dispatch workers.</p>
           <router-link to="/dispatcher/fgmu" class="mt-8 px-8 py-3 bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-500/20 active:scale-95">Return to Ticket Queue</router-link>
         </div>
 

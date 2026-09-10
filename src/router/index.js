@@ -25,8 +25,6 @@ const LEAU_Workers = () => import('../views/dashboards/dispatcher/leau/LEAU_Work
 
 const FGMU_DispatchedTickets = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatchedTickets.vue');
 const LEAU_DispatchedTickets = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatchedTickets.vue');
-const FGMU_DispatcherProjectArchives = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatcherProjectArchives.vue');
-const LEAU_DispatcherProjectArchives = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatcherProjectArchives.vue');
 const FGMU_DispatcherArchives = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatcherArchives.vue');
 const LEAU_DispatcherArchives = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatcherArchives.vue');
 const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
@@ -37,12 +35,6 @@ const FGMU_Archives = () => import('../views/dashboards/admin/fgmu/FGMU_Archives
 const LEAU_Archives = () => import('../views/dashboards/admin/leau/LEAU_Archives.vue');
 const SSU_Archives = () => import('../views/dashboards/admin/ssu/SSU_Archives.vue');
 const User_CompletedTickets = () => import('../views/dashboards/user/User_CompletedTickets.vue');
-const FGMU_Announcements = () => import('../views/dashboards/admin/fgmu/FGMU_Announcements.vue');
-const LEAU_Announcements = () => import('../views/dashboards/admin/leau/LEAU_Announcements.vue');
-const ProjectsView = () => import('../views/ProjectsView.vue');
-const ProjectsArchiveView = () => import('../views/ProjectsArchiveView.vue');
-const FGMU_ProjectArchives = () => import('../views/dashboards/admin/fgmu/FGMU_ProjectArchives.vue');
-const LEAU_ProjectArchives = () => import('../views/dashboards/admin/leau/LEAU_ProjectArchives.vue');
 const Superadmin_Users = () => import('../views/dashboards/superadmin/Superadmin_Users.vue');
 const Superadmin_AuditLogs = () => import('../views/dashboards/superadmin/Superadmin_AuditLogs.vue');
 
@@ -61,13 +53,11 @@ const router = createRouter({
     },
     {
       path: '/projects',
-      name: 'projects',
-      component: ProjectsView
+      redirect: '/'
     },
     {
       path: '/projects/archives',
-      name: 'projects-archives',
-      component: ProjectsArchiveView
+      redirect: '/'
     },
 
     {
@@ -128,15 +118,11 @@ const router = createRouter({
     },
     {
       path: '/admin/fgmu/announcements',
-      name: 'fgmu-admin-announcements',
-      component: FGMU_Announcements,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
+      redirect: '/admin/fgmu'
     },
     {
       path: '/admin/fgmu/project-archives',
-      name: 'fgmu-admin-project-archives',
-      component: FGMU_ProjectArchives,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
+      redirect: '/admin/fgmu/archives'
     },
 
     // Sub-unit Dashboards — LEAU Admin
@@ -166,15 +152,11 @@ const router = createRouter({
     },
     {
       path: '/admin/leau/announcements',
-      name: 'leau-admin-announcements',
-      component: LEAU_Announcements,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
+      redirect: '/admin/leau'
     },
     {
       path: '/admin/leau/project-archives',
-      name: 'leau-admin-project-archives',
-      component: LEAU_ProjectArchives,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
+      redirect: '/admin/leau/archives'
     },
 
     // Sub-unit Dashboards — SSU Admin
@@ -284,9 +266,7 @@ const router = createRouter({
     },
     {
       path: '/dispatcher/fgmu/project-archives',
-      name: 'fgmu-dispatcher-project-archives',
-      component: FGMU_DispatcherProjectArchives,
-      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'FGMU' }
+      redirect: '/dispatcher/fgmu/archives'
     },
 
     // Dispatcher Dashboards — LEAU
@@ -316,9 +296,7 @@ const router = createRouter({
     },
     {
       path: '/dispatcher/leau/project-archives',
-      name: 'leau-dispatcher-project-archives',
-      component: LEAU_DispatcherProjectArchives,
-      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'LEAU' }
+      redirect: '/dispatcher/leau/archives'
     },
 
     // Service Intake Forms

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -34,59 +34,6 @@ const services = [
 ];
 
 const goToLogin = () => router.push({ name: 'login' });
-
-// ── Project Announcements ──
-const landingProjects = ref([]);
-const landingProjectsLoading = ref(false);
-
-const fetchLandingProjects = async () => {
-  landingProjectsLoading.value = true;
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/projects`);
-    const data = await res.json();
-    if (res.ok) landingProjects.value = data.data?.projects || [];
-  } catch (e) {
-    console.error('Failed to load landing projects', e);
-  } finally {
-    landingProjectsLoading.value = false;
-  }
-};
-
-const _today = new Date();
-_today.setHours(0, 0, 0, 0);
-
-const landingActive = computed(() =>
-  landingProjects.value.filter(p => p.status === 'processing' && p.current_step >= 5)
-);
-
-const landingUpcoming = computed(() =>
-  landingProjects.value.filter(
-    p => p.status === 'pending' || p.status === 'approved' ||
-    (p.status === 'processing' && p.current_step < 5)
-  )
-);
-
-const unitLabel = (unitId) => {
-  const map = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
-  return map[Number(unitId)] || 'GSO';
-};
-
-const isActiveProject = (project) =>
-  project.status === 'processing' && project.current_step >= 5;
-
-const formatLandingDate = (d) => {
-  if (!d) return 'TBD';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-};
-
-const formatLandingProjectNumber = (id) => {
-  if (!id) return '';
-  const s = String(id);
-  if (s.includes('PRJ')) return s;
-  return `Project #${s}`;
-};
-
-onMounted(fetchLandingProjects);
 </script>
 
 <template>
@@ -109,7 +56,6 @@ onMounted(fetchLandingProjects);
         <!-- Desktop links -->
         <ul class="nav-links" role="list">
           <li><a href="#about" class="nav-link">About</a></li>
-          <li><router-link to="/projects" class="nav-link">Projects</router-link></li>
           <li><a href="#services" class="nav-link">Services</a></li>
         </ul>
 
@@ -136,7 +82,6 @@ onMounted(fetchLandingProjects);
       <!-- Mobile menu -->
       <div class="mobile-menu" :class="{ 'mobile-menu--open': isMobileMenuOpen }">
         <a href="#about" @click="isMobileMenuOpen = false">About</a>
-        <router-link to="/projects" @click="isMobileMenuOpen = false">Projects</router-link>
         <a href="#services" @click="isMobileMenuOpen = false">Services</a>
         <button class="btn-mobile-login" @click="goToLogin">Login to Portal</button>
       </div>
@@ -355,83 +300,6 @@ onMounted(fetchLandingProjects);
       </div>
     </section>
 
-    <!-- ===================== PROJECT ANNOUNCEMENTS ===================== -->
-    <section v-if="landingProjects.length > 0" class="projects-section"
-             aria-labelledby="projects-heading">
-      <div class="section-container">
-        <div class="projects-header">
-          <div>
-            <span class="section-eyebrow">Campus Projects</span>
-            <h2 id="projects-heading" class="section-heading">Official Project Notices</h2>
-            <p class="projects-desc">
-              Stay informed about ongoing and upcoming facility maintenance and grounds projects
-              across the BSU campus.
-            </p>
-          </div>
-          <div class="projects-counts">
-            <div class="count-pill count-pill--active">
-              <span class="count-dot" aria-hidden="true"></span>
-              <strong>{{ landingActive.length }}</strong>
-              <span>Active</span>
-            </div>
-            <div class="count-pill count-pill--upcoming">
-              <span class="count-dot upcoming-dot" aria-hidden="true"></span>
-              <strong>{{ landingUpcoming.length }}</strong>
-              <span>Upcoming</span>
-            </div>
-            <router-link to="/projects" class="btn-view-all">
-              View All
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M9 5l7 7-7 7" />
-              </svg>
-            </router-link>
-          </div>
-        </div>
-
-        <div class="projects-list">
-          <div
-            v-for="(project, index) in landingProjects.slice(0, 3)"
-            :key="project.id"
-            class="project-row"
-            :class="isActiveProject(project) ? 'project-row--active' : 'project-row--upcoming'"
-            :style="{ animationDelay: `${index * 80}ms` }"
-          >
-            <div class="project-row-meta">
-              <span class="project-status-badge"
-                    :class="isActiveProject(project) ? 'badge-active' : 'badge-upcoming'">
-                <span class="badge-dot" aria-hidden="true"></span>
-                {{ isActiveProject(project) ? 'Active' : 'Upcoming' }}
-              </span>
-              <span class="project-unit-tag">{{ unitLabel(project.unit_id) }}</span>
-              <span class="project-date-text">{{ formatLandingDate(project.submitted_at) }}</span>
-            </div>
-            <h4 class="project-title">{{ project.project_title }}</h4>
-            <div class="project-location-row">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                   class="project-loc-icon" aria-hidden="true">
-                <path fill-rule="evenodd"
-                      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                      clip-rule="evenodd" />
-              </svg>
-              <span>{{ project.location || 'BSU Main Campus' }}</span>
-              <span class="project-target-chip">
-                Target: {{ formatLandingDate(project.project_target_date) }}
-              </span>
-            </div>
-          </div>
-
-          <router-link v-if="landingProjects.length > 3" to="/projects" class="projects-show-more">
-            View all {{ landingProjects.length }} project announcements
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M9 5l7 7-7 7" />
-            </svg>
-          </router-link>
-        </div>
-      </div>
-    </section>
-
     <!-- ===================== CTA ===================== -->
     <section class="cta-section" aria-label="Call to action — login to portal">
       <div class="section-container cta-inner">
@@ -470,7 +338,6 @@ onMounted(fetchLandingProjects);
             <span class="footer-col-title">Navigation</span>
             <a href="#about">About GSO</a>
             <a href="#services">Services</a>
-            <router-link to="/projects">Projects</router-link>
           </div>
           <div class="footer-links-col">
             <span class="footer-col-title">Service Units</span>
@@ -1355,203 +1222,6 @@ onMounted(fetchLandingProjects);
 .svc-slate .service-cta:hover   { color: #334155; }
 .svc-teal  .service-cta         { color: var(--bsu-green-dark); }
 .svc-teal  .service-cta:hover   { color: var(--bsu-green-deep); }
-
-/* ============================================================
-   PROJECT ANNOUNCEMENTS
-   ============================================================ */
-.projects-section {
-  padding: var(--sp-16) 0;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-
-.projects-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--sp-6);
-  margin-bottom: var(--sp-8);
-  flex-wrap: wrap;
-}
-
-.projects-header .section-heading { margin-bottom: var(--sp-3); }
-
-.projects-desc {
-  font-size: 0.92rem;
-  color: var(--text-muted);
-  line-height: 1.7;
-  max-width: 420px;
-}
-
-.projects-counts {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  flex-wrap: wrap;
-  flex-shrink: 0;
-}
-
-.count-pill {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  padding: 0.42rem 0.85rem;
-  border-radius: var(--r-pill);
-  border: 1px solid;
-  font-size: 0.8rem;
-}
-
-.count-pill strong { font-weight: 700; color: var(--text-primary); }
-.count-pill span:last-child { color: var(--text-muted); }
-
-.count-pill--active   { background: #f0fdf4; border-color: #bbf7d0; }
-.count-pill--upcoming { background: #fefce8; border-color: #fde68a; }
-
-.count-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 5px rgba(34, 197, 94, 0.55);
-  flex-shrink: 0;
-}
-
-.upcoming-dot { background: #f59e0b; box-shadow: 0 0 5px rgba(245, 158, 11, 0.55); }
-
-.btn-view-all {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-1);
-  background: var(--bsu-green);
-  color: white;
-  font-family: var(--font-ui);
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0.5rem 1.05rem;
-  border-radius: var(--r-md);
-  text-decoration: none;
-  transition: background 0.2s, transform 0.15s;
-}
-
-.btn-view-all svg { width: 13px; height: 13px; }
-.btn-view-all:hover { background: var(--bsu-green-dark); transform: translateY(-1px); }
-
-/* Project rows */
-.projects-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-}
-
-.project-row {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid transparent;
-  border-radius: var(--r-md);
-  padding: 1.1rem 1.25rem;
-  transition: box-shadow 0.2s ease, transform 0.18s ease;
-  animation: fadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.project-row--active   { border-left-color: #22c55e; }
-.project-row--upcoming { border-left-color: #f59e0b; }
-
-.project-row:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  transform: translateY(-1px);
-}
-
-.project-row-meta {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  margin-bottom: var(--sp-2);
-  flex-wrap: wrap;
-}
-
-.project-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-1);
-  font-size: 0.58rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-radius: var(--r-pill);
-  padding: 0.14rem 0.48rem;
-  border: 1px solid;
-}
-
-.badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.7; }
-.badge-active   { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
-.badge-upcoming { background: #fefce8; color: #92400e; border-color: #fde68a; }
-
-.project-unit-tag {
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: var(--bsu-green);
-  background: rgba(26, 107, 53, 0.07);
-  border: 1px solid rgba(26, 107, 53, 0.14);
-  border-radius: var(--r-pill);
-  padding: 0.08rem 0.42rem;
-  letter-spacing: 0.06em;
-}
-
-.project-date-text {
-  font-size: 0.64rem;
-  color: var(--text-subtle);
-  margin-left: auto;
-}
-
-.project-title {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 var(--sp-2);
-  letter-spacing: -0.01em;
-  line-height: 1.35;
-}
-
-.project-location-row {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  flex-wrap: wrap;
-}
-
-.project-loc-icon { width: 12px; height: 12px; color: var(--bsu-green); flex-shrink: 0; }
-
-.project-target-chip {
-  background: var(--surface-2);
-  border-radius: var(--r-sm);
-  padding: 0.08rem 0.42rem;
-  font-size: 0.63rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-left: var(--sp-2);
-}
-
-.projects-show-more {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-2);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--bsu-green);
-  padding: 0.85rem;
-  border: 1px dashed rgba(26, 107, 53, 0.24);
-  border-radius: var(--r-md);
-  text-decoration: none;
-  transition: background 0.2s, color 0.2s;
-  margin-top: var(--sp-1);
-}
-
-.projects-show-more svg { width: 14px; height: 14px; }
-.projects-show-more:hover { background: rgba(26, 107, 53, 0.05); color: var(--bsu-green-dark); }
 
 /* ============================================================
    CTA SECTION
