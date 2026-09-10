@@ -264,37 +264,22 @@
               </p>
             </div>
 
-            <!-- PDF Action Buttons -->
-            <div class="flex flex-wrap items-center gap-3 shrink-0">
-              <!-- Preview PDF Report -->
+            <!-- PDF Action Button -->
+            <div class="flex items-center gap-3 shrink-0">
               <button
-                @click="handlePreviewReport"
+                @click="handleDownloadReport"
                 :disabled="isGeneratingPdf || !executiveAnalytics"
-                class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-md shadow-slate-900/10 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                title="Preview document in browser"
+                class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-md shadow-slate-900/10 hover:shadow-emerald-700/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                title="Generate and download official PDF report"
               >
                 <svg v-if="isGeneratingPdf" class="animate-spin h-4 w-4 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <span>Preview PDF</span>
-              </button>
-
-              <!-- Download Official PDF -->
-              <button
-                @click="handleDownloadReport"
-                :disabled="isGeneratingPdf || !executiveAnalytics"
-                class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-md shadow-emerald-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                title="Download official PDF report"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                <span>Download PDF</span>
+                <span>{{ isGeneratingPdf ? 'Generating PDF...' : 'Generate & Download Report' }}</span>
               </button>
             </div>
           </div>
@@ -664,23 +649,13 @@
       </div>
     </template>
   </MainLayout>
-
-  <!-- Document Viewer Modal for Report Preview -->
-  <DocumentViewerModal
-    :is-open="isPreviewOpen"
-    :title="previewTitle"
-    :file-name="previewFileName"
-    :file-blob="previewBlob"
-    @close="isPreviewOpen = false"
-  />
 </template>
 
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
-import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import { generateDirectorReportBlob, downloadDirectorReportPdf } from '@/utils/directorReportPdfGenerator';
+import { downloadDirectorReportPdf } from '@/utils/directorReportPdfGenerator';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 
@@ -693,10 +668,6 @@ const unitStats = ref({
 // Executive Analytics State
 const executiveAnalytics = ref(null);
 const isGeneratingPdf = ref(false);
-const isPreviewOpen = ref(false);
-const previewBlob = ref(null);
-const previewTitle = ref('');
-const previewFileName = ref('');
 
 // Date / Period Controls
 const currentYear = new Date().getFullYear();
@@ -792,37 +763,6 @@ const fetchStats = async () => {
     }
   } catch (error) {
     console.error('Failed to fetch director unit stats:', error);
-  }
-};
-
-const handlePreviewReport = async () => {
-  if (!executiveAnalytics.value) {
-    toast.error('Analytics summary data is still loading.');
-    return;
-  }
-  isGeneratingPdf.value = true;
-  try {
-    const blob = await generateDirectorReportBlob(executiveAnalytics.value);
-    previewBlob.value = blob;
-    const filter = executiveAnalytics.value.filter || {};
-    previewTitle.value = `Official BSU Report — ${filter.label || 'Executive Summary'}`;
-    const p = (filter.period || 'all').toLowerCase();
-    const y = filter.year || currentYear;
-    if (p === 'month') {
-      previewFileName.value = `BSU_GSO_Monthly_Report_${y}_M${String(filter.month || 1).padStart(2, '0')}.pdf`;
-    } else if (p === 'quarter') {
-      previewFileName.value = `BSU_GSO_Quarterly_Report_${y}_Q${filter.quarter || 1}.pdf`;
-    } else if (p === 'year') {
-      previewFileName.value = `BSU_GSO_Annual_Report_${y}.pdf`;
-    } else {
-      previewFileName.value = `BSU_GSO_Executive_Report_${y}.pdf`;
-    }
-    isPreviewOpen.value = true;
-  } catch (error) {
-    console.error('Failed to generate report PDF:', error);
-    toast.error('Failed to generate document preview.');
-  } finally {
-    isGeneratingPdf.value = false;
   }
 };
 

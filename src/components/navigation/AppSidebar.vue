@@ -248,12 +248,6 @@ const rawNavGroups = computed(() => {
             to: '/admin/leau/queues',
             icon: 'leaf',
             permission: 'tickets.view_all'
-          },
-          {
-            label: 'SSU Incident Queues',
-            to: '/admin/ssu/queues/incidents',
-            icon: 'shield',
-            permission: 'tickets.view_all'
           }
         ]
       },
