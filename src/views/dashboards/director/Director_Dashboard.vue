@@ -228,8 +228,7 @@
                     <th class="py-3 px-3 text-center">Resolved</th>
                     <th class="py-3 px-3 text-center">Declined</th>
                     <th class="py-3 px-3 text-center">Completion Rate</th>
-                    <th class="py-3 px-3 text-center">Client Rating</th>
-                    <th class="py-3 px-4 text-right">Portal</th>
+                    <th class="py-3 px-4 text-center">Client Rating</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-xs">
@@ -243,13 +242,8 @@
                     <td class="py-3 px-3 text-center font-bold text-emerald-600 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-semibold text-slate-500 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-black text-slate-800 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.completion_rate ?? 0 }}%</td>
-                    <td class="py-3 px-3 text-center font-bold text-slate-700 tabular-nums">
+                    <td class="py-3 px-4 text-center font-bold text-slate-700 tabular-nums">
                       {{ executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg ? `${executiveAnalytics.units.FGMU.avg_ratings.overall_avg} ★` : 'N/A' }}
-                    </td>
-                    <td class="py-3 px-4 text-right">
-                      <router-link to="/director/fgmu" class="text-slate-700 hover:text-slate-900 font-bold text-[11px] hover:underline">
-                        Inspect &rarr;
-                      </router-link>
                     </td>
                   </tr>
 
@@ -263,13 +257,8 @@
                     <td class="py-3 px-3 text-center font-bold text-emerald-600 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-semibold text-slate-500 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-black text-slate-800 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.completion_rate ?? 0 }}%</td>
-                    <td class="py-3 px-3 text-center font-bold text-slate-700 tabular-nums">
+                    <td class="py-3 px-4 text-center font-bold text-slate-700 tabular-nums">
                       {{ executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg ? `${executiveAnalytics.units.LEAU.avg_ratings.overall_avg} ★` : 'N/A' }}
-                    </td>
-                    <td class="py-3 px-4 text-right">
-                      <router-link to="/director/leau" class="text-slate-700 hover:text-slate-900 font-bold text-[11px] hover:underline">
-                        Inspect &rarr;
-                      </router-link>
                     </td>
                   </tr>
 
@@ -283,13 +272,8 @@
                     <td class="py-3 px-3 text-center font-bold text-emerald-600 tabular-nums">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-semibold text-slate-500 tabular-nums">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</td>
                     <td class="py-3 px-3 text-center font-black text-slate-800 tabular-nums">{{ executiveAnalytics?.units?.SSU?.completion_rate ?? 0 }}%</td>
-                    <td class="py-3 px-3 text-center font-bold text-slate-700 tabular-nums">
+                    <td class="py-3 px-4 text-center font-bold text-slate-700 tabular-nums">
                       {{ executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg ? `${executiveAnalytics.units.SSU.avg_ratings.overall_avg} ★` : 'N/A' }}
-                    </td>
-                    <td class="py-3 px-4 text-right">
-                      <router-link to="/director/ssu" class="text-slate-700 hover:text-slate-900 font-bold text-[11px] hover:underline">
-                        Inspect &rarr;
-                      </router-link>
                     </td>
                   </tr>
 
@@ -300,10 +284,9 @@
                     <td class="py-3.5 px-3 text-center text-emerald-700 tabular-nums">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</td>
                     <td class="py-3.5 px-3 text-center text-slate-600 tabular-nums">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</td>
                     <td class="py-3.5 px-3 text-center text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.completion_rate ?? 0 }}%</td>
-                    <td class="py-3.5 px-3 text-center text-slate-800 tabular-nums">
+                    <td class="py-3.5 px-4 text-center text-slate-800 tabular-nums">
                       {{ executiveAnalytics?.summary?.overall_ratings?.overall_avg ? `${executiveAnalytics.summary.overall_ratings.overall_avg} ★` : 'N/A' }}
                     </td>
-                    <td class="py-3.5 px-4 text-right text-[10px] text-slate-500 uppercase tracking-wider">Campus Wide</td>
                   </tr>
                 </tbody>
               </table>
