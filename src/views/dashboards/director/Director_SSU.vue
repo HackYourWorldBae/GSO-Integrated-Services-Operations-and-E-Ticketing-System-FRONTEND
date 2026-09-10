@@ -146,13 +146,8 @@
               </h3>
               <p class="text-[11px] text-slate-400 font-medium">Real-time incident response and security pipeline</p>
             </div>
-            <div class="flex items-center gap-3">
-              <span class="inline-flex text-[10px] font-black text-rose-700 bg-rose-50 border border-rose-200/60 px-2.5 py-1 rounded-full uppercase tracking-wider items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                Live Pipeline
-              </span>
-            </div>
           </div>
+
 
           <!-- Bottom 3 Cards Grid: Pending, Processing, Active -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
