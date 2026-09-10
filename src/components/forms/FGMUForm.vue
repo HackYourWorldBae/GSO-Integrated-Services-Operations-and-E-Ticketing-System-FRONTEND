@@ -80,33 +80,66 @@ const removeFile = (idx) => {
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
-        <div class="space-y-3 relative">
-          <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.fgmuState.sectionA.college_building.$error ? 'text-red-500' : 'text-slate-400'">College / Building</label>
+        <!-- College / Building -->
+        <div class="space-y-2 relative pb-6">
+          <div class="flex items-center justify-between ml-1">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em]" :class="formsStore.v$.fgmuState.sectionA.college_building.$error ? 'text-red-500' : 'text-slate-700'">
+              College / Building
+            </label>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pick or Type</span>
+          </div>
           <SearchableDropdown
             v-model="formsStore.fgmuState.sectionA.college_building"
             :options="locations"
             theme="emerald"
-            placeholder="Type to search building..."
+            placeholder="Select from list or type building..."
             :has-error="formsStore.v$.fgmuState.sectionA.college_building.$error"
             @blur="formsStore.v$.fgmuState.sectionA.college_building.$touch()"
           />
-          <p v-if="formsStore.v$.fgmuState.sectionA.college_building.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">This field is required</p>
+          <p class="text-[11px] text-slate-400 font-medium ml-1 flex items-center gap-1.5 leading-tight">
+            <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Choose from the list or type the location if it does not exist in the list.
+          </p>
+          <p v-if="formsStore.v$.fgmuState.sectionA.college_building.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">This field is required</p>
         </div>
-        <div class="space-y-3 relative">
-          <label class="text-[10px] font-black uppercase tracking-[0.2em] ml-1" :class="formsStore.v$.fgmuState.sectionA.office_room.$error ? 'text-red-500' : 'text-slate-400'">Office / Room</label>
+
+        <!-- Office / Room -->
+        <div class="space-y-2 relative pb-6">
+          <div class="flex items-center justify-between ml-1">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em]" :class="formsStore.v$.fgmuState.sectionA.office_room.$error ? 'text-red-500' : 'text-slate-700'">
+              Office / Room
+            </label>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pick or Type</span>
+          </div>
           <SearchableDropdown
             v-model="formsStore.fgmuState.sectionA.office_room"
             :options="availableRooms"
             theme="emerald"
-            placeholder="Select or type room..."
+            placeholder="Select from list or type room..."
             :has-error="formsStore.v$.fgmuState.sectionA.office_room.$error"
             @blur="formsStore.v$.fgmuState.sectionA.office_room.$touch()"
           />
-          <p v-if="formsStore.v$.fgmuState.sectionA.office_room.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">This field is required</p>
+          <p class="text-[11px] text-slate-400 font-medium ml-1 flex items-center gap-1.5 leading-tight">
+            <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Choose from the list or type the room if it does not exist in the list.
+          </p>
+          <p v-if="formsStore.v$.fgmuState.sectionA.office_room.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">This field is required</p>
         </div>
-        <div class="space-y-3">
+
+        <!-- Source of Fund -->
+        <div class="space-y-2 relative pb-6">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Source of Fund (Optional)</label>
-          <input v-model="formsStore.fgmuState.sectionA.source_of_fund" type="text" placeholder="e.g. Income" class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-emerald-500 focus:bg-white text-sm font-bold outline-none transition-all" />
+          <input v-model="formsStore.fgmuState.sectionA.source_of_fund" type="text" placeholder="e.g. Income, General Fund" class="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-emerald-500 focus:bg-white text-sm font-bold outline-none transition-all shadow-sm" />
+          <p class="text-[11px] text-slate-400 font-medium ml-1 flex items-center gap-1.5 leading-tight">
+            <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Optional: Specify department budget source if applicable.
+          </p>
         </div>
       </div>
 
