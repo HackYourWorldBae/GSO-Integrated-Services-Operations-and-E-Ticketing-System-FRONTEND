@@ -66,7 +66,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="ticket in filteredTickets" :key="ticket.id" class="group transition-all duration-200">
+                <tr v-for="ticket in paginatedTickets" :key="ticket.id" class="group transition-all duration-200">
                   <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all">
                     <span class="text-sm font-black text-slate-900">#{{ ticket.ticketId }}</span>
                   </td>
@@ -112,6 +112,80 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Pagination Toolbar -->
+          <div v-if="filteredTickets.length > 0" class="mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 text-xs text-slate-500">
+              <span>Rows per page:</span>
+              <select
+                v-model="perPage"
+                @change="currentPage = 1"
+                class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 text-xs font-bold focus:outline-none focus:border-emerald-500 cursor-pointer"
+              >
+                <option :value="5">5</option>
+                <option :value="10">10</option>
+                <option :value="15">15</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+              </select>
+              <span>
+                Showing <strong class="text-slate-800">{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
+                <strong class="text-slate-800">{{ Math.min(currentPage * perPage, filteredTickets.length) }}</strong> of
+                <strong class="text-slate-800">{{ filteredTickets.length }}</strong> tickets
+              </span>
+            </div>
+
+            <!-- Page Buttons -->
+            <div class="flex items-center gap-1.5">
+              <button
+                @click="currentPage = 1"
+                :disabled="currentPage === 1"
+                class="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer"
+                title="First page"
+              >
+                «
+              </button>
+              <button
+                @click="currentPage--"
+                :disabled="currentPage === 1"
+                class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer"
+              >
+                ‹ Prev
+              </button>
+
+              <template v-for="(page, idx) in displayedPages" :key="idx">
+                <span v-if="page === '...'" class="px-2 text-slate-400 font-bold text-xs">...</span>
+                <button
+                  v-else
+                  @click="currentPage = page"
+                  :class="[
+                    'w-8 h-8 rounded-xl text-xs font-black transition-all cursor-pointer',
+                    currentPage === page
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'border border-slate-200 text-slate-600 hover:bg-slate-100'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+              </template>
+
+              <button
+                @click="currentPage++"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer"
+              >
+                Next ›
+              </button>
+              <button
+                @click="currentPage = totalPages"
+                :disabled="currentPage === totalPages"
+                class="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer"
+                title="Last page"
+              >
+                »
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -543,11 +617,43 @@ watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () =>
 
 const searchQuery = ref('');
 
+// Pagination state
+const currentPage = ref(1);
+const perPage = ref(10);
+
+watch(searchQuery, () => {
+  currentPage.value = 1;
+});
+
 const filteredTickets = computed(() => {
   if (!searchQuery.value) return tickets.value;
   return tickets.value.filter(ticket => 
     ticket.ticketId.toLowerCase().includes(searchQuery.value.trim().toLowerCase())
   );
+});
+
+const totalPages = computed(() => Math.ceil(filteredTickets.value.length / perPage.value) || 1);
+
+const paginatedTickets = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredTickets.value.slice(start, start + perPage.value);
+});
+
+const displayedPages = computed(() => {
+  const current = currentPage.value;
+  const total = totalPages.value;
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages = [];
+  pages.push(1);
+  if (current > 3) pages.push('...');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
 });
 
 const showDetailsModal = ref(false);

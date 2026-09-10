@@ -138,6 +138,7 @@
                 @change="currentPage = 1"
                 class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 text-xs font-bold focus:outline-none focus:border-emerald-500"
               >
+                <option :value="5">5</option>
                 <option :value="10">10</option>
                 <option :value="15">15</option>
                 <option :value="25">25</option>
@@ -409,7 +410,7 @@ const activeYearFilter = ref('all');
 
 // Pagination state
 const currentPage = ref(1);
-const perPage = ref(15);
+const perPage = ref(10);
 
 const showDetailsModal = ref(false);
 const selectedTicket = ref(null);
@@ -424,6 +425,10 @@ const applyFilter = () => {
   activeYearFilter.value = yearFilter.value;
   currentPage.value = 1;
 };
+
+watch(searchQuery, () => {
+  applyFilter();
+});
 
 const filteredTickets = computed(() => {
   return tickets.value.filter(ticket => {
