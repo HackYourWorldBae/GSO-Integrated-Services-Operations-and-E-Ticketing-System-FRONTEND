@@ -26,10 +26,10 @@
                 Official BSU Executive Document
               </div>
               <h3 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                Executive Analytics Summary &amp; Compliance Reports
+                Performance Overview &amp; Reports
               </h3>
               <p class="text-sm sm:text-base text-slate-500 font-medium max-w-3xl leading-relaxed">
-                Generate and download official institutional performance reports across all GSO sub-units. Evaluates Citizen's Charter SLA execution, service frequencies, and client quality ratings.
+                Generate and download official performance reports across all GSO units — covering ticket completion, service breakdown, and client satisfaction ratings.
               </p>
             </div>
 
@@ -189,9 +189,9 @@
             <!-- 4. Client Satisfaction Rating -->
             <div class="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[160px]">
               <div class="flex items-center justify-between gap-2 mb-4">
-                <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600">Client CSAT Score</span>
+                <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600">Client Satisfaction Score</span>
                 <span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200/60 text-xs font-black">
-                  ARTA / ISO 9001
+                  Out of 5.0
                 </span>
               </div>
               <div class="flex items-baseline gap-2 mb-2">
@@ -218,7 +218,7 @@
                 <span class="w-2 h-4 rounded-full bg-slate-900"></span>
                 Sub-Unit Performance Matrix ({{ executiveAnalytics?.filter?.label || 'Current Period' }})
               </h4>
-              <span class="text-xs sm:text-sm font-bold text-slate-400">Institutional Unit Summary</span>
+              <span class="text-xs sm:text-sm font-bold text-slate-400">By Unit</span>
             </div>
 
             <div class="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-xs">
@@ -281,7 +281,7 @@
 
                   <!-- Consolidated Total -->
                   <tr class="bg-slate-50 font-black text-slate-900 border-t-2 border-slate-200">
-                    <td class="py-5 px-6 text-sm sm:text-base font-black tracking-wider text-slate-900">CONSOLIDATED GSO TOTAL</td>
+                    <td class="py-5 px-6 text-sm sm:text-base font-black tracking-wider text-slate-900">GSO Overall Total</td>
                     <td class="py-5 px-4 text-center text-slate-900 tabular-nums text-base sm:text-lg font-black">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</td>
                     <td class="py-5 px-4 text-center text-emerald-800 tabular-nums text-base sm:text-lg font-black">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</td>
                     <td class="py-5 px-4 text-center text-slate-700 tabular-nums text-base sm:text-lg font-black">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</td>
@@ -324,7 +324,7 @@
             <div class="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 space-y-5 shadow-xs">
               <h4 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2.5">
                 <span class="w-2 h-4 rounded-full bg-slate-900"></span>
-                Citizen's Charter SLA Compliance
+                Service Completion Overview
               </h4>
 
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-center">
