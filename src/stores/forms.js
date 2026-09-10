@@ -118,7 +118,6 @@ export const useFormsStore = defineStore('forms', () => {
       when: { required },
       how: { required, minLength: minLength(10) },
       reportedBy: {
-        signature: { required },
         roles: { required }
       }
     }
