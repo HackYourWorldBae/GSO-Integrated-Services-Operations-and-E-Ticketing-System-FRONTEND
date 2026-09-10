@@ -107,7 +107,7 @@ const rawNavGroups = computed(() => {
           },
           {
             label: isSSU ? 'Incident Queues' : 'Ticket Queues',
-            to: `/admin/${unit}/queues`,
+            to: isSSU ? '/admin/ssu/queues/incidents' : `/admin/${unit}/queues`,
             icon: 'queue',
             permission: 'tickets.view_all'
           },
@@ -117,21 +117,21 @@ const rawNavGroups = computed(() => {
               to: `/admin/${unit}/personnel`,
               icon: 'users',
               permission: 'personnel.manage'
+            },
+            // Delegated / Enabled Capabilities from RBAC Matrix (FGMU & LEAU only):
+            {
+              label: 'Assign Workers',
+              to: `/dispatcher/${unit}/workers`,
+              icon: 'users',
+              permission: 'tickets.assign_worker'
+            },
+            {
+              label: 'Dispatched Tickets',
+              to: `/dispatcher/${unit}/dispatched`,
+              icon: 'dispatch',
+              permission: 'tickets.dispatch'
             }
           ]),
-          // Delegated / Enabled Capabilities from RBAC Matrix:
-          {
-            label: 'Assign Workers',
-            to: `/dispatcher/${unit}/workers`,
-            icon: 'users',
-            permission: 'tickets.assign_worker'
-          },
-          {
-            label: 'Dispatched Tickets',
-            to: `/dispatcher/${unit}/dispatched`,
-            icon: 'dispatch',
-            permission: 'tickets.dispatch'
-          },
           {
             label: `${unitUpper} Analytics & Reports`,
             to: `/director/${unit}`,

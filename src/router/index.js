@@ -167,7 +167,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU' }
     },
     {
+      path: '/admin/ssu/queues',
+      redirect: '/admin/ssu/queues/incidents'
+    },
+    {
       path: '/admin/ssu/queues/incidents',
+      alias: ['/admin/ssu/incident-queues'],
       name: 'ssu-incident-queues',
       component: SSU_IncidentTicketQueues,
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director'], unit: 'SSU', permission: 'tickets.view_all' }
