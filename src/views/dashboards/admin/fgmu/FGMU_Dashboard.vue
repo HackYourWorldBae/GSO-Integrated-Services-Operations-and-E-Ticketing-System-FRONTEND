@@ -213,59 +213,6 @@
           </div>
         </div>
 
-        <!-- Approved Tickets Awaiting Worker Assignment (Ready for Dispatch) -->
-        <div class="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-sm">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div>
-              <h3 class="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
-                Approved Tickets Awaiting Worker Assignment
-              </h3>
-              <p class="text-xs text-slate-500 font-medium mt-0.5">
-                Tickets approved by the Director ready for scheduling and personnel dispatch
-              </p>
-            </div>
-            <router-link
-              to="/admin/fgmu/dispatch"
-              class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 shrink-0"
-            >
-              <span>Open Ticket Dispatch</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-            </router-link>
-          </div>
-
-          <div v-if="approvedTickets.length === 0" class="py-10 text-center text-slate-400 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-            <p class="text-xs font-bold uppercase tracking-wider">No tickets awaiting assignment</p>
-            <p class="text-[11px] text-slate-400 mt-1">All approved service requests are currently scheduled or in progress.</p>
-          </div>
-
-          <div v-else class="divide-y divide-slate-100">
-            <div
-              v-for="ticket in approvedTickets"
-              :key="ticket.id"
-              class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-slate-50/60 rounded-2xl px-4 transition-colors"
-            >
-              <div class="flex items-center gap-4 min-w-0">
-                <div class="h-10 px-3 min-w-[4.5rem] rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
-                  <span class="text-xs font-black text-emerald-700 leading-none">#{{ ticket.id }}</span>
-                </div>
-                <div class="min-w-0">
-                  <h4 class="text-sm font-black text-slate-900 truncate">{{ ticket.title || ticket.type }}</h4>
-                  <p class="text-xs text-slate-500 font-medium">
-                    {{ ticket.location || ticket.college_building }} · {{ ticket.requester }}
-                  </p>
-                </div>
-              </div>
-
-              <router-link
-                :to="'/admin/fgmu/dispatch?ticket=' + ticket.id"
-                class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 shrink-0 text-center"
-              >
-                Dispatch Worker
-              </router-link>
-            </div>
-          </div>
-        </div>
 
         <!-- Main Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -604,35 +551,8 @@ const fetchStats = async () => {
     console.error('Failed to fetch FGMU stats:', error);
   }
 };
-
-const approvedTickets = ref([]);
-
-const fetchApprovedTickets = async () => {
-  try {
-    const res = await api.get('tickets/dispatch/FGMU');
-    if (res.data?.data?.tickets) {
-      approvedTickets.value = res.data.data.tickets.map(t => ({
-        id: t.id,
-        title: t.title,
-        service: t.service_type,
-        type: t.title || t.project_title || t.service_type || 'Facilities Task',
-        requester: t.details?.requesting_personnel || 'End User',
-        location: t.location,
-        college_building: t.details?.college_building || t.location,
-        office_room: t.office_room || t.details?.office_room,
-        submittedAt: new Date(t.submitted_at).toLocaleDateString('en-US', {
-          month: 'short', day: 'numeric', year: 'numeric'
-        })
-      }));
-    }
-  } catch (err) {
-    console.error('Failed to fetch approved tickets for FGMU dashboard:', err);
-  }
-};
-
 onMounted(() => {
   fetchStats();
-  fetchApprovedTickets();
 });
 </script>
 
