@@ -207,26 +207,26 @@
 
         <!-- ======================= DESKTOP TABULAR VIEW ======================= -->
         <div class="hidden md:block bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto lg:overflow-x-visible">
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
-                  <th class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Ticket Reference</th>
-                  <th v-if="activeTab !== 'active'" class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Requester</th>
-                  <th class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Job Particular & Nature of Work</th>
+                  <th class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Ticket Reference</th>
+                  <th v-if="activeTab !== 'active'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Requester</th>
+                  <th class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Job Particular & Nature of Work</th>
                   
                   <!-- Dynamic Columns Based on Tab -->
-                  <th v-if="activeTab === 'pending'" class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Location / Room</th>
-                  <th v-if="activeTab === 'pending'" class="px-4 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500 text-center">Files</th>
+                  <th v-if="activeTab === 'pending'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Location / Room</th>
+                  <th v-if="activeTab === 'pending'" class="px-2 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500 text-center">Files</th>
                   
-                  <th v-if="activeTab === 'approved'" class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Approved Date</th>
-                  <th v-if="activeTab === 'approved'" class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500 text-center">Dispatch Status</th>
+                  <th v-if="activeTab === 'approved'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Approved Date</th>
+                  <th v-if="activeTab === 'approved'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500 text-center">Dispatch Status</th>
                   
-                  <th v-if="activeTab === 'active'" class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Assigned Staff</th>
-                  <th v-if="activeTab === 'active'" class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Target Schedule</th>
-                  <th v-if="activeTab === 'active'" class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Working Time</th>
+                  <th v-if="activeTab === 'active'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Assigned Staff</th>
+                  <th v-if="activeTab === 'active'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Target Schedule</th>
+                  <th v-if="activeTab === 'active'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Working Time</th>
 
-                  <th class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500 text-right">Actions</th>
+                  <th class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -266,7 +266,7 @@
                   @click="openDetailsModal(ticket)"
                 >
                   <!-- Ticket Reference -->
-                  <td class="px-6 py-4 whitespace-nowrap relative">
+                  <td class="px-3 py-3 whitespace-nowrap relative">
                     <!-- Row Hover Accent Indicator -->
                     <span class="absolute left-0 top-2.5 bottom-2.5 w-1.5 rounded-r-md bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
                     
@@ -274,7 +274,7 @@
                       <div class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100 inline-flex items-center group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all duration-150 shadow-2xs">
                         #{{ ticket.ticketId }}
                       </div>
-                      <span class="opacity-0 group-hover:opacity-100 transition-all duration-150 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-xs pointer-events-none transform -translate-x-1 group-hover:translate-x-0">
+                      <span class="opacity-0 group-hover:opacity-100 transition-all duration-150 inline-flex items-center gap-1 hidden xl:inline-flex px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-xs pointer-events-none transform -translate-x-1 group-hover:translate-x-0">
                         <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -291,15 +291,13 @@
                   </td>
 
                   <!-- Requester (For Pending & Approved) -->
-                  <td v-if="activeTab !== 'active'" class="px-6 py-4 whitespace-nowrap">
+                  <td v-if="activeTab !== 'active'" class="px-3 py-3 max-w-[140px]">
                     <div class="flex items-center gap-2.5">
                       <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0">
                         {{ getInitials(ticket.requestedBy) }}
                       </div>
                       <div>
-                        <div class="text-xs font-bold text-slate-800 leading-tight">
-                          {{ ticket.requestedBy }}
-                        </div>
+                        <div class="text-xs font-bold text-slate-800 leading-tight truncate">{{ ticket.requestedBy }}</div>
                         <div class="text-[10px] text-slate-400 font-medium">
                           {{ ticket.email || (ticket.student_id_number ? `ID: ${ticket.student_id_number}` : 'Requester') }}
                         </div>
@@ -308,7 +306,7 @@
                   </td>
 
                   <!-- Job Particular & Nature of Work -->
-                  <td class="px-6 py-4">
+                  <td class="px-3 py-3 max-w-[180px]">
                     <div class="text-xs font-bold text-slate-900 leading-snug line-clamp-1 max-w-xs" :title="ticket.description || ticket.title">
                       {{ ticket.description || ticket.title || 'No particulars specified' }}
                     </div>
@@ -318,7 +316,7 @@
                   </td>
 
                   <!-- Tab 1 Specific: Location & Room -->
-                  <td v-if="activeTab === 'pending'" class="px-6 py-4 whitespace-nowrap">
+                  <td v-if="activeTab === 'pending'" class="px-3 py-3 whitespace-nowrap">
                     <div class="text-xs font-bold text-slate-700">
                       {{ ticket.location || 'Main Campus' }}
                     </div>
@@ -328,7 +326,7 @@
                   </td>
 
                   <!-- Tab 1 Specific: Files -->
-                  <td v-if="activeTab === 'pending'" class="px-4 py-4 whitespace-nowrap text-center">
+                  <td v-if="activeTab === 'pending'" class="px-2 py-3 whitespace-nowrap text-center">
                     <span
                       v-if="ticket.attachments && ticket.attachments.length > 0"
                       class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
@@ -343,11 +341,11 @@
                   </td>
 
                   <!-- Tab 2 Specific: Approved Date & Status -->
-                  <td v-if="activeTab === 'approved'" class="px-6 py-4 whitespace-nowrap">
+                  <td v-if="activeTab === 'approved'" class="px-3 py-3 whitespace-nowrap">
                     <div class="text-xs font-bold text-slate-700">{{ ticket.reviewed_at ? formatDate(ticket.reviewed_at) : ticket.date }}</div>
                     <div class="text-[10px] text-slate-400">Reviewed by Admin</div>
                   </td>
-                  <td v-if="activeTab === 'approved'" class="px-6 py-4 whitespace-nowrap text-center">
+                  <td v-if="activeTab === 'approved'" class="px-3 py-3 whitespace-nowrap text-center">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-wider border border-blue-200">
                       <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
                       Awaiting Dispatcher
@@ -355,11 +353,11 @@
                   </td>
 
                   <!-- Tab 3 Specific: Assigned Worker, Target Schedule, Working Hours -->
-                  <td v-if="activeTab === 'active'" class="px-6 py-4 whitespace-nowrap">
+                  <td v-if="activeTab === 'active'" class="px-3 py-3 whitespace-nowrap">
                     <div class="text-xs font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'Assigned Worker' }}</div>
                     <div class="text-[10px] text-slate-400 font-medium">Technician</div>
                   </td>
-                  <td v-if="activeTab === 'active'" class="px-6 py-4 whitespace-nowrap">
+                  <td v-if="activeTab === 'active'" class="px-3 py-3 whitespace-nowrap">
                     <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                       <span>{{ formatDate(ticket.effective_target_date || ticket.assignment?.implementation_date) }}</span>
                       <span v-if="ticket.extension_days > 0" class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[9px] font-black uppercase tracking-wider border border-amber-200">
@@ -370,7 +368,7 @@
                       {{ ticket.working_days ? `${ticket.working_days} Target Working Day(s)` : 'Scheduled' }}
                     </div>
                   </td>
-                  <td v-if="activeTab === 'active'" class="px-6 py-4 whitespace-nowrap">
+                  <td v-if="activeTab === 'active'" class="px-3 py-3 whitespace-nowrap">
                     <div class="text-xs font-black text-slate-900 flex items-center gap-1">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -381,7 +379,7 @@
                   </td>
 
                   <!-- Actions -->
-                  <td class="px-6 py-4 whitespace-nowrap text-right" @click.stop>
+                  <td class="px-3 py-3 whitespace-nowrap text-right" @click.stop>
                     <!-- Pending Tab Actions -->
                     <div v-if="activeTab === 'pending'" class="flex items-center justify-end gap-2">
                       <button
