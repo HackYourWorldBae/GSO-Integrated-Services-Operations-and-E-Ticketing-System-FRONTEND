@@ -398,54 +398,49 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
             width: '46%',
             margin: [12, 0, 0, 0],
             stack: [
-              { text: '4. SLA EXECUTION & QUALITY RATINGS', fontSize: 9, bold: true, color: '#111827', margin: [0, 2, 0, 3] },
+              { text: '4. SERVICE DELIVERY & CLIENT RATINGS', fontSize: 9, bold: true, color: '#111827', margin: [0, 2, 0, 3] },
               {
                 table: {
                   headerRows: 1,
                   widths: ['*', 45, 45],
                   body: [
                     [
-                      { text: 'PERFORMANCE CRITERION', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb' },
-                      { text: 'RESULT', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
-                      { text: 'BENCHMARK', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
+                      { text: 'CRITERION', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb' },
+                      { text: 'VALUE', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
+                      { text: 'SHARE / SCORE', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
                     ],
                     [
-                      { text: 'On-Time SLA Completion', fontSize: 7.5, bold: true },
+                      { text: 'On-Time Completion', fontSize: 7.5, bold: true },
                       { text: String(compHealth.on_time || 0), fontSize: 7.5, alignment: 'center' },
                       { text: `${compHealth.on_time_percent || 0}%`, fontSize: 7.5, bold: true, alignment: 'center' },
                     ],
                     [
-                      { text: 'Beyond SLA Target Time', fontSize: 7.5, fillColor: '#f9fafb' },
+                      { text: 'Completed Beyond Schedule', fontSize: 7.5, fillColor: '#f9fafb' },
                       { text: String(compHealth.beyond_time || 0), fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
                       { text: `${compHealth.beyond_time_percent || 0}%`, fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
                     ],
                     [
-                      { text: 'Incomplete / Suspended Jobs', fontSize: 7.5 },
+                      { text: 'Incomplete / Suspended', fontSize: 7.5 },
                       { text: String(compHealth.not_completed || 0), fontSize: 7.5, alignment: 'center' },
                       { text: `${compHealth.not_completed_percent || 0}%`, fontSize: 7.5, alignment: 'center' },
                     ],
                     [
-                      { text: 'Quality of Workmanship', fontSize: 7.5, fillColor: '#f9fafb' },
+                      { text: 'Quality Rating (avg)', fontSize: 7.5, fillColor: '#f9fafb' },
                       { text: ratings.avg_quality ? `${parseFloat(ratings.avg_quality).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
                       { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center', fillColor: '#f9fafb' },
                     ],
                     [
-                      { text: 'Service Efficiency', fontSize: 7.5 },
+                      { text: 'Efficiency Rating (avg)', fontSize: 7.5 },
                       { text: ratings.avg_efficiency ? `${parseFloat(ratings.avg_efficiency).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center' },
                       { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center' },
                     ],
                     [
-                      { text: 'Service Timeliness & Speed', fontSize: 7.5, fillColor: '#f9fafb' },
+                      { text: 'Timeliness Rating (avg)', fontSize: 7.5, fillColor: '#f9fafb' },
                       { text: ratings.avg_timeliness ? `${parseFloat(ratings.avg_timeliness).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
                       { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center', fillColor: '#f9fafb' },
                     ],
                     [
-                      { text: 'Worksite Cleanliness', fontSize: 7.5 },
-                      { text: ratings.avg_cleanliness ? `${parseFloat(ratings.avg_cleanliness).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center' },
-                      { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center' },
-                    ],
-                    [
-                      { text: 'OVERALL CSAT COMPOSITE', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#f3f4f6' },
+                      { text: 'Overall Client Rating', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#f3f4f6' },
                       { text: ratings.overall_avg ? `${parseFloat(ratings.overall_avg).toFixed(2)}` : 'N/A', bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
                       { text: '/ 5.00', fontSize: 7, bold: true, alignment: 'center', fillColor: '#f3f4f6' },
                     ],
@@ -525,61 +520,6 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
         margin: [0, 0, 0, 14],
       },
 
-      // ── Section 6: Administrative Attestation & Sign-Off Block ──────────────
-      {
-        text: '6. ADMINISTRATIVE ATTESTATION & ENDORSEMENT',
-        fontSize: 9,
-        bold: true,
-        color: '#111827',
-        margin: [0, 0, 0, 6],
-      },
-      {
-        table: {
-          widths: ['*', '*', '*'],
-          body: [
-            [
-              {
-                stack: [
-                  { text: 'Prepared & Extracted by:', fontSize: 7.5, color: '#4b5563', alignment: 'center' },
-                  { text: ' ', fontSize: 22 },
-                  { canvas: [{ type: 'line', x1: 10, y1: 0, x2: 150, y2: 0, lineWidth: 0.8, lineColor: '#111827' }] },
-                  { text: 'GSO MANAGEMENT INFO SYSTEM', fontSize: 8, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
-                  { text: 'Records & Analytics Division', fontSize: 7, color: '#4b5563', alignment: 'center' },
-                  { text: `Date: ${generatedAt}`, fontSize: 6.5, color: '#6b7280', alignment: 'center', margin: [0, 1, 0, 0] },
-                ],
-              },
-              {
-                stack: [
-                  { text: 'Reviewed & Verified by:', fontSize: 7.5, color: '#4b5563', alignment: 'center' },
-                  { text: ' ', fontSize: 22 },
-                  { canvas: [{ type: 'line', x1: 10, y1: 0, x2: 150, y2: 0, lineWidth: 0.8, lineColor: '#111827' }] },
-                  { text: 'UNIT HEADS / CHIEF OF SSU', fontSize: 8, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
-                  { text: 'FGMU • LEAU • SSU', fontSize: 7, color: '#4b5563', alignment: 'center' },
-                  { text: 'Date: ________________________', fontSize: 6.5, color: '#6b7280', alignment: 'center', margin: [0, 1, 0, 0] },
-                ],
-              },
-              {
-                stack: [
-                  { text: 'Approved & Accepted by:', fontSize: 7.5, color: '#4b5563', alignment: 'center' },
-                  { text: ' ', fontSize: 22 },
-                  { canvas: [{ type: 'line', x1: 10, y1: 0, x2: 150, y2: 0, lineWidth: 0.8, lineColor: '#111827' }] },
-                  { text: directorName.toUpperCase(), fontSize: 8, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
-                  { text: 'Director, General Services Office', fontSize: 7, bold: true, color: '#111827', alignment: 'center' },
-                  { text: 'Benguet State University', fontSize: 6.5, color: '#4b5563', alignment: 'center' },
-                ],
-              },
-            ],
-          ],
-        },
-        layout: {
-          hLineWidth: () => 0,
-          vLineWidth: () => 0,
-          paddingLeft: () => 4,
-          paddingRight: () => 4,
-          paddingTop: () => 2,
-          paddingBottom: () => 2,
-        },
-      },
     ],
   };
 };
