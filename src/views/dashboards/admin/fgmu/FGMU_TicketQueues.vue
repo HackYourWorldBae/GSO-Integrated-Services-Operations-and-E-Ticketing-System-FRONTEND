@@ -33,12 +33,17 @@
     <template #header-title>
       <div class="flex flex-col">
         <div class="flex items-center gap-2">
-          <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">Ticket Queues</h2>
+          <router-link v-if="authStore.role === 'director'" to="/director/dashboard" class="p-1 -ml-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" title="Back to Executive Overview">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          </router-link>
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">FGMU Ticket Queues</h2>
           <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider border border-emerald-200">
             {{ activeTabCount }} {{ activeTabLabel }}
           </span>
         </div>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase mt-1">FGMU Unit Head Monitoring & Approval</p>
+        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase mt-1">
+          {{ authStore.role === 'director' ? 'Director Executive Review & Operations' : 'FGMU Unit Head Monitoring & Approval' }}
+        </p>
       </div>
     </template>
 
@@ -684,6 +689,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
@@ -691,6 +697,7 @@ import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import { FGMU_SERVICES } from '@/constants/services';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
 
+const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 

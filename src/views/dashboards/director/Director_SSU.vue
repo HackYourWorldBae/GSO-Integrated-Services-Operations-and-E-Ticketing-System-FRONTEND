@@ -146,10 +146,21 @@
               </h3>
               <p class="text-[11px] text-slate-400 font-medium">Real-time incident response and security pipeline</p>
             </div>
-            <span class="text-[10px] font-black text-rose-700 bg-rose-50 border border-rose-200/60 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-              Live Pipeline
-            </span>
+            <div class="flex items-center gap-3">
+              <span class="hidden sm:inline-flex text-[10px] font-black text-rose-700 bg-rose-50 border border-rose-200/60 px-2.5 py-1 rounded-full uppercase tracking-wider items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                Live Pipeline
+              </span>
+              <router-link
+                to="/admin/ssu/queues/incidents"
+                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm hover:shadow"
+              >
+                <span>Open Incident Queues</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </router-link>
+            </div>
           </div>
 
           <!-- Bottom 3 Cards Grid: Pending, Processing, Active -->

@@ -146,10 +146,21 @@
               </h3>
               <p class="text-[11px] text-slate-400 font-medium">Real-time in-flight tickets awaiting action or currently under service</p>
             </div>
-            <span class="text-[10px] font-black text-amber-700 bg-amber-50 border border-amber-200/60 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-              Live Operations
-            </span>
+            <div class="flex items-center gap-3">
+              <span class="hidden sm:inline-flex text-[10px] font-black text-amber-700 bg-amber-50 border border-amber-200/60 px-2.5 py-1 rounded-full uppercase tracking-wider items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                Live Operations
+              </span>
+              <router-link
+                to="/admin/leau/queues"
+                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm hover:shadow"
+              >
+                <span>Open LEAU Queues</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </router-link>
+            </div>
           </div>
 
           <!-- Bottom 3 Cards Grid: Pending, Dispatched, Active -->

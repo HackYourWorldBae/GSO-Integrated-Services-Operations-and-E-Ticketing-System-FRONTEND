@@ -109,10 +109,16 @@ const rawNavGroups = computed(() => {
             {
               label: 'Incident Queues',
               to: '/admin/ssu/queues/incidents',
-              icon: 'queue',
+              icon: 'shield',
               permission: 'tickets.view_all'
             }
           ] : [
+            {
+              label: 'Ticket Queues',
+              to: `/admin/${unit}/queues`,
+              icon: unit === 'fgmu' ? 'tools' : 'leaf',
+              permission: 'tickets.view_all'
+            },
             {
               label: 'Dispatched Tickets',
               to: `/admin/${unit}/dispatched`,
@@ -129,7 +135,7 @@ const rawNavGroups = computed(() => {
           {
             label: `${unitUpper} Analytics & Reports`,
             to: `/director/${unit}`,
-            icon: 'chart',
+            icon: unit === 'fgmu' ? 'tools' : unit === 'leau' ? 'leaf' : 'shield',
             permission: 'reports.view'
           },
           {
@@ -171,6 +177,12 @@ const rawNavGroups = computed(() => {
             icon: 'home'
           },
           {
+            label: 'Ticket Queues',
+            to: `/admin/${unit}/queues`,
+            icon: unit === 'fgmu' ? 'tools' : 'leaf',
+            permission: 'tickets.view_all'
+          },
+          {
             label: 'Dispatched Tickets',
             to: `/admin/${unit}/dispatched`,
             icon: 'dispatch',
@@ -185,7 +197,7 @@ const rawNavGroups = computed(() => {
           {
             label: `${unitUpper} Analytics & Reports`,
             to: `/director/${unit}`,
-            icon: 'chart',
+            icon: unit === 'fgmu' ? 'tools' : 'leaf',
             permission: 'reports.view'
           },
           {
@@ -212,38 +224,65 @@ const rawNavGroups = computed(() => {
   if (role === 'director') {
     return [
       {
-        title: 'Director Portal',
+        title: 'Executive Portal',
         items: [
           {
             label: 'Executive Overview',
             to: '/director/dashboard',
             exact: true,
             icon: 'home'
+          }
+        ]
+      },
+      {
+        title: 'Unit Ticket Queues',
+        items: [
+          {
+            label: 'FGMU Ticket Queues',
+            to: '/admin/fgmu/queues',
+            icon: 'tools',
+            permission: 'tickets.view_all'
           },
           {
-            label: 'FGMU Analytics',
+            label: 'LEAU Ticket Queues',
+            to: '/admin/leau/queues',
+            icon: 'leaf',
+            permission: 'tickets.view_all'
+          },
+          {
+            label: 'SSU Incident Queues',
+            to: '/admin/ssu/queues/incidents',
+            icon: 'shield',
+            permission: 'tickets.view_all'
+          }
+        ]
+      },
+      {
+        title: 'Unit Analytics & Reports',
+        items: [
+          {
+            label: 'FGMU Facilities',
             to: '/director/fgmu',
-            icon: 'chart',
+            icon: 'tools',
             permission: 'reports.view'
           },
           {
-            label: 'LEAU Analytics',
+            label: 'LEAU Environment',
             to: '/director/leau',
-            icon: 'chart',
+            icon: 'leaf',
             permission: 'reports.view'
           },
           {
-            label: 'SSU Analytics',
+            label: 'SSU Security',
             to: '/director/ssu',
             icon: 'shield',
             permission: 'reports.view'
-          },
-          {
-            label: 'University Ticket Queues',
-            to: '/admin/fgmu/queues',
-            icon: 'queue',
-            permission: 'tickets.view_all'
-          },
+          }
+        ]
+      },
+      {
+        title: 'System Management',
+        items: [
           {
             label: 'User Accounts',
             to: '/superadmin/users',
@@ -370,9 +409,20 @@ const navGroups = computed(() => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
 
-          <!-- Shield / Security -->
+          <!-- Shield / Security (SSU) -->
           <svg v-else-if="item.icon === 'shield'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+
+          <!-- Tools / Facilities & Maintenance (FGMU) -->
+          <svg v-else-if="item.icon === 'tools'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+          </svg>
+
+          <!-- Leaf / Environment & Landscaping (LEAU) -->
+          <svg v-else-if="item.icon === 'leaf'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
           </svg>
 
           <!-- Org Hierarchy -->
