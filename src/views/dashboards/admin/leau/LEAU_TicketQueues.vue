@@ -220,7 +220,6 @@
                   <th v-if="activeTab === 'pending'" class="px-2 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500 text-center">Files</th>
                   
                   <th v-if="activeTab === 'approved'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Approved Date</th>
-                  <th v-if="activeTab === 'approved'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500 text-center">Dispatch Status</th>
                   
                   <th v-if="activeTab === 'active'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Assigned Staff</th>
                   <th v-if="activeTab === 'active'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Target Schedule</th>
@@ -343,13 +342,6 @@
                   <!-- Tab 2 Specific: Approved Date & Status -->
                   <td v-if="activeTab === 'approved'" class="px-3 py-3 whitespace-nowrap">
                     <div class="text-xs font-bold text-slate-700">{{ ticket.reviewed_at ? formatDate(ticket.reviewed_at) : ticket.date }}</div>
-                    <div class="text-[10px] text-slate-400">Reviewed by Admin</div>
-                  </td>
-                  <td v-if="activeTab === 'approved'" class="px-3 py-3 whitespace-nowrap text-center">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-wider border border-blue-200">
-                      <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-                      Awaiting Dispatcher
-                    </span>
                   </td>
 
                   <!-- Tab 3 Specific: Assigned Worker, Target Schedule, Working Hours -->
