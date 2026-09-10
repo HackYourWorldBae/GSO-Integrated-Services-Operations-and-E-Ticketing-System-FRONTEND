@@ -79,10 +79,10 @@ const rawNavGroups = computed(() => {
             permission: 'users.provision'
           },
           {
-            label: 'Access Control Matrix',
-            to: '/superadmin/users?tab=rbac',
+            label: 'Verification Queue',
+            to: '/superadmin/users?tab=verification',
             icon: 'shield',
-            permission: 'system.matrix_control'
+            permission: 'users.provision'
           },
           {
             label: 'Audit Trail',
@@ -143,12 +143,6 @@ const rawNavGroups = computed(() => {
             to: '/superadmin/users',
             icon: 'users',
             permission: 'users.provision'
-          },
-          {
-            label: 'Access Control Matrix',
-            to: '/superadmin/users?tab=rbac',
-            icon: 'shield',
-            permission: 'system.matrix_control'
           }
         ]
       },

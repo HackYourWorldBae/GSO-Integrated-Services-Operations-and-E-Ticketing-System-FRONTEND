@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import { useAuthStore } from '@/stores/auth';
 const LandingView = () => import('../views/LandingView.vue');
 const LoginView = () => import('../views/auth/LoginView.vue');
+const RegisterView = () => import('../views/auth/RegisterView.vue');
 
 // Lazy-loaded route components for performance optimization & code splitting
 const ServicesListView = () => import('../views/ServicesListView.vue');
@@ -45,6 +46,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView
     },
     {
       path: '/projects',
@@ -349,8 +355,8 @@ router.beforeEach((to, from, next) => {
     return '/user/dashboard';
   };
 
-  // 1. Prevent already-authenticated users from re-visiting login
-  if (to.name === 'login' && user && role) {
+  // 1. Prevent already-authenticated users from re-visiting login or register
+  if ((to.name === 'login' || to.name === 'register') && user && role) {
     return next(getHomeRoute(role, unit));
   }
 
@@ -366,11 +372,24 @@ router.beforeEach((to, from, next) => {
 
     const authStore = useAuthStore();
 
-    // 3. Dynamic Capability Permission Check (from RBAC Matrix)
+    // 2.1 Identity Verification Gate for Ticket Intake
+    // Unverified users can browse their dashboard/settings, but cannot create tickets
+    if (to.path === '/services' || to.path.startsWith('/services/forms')) {
+      const isVerified = user.is_verified === 1 || user.is_verified === true || user.is_verified === '1';
+      if (!isVerified) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Account Verification Pending',
+          text: 'Your uploaded ID is currently being reviewed by the Super Administrator. You will be able to submit service requests once verified.',
+          confirmButtonColor: '#059669',
+        });
+        return next('/user/dashboard');
+      }
+    }
+
+    // 3. Capability Permission Check
     if (to.meta.permission) {
-      // Allow access to user accounts view if user has matrix control capability
-      const isMatrixControlAllowed = to.path === '/superadmin/users' && authStore.hasPermission('system.matrix_control');
-      if (!authStore.hasPermission(to.meta.permission) && !isMatrixControlAllowed) {
+      if (!authStore.hasPermission(to.meta.permission) && role !== 'superadmin') {
         console.warn(`[Router Guard] Access denied to ${to.path}. Missing required capability: ${to.meta.permission}`);
         return next(getHomeRoute(role, unit));
       }
@@ -386,9 +405,8 @@ router.beforeEach((to, from, next) => {
 
       const hasDirectRole = role && allowedRoles.includes(role);
       const hasDelegatedPermission = to.meta.permission && authStore.hasPermission(to.meta.permission);
-      const isMatrixControlAllowed = to.path === '/superadmin/users' && authStore.hasPermission('system.matrix_control');
 
-      if (!hasDirectRole && !hasDelegatedPermission && !isMatrixControlAllowed && role !== 'superadmin') {
+      if (!hasDirectRole && !hasDelegatedPermission && role !== 'superadmin') {
         console.warn(`[Router Guard] Access denied to ${to.path}. Required roles: ${to.meta.roles.join(', ')}. Current role: ${role}`);
         return next(getHomeRoute(role, unit));
       }

@@ -49,3 +49,12 @@ export const changePassword = (data) =>
 export const checkSessionApi = () =>
   apiClient.get('/auth/check-session');
 
+/**
+ * Register a new user account with ID card verification.
+ * @param {FormData} formData
+ */
+export const register = (formData) =>
+  apiClient.post('/auth/register', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+

@@ -115,19 +115,19 @@ const handleLogin = async () => {
         
         <div class="relative group/input">
           <label class="block text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 ml-1">
-            Email Address
+            Email or Employee / Student ID
           </label>
           <div class="absolute inset-y-0 left-0 pl-4 mt-5 flex items-center pointer-events-none z-10">
             <svg class="h-4 w-4 text-slate-400 group-focus-within/input:text-emerald-600 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
           <input 
             v-model="identifier"
-            type="email" 
+            type="text" 
             required
             class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-300 shadow-sm hover:border-emerald-500/50"
-            placeholder="name@bsu.edu.ph"
+            placeholder="e.g. 2024-1234 or name@bsu.edu.ph"
           />
         </div>
 
@@ -160,6 +160,15 @@ const handleLogin = async () => {
           <svg v-if="!isLoading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
           <svg v-else class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
         </button>
+
+        <div class="pt-4 border-t border-slate-100 text-center">
+          <p class="text-xs text-slate-500 font-medium">
+            Don't have an account? 
+            <router-link to="/register" class="text-emerald-700 hover:text-emerald-800 font-bold hover:underline transition-all">
+              Sign Up here
+            </router-link>
+          </p>
+        </div>
 
       </form>
     </div>

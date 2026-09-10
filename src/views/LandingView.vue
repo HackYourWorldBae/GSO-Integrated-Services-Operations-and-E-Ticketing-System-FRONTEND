@@ -34,6 +34,7 @@ const services = [
 ];
 
 const goToLogin = () => router.push({ name: 'login' });
+const goToRegister = () => router.push({ name: 'register' });
 </script>
 
 <template>
@@ -59,16 +60,21 @@ const goToLogin = () => router.push({ name: 'login' });
           <li><a href="#services" class="nav-link">Services</a></li>
         </ul>
 
-        <!-- Login button -->
-        <button id="nav-login-btn" class="btn-nav-login" @click="goToLogin">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-            <polyline points="10 17 15 12 10 7" />
-            <line x1="15" y1="12" x2="3" y2="12" />
-          </svg>
-          Login
-        </button>
+        <!-- Navigation Action buttons -->
+        <div class="nav-actions">
+          <button id="nav-register-btn" class="btn-nav-register" @click="goToRegister">
+            Sign Up
+          </button>
+          <button id="nav-login-btn" class="btn-nav-login" @click="goToLogin">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+            Login
+          </button>
+        </div>
 
         <!-- Hamburger -->
         <button class="hamburger" @click="isMobileMenuOpen = !isMobileMenuOpen"
@@ -83,7 +89,10 @@ const goToLogin = () => router.push({ name: 'login' });
       <div class="mobile-menu" :class="{ 'mobile-menu--open': isMobileMenuOpen }">
         <a href="#about" @click="isMobileMenuOpen = false">About</a>
         <a href="#services" @click="isMobileMenuOpen = false">Services</a>
-        <button class="btn-mobile-login" @click="goToLogin">Login to Portal</button>
+        <div class="mobile-menu-actions">
+          <button class="btn-mobile-register" @click="goToRegister">Create Account</button>
+          <button class="btn-mobile-login" @click="goToLogin">Login to Portal</button>
+        </div>
       </div>
     </nav>
 
@@ -529,6 +538,35 @@ const goToLogin = () => router.push({ name: 'login' });
 .nav-link:hover::after,
 .nav-link.router-link-active::after { transform: scaleX(1); }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.btn-nav-register {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  color: var(--bsu-green);
+  border: 1.5px solid var(--bsu-green);
+  padding: 0.48rem 1rem;
+  border-radius: var(--r-md);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-nav-register:hover {
+  background: rgba(26, 107, 53, 0.08);
+  border-color: var(--bsu-green-dark);
+  color: var(--bsu-green-dark);
+  transform: translateY(-1px);
+}
+
 .btn-nav-login {
   display: inline-flex;
   align-items: center;
@@ -609,8 +647,32 @@ const goToLogin = () => router.push({ name: 'login' });
   border-bottom: 1px solid var(--border);
 }
 
-.btn-mobile-login {
+.mobile-menu-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
   margin-top: var(--sp-4);
+}
+
+.btn-mobile-register {
+  width: 100%;
+  background: white;
+  color: var(--bsu-green);
+  border: 1.5px solid var(--bsu-green);
+  padding: 0.75rem;
+  border-radius: var(--r-md);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-mobile-register:hover {
+  background: rgba(26, 107, 53, 0.08);
+}
+
+.btn-mobile-login {
   width: 100%;
   background: var(--bsu-green);
   color: white;
@@ -1404,6 +1466,7 @@ const goToLogin = () => router.push({ name: 'login' });
    ============================================================ */
 @media (max-width: 768px) {
   .nav-links { display: none; }
+  .nav-actions { display: none; }
   .btn-nav-login { display: none; }
   .hamburger { display: flex; }
   .mobile-menu { display: flex; }

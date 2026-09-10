@@ -43,6 +43,28 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in">
 
+        <!-- Identity Verification Pending Notice -->
+        <div v-if="!isUserVerified" class="rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/90 via-orange-50/80 to-amber-50/90 p-5 shadow-sm">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <div class="p-2.5 rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <h4 class="text-sm font-black text-amber-900">Institutional ID Verification Under Review</h4>
+                  <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-200/80 text-amber-800">Pending Approval</span>
+                </div>
+                <p class="text-xs text-amber-800/90 max-w-2xl leading-relaxed">
+                  Your registration is complete and your institutional ID card photo has been queued for Super Administrator verification. You can freely explore the portal; service request submission will be enabled once your identity is confirmed.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Hero CTA Banner -->
         <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-800 p-8 shadow-xl">
           <!-- Background decorations -->
@@ -59,7 +81,7 @@
               <p class="text-emerald-200/80 text-sm mt-1">Submit a new service request to the GSO in seconds.</p>
             </div>
             <button
-              v-if="authStore.hasPermission('tickets.create')"
+              v-if="authStore.hasPermission('tickets.create') && isUserVerified"
               @click="$router.push('/services')"
               class="group flex items-center gap-2.5 bg-white hover:bg-emerald-50 text-emerald-700 font-black px-6 py-3.5 rounded-xl shadow-lg shadow-black/20 transition-all hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap shrink-0"
             >
@@ -68,6 +90,15 @@
               </svg>
               New Service Request
             </button>
+            <div
+              v-else-if="!isUserVerified"
+              class="flex items-center gap-2 bg-emerald-900/40 text-emerald-100 font-bold px-4 py-3 rounded-xl border border-emerald-500/30 text-xs shadow-inner"
+            >
+              <svg class="h-4 w-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Submissions Locked (ID Pending)</span>
+            </div>
           </div>
         </div>
 
@@ -190,6 +221,10 @@ import { useNetworkStatus } from '@/utils/networkMonitor';
 const router     = useRouter();
 const authStore  = useAuthStore();
 const userName   = ref('');
+const isUserVerified = computed(() => {
+  const v = authStore.user?.is_verified;
+  return v === 1 || v === true || v === '1';
+});
 const { onReconnected } = useNetworkStatus();
 let unregisterReconnected = null;
 
