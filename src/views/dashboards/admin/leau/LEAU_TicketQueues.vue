@@ -1,33 +1,36 @@
 <template>
   <MainLayout>
     <template #sidebar-links>
-      <router-link to="/admin/leau" class="nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-        </svg>
-        <span class="text">LEAU Home</span>
-      </router-link>
-      <router-link to="/admin/leau/queues" class="nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-        <span class="text">Ticket Queues</span>
-      </router-link>
-      <router-link to="/admin/leau/personnel" class="nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-        <span class="text">Personnel Management</span>
-      </router-link>
-      <div class="mt-8 mb-4 px-4">
-        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Archives</p>
-      </div>
-      <router-link to="/admin/leau/archives" class="nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-        </svg>
-        <span class="text">Archived Tickets</span>
-      </router-link>
+      <DirectorSidebar v-if="authStore.role === 'director'" />
+      <template v-else>
+        <router-link to="/admin/leau" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          <span class="text">LEAU Home</span>
+        </router-link>
+        <router-link to="/admin/leau/queues" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <span class="text">Ticket Queues</span>
+        </router-link>
+        <router-link to="/admin/leau/personnel" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <span class="text">Personnel Management</span>
+        </router-link>
+        <div class="mt-8 mb-4 px-4">
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Archives</p>
+        </div>
+        <router-link to="/admin/leau/archives" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+          </svg>
+          <span class="text">Archived Tickets</span>
+        </router-link>
+      </template>
     </template>
 
     <template #header-title>
@@ -180,6 +183,28 @@
           </div>
         </div>
 
+        <!-- Queue Interaction & Full Info Instruction Banner -->
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-50 via-amber-50/50 to-slate-50 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+              </svg>
+            </div>
+            <div class="leading-relaxed">
+              <span class="font-black text-slate-900 uppercase tracking-wider">Queue Instruction:</span>
+              <span class="text-slate-600 font-medium ml-1.5">Hover and click any ticket row or card below to pop up the full ticket details, review damage photos, and manage request actions.</span>
+            </div>
+          </div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold shrink-0 self-start sm:self-auto shadow-2xs">
+            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            <span>Click Ticket = Full Info Modal</span>
+          </div>
+        </div>
+
         <!-- ======================= DESKTOP TABULAR VIEW ======================= -->
         <div class="hidden md:block bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="overflow-x-auto">
@@ -233,17 +258,29 @@
                   </td>
                 </tr>
 
-                <!-- Data Rows -->
+                <!-- Data Rows with Enhanced Hover Feedback & Click Instruction -->
                 <tr
                   v-for="ticket in paginatedTickets"
                   :key="ticket.id"
-                  class="hover:bg-slate-50/70 transition-colors group cursor-pointer"
+                  class="hover:bg-amber-50/50 hover:shadow-xs transition-all duration-150 group cursor-pointer relative"
                   @click="openDetailsModal(ticket)"
                 >
                   <!-- Ticket Reference -->
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 inline-block">
-                      #{{ ticket.ticketId }}
+                  <td class="px-6 py-4 whitespace-nowrap relative">
+                    <!-- Row Hover Accent Indicator -->
+                    <span class="absolute left-0 top-2.5 bottom-2.5 w-1.5 rounded-r-md bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
+                    
+                    <div class="flex items-center gap-2">
+                      <div class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-100 inline-flex items-center group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all duration-150 shadow-2xs">
+                        #{{ ticket.ticketId }}
+                      </div>
+                      <span class="opacity-0 group-hover:opacity-100 transition-all duration-150 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-xs pointer-events-none transform -translate-x-1 group-hover:translate-x-0">
+                        <svg class="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Click for full info
+                      </span>
                     </div>
                     <div class="text-[11px] font-medium text-slate-400 mt-1 flex items-center gap-1">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -348,8 +385,19 @@
                     <!-- Pending Tab Actions -->
                     <div v-if="activeTab === 'pending'" class="flex items-center justify-end gap-2">
                       <button
+                        @click="openDetailsModal(ticket)"
+                        class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        title="View Full Ticket Information"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>Full Info</span>
+                      </button>
+                      <button
                         @click="openDeclineModal(ticket)"
-                        class="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 transition-all"
+                        class="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 transition-all cursor-pointer"
                         title="Decline Request"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -358,7 +406,7 @@
                       </button>
                       <button
                         @click="initiateApproval(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1"
+                        class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -371,9 +419,13 @@
                     <div v-else-if="activeTab === 'approved'" class="flex items-center justify-end gap-2">
                       <button
                         @click="openDetailsModal(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all"
+                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
                       >
-                        View Details
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>Full Info</span>
                       </button>
                     </div>
 
@@ -381,7 +433,7 @@
                     <div v-else-if="activeTab === 'active'" class="flex items-center justify-end gap-2">
                       <button
                         @click="openExtensionModal(ticket)"
-                        class="px-3 py-1.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1"
+                        class="px-3 py-1.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
                         title="Grant timeline extension due to unforeseen circumstances"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -391,13 +443,14 @@
                       </button>
                       <button
                         @click="openDetailsModal(ticket)"
-                        class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 transition-all"
-                        title="View Details"
+                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        title="View Full Details"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
+                        <span>Full Info</span>
                       </button>
                     </div>
                   </td>
@@ -451,13 +504,19 @@
           <div
             v-for="ticket in paginatedTickets"
             :key="ticket.id"
-            class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3"
+            class="bg-white rounded-2xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50/20 hover:shadow-md transition-all cursor-pointer p-4 space-y-3 group active:scale-[0.99]"
             @click="openDetailsModal(ticket)"
           >
             <div class="flex items-center justify-between">
-              <span class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">
-                #{{ ticket.ticketId }}
-              </span>
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                  #{{ ticket.ticketId }}
+                </span>
+                <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60 flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  Tap for full info
+                </span>
+              </div>
               <span class="text-[10px] font-bold text-slate-400">{{ ticket.date }}</span>
             </div>
 
@@ -519,61 +578,88 @@
   </MainLayout>
 
   <!-- ======================= DETAILS MODAL ======================= -->
-  <div v-if="selectedTicketForModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in" @click.self="closeDetailsModal">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-200 animate-scale-up space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+  <div v-if="selectedTicketForModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in" @click.self="closeDetailsModal">
+    <div class="bg-white rounded-3xl p-6 sm:p-10 max-w-3xl w-full shadow-2xl border border-slate-200 animate-scale-up space-y-6 sm:space-y-7 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      
+      <!-- Modal Header -->
+      <div class="flex items-start justify-between pb-5 border-b border-slate-100 gap-4">
         <div>
-          <div class="flex items-center gap-2">
-            <span class="font-mono text-sm font-black text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+          <div class="flex flex-wrap items-center gap-2.5 mb-1.5">
+            <span class="font-mono text-base sm:text-lg font-black text-amber-800 bg-amber-50 px-3.5 py-1 rounded-xl border border-amber-200">
               #{{ selectedTicketForModal.ticketId }}
             </span>
-            <span class="text-xs font-bold text-slate-400">
-              Submitted {{ selectedTicketForModal.date }}
+            <span class="text-xs sm:text-sm font-bold text-slate-400">
+              Submitted on {{ selectedTicketForModal.date }}
             </span>
           </div>
-          <h3 class="text-lg font-black text-slate-900 mt-1">Ticket Details</h3>
+          <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Full Ticket Information</h3>
+          <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Comprehensive institutional job particulars and requester verification</p>
         </div>
-        <button @click="closeDetailsModal" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button @click="closeDetailsModal" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer" title="Close modal">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <!-- Overview Info -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-          <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</span>
-          <p class="text-sm font-bold text-slate-900">{{ selectedTicketForModal.requestedBy }}</p>
-          <p class="text-xs text-slate-500">{{ selectedTicketForModal.email || 'No email' }}</p>
-          <p class="text-xs text-slate-500">Contact: {{ selectedTicketForModal.contact || 'N/A' }}</p>
+      <!-- Requester & Location Cards (Larger Typography) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+        <div class="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+          <span class="text-xs font-black uppercase tracking-wider text-slate-400 block">Requester Profile</span>
+          <p class="text-lg sm:text-xl font-black text-slate-900 leading-tight">{{ selectedTicketForModal.requestedBy }}</p>
+          <p class="text-sm text-slate-600 font-semibold flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span class="truncate">{{ selectedTicketForModal.email || 'No institutional email' }}</span>
+          </p>
+          <p class="text-sm text-slate-600 font-semibold flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            <span>Contact: {{ selectedTicketForModal.contact || 'N/A' }}</span>
+          </p>
         </div>
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-          <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Location</span>
-          <p class="text-sm font-bold text-slate-900">{{ selectedTicketForModal.location || 'Main Campus' }}</p>
-          <p class="text-xs text-slate-500">{{ selectedTicketForModal.office_room ? `Room ${selectedTicketForModal.office_room}` : 'No room specified' }}</p>
+
+        <div class="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+          <span class="text-xs font-black uppercase tracking-wider text-slate-400 block">Designated Location</span>
+          <p class="text-lg sm:text-xl font-black text-slate-900 leading-tight">{{ selectedTicketForModal.location || 'Main Campus' }}</p>
+          <p class="text-sm text-slate-600 font-semibold flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            <span>{{ selectedTicketForModal.office_room ? `Room / Office: ${selectedTicketForModal.office_room}` : 'No specific room designated' }}</span>
+          </p>
         </div>
       </div>
 
-      <!-- Service & Particulars -->
-      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular & Nature of Work</span>
-        <p class="text-xs font-black text-amber-700 uppercase tracking-wide">{{ selectedTicketForModal.service }}</p>
-        <p class="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">{{ selectedTicketForModal.description || selectedTicketForModal.title || 'None' }}</p>
+      <!-- Service & Particulars (Larger Typography) -->
+      <div class="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-xs font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
+          <span class="px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs sm:text-sm font-black uppercase tracking-wider border border-amber-200">
+            {{ selectedTicketForModal.service }}
+          </span>
+        </div>
+        <p class="text-sm sm:text-base text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-4 sm:p-5 rounded-xl border border-slate-200/70 shadow-2xs">
+          {{ selectedTicketForModal.description || selectedTicketForModal.title || 'No additional job description provided.' }}
+        </p>
       </div>
 
-      <!-- Attachments -->
-      <div v-if="selectedTicketForModal.attachments && selectedTicketForModal.attachments.length > 0">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">Attached Documents ({{ selectedTicketForModal.attachments.length }})</span>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <!-- Attachments / Proof of Damage / Complaint Documents -->
+      <div v-if="selectedTicketForModal.attachments && selectedTicketForModal.attachments.length > 0" class="space-y-3">
+        <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+          <span class="w-2 h-3.5 rounded-full bg-amber-600"></span>
+          Attached Documents &amp; Damage Proof ({{ selectedTicketForModal.attachments.length }})
+        </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div
             v-for="(file, idx) in selectedTicketForModal.attachments"
             :key="idx"
             @click="downloadAttachment(file)"
-            class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-amber-400 hover:bg-amber-50/50 cursor-pointer transition-all group"
+            class="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200 hover:border-amber-500 hover:bg-amber-50/40 cursor-pointer transition-all shadow-2xs group"
           >
-            <span class="text-xs font-semibold text-slate-700 truncate group-hover:text-amber-800">{{ file.file_name || 'Attachment' }}</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 group-hover:text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex items-center gap-3 truncate">
+              <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+              </div>
+              <span class="text-sm font-bold text-slate-800 truncate group-hover:text-amber-900">{{ file.file_name || 'Attachment' }}</span>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-amber-600 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
           </div>
@@ -581,24 +667,24 @@
       </div>
 
       <!-- Footer Actions -->
-      <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-        <button @click="closeDetailsModal" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">
-          Close
+      <div class="pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+        <button @click="closeDetailsModal" class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-colors cursor-pointer">
+          Close Full Info
         </button>
-        <div v-if="activeTab === 'pending'" class="flex items-center gap-2">
-          <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100">
+        <div v-if="activeTab === 'pending'" class="flex items-center gap-3">
+          <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-5 py-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs sm:text-sm font-bold hover:bg-rose-100 transition-all cursor-pointer">
             Decline Request
           </button>
-          <button @click="initiateApproval(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider">
+          <button @click="initiateApproval(selectedTicketForModal); closeDetailsModal()" class="px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-md shadow-amber-600/20 transition-all cursor-pointer">
             Approve Request
           </button>
         </div>
         <div v-else-if="activeTab === 'active'">
-          <button @click="openExtensionModal(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+          <button @click="openExtensionModal(selectedTicketForModal); closeDetailsModal()" class="px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-2 shadow-md shadow-amber-600/20 transition-all cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>Grant Extension</span>
+            <span>Extend Timeline</span>
           </button>
         </div>
       </div>
@@ -693,6 +779,7 @@ import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import DirectorSidebar from '@/views/dashboards/director/DirectorSidebar.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import { LEAU_SERVICES } from '@/constants/services';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
