@@ -281,69 +281,162 @@
                   <button
                     v-if="isFeedbackEligible(ticket) && !ticket.isClosed"
                     @click="toggleRatingForm(ticket)"
-                    class="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-sm shadow-amber-500/20 transition-all text-xs active:scale-95 whitespace-nowrap"
+                    class="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-xl shadow-sm shadow-amber-500/25 transition-all text-xs sm:text-sm active:scale-95 whitespace-nowrap cursor-pointer"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                     </svg>
-                    {{ ratingTicketId === ticket.ticketId ? 'Close Rating' : 'Rate' }}
+                    {{ ratingTicketId === ticket.ticketId ? 'Close Evaluation' : 'Rate Service & Close' }}
                   </button>
                 </div>
               </div>
             </div>
 
             <!-- Expanded Ratings Form -->
-            <div v-if="ratingTicketId === ticket.ticketId" class="border-t border-slate-100 p-5 bg-emerald-50">
-              <div class="flex items-start justify-between mb-5">
-                <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <div class="w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    </div>
-                    <h4 class="font-black text-emerald-900 text-sm">Service Performance Evaluation</h4>
+            <div v-if="ratingTicketId === ticket.ticketId" class="border-t-2 border-emerald-200/80 p-6 sm:p-8 bg-gradient-to-b from-emerald-50/80 via-emerald-50/40 to-white rounded-b-2xl space-y-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-200/60">
+                <div class="flex items-start gap-3.5">
+                  <div class="w-11 h-11 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-md shadow-emerald-600/20 text-white shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
                   </div>
-                  <p class="text-xs text-emerald-700/80">Complete this evaluation to close your ticket.</p>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-black text-slate-900 text-lg sm:text-xl tracking-tight">Service Performance Evaluation</h4>
+                      <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[11px] font-black rounded-lg uppercase tracking-wider border border-emerald-300">Section F</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-600 font-medium mt-1">Please complete this evaluation to close and archive Ticket #{{ ticket.ticketId || ticket.id }}.</p>
+                  </div>
                 </div>
-                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg uppercase tracking-wider border border-emerald-200">Section F</span>
               </div>
 
-              <div class="space-y-5">
-                <!-- Completion Status -->
-                <div>
-                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">1. Job Completion Status <span class="text-rose-500">*</span></label>
-                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <label v-for="option in completionOptions" :key="option.value"
-                      :class="['flex items-center justify-center p-2.5 border rounded-xl cursor-pointer transition-all text-center', satisfactionForm.completionStatus === option.value ? option.activeClass : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300']">
+              <div class="space-y-6">
+                <!-- 1. Job Completion Status -->
+                <div class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-3">
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide">
+                      1. Job Completion Status <span class="text-rose-500">*</span>
+                    </label>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Required</span>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <label
+                      v-for="option in completionOptions"
+                      :key="option.value"
+                      :class="[
+                        'flex items-center gap-3.5 p-4 border-2 rounded-2xl cursor-pointer transition-all duration-150 select-none group',
+                        satisfactionForm.completionStatus === option.value
+                          ? option.activeClass
+                          : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50/80 shadow-2xs hover:shadow-xs'
+                      ]"
+                    >
                       <input type="radio" v-model="satisfactionForm.completionStatus" :value="option.value" class="hidden" />
-                      <span class="text-xs font-bold leading-tight">{{ option.label }}</span>
+                      <div
+                        class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+                        :class="satisfactionForm.completionStatus === option.value ? option.indicatorClass : 'border-slate-300 bg-white group-hover:border-slate-400'"
+                      >
+                        <div v-if="satisfactionForm.completionStatus === option.value" class="w-2.5 h-2.5 rounded-full bg-white"></div>
+                      </div>
+                      <span class="text-sm sm:text-base font-bold leading-snug">{{ option.label }}</span>
                     </label>
                   </div>
                 </div>
 
-                <!-- Star Ratings -->
-                <div v-if="satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-4 rounded-xl border border-slate-200 space-y-3 animate-fade-in">
-                  <div class="mb-3">
-                    <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-0.5">2. Service Quality Rating <span class="text-rose-500">*</span></label>
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">(1-Poor, 2-Fair, 3-Satisfactory, 4-Very Satisfactory, 5-Outstanding)</p>
+                <!-- 2. Service Quality Rating -->
+                <div
+                  v-if="satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'"
+                  class="bg-white p-5 sm:p-7 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-5 animate-fade-in"
+                >
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
+                    <div>
+                      <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide">
+                        2. Service Quality Rating <span class="text-rose-500">*</span>
+                      </label>
+                      <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Click a number from 1 to 5 for each criterion</p>
+                    </div>
+
+                    <!-- Rating Scale Legend Pills -->
+                    <div class="flex items-center gap-1.5 flex-wrap text-xs font-bold text-slate-600 bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs">
+                      <span class="text-rose-600 font-bold">1: Poor</span>
+                      <span class="text-slate-300">•</span>
+                      <span class="text-amber-600 font-bold">2: Fair</span>
+                      <span class="text-slate-300">•</span>
+                      <span class="text-blue-600 font-bold">3: Satisfactory</span>
+                      <span class="text-slate-300">•</span>
+                      <span class="text-emerald-600 font-bold">4: Very Sat.</span>
+                      <span class="text-slate-300">•</span>
+                      <span class="text-emerald-700 font-black">5: Outstanding</span>
+                    </div>
                   </div>
-                  <div v-for="(label, key) in ratingCriteria" :key="key" class="flex items-center justify-between gap-3">
-                    <span class="text-xs text-slate-600 font-medium flex-1">{{ label }}</span>
-                    <div class="flex gap-1">
-                      <button v-for="star in 5" :key="star" @click="satisfactionForm.ratings[key] = star"
-                        :class="['w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all active:scale-95',
-                          satisfactionForm.ratings[key] === star ? 'bg-amber-100 text-amber-600 border border-amber-200' : 'bg-slate-50 text-slate-300 border border-slate-100']">
-                        {{ star }}
-                      </button>
+
+                  <!-- Rating Criteria Items -->
+                  <div class="space-y-4">
+                    <div
+                      v-for="(label, key) in ratingCriteria"
+                      :key="key"
+                      class="bg-slate-50/70 border-2 border-slate-200/80 hover:border-slate-300 rounded-2xl p-4 sm:p-5 transition-all shadow-2xs space-y-3"
+                    >
+                      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <h5 class="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                            {{ label }}
+                          </h5>
+                          <p class="text-xs sm:text-sm text-slate-500 font-medium pl-4 mt-0.5">{{ getCriteriaDesc(key) }}</p>
+                        </div>
+
+                        <!-- Dynamic Feedback Score Badge -->
+                        <div v-if="satisfactionForm.ratings[key]" class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100/90 border border-amber-300 text-amber-900 rounded-xl text-xs sm:text-sm font-black shadow-xs self-start sm:self-auto animate-fade-in">
+                          <span class="text-amber-600 font-black">★</span>
+                          <span>Score: {{ satisfactionForm.ratings[key] }} / 5</span>
+                          <span class="text-amber-700 font-extrabold">({{ getRatingLabel(satisfactionForm.ratings[key]) }})</span>
+                        </div>
+                        <div v-else class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-3 py-1 rounded-xl self-start sm:self-auto">
+                          Please click 1 to 5 below
+                        </div>
+                      </div>
+
+                      <!-- Big, tactile, unmistakably clickable buttons -->
+                      <div class="grid grid-cols-5 gap-2 sm:gap-3 pt-1">
+                        <button
+                          v-for="star in 5"
+                          :key="star"
+                          type="button"
+                          @click="satisfactionForm.ratings[key] = star"
+                          :title="`${star} - ${getRatingLabel(star)}`"
+                          :class="[
+                            'min-h-[58px] sm:min-h-[68px] p-2 rounded-2xl flex flex-col items-center justify-center transition-all duration-150 cursor-pointer select-none group border-2',
+                            satisfactionForm.ratings[key] === star
+                              ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-white font-black border-amber-500 shadow-md shadow-amber-500/35 scale-[1.02] ring-2 ring-amber-400 ring-offset-2'
+                              : 'bg-white hover:bg-amber-50 text-slate-800 hover:text-amber-900 font-black border-slate-300 hover:border-amber-400 shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
+                          ]"
+                        >
+                          <div class="flex items-center gap-1">
+                            <span class="text-xl sm:text-2xl font-black leading-none group-hover:scale-110 transition-transform">
+                              {{ star }}
+                            </span>
+                            <span class="text-amber-400 text-sm sm:text-base leading-none" :class="satisfactionForm.ratings[key] === star ? 'text-white' : 'group-hover:text-amber-500'">★</span>
+                          </div>
+                          <span
+                            class="text-[10px] sm:text-xs font-bold mt-1 leading-none text-center truncate max-w-full px-0.5"
+                            :class="satisfactionForm.ratings[key] === star ? 'text-amber-100 font-black' : 'text-slate-500 group-hover:text-amber-800'"
+                          >
+                            {{ getRatingLabel(star, true) }}
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <!-- Beyond Time Reasons -->
-                <div v-if="satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-4 rounded-xl border border-slate-200 animate-fade-in">
-                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">Reasons for beyond time</label>
-                  <div class="space-y-2.5">
+                <div v-if="satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 space-y-3 animate-fade-in shadow-xs">
+                  <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-3">
+                    Reasons for beyond time completion
+                  </label>
+                  <div class="space-y-3">
                     <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.personnelAbsent" label="Personnel absent / on-leave" />
                     <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.extendedBreak" label="Extended break period" />
                     <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.additionalWork" label="Additional work requested" />
@@ -351,9 +444,11 @@
                 </div>
 
                 <!-- Not Completed Reasons -->
-                <div v-if="satisfactionForm.completionStatus === 'not-completed'" class="bg-white p-4 rounded-xl border border-slate-200 animate-fade-in">
-                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">Reasons for not completed</label>
-                  <div class="space-y-2.5">
+                <div v-if="satisfactionForm.completionStatus === 'not-completed'" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 space-y-3 animate-fade-in shadow-xs">
+                  <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-3">
+                    Reasons for not completed / performed
+                  </label>
+                  <div class="space-y-3">
                     <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackWorkingDays" label="Lack of working days" />
                     <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackMaterials" label="Lack of materials / tools" />
                     <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackSkills" label="Lack of skills" />
@@ -361,25 +456,38 @@
                 </div>
 
                 <!-- Remarks -->
-                <div v-if="satisfactionForm.completionStatus" class="animate-fade-in">
-                  <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Remarks (Optional)</label>
-                  <textarea v-model="satisfactionForm.remarks" rows="2"
-                    class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-sm transition-all resize-none"
-                    placeholder="Any additional comments...">
+                <div v-if="satisfactionForm.completionStatus" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-2 animate-fade-in">
+                  <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-1">
+                    Remarks / Commendations (Optional)
+                  </label>
+                  <textarea
+                    v-model="satisfactionForm.remarks"
+                    rows="3"
+                    class="w-full px-4 py-3 bg-slate-50/60 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white outline-none text-sm sm:text-base text-slate-800 transition-all resize-none placeholder:text-slate-400 font-medium"
+                    placeholder="Share your commendations, comments, or suggestions regarding the service...">
                   </textarea>
                 </div>
 
-                <!-- Submit -->
+                <!-- Submit Action Button -->
                 <button
+                  type="button"
                   @click="closeTicket(ticket)"
-                  :disabled="!isFormValid"
-                  :class="['w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all',
-                    isFormValid ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 active:scale-[0.98]' : 'bg-slate-200 text-slate-400 cursor-not-allowed']"
+                  :disabled="!isFormValid || isSubmittingFeedback"
+                  :class="[
+                    'w-full py-4 px-6 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-3 transition-all duration-150 select-none cursor-pointer shadow-md',
+                    isFormValid && !isSubmittingFeedback
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/25 hover:shadow-lg active:scale-[0.99]'
+                      : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                  ]"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg v-if="isSubmittingFeedback" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                   </svg>
-                  Submit & Close Ticket
+                  <span>{{ isSubmittingFeedback ? 'Submitting Evaluation & Closing Ticket...' : 'Submit Evaluation & Close Ticket' }}</span>
                 </button>
               </div>
             </div>
@@ -444,10 +552,29 @@
                           <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(selectedTicket.status)"></span>
                           {{ selectedTicket.statusLabel }}
                         </span>
+                        <!-- Live Tracking Pulse Indicator -->
+                        <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          <span>Live Sync</span>
+                        </span>
                       </div>
                     </div>
                   </div>
                   <div class="flex items-center gap-2">
+                    <!-- Manual Sync Button -->
+                    <button
+                      type="button"
+                      @click="syncOpenTicket()"
+                      :disabled="isSyncingTicket"
+                      class="px-3 py-1.5 bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 text-xs font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer disabled:opacity-60"
+                      title="Force refresh status from server"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="{ 'animate-spin text-emerald-600': isSyncingTicket }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span class="hidden sm:inline">{{ isSyncingTicket ? 'Syncing...' : 'Sync Status' }}</span>
+                    </button>
+
                     <button
                       v-if="selectedTicket.status === 'pending'"
                       @click="promptCancelTicket(selectedTicket)"
@@ -583,25 +710,204 @@
                   <!-- ========== AWAITING RATING STATE IN TIMELINE ========== -->
                   <div
                     v-if="isFeedbackEligible(selectedTicket) && !selectedTicket.isClosed"
-                    class="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center"
+                    class="bg-amber-50/90 border-2 border-amber-200 rounded-3xl p-6 sm:p-7 text-left space-y-6 shadow-sm"
                   >
-                    <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-3 text-amber-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                      </svg>
+                    <div class="flex items-start gap-4">
+                      <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-md shadow-amber-500/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200/80 text-amber-900 border border-amber-300">Action Required</span>
+                          <span class="text-xs font-bold text-amber-800">Section F</span>
+                        </div>
+                        <h4 class="font-black text-slate-900 text-lg sm:text-xl tracking-tight">Service Complete — Evaluation Required</h4>
+                        <p class="text-xs sm:text-sm text-slate-600 mt-1">The service has been completed by the assigned team. Please rate the service quality below to finalize and close this ticket.</p>
+                      </div>
                     </div>
-                    <h4 class="font-black text-amber-900 text-sm mb-1">Service Complete — Feedback Required</h4>
-                    <p class="text-xs text-amber-700/80 mb-4">The service has been completed by the assigned team. Please rate the service quality to finalize and close this ticket.</p>
-                    <button
-                      type="button"
-                      @click="closeTimeline(); toggleRatingForm(selectedTicket);"
-                      class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-sm shadow-amber-500/20 transition-all active:scale-95 inline-flex items-center gap-2 cursor-pointer"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                      </svg>
-                      Rate Service & Close Ticket
-                    </button>
+
+                    <!-- Direct embedded rating form inside the timeline modal -->
+                    <div class="border-t border-amber-200/80 pt-6 space-y-6">
+                      <!-- 1. Job Completion Status -->
+                      <div class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-3">
+                        <div class="flex items-center justify-between gap-2">
+                          <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide">
+                            1. Job Completion Status <span class="text-rose-500">*</span>
+                          </label>
+                          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Required</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <label
+                            v-for="option in completionOptions"
+                            :key="option.value"
+                            :class="[
+                              'flex items-center gap-3.5 p-4 border-2 rounded-2xl cursor-pointer transition-all duration-150 select-none group',
+                              satisfactionForm.completionStatus === option.value
+                                ? option.activeClass
+                                : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50/80 shadow-2xs hover:shadow-xs'
+                            ]"
+                          >
+                            <input type="radio" v-model="satisfactionForm.completionStatus" :value="option.value" class="hidden" />
+                            <div
+                              class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+                              :class="satisfactionForm.completionStatus === option.value ? option.indicatorClass : 'border-slate-300 bg-white group-hover:border-slate-400'"
+                            >
+                              <div v-if="satisfactionForm.completionStatus === option.value" class="w-2.5 h-2.5 rounded-full bg-white"></div>
+                            </div>
+                            <span class="text-sm sm:text-base font-bold leading-snug">{{ option.label }}</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <!-- 2. Service Quality Rating -->
+                      <div
+                        v-if="satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'"
+                        class="bg-white p-5 sm:p-7 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-5 animate-fade-in"
+                      >
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
+                          <div>
+                            <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide">
+                              2. Service Quality Rating <span class="text-rose-500">*</span>
+                            </label>
+                            <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Click a number from 1 to 5 for each criterion</p>
+                          </div>
+
+                          <!-- Rating Scale Legend Pills -->
+                          <div class="flex items-center gap-1.5 flex-wrap text-xs font-bold text-slate-600 bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-rose-600 font-bold">1: Poor</span>
+                            <span class="text-slate-300">•</span>
+                            <span class="text-amber-600 font-bold">2: Fair</span>
+                            <span class="text-slate-300">•</span>
+                            <span class="text-blue-600 font-bold">3: Satisfactory</span>
+                            <span class="text-slate-300">•</span>
+                            <span class="text-emerald-600 font-bold">4: Very Sat.</span>
+                            <span class="text-slate-300">•</span>
+                            <span class="text-emerald-700 font-black">5: Outstanding</span>
+                          </div>
+                        </div>
+
+                        <!-- Rating Criteria Items -->
+                        <div class="space-y-4">
+                          <div
+                            v-for="(label, key) in ratingCriteria"
+                            :key="key"
+                            class="bg-slate-50/70 border-2 border-slate-200/80 hover:border-slate-300 rounded-2xl p-4 sm:p-5 transition-all shadow-2xs space-y-3"
+                          >
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div>
+                                <h5 class="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
+                                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                                  {{ label }}
+                                </h5>
+                                <p class="text-xs sm:text-sm text-slate-500 font-medium pl-4 mt-0.5">{{ getCriteriaDesc(key) }}</p>
+                              </div>
+
+                              <!-- Dynamic Feedback Score Badge -->
+                              <div v-if="satisfactionForm.ratings[key]" class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100/90 border border-amber-300 text-amber-900 rounded-xl text-xs sm:text-sm font-black shadow-xs self-start sm:self-auto animate-fade-in">
+                                <span class="text-amber-600 font-black">★</span>
+                                <span>Score: {{ satisfactionForm.ratings[key] }} / 5</span>
+                                <span class="text-amber-700 font-extrabold">({{ getRatingLabel(satisfactionForm.ratings[key]) }})</span>
+                              </div>
+                              <div v-else class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-3 py-1 rounded-xl self-start sm:self-auto">
+                                Please click 1 to 5 below
+                              </div>
+                            </div>
+
+                            <!-- Big, tactile, unmistakably clickable buttons -->
+                            <div class="grid grid-cols-5 gap-2 sm:gap-3 pt-1">
+                              <button
+                                v-for="star in 5"
+                                :key="star"
+                                type="button"
+                                @click="satisfactionForm.ratings[key] = star"
+                                :title="`${star} - ${getRatingLabel(star)}`"
+                                :class="[
+                                  'min-h-[58px] sm:min-h-[68px] p-2 rounded-2xl flex flex-col items-center justify-center transition-all duration-150 cursor-pointer select-none group border-2',
+                                  satisfactionForm.ratings[key] === star
+                                    ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-white font-black border-amber-500 shadow-md shadow-amber-500/35 scale-[1.02] ring-2 ring-amber-400 ring-offset-2'
+                                    : 'bg-white hover:bg-amber-50 text-slate-800 hover:text-amber-900 font-black border-slate-300 hover:border-amber-400 shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
+                                ]"
+                              >
+                                <div class="flex items-center gap-1">
+                                  <span class="text-xl sm:text-2xl font-black leading-none group-hover:scale-110 transition-transform">
+                                    {{ star }}
+                                  </span>
+                                  <span class="text-amber-400 text-sm sm:text-base leading-none" :class="satisfactionForm.ratings[key] === star ? 'text-white' : 'group-hover:text-amber-500'">★</span>
+                                </div>
+                                <span
+                                  class="text-[10px] sm:text-xs font-bold mt-1 leading-none text-center truncate max-w-full px-0.5"
+                                  :class="satisfactionForm.ratings[key] === star ? 'text-amber-100 font-black' : 'text-slate-500 group-hover:text-amber-800'"
+                                >
+                                  {{ getRatingLabel(star, true) }}
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Beyond Time Reasons -->
+                      <div v-if="satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 space-y-3 animate-fade-in shadow-xs">
+                        <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-3">
+                          Reasons for beyond time completion
+                        </label>
+                        <div class="space-y-3">
+                          <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.personnelAbsent" label="Personnel absent / on-leave" />
+                          <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.extendedBreak" label="Extended break period" />
+                          <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.additionalWork" label="Additional work requested" />
+                        </div>
+                      </div>
+
+                      <!-- Not Completed Reasons -->
+                      <div v-if="satisfactionForm.completionStatus === 'not-completed'" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 space-y-3 animate-fade-in shadow-xs">
+                        <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-3">
+                          Reasons for not completed / performed
+                        </label>
+                        <div class="space-y-3">
+                          <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackWorkingDays" label="Lack of working days" />
+                          <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackMaterials" label="Lack of materials / tools" />
+                          <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackSkills" label="Lack of skills" />
+                        </div>
+                      </div>
+
+                      <!-- Remarks -->
+                      <div v-if="satisfactionForm.completionStatus" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-2 animate-fade-in">
+                        <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-1">
+                          Remarks / Commendations (Optional)
+                        </label>
+                        <textarea
+                          v-model="satisfactionForm.remarks"
+                          rows="3"
+                          class="w-full px-4 py-3 bg-slate-50/60 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white outline-none text-sm sm:text-base text-slate-800 transition-all resize-none placeholder:text-slate-400 font-medium"
+                          placeholder="Share your commendations, comments, or suggestions regarding the service...">
+                        </textarea>
+                      </div>
+
+                      <!-- Submit Action Button -->
+                      <button
+                        type="button"
+                        @click="closeTicket(selectedTicket)"
+                        :disabled="!isFormValid || isSubmittingFeedback"
+                        :class="[
+                          'w-full py-4 px-6 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-3 transition-all duration-150 select-none cursor-pointer shadow-md',
+                          isFormValid && !isSubmittingFeedback
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/25 hover:shadow-lg active:scale-[0.99]'
+                            : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                        ]"
+                      >
+                        <svg v-if="isSubmittingFeedback" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>{{ isSubmittingFeedback ? 'Submitting Evaluation & Closing Ticket...' : 'Submit Evaluation & Close Ticket' }}</span>
+                      </button>
+                    </div>
                   </div>
 
                   <!-- ========== TICKET CLOSED STATE ========== -->
@@ -756,8 +1062,15 @@ import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import { attachFgmuJobRequestForm, generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
 import { parseDateLocal } from '@/utils/workCalendar';
 import { useAuthStore } from '@/stores/auth';
+import { useNetworkStatus } from '@/utils/networkMonitor';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+
+const { onReconnected } = useNetworkStatus();
+const isSyncingTicket = ref(false);
+const lastSyncedAt = ref(Date.now());
+let modalSyncTimer = null;
+let unregisterReconnected = null;
 
 const formatDate = (dateStr) => {
   if (!dateStr) return 'N/A';
@@ -891,18 +1204,37 @@ const DigitalFormCard = defineComponent({
 });
 
 /**
- * Styled checkbox item.
+ * Styled checkbox item with enhanced touch target and clear typography.
  */
 const CheckboxItem = defineComponent({
   props: { modelValue: Boolean, label: String },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
-    return () => h('label', { class: 'flex items-center gap-3 cursor-pointer group' }, [
-      h('div', { class: 'relative flex-shrink-0 w-5 h-5 border-2 rounded overflow-hidden transition-colors group-hover:border-emerald-500 ' + (props.modelValue ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300 bg-white') }, [
-        h('input', { type: 'checkbox', checked: props.modelValue, class: 'absolute inset-0 opacity-0 cursor-pointer', onChange: (e) => emit('update:modelValue', e.target.checked) }),
-        props.modelValue ? h('svg', { class: 'absolute inset-0 w-full h-full p-0.5 text-white', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', 'stroke-width': '3' }, h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M5 13l4 4L19 7' })) : null,
+    return () => h('label', { class: 'flex items-center gap-3 cursor-pointer group select-none py-1' }, [
+      h('div', {
+        class: `relative flex-shrink-0 w-6 h-6 border-2 rounded-lg overflow-hidden transition-all duration-150 shadow-2xs ${
+          props.modelValue ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300 bg-white group-hover:border-emerald-500'
+        }`
+      }, [
+        h('input', {
+          type: 'checkbox',
+          checked: props.modelValue,
+          class: 'absolute inset-0 opacity-0 cursor-pointer',
+          onChange: (e) => emit('update:modelValue', e.target.checked)
+        }),
+        props.modelValue ? h('svg', {
+          class: 'absolute inset-0 w-full h-full p-1 text-white',
+          fill: 'none',
+          viewBox: '0 0 24 24',
+          stroke: 'currentColor',
+          'stroke-width': '3'
+        }, h('path', {
+          'stroke-linecap': 'round',
+          'stroke-linejoin': 'round',
+          d: 'M5 13l4 4L19 7'
+        })) : null,
       ]),
-      h('span', { class: 'text-sm text-slate-600' }, props.label),
+      h('span', { class: 'text-sm sm:text-base font-semibold text-slate-700 group-hover:text-slate-900 transition-colors' }, props.label),
     ]);
   },
 });
@@ -955,6 +1287,98 @@ const highlightedTicket = ref(null);
 const userName = ref('');
 const tickets  = ref([]);
 
+// ---- Data Mapping Helper ----
+const mapTicketData = (t) => ({
+  id: t.id,
+  ticketId: t.id,
+  title: t.title,
+  service: t.service_type,
+  unit: t.unit_code,
+  description: t.description,
+  status: t.status,
+  statusLabel: t.status_label,
+  date: new Date(t.completed_at || t.submitted_at || t.updated_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+  requestedBy: userName.value || 'User',
+  location: t.location,
+  office_room: t.office_room,
+  make_series: t.details?.make_series || '',
+  color: t.details?.type_color || '',
+  address: t.details?.house_street
+    ? `${t.details.house_street}, ${t.details.barangay}, ${t.details.city_municipality}, ${t.details.province}`
+    : (t.details?.complete_address || ''),
+  destination: t.details?.destination || 'N/A',
+  passengers: t.details?.num_passengers || t.details?.number_of_passengers || t.details?.numberOfPassengers || 'N/A',
+  dateOfTravel: t.details?.date_of_travel || t.details?.dateOfTravel || 'N/A',
+  purpose: t.details?.purpose_of_travel || t.details?.purposeOfTravel || t.details?.purpose || 'N/A',
+  attachments: t.attachments || [],
+  declineReason: t.decline_reason || '',
+  currentStep: parseInt(t.current_step) || (['closed', 'completed'].includes(t.status) ? 6 : 1),
+  assignment: t.assignment || null,
+  assignments: t.assignments || [],
+  assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
+  assignedContact: t.assignment?.personnel_contact || null,
+  details: t.details || null,
+  feedback: t.feedback || null,
+  materials: t.materials || [],
+  total_material_cost: t.total_material_cost || 0,
+  submitted_at: t.submitted_at,
+  completed_at: t.completed_at || t.updated_at,
+  implementationDate: t.assignment?.implementation_date
+    ? formatDate(t.assignment.implementation_date)
+    : null,
+  extension_days: Number(t.extension_days) || 0,
+  extension_reason: t.extension_reason || '',
+  extended_completion_date: t.extended_completion_date || null,
+  is_extended: !!t.is_extended || (Number(t.extension_days) > 0) || !!t.extended_completion_date,
+  target_completion_date: t.target_completion_date || t.extended_completion_date || null,
+  effective_target_date: t.effective_target_date || t.target_completion_date || t.extended_completion_date || null,
+  base_working_days: Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null,
+  total_working_days: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0),
+  workingDays: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0) || (t.working_days || t.project_working_days || t.assignment?.working_days || null),
+  working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
+  isClosed: t.status === 'completed' || t.status === 'closed',
+  accomplishment_report_path: t.accomplishment_report_path || null,
+  accomplishment_notes: t.accomplishment_notes || '',
+  verification_status: t.verification_status || 'pending_report',
+  verified_at: t.verified_at || null,
+  eodb_tier: t.eodb_tier || null,
+  eodb_days: t.eodb_days || null,
+  is_emergency: !!t.is_emergency,
+  is_vip: !!t.is_vip,
+  // SSU Incident Report specific fields
+  isUnderInvestigation: Number(t.is_under_investigation) === 1,
+  hasNotation:          !!t.ssu_notation,
+  notation:             t.ssu_notation || '',
+  actionsTaken:         t.ssu_notation || '',
+});
+
+// Dedicated Single-Ticket Live Synchronization
+const syncOpenTicket = async (targetId = null) => {
+  const tId = targetId || selectedTicket.value?.ticketId || selectedTicket.value?.id;
+  if (!tId) return;
+
+  isSyncingTicket.value = true;
+  try {
+    const res = await api.get(`tickets/${tId}`);
+    const rawTicket = res.data?.data?.ticket;
+    if (rawTicket) {
+      const mapped = mapTicketData(rawTicket);
+      selectedTicket.value = mapped;
+
+      const curId = String(tId);
+      const idx = tickets.value.findIndex(t => String(t.ticketId || t.id) === curId);
+      if (idx !== -1) {
+        tickets.value[idx] = mapped;
+      }
+      lastSyncedAt.value = Date.now();
+    }
+  } catch (err) {
+    console.warn(`[User_Tickets] Failed to sync ticket #${tId}:`, err?.message || err);
+  } finally {
+    isSyncingTicket.value = false;
+  }
+};
+
 const fetchTickets = async () => {
   try {
     const [activeRes, completedRes] = await Promise.all([
@@ -976,69 +1400,7 @@ const fetchTickets = async () => {
 
     const allList = Array.from(combinedMap.values());
 
-    tickets.value = allList.map(t => ({
-      id: t.id,
-      ticketId: t.id,
-      title: t.title,
-      service: t.service_type,
-      unit: t.unit_code,
-      description: t.description,
-      status: t.status,
-      statusLabel: t.status_label,
-      date: new Date(t.completed_at || t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      requestedBy: userName.value,
-      location: t.location,
-      office_room: t.office_room,
-      make_series: t.details?.make_series || '',
-      color: t.details?.type_color || '',
-      address: t.details?.house_street
-        ? `${t.details.house_street}, ${t.details.barangay}, ${t.details.city_municipality}, ${t.details.province}`
-        : (t.details?.complete_address || ''),
-      destination: t.details?.destination || 'N/A',
-      passengers: t.details?.num_passengers || t.details?.number_of_passengers || t.details?.numberOfPassengers || 'N/A',
-      dateOfTravel: t.details?.date_of_travel || t.details?.dateOfTravel || 'N/A',
-      purpose: t.details?.purpose_of_travel || t.details?.purposeOfTravel || t.details?.purpose || 'N/A',
-      attachments: t.attachments || [],
-      declineReason: t.decline_reason || '',
-      currentStep: parseInt(t.current_step) || (['closed', 'completed'].includes(t.status) ? 6 : 1),
-      assignment: t.assignment || null,
-      assignments: t.assignments || [],
-      assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
-      assignedContact: t.assignment?.personnel_contact || null,
-      details: t.details || null,
-      feedback: t.feedback || null,
-      materials: t.materials || [],
-      total_material_cost: t.total_material_cost || 0,
-      submitted_at: t.submitted_at,
-      completed_at: t.completed_at || t.updated_at,
-      implementationDate: t.assignment?.implementation_date
-        ? formatDate(t.assignment.implementation_date)
-        : null,
-      extension_days: Number(t.extension_days) || 0,
-      extension_reason: t.extension_reason || '',
-      extended_completion_date: t.extended_completion_date || null,
-      is_extended: !!t.is_extended || (Number(t.extension_days) > 0) || !!t.extended_completion_date,
-      target_completion_date: t.target_completion_date || t.extended_completion_date || null,
-      effective_target_date: t.effective_target_date || t.target_completion_date || t.extended_completion_date || null,
-      base_working_days: Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null,
-      total_working_days: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0),
-      workingDays: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0) || (t.working_days || t.project_working_days || t.assignment?.working_days || null),
-      working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
-      isClosed: t.status === 'completed' || t.status === 'closed',
-      accomplishment_report_path: t.accomplishment_report_path || null,
-      accomplishment_notes: t.accomplishment_notes || '',
-      verification_status: t.verification_status || 'pending_report',
-      verified_at: t.verified_at || null,
-      eodb_tier: t.eodb_tier || null,
-      eodb_days: t.eodb_days || null,
-      is_emergency: !!t.is_emergency,
-      is_vip: !!t.is_vip,
-      // SSU Incident Report specific fields
-      isUnderInvestigation: Number(t.is_under_investigation) === 1,
-      hasNotation:          !!t.ssu_notation,
-      notation:             t.ssu_notation || '',
-      actionsTaken:         t.ssu_notation || '',
-    }));
+    tickets.value = allList.map(mapTicketData);
 
     const ackMap = JSON.parse(localStorage.getItem('gso_ssu_acknowledged_incidents') || '{}');
     tickets.value.forEach(t => {
@@ -1047,9 +1409,10 @@ const fetchTickets = async () => {
       }
     });
 
-    // Update the timeline modal ticket if it is currently open
+    // Update the timeline modal ticket if it is currently open (type-safe comparison)
     if (selectedTicket.value) {
-      const updated = tickets.value.find(t => t.ticketId === selectedTicket.value.ticketId);
+      const curId = String(selectedTicket.value.ticketId || selectedTicket.value.id);
+      const updated = tickets.value.find(t => String(t.ticketId || t.id) === curId);
       if (updated) {
         selectedTicket.value = updated;
       }
@@ -1087,6 +1450,15 @@ watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () =>
   handleRouteTicket();
 });
 
+const handleFocusOrVisibility = () => {
+  if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+    fetchTickets();
+    if (selectedTicket.value) {
+      syncOpenTicket();
+    }
+  }
+};
+
 onMounted(() => {
   handleRouteTicket();
 
@@ -1097,10 +1469,27 @@ onMounted(() => {
     if (document.hidden) return;
     fetchTickets();
   }, 15000);
+
+  // Tab Focus & Visibility change recovery
+  window.addEventListener('focus', handleFocusOrVisibility);
+  document.addEventListener('visibilitychange', handleFocusOrVisibility);
+
+  // Auto-recovery when internet / network connectivity restores
+  unregisterReconnected = onReconnected(() => {
+    console.info('[User_Tickets] Network restored. Syncing tickets and active timeline...');
+    fetchTickets();
+    if (selectedTicket.value) {
+      syncOpenTicket();
+    }
+  });
 });
 
 onUnmounted(() => {
+  window.removeEventListener('focus', handleFocusOrVisibility);
+  document.removeEventListener('visibilitychange', handleFocusOrVisibility);
+  if (unregisterReconnected) unregisterReconnected();
   if (pollingInterval) clearInterval(pollingInterval);
+  if (modalSyncTimer) clearInterval(modalSyncTimer);
 });
 
 // ---- Filtering ----
@@ -1280,16 +1669,56 @@ const getStepDescription = (ticket, step, index) => {
 };
 
 // ---- Satisfaction Form ----
+const isSubmittingFeedback = ref(false);
+
 const completionOptions = [
-  { value: 'on-time',       label: 'Completed On-Time',          activeClass: 'bg-emerald-100 border-emerald-400 text-emerald-800 shadow-sm' },
-  { value: 'beyond-time',   label: 'Completed Beyond Time',      activeClass: 'bg-amber-100 border-amber-400 text-amber-800 shadow-sm' },
-  { value: 'not-completed', label: 'Not Completed / Performed',  activeClass: 'bg-rose-100 border-rose-400 text-rose-800 shadow-sm' },
+  {
+    value: 'on-time',
+    label: 'Completed On-Time',
+    activeClass: 'bg-emerald-50/90 border-emerald-500 text-emerald-950 shadow-sm ring-1 ring-emerald-500',
+    indicatorClass: 'border-emerald-600 bg-emerald-600'
+  },
+  {
+    value: 'beyond-time',
+    label: 'Completed Beyond Time',
+    activeClass: 'bg-amber-50/90 border-amber-500 text-amber-950 shadow-sm ring-1 ring-amber-500',
+    indicatorClass: 'border-amber-600 bg-amber-600'
+  },
+  {
+    value: 'not-completed',
+    label: 'Not Completed / Performed',
+    activeClass: 'bg-rose-50/90 border-rose-500 text-rose-950 shadow-sm ring-1 ring-rose-500',
+    indicatorClass: 'border-rose-600 bg-rose-600'
+  },
 ];
 
 const ratingCriteria = {
   quality:     'Quality of Work / Service',
   efficiency:  'Efficiency / Work Discipline',
   timeliness:  'Timeliness of Completion',
+};
+
+const ratingScale = [
+  { score: 1, label: 'Poor', shortLabel: 'Poor', shortDesc: 'Did not meet expectations' },
+  { score: 2, label: 'Fair', shortLabel: 'Fair', shortDesc: 'Needs improvement' },
+  { score: 3, label: 'Satisfactory', shortLabel: 'Satisfactory', shortDesc: 'Met requirements' },
+  { score: 4, label: 'Very Satisfactory', shortLabel: 'Very Sat.', shortDesc: 'Exceeded requirements' },
+  { score: 5, label: 'Outstanding', shortLabel: 'Outstanding', shortDesc: 'Superior workmanship' },
+];
+
+const getRatingLabel = (score, short = false) => {
+  const item = ratingScale.find(s => s.score === Number(score));
+  if (!item) return '';
+  return short ? item.shortLabel : item.label;
+};
+
+const getCriteriaDesc = (key) => {
+  const map = {
+    quality: 'Craftsmanship, thoroughness, and standard of completed work',
+    efficiency: 'Staff professionalism, work discipline, and proper resource use',
+    timeliness: 'Promptness and adherence to the target delivery schedule',
+  };
+  return map[key] || '';
 };
 
 const satisfactionForm = ref({
@@ -1332,10 +1761,12 @@ const isFormValid = computed(() => {
 });
 
 const closeTicket = async (ticket) => {
-  if (!ticket || !isFormValid.value) return;
+  if (!ticket || !isFormValid.value || isSubmittingFeedback.value) return;
+  isSubmittingFeedback.value = true;
   try {
+    const ticketId = ticket.ticketId || ticket.id;
     const payload = {
-      ticket_id: ticket.ticketId || ticket.id,
+      ticket_id: ticketId,
       completion_status:  satisfactionForm.value.completionStatus,
       quality_rating:     satisfactionForm.value.ratings.quality,
       efficiency_rating:  satisfactionForm.value.ratings.efficiency,
@@ -1361,6 +1792,12 @@ const closeTicket = async (ticket) => {
     ticket.status      = 'closed';
     ticket.statusLabel = 'Closed';
 
+    if (selectedTicket.value && String(selectedTicket.value.ticketId || selectedTicket.value.id) === String(ticketId)) {
+      selectedTicket.value.isClosed = true;
+      selectedTicket.value.status = 'closed';
+      selectedTicket.value.statusLabel = 'Closed';
+    }
+
     // Auto-generate and attach official FGMU Job Request Form if FGMU ticket
     if (ticket.unit === 'FGMU' || ticket.unit_code === 'FGMU' || ticket.unit_id === 1) {
       try {
@@ -1371,16 +1808,21 @@ const closeTicket = async (ticket) => {
     }
     
     // Show toast message
-    toastMessage.value = `Thanks for the honest evaluation, #${ticket.ticketId || ticket.id} is now complete and closed!`;
+    toastMessage.value = `Thanks for the honest evaluation, #${ticketId} is now complete and closed!`;
     showToast.value = true;
     setTimeout(() => { showToast.value = false; }, 5000);
     
     ratingTicketId.value = null;
 
     await fetchTickets();
+    if (selectedTicket.value) {
+      syncOpenTicket(ticketId);
+    }
   } catch (error) {
     console.error('Failed to submit feedback:', error);
     ticket.isClosed = true;
+  } finally {
+    isSubmittingFeedback.value = false;
   }
 };
 

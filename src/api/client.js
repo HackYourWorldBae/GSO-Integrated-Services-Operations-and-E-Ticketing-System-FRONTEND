@@ -23,7 +23,7 @@ const apiClient = axios.create({
   },
   // Automatically send and receive HttpOnly cookies for secure session authentication
   withCredentials: true,
-  timeout: 15000, // 15 second request timeout
+  timeout: 12000, // 12 second request timeout to quickly detect dead sockets
 });
 
 // ----------------------------------------------------------------------------
@@ -69,14 +69,41 @@ apiClient.interceptors.request.use(
 );
 
 // ----------------------------------------------------------------------------
-// Response Interceptor
+// Response Interceptor with Fault Tolerance & Auto-Retry
 // ----------------------------------------------------------------------------
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const config = error.config;
     const status = error.response?.status;
     const errorCode = error.response?.data?.code;
 
+    // 1. Detect Network Disconnections / Timeouts
+    const isNetworkError = !error.response || error.code === 'ECONNABORTED' || error.message?.includes('Network Error');
+
+    if (isNetworkError && typeof window !== 'undefined') {
+      // Inform the network monitor of a suspected drop
+      window.dispatchEvent(new CustomEvent('network:suspected-drop', { detail: error }));
+
+      // Fault tolerance: Auto-retry idempotent GET requests up to 2 times
+      const isGet = (config?.method || 'get').toLowerCase() === 'get';
+      const retryCount = config?.__retryCount || 0;
+      const MAX_RETRIES = 2;
+
+      if (isGet && config && retryCount < MAX_RETRIES) {
+        config.__retryCount = retryCount + 1;
+        const delayMs = config.__retryCount === 1 ? 1200 : 2500;
+        
+        console.warn(`[API Client] Network interruption detected for ${config.url}. Auto-retrying (attempt ${config.__retryCount}/${MAX_RETRIES}) in ${delayMs}ms...`);
+        
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        return apiClient(config);
+      }
+    }
+
+    // 2. Authentication & Authorization Lifecycle Handling
     if (typeof window !== 'undefined') {
       if (status === 401) {
         if (errorCode === 'SESSION_SUPERSEDED') {
@@ -97,6 +124,7 @@ apiClient.interceptors.response.use(
         window.dispatchEvent(new CustomEvent('api:rate-limited', { detail: error }));
       }
     }
+
     return Promise.reject(error);
   }
 );

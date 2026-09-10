@@ -185,10 +185,13 @@ import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
+import { useNetworkStatus } from '@/utils/networkMonitor';
 
 const router     = useRouter();
 const authStore  = useAuthStore();
 const userName   = ref('');
+const { onReconnected } = useNetworkStatus();
+let unregisterReconnected = null;
 
 const userTickets      = ref([]);
 const completedTickets = ref([]);
@@ -422,6 +425,12 @@ const fetchDashboardData = async () => {
 
 let pollingInterval = null;
 
+const handleFocusOrVisibility = () => {
+  if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+    fetchDashboardData();
+  }
+};
+
 onMounted(() => {
   userName.value = authStore.user?.first_name || authStore.fullName || 'User';
   fetchDashboardData();
@@ -429,9 +438,19 @@ onMounted(() => {
     if (document.hidden) return;
     fetchDashboardData();
   }, 15000);
+
+  window.addEventListener('focus', handleFocusOrVisibility);
+  document.addEventListener('visibilitychange', handleFocusOrVisibility);
+
+  unregisterReconnected = onReconnected(() => {
+    fetchDashboardData();
+  });
 });
 
 onUnmounted(() => {
+  window.removeEventListener('focus', handleFocusOrVisibility);
+  document.removeEventListener('visibilitychange', handleFocusOrVisibility);
+  if (unregisterReconnected) unregisterReconnected();
   if (pollingInterval) clearInterval(pollingInterval);
 });
 </script>

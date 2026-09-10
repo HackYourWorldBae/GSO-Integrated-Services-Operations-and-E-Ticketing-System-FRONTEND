@@ -50,6 +50,39 @@
 
     <!-- Main Content wrapper -->
     <div class="flex-1 flex flex-col w-full h-screen overflow-hidden relative" style="transform: translateZ(0);">
+      <!-- Global Network Fault-Tolerance Status Banner -->
+      <Transition name="slide-down">
+        <div
+          v-if="!isNetworkOnline || showRestoredNotice"
+          :class="[
+            'fixed top-3 left-1/2 -translate-x-1/2 z-[120] px-4 py-2 rounded-2xl shadow-xl flex items-center gap-3 text-xs font-bold transition-all backdrop-blur-md border pointer-events-auto',
+            !isNetworkOnline
+              ? 'bg-rose-950/90 text-rose-100 border-rose-500/30'
+              : 'bg-emerald-950/90 text-emerald-100 border-emerald-500/30'
+          ]"
+        >
+          <span v-if="!isNetworkOnline" class="flex h-2.5 w-2.5 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+          </span>
+          <span v-else class="flex h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+
+          <span>
+            {{ !isNetworkOnline ? 'Internet connection lost. Reconnecting...' : 'Connection restored! Synchronizing data...' }}
+          </span>
+
+          <button
+            v-if="!isNetworkOnline"
+            type="button"
+            @click="manualReconnectCheck"
+            :disabled="isCheckingNetwork"
+            class="ml-1 px-2.5 py-1 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer"
+          >
+            {{ isCheckingNetwork ? 'Checking...' : 'Retry Now' }}
+          </button>
+        </div>
+      </Transition>
+
       <!-- Top Navbar -->
       <header class="h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0">
         <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
@@ -233,6 +266,7 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import AppSidebar from '@/components/navigation/AppSidebar.vue';
 import AppBreadcrumbs from '@/components/navigation/AppBreadcrumbs.vue';
 import api from '@/api/client';
+import { useNetworkStatus } from '@/utils/networkMonitor';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -242,6 +276,15 @@ const isSidebarOpen = ref(true);
 const isMobileSidebarOpen = ref(false);
 const isDropdownOpen = ref(false);
 const isNotificationOpen = ref(false);
+
+// Network Fault Tolerance & Status Monitoring
+const { isOnline: isNetworkOnline, isChecking: isCheckingNetwork, checkHealth: checkNetworkHealth, onReconnected } = useNetworkStatus();
+const showRestoredNotice = ref(false);
+let unregisterReconnected = null;
+
+const manualReconnectCheck = async () => {
+  await checkNetworkHealth();
+};
 
 const isSuperAdmin = computed(() => {
   const r = (authStore.role || userRole.value || '').toLowerCase();
@@ -516,6 +559,17 @@ onMounted(() => {
     }, 20000);
   }
 
+  // Fault Tolerance: Automatically re-sync notifications when network restores
+  unregisterReconnected = onReconnected(() => {
+    showRestoredNotice.value = true;
+    if (!isSuperAdmin.value) {
+      fetchNotifications();
+    }
+    setTimeout(() => {
+      showRestoredNotice.value = false;
+    }, 2800);
+  });
+
   document.addEventListener('click', handleOutsideClick);
 
   removeRouterHook = router.afterEach(() => {
@@ -529,6 +583,7 @@ onUnmounted(() => {
   document.removeEventListener('click', handleOutsideClick);
   if (notificationInterval) clearInterval(notificationInterval);
   if (removeRouterHook) removeRouterHook();
+  if (unregisterReconnected) unregisterReconnected();
 });
 
 const handleLogout = () => {
@@ -724,6 +779,14 @@ const handleLogout = () => {
 .slide-up-enter-from, .slide-up-leave-to {
   opacity: 0;
   transform: translateY(10px) scale(0.95);
+}
+
+.slide-down-enter-active, .slide-down-leave-active {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slide-down-enter-from, .slide-down-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -15px) scale(0.95);
 }
 
 @keyframes swing {
