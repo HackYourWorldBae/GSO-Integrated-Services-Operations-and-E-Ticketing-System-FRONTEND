@@ -113,7 +113,7 @@
                   class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 aspect-video relative group cursor-pointer"
                 >
                   <img 
-                    :src="'/api/v1/auth/id-card/' + user.id" 
+                    :src="getIdCardUrl(user.id)" 
                     alt="ID Snapshot" 
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                   />
@@ -271,7 +271,7 @@
                     <div class="flex items-center gap-3">
                       <img
                         v-if="user.avatar_path"
-                        :src="'/api/v1/auth/avatar/' + user.id"
+                        :src="getAvatarUrl(user.id)"
                         alt="Avatar"
                         class="w-9 h-9 rounded-xl object-cover border border-purple-200 shrink-0"
                       />
@@ -409,7 +409,7 @@
               <div class="flex items-center gap-3">
                 <img
                   v-if="user.avatar_path"
-                  :src="'/api/v1/auth/avatar/' + user.id"
+                  :src="getAvatarUrl(user.id)"
                   alt="Avatar"
                   class="w-10 h-10 rounded-xl object-cover border border-purple-200 shrink-0"
                 />
@@ -737,7 +737,7 @@
                 Uploaded Institutional ID Card
               </label>
               <a 
-                :href="'/api/v1/auth/id-card/' + inspectingUser.id" 
+                :href="getIdCardUrl(inspectingUser.id)" 
                 target="_blank" 
                 class="text-[11px] font-bold text-purple-700 hover:text-purple-900 hover:underline inline-flex items-center gap-1"
               >
@@ -750,7 +750,7 @@
 
             <div class="rounded-2xl border border-slate-200 bg-slate-900 overflow-hidden flex items-center justify-center p-2 min-h-[220px]">
               <img 
-                :src="'/api/v1/auth/id-card/' + inspectingUser.id" 
+                :src="getIdCardUrl(inspectingUser.id)" 
                 alt="Institutional ID Card" 
                 class="max-h-[380px] w-full object-contain rounded-xl"
                 @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='block'"
@@ -812,6 +812,18 @@ import api from '@/api/client';
 
 const route = useRoute();
 const activeTab = ref(route.query?.tab === 'verification' ? 'verification' : 'users');
+
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '');
+
+const getIdCardUrl = (userId) => {
+  if (!userId) return '';
+  return `${apiBase}/auth/id-card/${userId}`;
+};
+
+const getAvatarUrl = (userId) => {
+  if (!userId) return '';
+  return `${apiBase}/auth/avatar/${userId}`;
+};
 
 watch(() => route.query?.tab, (newTab) => {
   if (newTab === 'verification') {

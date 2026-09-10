@@ -42,8 +42,13 @@ const handleDrop = (event) => {
 const processSelectedFile = (file) => {
   if (!file) return;
 
-  const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-  if (!validTypes.includes(file.type)) {
+  const fileName = file.name || '';
+  const ext = fileName.split('.').pop()?.toLowerCase() || '';
+  const validExts = ['jpg', 'jpeg', 'png', 'webp', 'jfif'];
+  const isMimeValid = !file.type || file.type.startsWith('image/') || ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type.toLowerCase());
+  const isExtValid = validExts.includes(ext);
+
+  if (!isMimeValid && !isExtValid) {
     errorMessage.value = 'Please select a valid image file (JPG, PNG, or WebP).';
     return;
   }
@@ -55,16 +60,30 @@ const processSelectedFile = (file) => {
   }
 
   errorMessage.value = '';
+  if (fieldErrors.value) {
+    delete fieldErrors.value.id_card;
+  }
   idCardFile.value = file;
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    idCardPreview.value = e.target.result;
-  };
-  reader.readAsDataURL(file);
+  if (idCardPreview.value && idCardPreview.value.startsWith('blob:')) {
+    URL.revokeObjectURL(idCardPreview.value);
+  }
+
+  try {
+    idCardPreview.value = URL.createObjectURL(file);
+  } catch {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      idCardPreview.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
 };
 
 const removeSelectedFile = () => {
+  if (idCardPreview.value && idCardPreview.value.startsWith('blob:')) {
+    URL.revokeObjectURL(idCardPreview.value);
+  }
   idCardFile.value = null;
   idCardPreview.value = null;
   if (fileInputRef.value) {
@@ -130,7 +149,15 @@ const handleRegister = async () => {
     const response = await apiRegister(formData);
 
     if (response.data?.status === 'success' || response.data?.user) {
-      isSuccess.value = true;
+      const userIdentifier = form.value.student_id_number || form.value.email || form.value.contact_number;
+      router.push({
+        name: 'login',
+        query: {
+          registered: '1',
+          identifier: userIdentifier || undefined
+        }
+      });
+      return;
     } else {
       errorMessage.value = response.data?.message || 'Registration failed. Please review your information.';
     }
@@ -182,49 +209,19 @@ const handleRegister = async () => {
     <!-- Main Registration Card -->
     <div class="relative z-10 w-full max-w-2xl my-8 p-6 sm:p-10 rounded-[2rem] border border-slate-200/80 bg-white/95 backdrop-blur-2xl shadow-2xl transition-all duration-300">
       
-      <!-- Success Modal Overlay -->
-      <div v-if="isSuccess" class="text-center py-8 animate-fade-in">
-        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-          </svg>
+      <!-- Card Header -->
+      <div class="mb-6 text-left">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-[11px] font-bold uppercase tracking-wider mb-2.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          User Registration & Identity Verification
         </div>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Registration Submitted!</h2>
-        <p class="text-slate-600 text-sm max-w-md mx-auto mb-6 leading-relaxed">
-          Your account has been created. You can log in right away with your ID Number or Contact Number.
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight mb-2">
+          Create your <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">GSO Account</span>
+        </h1>
+        <p class="text-slate-500 text-xs sm:text-sm font-medium">
+          Register as a student or employee to access services, track requests, and report campus concerns.
         </p>
-        <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs text-left max-w-md mx-auto mb-8 flex gap-3">
-          <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div>
-            <span class="font-bold block mb-0.5">Verification Note:</span>
-            Your uploaded ID is being queued for review by the Super Administrator. Once verified, you will be authorized to submit official GSO service requests.
-          </div>
-        </div>
-        <button 
-          @click="router.push('/login')" 
-          class="px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all"
-        >
-          Proceed to Sign In
-        </button>
       </div>
-
-      <!-- Registration Form -->
-      <div v-else>
-        <!-- Card Header -->
-        <div class="mb-6 text-left">
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-[11px] font-bold uppercase tracking-wider mb-2.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            User Registration & Identity Verification
-          </div>
-          <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight mb-2">
-            Create your <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">GSO Account</span>
-          </h1>
-          <p class="text-slate-500 text-xs sm:text-sm font-medium">
-            Register as a student or employee to access services, track requests, and report campus concerns.
-          </p>
-        </div>
 
         <!-- Global Error Message -->
         <div v-if="errorMessage" class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-xs sm:text-sm font-semibold flex items-start gap-3">
@@ -404,21 +401,23 @@ const handleRegister = async () => {
               Please provide a clear, readable snapshot or scan of your institutional ID card. The Super Administrator will inspect this photo to verify your identity.
             </p>
 
+            <!-- Single Hidden File Input -->
+            <input 
+              ref="fileInputRef"
+              type="file" 
+              accept="image/jpeg,image/png,image/webp,image/jpg,image/*" 
+              class="hidden" 
+              @change="handleFileSelect"
+            />
+
             <!-- Drag and Drop Box -->
             <div 
               v-if="!idCardPreview"
               @dragover.prevent 
               @drop="handleDrop"
-              @click="$refs.fileInputRef.click()"
+              @click="$refs.fileInputRef?.click()"
               class="border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/70 hover:bg-emerald-50/20 rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 group"
             >
-              <input 
-                ref="fileInputRef"
-                type="file" 
-                accept="image/jpeg,image/png,image/webp" 
-                class="hidden" 
-                @change="handleFileSelect"
-              />
               <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                 <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -448,7 +447,7 @@ const handleRegister = async () => {
                 <div class="flex items-center gap-2">
                   <button 
                     type="button" 
-                    @click="$refs.fileInputRef.click()" 
+                    @click="$refs.fileInputRef?.click()" 
                     class="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-white border border-slate-200 hover:border-emerald-300 px-3 py-1.5 rounded-lg shadow-sm transition-all"
                   >
                     Change Picture
@@ -462,13 +461,6 @@ const handleRegister = async () => {
                   </button>
                 </div>
               </div>
-              <input 
-                ref="fileInputRef"
-                type="file" 
-                accept="image/jpeg,image/png,image/webp" 
-                class="hidden" 
-                @change="handleFileSelect"
-              />
             </div>
             <p v-if="fieldErrors.id_card" class="mt-1.5 text-[11px] text-rose-500 font-medium">{{ fieldErrors.id_card }}</p>
           </div>
@@ -512,7 +504,6 @@ const handleRegister = async () => {
           </div>
 
         </form>
-      </div>
     </div>
   </div>
 </template>

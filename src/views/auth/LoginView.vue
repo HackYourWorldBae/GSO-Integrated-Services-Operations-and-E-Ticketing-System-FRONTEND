@@ -1,16 +1,27 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
 const router    = useRouter();
+const route     = useRoute();
 const authStore = useAuthStore();
 
 // State
-const identifier    = ref('');
-const password      = ref('');
-const isLoading     = ref(false);
-const errorMessage  = ref('');
+const identifier     = ref('');
+const password       = ref('');
+const isLoading      = ref(false);
+const errorMessage   = ref('');
+const successMessage = ref('');
+
+onMounted(() => {
+  if (route.query?.registered === '1' || route.query?.registered === 'true') {
+    successMessage.value = 'Account successfully created! Please sign in with your ID number, contact number, or email.';
+    if (route.query.identifier) {
+      identifier.value = String(route.query.identifier);
+    }
+  }
+});
 
 const handleLogin = async () => {
   isLoading.value    = true;
@@ -108,6 +119,19 @@ const handleLogin = async () => {
       <!-- Error Message -->
       <div v-if="errorMessage" class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-sm text-center font-bold animate-fade-in shrink-0 shadow-sm">
         {{ errorMessage }}
+      </div>
+
+      <!-- Success Notification from Registration -->
+      <div v-if="successMessage" class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs sm:text-sm font-semibold flex items-start gap-3 animate-fade-in shrink-0 shadow-xs">
+        <svg class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div>
+          <p class="font-bold text-emerald-900">Account Successfully Created!</p>
+          <p class="text-[11px] text-emerald-700 mt-0.5 font-normal leading-relaxed">
+            Please sign in to access your portal. Your uploaded ID is being reviewed by the Super Administrator.
+          </p>
+        </div>
       </div>
 
       <!-- Unified Form -->
