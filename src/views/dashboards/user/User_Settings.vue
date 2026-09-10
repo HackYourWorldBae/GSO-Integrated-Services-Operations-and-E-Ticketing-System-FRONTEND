@@ -118,7 +118,7 @@
 
               <!-- Password -->
               <div class="space-y-3">
-                <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">New Password (Optional)</label>
+                <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">New Password</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500 text-slate-400">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

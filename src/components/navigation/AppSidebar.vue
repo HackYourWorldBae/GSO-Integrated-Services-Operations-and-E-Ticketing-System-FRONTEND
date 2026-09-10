@@ -287,12 +287,6 @@ const rawNavGroups = computed(() => {
           icon: 'home'
         },
         {
-          label: 'Submit Service Request',
-          to: '/services',
-          icon: 'queue',
-          permission: 'tickets.create'
-        },
-        {
           label: 'My Service Requests',
           to: '/user/tickets',
           icon: 'queue'
