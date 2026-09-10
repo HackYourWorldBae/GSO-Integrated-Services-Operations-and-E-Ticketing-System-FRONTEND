@@ -7,17 +7,17 @@
         </svg>
         <span class="text">LEAU Home</span>
       </router-link>
-      <router-link to="/admin/leau/queues" class="nav-item">
+      <router-link to="/admin/leau/dispatched" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
         </svg>
-        <span class="text">Ticket Queues</span>
+        <span class="text">Dispatched Tickets</span>
       </router-link>
       <router-link to="/admin/leau/personnel" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
-        <span class="text">Personnel Management</span>
+        <span class="text">Personnel & Assignments</span>
       </router-link>
       <div class="mt-8 mb-4 px-4">
         <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Archives</p>
@@ -209,6 +209,60 @@
                 <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.active_working || 0 }}</h3>
                 <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Work In Progress</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approved Tickets Awaiting Worker Assignment (Ready for Dispatch) -->
+        <div class="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h3 class="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
+                Approved Tickets Awaiting Worker Assignment
+              </h3>
+              <p class="text-xs text-slate-500 font-medium mt-0.5">
+                Tickets approved by the Director ready for landscaping scheduling and personnel dispatch
+              </p>
+            </div>
+            <router-link
+              to="/admin/leau/personnel"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 shrink-0"
+            >
+              <span>Manage Roster &amp; Assign</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </router-link>
+          </div>
+
+          <div v-if="approvedTickets.length === 0" class="py-10 text-center text-slate-400 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+            <p class="text-xs font-bold uppercase tracking-wider">No tickets awaiting assignment</p>
+            <p class="text-[11px] text-slate-400 mt-1">All approved landscaping service requests are currently scheduled or in progress.</p>
+          </div>
+
+          <div v-else class="divide-y divide-slate-100">
+            <div
+              v-for="ticket in approvedTickets"
+              :key="ticket.id"
+              class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-slate-50/60 rounded-2xl px-4 transition-colors"
+            >
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="h-10 px-3 min-w-[4.5rem] rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+                  <span class="text-xs font-black text-emerald-700 leading-none">#{{ ticket.id }}</span>
+                </div>
+                <div class="min-w-0">
+                  <h4 class="text-sm font-black text-slate-900 truncate">{{ ticket.title || ticket.type }}</h4>
+                  <p class="text-xs text-slate-500 font-medium">
+                    {{ ticket.location || ticket.college_building }} · {{ ticket.requester }}
+                  </p>
+                </div>
+              </div>
+
+              <router-link
+                :to="'/admin/leau/personnel?ticket=' + ticket.id"
+                class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 shrink-0 text-center"
+              >
+                Assign Personnel
+              </router-link>
             </div>
           </div>
         </div>
@@ -551,8 +605,34 @@ const fetchStats = async () => {
   }
 };
 
+const approvedTickets = ref([]);
+
+const fetchApprovedTickets = async () => {
+  try {
+    const res = await api.get('tickets/dispatch/LEAU');
+    if (res.data?.data?.tickets) {
+      approvedTickets.value = res.data.data.tickets.map(t => ({
+        id: t.id,
+        title: t.title,
+        service: t.service_type,
+        type: t.title || t.project_title || t.service_type || 'Landscaping Task',
+        requester: t.details?.requesting_personnel || 'End User',
+        location: t.location,
+        college_building: t.details?.college_building || t.location,
+        office_room: t.office_room || t.details?.office_room,
+        submittedAt: new Date(t.submitted_at).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric'
+        })
+      }));
+    }
+  } catch (err) {
+    console.error('Failed to fetch approved tickets for LEAU dashboard:', err);
+  }
+};
+
 onMounted(() => {
   fetchStats();
+  fetchApprovedTickets();
 });
 </script>
 

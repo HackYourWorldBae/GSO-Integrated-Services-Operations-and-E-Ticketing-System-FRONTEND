@@ -8,9 +8,8 @@ const LoginView = () => import('../views/auth/LoginView.vue');
 const ServicesListView = () => import('../views/ServicesListView.vue');
 const User_Dashboard = () => import('../views/dashboards/user/User_Dashboard.vue');
 const FGMU_Dashboard = () => import('../views/dashboards/admin/fgmu/FGMU_Dashboard.vue');
-const FGMU_TicketQueues = () => import('../views/dashboards/admin/fgmu/FGMU_TicketQueues.vue');
 const LEAU_Dashboard = () => import('../views/dashboards/admin/leau/LEAU_Dashboard.vue');
-const LEAU_TicketQueues = () => import('../views/dashboards/admin/leau/LEAU_TicketQueues.vue');
+
 const SSU_Dashboard = () => import('../views/dashboards/admin/ssu/SSU_Dashboard.vue');
 const SSU_IncidentTicketQueues = () => import('../views/dashboards/admin/ssu/SSU_IncidentTicketQueues.vue');
 const Director_Dashboard = () => import('../views/dashboards/director/Director_Dashboard.vue');
@@ -18,15 +17,9 @@ const Director_FGMU = () => import('../views/dashboards/director/Director_FGMU.v
 const Director_LEAU = () => import('../views/dashboards/director/Director_LEAU.vue');
 const Director_SSU = () => import('../views/dashboards/director/Director_SSU.vue');
 const FormsView = () => import('../views/FormsView.vue');
-const FGMU_Dispatcher = () => import('../views/dashboards/dispatcher/fgmu/FGMU.vue');
-const FGMU_Workers = () => import('../views/dashboards/dispatcher/fgmu/FGMU_Workers.vue');
-const LEAU_Dispatcher = () => import('../views/dashboards/dispatcher/leau/LEAU.vue');
-const LEAU_Workers = () => import('../views/dashboards/dispatcher/leau/LEAU_Workers.vue');
 
-const FGMU_DispatchedTickets = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatchedTickets.vue');
-const LEAU_DispatchedTickets = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatchedTickets.vue');
-const FGMU_DispatcherArchives = () => import('../views/dashboards/dispatcher/fgmu/FGMU_DispatcherArchives.vue');
-const LEAU_DispatcherArchives = () => import('../views/dashboards/dispatcher/leau/LEAU_DispatcherArchives.vue');
+const FGMU_DispatchedTickets = () => import('../views/dashboards/admin/fgmu/FGMU_DispatchedTickets.vue');
+const LEAU_DispatchedTickets = () => import('../views/dashboards/admin/leau/LEAU_DispatchedTickets.vue');
 const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
@@ -96,13 +89,17 @@ const router = createRouter({
       path: '/admin/fgmu',
       name: 'fgmu-dashboard',
       component: FGMU_Dashboard,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/queues',
-      name: 'fgmu-ticket-queues',
-      component: FGMU_TicketQueues,
-      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director'], unit: 'FGMU', permission: 'tickets.view_all' }
+      redirect: '/admin/fgmu'
+    },
+    {
+      path: '/admin/fgmu/dispatched',
+      name: 'fgmu-admin-dispatched',
+      component: FGMU_DispatchedTickets,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU', permission: 'tickets.dispatch' }
     },
     {
       path: '/admin/fgmu/personnel',
@@ -114,7 +111,7 @@ const router = createRouter({
       path: '/admin/fgmu/archives',
       name: 'fgmu-admin-archives',
       component: FGMU_Archives,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/announcements',
@@ -130,13 +127,17 @@ const router = createRouter({
       path: '/admin/leau',
       name: 'leau-dashboard',
       component: LEAU_Dashboard,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/queues',
-      name: 'leau-ticket-queues',
-      component: LEAU_TicketQueues,
-      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director'], unit: 'LEAU', permission: 'tickets.view_all' }
+      redirect: '/admin/leau'
+    },
+    {
+      path: '/admin/leau/dispatched',
+      name: 'leau-admin-dispatched',
+      component: LEAU_DispatchedTickets,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
     {
       path: '/admin/leau/personnel',
@@ -148,7 +149,7 @@ const router = createRouter({
       path: '/admin/leau/archives',
       name: 'leau-admin-archives',
       component: LEAU_Archives,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/announcements',
@@ -244,64 +245,48 @@ const router = createRouter({
       redirect: '/director/dashboard'
     },
 
-    // Dispatcher Dashboards — FGMU
+    // Dispatcher Dashboards — Redirect to unified Admin & Operations portal
     {
       path: '/dispatcher/fgmu',
-      name: 'fgmu-dispatcher',
-      component: FGMU_Dispatcher,
-      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'FGMU', permission: 'tickets.dispatch' }
+      redirect: '/admin/fgmu'
     },
     {
       path: '/dispatcher/fgmu/workers',
-      name: 'fgmu-workers',
-      component: FGMU_Workers,
-      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'FGMU', permission: 'tickets.assign_worker' }
+      redirect: to => ({ path: '/admin/fgmu/personnel', query: to.query })
     },
     {
       path: '/dispatcher/fgmu/dispatched',
-      name: 'fgmu-dispatched-tickets',
-      component: FGMU_DispatchedTickets,
-      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'FGMU', permission: 'tickets.dispatch' }
+      redirect: to => ({ path: '/admin/fgmu/dispatched', query: to.query })
     },
     {
       path: '/dispatcher/fgmu/archives',
-      name: 'fgmu-dispatcher-archives',
-      component: FGMU_DispatcherArchives,
-      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'FGMU' }
+      redirect: '/admin/fgmu/archives'
     },
     {
       path: '/dispatcher/fgmu/project-archives',
-      redirect: '/dispatcher/fgmu/archives'
+      redirect: '/admin/fgmu/archives'
     },
 
-    // Dispatcher Dashboards — LEAU
+    // Dispatcher Dashboards — LEAU Redirects
     {
       path: '/dispatcher/leau',
-      name: 'leau-dispatcher',
-      component: LEAU_Dispatcher,
-      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'LEAU', permission: 'tickets.dispatch' }
+      redirect: '/admin/leau'
     },
     {
       path: '/dispatcher/leau/workers',
-      name: 'leau-workers',
-      component: LEAU_Workers,
-      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'LEAU', permission: 'tickets.assign_worker' }
+      redirect: to => ({ path: '/admin/leau/personnel', query: to.query })
     },
     {
       path: '/dispatcher/leau/dispatched',
-      name: 'leau-dispatched-tickets',
-      component: LEAU_DispatchedTickets,
-      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'LEAU', permission: 'tickets.dispatch' }
+      redirect: to => ({ path: '/admin/leau/dispatched', query: to.query })
     },
     {
       path: '/dispatcher/leau/archives',
-      name: 'leau-dispatcher-archives',
-      component: LEAU_DispatcherArchives,
-      meta: { requiresAuth: true, roles: ['dispatcher', 'admin'], unit: 'LEAU' }
+      redirect: '/admin/leau/archives'
     },
     {
       path: '/dispatcher/leau/project-archives',
-      redirect: '/dispatcher/leau/archives'
+      redirect: '/admin/leau/archives'
     },
 
     // Service Intake Forms
@@ -344,7 +329,7 @@ router.beforeEach((to, from, next) => {
     }
     if (userRole === 'dispatcher') {
       const u = (userUnit || 'fgmu').toLowerCase();
-      return ['fgmu', 'leau'].includes(u) ? `/dispatcher/${u}` : '/dispatcher/fgmu';
+      return ['fgmu', 'leau'].includes(u) ? `/admin/${u}` : '/admin/fgmu';
     }
     if (userRole === 'director') {
       return '/director/dashboard';

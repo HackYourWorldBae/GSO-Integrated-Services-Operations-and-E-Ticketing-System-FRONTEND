@@ -45,15 +45,32 @@
             </svg>
             <input v-model="searchQuery" type="text" placeholder="Search Full Ticket Number (e.g. LEAU-TIC-18-2026)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
           </div>
-          <div class="flex gap-3 w-full md:w-auto">
-            <select v-model="serviceFilter" @change="applyFilter" class="w-full md:w-56 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+          <div class="flex flex-wrap md:flex-nowrap gap-3 w-full md:w-auto">
+            <select v-model="yearFilter" @change="applyFilter" class="w-full md:w-36 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+              <option value="all">All Years</option>
+              <option v-for="yr in availableYears" :key="yr" :value="yr">
+                Year {{ yr }}
+              </option>
+            </select>
+            <select v-model="serviceFilter" @change="applyFilter" class="w-full md:w-48 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
               <option value="">All Services</option>
               <option v-for="service in serviceCategories" :key="service" :value="service">
                 {{ service }}
               </option>
             </select>
-            <button @click="applyFilter" class="px-6 py-3 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 active:scale-95 transition-all text-sm whitespace-nowrap">
-              Apply Filter
+            <button @click="applyFilter" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl transition-all text-sm whitespace-nowrap cursor-pointer active:scale-95">
+              Filter
+            </button>
+            <button
+              @click="showExportModal = true"
+              type="button"
+              class="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 active:scale-95 transition-all text-sm whitespace-nowrap flex items-center gap-2 cursor-pointer shrink-0"
+              title="Export Yearly Archives (.ZIP)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Export Archives (.ZIP)</span>
             </button>
           </div>
         </div>
@@ -415,6 +432,14 @@
         v-model:isOpen="showReceiptModal"
         :ticket="selectedReceiptTicket"
       />
+
+      <!-- Bulk Yearly Archives Export Modal -->
+      <BulkArchiveExportModal
+        v-model:isOpen="showExportModal"
+        :tickets="tickets"
+        unitCode="LEAU"
+        :initialYear="yearFilter"
+      />
     </template>
   </MainLayout>
 </template>
@@ -425,6 +450,8 @@ import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
+import BulkArchiveExportModal from '@/components/BulkArchiveExportModal.vue';
+import { getTicketYear, getAvailableYearsFromTickets } from '@/utils/archiveBulkExporter';
 import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
@@ -432,6 +459,7 @@ import { LEAU_SERVICES } from '@/constants/services';
 
 const route = useRoute();
 const tickets = ref([]);
+const showExportModal = ref(false);
 
 const viewerModal = reactive({
   isOpen: false,
@@ -522,8 +550,10 @@ onMounted(() => {
 
 const searchQuery = ref('');
 const serviceFilter = ref('');
+const yearFilter = ref('all');
 const activeSearchQuery = ref('');
 const activeServiceFilter = ref('');
+const activeYearFilter = ref('all');
 
 // Pagination state
 const currentPage = ref(1);
@@ -531,6 +561,10 @@ const perPage = ref(15);
 
 const showDetailsModal = ref(false);
 const selectedTicket = ref(null);
+
+const availableYears = computed(() => {
+  return getAvailableYearsFromTickets(tickets.value);
+});
 
 // All official services from Services catalog plus any present in loaded tickets
 const serviceCategories = computed(() => {
@@ -544,6 +578,7 @@ const serviceCategories = computed(() => {
 const applyFilter = () => {
   activeSearchQuery.value = searchQuery.value.trim().toLowerCase();
   activeServiceFilter.value = serviceFilter.value;
+  activeYearFilter.value = yearFilter.value;
   currentPage.value = 1;
 };
 
@@ -565,6 +600,11 @@ const filteredTickets = computed(() => {
       const target = activeServiceFilter.value.trim().toLowerCase();
       const s = (ticket.service || ticket.service_type || '').trim().toLowerCase();
       match = match && (s === target);
+    }
+
+    if (activeYearFilter.value && activeYearFilter.value !== 'all') {
+      const y = getTicketYear(ticket);
+      match = match && (y === String(activeYearFilter.value));
     }
     
     return match;

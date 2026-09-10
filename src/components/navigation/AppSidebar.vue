@@ -105,31 +105,25 @@ const rawNavGroups = computed(() => {
             exact: true,
             icon: 'home'
           },
-          {
-            label: isSSU ? 'Incident Queues' : 'Ticket Queues',
-            to: isSSU ? '/admin/ssu/queues/incidents' : `/admin/${unit}/queues`,
-            icon: 'queue',
-            permission: 'tickets.view_all'
-          },
-          ...(isSSU ? [] : [
+          ...(isSSU ? [
             {
-              label: 'Personnel Management',
+              label: 'Incident Queues',
+              to: '/admin/ssu/queues/incidents',
+              icon: 'queue',
+              permission: 'tickets.view_all'
+            }
+          ] : [
+            {
+              label: 'Dispatched Tickets',
+              to: `/admin/${unit}/dispatched`,
+              icon: 'dispatch',
+              permission: 'tickets.dispatch'
+            },
+            {
+              label: 'Personnel & Assignments',
               to: `/admin/${unit}/personnel`,
               icon: 'users',
               permission: 'personnel.manage'
-            },
-            // Delegated / Enabled Capabilities from RBAC Matrix (FGMU & LEAU only):
-            {
-              label: 'Assign Workers',
-              to: `/dispatcher/${unit}/workers`,
-              icon: 'users',
-              permission: 'tickets.assign_worker'
-            },
-            {
-              label: 'Dispatched Tickets',
-              to: `/dispatcher/${unit}/dispatched`,
-              icon: 'dispatch',
-              permission: 'tickets.dispatch'
             }
           ]),
           {
@@ -168,36 +162,22 @@ const rawNavGroups = computed(() => {
   if (role === 'dispatcher') {
     return [
       {
-        title: `${unitUpper} Dispatch Operations`,
+        title: `${unitUpper} Operations`,
         items: [
           {
-            label: 'Queue Overview',
-            to: `/dispatcher/${unit}`,
+            label: `${unitUpper} Home`,
+            to: `/admin/${unit}`,
             exact: true,
-            icon: 'home',
-            permission: 'tickets.dispatch'
-          },
-          {
-            label: 'Assign Workers',
-            to: `/dispatcher/${unit}/workers`,
-            icon: 'users',
-            permission: 'tickets.assign_worker'
+            icon: 'home'
           },
           {
             label: 'Dispatched Tickets',
-            to: `/dispatcher/${unit}/dispatched`,
+            to: `/admin/${unit}/dispatched`,
             icon: 'dispatch',
             permission: 'tickets.dispatch'
           },
-          // Delegated / Enabled Capabilities from RBAC Matrix:
           {
-            label: 'Ticket Approvals',
-            to: `/admin/${unit}/queues`,
-            icon: 'queue',
-            permission: 'tickets.approve_decline'
-          },
-          {
-            label: 'Personnel Management',
+            label: 'Personnel & Assignments',
             to: `/admin/${unit}/personnel`,
             icon: 'users',
             permission: 'personnel.manage'
@@ -220,8 +200,8 @@ const rawNavGroups = computed(() => {
         title: 'Archives',
         items: [
           {
-            label: 'Ticket Archives',
-            to: `/dispatcher/${unit}/archives`,
+            label: 'Archived Tickets',
+            to: `/admin/${unit}/archives`,
             icon: 'archive'
           }
         ]

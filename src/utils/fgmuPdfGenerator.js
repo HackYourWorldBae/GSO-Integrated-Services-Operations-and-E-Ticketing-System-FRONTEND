@@ -90,10 +90,20 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     return lower !== 'unassigned' && lower !== 'n/a' && lower !== 'none' && lower !== '';
   });
 
+  const isLeau = ticket.unit_code === 'LEAU' || ticket.unit === 'LEAU' || ticket.unit_id === 2;
+  const unitCode = isLeau ? 'LEAU' : 'FGMU';
+  const unitFullName = isLeau
+    ? 'Landscaping & Environmental Aesthetics Unit (LEAU)'
+    : 'Facilities & Grounds Maintenance Unit (FGMU)';
+  const ticketRef = String(ticket.ticketId || ticket.id || '0000');
+
   const remarks = (feedback.remarks || ticket.remarks || '').trim() || 'Work completed satisfactorily.';
 
   return {
     ticketId:        String(ticket.ticketId || ticket.id || '0000').padStart(4, '0'),
+    ticketRef:       ticketRef,
+    unitCode:        unitCode,
+    unitFullName:    unitFullName,
     Date:            dateFiling,
     Building:        building,
     Room:            room,
@@ -116,7 +126,7 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Builds the pdfmake docDefinition for the FGMU Job Request Form.
+ * Builds the pdfmake docDefinition for the Job Request Form.
  * @param {Object} data   - Output of buildFgmuTemplateData()
  * @param {string} logoDataUrl - PNG data URL of the BSU logo
  * @returns {Object} pdfmake docDefinition
@@ -161,7 +171,7 @@ const buildDocDefinition = (data, logoDataUrl) => {
                 { text: 'Republic of the Philippines',          fontSize: 8,    italics: true, color: '#64748b', alignment: 'center' },
                 { text: 'BENGUET STATE UNIVERSITY',            fontSize: 13.5, bold: true,    alignment: 'center', color: '#0f172a' },
                 { text: 'General Services Office',              fontSize: 10,   bold: true,    alignment: 'center', color: '#166534' },
-                { text: 'Facilities & Grounds Maintenance Unit (FGMU)', fontSize: 8.5, alignment: 'center', color: '#334155' },
+                { text: data.unitFullName,                      fontSize: 8.5, alignment: 'center', color: '#334155' },
               ],
               alignment: 'center',
             },
@@ -183,7 +193,7 @@ const buildDocDefinition = (data, logoDataUrl) => {
       margin: [45, 0, 45, 0],
       stack: [
         { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 522, y2: 0, lineWidth: 0.5, lineColor: '#cbd5e1' }] },
-        { text: 'BSU General Services Office — FGMU Job Request Form  |  System-Generated Document', fontSize: 7, color: '#94a3b8', alignment: 'center', margin: [0, 4, 0, 0] },
+        { text: `BSU General Services Office — ${data.unitCode} Job Request Form  |  System-Generated Document`, fontSize: 7, color: '#94a3b8', alignment: 'center', margin: [0, 4, 0, 0] },
       ],
     }),
 
@@ -193,7 +203,7 @@ const buildDocDefinition = (data, logoDataUrl) => {
       {
         columns: [
           { text: [{ text: 'Date Filed: ', bold: true, fontSize: 9, color: '#475569' }, { text: data.Date, fontSize: 10 }], width: '*' },
-          { text: [{ text: 'Ticket No: ', bold: true, fontSize: 9, color: '#475569' }, { text: `TIC-FGMU-${data.ticketId}`, fontSize: 10, bold: true }], width: 'auto', alignment: 'right' },
+          { text: [{ text: 'Ticket No: ', bold: true, fontSize: 9, color: '#475569' }, { text: `TIC-${data.unitCode}-${data.ticketId}`, fontSize: 10, bold: true }], width: 'auto', alignment: 'right' },
         ],
         margin: [0, 0, 0, 6],
       },

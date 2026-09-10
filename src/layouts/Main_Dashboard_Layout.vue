@@ -381,10 +381,8 @@ const handleNotificationClick = async (notif) => {
   if (!ticketId) {
     // If no ticket reference, fallback to user's dashboard based on role & unit
     const unit = (authStore.user?.unit_code || '').toLowerCase();
-    if (role === 'admin') {
+    if (role === 'admin' || role === 'dispatcher') {
       router.push(['fgmu', 'leau', 'ssu'].includes(unit) ? `/admin/${unit}` : '/admin/fgmu');
-    } else if (role === 'dispatcher') {
-      router.push(['fgmu', 'leau'].includes(unit) ? `/dispatcher/${unit}` : '/dispatcher/fgmu');
     } else if (role === 'director') {
       router.push('/director/dashboard');
     } else if (role === 'superadmin') {
@@ -418,23 +416,17 @@ const handleNotificationClick = async (notif) => {
 
   let targetPath = '';
 
-  if (role === 'admin') {
+  if (role === 'admin' || role === 'dispatcher') {
     if (unitCode === 'ssu') {
       targetPath = isCompleted ? '/admin/ssu/archives' : '/admin/ssu/queues/incidents';
     } else if (unitCode === 'leau') {
-      targetPath = isCompleted ? '/admin/leau/archives' : '/admin/leau/queues';
+      if (isCompleted) targetPath = '/admin/leau/archives';
+      else if (isDispatched) targetPath = '/admin/leau/dispatched';
+      else targetPath = '/admin/leau';
     } else {
-      targetPath = isCompleted ? '/admin/fgmu/archives' : '/admin/fgmu/queues';
-    }
-  } else if (role === 'dispatcher') {
-    if (unitCode === 'leau') {
-      if (isCompleted) targetPath = '/dispatcher/leau/archives';
-      else if (isDispatched) targetPath = '/dispatcher/leau/dispatched';
-      else targetPath = '/dispatcher/leau';
-    } else {
-      if (isCompleted) targetPath = '/dispatcher/fgmu/archives';
-      else if (isDispatched) targetPath = '/dispatcher/fgmu/dispatched';
-      else targetPath = '/dispatcher/fgmu';
+      if (isCompleted) targetPath = '/admin/fgmu/archives';
+      else if (isDispatched) targetPath = '/admin/fgmu/dispatched';
+      else targetPath = '/admin/fgmu';
     }
   } else if (role === 'director') {
     if (unitCode === 'leau') targetPath = '/director/leau';

@@ -43,13 +43,30 @@
             </svg>
             <input v-model="searchQuery" type="text" placeholder="Search Full Ticket Number (e.g. SSU-TIC-10-2026)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
           </div>
-          <div class="flex gap-3 w-full md:w-auto">
-            <select v-model="serviceFilter" class="w-full md:w-48 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer">
+          <div class="flex flex-wrap md:flex-nowrap gap-3 w-full md:w-auto">
+            <select v-model="yearFilter" @change="applyFilter" class="w-full md:w-36 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+              <option value="all">All Years</option>
+              <option v-for="yr in availableYears" :key="yr" :value="yr">
+                Year {{ yr }}
+              </option>
+            </select>
+            <select v-model="serviceFilter" @change="applyFilter" class="w-full md:w-48 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
               <option value="">All Services</option>
               <option value="Incident Report">Incident Report</option>
             </select>
-            <button @click="applyFilter" class="px-6 py-3 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 active:scale-95 transition-all text-sm whitespace-nowrap">
-              Apply Filter
+            <button @click="applyFilter" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl transition-all text-sm whitespace-nowrap cursor-pointer active:scale-95">
+              Filter
+            </button>
+            <button
+              @click="showExportModal = true"
+              type="button"
+              class="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 active:scale-95 transition-all text-sm whitespace-nowrap flex items-center gap-2 cursor-pointer shrink-0"
+              title="Export Yearly Archives (.ZIP)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Export Archives (.ZIP)</span>
             </button>
           </div>
         </div>
@@ -69,7 +86,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="ticket in filteredTickets" :key="ticket.id" class="group transition-all duration-200">
+                <tr v-for="ticket in paginatedTickets" :key="ticket.id" class="group transition-all duration-200">
                   <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all">
                     <span class="text-sm font-black text-slate-900">#{{ ticket.ticketId }}</span>
                   </td>
@@ -111,11 +128,91 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination Toolbar -->
+          <div v-if="filteredTickets.length > 0" class="mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 text-xs text-slate-500">
+              <span>Rows per page:</span>
+              <select
+                v-model="perPage"
+                @change="currentPage = 1"
+                class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 text-xs font-bold focus:outline-none focus:border-emerald-500"
+              >
+                <option :value="10">10</option>
+                <option :value="15">15</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+              </select>
+              <span>
+                Showing <strong class="text-slate-800">{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
+                <strong class="text-slate-800">{{ Math.min(currentPage * perPage, filteredTickets.length) }}</strong> of
+                <strong class="text-slate-800">{{ filteredTickets.length }}</strong> tickets
+              </span>
+            </div>
+
+            <!-- Page Buttons -->
+            <div class="flex items-center gap-1.5">
+              <button
+                @click="currentPage = 1"
+                :disabled="currentPage === 1"
+                class="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold"
+                title="First page"
+              >
+                «
+              </button>
+              <button
+                @click="currentPage--"
+                :disabled="currentPage === 1"
+                class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1"
+              >
+                ‹ Prev
+              </button>
+
+              <template v-for="(page, idx) in displayedPages" :key="idx">
+                <span v-if="page === '...'" class="px-2 text-slate-400 font-bold text-xs">...</span>
+                <button
+                  v-else
+                  @click="currentPage = page"
+                  :class="[
+                    'w-8 h-8 rounded-xl text-xs font-black transition-all',
+                    currentPage === page
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'border border-slate-200 text-slate-600 hover:bg-slate-100'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+              </template>
+
+              <button
+                @click="currentPage++"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1"
+              >
+                Next ›
+              </button>
+              <button
+                @click="currentPage = totalPages"
+                :disabled="currentPage === totalPages"
+                class="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold"
+                title="Last page"
+              >
+                »
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </template>
 
     <template #modal-overlay>
+      <!-- Bulk Yearly Archives Export Modal -->
+      <BulkArchiveExportModal
+        v-model:isOpen="showExportModal"
+        :tickets="tickets"
+        unitCode="SSU"
+        :initialYear="yearFilter"
+      />
       <!-- Read-Only Ticket Details Modal -->
       <div v-if="showDetailsModal && selectedTicket" class="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeDetailsModal">
         <div class="bg-white rounded-[2rem] p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -211,10 +308,13 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import BulkArchiveExportModal from '@/components/BulkArchiveExportModal.vue';
+import { getTicketYear, getAvailableYearsFromTickets } from '@/utils/archiveBulkExporter';
 import api from '@/api/client';
 
 const route = useRoute();
 const tickets = ref([]);
+const showExportModal = ref(false);
 
 const showImageModal = ref(false);
 const selectedImageUrl = ref('');
@@ -257,17 +357,22 @@ const fetchArchives = async () => {
         ticketId: t.id,
         title: t.title,
         service: t.service_type,
+        service_type: t.service_type,
         description: t.description,
         date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        requestedBy: 'End User',
+        submitted_at: t.submitted_at,
+        completed_at: t.completed_at || t.updated_at,
+        requestedBy: t.details?.reported_by || t.details?.end_user || t.requested_by || 'End User',
         status: t.status,
         statusLabel: t.status_label,
         declineReason: t.decline_reason || '',
-        location: t.location || 'N/A',
-        office_room: t.office_room || 'N/A',
+        location: t.location || t.details?.location || 'N/A',
+        office_room: t.office_room || t.details?.office_room || 'N/A',
         attachments: t.attachments || [],
-        assignedWorker: t.assignments?.[0]?.assigned_to_name || 'Unassigned',
-        materials: [] // No materials tracking in this DB yet
+        assignedWorker: t.assignments?.[0]?.assigned_to_name || t.assignedWorker || 'Unassigned',
+        ssu_notation: t.ssu_notation || t.notation || t.details?.notation || '',
+        details: t.details || null,
+        materials: [] // SSU has no materials
       }));
       checkRouteQueryTicket();
     }
@@ -297,15 +402,27 @@ onMounted(() => {
 
 const searchQuery = ref('');
 const serviceFilter = ref('');
+const yearFilter = ref('all');
 const activeSearchQuery = ref('');
 const activeServiceFilter = ref('');
+const activeYearFilter = ref('all');
+
+// Pagination state
+const currentPage = ref(1);
+const perPage = ref(15);
 
 const showDetailsModal = ref(false);
 const selectedTicket = ref(null);
 
+const availableYears = computed(() => {
+  return getAvailableYearsFromTickets(tickets.value);
+});
+
 const applyFilter = () => {
   activeSearchQuery.value = searchQuery.value.trim().toLowerCase();
   activeServiceFilter.value = serviceFilter.value;
+  activeYearFilter.value = yearFilter.value;
+  currentPage.value = 1;
 };
 
 const filteredTickets = computed(() => {
@@ -319,9 +436,38 @@ const filteredTickets = computed(() => {
     if (activeServiceFilter.value) {
       match = match && ticket.service === activeServiceFilter.value;
     }
+
+    if (activeYearFilter.value && activeYearFilter.value !== 'all') {
+      const y = getTicketYear(ticket);
+      match = match && (y === String(activeYearFilter.value));
+    }
     
     return match;
   });
+});
+
+const totalPages = computed(() => Math.ceil(filteredTickets.value.length / perPage.value) || 1);
+
+const paginatedTickets = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredTickets.value.slice(start, start + perPage.value);
+});
+
+const displayedPages = computed(() => {
+  const current = currentPage.value;
+  const total = totalPages.value;
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages = [];
+  pages.push(1);
+  if (current > 3) pages.push('...');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
 });
 
 const viewDetails = (ticket) => {
