@@ -20,16 +20,12 @@
           
           <!-- Section Header & Export Toolbar -->
           <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6 pb-6 border-b border-slate-100">
-            <div class="space-y-2">
-              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-800 text-xs font-black uppercase tracking-wider">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Official BSU Executive Document
-              </div>
-              <h3 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div class="space-y-1.5">
+              <h3 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
                 Performance Overview &amp; Reports
               </h3>
-              <p class="text-sm sm:text-base text-slate-500 font-medium max-w-3xl leading-relaxed">
-                Generate and download official performance reports across all GSO units — covering ticket volume, resolution breakdown, and client satisfaction ratings.
+              <p class="text-sm text-slate-500 font-medium">
+                Ticket volume, resolution, and satisfaction ratings across all GSO units.
               </p>
             </div>
 
@@ -145,9 +141,7 @@
               <div class="text-4xl sm:text-5xl font-black tracking-tight tabular-nums mb-2">
                 {{ executiveAnalytics?.summary?.total_requests ?? 0 }}
               </div>
-              <p class="text-xs sm:text-sm text-slate-400 font-medium">
-                Consolidated across FGMU, LEAU, &amp; SSU
-              </p>
+              <p class="text-xs sm:text-sm text-slate-400 font-medium">FGMU, LEAU &amp; SSU</p>
             </div>
 
             <!-- 2. Resolved & Completed -->
@@ -162,9 +156,7 @@
                 {{ executiveAnalytics?.summary?.total_resolved ?? 0 }}
                 <span class="text-sm font-bold text-slate-400">resolved</span>
               </div>
-              <p class="text-xs sm:text-sm text-slate-500 font-medium">
-                Successfully serviced and closed tickets
-              </p>
+
             </div>
 
             <!-- 3. Declined / Out of Scope -->
@@ -179,9 +171,7 @@
                 {{ executiveAnalytics?.summary?.total_declined ?? 0 }}
                 <span class="text-sm font-bold text-slate-400">declined</span>
               </div>
-              <p class="text-xs sm:text-sm text-slate-500 font-medium">
-                Non-compliant or out of administrative scope
-              </p>
+
             </div>
 
             <!-- 4. Client Satisfaction Rating -->
@@ -214,9 +204,8 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <h4 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2.5">
                 <span class="w-2 h-4 rounded-full bg-slate-900"></span>
-                Sub-Unit Performance Matrix ({{ executiveAnalytics?.filter?.label || 'Current Period' }})
+                Performance by Unit — {{ executiveAnalytics?.filter?.label || 'Current Period' }}
               </h4>
-              <span class="text-xs sm:text-sm font-bold text-slate-400">By Unit</span>
             </div>
 
             <div class="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-xs">
@@ -339,9 +328,9 @@
                 </div>
               </div>
 
-              <!-- Quality Dimensions Grid -->
+              <!-- Rating Breakdown -->
               <div class="pt-3 border-t border-slate-100 space-y-3">
-                <span class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider block">Client Rating Dimensions (out of 5.0)</span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Rating Breakdown (out of 5.0)</span>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-center sm:text-left">
                     <span class="text-xs font-semibold text-slate-400 block mb-0.5">Quality</span>

@@ -17,14 +17,11 @@
               <span>/</span>
               <span class="text-emerald-700">Materials Valuation</span>
             </div>
-            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <span>Materials &amp; Supplies Used</span>
-              <span class="text-xs sm:text-sm font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60">
-                Usage Records
-              </span>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+              Materials &amp; Supplies Used
             </h1>
-            <p class="text-sm sm:text-base text-slate-500 font-medium mt-1 max-w-3xl">
-              A complete list of all materials and supplies used across maintenance and service jobs, including quantities and their total cost.
+            <p class="text-sm text-slate-500 font-medium mt-1">
+              All materials and supplies used across maintenance and service jobs, with quantities and costs.
             </p>
           </div>
 
@@ -140,9 +137,7 @@
             <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-white mb-2">
               ₱{{ formatCurrency(materialsSummary?.total_worth) }}
             </div>
-            <p class="text-xs text-slate-400 font-medium">
-              Total amount spent on materials for the selected period
-            </p>
+            </div>
           </div>
 
           <!-- 2. Items Consumed / Recorded -->
@@ -157,9 +152,7 @@
               {{ materialsSummary?.total_records || 0 }}
               <span class="text-sm font-bold text-slate-400">items</span>
             </div>
-            <p class="text-xs text-slate-500 font-medium">
-              Number of different materials used across all job orders
-            </p>
+            </div>
           </div>
 
           <!-- 3. Physical Units Dispensed -->
@@ -174,9 +167,7 @@
               {{ formatNumber(materialsSummary?.total_quantity) }}
               <span class="text-sm font-bold text-slate-400">units</span>
             </div>
-            <p class="text-xs text-slate-500 font-medium">
-              Total count of all materials used (pieces, meters, cans, etc.)
-            </p>
+            </div>
           </div>
 
           <!-- 4. FGMU Facilities Valuation -->
@@ -190,9 +181,7 @@
             <div class="text-2xl sm:text-3xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
               ₱{{ formatCurrency(materialsSummary?.by_unit?.FGMU?.total_worth) }}
             </div>
-            <p class="text-xs text-slate-500 font-medium">
-              Electrical, plumbing, carpentry, and HVAC jobs
-            </p>
+            </div>
           </div>
 
           <!-- 5. LEAU Landscaping Valuation -->
@@ -206,9 +195,7 @@
             <div class="text-2xl sm:text-3xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
               ₱{{ formatCurrency(materialsSummary?.by_unit?.LEAU?.total_worth) }}
             </div>
-            <p class="text-xs text-slate-500 font-medium">
-              Campus grounds, planting, and landscaping jobs
-            </p>
+            </div>
           </div>
         </div>
 
@@ -354,9 +341,7 @@
                   <td class="py-4 px-4 text-right text-emerald-800 tabular-nums text-base font-black">
                     ₱{{ formatCurrency(filteredTotalWorth) }}
                   </td>
-                  <td colspan="3" class="py-4 px-6 text-center text-xs text-slate-500 font-bold">
-                    Based on current filter selection
-                  </td>
+                  <td colspan="3"></td>
                 </tr>
               </tbody>
             </table>
