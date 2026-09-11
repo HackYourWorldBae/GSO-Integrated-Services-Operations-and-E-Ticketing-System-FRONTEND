@@ -10,7 +10,7 @@ const breadcrumbs = computed(() => {
 
   // Determine root destination based on current route prefix
   let rootTo = '/user/dashboard';
-  if (path.startsWith('/superadmin')) rootTo = '/superadmin/dashboard';
+  if (path.startsWith('/superadmin')) rootTo = '/superadmin/users';
   else if (path.startsWith('/admin/fgmu')) rootTo = '/admin/fgmu';
   else if (path.startsWith('/admin/leau')) rootTo = '/admin/leau';
   else if (path.startsWith('/admin/ssu')) rootTo = '/admin/ssu';
@@ -26,7 +26,7 @@ const breadcrumbs = computed(() => {
 
   // Level 1: Contextual Portal / Unit
   if (path.startsWith('/superadmin')) {
-    crumbs.push({ label: 'Superadmin Portal', to: '/superadmin/dashboard' });
+    crumbs.push({ label: 'Superadmin Portal', to: '/superadmin/users' });
   } else if (path.startsWith('/admin/fgmu')) {
     crumbs.push({ label: 'FGMU Admin', to: '/admin/fgmu' });
   } else if (path.startsWith('/admin/leau')) {

@@ -429,7 +429,7 @@ const handleNotificationClick = async (notif) => {
     } else if (role === 'director') {
       router.push('/director/dashboard');
     } else if (role === 'superadmin') {
-      router.push('/superadmin/dashboard');
+      router.push('/superadmin/users');
     } else {
       router.push('/user/dashboard');
     }
@@ -479,7 +479,7 @@ const handleNotificationClick = async (notif) => {
     else if (unitCode === 'ssu') targetPath = '/director/ssu';
     else targetPath = '/director/fgmu';
   } else if (role === 'superadmin') {
-    targetPath = '/superadmin/dashboard';
+    targetPath = '/superadmin/users';
   } else {
     // Requestor (student, employee, etc.)
     targetPath = isCompleted ? '/user/completed-tickets' : '/user/tickets';

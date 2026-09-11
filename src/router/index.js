@@ -251,14 +251,14 @@ const router = createRouter({
       path: '/superadmin/users',
       name: 'superadmin-users',
       component: Superadmin_Users,
-      meta: { requiresAuth: true, roles: ['superadmin', 'admin', 'director'], permission: 'users.provision' }
+      meta: { requiresAuth: true, roles: ['superadmin'] }
     },
     {
       path: '/superadmin/queues',
       alias: ['/superadmin/verification', '/superadmin/verification-queue', '/superadmin/user-queues'],
       name: 'superadmin-user-queues',
       component: Superadmin_VerificationQueue,
-      meta: { requiresAuth: true, roles: ['superadmin', 'admin', 'director'], permission: 'users.provision' }
+      meta: { requiresAuth: true, roles: ['superadmin'] }
     },
     {
       path: '/superadmin/logs',
@@ -421,7 +421,7 @@ router.beforeEach((to, from, next) => {
   // Helper: map a role and unit to its canonical landing view
   const getHomeRoute = (userRole, userUnit) => {
     if (userRole === 'superadmin') {
-      return '/superadmin/dashboard';
+      return '/superadmin/users';
     }
     if (userRole === 'admin') {
       const u = (userUnit || 'fgmu').toLowerCase();

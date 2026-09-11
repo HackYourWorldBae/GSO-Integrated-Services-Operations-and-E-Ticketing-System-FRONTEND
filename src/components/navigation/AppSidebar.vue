@@ -95,12 +95,6 @@ const rawNavGroups = computed(() => {
         title: 'Superadmin Controls',
         items: [
           {
-            label: 'Dashboard Overview',
-            to: '/superadmin/dashboard',
-            exact: true,
-            icon: 'home'
-          },
-          {
             label: 'User Accounts',
             to: '/superadmin/users',
             exact: true,
