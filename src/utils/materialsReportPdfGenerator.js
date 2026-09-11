@@ -10,7 +10,6 @@
  * - Executive Valuation Summary Blocks (Total Worth ₱, Units Consumed, FGMU & LEAU Shares)
  * - Complete Itemized Materials Table with Units of Measurement and Pricing
  * - Grand Total Row
- * - Tripartite Formal Sign-Off & Administrative Certification Block
  *
  * Exported function:
  *   downloadMaterialsReportPdf(reportData) -> triggers direct browser PDF download
@@ -391,75 +390,6 @@ export const buildMaterialsReportDocDefinition = (data, logoDataUrl) => {
           paddingBottom: () => 3,
         },
         margin: [0, 0, 0, 12],
-      },
-
-      // Section 3: Official Sign-Off & Tripartite Certification Block
-      {
-        unbreakable: true,
-        stack: [
-          {
-            text: '3. ADMINISTRATIVE CERTIFICATION & SIGN-OFF',
-            fontSize: 8.5,
-            bold: true,
-            color: '#111827',
-            margin: [0, 2, 0, 4],
-          },
-          {
-            text: 'This document certifies that the aforementioned materials and consumable inventory items were legitimately requisitioned, disbursed, and utilized in the execution of official institutional maintenance work orders across Benguet State University campuses.',
-            fontSize: 7,
-            italics: true,
-            color: '#4b5563',
-            margin: [0, 0, 0, 8],
-          },
-          {
-            table: {
-              widths: ['33.3%', '33.3%', '33.4%'],
-              body: [
-                [
-                  {
-                    stack: [
-                      { text: 'PREPARED & VERIFIED BY:', fontSize: 6.5, bold: true, color: '#6b7280' },
-                      { text: '\n\n', fontSize: 9 },
-                      { text: 'GSO MATERIALS CUSTODIAN', fontSize: 8, bold: true, color: '#111827' },
-                      { text: 'Property & Materials Custodian Unit', fontSize: 6.5, color: '#4b5563' },
-                      { text: 'General Services Office', fontSize: 6.5, color: '#6b7280' },
-                    ],
-                    fillColor: '#f9fafb',
-                    margin: [4, 4, 4, 4],
-                  },
-                  {
-                    stack: [
-                      { text: 'NOTED BY UNIT HEADS:', fontSize: 6.5, bold: true, color: '#6b7280' },
-                      { text: '\n\n', fontSize: 9 },
-                      { text: 'FGMU & LEAU SUPERVISORS', fontSize: 8, bold: true, color: '#111827' },
-                      { text: 'Operations & Maintenance Supervision', fontSize: 6.5, color: '#4b5563' },
-                      { text: 'General Services Office', fontSize: 6.5, color: '#6b7280' },
-                    ],
-                    fillColor: '#f9fafb',
-                    margin: [4, 4, 4, 4],
-                  },
-                  {
-                    stack: [
-                      { text: 'CERTIFIED & APPROVED BY:', fontSize: 6.5, bold: true, color: '#6b7280' },
-                      { text: '\n\n', fontSize: 9 },
-                      { text: directorName.toUpperCase(), fontSize: 8, bold: true, color: '#111827' },
-                      { text: 'Director, General Services Office', fontSize: 6.5, color: '#4b5563' },
-                      { text: 'Benguet State University', fontSize: 6.5, color: '#6b7280' },
-                    ],
-                    fillColor: '#f9fafb',
-                    margin: [4, 4, 4, 4],
-                  },
-                ],
-              ],
-            },
-            layout: {
-              hLineWidth: () => 0.5,
-              vLineWidth: () => 0.5,
-              hLineColor: () => '#d1d5db',
-              vLineColor: () => '#d1d5db',
-            },
-          },
-        ],
       },
     ],
 
