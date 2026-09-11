@@ -27,6 +27,8 @@ const FGMU_TicketDispatch = () => import('../views/dashboards/admin/fgmu/FGMU_Ti
 const LEAU_TicketDispatch = () => import('../views/dashboards/admin/leau/LEAU_TicketDispatch.vue');
 const FGMU_ApprovedTickets = () => import('../views/dashboards/admin/fgmu/FGMU_ApprovedTickets.vue');
 const LEAU_ApprovedTickets = () => import('../views/dashboards/admin/leau/LEAU_ApprovedTickets.vue');
+const FGMU_ActiveTickets = () => import('../views/dashboards/admin/fgmu/FGMU_ActiveTickets.vue');
+const LEAU_ActiveTickets = () => import('../views/dashboards/admin/leau/LEAU_ActiveTickets.vue');
 const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
@@ -118,8 +120,16 @@ const router = createRouter({
     },
     {
       path: '/admin/fgmu/dispatched',
+      alias: ['/admin/fgmu/scheduled', '/admin/fgmu/scheduled-tickets'],
       name: 'fgmu-admin-dispatched',
       component: FGMU_DispatchedTickets,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU', permission: 'tickets.dispatch' }
+    },
+    {
+      path: '/admin/fgmu/active-tickets',
+      alias: ['/admin/fgmu/active', '/admin/fgmu/active-dispatches'],
+      name: 'fgmu-admin-active-tickets',
+      component: FGMU_ActiveTickets,
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU', permission: 'tickets.dispatch' }
     },
     {
@@ -165,8 +175,16 @@ const router = createRouter({
     },
     {
       path: '/admin/leau/dispatched',
+      alias: ['/admin/leau/scheduled', '/admin/leau/scheduled-tickets'],
       name: 'leau-admin-dispatched',
       component: LEAU_DispatchedTickets,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU', permission: 'tickets.dispatch' }
+    },
+    {
+      path: '/admin/leau/active-tickets',
+      alias: ['/admin/leau/active', '/admin/leau/active-dispatches'],
+      name: 'leau-admin-active-tickets',
+      component: LEAU_ActiveTickets,
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
     {
@@ -311,6 +329,10 @@ const router = createRouter({
       redirect: to => ({ path: '/admin/fgmu/dispatched', query: to.query })
     },
     {
+      path: '/dispatcher/fgmu/active-tickets',
+      redirect: to => ({ path: '/admin/fgmu/active-tickets', query: to.query })
+    },
+    {
       path: '/dispatcher/fgmu/archives',
       redirect: '/admin/fgmu/archives'
     },
@@ -335,6 +357,10 @@ const router = createRouter({
     {
       path: '/dispatcher/leau/dispatched',
       redirect: to => ({ path: '/admin/leau/dispatched', query: to.query })
+    },
+    {
+      path: '/dispatcher/leau/active-tickets',
+      redirect: to => ({ path: '/admin/leau/active-tickets', query: to.query })
     },
     {
       path: '/dispatcher/leau/archives',

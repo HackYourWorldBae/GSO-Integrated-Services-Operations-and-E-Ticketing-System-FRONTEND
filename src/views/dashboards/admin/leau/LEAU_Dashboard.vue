@@ -184,9 +184,12 @@
             </div>
 
             <!-- 2. Dispatched & Scheduled -->
-            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+            <div 
+              @click="router.push('/admin/leau/dispatched')"
+              class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer flex flex-col justify-between"
+            >
               <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-3 rounded-2xl bg-blue-50 text-blue-600 shrink-0">
+                <div class="p-3 rounded-2xl bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
                 <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Dispatched</span>
@@ -198,9 +201,12 @@
             </div>
 
             <!-- 3. Active Dispatches (Work In Progress) -->
-            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+            <div 
+              @click="router.push('/admin/leau/active-tickets')"
+              class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer flex flex-col justify-between"
+            >
               <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-3 rounded-2xl bg-emerald-100 text-emerald-700 shrink-0">
+                <div class="p-3 rounded-2xl bg-emerald-100 text-emerald-700 group-hover:scale-110 transition-transform shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                 </div>
                 <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Active</span>

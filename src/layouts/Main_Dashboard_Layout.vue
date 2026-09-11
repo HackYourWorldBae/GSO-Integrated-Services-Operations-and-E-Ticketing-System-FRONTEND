@@ -455,6 +455,7 @@ const handleNotificationClick = async (notif) => {
     ['completed', 'resolved', 'declined', 'cancelled', 'closed'].includes(notif.status) ||
     text.includes('completed') || text.includes('resolved') || text.includes('declined') || text.includes('cancelled');
 
+  const isActive = notif.status === 'in_progress' || text.includes('in progress') || text.includes('started');
   const isDispatched = notif.status === 'processing' || text.includes('dispatched') || text.includes('assigned') || text.includes('scheduled');
 
   let targetPath = '';
@@ -464,10 +465,12 @@ const handleNotificationClick = async (notif) => {
       targetPath = isCompleted ? '/admin/ssu/archives' : '/admin/ssu/queues/incidents';
     } else if (unitCode === 'leau') {
       if (isCompleted) targetPath = '/admin/leau/archives';
+      else if (isActive) targetPath = '/admin/leau/active-tickets';
       else if (isDispatched) targetPath = '/admin/leau/dispatched';
       else targetPath = '/admin/leau';
     } else {
       if (isCompleted) targetPath = '/admin/fgmu/archives';
+      else if (isActive) targetPath = '/admin/fgmu/active-tickets';
       else if (isDispatched) targetPath = '/admin/fgmu/dispatched';
       else targetPath = '/admin/fgmu';
     }
