@@ -47,7 +47,7 @@
             @click="openTicketScopeModal"
             class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-black rounded-xl transition-all border border-white/10 cursor-pointer"
           >
-            Review Scope &amp; Files
+            Review Full Details
           </button>
           <button
             type="button"
@@ -61,7 +61,7 @@
       </div>
 
       <!-- Bottom Row: Scheduling & Turnaround Configuration Controls -->
-      <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 pt-2">
+      <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
         <!-- Implementation Date Picker -->
         <div class="flex items-center gap-3 bg-white/5 p-3.5 rounded-2xl border border-white/10 hover:border-emerald-400/50 transition-all">
           <div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30">
@@ -134,32 +134,6 @@
             >
               Complex (21d)
             </button>
-          </div>
-        </div>
-
-        <!-- Emergency / Priority Preemption -->
-        <div class="flex flex-col justify-center gap-1.5 bg-rose-950/40 p-3.5 rounded-2xl border border-rose-500/30">
-          <label class="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              v-model="isEmergency"
-              class="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-rose-400 bg-white/10"
-            />
-            <span class="text-[10px] font-black uppercase tracking-wider text-rose-300 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-              Emergency Preemption
-            </span>
-          </label>
-          <div v-if="isEmergency" class="flex items-center gap-2 pt-1 border-t border-rose-500/20">
-            <input
-              id="pause-current-check"
-              type="checkbox"
-              v-model="pauseCurrentTask"
-              class="w-3.5 h-3.5 rounded text-rose-600 focus:ring-rose-500 border-rose-400 bg-white/10"
-            />
-            <label for="pause-current-check" class="text-[9px] font-bold text-rose-200 cursor-pointer">
-              Pause active jobs on technician
-            </label>
           </div>
         </div>
       </div>
@@ -520,81 +494,163 @@
       </div>
     </div>
 
-    <!-- ═══ 5. Scope & Attachments Modal ═══ -->
+    <!-- ═══ 5. Full Ticket Details Modal (Matching Approved Tickets Layout) ═══ -->
     <Teleport to="body">
       <div
         v-if="showScopeModal && selectedTicket"
         class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
         @click.self="showScopeModal = false"
       >
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] flex flex-col overflow-hidden animate-scale-up">
-          <div class="p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
-            <div class="flex items-center gap-2.5">
-              <span
-                :class="[
-                  'px-2.5 py-1 text-xs font-black rounded-lg',
-                  unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
-                ]"
-              >
-                #{{ selectedTicket.id }}
-              </span>
-              <h3 class="text-base font-black text-slate-900">{{ selectedTicket.service || selectedTicket.type }}</h3>
+        <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-hidden">
+          
+          <!-- Fixed Modal Header -->
+          <div class="p-5 sm:p-6 pb-4 border-b border-slate-100 flex items-start justify-between gap-4 shrink-0 bg-white">
+            <div>
+              <div class="flex flex-wrap items-center gap-2.5 mb-1.5">
+                <span
+                  :class="[
+                    'font-mono text-base sm:text-lg font-black px-3.5 py-1 rounded-xl border',
+                    unitCode.toUpperCase() === 'LEAU' ? 'text-amber-800 bg-amber-50 border-amber-200' : 'text-emerald-800 bg-emerald-50 border-emerald-200'
+                  ]"
+                >
+                  #{{ selectedTicket.id }}
+                </span>
+                <span
+                  v-if="selectedTicket.is_emergency"
+                  class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider"
+                >
+                  Emergency
+                </span>
+                <span class="text-xs sm:text-sm font-bold text-slate-400">
+                  Submitted on {{ selectedTicket.submittedAt || selectedTicket.date || 'N/A' }}
+                </span>
+              </div>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Full Ticket Information</h3>
+              <p class="text-xs text-slate-500 font-medium mt-0.5">Comprehensive institutional job particulars and requester verification</p>
             </div>
             <button
+              type="button"
               @click="showScopeModal = false"
-              class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
+              class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              title="Close modal"
             >
-              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 
-          <div class="p-5 overflow-y-auto space-y-4 text-xs custom-scrollbar flex-1">
-            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-              <div class="flex justify-between"><span class="text-slate-400 font-bold">Requester:</span><span class="font-black text-slate-900">{{ selectedTicket.requester }}</span></div>
-              <div class="flex justify-between"><span class="text-slate-400 font-bold">Contact:</span><span class="font-bold text-slate-800">{{ selectedTicket.contact_number || 'N/A' }}</span></div>
-              <div class="flex justify-between"><span class="text-slate-400 font-bold">Location:</span><span class="font-bold text-slate-800">{{ selectedTicket.location || selectedTicket.college_building }}</span></div>
-              <div class="flex justify-between"><span class="text-slate-400 font-bold">Room:</span><span class="font-bold text-slate-800">{{ selectedTicket.office_room || 'N/A' }}</span></div>
-            </div>
+          <!-- Scrollable Modal Body -->
+          <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
+            <!-- Requester & Location Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Requester Profile -->
+              <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Requester Profile</span>
+                <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicket.requester }}</p>
+                <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                  <span class="truncate">{{ selectedTicket.email || 'No institutional email' }}</span>
+                </p>
+                <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  <span>Contact: {{ selectedTicket.contact_number || 'N/A' }}</span>
+                </p>
+              </div>
 
-            <div>
-              <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-1">Job Description &amp; Scope</h4>
-              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {{ selectedTicket.job_description || 'No detailed scope provided.' }}
+              <!-- Designated Location -->
+              <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Designated Location</span>
+                <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicket.location || selectedTicket.college_building || 'Main Campus' }}</p>
+                <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                  <span>{{ selectedTicket.office_room ? `Room / Office: ${selectedTicket.office_room}` : 'No specific room designated' }}</span>
+                </p>
               </div>
             </div>
 
-            <div>
-              <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Attached Files ({{ (selectedTicket.attachments || []).length }})</h4>
-              <div v-if="!selectedTicket.attachments || selectedTicket.attachments.length === 0" class="p-3.5 rounded-xl bg-slate-50 text-slate-400 text-center">
-                No files attached.
-              </div>
-              <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div
-                  v-for="att in selectedTicket.attachments"
-                  :key="att.id"
-                  class="p-2.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2"
+            <!-- Service & Job Particulars -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
+                <span
+                  :class="[
+                    'px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border',
+                    unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-100 text-amber-900 border-amber-200' : 'bg-emerald-100 text-emerald-900 border-emerald-200'
+                  ]"
                 >
-                  <span class="font-bold text-slate-800 truncate text-xs">{{ att.file_name || 'Attachment' }}</span>
-                  <button
-                    type="button"
-                    @click="downloadAttachment(att)"
-                    class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold shrink-0 cursor-pointer"
-                  >
-                    Download
-                  </button>
+                  {{ selectedTicket.service || selectedTicket.type }}
+                </span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/70 shadow-2xs">
+                {{ selectedTicket.job_description || selectedTicket.description || 'No detailed scope notes provided by client.' }}
+              </p>
+            </div>
+
+            <!-- Attachments & Proof Documents -->
+            <div class="space-y-2.5">
+              <span class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                <span
+                  :class="[
+                    'w-2 h-3 rounded-full',
+                    unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-600' : 'bg-emerald-600'
+                  ]"
+                ></span>
+                Attached Documents &amp; Damage Proof ({{ (selectedTicket.attachments || []).length }})
+              </span>
+
+              <div v-if="!selectedTicket.attachments || selectedTicket.attachments.length === 0" class="p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center text-slate-400 text-xs">
+                No files or images attached to this ticket.
+              </div>
+
+              <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div
+                  v-for="(file, idx) in selectedTicket.attachments"
+                  :key="idx"
+                  @click="downloadAttachment(file)"
+                  :class="[
+                    'flex items-center justify-between p-3.5 rounded-2xl bg-white border border-slate-200 cursor-pointer transition-all shadow-2xs group',
+                    unitCode.toUpperCase() === 'LEAU' ? 'hover:border-amber-500 hover:bg-amber-50/40' : 'hover:border-emerald-500 hover:bg-emerald-50/40'
+                  ]"
+                >
+                  <div class="flex items-center gap-2.5 truncate">
+                    <div
+                      :class="[
+                        'w-8 h-8 rounded-xl flex items-center justify-center shrink-0',
+                        unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'
+                      ]"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                      </svg>
+                    </div>
+                    <span class="text-xs font-bold text-slate-800 truncate group-hover:text-slate-900">{{ file.file_name || 'Attachment' }}</span>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 group-hover:text-slate-700 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end shrink-0">
+          <!-- Fixed Modal Footer Actions -->
+          <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
             <button
+              type="button"
               @click="showScopeModal = false"
-              class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs cursor-pointer transition-colors"
+              class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer shadow-2xs"
             >
-              Close
+              Close Full Info
             </button>
           </div>
+
         </div>
       </div>
     </Teleport>

@@ -235,10 +235,16 @@
                   <!-- Ticket Reference -->
                   <td class="px-4 py-2.5 whitespace-nowrap relative">
                     <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
-                    <div class="relative inline-flex">
+                    <div class="relative inline-flex items-center gap-1.5 flex-wrap">
                       <div class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100 inline-flex items-center group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all duration-150">
                         #{{ ticket.ticketId }}
                       </div>
+                      <span
+                        v-if="ticket.is_emergency"
+                        class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider"
+                      >
+                        Urgent
+                      </span>
                     </div>
                     <div class="text-[10px] text-slate-400 mt-0.5">{{ ticket.date }}</div>
                   </td>
@@ -474,6 +480,12 @@
               <span class="font-mono text-base sm:text-lg font-black text-emerald-800 bg-emerald-50 px-3.5 py-1 rounded-xl border border-emerald-200">
                 #{{ selectedTicketForModal.ticketId }}
               </span>
+              <span
+                v-if="selectedTicketForModal.is_emergency"
+                class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider animate-pulse"
+              >
+                Emergency
+              </span>
               <span class="text-xs sm:text-sm font-bold text-slate-400">
                 Submitted on {{ selectedTicketForModal.date }}
               </span>
@@ -596,6 +608,40 @@
           <p class="text-xs text-slate-500 font-medium mt-1">
             Ticket <strong class="text-slate-800">#{{ ticketToApprove?.ticketId }}</strong> will be approved and queued for dispatcher assignment.
           </p>
+        </div>
+
+        <!-- Emergency Priority Decision (Decided by Director before approval) -->
+        <div 
+          @click="isEmergencyApproval = !isEmergencyApproval"
+          :class="[
+            'p-4 rounded-2xl border transition-all cursor-pointer select-none flex items-start gap-3.5 text-left',
+            isEmergencyApproval 
+              ? 'bg-rose-50/90 border-rose-300 ring-2 ring-rose-500/20 shadow-xs' 
+              : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+          ]"
+        >
+          <div class="pt-0.5">
+            <input
+              type="checkbox"
+              id="fgmu-emergency-toggle"
+              v-model="isEmergencyApproval"
+              @click.stop
+              class="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-slate-300 cursor-pointer"
+            />
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <label for="fgmu-emergency-toggle" class="text-xs font-black uppercase tracking-wider cursor-pointer" :class="isEmergencyApproval ? 'text-rose-900' : 'text-slate-800'">
+                Mark as Emergency Request
+              </label>
+              <span v-if="isEmergencyApproval" class="px-2 py-0.5 rounded-md bg-rose-200 text-rose-800 text-[10px] font-black uppercase tracking-wider animate-pulse">
+                Urgent
+              </span>
+            </div>
+            <p class="text-[11px] font-medium leading-relaxed mt-1" :class="isEmergencyApproval ? 'text-rose-700' : 'text-slate-500'">
+              Enables priority dispatch and task preemption for unit dispatchers when assigning personnel.
+            </p>
+          </div>
         </div>
         <div class="flex gap-3">
           <button @click="closeConfirmModal" class="w-full px-5 py-3 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 cursor-pointer">
@@ -722,6 +768,7 @@ const perPage = ref(15);
 
 // Modals
 const showConfirmModal = ref(false);
+const isEmergencyApproval = ref(false);
 const ticketToApprove = ref(null);
 const ticketToDecline = ref(null);
 const declineReasonInput = ref('');
@@ -852,6 +899,7 @@ const mapTicket = (t) => {
     attachments: t.attachments || [],
     extension_days: Number(t.extension_days) || 0,
     overtime_hours: Number(t.overtime_hours) || 0,
+    is_emergency: Boolean(Number(t.is_emergency) === 1 || t.is_emergency === true || t.urgency === 'Emergency' || t.urgency === 'High'),
   };
 };
 
@@ -970,19 +1018,23 @@ const openDetailsModal = (ticket) => {
 
 const initiateApproval = (ticket) => {
   ticketToApprove.value = ticket;
+  isEmergencyApproval.value = Boolean(ticket?.is_emergency || ticket?.urgency === 'Emergency' || ticket?.urgency === 'High');
   showConfirmModal.value = true;
 };
 
 const closeConfirmModal = () => {
   showConfirmModal.value = false;
   ticketToApprove.value = null;
+  isEmergencyApproval.value = false;
 };
 
 const confirmApproval = async () => {
   if (ticketToApprove.value) {
     try {
-      await api.patch(`tickets/${ticketToApprove.value.id}/approve`);
-      toast.success(`Approved ticket #${ticketToApprove.value.ticketId}`);
+      await api.patch(`tickets/${ticketToApprove.value.id}/approve`, {
+        is_emergency: isEmergencyApproval.value ? 1 : 0,
+      });
+      toast.success(`Approved ticket #${ticketToApprove.value.ticketId}${isEmergencyApproval.value ? ' (Emergency Priority)' : ''}`);
       closeConfirmModal();
       fetchAllQueues();
     } catch (error) {
