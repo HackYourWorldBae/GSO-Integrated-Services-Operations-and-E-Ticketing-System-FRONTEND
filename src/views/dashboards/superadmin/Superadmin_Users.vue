@@ -15,169 +15,6 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in relative pb-12">
 
-        <!-- Top Navigation View Tabs -->
-        <div class="flex items-center gap-2 border-b border-slate-200 pb-3">
-          <button
-            type="button"
-            @click="activeTab = 'users'"
-            class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2"
-            :class="activeTab === 'users' ? 'bg-purple-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <span>Accounts Directory</span>
-          </button>
-          <button
-            type="button"
-            @click="activeTab = 'verification'"
-            class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 relative"
-            :class="activeTab === 'verification' ? 'bg-purple-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            <span>Verification Queue</span>
-            <span 
-              v-if="pendingVerificationUsers.length > 0" 
-              class="px-2 py-0.5 rounded-full text-[10px] font-black"
-              :class="activeTab === 'verification' ? 'bg-amber-400 text-slate-900' : 'bg-amber-100 text-amber-800 border border-amber-300'"
-            >
-              {{ pendingVerificationUsers.length }}
-            </span>
-          </button>
-        </div>
-
-        <!-- Verification Queue View -->
-        <div v-if="activeTab === 'verification'" class="space-y-6">
-          <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold mb-2">
-                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                {{ pendingVerificationUsers.length }} Pending Identity {{ pendingVerificationUsers.length === 1 ? 'Verification' : 'Verifications' }}
-              </div>
-              <h3 class="text-xl font-black text-slate-900">Institutional ID Verification Queue</h3>
-              <p class="text-xs text-slate-500 font-medium mt-1 max-w-2xl">
-                Review submitted Student and Employee ID cards for identity verification. Once approved, the user will be unlocked to submit service requests.
-              </p>
-            </div>
-            <button
-              @click="fetchUsers"
-              class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-2 shrink-0"
-            >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Refresh Queue
-            </button>
-          </div>
-
-          <!-- Pending Cards Grid -->
-          <div v-if="pendingVerificationUsers.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <div 
-              v-for="user in pendingVerificationUsers" 
-              :key="'queue-' + user.id"
-              class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-purple-200 transition-all flex flex-col justify-between"
-            >
-              <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                  <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
-                    {{ user.role }}
-                  </span>
-                  <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
-                    Awaiting Verification
-                  </span>
-                </div>
-
-                <div class="flex items-start gap-3 pt-1">
-                  <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 font-bold flex items-center justify-center shrink-0 border border-purple-200 text-base">
-                    {{ user.first_name ? user.first_name.charAt(0).toUpperCase() : 'U' }}
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <h4 class="text-sm font-black text-slate-900 truncate">{{ user.first_name }} {{ user.last_name }}</h4>
-                    <p class="text-xs font-bold text-emerald-700 mt-0.5">
-                      ID: {{ user.student_id_number || 'Not Stated' }}
-                    </p>
-                    <p class="text-[11px] text-slate-500 truncate">
-                      {{ user.email || 'No email provided' }}
-                    </p>
-                    <p class="text-[11px] text-slate-500">
-                      📞 {{ user.contact_number || 'No contact' }}
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Thumbnail Preview of ID Card -->
-                <div 
-                  @click="openInspectModal(user)"
-                  class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 aspect-video relative group cursor-pointer"
-                >
-                  <img 
-                    :src="getIdCardUrl(user.id)" 
-                    alt="ID Snapshot" 
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                  />
-                  <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-bold text-xs gap-1.5 backdrop-blur-xs">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    Click to Inspect
-                  </div>
-                </div>
-              </div>
-
-              <!-- Card Actions -->
-              <div class="pt-4 border-t border-slate-100 mt-4 flex items-center gap-2">
-                <button
-                  type="button"
-                  @click="openInspectModal(user)"
-                  class="flex-1 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5"
-                >
-                  Inspect & Verify
-                </button>
-                <button
-                  type="button"
-                  :disabled="isActionLoading"
-                  @click="handleApproveVerification(user)"
-                  class="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors border border-emerald-200 disabled:opacity-50"
-                  title="Quick Approve"
-                >
-                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  :disabled="isActionLoading"
-                  @click="handleRejectVerification(user)"
-                  class="p-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors border border-rose-200 disabled:opacity-50"
-                  title="Quick Reject"
-                >
-                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty State -->
-          <div v-else class="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm">
-            <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h4 class="text-base font-black text-slate-900 mb-1">Queue Clear!</h4>
-            <p class="text-xs text-slate-500 max-w-md mx-auto">
-              There are no user accounts pending identity verification. All signed-up users are up to date.
-            </p>
-          </div>
-        </div>
-
-        <!-- User Accounts Management Section -->
-        <div v-else class="space-y-6">
         <!-- Action Header Bar -->
         <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
           <!-- Live Search Bar -->
@@ -492,8 +329,6 @@
             </div>
           </div>
         </div>
-
-        </div> <!-- close v-else space-y-6 -->
       </div>
     </template>
 
@@ -835,15 +670,11 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router';
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
-
-const route = useRoute();
-const activeTab = ref(route.query?.tab === 'verification' ? 'verification' : 'users');
 
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '');
 
@@ -857,13 +688,6 @@ const getAvatarUrl = (userId) => {
   return `${apiBase}/auth/avatar/${userId}`;
 };
 
-watch(() => route.query?.tab, (newTab) => {
-  if (newTab === 'verification') {
-    activeTab.value = 'verification';
-  } else if (newTab === 'users' || !newTab) {
-    activeTab.value = 'users';
-  }
-});
 const users = ref([]);
 const inspectingUser = ref(null);
 const isInspectModalOpen = ref(false);
@@ -873,10 +697,6 @@ const isUserVerified = (u) => {
   if (!u) return false;
   return Number(u.is_verified) === 1;
 };
-
-const pendingVerificationUsers = computed(() => {
-  return users.value.filter(u => u.status !== 'Rejected' && !isUserVerified(u));
-});
 
 const openInspectModal = (user) => {
   inspectingUser.value = user;

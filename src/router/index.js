@@ -39,6 +39,7 @@ const LEAU_Archives = () => import('../views/dashboards/admin/leau/LEAU_Archives
 const SSU_Archives = () => import('../views/dashboards/admin/ssu/SSU_Archives.vue');
 const User_CompletedTickets = () => import('../views/dashboards/user/User_CompletedTickets.vue');
 const Superadmin_Users = () => import('../views/dashboards/superadmin/Superadmin_Users.vue');
+const Superadmin_VerificationQueue = () => import('../views/dashboards/superadmin/Superadmin_VerificationQueue.vue');
 const Superadmin_AuditLogs = () => import('../views/dashboards/superadmin/Superadmin_AuditLogs.vue');
 
 const router = createRouter({
@@ -247,6 +248,13 @@ const router = createRouter({
       path: '/superadmin/users',
       name: 'superadmin-users',
       component: Superadmin_Users,
+      meta: { requiresAuth: true, roles: ['superadmin', 'admin', 'director'], permission: 'users.provision' }
+    },
+    {
+      path: '/superadmin/queues',
+      alias: ['/superadmin/verification', '/superadmin/verification-queue', '/superadmin/user-queues'],
+      name: 'superadmin-user-queues',
+      component: Superadmin_VerificationQueue,
       meta: { requiresAuth: true, roles: ['superadmin', 'admin', 'director'], permission: 'users.provision' }
     },
     {

@@ -54,9 +54,28 @@ const isItemActive = (item) => {
   const currentPath = route.path.toLowerCase();
   const [targetPath, targetQuery] = item.to.toLowerCase().split('?');
 
-  // If item specifies query parameters (e.g. ?tab=verification), compare against fullPath
+  // If item specifies query parameters, compare against fullPath
   if (targetQuery) {
-    return route.fullPath.toLowerCase().includes(targetQuery);
+    return currentPath === targetPath && route.fullPath.toLowerCase().includes(targetQuery);
+  }
+
+  // If another item in the same group has a more specific query match, do not activate the plain path
+  const hasSpecificQueryItem = navGroups.value?.some(group =>
+    group.items?.some(navItem => {
+      const [oPath, oQuery] = navItem.to.toLowerCase().split('?');
+      return oQuery && oPath === currentPath && route.fullPath.toLowerCase().includes(oQuery);
+    })
+  );
+  if (hasSpecificQueryItem) {
+    return false;
+  }
+
+  // Superadmin distinct route matching
+  if (targetPath === '/superadmin/users') {
+    return currentPath === '/superadmin/users';
+  }
+  if (targetPath === '/superadmin/queues') {
+    return ['/superadmin/queues', '/superadmin/verification', '/superadmin/verification-queue', '/superadmin/user-queues'].includes(currentPath);
   }
 
   if (item.exact) {
@@ -65,8 +84,8 @@ const isItemActive = (item) => {
 
   // Disambiguation: If another navigation item has an exact match for currentPath,
   // do not fall back to loose prefix matching on shorter parent paths.
-  const hasExactItemMatch = navGroups.value.some(group =>
-    group.items.some(navItem => navItem.to.toLowerCase().split('?')[0] === currentPath)
+  const hasExactItemMatch = navGroups.value?.some(group =>
+    group.items?.some(navItem => navItem.to.toLowerCase().split('?')[0] === currentPath)
   );
   if (hasExactItemMatch) {
     return currentPath === targetPath;
@@ -90,18 +109,21 @@ const rawNavGroups = computed(() => {
           {
             label: 'User Accounts',
             to: '/superadmin/users',
+            exact: true,
             icon: 'users',
             permission: 'users.provision'
           },
           {
-            label: 'Verification Queue',
-            to: '/superadmin/users?tab=verification',
+            label: 'User Queues',
+            to: '/superadmin/queues',
+            exact: true,
             icon: 'shield',
             permission: 'users.provision'
           },
           {
             label: 'Audit Trail',
             to: '/superadmin/logs',
+            exact: true,
             icon: 'archive'
           }
         ]
