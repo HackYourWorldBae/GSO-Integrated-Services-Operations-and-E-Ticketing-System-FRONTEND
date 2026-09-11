@@ -178,6 +178,12 @@ const rawNavGroups = computed(() => {
             to: '/director/dashboard',
             exact: true,
             icon: 'home'
+          },
+          {
+            label: 'Materials Valuation',
+            to: '/director/materials',
+            exact: true,
+            icon: 'materials'
           }
         ]
       },
@@ -358,6 +364,11 @@ const navGroups = computed(() => {
           <svg v-else-if="item.icon === 'leaf'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+          </svg>
+
+          <!-- Materials / Inventory / Box -->
+          <svg v-else-if="item.icon === 'box' || item.icon === 'materials'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-emerald-500 group-hover:text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
 
           <!-- Org Hierarchy -->

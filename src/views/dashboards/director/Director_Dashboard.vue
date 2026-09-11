@@ -312,79 +312,6 @@
             </div>
           </div>
 
-          <!-- Materials & Supplies Valuation Executive Briefing -->
-          <div class="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-4">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <span class="w-2 h-4 rounded-full bg-emerald-600"></span>
-                  <h4 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800">
-                    Materials &amp; Consumables Valuation Overview
-                  </h4>
-                  <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60">
-                    {{ executiveAnalytics?.filter?.label || 'Current Period' }}
-                  </span>
-                </div>
-                <p class="text-xs sm:text-sm text-slate-500 font-medium">
-                  Disbursed supplies, replacement components, and campus maintenance items logged across FGMU &amp; LEAU operations.
-                </p>
-              </div>
-
-              <!-- Action Links -->
-              <div class="flex items-center gap-3 shrink-0">
-                <router-link
-                  to="/director/materials"
-                  class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-xs cursor-pointer active:scale-95"
-                >
-                  <span>View Full Materials Logs &amp; Table</span>
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </router-link>
-                <button
-                  @click="handleDownloadMaterialsReport"
-                  :disabled="isGeneratingMaterialsPdf || !executiveAnalytics"
-                  class="px-3.5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
-                  title="Quick Export Materials Report PDF"
-                >
-                  <svg v-if="isGeneratingMaterialsPdf" class="animate-spin h-3.5 w-3.5 text-slate-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <span class="hidden sm:inline">Export PDF</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Mini Summary Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-1">
-              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Total Valuation</span>
-                <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
-                  ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.total_worth) }}
-                </span>
-              </div>
-              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Recorded Items</span>
-                <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
-                  {{ executiveAnalytics?.materials_summary?.total_records || 0 }} entries
-                </span>
-              </div>
-              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
-                <span class="text-xs font-bold text-blue-700 uppercase tracking-wider block mb-1">FGMU Facilities</span>
-                <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
-                  ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.by_unit?.FGMU?.total_worth) }}
-                </span>
-              </div>
-              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
-                <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider block mb-1">LEAU Ecology</span>
-                <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
-                  ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.by_unit?.LEAU?.total_worth) }}
-                </span>
-              </div>
-            </div>
-          </div>
 
           <!-- Operational Insights (Service Distribution & SLA Health) -->
           <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 pt-4">
@@ -469,14 +396,12 @@ import { onMounted, ref, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
 import { downloadDirectorReportPdf } from '@/utils/directorReportPdfGenerator';
-import { downloadMaterialsReportPdf } from '@/utils/materialsReportPdfGenerator';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 
 // Executive Analytics State
 const executiveAnalytics = ref(null);
 const isGeneratingPdf = ref(false);
-const isGeneratingMaterialsPdf = ref(false);
 
 // Format currency helper
 const formatCurrency = (val) => {
@@ -578,22 +503,7 @@ const handleDownloadReport = async () => {
   }
 };
 
-const handleDownloadMaterialsReport = async () => {
-  if (!executiveAnalytics.value) {
-    toast.error('Analytics summary data is still loading.');
-    return;
-  }
-  isGeneratingMaterialsPdf.value = true;
-  try {
-    await downloadMaterialsReportPdf(executiveAnalytics.value);
-    toast.success('Official Materials Report downloaded successfully.');
-  } catch (error) {
-    console.error('Failed to download materials report PDF:', error);
-    toast.error('Failed to download official materials report PDF.');
-  } finally {
-    isGeneratingMaterialsPdf.value = false;
-  }
-};
+
 
 onMounted(() => {
   fetchExecutiveAnalytics();
