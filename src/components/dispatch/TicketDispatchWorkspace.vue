@@ -1,71 +1,7 @@
 <template>
   <div class="space-y-6 pb-12 px-4 sm:px-6 lg:px-8 py-6 max-w-[1750px] mx-auto min-h-screen">
     
-    <!-- ═══ 1. Page Header ═══ -->
-    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2 mb-1">
-          <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
-            {{ unitCode }} Operations
-          </span>
-          <span class="text-xs text-slate-400 font-bold">Worker Assignment &amp; Scheduling</span>
-        </div>
-        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-          {{ unitCode }} Assign Workers
-        </h2>
-        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-          Assign approved service requests to available technicians and set target deployment timelines.
-        </p>
-      </div>
-
-      <!-- Action Buttons & Quick Counter -->
-      <div class="flex flex-wrap items-center gap-3 shrink-0">
-        <!-- Pick / Select Ticket Modal Trigger -->
-        <button
-          type="button"
-          @click="showTicketPickerModal = true"
-          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-          <span>Select Approved Ticket</span>
-          <span v-if="dispatchQueue.length > 0" class="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-black leading-none">
-            {{ dispatchQueue.length }}
-          </span>
-        </button>
-
-        <!-- Go to Approved Tickets List Page -->
-        <router-link
-          :to="`/admin/${unitCode.toLowerCase()}/approved-tickets`"
-          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black transition-all shadow-xs cursor-pointer"
-        >
-          <span>Browse Queue</span>
-        </router-link>
-
-        <!-- Refresh Button -->
-        <button
-          type="button"
-          @click="refreshData"
-          :disabled="loadingTickets"
-          class="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer active:scale-95 disabled:opacity-50"
-          title="Refresh ticket queue and workforce roster"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            :class="{ 'animate-spin': loadingTickets }"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- ═══ 2. Selected Ticket Target Banner ═══ -->
+    <!-- ═══ Selected Ticket Target Banner ═══ -->
     <div
       v-if="selectedTicket"
       class="p-6 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white shadow-xl relative overflow-hidden border border-emerald-500/30 animate-scale-up space-y-6"
@@ -120,6 +56,12 @@
           >
             Switch Ticket
           </button>
+          <router-link
+            :to="`/admin/${unitCode.toLowerCase()}/approved-tickets`"
+            class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-black rounded-xl transition-all border border-white/10 cursor-pointer"
+          >
+            Browse Queue
+          </router-link>
           <button
             type="button"
             @click="clearSelectedTicket"
@@ -377,7 +319,7 @@
           </p>
         </div>
 
-        <!-- Status Legend -->
+        <!-- Status Legend & Refresh -->
         <div class="flex items-center gap-3 sm:gap-4 flex-wrap text-[10px] font-bold uppercase tracking-wider text-slate-500">
           <span class="flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Available ({{ availableCount }})
@@ -391,6 +333,24 @@
           <span class="flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-rose-400"></span> On Leave ({{ onLeaveCount }})
           </span>
+          <button
+            type="button"
+            @click="refreshData"
+            :disabled="loadingTickets"
+            class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer active:scale-95 disabled:opacity-50"
+            title="Refresh workforce roster and queue"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-3.5 w-3.5"
+              :class="{ 'animate-spin': loadingTickets }"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
         </div>
       </div>
 
