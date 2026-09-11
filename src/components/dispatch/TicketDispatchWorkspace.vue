@@ -197,7 +197,12 @@
       v-else
       class="p-8 sm:p-12 rounded-3xl border-2 border-dashed border-slate-200 bg-white text-center flex flex-col items-center justify-center space-y-4 shadow-xs"
     >
-      <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-xs">
+      <div
+        :class="[
+          'w-16 h-16 rounded-2xl flex items-center justify-center border shadow-xs',
+          unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+        ]"
+      >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
@@ -211,18 +216,17 @@
       </div>
 
       <div class="flex items-center gap-3 pt-2">
-        <button
-          type="button"
-          @click="showTicketPickerModal = true"
-          class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer"
-        >
-          Select from Approved Queue ({{ dispatchQueue.length }})
-        </button>
         <router-link
           :to="`/admin/${unitCode.toLowerCase()}/approved-tickets`"
-          class="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-black transition-colors"
+          :class="[
+            'px-5 py-2.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer inline-flex items-center gap-2',
+            unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'
+          ]"
         >
-          View Full Approved Directory
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <span>Select from Approved Ticket Queue ({{ dispatchQueue.length }})</span>
         </router-link>
       </div>
     </div>
