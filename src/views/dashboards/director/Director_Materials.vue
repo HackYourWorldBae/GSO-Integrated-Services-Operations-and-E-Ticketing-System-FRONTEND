@@ -128,7 +128,7 @@
 
         <!-- Materials Valuation KPI Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
-          <!-- 1. Total Worth of Materials -->
+          <!-- 1. Total Cost of Materials -->
           <div class="p-6 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col justify-between min-h-[150px]">
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="text-xs font-black uppercase tracking-wider text-slate-400">Total Cost of Materials</span>
@@ -137,10 +137,9 @@
             <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-white mb-2">
               ₱{{ formatCurrency(materialsSummary?.total_worth) }}
             </div>
-            </div>
           </div>
 
-          <!-- 2. Items Consumed / Recorded -->
+          <!-- 2. Materials Recorded -->
           <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="text-xs font-black uppercase tracking-wider text-slate-600">Materials Recorded</span>
@@ -152,10 +151,9 @@
               {{ materialsSummary?.total_records || 0 }}
               <span class="text-sm font-bold text-slate-400">items</span>
             </div>
-            </div>
           </div>
 
-          <!-- 3. Physical Units Dispensed -->
+          <!-- 3. Total Items Used -->
           <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="text-xs font-black uppercase tracking-wider text-slate-600">Total Items Used</span>
@@ -167,10 +165,9 @@
               {{ formatNumber(materialsSummary?.total_quantity) }}
               <span class="text-sm font-bold text-slate-400">units</span>
             </div>
-            </div>
           </div>
 
-          <!-- 4. FGMU Facilities Valuation -->
+          <!-- 4. FGMU Facilities -->
           <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="text-xs font-black uppercase tracking-wider text-blue-700">FGMU — Facilities</span>
@@ -181,10 +178,9 @@
             <div class="text-2xl sm:text-3xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
               ₱{{ formatCurrency(materialsSummary?.by_unit?.FGMU?.total_worth) }}
             </div>
-            </div>
           </div>
 
-          <!-- 5. LEAU Landscaping Valuation -->
+          <!-- 5. LEAU Landscaping -->
           <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="text-xs font-black uppercase tracking-wider text-emerald-700">LEAU — Landscaping</span>
@@ -194,7 +190,6 @@
             </div>
             <div class="text-2xl sm:text-3xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
               ₱{{ formatCurrency(materialsSummary?.by_unit?.LEAU?.total_worth) }}
-            </div>
             </div>
           </div>
         </div>
