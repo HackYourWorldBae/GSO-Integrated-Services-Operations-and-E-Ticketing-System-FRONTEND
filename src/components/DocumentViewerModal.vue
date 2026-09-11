@@ -33,6 +33,20 @@
 
             <!-- Action Toolbar Buttons -->
             <div class="flex items-center gap-2 shrink-0">
+              <!-- Re-generate Button (Fallback & Refresh with fresh data) -->
+              <button 
+                v-if="allowRegenerate"
+                @click="emitRegenerate" 
+                :disabled="isLoading || isRegenerating"
+                class="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-amber-200 border border-amber-500/40 text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 disabled:opacity-50"
+                title="Re-generate this document with fresh ticket data"
+              >
+                <svg :class="{ 'animate-spin': isRegenerating }" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>{{ isRegenerating ? 'Regenerating...' : 'Re-generate' }}</span>
+              </button>
+
               <!-- Print Button (PDF/Docx/Image) -->
               <button 
                 v-if="isPdf || isDocx || isImage"
@@ -118,8 +132,8 @@
               <p class="text-xs text-slate-400 font-medium">Please wait while the document is processed.</p>
             </div>
 
-            <!-- Error State -->
-            <div v-else-if="renderError" class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center p-6">
+            <!-- Error State with Fallback Re-generate Action -->
+            <div v-else-if="renderError" class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center p-6 bg-slate-50">
               <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -127,9 +141,22 @@
               </div>
               <h4 class="text-base font-black text-slate-900">Preview Not Available</h4>
               <p class="text-xs text-slate-500 max-w-sm">{{ renderError }}</p>
-              <button @click="downloadFile" class="mt-2 px-6 py-2.5 bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer">
-                Download File Directly
-              </button>
+              <div class="flex items-center gap-2 mt-2">
+                <button 
+                  v-if="allowRegenerate"
+                  @click="emitRegenerate" 
+                  :disabled="isRegenerating"
+                  class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 disabled:opacity-50"
+                >
+                  <svg :class="{ 'animate-spin': isRegenerating }" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>{{ isRegenerating ? 'Re-generating...' : 'Re-generate Document' }}</span>
+                </button>
+                <button @click="downloadFile" class="px-5 py-2.5 bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer">
+                  Download File Directly
+                </button>
+              </div>
             </div>
 
             <!-- PDF Viewer — native browser iframe, full fidelity -->
@@ -193,7 +220,7 @@ const props = defineProps({
   },
   /**
    * A Blob for the file to display.
-   * Can be a PDF blob (from pdfmake), an image blob, or any other file blob.
+   * Can be a PDF blob (from pdfmake), a Word (.docx) blob, an image blob, or any other file blob.
    */
   fileBlob: {
     type: [Blob, Object, null],
@@ -206,9 +233,27 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  /**
+   * Enables the Re-generate fallback button in the header and error state.
+   */
+  allowRegenerate: {
+    type: Boolean,
+    default: false,
+  },
+  /**
+   * Loading state for active document re-generation.
+   */
+  isRegenerating: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(['update:isOpen', 'close', 'download']);
+const emit = defineEmits(['update:isOpen', 'close', 'download', 'regenerate']);
+
+const emitRegenerate = () => {
+  emit('regenerate');
+};
 
 const pdfIframeRef     = ref(null);
 const docxContainerRef = ref(null);

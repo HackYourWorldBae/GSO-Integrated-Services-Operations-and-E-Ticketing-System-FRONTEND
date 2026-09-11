@@ -760,6 +760,9 @@
       :title="viewerModal.title"
       :file-name="viewerModal.fileName"
       :file-blob="viewerModal.fileBlob"
+      :allow-regenerate="viewerModal.allowRegenerate"
+      :is-regenerating="viewerModal.isRegenerating"
+      @regenerate="handleRegenerateJobOrder"
       @close="viewerModal.isOpen = false"
     />
 
@@ -812,7 +815,11 @@ const viewerModal = reactive({
   title: '',
   fileName: '',
   fileBlob: null,
+  allowRegenerate: false,
+  isRegenerating: false,
 });
+
+const activeJobOrderTicket = ref(null);
 
 // Live durations tick
 const liveDurations = reactive({});
@@ -1073,12 +1080,15 @@ const handleJobCompleted = (result) => {
 
 const openJobOrderDocument = async (ticket) => {
   if (!ticket) return;
+  activeJobOrderTicket.value = ticket;
   try {
     const ticketId = ticket.ticketId || ticket.id;
     const unit = props.unitCode?.toUpperCase() || ticket.unit_code || 'FGMU';
     viewerModal.title = `${unit} Job Order (Job Request Form) - #${ticketId}`;
-    viewerModal.fileName = `${unit}_Job_Order_#${ticketId}.pdf`;
+    viewerModal.fileName = `${unit}_Job_Order_#${ticketId}.docx`;
     viewerModal.fileBlob = null;
+    viewerModal.allowRegenerate = true;
+    viewerModal.isRegenerating = false;
     viewerModal.isOpen = true;
 
     const ticketData = {
@@ -1088,19 +1098,42 @@ const openJobOrderDocument = async (ticket) => {
       ticketRef: ticket.ticket_number || ticket.reference_number || `${unit}-TIC-${ticketId}`,
     };
 
-    const blob = await generateFgmuJobRequestFormBlob(ticketData, ticket.feedback);
-    viewerModal.fileBlob = blob;
+    const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticketData, ticket.feedback);
+    viewerModal.fileBlob = docxBlob;
   } catch (err) {
-    console.warn('Job order PDF generation warning, falling back to docx preview:', err);
-    try {
-      const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticket, ticket.feedback);
-      viewerModal.fileName = `${props.unitCode?.toUpperCase() || 'FGMU'}_Job_Order_#${ticket.ticketId || ticket.id}.docx`;
-      viewerModal.fileBlob = docxBlob;
-    } catch (fallbackErr) {
-      console.error('Failed to generate Job Order document:', fallbackErr);
-      viewerModal.isOpen = false;
-      toast.error('Failed to generate Job Order document.');
-    }
+    console.error('Failed to generate Job Order document:', err);
+    viewerModal.isOpen = false;
+    toast.error('Failed to generate Job Order document: ' + (err.message || 'Template error'));
+  }
+};
+
+const handleRegenerateJobOrder = async () => {
+  if (!activeJobOrderTicket.value) return;
+  viewerModal.isRegenerating = true;
+  try {
+    toast.info('Re-generating Job Order document...');
+    const ticket = activeJobOrderTicket.value;
+    const ticketId = ticket.ticketId || ticket.id;
+    const unit = props.unitCode?.toUpperCase() || ticket.unit_code || 'FGMU';
+    
+    // Find latest ticket data from list if available
+    const latestTicket = rawTickets.value.find(t => (t.id === ticketId || t.ticketId === ticketId)) || ticket;
+    
+    const ticketData = {
+      ...latestTicket,
+      unit_code: unit,
+      unit: unit,
+      ticketRef: latestTicket.ticket_number || latestTicket.reference_number || `${unit}-TIC-${ticketId}`,
+    };
+
+    const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticketData, latestTicket.feedback);
+    viewerModal.fileBlob = docxBlob;
+    toast.success('Job Order document re-generated successfully!');
+  } catch (err) {
+    console.error('Failed to re-generate document:', err);
+    toast.error('Failed to re-generate document: ' + (err.message || 'Unknown error'));
+  } finally {
+    viewerModal.isRegenerating = false;
   }
 };
 
@@ -1115,6 +1148,7 @@ const downloadAttachment = async (att) => {
       viewerModal.title = att.file_name || 'Attachment Preview';
       viewerModal.fileName = att.file_name || 'attachment.pdf';
       viewerModal.fileBlob = blob;
+      viewerModal.allowRegenerate = false;
       viewerModal.isOpen = true;
     } else {
       const url = window.URL.createObjectURL(blob);

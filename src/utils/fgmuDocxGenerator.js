@@ -177,16 +177,21 @@ export const convertDocxBlobToPdfBlob = async (docxBlob, filename = 'FGMU_Job_Re
   const { renderAsync } = await import('docx-preview');
   const html2pdf = (await import('html2pdf.js')).default;
 
-  // Off-screen rendering container
+  // Rendering container: Must NOT use left: -99999px because html2canvas ignores / clips
+  // elements outside viewport boundaries. Instead, position it fixed at (0, 0) with opacity 0.01
+  // and pointer-events: none so it is invisible to users but has positive layout coordinates for html2canvas.
   const container = document.createElement('div');
   container.className = 'docx-pdf-render-offscreen';
   container.style.position = 'fixed';
-  container.style.left = '-99999px';
+  container.style.left = '0';
   container.style.top = '0';
   container.style.width = '816px'; // 8.5in at 96 DPI
+  container.style.minHeight = '1056px';
   container.style.background = '#ffffff';
   container.style.color = '#000000';
-  container.style.zIndex = '-9999';
+  container.style.zIndex = '-99999';
+  container.style.opacity = '0.01';
+  container.style.pointerEvents = 'none';
   document.body.appendChild(container);
 
   try {
@@ -202,6 +207,9 @@ export const convertDocxBlobToPdfBlob = async (docxBlob, filename = 'FGMU_Job_Re
       renderEndnotes: true,
     });
 
+    // Wait for docx-preview styling, layout calculations, and embedded images to settle
+    await new Promise(resolve => setTimeout(resolve, 400));
+
     const opt = {
       margin: [6, 6, 6, 6],
       filename: filename,
@@ -211,6 +219,16 @@ export const convertDocxBlobToPdfBlob = async (docxBlob, filename = 'FGMU_Job_Re
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 816,
+        onclone: (clonedDoc) => {
+          const el = clonedDoc.querySelector('.docx-pdf-render-offscreen');
+          if (el) {
+            el.style.opacity = '1';
+            el.style.zIndex = '1';
+          }
+        },
       },
       jsPDF: {
         unit: 'mm',
