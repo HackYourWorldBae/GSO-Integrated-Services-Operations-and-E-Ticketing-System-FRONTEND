@@ -1,69 +1,7 @@
 <template>
   <div class="space-y-6 pb-12 px-4 sm:px-6 lg:px-8 py-6 max-w-[1750px] mx-auto min-h-screen">
     
-    <!-- ═══ 1. Page Header & KPI Bar ═══ -->
-    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2 mb-1">
-          <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
-            {{ unitCode }} Operations
-          </span>
-          <span class="text-xs text-slate-400 font-bold">Approved Request Directory</span>
-        </div>
-        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-          {{ unitCode }} Approved Tickets
-        </h2>
-        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-          Service requests approved for implementation awaiting workforce assignment and scheduling.
-        </p>
-      </div>
-
-      <!-- Quick Metrics & Refresh Button -->
-      <div class="flex flex-wrap items-center gap-3 shrink-0">
-        <!-- Awaiting Assignment Count -->
-        <div class="flex items-center gap-2 px-3.5 py-2 bg-amber-50 border border-amber-200/80 rounded-2xl">
-          <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
-          <span class="text-xs text-slate-600 font-bold">Awaiting Assignment:</span>
-          <span class="text-xs font-black text-amber-800 tabular-nums">{{ tickets.length }}</span>
-        </div>
-
-        <!-- Emergency / Urgent Count -->
-        <div v-if="emergencyCount > 0" class="flex items-center gap-2 px-3.5 py-2 bg-rose-50 border border-rose-200/80 rounded-2xl">
-          <div class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></div>
-          <span class="text-xs text-rose-700 font-bold">Urgent / Emergency:</span>
-          <span class="text-xs font-black text-rose-800 tabular-nums">{{ emergencyCount }}</span>
-        </div>
-
-        <!-- Available Personnel Count -->
-        <div class="flex items-center gap-2 px-3.5 py-2 bg-emerald-50 border border-emerald-200/80 rounded-2xl">
-          <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-          <span class="text-xs text-slate-600 font-bold">Available Technicians:</span>
-          <span class="text-xs font-black text-emerald-800 tabular-nums">{{ availableWorkersCount }}</span>
-        </div>
-
-        <!-- Refresh Button -->
-        <button
-          type="button"
-          @click="fetchApprovedTickets"
-          :disabled="loading"
-          class="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer active:scale-95 disabled:opacity-50"
-          title="Refresh approved ticket list"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            :class="{ 'animate-spin': loading }"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- ═══ 2. Filter & Search Controls ═══ -->
+    <!-- ═══ Filter & Search Controls ═══ -->
     <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 space-y-3">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <!-- Search Input -->
@@ -86,28 +24,50 @@
           </button>
         </div>
 
-        <!-- Urgency Filter Pills -->
-        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto">
+        <div class="flex items-center gap-2.5 flex-wrap self-start sm:self-auto">
+          <!-- Urgency Filter Pills -->
+          <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold">
+            <button
+              type="button"
+              @click="urgencyFilter = 'all'"
+              :class="['px-3 py-1 rounded-lg transition-all cursor-pointer', urgencyFilter === 'all' ? 'bg-white text-slate-900 shadow-xs font-black' : 'text-slate-500 hover:text-slate-800']"
+            >
+              All ({{ tickets.length }})
+            </button>
+            <button
+              type="button"
+              @click="urgencyFilter = 'emergency'"
+              :class="['px-3 py-1 rounded-lg transition-all cursor-pointer', urgencyFilter === 'emergency' ? 'bg-rose-600 text-white shadow-xs font-black' : 'text-rose-600 hover:bg-rose-50']"
+            >
+              Emergency ({{ emergencyCount }})
+            </button>
+            <button
+              type="button"
+              @click="urgencyFilter = 'standard'"
+              :class="['px-3 py-1 rounded-lg transition-all cursor-pointer', urgencyFilter === 'standard' ? 'bg-white text-slate-900 shadow-xs font-black' : 'text-slate-500 hover:text-slate-800']"
+            >
+              Standard
+            </button>
+          </div>
+
+          <!-- Refresh Button -->
           <button
             type="button"
-            @click="urgencyFilter = 'all'"
-            :class="['px-3 py-1 rounded-lg transition-all cursor-pointer', urgencyFilter === 'all' ? 'bg-white text-slate-900 shadow-xs font-black' : 'text-slate-500 hover:text-slate-800']"
+            @click="fetchApprovedTickets"
+            :disabled="loading"
+            class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer active:scale-95 disabled:opacity-50"
+            title="Refresh approved ticket list"
           >
-            All ({{ tickets.length }})
-          </button>
-          <button
-            type="button"
-            @click="urgencyFilter = 'emergency'"
-            :class="['px-3 py-1 rounded-lg transition-all cursor-pointer', urgencyFilter === 'emergency' ? 'bg-rose-600 text-white shadow-xs font-black' : 'text-rose-600 hover:bg-rose-50']"
-          >
-            Emergency ({{ emergencyCount }})
-          </button>
-          <button
-            type="button"
-            @click="urgencyFilter = 'standard'"
-            :class="['px-3 py-1 rounded-lg transition-all cursor-pointer', urgencyFilter === 'standard' ? 'bg-white text-slate-900 shadow-xs font-black' : 'text-slate-500 hover:text-slate-800']"
-          >
-            Standard
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              :class="{ 'animate-spin': loading }"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
           </button>
         </div>
       </div>
