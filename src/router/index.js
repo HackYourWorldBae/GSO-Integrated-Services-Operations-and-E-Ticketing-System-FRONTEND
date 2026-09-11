@@ -421,7 +421,7 @@ router.beforeEach((to, from, next) => {
   // Helper: map a role and unit to its canonical landing view
   const getHomeRoute = (userRole, userUnit) => {
     if (userRole === 'superadmin') {
-      return '/superadmin/users';
+      return '/superadmin/dashboard';
     }
     if (userRole === 'admin') {
       const u = (userUnit || 'fgmu').toLowerCase();

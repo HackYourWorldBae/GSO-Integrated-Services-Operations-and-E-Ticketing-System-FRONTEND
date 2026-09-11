@@ -39,7 +39,7 @@ const handleLogin = async () => {
 
     // Redirect based on role
     if (role === 'superadmin') {
-      router.push('/superadmin/users');
+      router.push('/superadmin/dashboard');
     } else if (role === 'admin') {
       const unitId = authStore.user?.unit_id;
       const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
