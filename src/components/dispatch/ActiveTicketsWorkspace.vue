@@ -865,8 +865,12 @@ const changePage = (page) => {
 };
 
 const getInitials = (name) => {
-  if (!name) return '??';
-  return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  if (!name || name === '??') return 'U';
+  const parts = name.trim().split(' ').filter(Boolean);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
 };
 
 const formatDate = (dateStr) => {
@@ -901,11 +905,45 @@ const refreshDurations = () => {
   }
 };
 
+const mapTicket = (t) => {
+  const requesterName = t.requester 
+    || t.details?.requesting_personnel
+    || (t.user ? `${t.user.first_name || ''} ${t.user.last_name || ''}`.trim() : '')
+    || (t.first_name || t.last_name ? `${t.first_name || ''} ${t.last_name || ''}`.trim() : '')
+    || 'End User';
+
+  return {
+    ...t,
+    id: t.id,
+    ticketId: t.id,
+    title: t.title || t.project_title || t.job_description || t.description || 'Service Request',
+    service: t.service || t.service_type || t.type || 'General',
+    service_type: t.service_type || t.service || 'General',
+    type: t.service || t.service_type || t.title || t.type || 'Service Request',
+    location: t.location || t.college_building || t.details?.college_building || 'Campus Facility',
+    college_building: t.details?.college_building || t.college_building || t.location || 'Campus Facility',
+    office_room: t.details?.office_room || t.office_room,
+    source_of_fund: t.details?.source_of_fund || t.source_of_fund || 'N/A',
+    contact_number: t.contact_number || t.requester_contact || t.details?.contact_number || t.user?.contact_number || 'N/A',
+    requester: requesterName,
+    requestedBy: requesterName,
+    email: t.email || t.user?.email || '',
+    status: t.status,
+    is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency'),
+    job_description: t.description || t.job_description || t.title || '',
+    attachments: t.attachments || [],
+    submitted_at: t.submitted_at || t.created_at,
+    reviewed_at: t.reviewed_at || t.approved_at,
+    assignment: t.assignment || (t.assignments && t.assignments[0]) || null,
+  };
+};
+
 const fetchActiveTickets = async () => {
   loading.value = true;
   try {
     const res = await api.get(`/tickets/active/${props.unitCode}`);
-    rawTickets.value = res.data.data.tickets || [];
+    const rawData = res.data?.data?.tickets || res.data?.data || [];
+    rawTickets.value = Array.isArray(rawData) ? rawData.map(mapTicket) : [];
     refreshDurations();
   } catch (err) {
     console.error(`Failed to load ${props.unitCode} active tickets:`, err);
