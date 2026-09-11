@@ -62,55 +62,89 @@
 
       <!-- Bottom Row: Scheduling & Turnaround Configuration Controls -->
       <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-        <!-- Implementation Date Picker with VueDatePicker -->
-        <div class="flex items-center gap-3 bg-white/5 p-3.5 rounded-2xl border border-white/10 hover:border-emerald-400/50 transition-all">
-          <div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
+        <!-- Implementation Date Picker Card -->
+        <div
+          @click="openDatePicker"
+          class="flex items-center justify-between gap-3.5 bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-emerald-400/50 hover:bg-white/[0.08] transition-all cursor-pointer group select-none"
+        >
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-11 h-11 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30 group-hover:scale-105 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div class="flex flex-col min-w-0">
+              <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer">
+                Implementation Date <span class="text-rose-400">*</span>
+              </span>
+              <p class="text-base sm:text-lg font-black text-white group-hover:text-emerald-300 transition-colors truncate mt-0.5">
+                {{ formattedDateDisplay }}
+              </p>
+            </div>
           </div>
-          <div class="flex flex-col flex-1 min-w-0">
-            <label class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer mb-0.5">
-              Implementation Date <span class="text-rose-400">*</span>
-            </label>
-            <VueDatePicker
-              v-model="implementationDate"
-              model-type="yyyy-MM-dd"
-              :min-date="new Date()"
-              :format="friendlyDateFormat"
-              :auto-apply="true"
-              :enable-time-picker="false"
-              :teleport="true"
-              :dark="true"
-              placeholder="Select Implementation Date"
-              class="custom-datepicker"
+
+          <!-- Clickable Calendar Trigger Button -->
+          <div class="flex items-center gap-2 shrink-0">
+            <input
+              ref="datePickerInput"
+              type="text"
+              class="sr-only pointer-events-none"
+              tabindex="-1"
+              aria-hidden="true"
             />
+            <div
+              class="px-3.5 py-2 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>Change</span>
+            </div>
           </div>
         </div>
 
-        <!-- Target Working Days -->
-        <div class="flex items-center gap-3 bg-white/5 p-3.5 rounded-2xl border border-white/10 hover:border-emerald-400/50 transition-all">
-          <div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div class="flex flex-col flex-1 min-w-0">
-            <label for="sched-days" class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer">
-              Target Working Days <span class="text-rose-400">*</span>
-            </label>
-            <div class="flex items-center gap-2 mt-0.5">
-              <input
-                id="sched-days"
-                type="number"
-                min="1"
-                max="90"
-                v-model="workingDays"
-                placeholder="e.g. 5"
-                class="bg-transparent text-white text-sm font-black outline-none w-20 placeholder:text-slate-500"
-              />
-              <span class="text-xs font-bold text-slate-400">working days</span>
+        <!-- Target Working Days Card (Emphasized Number, No 'working days' Label) -->
+        <div class="flex items-center justify-between gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-emerald-400/40 transition-all">
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-11 h-11 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
+            <div class="flex flex-col min-w-0">
+              <label for="sched-days" class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer">
+                Target Working Days <span class="text-rose-400">*</span>
+              </label>
+              <span class="text-[11px] text-slate-400 font-medium">Estimated project turnaround</span>
+            </div>
+          </div>
+
+          <!-- Emphasized Number with Steppers -->
+          <div class="flex items-center gap-1.5 bg-white/10 p-1.5 rounded-xl border border-white/10 shrink-0">
+            <button
+              type="button"
+              @click="workingDays = Math.max(1, Number(workingDays || 1) - 1)"
+              class="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 select-none"
+              title="Decrease days"
+            >
+              −
+            </button>
+            <input
+              id="sched-days"
+              type="number"
+              min="1"
+              max="90"
+              v-model.number="workingDays"
+              class="w-16 text-center bg-transparent text-2xl sm:text-3xl font-black text-white outline-none font-mono selection:bg-emerald-500"
+            />
+            <button
+              type="button"
+              @click="workingDays = Math.min(90, Number(workingDays || 0) + 1)"
+              class="w-9 h-9 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 shadow-xs select-none"
+              title="Increase days"
+            >
+              +
+            </button>
           </div>
         </div>
       </div>
@@ -636,12 +670,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
-import { VueDatePicker } from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.css';
+import 'flatpickr/dist/themes/dark.css';
 
 const props = defineProps({
   unitCode: {
@@ -675,35 +710,90 @@ const isEmergency = ref(false);
 const pauseCurrentTask = ref(false);
 const taskNotes = ref('');
 
-// User-friendly date formatter: shows weekday name, month name, day, and year
-const friendlyDateFormat = (date) => {
-  if (!date) return '';
+// Flatpickr ref and instance
+const datePickerInput = ref(null);
+let fpInstance = null;
+
+// User-preferred date format: "month name (abbrevated), day, year, weekday name"
+// e.g. "Sep 11, 2026, Friday"
+const formattedDateDisplay = computed(() => {
+  if (!implementationDate.value) return 'Select Implementation Date';
   let d;
-  if (date instanceof Date) {
-    d = date;
-  } else if (typeof date === 'string') {
-    const parts = date.split('-');
+  if (implementationDate.value instanceof Date) {
+    d = implementationDate.value;
+  } else if (typeof implementationDate.value === 'string') {
+    const parts = implementationDate.value.split('-');
     if (parts.length === 3) {
-      const year = Number(parts[0]);
-      const month = Number(parts[1]) - 1;
-      const day = Number(parts[2]);
-      d = new Date(year, month, day);
+      d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
     } else {
-      d = new Date(date);
+      d = new Date(implementationDate.value);
     }
   } else {
-    d = new Date(date);
+    d = new Date(implementationDate.value);
   }
 
-  if (isNaN(d.getTime())) return String(date);
+  if (isNaN(d.getTime())) return String(implementationDate.value);
 
-  return d.toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
+  const monthShort = d.toLocaleDateString('en-US', { month: 'short' });
+  const day = d.getDate();
+  const year = d.getFullYear();
+  const weekday = d.toLocaleDateString('en-US', { weekday: 'long' });
+
+  return `${monthShort} ${day}, ${year}, ${weekday}`;
+});
+
+const initDatePicker = () => {
+  if (!datePickerInput.value) return;
+  if (fpInstance) {
+    fpInstance.destroy();
+  }
+  fpInstance = flatpickr(datePickerInput.value, {
+    minDate: 'today',
+    dateFormat: 'Y-m-d',
+    defaultDate: implementationDate.value || todayIsoDate,
+    position: 'auto center',
+    disableMobile: true,
+    onChange: (selectedDates, dateStr) => {
+      if (dateStr) {
+        implementationDate.value = dateStr;
+      }
+    },
   });
 };
+
+const openDatePicker = () => {
+  if (fpInstance) {
+    fpInstance.open();
+  } else {
+    initDatePicker();
+    fpInstance?.open();
+  }
+};
+
+watch(selectedTicket, async (ticket) => {
+  if (ticket) {
+    await nextTick();
+    initDatePicker();
+  } else {
+    if (fpInstance) {
+      fpInstance.destroy();
+      fpInstance = null;
+    }
+  }
+});
+
+watch(implementationDate, (newVal) => {
+  if (fpInstance && newVal) {
+    fpInstance.setDate(newVal, false);
+  }
+});
+
+onUnmounted(() => {
+  if (fpInstance) {
+    fpInstance.destroy();
+    fpInstance = null;
+  }
+});
 
 // Personnel filter state
 const personnelSearch = ref('');
@@ -977,95 +1067,122 @@ onMounted(async () => {
 @keyframes scale-up { from { opacity: 0; transform: scale(0.97) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 .animate-scale-up { animation: scale-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-/* Custom Dark Theme Styles for VueDatePicker in Dispatch Workspace */
-:deep(.dp__theme_dark) {
-  --dp-background-color: #0f172a;
-  --dp-text-color: #f8fafc;
-  --dp-hover-color: #1e293b;
-  --dp-hover-text-color: #ffffff;
-  --dp-hover-icon-color: #ffffff;
-  --dp-primary-color: #10b981;
-  --dp-primary-text-color: #ffffff;
-  --dp-secondary-color: #94a3b8;
-  --dp-border-color: #334155;
-  --dp-menu-border-color: #334155;
-  --dp-border-color-hover: #10b981;
-  --dp-disabled-color: #475569;
-  --dp-scroll-bar-background: #1e293b;
-  --dp-scroll-bar-color: #475569;
-  --dp-success-color: #10b981;
-  --dp-icon-color: #10b981;
-  --dp-danger-color: #f43f5e;
-  --dp-border-radius: 1rem;
-  --dp-font-family: inherit;
-}
-
-:deep(.custom-datepicker) {
-  width: 100%;
-}
-
-:deep(.custom-datepicker .dp__input_wrap) {
-  width: 100%;
-}
-
-:deep(.custom-datepicker .dp__input) {
-  background: transparent !important;
-  border: none !important;
-  color: #ffffff !important;
-  font-size: 0.875rem !important;
-  font-weight: 800 !important;
-  padding: 0.125rem 0 !important;
-  height: auto !important;
-  line-height: 1.25rem !important;
-  box-shadow: none !important;
-  cursor: pointer !important;
-  font-family: inherit !important;
-}
-
-:deep(.custom-datepicker .dp__input:hover) {
-  color: #6ee7b7 !important;
-}
-
-:deep(.custom-datepicker .dp__input_icon) {
-  display: none !important;
-}
-
-:deep(.custom-datepicker .dp__clear_icon) {
-  display: none !important;
-}
-
-:deep(.custom-datepicker .dp__input_focus) {
-  border: none !important;
-  outline: none !important;
-}
-
-:deep(.dp__menu) {
-  border-radius: 1.25rem !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+/* Custom High-Contrast Dark & Emerald Flatpickr Styling */
+:deep(.flatpickr-calendar) {
+  background: #0f172a !important;
   border: 1px solid #334155 !important;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
   padding: 0.75rem !important;
+  font-family: inherit !important;
   z-index: 99999 !important;
+  width: 320px !important;
 }
 
-:deep(.dp__calendar_header_item) {
-  font-size: 0.75rem !important;
+:deep(.flatpickr-calendar.arrowTop:before),
+:deep(.flatpickr-calendar.arrowTop:after) {
+  border-bottom-color: #0f172a !important;
+}
+
+:deep(.flatpickr-calendar.arrowBottom:before),
+:deep(.flatpickr-calendar.arrowBottom:after) {
+  border-top-color: #0f172a !important;
+}
+
+:deep(.flatpickr-months) {
+  padding-bottom: 0.5rem !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+:deep(.flatpickr-months .flatpickr-month) {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  height: 38px !important;
+}
+
+:deep(.flatpickr-current-month) {
+  font-size: 1rem !important;
   font-weight: 800 !important;
+  padding-top: 0.25rem !important;
+}
+
+:deep(.flatpickr-current-month .cur-month) {
+  font-weight: 800 !important;
+  color: #f8fafc !important;
+}
+
+:deep(.flatpickr-current-month input.cur-year) {
+  font-weight: 800 !important;
+  color: #34d399 !important;
+}
+
+:deep(.flatpickr-months .flatpickr-prev-month),
+:deep(.flatpickr-months .flatpickr-next-month) {
+  fill: #10b981 !important;
+  color: #10b981 !important;
+  padding: 0.5rem !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.15s ease !important;
+}
+
+:deep(.flatpickr-months .flatpickr-prev-month:hover),
+:deep(.flatpickr-months .flatpickr-next-month:hover) {
+  background: #1e293b !important;
+}
+
+:deep(.flatpickr-months .flatpickr-prev-month svg),
+:deep(.flatpickr-months .flatpickr-next-month svg) {
+  fill: #34d399 !important;
+}
+
+:deep(.flatpickr-weekdays) {
+  height: 32px !important;
+  margin-top: 0.25rem !important;
+}
+
+:deep(span.flatpickr-weekday) {
   color: #94a3b8 !important;
+  font-weight: 800 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
 }
 
-:deep(.dp__cell_inner) {
-  border-radius: 0.75rem !important;
-  font-weight: 700 !important;
-  font-size: 0.8125rem !important;
+:deep(.flatpickr-day) {
+  border-radius: 0.625rem !important;
+  color: #f1f5f9 !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  height: 38px !important;
+  line-height: 38px !important;
+  transition: all 0.15s ease !important;
+  border: 1px solid transparent !important;
 }
 
-:deep(.dp__active_date) {
+:deep(.flatpickr-day:hover) {
+  background: #1e293b !important;
+  color: #34d399 !important;
+  border-color: #334155 !important;
+}
+
+:deep(.flatpickr-day.today) {
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+  font-weight: 800 !important;
+}
+
+:deep(.flatpickr-day.selected),
+:deep(.flatpickr-day.selected:hover) {
   background: #059669 !important;
+  border-color: #10b981 !important;
   color: #ffffff !important;
   font-weight: 900 !important;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4) !important;
 }
 
-:deep(.dp__today) {
-  border: 1px solid #10b981 !important;
+:deep(.flatpickr-day.flatpickr-disabled),
+:deep(.flatpickr-day.flatpickr-disabled:hover) {
+  color: #475569 !important;
+  cursor: not-allowed !important;
+  background: transparent !important;
 }
 </style>
