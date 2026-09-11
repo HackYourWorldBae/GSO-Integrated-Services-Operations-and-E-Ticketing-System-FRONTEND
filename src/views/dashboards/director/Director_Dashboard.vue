@@ -135,7 +135,7 @@
           </div>
 
           <!-- Executive KPI Cards Grid (Consolidated Overview) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 lg:gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
             <!-- 1. Total Requests Filed -->
             <div class="p-6 sm:p-7 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col justify-between min-h-[160px]">
               <div class="flex items-center justify-between gap-2 mb-4">
@@ -184,31 +184,7 @@
               </p>
             </div>
 
-            <!-- 4. Total Worth of Materials Used -->
-            <router-link
-              to="/director/materials"
-              class="group p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[160px] hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer"
-            >
-              <div class="flex items-center justify-between gap-2 mb-4">
-                <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600 group-hover:text-emerald-700 transition-colors flex items-center gap-1.5">
-                  <span>Materials Used Worth</span>
-                  <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                </span>
-                <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-black">
-                  {{ executiveAnalytics?.materials_summary?.total_records || 0 }} Items
-                </span>
-              </div>
-              <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
-                ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.total_worth) }}
-              </div>
-              <div class="flex items-center justify-between text-xs font-bold text-slate-500">
-                <span>FGMU: ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.by_unit?.FGMU?.total_worth) }}</span>
-                <span class="text-slate-300">•</span>
-                <span>LEAU: ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.by_unit?.LEAU?.total_worth) }}</span>
-              </div>
-            </router-link>
-
-            <!-- 5. Client Satisfaction Rating -->
+            <!-- 4. Client Satisfaction Rating -->
             <div class="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[160px]">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600">Client Satisfaction Score</span>
@@ -403,13 +379,7 @@ import api from '@/api/client';
 const executiveAnalytics = ref(null);
 const isGeneratingPdf = ref(false);
 
-// Format currency helper
-const formatCurrency = (val) => {
-  return Number(val || 0).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
+
 
 // Date / Period Controls
 const currentYear = new Date().getFullYear();
