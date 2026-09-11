@@ -51,181 +51,116 @@
     </template>
 
     <template #main-content>
-      <div class="space-y-6 animate-fade-in relative pb-12">
+      <div class="space-y-4 animate-fade-in relative pb-12">
 
-        <!-- Stage Navigation Tabs (Adviser Scenario: Unit Head monitoring all ticket stages) -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-2 shadow-xs">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <!-- Tab 1: Pending Approval -->
+        <!-- ═══ Unified Compact Toolbar: Tabs + Search + Filter ═══ -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
+          <!-- Top row: Stage Tabs -->
+          <div class="flex items-center gap-1 p-1.5 border-b border-slate-100">
             <button
               @click="switchTab('pending')"
               :class="[
-                'flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200',
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer',
                 activeTab === 'pending'
-                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>1. Pending Approval</span>
-              <span
-                :class="[
-                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                  activeTab === 'pending' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
-                ]"
-              >
-                {{ queueCounts.pending }}
-              </span>
+              <span>Pending</span>
+              <span :class="['px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none', activeTab === 'pending' ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-800']">{{ queueCounts.pending }}</span>
             </button>
-
-            <!-- Tab 2: Approved (Awaiting Dispatch) -->
             <button
               @click="switchTab('approved')"
               :class="[
-                'flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200',
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer',
                 activeTab === 'approved'
-                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>2. Approved (Awaiting Dispatch)</span>
-              <span
-                :class="[
-                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                  activeTab === 'approved' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800'
-                ]"
-              >
-                {{ queueCounts.approved }}
-              </span>
+              <span>Approved</span>
+              <span :class="['px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none', activeTab === 'approved' ? 'bg-white/25 text-white' : 'bg-blue-100 text-blue-800']">{{ queueCounts.approved }}</span>
             </button>
-
-            <!-- Tab 3: Dispatched & In Progress -->
             <button
               @click="switchTab('active')"
               :class="[
-                'flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200',
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer',
                 activeTab === 'active'
-                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span>3. Dispatched & In Progress</span>
-              <span
-                :class="[
-                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                  activeTab === 'active' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
-                ]"
+              <span>In Progress</span>
+              <span :class="['px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none', activeTab === 'active' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800']">{{ queueCounts.active }}</span>
+            </button>
+          </div>
+
+          <!-- Bottom row: Search + Filter + Refresh -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
+            <!-- Search -->
+            <div class="relative flex-1">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                v-model="searchQuery"
+                @input="currentPage = 1"
+                type="text"
+                placeholder="Search tickets..."
+                class="w-full pl-8 pr-8 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 focus:bg-white transition-all"
+              />
+              <button
+                v-if="searchQuery"
+                @click="searchQuery = ''; currentPage = 1"
+                class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600"
               >
-                {{ queueCounts.active }}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Controls: Search & Filters -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-          <!-- Search input -->
-          <div class="relative flex-1">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-            <input
-              v-model="searchQuery"
-              @input="currentPage = 1"
-              type="text"
-              placeholder="Search by ticket ID, requester, service, or location..."
-              class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 focus:bg-white transition-all"
-            />
-            <button
-              v-if="searchQuery"
-              @click="searchQuery = ''; currentPage = 1"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Service Filter & Refresh -->
-          <div class="flex items-center gap-2 shrink-0">
+            <!-- Service Filter -->
             <select
               v-model="selectedServiceFilter"
               @change="currentPage = 1"
-              class="px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-amber-500 transition-all"
+              class="px-2.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-amber-500 transition-all shrink-0"
             >
               <option value="">All Services</option>
-              <option v-for="service in serviceCategories" :key="service" :value="service">
-                {{ service }}
-              </option>
+              <option v-for="service in serviceCategories" :key="service" :value="service">{{ service }}</option>
             </select>
-
+            <!-- Refresh -->
             <button
               @click="fetchAllQueues"
               :disabled="isLoading"
-              class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center disabled:opacity-50"
-              title="Refresh Queues"
+              class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0"
+              title="Refresh queue"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="{ 'animate-spin': isLoading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="{ 'animate-spin': isLoading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
           </div>
         </div>
 
-        <!-- Queue Interaction & Full Info Instruction Banner -->
-        <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-50 via-amber-50/50 to-slate-50 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
-              </svg>
-            </div>
-            <div class="leading-relaxed">
-              <span class="font-black text-slate-900 uppercase tracking-wider">Queue Instruction:</span>
-              <span class="text-slate-600 font-medium ml-1.5">Hover and click any ticket row or card below to pop up the full ticket details, review damage photos, and manage request actions.</span>
-            </div>
-          </div>
-          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold shrink-0 self-start sm:self-auto shadow-2xs">
-            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            <span>Click Ticket = Full Info Modal</span>
-          </div>
-        </div>
+
 
         <!-- ======================= DESKTOP TABULAR VIEW ======================= -->
-        <div class="hidden md:block bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="overflow-x-auto lg:overflow-x-visible">
+        <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
-                  <th class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Ticket Reference</th>
-                  <th v-if="activeTab !== 'active'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Requester</th>
-                  <th class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Job Particular & Nature of Work</th>
-                  
-                  <!-- Dynamic Columns Based on Tab -->
-                  <th v-if="activeTab === 'pending'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Location / Room</th>
-                  <th v-if="activeTab === 'pending'" class="px-2 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500 text-center">Files</th>
-                  
-                  <th v-if="activeTab === 'approved'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Approved Date</th>
-                  
-                  <th v-if="activeTab === 'active'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Assigned Staff</th>
-                  <th v-if="activeTab === 'active'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Target Schedule</th>
-                  <th v-if="activeTab === 'active'" class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500">Working Time</th>
-
-                  <th class="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-500 text-right">Actions</th>
+                  <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
+                  <th v-if="activeTab !== 'active'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
+                  <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Job / Service</th>
+                  <th v-if="activeTab === 'pending'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
+                  <th v-if="activeTab === 'pending'" class="px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">Files</th>
+                  <th v-if="activeTab === 'approved'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Approved</th>
+                  <th v-if="activeTab === 'active'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Staff / Schedule</th>
+                  <th v-if="activeTab === 'active'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Working Time</th>
+                  <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -265,110 +200,74 @@
                   @click="openDetailsModal(ticket)"
                 >
                   <!-- Ticket Reference -->
-                  <td class="px-3 py-3 whitespace-nowrap relative">
-                    <!-- Row Hover Accent Indicator -->
-                    <span class="absolute left-0 top-2.5 bottom-2.5 w-1.5 rounded-r-md bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
-                    
-                    <div class="relative inline-flex flex-col">
-                      <div class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-100 inline-flex items-center group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all duration-150 shadow-2xs">
+                  <td class="px-4 py-2.5 whitespace-nowrap relative">
+                    <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
+                    <div class="relative inline-flex">
+                      <div class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-100 inline-flex items-center group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all duration-150">
                         #{{ ticket.ticketId }}
                       </div>
-                      <!-- Hover tooltip: absolutely positioned so it never expands column width -->
-                      <span class="absolute left-full top-1/2 -translate-y-1/2 ml-1.5 opacity-0 group-hover:opacity-100 transition-all duration-150 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-xs pointer-events-none whitespace-nowrap z-10 transform -translate-x-1 group-hover:translate-x-0">
-                        <svg class="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                        </svg>
+                      <!-- Hover tooltip -->
+                      <span class="absolute left-full top-1/2 -translate-y-1/2 ml-1.5 opacity-0 group-hover:opacity-100 transition-all duration-150 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-xs pointer-events-none whitespace-nowrap z-10 -translate-x-1 group-hover:translate-x-0">
+                        <svg class="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         Click for full info
                       </span>
                     </div>
-                    <div class="text-[11px] font-medium text-slate-400 mt-1 flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {{ ticket.date }}
-                    </div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">{{ ticket.date }}</div>
                   </td>
 
-                  <!-- Requester (For Pending & Approved) -->
-                  <td v-if="activeTab !== 'active'" class="px-3 py-3 max-w-[140px]">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0">
+                  <!-- Requester -->
+                  <td v-if="activeTab !== 'active'" class="px-3 py-2.5">
+                    <div class="flex items-center gap-2">
+                      <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
                         {{ getInitials(ticket.requestedBy) }}
                       </div>
-                      <div>
-                        <div class="text-xs font-bold text-slate-800 leading-tight truncate">{{ ticket.requestedBy }}</div>
-                        <div class="text-[10px] text-slate-400 font-medium">
-                          {{ ticket.email || (ticket.student_id_number ? `ID: ${ticket.student_id_number}` : 'Requester') }}
-                        </div>
-                      </div>
+                      <span class="text-xs font-semibold text-slate-800 truncate max-w-[120px]">{{ ticket.requestedBy }}</span>
                     </div>
                   </td>
 
-                  <!-- Job Particular & Nature of Work -->
-                  <td class="px-3 py-3 max-w-[180px]">
-                    <div class="text-xs font-bold text-slate-900 leading-snug line-clamp-1 max-w-xs" :title="ticket.description || ticket.title">
-                      {{ ticket.description || ticket.title || 'No particulars specified' }}
-                    </div>
-                    <div class="text-[11px] text-slate-500 line-clamp-1 max-w-xs mt-0.5 font-normal">
-                      {{ ticket.service || 'General Service' }}
-                    </div>
+                  <!-- Job / Service -->
+                  <td class="px-3 py-2.5 max-w-[200px]">
+                    <div class="text-xs font-semibold text-slate-900 line-clamp-1" :title="ticket.description || ticket.title">{{ ticket.description || ticket.title || '—' }}</div>
+                    <div class="text-[10px] text-amber-700 font-bold mt-0.5">{{ ticket.service || 'General' }}</div>
                   </td>
 
-                  <!-- Tab 1 Specific: Location & Room -->
-                  <td v-if="activeTab === 'pending'" class="px-3 py-3 whitespace-nowrap">
-                    <div class="text-xs font-bold text-slate-700">
-                      {{ ticket.location || 'Main Campus' }}
-                    </div>
-                    <div class="text-[11px] text-slate-400 font-medium">
-                      {{ ticket.office_room ? `Room: ${ticket.office_room}` : 'No room specified' }}
-                    </div>
+                  <!-- Pending: Location -->
+                  <td v-if="activeTab === 'pending'" class="px-3 py-2.5 whitespace-nowrap">
+                    <div class="text-xs font-semibold text-slate-700">{{ ticket.location || 'Main Campus' }}</div>
+                    <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
                   </td>
 
-                  <!-- Tab 1 Specific: Files -->
-                  <td v-if="activeTab === 'pending'" class="px-2 py-3 whitespace-nowrap text-center">
+                  <!-- Pending: Files -->
+                  <td v-if="activeTab === 'pending'" class="px-2 py-2.5 text-center">
                     <span
                       v-if="ticket.attachments && ticket.attachments.length > 0"
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200 hover:bg-amber-50 hover:text-amber-700 transition-colors"
+                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200 hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer"
                       @click.stop="openDetailsModal(ticket)"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                      </svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
                       {{ ticket.attachments.length }}
                     </span>
-                    <span v-else class="text-[10px] text-slate-300 font-medium">—</span>
+                    <span v-else class="text-[10px] text-slate-300">—</span>
                   </td>
 
-                  <!-- Tab 2 Specific: Approved Date & Status -->
-                  <td v-if="activeTab === 'approved'" class="px-3 py-3 whitespace-nowrap">
-                    <div class="text-xs font-bold text-slate-700">{{ ticket.reviewed_at ? formatDate(ticket.reviewed_at) : ticket.date }}</div>
+                  <!-- Approved: Date -->
+                  <td v-if="activeTab === 'approved'" class="px-3 py-2.5 whitespace-nowrap">
+                    <div class="text-xs font-semibold text-slate-700">{{ ticket.reviewed_at ? formatDate(ticket.reviewed_at) : ticket.date }}</div>
                   </td>
 
-                  <!-- Tab 3 Specific: Assigned Worker, Target Schedule, Working Hours -->
-                  <td v-if="activeTab === 'active'" class="px-3 py-3 whitespace-nowrap">
-                    <div class="text-xs font-bold text-slate-800">{{ ticket.assignment?.personnel_name || 'Assigned Worker' }}</div>
-                    <div class="text-[10px] text-slate-400 font-medium">Technician</div>
-                  </td>
-                  <td v-if="activeTab === 'active'" class="px-3 py-3 whitespace-nowrap">
-                    <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <span>{{ formatDate(ticket.effective_target_date || ticket.assignment?.implementation_date) }}</span>
-                      <span v-if="ticket.extension_days > 0" class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[9px] font-black uppercase tracking-wider border border-amber-200">
-                        +{{ ticket.extension_days }}d Ext
-                      </span>
-                    </div>
-                    <div class="text-[10px] text-slate-400">
-                      {{ ticket.working_days ? `${ticket.working_days} Target Working Day(s)` : 'Scheduled' }}
+                  <!-- Active: Staff + Schedule (merged) -->
+                  <td v-if="activeTab === 'active'" class="px-3 py-2.5 whitespace-nowrap">
+                    <div class="text-xs font-semibold text-slate-800">{{ ticket.assignment?.personnel_name || '—' }}</div>
+                    <div class="text-[10px] text-slate-400 flex items-center gap-1">
+                      {{ formatDate(ticket.effective_target_date || ticket.assignment?.implementation_date) }}
+                      <span v-if="ticket.extension_days > 0" class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[9px] font-black">+{{ ticket.extension_days }}d</span>
                     </div>
                   </td>
-                  <td v-if="activeTab === 'active'" class="px-3 py-3 whitespace-nowrap">
-                    <div class="text-xs font-black text-slate-900 flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>{{ liveWorkingDurations[ticket.id] || ticket.computed_working_duration || 'Counting...' }}</span>
-                    </div>
-                    <div class="text-[9px] font-bold text-amber-700">Standard Work Hours Only</div>
+
+                  <!-- Active: Working Time -->
+                  <td v-if="activeTab === 'active'" class="px-3 py-2.5 whitespace-nowrap">
+                    <div class="text-xs font-bold text-slate-900">{{ liveWorkingDurations[ticket.id] || ticket.computed_working_duration || 'Counting...' }}</div>
+                    <div class="text-[9px] text-amber-600 font-semibold">Work hrs only</div>
                   </td>
 
                   <!-- Actions -->
@@ -478,88 +377,55 @@
         </div>
 
         <!-- ======================= MOBILE CARDS VIEW ======================= -->
-        <div class="md:hidden space-y-3">
-          <div v-if="isLoading && currentTabTickets.length === 0" class="text-center py-12 bg-white rounded-3xl border border-slate-200 p-6">
-            <svg class="animate-spin h-6 w-6 text-amber-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+        <div class="md:hidden space-y-2">
+          <div v-if="isLoading && currentTabTickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
+            <svg class="animate-spin h-5 w-5 text-amber-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <p class="text-xs font-bold text-slate-500">Loading tickets...</p>
+            <p class="text-xs font-bold text-slate-400">Loading...</p>
           </div>
 
-          <div v-else-if="paginatedTickets.length === 0" class="text-center py-12 bg-white rounded-3xl border border-slate-200 p-6">
-            <p class="text-sm font-bold text-slate-700">No Tickets in {{ activeTabLabel }}</p>
-            <p class="text-xs text-slate-400 mt-1">No matching tickets found.</p>
+          <div v-else-if="paginatedTickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
+            <p class="text-sm font-bold text-slate-600">No Tickets in {{ activeTabLabel }}</p>
+            <p class="text-xs text-slate-400 mt-1">No matching records found.</p>
           </div>
 
           <div
             v-for="ticket in paginatedTickets"
             :key="ticket.id"
-            class="bg-white rounded-2xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50/20 hover:shadow-md transition-all cursor-pointer p-4 space-y-3 group active:scale-[0.99]"
+            class="bg-white rounded-xl border border-slate-200 hover:border-amber-400 hover:shadow-sm transition-all cursor-pointer p-3.5 group active:scale-[0.99]"
             @click="openDetailsModal(ticket)"
           >
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+            <!-- Header row: ID + requester + date -->
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 group-hover:bg-amber-600 group-hover:text-white transition-colors shrink-0">
                   #{{ ticket.ticketId }}
                 </span>
-                <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60 flex items-center gap-1">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                  Tap for full info
-                </span>
+                <span class="text-xs font-semibold text-slate-700 truncate">{{ ticket.requestedBy }}</span>
               </div>
-              <span class="text-[10px] font-bold text-slate-400">{{ ticket.date }}</span>
+              <span class="text-[10px] text-slate-400 shrink-0">{{ ticket.date }}</span>
             </div>
 
-            <div>
-              <p class="text-xs font-bold text-slate-900 leading-snug line-clamp-2">{{ ticket.description || ticket.title }}</p>
+            <!-- Description + service -->
+            <div class="mt-2">
+              <p class="text-xs font-semibold text-slate-800 line-clamp-1">{{ ticket.description || ticket.title }}</p>
               <p class="text-[11px] text-amber-600 font-bold mt-0.5">{{ ticket.service }}</p>
             </div>
 
-            <div class="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
-              <span class="font-medium">Requester:</span>
-              <strong class="text-slate-800">{{ ticket.requestedBy }}</strong>
+            <!-- Active tab: worker + hours inline -->
+            <div v-if="activeTab === 'active'" class="mt-2 flex items-center justify-between text-[11px] text-slate-600">
+              <span>{{ ticket.assignment?.personnel_name || 'Unassigned' }}</span>
+              <strong class="text-amber-700">{{ liveWorkingDurations[ticket.id] || 'Counting...' }}</strong>
             </div>
 
-            <div v-if="activeTab === 'active'" class="text-[11px] text-slate-600 bg-amber-50/50 p-2.5 rounded-xl border border-amber-100 space-y-1">
-              <div class="flex items-center justify-between">
-                <span>Worker:</span>
-                <strong class="text-slate-800">{{ ticket.assignment?.personnel_name || 'Assigned' }}</strong>
-              </div>
-              <div class="flex items-center justify-between">
-                <span>Working Hours:</span>
-                <strong class="text-amber-700">{{ liveWorkingDurations[ticket.id] || 'Counting...' }}</strong>
-              </div>
-            </div>
-
-            <div class="pt-2 border-t border-slate-100 flex items-center justify-end gap-2" @click.stop>
-              <button
-                v-if="activeTab === 'pending'"
-                @click="openDeclineModal(ticket)"
-                class="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 text-xs font-bold"
-              >
-                Decline
-              </button>
-              <button
-                v-if="activeTab === 'pending'"
-                @click="initiateApproval(ticket)"
-                class="px-4 py-1.5 rounded-xl bg-amber-600 text-white text-xs font-black uppercase tracking-wider"
-              >
-                Approve
-              </button>
-              <button
-                v-if="activeTab === 'active'"
-                @click="openExtensionModal(ticket)"
-                class="px-3 py-1.5 rounded-xl bg-amber-600 text-white text-xs font-black uppercase tracking-wider"
-              >
-                Extend
-              </button>
-              <button
-                @click="openDetailsModal(ticket)"
-                class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold"
-              >
-                Details
-              </button>
+            <!-- Actions -->
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end gap-2" @click.stop>
+              <button v-if="activeTab === 'pending'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 rounded-lg border border-rose-200 text-rose-600 text-xs font-bold">Decline</button>
+              <button v-if="activeTab === 'pending'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 rounded-lg bg-amber-600 text-white text-xs font-black uppercase tracking-wider">Approve</button>
+              <button v-if="activeTab === 'active'" @click="openExtensionModal(ticket)" class="px-3 py-1.5 rounded-lg bg-amber-600 text-white text-xs font-black uppercase tracking-wider">Extend</button>
+              <button @click="openDetailsModal(ticket)" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-bold">Details</button>
             </div>
           </div>
         </div>
