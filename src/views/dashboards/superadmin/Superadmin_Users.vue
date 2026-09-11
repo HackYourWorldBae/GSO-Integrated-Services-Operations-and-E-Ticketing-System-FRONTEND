@@ -130,18 +130,32 @@
               <!-- Card Actions -->
               <div class="pt-4 border-t border-slate-100 mt-4 flex items-center gap-2">
                 <button
+                  type="button"
                   @click="openInspectModal(user)"
                   class="flex-1 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5"
                 >
                   Inspect & Verify
                 </button>
                 <button
+                  type="button"
+                  :disabled="isActionLoading"
                   @click="handleApproveVerification(user)"
-                  class="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors border border-emerald-200"
+                  class="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors border border-emerald-200 disabled:opacity-50"
                   title="Quick Approve"
                 >
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  :disabled="isActionLoading"
+                  @click="handleRejectVerification(user)"
+                  class="p-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors border border-rose-200 disabled:opacity-50"
+                  title="Quick Reject"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
@@ -309,7 +323,16 @@
                   <!-- Verification Column -->
                   <td class="py-3.5 px-3">
                     <span 
-                      v-if="user.is_verified" 
+                      v-if="user.status === 'Rejected'" 
+                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200"
+                    >
+                      <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Rejected
+                    </span>
+                    <span 
+                      v-else-if="isUserVerified(user)" 
                       class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"
                     >
                       <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -389,7 +412,13 @@
                     {{ user.role }}
                   </span>
                   <span 
-                    v-if="user.is_verified" 
+                    v-if="user.status === 'Rejected'" 
+                    class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200"
+                  >
+                    Rejected
+                  </span>
+                  <span 
+                    v-else-if="isUserVerified(user)" 
                     class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"
                   >
                     Verified
@@ -724,8 +753,11 @@
             </div>
             <div class="col-span-2">
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Verification Status</p>
-              <p class="font-bold mt-0.5" :class="inspectingUser.is_verified ? 'text-emerald-700' : 'text-amber-600'">
-                {{ inspectingUser.is_verified ? 'Verified' : 'Pending Verification' }}
+              <p 
+                class="font-bold mt-0.5" 
+                :class="inspectingUser.status === 'Rejected' ? 'text-rose-600' : (isUserVerified(inspectingUser) ? 'text-emerald-700' : 'text-amber-600')"
+              >
+                {{ inspectingUser.status === 'Rejected' ? 'Rejected' : (isUserVerified(inspectingUser) ? 'Verified' : 'Pending Verification') }}
               </p>
             </div>
           </div>
@@ -778,22 +810,22 @@
             </button>
             <button 
               type="button"
-              :disabled="isActionLoading"
+              :disabled="isActionLoading || inspectingUser.status === 'Rejected'"
               @click="handleRejectVerification(inspectingUser)" 
-              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50"
+              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
             >
-              Reject / Invalidate
+              <span>{{ inspectingUser.status === 'Rejected' ? 'Already Rejected' : 'Reject / Invalidate' }}</span>
             </button>
             <button 
               type="button"
-              :disabled="isActionLoading || inspectingUser.is_verified"
+              :disabled="isActionLoading || isUserVerified(inspectingUser)"
               @click="handleApproveVerification(inspectingUser)" 
               class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <svg v-if="!isActionLoading" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
               </svg>
-              <span>{{ inspectingUser.is_verified ? 'Already Verified' : 'Approve & Verify Identity' }}</span>
+              <span>{{ isUserVerified(inspectingUser) ? 'Already Verified' : 'Approve & Verify Identity' }}</span>
             </button>
           </div>
         </div>
@@ -837,8 +869,13 @@ const inspectingUser = ref(null);
 const isInspectModalOpen = ref(false);
 const isActionLoading = ref(false);
 
+const isUserVerified = (u) => {
+  if (!u) return false;
+  return Number(u.is_verified) === 1;
+};
+
 const pendingVerificationUsers = computed(() => {
-  return users.value.filter(u => !u.is_verified || Number(u.is_verified) === 0);
+  return users.value.filter(u => u.status !== 'Rejected' && !isUserVerified(u));
 });
 
 const openInspectModal = (user) => {
@@ -850,10 +887,10 @@ const handleApproveVerification = async (user) => {
   if (!user) return;
   isActionLoading.value = true;
   try {
-    const res = await api.patch(`/superadmin/users/${user.id}/verify`);
+    const res = await api.patch(`/superadmin/users/${user.id}/verify`, {});
     toast.success(res.data?.message || 'User identity verified and approved!');
     isInspectModalOpen.value = false;
-    fetchUsers();
+    await fetchUsers();
   } catch (err) {
     toast.error(err.response?.data?.message || 'Failed to approve verification.');
   } finally {
@@ -868,10 +905,12 @@ const handleRejectVerification = async (user) => {
   }
   isActionLoading.value = true;
   try {
-    const res = await api.patch(`/superadmin/users/${user.id}/reject`);
+    const res = await api.patch(`/superadmin/users/${user.id}/reject`, {
+      reason: 'Identity document could not be verified.'
+    });
     toast.info(res.data?.message || 'User verification has been rejected.');
     isInspectModalOpen.value = false;
-    fetchUsers();
+    await fetchUsers();
   } catch (err) {
     toast.error(err.response?.data?.message || 'Failed to reject verification.');
   } finally {
@@ -970,7 +1009,7 @@ const getStatusBadgeClass = (status) => {
     Active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     Pending: 'bg-amber-50 text-amber-700 border-amber-200',
     Suspended: 'bg-rose-50 text-rose-700 border-rose-200',
-    Rejected: 'bg-slate-100 text-slate-600 border-slate-200'
+    Rejected: 'bg-rose-50 text-rose-700 border-rose-200'
   };
   return map[status] || 'bg-slate-100 text-slate-600 border-slate-200';
 };

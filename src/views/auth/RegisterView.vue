@@ -148,10 +148,15 @@ const handleRegister = async () => {
 
     const response = await apiRegister(formData);
 
-    if (response.data?.status === 'success' || response.data?.user) {
+    const isSuccess = response.data?.status === true || 
+                      response.data?.status === 'success' || 
+                      Boolean(response.data?.data?.user) || 
+                      Boolean(response.data?.user);
+
+    if (isSuccess) {
       const userIdentifier = form.value.student_id_number || form.value.email || form.value.contact_number;
-      router.push({
-        name: 'login',
+      await router.push({
+        path: '/login',
         query: {
           registered: '1',
           identifier: userIdentifier || undefined
