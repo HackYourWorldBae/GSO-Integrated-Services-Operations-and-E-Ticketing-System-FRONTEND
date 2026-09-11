@@ -51,6 +51,8 @@ const unitLabel = computed(() => activeUnit.value.toUpperCase());
 
 // Exact and prefix active matcher
 const isItemActive = (item) => {
+  if (!item || !item.to) return false;
+
   const currentPath = route.path.toLowerCase();
   const [targetPath, targetQuery] = item.to.toLowerCase().split('?');
 
@@ -59,35 +61,21 @@ const isItemActive = (item) => {
     return currentPath === targetPath && route.fullPath.toLowerCase().includes(targetQuery);
   }
 
-  // If another item in the same group has a more specific query match, do not activate the plain path
-  const hasSpecificQueryItem = navGroups.value?.some(group =>
-    group.items?.some(navItem => {
-      const [oPath, oQuery] = navItem.to.toLowerCase().split('?');
-      return oQuery && oPath === currentPath && route.fullPath.toLowerCase().includes(oQuery);
-    })
-  );
-  if (hasSpecificQueryItem) {
-    return false;
-  }
-
   // Superadmin distinct route matching
+  if (targetPath === '/superadmin/dashboard') {
+    return currentPath === '/superadmin/dashboard' || currentPath === '/superadmin';
+  }
   if (targetPath === '/superadmin/users') {
     return currentPath === '/superadmin/users';
   }
   if (targetPath === '/superadmin/queues') {
     return ['/superadmin/queues', '/superadmin/verification', '/superadmin/verification-queue', '/superadmin/user-queues'].includes(currentPath);
   }
-
-  if (item.exact) {
-    return currentPath === targetPath;
+  if (targetPath === '/superadmin/logs') {
+    return currentPath === '/superadmin/logs';
   }
 
-  // Disambiguation: If another navigation item has an exact match for currentPath,
-  // do not fall back to loose prefix matching on shorter parent paths.
-  const hasExactItemMatch = navGroups.value?.some(group =>
-    group.items?.some(navItem => navItem.to.toLowerCase().split('?')[0] === currentPath)
-  );
-  if (hasExactItemMatch) {
+  if (item.exact) {
     return currentPath === targetPath;
   }
 
@@ -106,6 +94,12 @@ const rawNavGroups = computed(() => {
       {
         title: 'Superadmin Controls',
         items: [
+          {
+            label: 'Dashboard Overview',
+            to: '/superadmin/dashboard',
+            exact: true,
+            icon: 'home'
+          },
           {
             label: 'User Accounts',
             to: '/superadmin/users',

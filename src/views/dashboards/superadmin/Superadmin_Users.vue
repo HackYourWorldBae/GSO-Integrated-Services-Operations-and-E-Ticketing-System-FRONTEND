@@ -866,12 +866,13 @@ const fetchUsers = async () => {
     });
 
     const res = await api.get(`/superadmin/users?${params.toString()}`);
-    if (res.data?.data) {
-      users.value = res.data.data.users || [];
-      const pg = res.data.data.pagination;
+    const payload = res.data?.data || res.data;
+    if (payload) {
+      users.value = payload.users || res.data?.users || [];
+      const pg = payload.pagination || res.data?.pagination;
       if (pg) {
-        pagination.total = pg.total;
-        pagination.total_pages = pg.total_pages;
+        pagination.total = pg.total ?? 0;
+        pagination.total_pages = pg.total_pages ?? 1;
       }
     }
   } catch (err) {
