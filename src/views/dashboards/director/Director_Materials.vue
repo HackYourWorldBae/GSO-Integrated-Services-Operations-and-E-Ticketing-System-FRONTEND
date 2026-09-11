@@ -7,22 +7,37 @@
 
     <!-- Main View Content -->
     <template #main-content>
-      <div class="space-y-6 sm:space-y-8 animate-fade-in p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+      <div class="space-y-6 sm:space-y-8 animate-fade-in p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto pb-12">
 
         <!-- Top Header & Breadcrumb -->
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
-            <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-              <router-link to="/director/dashboard" class="hover:text-slate-700 transition-colors">Executive Overview</router-link>
-              <span>/</span>
-              <span class="text-emerald-700">Materials Valuation</span>
+            <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-2">
+              <router-link to="/director/dashboard" class="hover:text-emerald-700 transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span>Executive Overview</span>
+              </router-link>
+              <span class="text-slate-300">/</span>
+              <span class="text-emerald-700 font-bold">Materials Valuation</span>
             </div>
-            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-              Materials &amp; Supplies Used
-            </h1>
-            <p class="text-sm text-slate-500 font-medium mt-1">
-              All materials and supplies used across maintenance and service jobs, with quantities and costs.
-            </p>
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-700 shadow-2xs shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  Materials &amp; Supplies Used
+                </h1>
+                <p class="text-sm text-slate-500 font-normal mt-0.5">
+                  All materials and supplies used across maintenance and service jobs, with quantities and costs.
+                </p>
+              </div>
+            </div>
           </div>
 
           <!-- Document Export Action -->
@@ -30,14 +45,14 @@
             <button
               @click="handleDownloadMaterialsReport"
               :disabled="isGeneratingMaterialsPdf || isLoading || !executiveAnalytics"
-              class="px-5 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 active:scale-95 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              class="px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.98] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               title="Generate and download official materials consumption PDF document"
             >
               <svg v-if="isGeneratingMaterialsPdf" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <span>{{ isGeneratingMaterialsPdf ? 'Generating PDF...' : 'Export Materials PDF' }}</span>
@@ -46,17 +61,17 @@
         </div>
 
         <!-- Period Filter & Scope Toolbar -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
           <!-- Period Selector Tabs -->
           <div class="flex flex-wrap items-center gap-2">
-            <span class="text-xs sm:text-sm font-bold text-slate-600 mr-1">Report Period:</span>
-            <div class="inline-flex p-1.5 rounded-xl bg-white border border-slate-200 shadow-xs gap-1">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 mr-1">Period:</span>
+            <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1">
               <button
                 v-for="p in periodOptions"
                 :key="p.key"
                 @click="changePeriod(p.key)"
-                class="px-3.5 py-1.5 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer"
-                :class="selectedPeriod === p.key ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer"
+                :class="selectedPeriod === p.key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
               >
                 {{ p.label }}
               </button>
@@ -64,13 +79,13 @@
           </div>
 
           <!-- Dynamic Selectors (Year, Month, Quarter) & Refresh -->
-          <div class="flex flex-wrap items-center gap-3">
+          <div class="flex flex-wrap items-center gap-2.5">
             <!-- Year Selector -->
             <div v-if="selectedPeriod !== 'all'" class="relative">
               <select
                 v-model="selectedYear"
                 @change="fetchExecutiveAnalytics"
-                class="appearance-none pl-4 pr-9 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-xs cursor-pointer"
+                class="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors"
               >
                 <option v-for="yr in availableYears" :key="yr" :value="yr">
                   Year {{ yr }}
@@ -86,7 +101,7 @@
               <select
                 v-model="selectedMonth"
                 @change="fetchExecutiveAnalytics"
-                class="appearance-none pl-4 pr-9 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-xs cursor-pointer"
+                class="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors"
               >
                 <option v-for="m in monthOptions" :key="m.value" :value="m.value">
                   {{ m.label }}
@@ -102,7 +117,7 @@
               <select
                 v-model="selectedQuarter"
                 @change="fetchExecutiveAnalytics"
-                class="appearance-none pl-4 pr-9 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-xs cursor-pointer"
+                class="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors"
               >
                 <option v-for="q in quarterOptions" :key="q.value" :value="q.value">
                   {{ q.label }}
@@ -116,10 +131,10 @@
             <!-- Refresh Button -->
             <button
               @click="fetchExecutiveAnalytics"
-              class="p-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 rounded-xl transition-all cursor-pointer shadow-xs"
+              class="p-2 bg-white border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600 rounded-xl transition-all cursor-pointer shadow-2xs group"
               title="Refresh Valuation Data"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:rotate-180 duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
@@ -129,79 +144,93 @@
         <!-- Materials Valuation KPI Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
           <!-- 1. Total Cost of Materials -->
-          <div class="p-6 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col justify-between min-h-[150px]">
+          <div class="p-6 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col justify-between min-h-[150px] group hover:shadow-md transition-all duration-200">
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-black uppercase tracking-wider text-slate-400">Total Cost of Materials</span>
-              <span class="px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 text-xs font-bold">All Units</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Total Cost of Materials</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700/60 text-xs font-bold">
+                All Units
+              </span>
             </div>
-            <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-white mb-2">
+            <div class="text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums text-white my-1">
               ₱{{ formatCurrency(materialsSummary?.total_worth) }}
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Cumulative material consumption</span>
             </div>
           </div>
 
           <!-- 2. Materials Recorded -->
-          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[150px] hover:border-emerald-300 hover:shadow-md transition-all duration-200">
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-black uppercase tracking-wider text-slate-600">Materials Recorded</span>
-              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-black">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Materials Recorded</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-bold">
                 Entries
               </span>
             </div>
-            <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
-              {{ materialsSummary?.total_records || 0 }}
-              <span class="text-sm font-bold text-slate-400">items</span>
+            <div class="flex items-baseline gap-2 my-1">
+              <span class="text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums text-slate-900">
+                {{ materialsSummary?.total_records || 0 }}
+              </span>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">items</span>
             </div>
+            <p class="text-xs text-slate-500 font-medium">Distinct supply records filed</p>
           </div>
 
           <!-- 3. Total Items Used -->
-          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[150px] hover:border-slate-300 hover:shadow-md transition-all duration-200">
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-black uppercase tracking-wider text-slate-600">Total Items Used</span>
-              <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Items Used</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60 text-xs font-bold">
                 Quantity
               </span>
             </div>
-            <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
-              {{ formatNumber(materialsSummary?.total_quantity) }}
-              <span class="text-sm font-bold text-slate-400">units</span>
+            <div class="flex items-baseline gap-2 my-1">
+              <span class="text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums text-slate-900">
+                {{ formatNumber(materialsSummary?.total_quantity) }}
+              </span>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">units</span>
             </div>
+            <p class="text-xs text-slate-500 font-medium">Summed quantity deployed</p>
           </div>
 
           <!-- 4. FGMU Facilities -->
-          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[150px] hover:border-blue-300 hover:shadow-md transition-all duration-200">
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-black uppercase tracking-wider text-blue-700">FGMU — Facilities</span>
-              <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200/60 text-xs font-black">
+              <span class="text-xs font-bold uppercase tracking-wider text-blue-700">FGMU — Facilities</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60 text-xs font-bold">
                 {{ materialsSummary?.by_unit?.FGMU?.count || 0 }} Items
               </span>
             </div>
-            <div class="text-2xl sm:text-3xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
+            <div class="text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums text-slate-900 my-1">
               ₱{{ formatCurrency(materialsSummary?.by_unit?.FGMU?.total_worth) }}
             </div>
+            <p class="text-xs text-slate-500 font-medium">Facilities &amp; maintenance jobs</p>
           </div>
 
           <!-- 5. LEAU Landscaping -->
-          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[150px] hover:border-emerald-300 hover:shadow-md transition-all duration-200">
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-black uppercase tracking-wider text-emerald-700">LEAU — Landscaping</span>
-              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-black">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">LEAU — Landscaping</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-bold">
                 {{ materialsSummary?.by_unit?.LEAU?.count || 0 }} Items
               </span>
             </div>
-            <div class="text-2xl sm:text-3xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
+            <div class="text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums text-slate-900 my-1">
               ₱{{ formatCurrency(materialsSummary?.by_unit?.LEAU?.total_worth) }}
             </div>
+            <p class="text-xs text-slate-500 font-medium">Grounds &amp; landscaping supplies</p>
           </div>
         </div>
 
         <!-- Materials Interactive Data Table Section -->
-        <div class="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-5">
+        <div class="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-5">
           <!-- Table Controls Toolbar -->
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <!-- Left: Sub-unit Filter Tabs -->
+            <!-- Left: Sub-unit Filter Tabs (Segmented Control) -->
             <div class="flex items-center gap-2">
-              <span class="text-xs font-black uppercase tracking-wider text-slate-400 mr-1">Filter by Unit:</span>
-              <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 gap-1">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 mr-1">Unit:</span>
+              <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1">
                 <button
                   v-for="scope in unitScopes"
                   :key="scope.key"
@@ -216,28 +245,36 @@
 
             <!-- Right: Search Input & Summary Count -->
             <div class="flex items-center gap-3">
-              <div class="relative min-w-[240px] sm:min-w-[300px]">
+              <div class="relative min-w-[240px] sm:min-w-[320px]">
                 <input
                   v-model="searchQuery"
                   type="text"
                   placeholder="Search material, ticket ref, or unit..."
-                  class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all shadow-2xs"
+                  class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all shadow-2xs"
                 />
                 <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
+                <button
+                  v-if="searchQuery"
+                  @click="searchQuery = ''"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  title="Clear search"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
               </div>
-              <span class="text-xs font-bold text-slate-400 whitespace-nowrap hidden sm:inline-block">
-                Showing {{ filteredItems.length }} of {{ rawItems.length }}
+              <span class="text-xs font-semibold text-slate-400 whitespace-nowrap hidden sm:inline-block">
+                Showing {{ filteredItems.length }} of {{ rawItems.length }} items
               </span>
             </div>
           </div>
 
           <!-- Table Container -->
-          <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-2xs">
+          <div class="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-2xs">
             <table class="min-w-[850px] w-full text-left border-collapse">
               <thead>
-                <tr class="bg-slate-100/90 text-slate-700 text-xs font-black uppercase tracking-wider border-b border-slate-200">
+                <tr class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
                   <th class="py-3.5 px-4 text-center w-12">#</th>
                   <th class="py-3.5 px-6">Material / Supply Name</th>
                   <th class="py-3.5 px-4 text-center">Measurement</th>
@@ -254,7 +291,7 @@
                 <tr v-if="isLoading">
                   <td colspan="9" class="py-12 text-center text-slate-400 font-medium">
                     <div class="inline-flex items-center gap-2">
-                      <svg class="animate-spin h-5 w-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg class="animate-spin h-5 w-5 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
@@ -267,10 +304,12 @@
                 <tr v-else-if="filteredItems.length === 0">
                   <td colspan="9" class="py-12 text-center text-slate-400 font-medium">
                     <div class="flex flex-col items-center justify-center gap-2">
-                      <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                      </svg>
-                      <p class="text-sm font-semibold text-slate-600">
+                      <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                      </div>
+                      <p class="text-sm font-semibold text-slate-700">
                         {{ searchQuery ? 'No materials match your search filter.' : 'No materials recorded for the selected period.' }}
                       </p>
                       <p class="text-xs text-slate-400">Try changing the period filter or adjusting your search term.</p>
@@ -294,28 +333,32 @@
                       {{ item.ticket_title }}
                     </div>
                   </td>
-                  <td class="py-3.5 px-4 text-center text-xs font-semibold text-slate-600 uppercase">
-                    {{ item.unit_measurement || 'pcs' }}
+                  <td class="py-3.5 px-4 text-center">
+                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-semibold uppercase">
+                      {{ item.unit_measurement || 'pcs' }}
+                    </span>
                   </td>
-                  <td class="py-3.5 px-4 text-center font-black text-slate-900 tabular-nums text-sm">
+                  <td class="py-3.5 px-4 text-center font-bold text-slate-900 tabular-nums text-sm">
                     {{ item.quantity }}
                   </td>
                   <td class="py-3.5 px-4 text-right font-medium text-slate-700 tabular-nums text-sm">
                     ₱{{ formatCurrency(item.unit_price) }}
                   </td>
-                  <td class="py-3.5 px-4 text-right font-black text-slate-900 tabular-nums text-sm">
+                  <td class="py-3.5 px-4 text-right font-bold text-emerald-700 tabular-nums text-sm">
                     ₱{{ formatCurrency(item.total_price) }}
                   </td>
                   <td class="py-3.5 px-4 text-center">
                     <span
-                      class="px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider"
-                      :class="item.unit_code === 'LEAU' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-blue-50 text-blue-800 border border-blue-200/60'"
+                      class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider"
+                      :class="item.unit_code === 'LEAU' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-blue-50 text-blue-700 border border-blue-200/60'"
                     >
                       {{ item.unit_code }}
                     </span>
                   </td>
-                  <td class="py-3.5 px-6 text-center text-xs font-mono font-bold text-slate-600">
-                    {{ item.ticket_id || '—' }}
+                  <td class="py-3.5 px-6 text-center">
+                    <span class="text-xs font-mono font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/60">
+                      {{ item.ticket_id || '—' }}
+                    </span>
                   </td>
                   <td class="py-3.5 px-6 text-center text-xs text-slate-500 whitespace-nowrap">
                     {{ formatDate(item.created_at) }}
@@ -323,17 +366,17 @@
                 </tr>
 
                 <!-- Sticky Summary Grand Total Row -->
-                <tr v-if="filteredItems.length > 0" class="bg-slate-50 font-black text-slate-900 border-t-2 border-slate-200">
-                  <td colspan="3" class="py-4 px-6 text-right text-xs sm:text-sm font-black tracking-wider text-slate-800 uppercase">
+                <tr v-if="filteredItems.length > 0" class="bg-slate-100/70 font-extrabold text-slate-900 border-t-2 border-slate-200">
+                  <td colspan="3" class="py-4 px-6 text-right text-xs sm:text-sm font-extrabold tracking-wider text-slate-900 uppercase">
                     Total ({{ filteredItems.length }} items):
                   </td>
-                  <td class="py-4 px-4 text-center font-black tabular-nums text-slate-900">
+                  <td class="py-4 px-4 text-center font-extrabold tabular-nums text-slate-900 text-sm">
                     {{ formatNumber(filteredTotalQuantity) }}
                   </td>
                   <td class="py-4 px-4 text-right text-xs font-bold text-slate-500 uppercase">
                     Total Cost:
                   </td>
-                  <td class="py-4 px-4 text-right text-emerald-800 tabular-nums text-base font-black">
+                  <td class="py-4 px-4 text-right text-emerald-700 tabular-nums text-base font-extrabold">
                     ₱{{ formatCurrency(filteredTotalWorth) }}
                   </td>
                   <td colspan="3"></td>
