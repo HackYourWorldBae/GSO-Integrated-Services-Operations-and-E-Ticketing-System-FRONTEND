@@ -1,9 +1,10 @@
 <template>
-  <Transition name="fade">
-    <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto">
-      <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-xs" @click="$emit('close')"></div>
+  <Teleport to="body">
+    <Transition name="fade">
+      <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 pointer-events-auto">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-xs" @click="$emit('close')"></div>
 
-      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 sm:p-8 relative z-10 animate-modal-pop border border-slate-100 max-h-[92vh] overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 sm:p-8 relative z-10 animate-modal-pop border border-slate-100 max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-y-auto custom-scrollbar">
         <!-- Header -->
         <div class="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
           <div class="flex items-center gap-3">
@@ -172,6 +173,7 @@
       </div>
     </div>
   </Transition>
+  </Teleport>
 </template>
 
 <script setup>

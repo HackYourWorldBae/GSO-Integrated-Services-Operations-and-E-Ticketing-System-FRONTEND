@@ -430,189 +430,199 @@
   </MainLayout>
 
   <!-- ======================= DETAILS MODAL ======================= -->
-  <div v-if="selectedTicketForModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in" @click.self="closeDetailsModal">
-    <div class="bg-white rounded-3xl p-6 sm:p-10 max-w-3xl w-full shadow-2xl border border-slate-200 animate-scale-up space-y-6 sm:space-y-7 max-h-[90vh] overflow-y-auto custom-scrollbar">
-      
-      <!-- Modal Header -->
-      <div class="flex items-start justify-between pb-5 border-b border-slate-100 gap-4">
-        <div>
-          <div class="flex flex-wrap items-center gap-2.5 mb-1.5">
-            <span class="font-mono text-base sm:text-lg font-black text-amber-800 bg-amber-50 px-3.5 py-1 rounded-xl border border-amber-200">
-              #{{ selectedTicketForModal.ticketId }}
-            </span>
-            <span class="text-xs sm:text-sm font-bold text-slate-400">
-              Submitted on {{ selectedTicketForModal.date }}
-            </span>
-          </div>
-          <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Full Ticket Information</h3>
-          <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Comprehensive institutional job particulars and requester verification</p>
-        </div>
-        <button @click="closeDetailsModal" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer" title="Close modal">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- Requester & Location Cards (Larger Typography) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-        <div class="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-          <span class="text-xs font-black uppercase tracking-wider text-slate-400 block">Requester Profile</span>
-          <p class="text-lg sm:text-xl font-black text-slate-900 leading-tight">{{ selectedTicketForModal.requestedBy }}</p>
-          <p class="text-sm text-slate-600 font-semibold flex items-center gap-2">
-            <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            <span class="truncate">{{ selectedTicketForModal.email || 'No institutional email' }}</span>
-          </p>
-          <p class="text-sm text-slate-600 font-semibold flex items-center gap-2">
-            <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-            <span>Contact: {{ selectedTicketForModal.contact || 'N/A' }}</span>
-          </p>
-        </div>
-
-        <div class="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-          <span class="text-xs font-black uppercase tracking-wider text-slate-400 block">Designated Location</span>
-          <p class="text-lg sm:text-xl font-black text-slate-900 leading-tight">{{ selectedTicketForModal.location || 'Main Campus' }}</p>
-          <p class="text-sm text-slate-600 font-semibold flex items-center gap-2">
-            <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            <span>{{ selectedTicketForModal.office_room ? `Room / Office: ${selectedTicketForModal.office_room}` : 'No specific room designated' }}</span>
-          </p>
-        </div>
-      </div>
-
-      <!-- Service & Particulars (Larger Typography) -->
-      <div class="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-        <div class="flex items-center justify-between gap-3">
-          <span class="text-xs font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
-          <span class="px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs sm:text-sm font-black uppercase tracking-wider border border-amber-200">
-            {{ selectedTicketForModal.service }}
-          </span>
-        </div>
-        <p class="text-sm sm:text-base text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-4 sm:p-5 rounded-xl border border-slate-200/70 shadow-2xs">
-          {{ selectedTicketForModal.description || selectedTicketForModal.title || 'No additional job description provided.' }}
-        </p>
-      </div>
-
-      <!-- Attachments / Proof of Damage / Complaint Documents -->
-      <div v-if="selectedTicketForModal.attachments && selectedTicketForModal.attachments.length > 0" class="space-y-3">
-        <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
-          <span class="w-2 h-3.5 rounded-full bg-amber-600"></span>
-          Attached Documents &amp; Damage Proof ({{ selectedTicketForModal.attachments.length }})
-        </span>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div
-            v-for="(file, idx) in selectedTicketForModal.attachments"
-            :key="idx"
-            @click="downloadAttachment(file)"
-            class="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200 hover:border-amber-500 hover:bg-amber-50/40 cursor-pointer transition-all shadow-2xs group"
-          >
-            <div class="flex items-center gap-3 truncate">
-              <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-              </div>
-              <span class="text-sm font-bold text-slate-800 truncate group-hover:text-amber-900">{{ file.file_name || 'Attachment' }}</span>
+  <Teleport to="body">
+    <div v-if="selectedTicketForModal" class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in" @click.self="closeDetailsModal">
+      <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-hidden">
+        
+        <!-- Modal Header -->
+        <div class="p-5 sm:p-6 pb-4 border-b border-slate-100 flex items-start justify-between gap-4 shrink-0 bg-white">
+          <div>
+            <div class="flex flex-wrap items-center gap-2.5 mb-1.5">
+              <span class="font-mono text-base sm:text-lg font-black text-amber-800 bg-amber-50 px-3.5 py-1 rounded-xl border border-amber-200">
+                #{{ selectedTicketForModal.ticketId }}
+              </span>
+              <span class="text-xs sm:text-sm font-bold text-slate-400">
+                Submitted on {{ selectedTicketForModal.date }}
+              </span>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-amber-600 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Full Ticket Information</h3>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Comprehensive institutional job particulars and requester verification</p>
+          </div>
+          <button @click="closeDetailsModal" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shrink-0" title="Close modal">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
+          </button>
+        </div>
+
+        <!-- Scrollable Modal Body -->
+        <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
+          <!-- Requester & Location Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Requester Profile</span>
+              <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicketForModal.requestedBy }}</p>
+              <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <span class="truncate">{{ selectedTicketForModal.email || 'No institutional email' }}</span>
+              </p>
+              <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                <span>Contact: {{ selectedTicketForModal.contact || 'N/A' }}</span>
+              </p>
+            </div>
+
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Designated Location</span>
+              <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicketForModal.location || 'Main Campus' }}</p>
+              <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                <span>{{ selectedTicketForModal.office_room ? `Room / Office: ${selectedTicketForModal.office_room}` : 'No specific room designated' }}</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Service & Particulars -->
+          <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
+              <span class="px-3 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-black uppercase tracking-wider border border-amber-200">
+                {{ selectedTicketForModal.service }}
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/70 shadow-2xs">
+              {{ selectedTicketForModal.description || selectedTicketForModal.title || 'No additional job description provided.' }}
+            </p>
+          </div>
+
+          <!-- Attachments / Proof Documents -->
+          <div v-if="selectedTicketForModal.attachments && selectedTicketForModal.attachments.length > 0" class="space-y-2.5">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+              <span class="w-2 h-3 rounded-full bg-amber-600"></span>
+              Attached Documents &amp; Damage Proof ({{ selectedTicketForModal.attachments.length }})
+            </span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div
+                v-for="(file, idx) in selectedTicketForModal.attachments"
+                :key="idx"
+                @click="downloadAttachment(file)"
+                class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-amber-500 hover:bg-amber-50/40 cursor-pointer transition-all shadow-2xs group"
+              >
+                <div class="flex items-center gap-2.5 truncate">
+                  <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                  </div>
+                  <span class="text-xs font-bold text-slate-800 truncate group-hover:text-amber-900">{{ file.file_name || 'Attachment' }}</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 group-hover:text-amber-600 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Footer Actions -->
-      <div class="pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-        <button @click="closeDetailsModal" class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-colors cursor-pointer">
-          Close Full Info
-        </button>
-        <div v-if="activeTab === 'pending'" class="flex items-center gap-3">
-          <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-5 py-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs sm:text-sm font-bold hover:bg-rose-100 transition-all cursor-pointer">
-            Decline Request
+        <!-- Fixed Modal Footer Actions -->
+        <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <button @click="closeDetailsModal" class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer shadow-2xs">
+            Close Full Info
           </button>
-          <button @click="initiateApproval(selectedTicketForModal); closeDetailsModal()" class="px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-md shadow-amber-600/20 transition-all cursor-pointer">
-            Approve Request
-          </button>
+          <div v-if="activeTab === 'pending'" class="flex items-center gap-2.5">
+            <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
+              Decline Request
+            </button>
+            <button @click="initiateApproval(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-amber-600/20 transition-all cursor-pointer">
+              Approve Request
+            </button>
+          </div>
+          <div v-else-if="activeTab === 'active'">
+            <button @click="openExtensionModal(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-amber-600/20 transition-all cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Extend Timeline</span>
+            </button>
+          </div>
         </div>
-        <div v-else-if="activeTab === 'active'">
-          <button @click="openExtensionModal(selectedTicketForModal); closeDetailsModal()" class="px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-2 shadow-md shadow-amber-600/20 transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Extend Timeline</span>
-          </button>
-        </div>
+
       </div>
     </div>
-  </div>
+  </Teleport>
 
   <!-- Approve Confirm Modal -->
-  <div v-if="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 animate-scale-up space-y-6">
-      <div class="w-14 h-14 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-        </svg>
-      </div>
-      <div class="text-center">
-        <h3 class="text-xl font-black text-slate-900">Approve Service Request?</h3>
-        <p class="text-xs text-slate-500 font-medium mt-1">
-          Ticket <strong class="text-slate-800">#{{ ticketToApprove?.ticketId }}</strong> will be approved and queued for dispatcher assignment.
-        </p>
-      </div>
-      <div class="flex gap-3">
-        <button @click="closeConfirmModal" class="w-full px-5 py-3 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200">
-          Cancel
-        </button>
-        <button @click="confirmApproval" class="w-full px-5 py-3 bg-amber-600 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-amber-600/20 hover:bg-amber-500">
-          Confirm Approval
-        </button>
+  <Teleport to="body">
+    <div v-if="showConfirmModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 animate-scale-up space-y-6">
+        <div class="w-14 h-14 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div class="text-center">
+          <h3 class="text-xl font-black text-slate-900">Approve Service Request?</h3>
+          <p class="text-xs text-slate-500 font-medium mt-1">
+            Ticket <strong class="text-slate-800">#{{ ticketToApprove?.ticketId }}</strong> will be approved and queued for dispatcher assignment.
+          </p>
+        </div>
+        <div class="flex gap-3">
+          <button @click="closeConfirmModal" class="w-full px-5 py-3 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 cursor-pointer">
+            Cancel
+          </button>
+          <button @click="confirmApproval" class="w-full px-5 py-3 bg-amber-600 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-amber-600/20 hover:bg-amber-500 cursor-pointer">
+            Confirm Approval
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </Teleport>
 
   <!-- Decline Modal -->
-  <div v-if="ticketToDecline" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 animate-scale-up space-y-5">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <div class="flex items-center gap-2">
-          <div class="p-2 rounded-xl bg-rose-50 text-rose-600">
+  <Teleport to="body">
+    <div v-if="ticketToDecline" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 animate-scale-up space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <div class="p-2 rounded-xl bg-rose-50 text-rose-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h3 class="text-base font-black text-slate-900">Decline Request</h3>
+          </div>
+          <button @click="ticketToDecline = null" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </div>
-          <h3 class="text-base font-black text-slate-900">Decline Request</h3>
+          </button>
         </div>
-        <button @click="ticketToDecline = null" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
 
-      <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Decline Reason <span class="text-rose-500">*</span>
-        </label>
-        <textarea
-          v-model="declineReasonInput"
-          rows="3"
-          placeholder="State reason for declining..."
-          class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
-        ></textarea>
-      </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            Decline Reason <span class="text-rose-500">*</span>
+          </label>
+          <textarea
+            v-model="declineReasonInput"
+            rows="3"
+            placeholder="State reason for declining..."
+            class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+          ></textarea>
+        </div>
 
-      <div class="flex gap-3 pt-2">
-        <button @click="ticketToDecline = null" class="w-full px-5 py-3 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200">
-          Cancel
-        </button>
-        <button
-          @click="confirmDecline"
-          :disabled="!declineReasonInput.trim()"
-          class="w-full px-5 py-3 bg-rose-600 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-rose-600/20 hover:bg-rose-500 disabled:opacity-50"
-        >
-          Confirm Decline
-        </button>
+        <div class="flex gap-3 pt-2">
+          <button @click="ticketToDecline = null" class="w-full px-5 py-3 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 cursor-pointer">
+            Cancel
+          </button>
+          <button
+            @click="confirmDecline"
+            :disabled="!declineReasonInput.trim()"
+            class="w-full px-5 py-3 bg-rose-600 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-rose-600/20 hover:bg-rose-500 disabled:opacity-50 cursor-pointer"
+          >
+            Confirm Decline
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </Teleport>
 
   <!-- Ticket Extension Modal (Unforeseen Circumstances & Working Hours) -->
   <TicketExtensionModal

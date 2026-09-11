@@ -439,158 +439,163 @@
     </div>
 
     <!-- ═══ Comprehensive Details Modal (Matching Director Queues) ═══ -->
-    <div
-      v-if="selectedTicketForModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
-      @click.self="selectedTicketForModal = null"
-    >
-      <div class="bg-white rounded-3xl p-6 sm:p-10 max-w-3xl w-full shadow-2xl border border-slate-200 animate-scale-up space-y-6 sm:space-y-7 max-h-[90vh] overflow-y-auto custom-scrollbar">
-        
-        <!-- Modal Header -->
-        <div class="flex items-start justify-between pb-5 border-b border-slate-100 gap-4">
-          <div>
-            <div class="flex flex-wrap items-center gap-2.5 mb-1.5">
-              <span
-                :class="[
-                  'font-mono text-base sm:text-lg font-black px-3.5 py-1 rounded-xl border',
-                  themeMonoBadge
-                ]"
-              >
-                #{{ selectedTicketForModal.id }}
-              </span>
-              <span class="text-xs sm:text-sm font-bold text-slate-400">
-                Submitted on {{ selectedTicketForModal.submittedAt }}
-              </span>
+    <Teleport to="body">
+      <div
+        v-if="selectedTicketForModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
+        @click.self="selectedTicketForModal = null"
+      >
+        <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-hidden">
+          
+          <!-- Fixed Modal Header -->
+          <div class="p-5 sm:p-6 pb-4 border-b border-slate-100 flex items-start justify-between gap-4 shrink-0 bg-white">
+            <div>
+              <div class="flex flex-wrap items-center gap-2.5 mb-1.5">
+                <span
+                  :class="[
+                    'font-mono text-base sm:text-lg font-black px-3.5 py-1 rounded-xl border',
+                    themeMonoBadge
+                  ]"
+                >
+                  #{{ selectedTicketForModal.id }}
+                </span>
+                <span class="text-xs sm:text-sm font-bold text-slate-400">
+                  Submitted on {{ selectedTicketForModal.submittedAt }}
+                </span>
+              </div>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Full Ticket Information</h3>
+              <p class="text-xs text-slate-500 font-medium mt-0.5">Comprehensive institutional job particulars and requester verification</p>
             </div>
-            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Full Ticket Information</h3>
-            <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Comprehensive institutional job particulars and requester verification</p>
-          </div>
-          <button
-            type="button"
-            @click="selectedTicketForModal = null"
-            class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
-            title="Close modal"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Requester & Location Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-          <!-- Requester Profile -->
-          <div class="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-            <span class="text-xs font-black uppercase tracking-wider text-slate-400 block">Requester Profile</span>
-            <p class="text-lg sm:text-xl font-black text-slate-900 leading-tight">{{ selectedTicketForModal.requester }}</p>
-            <p class="text-sm text-slate-600 font-semibold flex items-center gap-2">
-              <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-              </svg>
-              <span class="truncate">{{ selectedTicketForModal.email || 'No institutional email' }}</span>
-            </p>
-            <p class="text-sm text-slate-600 font-semibold flex items-center gap-2">
-              <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-              </svg>
-              <span>Contact: {{ selectedTicketForModal.contact_number || 'N/A' }}</span>
-            </p>
-          </div>
-
-          <!-- Designated Location -->
-          <div class="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-            <span class="text-xs font-black uppercase tracking-wider text-slate-400 block">Designated Location</span>
-            <p class="text-lg sm:text-xl font-black text-slate-900 leading-tight">{{ selectedTicketForModal.location || selectedTicketForModal.college_building || 'Main Campus' }}</p>
-            <p class="text-sm text-slate-600 font-semibold flex items-center gap-2">
-              <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-              </svg>
-              <span>{{ selectedTicketForModal.office_room ? `Room / Office: ${selectedTicketForModal.office_room}` : 'No specific room designated' }}</span>
-            </p>
-          </div>
-        </div>
-
-        <!-- Service & Job Particulars -->
-        <div class="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-xs font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
-            <span
-              :class="[
-                'px-3.5 py-1 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider border',
-                themeStatusBadge
-              ]"
+            <button
+              type="button"
+              @click="selectedTicketForModal = null"
+              class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              title="Close modal"
             >
-              {{ selectedTicketForModal.service || selectedTicketForModal.type }}
-            </span>
-          </div>
-          <p class="text-sm sm:text-base text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-4 sm:p-5 rounded-xl border border-slate-200/70 shadow-2xs">
-            {{ selectedTicketForModal.job_description || 'No detailed scope notes provided by client.' }}
-          </p>
-        </div>
-
-        <!-- Attachments & Proof Documents -->
-        <div class="space-y-3">
-          <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
-            <span :class="['w-2 h-3.5 rounded-full', themeBarColor]"></span>
-            Attached Documents &amp; Damage Proof ({{ (selectedTicketForModal.attachments || []).length }})
-          </span>
-
-          <div v-if="!selectedTicketForModal.attachments || selectedTicketForModal.attachments.length === 0" class="p-5 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center text-slate-400 text-xs">
-            No files or images attached to this ticket.
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div
-              v-for="(file, idx) in selectedTicketForModal.attachments"
-              :key="idx"
-              @click="downloadAttachment(file)"
-              :class="[
-                'flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200 cursor-pointer transition-all shadow-2xs group',
-                themeAttachmentHover
-              ]"
-            >
-              <div class="flex items-center gap-3 truncate">
-                <div :class="['w-8 h-8 rounded-xl flex items-center justify-center shrink-0', themeAttachmentIconBg]">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+          <!-- Scrollable Modal Body -->
+          <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
+            <!-- Requester & Location Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Requester Profile -->
+              <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Requester Profile</span>
+                <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicketForModal.requester }}</p>
+                <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                  <span class="truncate">{{ selectedTicketForModal.email || 'No institutional email' }}</span>
+                </p>
+                <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  <span>Contact: {{ selectedTicketForModal.contact_number || 'N/A' }}</span>
+                </p>
+              </div>
+
+              <!-- Designated Location -->
+              <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Designated Location</span>
+                <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicketForModal.location || selectedTicketForModal.college_building || 'Main Campus' }}</p>
+                <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                  <span>{{ selectedTicketForModal.office_room ? `Room / Office: ${selectedTicketForModal.office_room}` : 'No specific room designated' }}</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Service & Job Particulars -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
+                <span
+                  :class="[
+                    'px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border',
+                    themeStatusBadge
+                  ]"
+                >
+                  {{ selectedTicketForModal.service || selectedTicketForModal.type }}
+                </span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/70 shadow-2xs">
+                {{ selectedTicketForModal.job_description || 'No detailed scope notes provided by client.' }}
+              </p>
+            </div>
+
+            <!-- Attachments & Proof Documents -->
+            <div class="space-y-2.5">
+              <span class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                <span :class="['w-2 h-3 rounded-full', themeBarColor]"></span>
+                Attached Documents &amp; Damage Proof ({{ (selectedTicketForModal.attachments || []).length }})
+              </span>
+
+              <div v-if="!selectedTicketForModal.attachments || selectedTicketForModal.attachments.length === 0" class="p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center text-slate-400 text-xs">
+                No files or images attached to this ticket.
+              </div>
+
+              <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div
+                  v-for="(file, idx) in selectedTicketForModal.attachments"
+                  :key="idx"
+                  @click="downloadAttachment(file)"
+                  :class="[
+                    'flex items-center justify-between p-3.5 rounded-2xl bg-white border border-slate-200 cursor-pointer transition-all shadow-2xs group',
+                    themeAttachmentHover
+                  ]"
+                >
+                  <div class="flex items-center gap-2.5 truncate">
+                    <div :class="['w-8 h-8 rounded-xl flex items-center justify-center shrink-0', themeAttachmentIconBg]">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                      </svg>
+                    </div>
+                    <span class="text-xs font-bold text-slate-800 truncate group-hover:text-slate-900">{{ file.file_name || 'Attachment' }}</span>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 group-hover:text-slate-700 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
                 </div>
-                <span class="text-sm font-bold text-slate-800 truncate group-hover:text-slate-900">{{ file.file_name || 'Attachment' }}</span>
               </div>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-slate-700 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
             </div>
           </div>
+
+          <!-- Fixed Modal Footer Actions -->
+          <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <button
+              type="button"
+              @click="selectedTicketForModal = null"
+              class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+            >
+              Close Full Info
+            </button>
+
+            <router-link
+              :to="`${assignRoute}?ticket=${selectedTicketForModal.id}`"
+              :class="[
+                'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shadow-sm',
+                themeAccentBg,
+                themeAccentShadow
+              ]"
+            >
+              <span>Proceed to Assign Workers</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </router-link>
+          </div>
+
         </div>
-
-        <!-- Modal Footer Actions -->
-        <div class="pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-          <button
-            type="button"
-            @click="selectedTicketForModal = null"
-            class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
-          >
-            Close Full Info
-          </button>
-
-          <router-link
-            :to="`${assignRoute}?ticket=${selectedTicketForModal.id}`"
-            :class="[
-              'inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white text-xs sm:text-sm font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer',
-              themeAccentBg,
-              themeAccentShadow
-            ]"
-          >
-            <span>Proceed to Assign Workers</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </router-link>
-        </div>
-
       </div>
-    </div>
+    </Teleport>
 
   </div>
 </template>
