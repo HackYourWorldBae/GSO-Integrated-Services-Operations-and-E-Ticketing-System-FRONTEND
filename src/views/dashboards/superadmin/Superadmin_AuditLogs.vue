@@ -294,8 +294,8 @@
               </div>
             </div>
 
-            <div v-if="selectedLog.college_building" class="p-3 rounded-xl bg-purple-50/50 border border-purple-100 text-purple-900">
-              <span class="font-bold">Location Context:</span> {{ selectedLog.college_building }} - {{ selectedLog.location }}
+            <div v-if="selectedLog.location || selectedLog.college_building" class="p-3 rounded-xl bg-purple-50/50 border border-purple-100 text-purple-900 text-xs">
+              <span class="font-bold">Location Context:</span> {{ selectedLog.location || selectedLog.college_building }}<span v-if="selectedLog.office_room"> ({{ selectedLog.office_room }})</span>
             </div>
           </div>
 
@@ -368,9 +368,10 @@ const fetchLogs = async () => {
     }
 
     const response = await api.get('/superadmin/audit-logs', { params });
-    if (response.data && response.data.status === 'success') {
-      logs.value = response.data.data.logs || [];
-      pagination.value.total = response.data.data.total || 0;
+    const payload = response.data?.data || response.data;
+    if (payload && (payload.logs !== undefined || response.data?.status === true || response.data?.status === 'success')) {
+      logs.value = payload.logs || response.data?.logs || [];
+      pagination.value.total = payload.total ?? response.data?.total ?? logs.value.length;
     }
   } catch (error) {
     console.error('Failed to fetch audit logs:', error);

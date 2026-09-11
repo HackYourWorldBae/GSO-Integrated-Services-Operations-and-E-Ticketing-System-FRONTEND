@@ -388,8 +388,9 @@ const fetchDashboardData = async () => {
 
   try {
     const logsRes = await api.get('/superadmin/audit-logs?limit=6');
-    if (logsRes.data?.data?.logs) {
-      recentLogs.value = logsRes.data.data.logs;
+    const logsPayload = logsRes.data?.data || logsRes.data;
+    if (logsPayload?.logs) {
+      recentLogs.value = logsPayload.logs;
     }
   } catch (err) {
     console.error('Failed to load superadmin recent logs:', err);
