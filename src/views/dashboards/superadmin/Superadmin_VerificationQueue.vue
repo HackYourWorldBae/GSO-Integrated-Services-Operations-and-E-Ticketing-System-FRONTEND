@@ -147,8 +147,8 @@
               <button
                 type="button"
                 :disabled="isActionLoading"
-                @click="handleApproveVerification(user)"
-                class="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors border border-emerald-200 disabled:opacity-50"
+                @click="openApproveModal(user)"
+                class="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors border border-emerald-200 disabled:opacity-50 cursor-pointer"
                 title="Quick Approve"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,8 +158,8 @@
               <button
                 type="button"
                 :disabled="isActionLoading"
-                @click="handleRejectVerification(user)"
-                class="p-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors border border-rose-200 disabled:opacity-50"
+                @click="openRejectModal(user)"
+                class="p-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors border border-rose-200 disabled:opacity-50 cursor-pointer"
                 title="Quick Reject"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,16 +278,16 @@
             <button 
               type="button"
               :disabled="isActionLoading || inspectingUser.status === 'Rejected'"
-              @click="handleRejectVerification(inspectingUser)" 
-              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+              @click="openRejectModal(inspectingUser)" 
+              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>{{ inspectingUser.status === 'Rejected' ? 'Already Rejected' : 'Reject / Invalidate' }}</span>
             </button>
             <button 
               type="button"
               :disabled="isActionLoading || isUserVerified(inspectingUser)"
-              @click="handleApproveVerification(inspectingUser)" 
-              class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              @click="openApproveModal(inspectingUser)" 
+              class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
             >
               <svg v-if="!isActionLoading" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -297,15 +297,41 @@
           </div>
         </div>
       </div>
+
+      <!-- Confirmation Modal for Approve and Reject -->
+      <ConfirmModal
+        :is-open="confirmModal.isOpen"
+        :title="confirmModal.title"
+        :message="confirmModal.message"
+        :confirm-text="confirmModal.confirmText"
+        :cancel-text="confirmModal.cancelText"
+        :type="confirmModal.type"
+        :is-loading="confirmModal.isLoading"
+        @confirm="handleConfirmAction"
+        @cancel="closeConfirmModal"
+      >
+        <div v-if="confirmModal.actionType === 'reject'" class="space-y-1.5 mt-2">
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            Rejection Reason (Optional)
+          </label>
+          <textarea
+            v-model="confirmModal.reason"
+            rows="2"
+            placeholder="Explain why verification was rejected..."
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-rose-500 focus:bg-white transition-colors"
+          ></textarea>
+        </div>
+      </ConfirmModal>
     </template>
   </MainLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 import api from '@/api/client';
 
 const loading = ref(false);
@@ -374,38 +400,78 @@ const openInspectModal = (user) => {
   isInspectModalOpen.value = true;
 };
 
-const handleApproveVerification = async (user) => {
+// Confirmation modal state
+const confirmModal = reactive({
+  isOpen: false,
+  title: '',
+  message: '',
+  confirmText: 'Confirm',
+  cancelText: 'Cancel',
+  type: 'danger',
+  isLoading: false,
+  actionType: '', // 'approve', 'reject'
+  targetUser: null,
+  reason: 'Identity document could not be verified.'
+});
+
+const openApproveModal = (user) => {
   if (!user) return;
-  isActionLoading.value = true;
-  try {
-    const res = await api.patch(`/superadmin/users/${user.id}/verify`, {});
-    toast.success(res.data?.message || 'User identity verified and approved!');
-    isInspectModalOpen.value = false;
-    await fetchPendingUsers();
-  } catch (err) {
-    toast.error(err.response?.data?.message || 'Failed to approve verification.');
-  } finally {
-    isActionLoading.value = false;
-  }
+  confirmModal.title = 'Approve User Sign-Up';
+  confirmModal.message = `Are you sure you want to approve and verify identity for ${user.first_name} ${user.last_name} (${user.email})?\nThis will grant them active requester privileges.`;
+  confirmModal.confirmText = 'Approve & Verify';
+  confirmModal.cancelText = 'Cancel';
+  confirmModal.type = 'success';
+  confirmModal.isLoading = false;
+  confirmModal.actionType = 'approve';
+  confirmModal.targetUser = user;
+  confirmModal.isOpen = true;
 };
 
-const handleRejectVerification = async (user) => {
+const openRejectModal = (user) => {
   if (!user) return;
-  if (!confirm(`Are you sure you want to reject identity verification for ${user.first_name} ${user.last_name}?`)) {
-    return;
-  }
-  isActionLoading.value = true;
+  confirmModal.title = 'Reject User Sign-Up';
+  confirmModal.message = `Are you sure you want to reject identity verification for ${user.first_name} ${user.last_name} (${user.email})?\nThe account will be marked as Rejected.`;
+  confirmModal.confirmText = 'Reject Verification';
+  confirmModal.cancelText = 'Cancel';
+  confirmModal.type = 'danger';
+  confirmModal.isLoading = false;
+  confirmModal.actionType = 'reject';
+  confirmModal.targetUser = user;
+  confirmModal.reason = 'Identity document could not be verified.';
+  confirmModal.isOpen = true;
+};
+
+const closeConfirmModal = () => {
+  if (confirmModal.isLoading) return;
+  confirmModal.isOpen = false;
+  confirmModal.targetUser = null;
+  confirmModal.actionType = '';
+};
+
+const handleConfirmAction = async () => {
+  if (!confirmModal.targetUser) return;
+  confirmModal.isLoading = true;
+  const user = confirmModal.targetUser;
   try {
-    const res = await api.patch(`/superadmin/users/${user.id}/reject`, {
-      reason: 'Identity document could not be verified.'
-    });
-    toast.info(res.data?.message || 'User verification has been rejected.');
-    isInspectModalOpen.value = false;
-    await fetchPendingUsers();
+    if (confirmModal.actionType === 'approve') {
+      const res = await api.patch(`/superadmin/users/${user.id}/verify`, {});
+      toast.success(res.data?.message || 'User identity verified and approved!');
+      isInspectModalOpen.value = false;
+      closeConfirmModal();
+      await fetchPendingUsers();
+    } else if (confirmModal.actionType === 'reject') {
+      const res = await api.patch(`/superadmin/users/${user.id}/reject`, {
+        reason: confirmModal.reason || 'Identity document could not be verified.'
+      });
+      toast.info(res.data?.message || 'User verification has been rejected.');
+      isInspectModalOpen.value = false;
+      closeConfirmModal();
+      await fetchPendingUsers();
+    }
   } catch (err) {
-    toast.error(err.response?.data?.message || 'Failed to reject verification.');
+    toast.error(err.response?.data?.message || 'Failed to complete action.');
   } finally {
-    isActionLoading.value = false;
+    confirmModal.isLoading = false;
   }
 };
 

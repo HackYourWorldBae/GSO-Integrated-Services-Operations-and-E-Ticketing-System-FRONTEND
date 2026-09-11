@@ -75,8 +75,8 @@
           <div class="flex items-center gap-2 shrink-0">
             <select
               v-model="filters.unit_id"
-              @change="fetchUsers"
-              class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500"
+              @change="handleFilterChange"
+              class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500 cursor-pointer"
             >
               <option value="all">All Units</option>
               <option value="1">FGMU</option>
@@ -87,8 +87,8 @@
 
             <select
               v-model="filters.status"
-              @change="fetchUsers"
-              class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500"
+              @change="handleFilterChange"
+              class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500 cursor-pointer"
             >
               <option value="all">All Statuses</option>
               <option value="Active">Active</option>
@@ -221,9 +221,31 @@
                   <!-- Action Buttons -->
                   <td class="py-3.5 px-3 text-right">
                     <div class="flex items-center justify-end gap-1.5">
+                      <!-- Quick Approve / Reject for Pending Users -->
+                      <template v-if="!isUserVerified(user) && user.status !== 'Rejected'">
+                        <button
+                          @click="openApproveModal(user)"
+                          class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors cursor-pointer border border-emerald-200/60"
+                          title="Quick Approve User Sign-Up"
+                        >
+                          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                        <button
+                          @click="openRejectModal(user)"
+                          class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors cursor-pointer border border-rose-200/60"
+                          title="Quick Reject User Sign-Up"
+                        >
+                          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </template>
+
                       <button
                         @click="openInspectModal(user)"
-                        class="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors flex items-center gap-1"
+                        class="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer"
                         title="Inspect Institutional ID Card"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -234,14 +256,14 @@
                       </button>
                       <button
                         @click="openEditModal(user)"
-                        class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+                        class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
                         title="Edit User"
                       >
                         Edit
                       </button>
                       <button
-                        @click="confirmDeleteUser(user)"
-                        class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition-colors"
+                        @click="openDeactivateModal(user)"
+                        class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition-colors cursor-pointer"
                         title="Delete / Suspend User"
                       >
                         Delete
@@ -310,13 +332,21 @@
               </div>
 
               <div class="flex items-center gap-2 pt-2 border-t border-slate-200">
-                <button @click="openInspectModal(user)" class="py-2 px-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold hover:bg-purple-100 transition-colors text-center flex items-center justify-center gap-1">
+                <template v-if="!isUserVerified(user) && user.status !== 'Rejected'">
+                  <button @click="openApproveModal(user)" class="py-2 px-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition-colors cursor-pointer" title="Approve Sign-Up">
+                    ✓
+                  </button>
+                  <button @click="openRejectModal(user)" class="py-2 px-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-colors cursor-pointer" title="Reject Sign-Up">
+                    ✕
+                  </button>
+                </template>
+                <button @click="openInspectModal(user)" class="py-2 px-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold hover:bg-purple-100 transition-colors text-center flex items-center justify-center gap-1 cursor-pointer">
                   Inspect ID
                 </button>
-                <button @click="openEditModal(user)" class="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-colors text-center">
+                <button @click="openEditModal(user)" class="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-colors text-center cursor-pointer">
                   Edit
                 </button>
-                <button @click="confirmDeleteUser(user)" class="py-2 px-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 transition-colors text-center">
+                <button @click="openDeactivateModal(user)" class="py-2 px-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 transition-colors text-center cursor-pointer">
                   Delete
                 </button>
               </div>
@@ -327,23 +357,79 @@
             </div>
           </div>
 
-          <!-- Pagination Bar -->
-          <div v-if="pagination.total_pages > 1" class="flex items-center justify-between pt-5 border-t border-slate-100 text-xs text-slate-500">
-            <span>Page {{ pagination.page }} of {{ pagination.total_pages }}</span>
-            <div class="flex items-center gap-1.5">
+          <!-- Full Pagination Controls -->
+          <div class="px-5 py-4 bg-slate-50/70 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4 mt-4 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 rounded-b-3xl">
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="text-xs text-slate-500 font-medium">
+                Showing <strong class="text-slate-800">{{ paginationRange.start }}</strong> to
+                <strong class="text-slate-800">{{ paginationRange.end }}</strong> of
+                <strong class="text-slate-800">{{ pagination.total }}</strong> accounts
+              </span>
+              <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                <span class="font-medium">Per page:</span>
+                <select
+                  v-model.number="pagination.per_page"
+                  @change="handlePerPageChange"
+                  class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500 cursor-pointer shadow-xs"
+                >
+                  <option :value="10">10</option>
+                  <option :value="15">15</option>
+                  <option :value="25">25</option>
+                  <option :value="50">50</option>
+                  <option :value="100">100</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Page Navigation Buttons -->
+            <div class="flex items-center gap-1 flex-wrap justify-center">
               <button
-                @click="changePage(pagination.page - 1)"
-                :disabled="pagination.page <= 1"
-                class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 font-bold"
+                @click="changePage(1)"
+                :disabled="pagination.page <= 1 || isLoading"
+                class="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer"
+                title="First page"
               >
-                Previous
+                «
               </button>
               <button
-                @click="changePage(pagination.page + 1)"
-                :disabled="pagination.page >= pagination.total_pages"
-                class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 font-bold"
+                @click="changePage(pagination.page - 1)"
+                :disabled="pagination.page <= 1 || isLoading"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer"
               >
-                Next
+                ‹ Prev
+              </button>
+
+              <template v-for="(p, idx) in displayedPages" :key="'page-' + idx">
+                <span v-if="p === '...'" class="px-2 text-slate-400 font-bold text-xs">...</span>
+                <button
+                  v-else
+                  @click="changePage(p)"
+                  :disabled="isLoading"
+                  :class="[
+                    'w-8 h-8 rounded-xl text-xs font-black transition-all cursor-pointer',
+                    pagination.page === p
+                      ? 'bg-purple-600 text-white shadow-xs'
+                      : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-100'
+                  ]"
+                >
+                  {{ p }}
+                </button>
+              </template>
+
+              <button
+                @click="changePage(pagination.page + 1)"
+                :disabled="pagination.page >= pagination.total_pages || isLoading"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer"
+              >
+                Next ›
+              </button>
+              <button
+                @click="changePage(pagination.total_pages)"
+                :disabled="pagination.page >= pagination.total_pages || isLoading"
+                class="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer"
+                title="Last page"
+              >
+                »
               </button>
             </div>
           </div>
@@ -665,16 +751,16 @@
             <button 
               type="button"
               :disabled="isActionLoading || inspectingUser.status === 'Rejected'"
-              @click="handleRejectVerification(inspectingUser)" 
-              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+              @click="openRejectModal(inspectingUser)" 
+              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>{{ inspectingUser.status === 'Rejected' ? 'Already Rejected' : 'Reject / Invalidate' }}</span>
             </button>
             <button 
               type="button"
               :disabled="isActionLoading || isUserVerified(inspectingUser)"
-              @click="handleApproveVerification(inspectingUser)" 
-              class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              @click="openApproveModal(inspectingUser)" 
+              class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
             >
               <svg v-if="!isActionLoading" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -684,6 +770,31 @@
           </div>
         </div>
       </div>
+
+      <!-- Custom Confirmation Modal for Approve, Reject, and Deactivate -->
+      <ConfirmModal
+        :is-open="confirmModal.isOpen"
+        :title="confirmModal.title"
+        :message="confirmModal.message"
+        :confirm-text="confirmModal.confirmText"
+        :cancel-text="confirmModal.cancelText"
+        :type="confirmModal.type"
+        :is-loading="confirmModal.isLoading"
+        @confirm="handleConfirmAction"
+        @cancel="closeConfirmModal"
+      >
+        <div v-if="confirmModal.actionType === 'reject'" class="space-y-1.5 mt-2">
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            Rejection Reason (Optional)
+          </label>
+          <textarea
+            v-model="confirmModal.reason"
+            rows="2"
+            placeholder="Specify reason why identity verification was rejected..."
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-rose-500 focus:bg-white transition-colors"
+          ></textarea>
+        </div>
+      </ConfirmModal>
     </template>
   </MainLayout>
 </template>
@@ -693,6 +804,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 import api from '@/api/client';
 
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '');
@@ -724,38 +836,96 @@ const openInspectModal = (user) => {
   isInspectModalOpen.value = true;
 };
 
-const handleApproveVerification = async (user) => {
+// Confirmation modal state for Approve, Reject, and Deactivate actions
+const confirmModal = reactive({
+  isOpen: false,
+  title: '',
+  message: '',
+  confirmText: 'Confirm',
+  cancelText: 'Cancel',
+  type: 'danger',
+  isLoading: false,
+  actionType: '', // 'approve', 'reject', 'deactivate'
+  targetUser: null,
+  reason: 'Identity document could not be verified.'
+});
+
+const openApproveModal = (user) => {
   if (!user) return;
-  isActionLoading.value = true;
-  try {
-    const res = await api.patch(`/superadmin/users/${user.id}/verify`, {});
-    toast.success(res.data?.message || 'User identity verified and approved!');
-    isInspectModalOpen.value = false;
-    await fetchUsers();
-  } catch (err) {
-    toast.error(err.response?.data?.message || 'Failed to approve verification.');
-  } finally {
-    isActionLoading.value = false;
-  }
+  confirmModal.title = 'Approve User Sign-Up';
+  confirmModal.message = `Are you sure you want to approve and verify identity for ${user.first_name} ${user.last_name} (${user.email})?\nThis will grant them active requester privileges.`;
+  confirmModal.confirmText = 'Approve & Verify';
+  confirmModal.cancelText = 'Cancel';
+  confirmModal.type = 'success';
+  confirmModal.isLoading = false;
+  confirmModal.actionType = 'approve';
+  confirmModal.targetUser = user;
+  confirmModal.isOpen = true;
 };
 
-const handleRejectVerification = async (user) => {
+const openRejectModal = (user) => {
   if (!user) return;
-  if (!confirm(`Are you sure you want to reject identity verification for ${user.first_name} ${user.last_name}?`)) {
-    return;
-  }
-  isActionLoading.value = true;
+  confirmModal.title = 'Reject User Sign-Up';
+  confirmModal.message = `Are you sure you want to reject identity verification for ${user.first_name} ${user.last_name} (${user.email})?\nThe account will be flagged as Rejected.`;
+  confirmModal.confirmText = 'Reject Verification';
+  confirmModal.cancelText = 'Cancel';
+  confirmModal.type = 'danger';
+  confirmModal.isLoading = false;
+  confirmModal.actionType = 'reject';
+  confirmModal.targetUser = user;
+  confirmModal.reason = 'Identity document could not be verified.';
+  confirmModal.isOpen = true;
+};
+
+const openDeactivateModal = (user) => {
+  if (!user) return;
+  confirmModal.title = 'Deactivate User Account';
+  confirmModal.message = `Are you sure you want to deactivate or suspend ${user.first_name} ${user.last_name} (${user.email})?\nThey will no longer be able to log in to the system.`;
+  confirmModal.confirmText = 'Deactivate Account';
+  confirmModal.cancelText = 'Cancel';
+  confirmModal.type = 'danger';
+  confirmModal.isLoading = false;
+  confirmModal.actionType = 'deactivate';
+  confirmModal.targetUser = user;
+  confirmModal.isOpen = true;
+};
+
+const closeConfirmModal = () => {
+  if (confirmModal.isLoading) return;
+  confirmModal.isOpen = false;
+  confirmModal.targetUser = null;
+  confirmModal.actionType = '';
+};
+
+const handleConfirmAction = async () => {
+  if (!confirmModal.targetUser) return;
+  confirmModal.isLoading = true;
+  const user = confirmModal.targetUser;
   try {
-    const res = await api.patch(`/superadmin/users/${user.id}/reject`, {
-      reason: 'Identity document could not be verified.'
-    });
-    toast.info(res.data?.message || 'User verification has been rejected.');
-    isInspectModalOpen.value = false;
-    await fetchUsers();
+    if (confirmModal.actionType === 'approve') {
+      const res = await api.patch(`/superadmin/users/${user.id}/verify`, {});
+      toast.success(res.data?.message || 'User identity verified and approved!');
+      isInspectModalOpen.value = false;
+      closeConfirmModal();
+      await fetchUsers();
+    } else if (confirmModal.actionType === 'reject') {
+      const res = await api.patch(`/superadmin/users/${user.id}/reject`, {
+        reason: confirmModal.reason || 'Identity document could not be verified.'
+      });
+      toast.info(res.data?.message || 'User verification has been rejected.');
+      isInspectModalOpen.value = false;
+      closeConfirmModal();
+      await fetchUsers();
+    } else if (confirmModal.actionType === 'deactivate') {
+      const res = await api.delete(`/superadmin/users/${user.id}`);
+      toast.success(res.data?.message || 'User account deactivated successfully.');
+      closeConfirmModal();
+      await fetchUsers();
+    }
   } catch (err) {
-    toast.error(err.response?.data?.message || 'Failed to reject verification.');
+    toast.error(err.response?.data?.message || 'Failed to complete action.');
   } finally {
-    isActionLoading.value = false;
+    confirmModal.isLoading = false;
   }
 };
 
@@ -870,7 +1040,42 @@ const setRoleFilter = (role) => {
   fetchUsers();
 };
 
+const paginationRange = computed(() => {
+  if (pagination.total === 0) return { start: 0, end: 0 };
+  const start = (pagination.page - 1) * pagination.per_page + 1;
+  const end = Math.min(pagination.page * pagination.per_page, pagination.total);
+  return { start, end };
+});
+
+const displayedPages = computed(() => {
+  const current = pagination.page;
+  const total = pagination.total_pages;
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages = [];
+  pages.push(1);
+  if (current > 3) pages.push('...');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
+});
+
+const handlePerPageChange = () => {
+  pagination.page = 1;
+  fetchUsers();
+};
+
+const handleFilterChange = () => {
+  pagination.page = 1;
+  fetchUsers();
+};
+
 const changePage = (newPage) => {
+  if (newPage < 1 || newPage > pagination.total_pages || newPage === pagination.page) return;
   pagination.page = newPage;
   fetchUsers();
 };
@@ -1024,18 +1229,8 @@ const submitEditUser = async () => {
   }
 };
 
-const confirmDeleteUser = async (user) => {
-  if (!confirm(`Are you sure you want to deactivate or suspend the account of ${user.first_name} ${user.last_name} (${user.email})?`)) {
-    return;
-  }
-
-  try {
-    const res = await api.delete(`/superadmin/users/${user.id}`);
-    toast.success(res.data?.message || 'User account deactivated successfully.');
-    fetchUsers();
-  } catch (err) {
-    toast.error(err.response?.data?.message || 'Failed to deactivate account.');
-  }
+const confirmDeleteUser = (user) => {
+  openDeactivateModal(user);
 };
 
 onMounted(() => {
