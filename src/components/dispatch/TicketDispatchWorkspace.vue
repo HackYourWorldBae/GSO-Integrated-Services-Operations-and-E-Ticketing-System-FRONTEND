@@ -51,19 +51,6 @@
           </button>
           <button
             type="button"
-            @click="showTicketPickerModal = true"
-            class="px-4 py-2.5 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 hover:text-white text-xs font-black rounded-xl transition-all border border-emerald-500/30 cursor-pointer"
-          >
-            Switch Ticket
-          </button>
-          <router-link
-            :to="`/admin/${unitCode.toLowerCase()}/approved-tickets`"
-            class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-black rounded-xl transition-all border border-white/10 cursor-pointer"
-          >
-            Browse Queue
-          </router-link>
-          <button
-            type="button"
             @click="clearSelectedTicket"
             class="p-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 hover:text-white rounded-xl transition-colors border border-rose-500/30 cursor-pointer"
             title="Deselect ticket"
@@ -175,20 +162,6 @@
             </label>
           </div>
         </div>
-      </div>
-
-      <!-- Task Briefing Notes (Optional) -->
-      <div class="relative z-10 pt-1">
-        <label for="task-notes" class="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-1">
-          Special Dispatch Instructions / Task Briefing (Optional)
-        </label>
-        <input
-          id="task-notes"
-          type="text"
-          v-model="taskNotes"
-          placeholder="e.g. Bring safety harnesses, coordinate with building custodian upon arrival..."
-          class="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-medium focus:outline-none focus:border-emerald-400 transition-all placeholder:text-slate-500"
-        />
       </div>
     </div>
 
@@ -535,141 +508,96 @@
             </div>
 
             <!-- Prompt to select ticket first if none is active -->
-            <button
+            <router-link
               v-else
-              type="button"
-              @click="showTicketPickerModal = true"
-              class="flex-1 py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold text-center transition-colors cursor-pointer"
+              :to="`/admin/${unitCode.toLowerCase()}/approved-tickets`"
+              class="flex-1 py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold text-center transition-colors cursor-pointer block"
             >
               Select Ticket to Assign
-            </button>
+            </router-link>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══ 5. Ticket Picker Modal (To switch/pick tickets on the fly) ═══ -->
-    <div
-      v-if="showTicketPickerModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
-      @click.self="showTicketPickerModal = false"
-    >
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-scale-up">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-          <div>
-            <h3 class="text-base font-black text-slate-900">Select Approved Ticket</h3>
-            <p class="text-xs text-slate-400">Choose a service request to assign technicians.</p>
-          </div>
-          <button
-            @click="showTicketPickerModal = false"
-            class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors"
-          >
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-
-        <div class="p-5 overflow-y-auto space-y-2.5 custom-scrollbar flex-1">
-          <div v-if="dispatchQueue.length === 0" class="py-12 text-center text-slate-400 text-xs font-bold">
-            No approved tickets currently pending assignment.
-          </div>
-          <div
-            v-for="ticket in dispatchQueue"
-            :key="ticket.id"
-            @click="selectTicket(ticket)"
-            class="p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 hover:border-emerald-500 hover:bg-emerald-50/20"
-            :class="selectedTicket?.id === ticket.id ? 'border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-500/20' : 'border-slate-200/80'"
-          >
-            <div class="min-w-0">
-              <div class="flex items-center gap-2 mb-0.5">
-                <span class="text-xs font-black text-slate-900">#{{ ticket.id }}</span>
-                <span v-if="ticket.is_emergency" class="px-2 py-0.2 rounded-md bg-rose-100 text-rose-700 text-[9px] font-black uppercase">Emergency</span>
-                <span class="text-xs text-slate-500 font-bold truncate">{{ ticket.service || ticket.type }}</span>
-              </div>
-              <p class="text-xs text-slate-500 truncate">
-                {{ ticket.location || ticket.college_building }} · Requested by <strong class="text-slate-800">{{ ticket.requester }}</strong>
-              </p>
-            </div>
-
-            <button
-              type="button"
-              class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold shrink-0 shadow-xs"
-            >
-              {{ selectedTicket?.id === ticket.id ? 'Active' : 'Select' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ 6. Scope & Attachments Modal ═══ -->
-    <div
-      v-if="showScopeModal && selectedTicket"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
-      @click.self="showScopeModal = false"
-    >
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-scale-up">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-black rounded-lg">#{{ selectedTicket.id }}</span>
-            <h3 class="text-base font-black text-slate-900">{{ selectedTicket.service || selectedTicket.type }}</h3>
-          </div>
-          <button
-            @click="showScopeModal = false"
-            class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors"
-          >
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-
-        <div class="p-5 overflow-y-auto space-y-4 text-xs custom-scrollbar">
-          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-            <div class="flex justify-between"><span class="text-slate-400 font-bold">Requester:</span><span class="font-black text-slate-900">{{ selectedTicket.requester }}</span></div>
-            <div class="flex justify-between"><span class="text-slate-400 font-bold">Contact:</span><span class="font-bold text-slate-800">{{ selectedTicket.contact_number || 'N/A' }}</span></div>
-            <div class="flex justify-between"><span class="text-slate-400 font-bold">Location:</span><span class="font-bold text-slate-800">{{ selectedTicket.location || selectedTicket.college_building }}</span></div>
-            <div class="flex justify-between"><span class="text-slate-400 font-bold">Room:</span><span class="font-bold text-slate-800">{{ selectedTicket.office_room || 'N/A' }}</span></div>
-          </div>
-
-          <div>
-            <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-1">Job Description &amp; Scope</h4>
-            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 whitespace-pre-wrap leading-relaxed">
-              {{ selectedTicket.job_description || 'No detailed scope provided.' }}
-            </div>
-          </div>
-
-          <div>
-            <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Attached Files ({{ (selectedTicket.attachments || []).length }})</h4>
-            <div v-if="!selectedTicket.attachments || selectedTicket.attachments.length === 0" class="p-3.5 rounded-xl bg-slate-50 text-slate-400 text-center">
-              No files attached.
-            </div>
-            <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div
-                v-for="att in selectedTicket.attachments"
-                :key="att.id"
-                class="p-2.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2"
+    <!-- ═══ 5. Scope & Attachments Modal ═══ -->
+    <Teleport to="body">
+      <div
+        v-if="showScopeModal && selectedTicket"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
+        @click.self="showScopeModal = false"
+      >
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] flex flex-col overflow-hidden animate-scale-up">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="flex items-center gap-2.5">
+              <span
+                :class="[
+                  'px-2.5 py-1 text-xs font-black rounded-lg',
+                  unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                ]"
               >
-                <span class="font-bold text-slate-800 truncate text-xs">{{ att.file_name || 'Attachment' }}</span>
-                <button
-                  type="button"
-                  @click="downloadAttachment(att)"
-                  class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold shrink-0"
+                #{{ selectedTicket.id }}
+              </span>
+              <h3 class="text-base font-black text-slate-900">{{ selectedTicket.service || selectedTicket.type }}</h3>
+            </div>
+            <button
+              @click="showScopeModal = false"
+              class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
+            >
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+
+          <div class="p-5 overflow-y-auto space-y-4 text-xs custom-scrollbar flex-1">
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+              <div class="flex justify-between"><span class="text-slate-400 font-bold">Requester:</span><span class="font-black text-slate-900">{{ selectedTicket.requester }}</span></div>
+              <div class="flex justify-between"><span class="text-slate-400 font-bold">Contact:</span><span class="font-bold text-slate-800">{{ selectedTicket.contact_number || 'N/A' }}</span></div>
+              <div class="flex justify-between"><span class="text-slate-400 font-bold">Location:</span><span class="font-bold text-slate-800">{{ selectedTicket.location || selectedTicket.college_building }}</span></div>
+              <div class="flex justify-between"><span class="text-slate-400 font-bold">Room:</span><span class="font-bold text-slate-800">{{ selectedTicket.office_room || 'N/A' }}</span></div>
+            </div>
+
+            <div>
+              <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-1">Job Description &amp; Scope</h4>
+              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 whitespace-pre-wrap leading-relaxed">
+                {{ selectedTicket.job_description || 'No detailed scope provided.' }}
+              </div>
+            </div>
+
+            <div>
+              <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Attached Files ({{ (selectedTicket.attachments || []).length }})</h4>
+              <div v-if="!selectedTicket.attachments || selectedTicket.attachments.length === 0" class="p-3.5 rounded-xl bg-slate-50 text-slate-400 text-center">
+                No files attached.
+              </div>
+              <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div
+                  v-for="att in selectedTicket.attachments"
+                  :key="att.id"
+                  class="p-2.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2"
                 >
-                  Download
-                </button>
+                  <span class="font-bold text-slate-800 truncate text-xs">{{ att.file_name || 'Attachment' }}</span>
+                  <button
+                    type="button"
+                    @click="downloadAttachment(att)"
+                    class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold shrink-0 cursor-pointer"
+                  >
+                    Download
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
-          <button
-            @click="showScopeModal = false"
-            class="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold"
-          >
-            Close
-          </button>
+          <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end shrink-0">
+            <button
+              @click="showScopeModal = false"
+              class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs cursor-pointer transition-colors"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
 
   </div>
 </template>
@@ -719,7 +647,6 @@ const personnelStatusFilter = ref('all');
 const personnelCategoryFilter = ref('all');
 
 // Modals
-const showTicketPickerModal = ref(false);
 const showScopeModal = ref(false);
 
 const availableCount = computed(() => {
@@ -780,7 +707,6 @@ const selectTicket = (ticket) => {
   if (ticket.implementationDate) {
     implementationDate.value = ticket.implementationDate;
   }
-  showTicketPickerModal.value = false;
 };
 
 const clearSelectedTicket = () => {
