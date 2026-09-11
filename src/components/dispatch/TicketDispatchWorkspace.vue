@@ -281,25 +281,13 @@
           </p>
         </div>
 
-        <!-- Status Legend & Refresh -->
-        <div class="flex items-center gap-3 sm:gap-4 flex-wrap text-[10px] font-bold uppercase tracking-wider text-slate-500">
-          <span class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Available ({{ availableCount }})
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-blue-500"></span> Assigned ({{ currentAssignments.length }})
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-amber-500"></span> Working ({{ workingCount }})
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-rose-400"></span> On Leave ({{ onLeaveCount }})
-          </span>
+        <!-- Action Toolbar: Refresh -->
+        <div class="flex items-center gap-2">
           <button
             type="button"
             @click="refreshData"
             :disabled="loadingTickets"
-            class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer active:scale-95 disabled:opacity-50"
+            class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-1.5 shadow-2xs"
             title="Refresh workforce roster and queue"
           >
             <svg
@@ -312,56 +300,23 @@
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
+            <span>Refresh Roster</span>
           </button>
         </div>
       </div>
 
       <!-- Search & Specialty Category Filter Bar -->
       <div class="space-y-3">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="relative flex-1 max-w-md">
-            <input
-              v-model="personnelSearch"
-              type="text"
-              placeholder="Search technician by name, specialty, or phone..."
-              class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 bg-slate-50/60 transition-all placeholder:text-slate-400"
-            />
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-
-          <!-- Status Quick Filter Pills -->
-          <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold">
-            <button
-              type="button"
-              @click="personnelStatusFilter = 'all'"
-              :class="['px-3 py-1 rounded-lg transition-all cursor-pointer', personnelStatusFilter === 'all' ? 'bg-white text-slate-900 shadow-xs font-black' : 'text-slate-500 hover:text-slate-800']"
-            >
-              All ({{ store.personnel.length }})
-            </button>
-            <button
-              type="button"
-              @click="personnelStatusFilter = 'Available'"
-              :class="['px-3 py-1 rounded-lg transition-all cursor-pointer', personnelStatusFilter === 'Available' ? 'bg-emerald-600 text-white shadow-xs font-black' : 'text-emerald-700 hover:bg-emerald-50']"
-            >
-              Available
-            </button>
-            <button
-              type="button"
-              @click="personnelStatusFilter = 'Working'"
-              :class="['px-3 py-1 rounded-lg transition-all cursor-pointer', personnelStatusFilter === 'Working' ? 'bg-amber-600 text-white shadow-xs font-black' : 'text-amber-700 hover:bg-amber-50']"
-            >
-              Working
-            </button>
-            <button
-              type="button"
-              @click="personnelStatusFilter = 'On Leave'"
-              :class="['px-3 py-1 rounded-lg transition-all cursor-pointer', personnelStatusFilter === 'On Leave' ? 'bg-rose-600 text-white shadow-xs font-black' : 'text-rose-700 hover:bg-rose-50']"
-            >
-              On Leave
-            </button>
-          </div>
+        <div class="relative max-w-md">
+          <input
+            v-model="personnelSearch"
+            type="text"
+            placeholder="Search technician by name or specialty..."
+            class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 bg-slate-50/60 transition-all placeholder:text-slate-400"
+          />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
         </div>
 
         <!-- Specialty Category Chips -->
@@ -401,50 +356,33 @@
               : 'border-slate-200/90 hover:border-slate-300'
           ]"
         >
-          <!-- Worker Top Info -->
-          <div>
-            <div class="flex items-start justify-between gap-2.5 mb-2.5">
-              <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center font-black text-xs shrink-0 border border-slate-200">
-                  {{ getInitials(worker.name) }}
-                </div>
-                <div class="min-w-0">
-                  <h4 class="text-xs font-black text-slate-900 truncate leading-tight">{{ worker.name }}</h4>
-                  <span class="text-[11px] font-bold text-slate-500 truncate block mt-0.5">
-                    {{ worker.specialty || worker.role || 'General Staff' }}
-                  </span>
-                </div>
+          <!-- Worker Info: Status, Full Name, Specialty -->
+          <div class="flex items-start justify-between gap-2.5">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center font-black text-xs shrink-0 border border-slate-200">
+                {{ getInitials(worker.name) }}
               </div>
-
-              <!-- Status Badge -->
-              <span
-                :class="[
-                  'px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 border',
-                  worker.status === 'Available'
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : worker.status === 'Working'
-                      ? 'bg-amber-50 text-amber-700 border-amber-200'
-                      : 'bg-rose-50 text-rose-700 border-rose-200'
-                ]"
-              >
-                {{ worker.status }}
-              </span>
-            </div>
-
-            <!-- Current Work Info Box -->
-            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1">
-              <div class="flex items-center justify-between text-slate-600">
-                <span class="text-slate-400 font-bold text-[10px]">Contact:</span>
-                <span class="font-bold text-slate-800">{{ worker.contact_number || 'N/A' }}</span>
-              </div>
-              <div class="flex items-center justify-between text-slate-600">
-                <span class="text-slate-400 font-bold text-[10px]">Active Work:</span>
-                <span v-if="worker.status === 'Working' || worker.assignedTicket" class="font-black text-amber-700 truncate max-w-[130px]">
-                  #{{ worker.assignedTicket }} {{ worker.ticketTask ? '· ' + worker.ticketTask : '' }}
+              <div class="min-w-0">
+                <h4 class="text-xs font-black text-slate-900 truncate leading-tight">{{ worker.name }}</h4>
+                <span class="text-[11px] font-bold text-slate-500 truncate block mt-0.5">
+                  {{ worker.specialty || worker.role || 'General Staff' }}
                 </span>
-                <span v-else class="font-bold text-emerald-700">None (Idle)</span>
               </div>
             </div>
+
+            <!-- Status Badge -->
+            <span
+              :class="[
+                'px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 border',
+                worker.status === 'Available'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : worker.status === 'Working'
+                    ? 'bg-amber-50 text-amber-700 border-amber-200'
+                    : 'bg-rose-50 text-rose-700 border-rose-200'
+              ]"
+            >
+              {{ worker.status }}
+            </span>
           </div>
 
           <!-- Worker Card Actions -->
@@ -797,23 +735,10 @@ onUnmounted(() => {
 
 // Personnel filter state
 const personnelSearch = ref('');
-const personnelStatusFilter = ref('all');
 const personnelCategoryFilter = ref('all');
 
 // Modals
 const showScopeModal = ref(false);
-
-const availableCount = computed(() => {
-  return (props.store?.personnel || []).filter(w => w.status === 'Available').length;
-});
-
-const workingCount = computed(() => {
-  return (props.store?.personnel || []).filter(w => w.status === 'Working').length;
-});
-
-const onLeaveCount = computed(() => {
-  return (props.store?.personnel || []).filter(w => w.status === 'On Leave').length;
-});
 
 const getInitials = (name) => {
   if (!name) return '??';
@@ -827,10 +752,6 @@ const isWorkerAssigned = (workerId) => {
 const filteredPersonnel = computed(() => {
   let list = props.store?.personnel || [];
 
-  if (personnelStatusFilter.value !== 'all') {
-    list = list.filter(w => w.status === personnelStatusFilter.value);
-  }
-
   if (personnelCategoryFilter.value !== 'all') {
     list = list.filter(w => w.specialty === personnelCategoryFilter.value);
   }
@@ -839,8 +760,7 @@ const filteredPersonnel = computed(() => {
     const q = personnelSearch.value.toLowerCase().trim();
     list = list.filter(w =>
       w.name.toLowerCase().includes(q) ||
-      (w.specialty && w.specialty.toLowerCase().includes(q)) ||
-      (w.contact_number && w.contact_number.includes(q))
+      (w.specialty && w.specialty.toLowerCase().includes(q))
     );
   }
 
