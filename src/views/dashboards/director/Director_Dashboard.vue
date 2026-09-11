@@ -146,8 +146,8 @@
           <!-- Executive KPI Cards Grid (Consolidated Overview) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <!-- 1. Total Requests Filed -->
-            <div class="p-6 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col justify-between min-h-[160px] group hover:shadow-md transition-all duration-200">
-              <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="p-6 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col justify-between group hover:shadow-md transition-all duration-200">
+              <div class="flex items-center justify-between gap-2 mb-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Total Requests Filed</span>
                 <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700/60 text-xs font-bold">
                   {{ executiveAnalytics?.filter?.label || 'All-Time' }}
@@ -156,15 +156,11 @@
               <div class="text-4xl sm:text-5xl font-extrabold tracking-tight tabular-nums text-white my-1">
                 {{ executiveAnalytics?.summary?.total_requests ?? 0 }}
               </div>
-              <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                <span>FGMU, LEAU &amp; SSU combined</span>
-              </div>
             </div>
 
             <!-- 2. Resolved & Completed -->
-            <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[160px] hover:border-emerald-300 hover:shadow-md transition-all duration-200">
-              <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between hover:border-emerald-300 hover:shadow-md transition-all duration-200">
+              <div class="flex items-center justify-between gap-2 mb-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Resolved &amp; Completed</span>
                 <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-bold">
                   Closed
@@ -176,12 +172,11 @@
                 </span>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">resolved</span>
               </div>
-              <p class="text-xs text-slate-500 font-medium">Successfully completed service jobs</p>
             </div>
 
             <!-- 3. Declined / Out of Scope -->
-            <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[160px] hover:border-slate-300 hover:shadow-md transition-all duration-200">
-              <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all duration-200">
+              <div class="flex items-center justify-between gap-2 mb-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Declined / Out of Scope</span>
                 <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60 text-xs font-bold">
                   Disapproved
@@ -193,31 +188,24 @@
                 </span>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">declined</span>
               </div>
-              <p class="text-xs text-slate-500 font-medium">Requests redirected or out of scope</p>
             </div>
 
             <!-- 4. Client Satisfaction Rating -->
-            <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[160px] hover:border-amber-300 hover:shadow-md transition-all duration-200">
-              <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between hover:border-amber-300 hover:shadow-md transition-all duration-200">
+              <div class="flex items-center justify-between gap-2 mb-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Client Satisfaction</span>
-                <span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/60 text-xs font-bold">
-                  Out of 5.0
-                </span>
+                <div class="flex items-center gap-0.5 text-amber-500">
+                  <svg v-for="i in 5" :key="i" class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                </div>
               </div>
               <div class="flex items-baseline gap-1.5 my-1">
                 <span class="text-4xl sm:text-5xl font-extrabold tracking-tight tabular-nums text-slate-900">
                   {{ executiveAnalytics?.summary?.overall_ratings?.overall_avg ? parseFloat(executiveAnalytics.summary.overall_ratings.overall_avg).toFixed(2) : '5.00' }}
                 </span>
-                <span class="text-sm font-semibold text-slate-400">/ 5.00</span>
-              </div>
-              <div class="flex items-center gap-1.5 text-amber-500">
-                <div class="flex items-center gap-0.5">
-                  <svg v-for="i in 5" :key="i" class="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                  </svg>
-                </div>
-                <span class="text-xs font-semibold text-slate-500">
-                  ({{ executiveAnalytics?.summary?.overall_ratings?.total_feedbacks || 0 }} surveys)
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  ({{ executiveAnalytics?.summary?.overall_ratings?.total_feedbacks || 0 }} reviews)
                 </span>
               </div>
             </div>
@@ -408,7 +396,7 @@
 
               <!-- Rating Breakdown Dimensions -->
               <div class="pt-3 border-t border-slate-100 space-y-3">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Rating Breakdown (out of 5.0)</span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Rating Breakdown</span>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-center sm:text-left">
                     <span class="text-xs font-medium text-slate-500 block mb-0.5">Quality</span>

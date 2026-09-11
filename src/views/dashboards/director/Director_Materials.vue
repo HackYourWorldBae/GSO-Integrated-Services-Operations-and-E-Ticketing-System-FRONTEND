@@ -144,8 +144,8 @@
         <!-- Materials Valuation KPI Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
           <!-- 1. Total Cost of Materials -->
-          <div class="p-6 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col justify-between min-h-[150px] group hover:shadow-md transition-all duration-200">
-            <div class="flex items-center justify-between gap-2 mb-3">
+          <div class="p-6 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col justify-between group hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between gap-2 mb-2">
               <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Total Cost of Materials</span>
               <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700/60 text-xs font-bold">
                 All Units
@@ -154,15 +154,11 @@
             <div class="text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums text-white my-1">
               ₱{{ formatCurrency(materialsSummary?.total_worth) }}
             </div>
-            <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>Cumulative material consumption</span>
-            </div>
           </div>
 
           <!-- 2. Materials Recorded -->
-          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[150px] hover:border-emerald-300 hover:shadow-md transition-all duration-200">
-            <div class="flex items-center justify-between gap-2 mb-3">
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between hover:border-emerald-300 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between gap-2 mb-2">
               <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Materials Recorded</span>
               <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-bold">
                 Entries
@@ -174,12 +170,11 @@
               </span>
               <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">items</span>
             </div>
-            <p class="text-xs text-slate-500 font-medium">Distinct supply records filed</p>
           </div>
 
           <!-- 3. Total Items Used -->
-          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[150px] hover:border-slate-300 hover:shadow-md transition-all duration-200">
-            <div class="flex items-center justify-between gap-2 mb-3">
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between gap-2 mb-2">
               <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Items Used</span>
               <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60 text-xs font-bold">
                 Quantity
@@ -191,12 +186,11 @@
               </span>
               <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">units</span>
             </div>
-            <p class="text-xs text-slate-500 font-medium">Summed quantity deployed</p>
           </div>
 
           <!-- 4. FGMU Facilities -->
-          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[150px] hover:border-blue-300 hover:shadow-md transition-all duration-200">
-            <div class="flex items-center justify-between gap-2 mb-3">
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between hover:border-blue-300 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between gap-2 mb-2">
               <span class="text-xs font-bold uppercase tracking-wider text-blue-700">FGMU — Facilities</span>
               <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60 text-xs font-bold">
                 {{ materialsSummary?.by_unit?.FGMU?.count || 0 }} Items
@@ -205,12 +199,11 @@
             <div class="text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums text-slate-900 my-1">
               ₱{{ formatCurrency(materialsSummary?.by_unit?.FGMU?.total_worth) }}
             </div>
-            <p class="text-xs text-slate-500 font-medium">Facilities &amp; maintenance jobs</p>
           </div>
 
           <!-- 5. LEAU Landscaping -->
-          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between min-h-[150px] hover:border-emerald-300 hover:shadow-md transition-all duration-200">
-            <div class="flex items-center justify-between gap-2 mb-3">
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between hover:border-emerald-300 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between gap-2 mb-2">
               <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">LEAU — Landscaping</span>
               <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-bold">
                 {{ materialsSummary?.by_unit?.LEAU?.count || 0 }} Items
@@ -219,7 +212,6 @@
             <div class="text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums text-slate-900 my-1">
               ₱{{ formatCurrency(materialsSummary?.by_unit?.LEAU?.total_worth) }}
             </div>
-            <p class="text-xs text-slate-500 font-medium">Grounds &amp; landscaping supplies</p>
           </div>
         </div>
 
