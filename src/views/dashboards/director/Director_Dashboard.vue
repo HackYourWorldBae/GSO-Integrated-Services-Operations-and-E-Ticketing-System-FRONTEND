@@ -185,9 +185,15 @@
             </div>
 
             <!-- 4. Total Worth of Materials Used -->
-            <div class="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[160px]">
+            <router-link
+              to="/director/materials"
+              class="group p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[160px] hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer"
+            >
               <div class="flex items-center justify-between gap-2 mb-4">
-                <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600">Materials Used Worth</span>
+                <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600 group-hover:text-emerald-700 transition-colors flex items-center gap-1.5">
+                  <span>Materials Used Worth</span>
+                  <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </span>
                 <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-black">
                   {{ executiveAnalytics?.materials_summary?.total_records || 0 }} Items
                 </span>
@@ -200,7 +206,7 @@
                 <span class="text-slate-300">•</span>
                 <span>LEAU: ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.by_unit?.LEAU?.total_worth) }}</span>
               </div>
-            </div>
+            </router-link>
 
             <!-- 5. Client Satisfaction Rating -->
             <div class="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[160px]">
@@ -306,125 +312,77 @@
             </div>
           </div>
 
-          <!-- Materials Consumption & Resource Valuation Table -->
-          <div class="space-y-4 pt-2">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div>
-                <h4 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2.5">
+          <!-- Materials & Supplies Valuation Executive Briefing -->
+          <div class="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
                   <span class="w-2 h-4 rounded-full bg-emerald-600"></span>
-                  Materials Consumed &amp; Cost Valuation ({{ executiveAnalytics?.filter?.label || 'Current Period' }})
-                </h4>
-                <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                  Consolidated inventory disbursement across FGMU &amp; LEAU service maintenance orders
+                  <h4 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800">
+                    Materials &amp; Consumables Valuation Overview
+                  </h4>
+                  <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                    {{ executiveAnalytics?.filter?.label || 'Current Period' }}
+                  </span>
+                </div>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                  Disbursed supplies, replacement components, and campus maintenance items logged across FGMU &amp; LEAU operations.
                 </p>
               </div>
 
-              <!-- Action Buttons & Search -->
-              <div class="flex flex-wrap items-center gap-2.5">
-                <!-- Search Filter -->
-                <div class="relative min-w-[200px] sm:min-w-[240px]">
-                  <input
-                    v-model="materialSearchQuery"
-                    type="text"
-                    placeholder="Filter materials or ticket..."
-                    class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all shadow-2xs"
-                  />
-                  <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-
-                <!-- Generate & Download Materials Document Button -->
+              <!-- Action Links -->
+              <div class="flex items-center gap-3 shrink-0">
+                <router-link
+                  to="/director/materials"
+                  class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-xs cursor-pointer active:scale-95"
+                >
+                  <span>View Full Materials Logs &amp; Table</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </router-link>
                 <button
                   @click="handleDownloadMaterialsReport"
                   :disabled="isGeneratingMaterialsPdf || !executiveAnalytics"
-                  class="px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-xs active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
-                  title="Generate and download official materials consumption PDF document"
+                  class="px-3.5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                  title="Quick Export Materials Report PDF"
                 >
-                  <svg v-if="isGeneratingMaterialsPdf" class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg v-if="isGeneratingMaterialsPdf" class="animate-spin h-3.5 w-3.5 text-slate-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <span>{{ isGeneratingMaterialsPdf ? 'Generating...' : 'Export Materials PDF' }}</span>
+                  <span class="hidden sm:inline">Export PDF</span>
                 </button>
               </div>
             </div>
 
-            <!-- Materials Table -->
-            <div class="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-xs max-h-[420px] overflow-y-auto">
-              <table class="min-w-[700px] w-full text-left border-collapse">
-                <thead class="sticky top-0 z-10">
-                  <tr class="bg-slate-100/95 backdrop-blur-xs text-slate-700 text-xs sm:text-sm font-black uppercase tracking-wider border-b border-slate-200">
-                    <th class="py-3.5 px-4 text-center w-12">#</th>
-                    <th class="py-3.5 px-6">Material Description</th>
-                    <th class="py-3.5 px-4 text-center">Unit</th>
-                    <th class="py-3.5 px-4 text-center">Quantity</th>
-                    <th class="py-3.5 px-4 text-right">Unit Price</th>
-                    <th class="py-3.5 px-4 text-right">Total Worth</th>
-                    <th class="py-3.5 px-4 text-center">Sub-Unit</th>
-                    <th class="py-3.5 px-6 text-center">Ticket Ref</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 text-sm sm:text-base">
-                  <tr v-if="filteredMaterials.length === 0">
-                    <td colspan="8" class="py-8 text-center text-slate-400 font-medium text-xs sm:text-sm">
-                      {{ materialSearchQuery ? 'No materials match the search query.' : 'No materials or supplies recorded for this period.' }}
-                    </td>
-                  </tr>
-                  <tr
-                    v-for="(item, idx) in filteredMaterials"
-                    :key="item.id || idx"
-                    class="hover:bg-slate-50/70 transition-colors"
-                  >
-                    <td class="py-3.5 px-4 text-center text-xs font-bold text-slate-400 tabular-nums">
-                      {{ idx + 1 }}
-                    </td>
-                    <td class="py-3.5 px-6">
-                      <div class="font-bold text-slate-900 text-sm sm:text-base">{{ item.material_name }}</div>
-                      <div v-if="item.ticket_title" class="text-xs text-slate-400 truncate max-w-xs">{{ item.ticket_title }}</div>
-                    </td>
-                    <td class="py-3.5 px-4 text-center text-xs sm:text-sm font-semibold text-slate-600">
-                      {{ (item.unit_measurement || 'pcs').toLowerCase() }}
-                    </td>
-                    <td class="py-3.5 px-4 text-center font-extrabold text-slate-900 tabular-nums text-sm sm:text-base">
-                      {{ item.quantity }}
-                    </td>
-                    <td class="py-3.5 px-4 text-right font-medium text-slate-700 tabular-nums text-sm sm:text-base">
-                      ₱{{ formatCurrency(item.unit_price) }}
-                    </td>
-                    <td class="py-3.5 px-4 text-right font-black text-slate-900 tabular-nums text-sm sm:text-base">
-                      ₱{{ formatCurrency(item.total_price) }}
-                    </td>
-                    <td class="py-3.5 px-4 text-center">
-                      <span
-                        class="px-2.5 py-1 rounded-full text-xs font-black"
-                        :class="item.unit_code === 'LEAU' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-slate-100 text-slate-800 border border-slate-200/60'"
-                      >
-                        {{ item.unit_code }}
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-6 text-center text-xs font-mono font-bold text-slate-600">
-                      {{ item.ticket_id || '—' }}
-                    </td>
-                  </tr>
-
-                  <!-- Materials Grand Total Row -->
-                  <tr class="bg-slate-50 font-black text-slate-900 border-t-2 border-slate-200 sticky bottom-0">
-                    <td colspan="5" class="py-4 px-6 text-right text-xs sm:text-sm font-black tracking-wider text-slate-900">
-                      Consolidated Materials Valuation:
-                    </td>
-                    <td class="py-4 px-4 text-right text-emerald-800 tabular-nums text-sm sm:text-base font-black">
-                      ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.total_worth) }}
-                    </td>
-                    <td colspan="2" class="py-4 px-6 text-center text-xs text-slate-500 font-bold">
-                      {{ executiveAnalytics?.materials_summary?.total_records || 0 }} distinct records
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <!-- Mini Summary Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-1">
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Total Valuation</span>
+                <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
+                  ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.total_worth) }}
+                </span>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Recorded Items</span>
+                <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
+                  {{ executiveAnalytics?.materials_summary?.total_records || 0 }} entries
+                </span>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-xs font-bold text-blue-700 uppercase tracking-wider block mb-1">FGMU Facilities</span>
+                <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
+                  ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.by_unit?.FGMU?.total_worth) }}
+                </span>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider block mb-1">LEAU Ecology</span>
+                <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
+                  ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.by_unit?.LEAU?.total_worth) }}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -519,7 +477,6 @@ import api from '@/api/client';
 const executiveAnalytics = ref(null);
 const isGeneratingPdf = ref(false);
 const isGeneratingMaterialsPdf = ref(false);
-const materialSearchQuery = ref('');
 
 // Format currency helper
 const formatCurrency = (val) => {
@@ -528,19 +485,6 @@ const formatCurrency = (val) => {
     maximumFractionDigits: 2,
   });
 };
-
-// Filtered materials computed
-const filteredMaterials = computed(() => {
-  const list = executiveAnalytics.value?.materials_summary?.items || [];
-  const q = materialSearchQuery.value.trim().toLowerCase();
-  if (!q) return list;
-  return list.filter(m => 
-    (m.material_name || '').toLowerCase().includes(q) ||
-    (m.ticket_id || '').toLowerCase().includes(q) ||
-    (m.unit_code || '').toLowerCase().includes(q) ||
-    (m.ticket_title || '').toLowerCase().includes(q)
-  );
-});
 
 // Date / Period Controls
 const currentYear = new Date().getFullYear();

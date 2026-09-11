@@ -14,6 +14,7 @@ const LEAU_Dashboard = () => import('../views/dashboards/admin/leau/LEAU_Dashboa
 const SSU_Dashboard = () => import('../views/dashboards/admin/ssu/SSU_Dashboard.vue');
 const SSU_IncidentTicketQueues = () => import('../views/dashboards/admin/ssu/SSU_IncidentTicketQueues.vue');
 const Director_Dashboard = () => import('../views/dashboards/director/Director_Dashboard.vue');
+const Director_Materials = () => import('../views/dashboards/director/Director_Materials.vue');
 const Director_FGMU_TicketQueues = () => import('../views/dashboards/director/Director_FGMU_TicketQueues.vue');
 const Director_LEAU_TicketQueues = () => import('../views/dashboards/director/Director_LEAU_TicketQueues.vue');
 const Director_FGMU = () => import('../views/dashboards/director/Director_FGMU.vue');
@@ -265,6 +266,12 @@ const router = createRouter({
       name: 'director-dashboard',
       component: Director_Dashboard,
       meta: { requiresAuth: true, roles: ['director', 'admin', 'dispatcher'] }
+    },
+    {
+      path: '/director/materials',
+      name: 'director-materials',
+      component: Director_Materials,
+      meta: { requiresAuth: true, roles: ['director', 'admin', 'dispatcher'], permission: 'reports.view' }
     },
     {
       path: '/director/fgmu/queues',
