@@ -269,11 +269,12 @@
                     <!-- Row Hover Accent Indicator -->
                     <span class="absolute left-0 top-2.5 bottom-2.5 w-1.5 rounded-r-md bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
                     
-                    <div class="flex items-center gap-2">
+                    <div class="relative inline-flex flex-col">
                       <div class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100 inline-flex items-center group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all duration-150 shadow-2xs">
                         #{{ ticket.ticketId }}
                       </div>
-                      <span class="opacity-0 group-hover:opacity-100 transition-all duration-150 inline-flex items-center gap-1 hidden xl:inline-flex px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-xs pointer-events-none transform -translate-x-1 group-hover:translate-x-0">
+                      <!-- Hover tooltip: absolutely positioned so it never expands column width -->
+                      <span class="absolute left-full top-1/2 -translate-y-1/2 ml-1.5 opacity-0 group-hover:opacity-100 transition-all duration-150 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-xs pointer-events-none whitespace-nowrap z-10 transform -translate-x-1 group-hover:translate-x-0">
                         <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
