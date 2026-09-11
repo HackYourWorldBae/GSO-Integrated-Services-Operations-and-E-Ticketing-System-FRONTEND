@@ -13,9 +13,9 @@ const LEAU_Dashboard = () => import('../views/dashboards/admin/leau/LEAU_Dashboa
 
 const SSU_Dashboard = () => import('../views/dashboards/admin/ssu/SSU_Dashboard.vue');
 const SSU_IncidentTicketQueues = () => import('../views/dashboards/admin/ssu/SSU_IncidentTicketQueues.vue');
-const FGMU_TicketQueues = () => import('../views/dashboards/admin/fgmu/FGMU_TicketQueues.vue');
-const LEAU_TicketQueues = () => import('../views/dashboards/admin/leau/LEAU_TicketQueues.vue');
 const Director_Dashboard = () => import('../views/dashboards/director/Director_Dashboard.vue');
+const Director_FGMU_TicketQueues = () => import('../views/dashboards/director/Director_FGMU_TicketQueues.vue');
+const Director_LEAU_TicketQueues = () => import('../views/dashboards/director/Director_LEAU_TicketQueues.vue');
 const Director_FGMU = () => import('../views/dashboards/director/Director_FGMU.vue');
 const Director_LEAU = () => import('../views/dashboards/director/Director_LEAU.vue');
 const Director_SSU = () => import('../views/dashboards/director/Director_SSU.vue');
@@ -102,13 +102,6 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU' }
     },
     {
-      path: '/admin/fgmu/queues',
-      alias: ['/director/fgmu/queues', '/director/queues/fgmu'],
-      name: 'fgmu-ticket-queues',
-      component: FGMU_TicketQueues,
-      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'FGMU', permission: 'tickets.view_all' }
-    },
-    {
       path: '/admin/fgmu/dispatch',
       name: 'fgmu-ticket-dispatch',
       component: FGMU_TicketDispatch,
@@ -147,13 +140,6 @@ const router = createRouter({
       name: 'leau-dashboard',
       component: LEAU_Dashboard,
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU' }
-    },
-    {
-      path: '/admin/leau/queues',
-      alias: ['/director/leau/queues', '/director/queues/leau'],
-      name: 'leau-ticket-queues',
-      component: LEAU_TicketQueues,
-      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'LEAU', permission: 'tickets.view_all' }
     },
     {
       path: '/admin/leau/dispatch',
@@ -235,7 +221,7 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['superadmin'] }
     },
 
-    // Director Dashboards
+    // Director Dashboards & Ticket Queues Oversight
     {
       path: '/director',
       redirect: '/director/dashboard'
@@ -245,6 +231,20 @@ const router = createRouter({
       name: 'director-dashboard',
       component: Director_Dashboard,
       meta: { requiresAuth: true, roles: ['director', 'admin', 'dispatcher'] }
+    },
+    {
+      path: '/director/fgmu/queues',
+      alias: ['/admin/fgmu/queues', '/director/queues/fgmu'],
+      name: 'director-fgmu-ticket-queues',
+      component: Director_FGMU_TicketQueues,
+      meta: { requiresAuth: true, roles: ['director', 'admin', 'dispatcher', 'superadmin'], unit: 'FGMU', permission: 'tickets.view_all' }
+    },
+    {
+      path: '/director/leau/queues',
+      alias: ['/admin/leau/queues', '/director/queues/leau'],
+      name: 'director-leau-ticket-queues',
+      component: Director_LEAU_TicketQueues,
+      meta: { requiresAuth: true, roles: ['director', 'admin', 'dispatcher', 'superadmin'], unit: 'LEAU', permission: 'tickets.view_all' }
     },
     {
       path: '/director/fgmu',
@@ -266,7 +266,7 @@ const router = createRouter({
     },
     {
       path: '/director/queues',
-      redirect: '/admin/fgmu/queues'
+      redirect: '/director/fgmu/queues'
     },
     {
       path: '/director/organizational-chart',

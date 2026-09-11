@@ -161,13 +161,13 @@ const rawNavGroups = computed(() => {
         items: [
           {
             label: 'FGMU Ticket Queues',
-            to: '/admin/fgmu/queues',
+            to: '/director/fgmu/queues',
             icon: 'tools',
             permission: 'tickets.view_all'
           },
           {
             label: 'LEAU Ticket Queues',
-            to: '/admin/leau/queues',
+            to: '/director/leau/queues',
             icon: 'leaf',
             permission: 'tickets.view_all'
           }

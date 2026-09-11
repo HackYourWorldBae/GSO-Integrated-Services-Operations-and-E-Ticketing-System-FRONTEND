@@ -15,7 +15,7 @@
       <p class="px-4 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2.5">Ticket Queues</p>
       <nav class="space-y-1">
         <!-- FGMU Ticket Queues: Tools / Facilities Maintenance -->
-        <router-link to="/admin/fgmu/queues" class="nav-item group">
+        <router-link to="/director/fgmu/queues" class="nav-item group">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-blue-500 group-hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
           </svg>
@@ -23,7 +23,7 @@
         </router-link>
 
         <!-- LEAU Ticket Queues: Leaf / Ecology -->
-        <router-link to="/admin/leau/queues" class="nav-item group">
+        <router-link to="/director/leau/queues" class="nav-item group">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-emerald-500 group-hover:text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
