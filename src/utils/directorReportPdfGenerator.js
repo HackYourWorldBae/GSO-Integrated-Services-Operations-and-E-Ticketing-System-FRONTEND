@@ -82,6 +82,16 @@ const getQualitativeRating = (score) => {
 };
 
 /**
+ * Format numeric currency (₱).
+ */
+const formatCurrency = (val) => {
+  return Number(val || 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+/**
  * Builds pdfmake docDefinition for the official BSU GSO Executive Report.
  * Uses clean, professional typography, subtle grays, and formal institutional tables.
  */
@@ -90,6 +100,7 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
   const summary = data.summary || {};
   const units = data.units || {};
   const serviceBreakdown = data.service_breakdown || [];
+  const materialsSummary = data.materials_summary || {};
   const compHealth = data.completion_health || {};
   const delayReasons = data.delay_reasons || [];
   const ratings = summary.overall_ratings || {};
@@ -236,9 +247,9 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               },
               {
                 stack: [
-                  { text: 'RESOLUTION RATE', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
-                  { text: `${summary.completion_rate || 0}%`, fontSize: 15, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
-                  { text: 'Compliance Benchmark', fontSize: 6.5, color: '#6b7280', alignment: 'center' },
+                  { text: 'CLIENT SATISFACTION', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
+                  { text: ratings.overall_avg ? `${parseFloat(ratings.overall_avg).toFixed(2)} ★` : '5.00 ★', fontSize: 15, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
+                  { text: `Based on ${ratings.total_feedbacks || 0} Surveys`, fontSize: 6.5, color: '#6b7280', alignment: 'center' },
                 ],
                 fillColor: '#f9fafb',
               },
@@ -269,7 +280,7 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
       {
         table: {
           headerRows: 1,
-          widths: ['*', 55, 55, 55, 65, 55],
+          widths: ['*', 65, 65, 65, 75],
           body: [
             // Header Row
             [
@@ -277,7 +288,6 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               { text: 'TOTAL', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
               { text: 'RESOLVED', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
               { text: 'DECLINED', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
-              { text: 'RATE (%)', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
               { text: 'CSAT / 5.0', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
             ],
             // FGMU Row
@@ -291,7 +301,6 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               { text: String(units.FGMU?.total || 0), fontSize: 8, alignment: 'center' },
               { text: String(units.FGMU?.resolved || 0), fontSize: 8, bold: true, alignment: 'center' },
               { text: String(units.FGMU?.declined || 0), fontSize: 8, alignment: 'center' },
-              { text: `${units.FGMU?.completion_rate || 0}%`, fontSize: 8, bold: true, alignment: 'center' },
               { text: units.FGMU?.avg_ratings?.overall_avg ? `${units.FGMU.avg_ratings.overall_avg}` : 'N/A', fontSize: 8, alignment: 'center' },
             ],
             // LEAU Row
@@ -306,7 +315,6 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               { text: String(units.LEAU?.total || 0), fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
               { text: String(units.LEAU?.resolved || 0), fontSize: 8, bold: true, alignment: 'center', fillColor: '#f9fafb' },
               { text: String(units.LEAU?.declined || 0), fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
-              { text: `${units.LEAU?.completion_rate || 0}%`, fontSize: 8, bold: true, alignment: 'center', fillColor: '#f9fafb' },
               { text: units.LEAU?.avg_ratings?.overall_avg ? `${units.LEAU.avg_ratings.overall_avg}` : 'N/A', fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
             ],
             // SSU Row
@@ -320,7 +328,6 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               { text: String(units.SSU?.total || 0), fontSize: 8, alignment: 'center' },
               { text: String(units.SSU?.resolved || 0), fontSize: 8, bold: true, alignment: 'center' },
               { text: String(units.SSU?.declined || 0), fontSize: 8, alignment: 'center' },
-              { text: `${units.SSU?.completion_rate || 0}%`, fontSize: 8, bold: true, alignment: 'center' },
               { text: units.SSU?.avg_ratings?.overall_avg ? `${units.SSU.avg_ratings.overall_avg}` : 'N/A', fontSize: 8, alignment: 'center' },
             ],
             // Consolidated Total Row
@@ -329,7 +336,6 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               { text: String(summary.total_requests || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
               { text: String(summary.total_resolved || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
               { text: String(summary.total_declined || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
-              { text: `${summary.completion_rate || 0}%`, bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
               { text: ratings.overall_avg ? `${ratings.overall_avg}` : 'N/A', bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
             ],
           ],
@@ -516,6 +522,63 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
           paddingRight: () => 6,
           paddingTop: () => 3.5,
           paddingBottom: () => 3.5,
+        },
+        margin: [0, 0, 0, 12],
+      },
+
+      // ── Section 6: Materials Utilization & Resource Valuation ─────────────
+      {
+        text: '6. MATERIALS UTILIZATION & RESOURCE VALUATION SUMMARY',
+        fontSize: 9,
+        bold: true,
+        color: '#111827',
+        margin: [0, 2, 0, 3],
+      },
+      {
+        table: {
+          widths: ['35%', '25%', '20%', '20%'],
+          body: [
+            [
+              { text: 'TOTAL MATERIALS VALUE', bold: true, fontSize: 7, color: '#4b5563', fillColor: '#f3f4f6' },
+              { text: 'LINE ITEMS CONSUMED', bold: true, fontSize: 7, color: '#4b5563', fillColor: '#f3f4f6' },
+              { text: 'FGMU SHARE', bold: true, fontSize: 7, color: '#4b5563', fillColor: '#f3f4f6' },
+              { text: 'LEAU SHARE', bold: true, fontSize: 7, color: '#4b5563', fillColor: '#f3f4f6' },
+            ],
+            [
+              {
+                text: `₱${formatCurrency(materialsSummary.total_worth || 0)}`,
+                bold: true,
+                fontSize: 11,
+                color: '#15803d',
+              },
+              {
+                text: `${materialsSummary.total_records || 0} items (${materialsSummary.total_quantity || 0} units)`,
+                bold: true,
+                fontSize: 8,
+                color: '#111827',
+              },
+              {
+                text: `₱${formatCurrency(materialsSummary.by_unit?.FGMU?.total_worth || 0)}`,
+                fontSize: 8,
+                color: '#111827',
+              },
+              {
+                text: `₱${formatCurrency(materialsSummary.by_unit?.LEAU?.total_worth || 0)}`,
+                fontSize: 8,
+                color: '#111827',
+              },
+            ],
+          ],
+        },
+        layout: {
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0.5,
+          hLineColor: () => '#d1d5db',
+          vLineColor: () => '#d1d5db',
+          paddingLeft: () => 6,
+          paddingRight: () => 6,
+          paddingTop: () => 4,
+          paddingBottom: () => 4,
         },
         margin: [0, 0, 0, 14],
       },

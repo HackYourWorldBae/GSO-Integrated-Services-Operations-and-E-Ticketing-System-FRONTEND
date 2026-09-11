@@ -29,7 +29,7 @@
                 Performance Overview &amp; Reports
               </h3>
               <p class="text-sm sm:text-base text-slate-500 font-medium max-w-3xl leading-relaxed">
-                Generate and download official performance reports across all GSO units — covering ticket completion, service breakdown, and client satisfaction ratings.
+                Generate and download official performance reports across all GSO units — covering ticket volume, resolution breakdown, and client satisfaction ratings.
               </p>
             </div>
 
@@ -135,7 +135,7 @@
           </div>
 
           <!-- Executive KPI Cards Grid (Consolidated Overview) -->
-          <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-5 lg:gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 lg:gap-6">
             <!-- 1. Total Requests Filed -->
             <div class="p-6 sm:p-7 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col justify-between min-h-[160px]">
               <div class="flex items-center justify-between gap-2 mb-4">
@@ -155,18 +155,16 @@
               <div class="flex items-center justify-between gap-2 mb-4">
                 <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600">Resolved &amp; Completed</span>
                 <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-black">
-                  {{ executiveAnalytics?.summary?.completion_rate ?? 0 }}% Rate
+                  Closed
                 </span>
               </div>
               <div class="text-4xl sm:text-5xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
                 {{ executiveAnalytics?.summary?.total_resolved ?? 0 }}
                 <span class="text-sm font-bold text-slate-400">resolved</span>
               </div>
-              <div>
-                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div class="h-full bg-emerald-600 rounded-full transition-all duration-500" :style="{ width: `${executiveAnalytics?.summary?.completion_rate || 0}%` }"></div>
-                </div>
-              </div>
+              <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                Successfully serviced and closed tickets
+              </p>
             </div>
 
             <!-- 3. Declined / Out of Scope -->
@@ -186,7 +184,25 @@
               </p>
             </div>
 
-            <!-- 4. Client Satisfaction Rating -->
+            <!-- 4. Total Worth of Materials Used -->
+            <div class="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[160px]">
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600">Materials Used Worth</span>
+                <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-black">
+                  {{ executiveAnalytics?.materials_summary?.total_records || 0 }} Items
+                </span>
+              </div>
+              <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
+                ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.total_worth) }}
+              </div>
+              <div class="flex items-center justify-between text-xs font-bold text-slate-500">
+                <span>FGMU: ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.by_unit?.FGMU?.total_worth) }}</span>
+                <span class="text-slate-300">•</span>
+                <span>LEAU: ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.by_unit?.LEAU?.total_worth) }}</span>
+              </div>
+            </div>
+
+            <!-- 5. Client Satisfaction Rating -->
             <div class="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[160px]">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600">Client Satisfaction Score</span>
@@ -229,7 +245,6 @@
                     <th class="py-4 px-4 text-center">Total Requests</th>
                     <th class="py-4 px-4 text-center">Resolved</th>
                     <th class="py-4 px-4 text-center">Declined</th>
-                    <th class="py-4 px-4 text-center">Completion Rate</th>
                     <th class="py-4 px-6 text-center">Client Rating</th>
                   </tr>
                 </thead>
@@ -243,7 +258,6 @@
                     <td class="py-4 sm:py-5 px-4 text-center font-bold tabular-nums text-slate-900 text-base sm:text-lg">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</td>
                     <td class="py-4 sm:py-5 px-4 text-center font-black text-emerald-700 tabular-nums text-base sm:text-lg">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</td>
                     <td class="py-4 sm:py-5 px-4 text-center font-semibold text-slate-600 tabular-nums text-base sm:text-lg">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</td>
-                    <td class="py-4 sm:py-5 px-4 text-center font-black text-slate-900 tabular-nums text-base sm:text-lg">{{ executiveAnalytics?.units?.FGMU?.completion_rate ?? 0 }}%</td>
                     <td class="py-4 sm:py-5 px-6 text-center font-black text-slate-800 tabular-nums text-base sm:text-lg">
                       {{ executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg ? `${executiveAnalytics.units.FGMU.avg_ratings.overall_avg} ★` : 'N/A' }}
                     </td>
@@ -258,7 +272,6 @@
                     <td class="py-4 sm:py-5 px-4 text-center font-bold tabular-nums text-slate-900 text-base sm:text-lg">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</td>
                     <td class="py-4 sm:py-5 px-4 text-center font-black text-emerald-700 tabular-nums text-base sm:text-lg">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</td>
                     <td class="py-4 sm:py-5 px-4 text-center font-semibold text-slate-600 tabular-nums text-base sm:text-lg">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</td>
-                    <td class="py-4 sm:py-5 px-4 text-center font-black text-slate-900 tabular-nums text-base sm:text-lg">{{ executiveAnalytics?.units?.LEAU?.completion_rate ?? 0 }}%</td>
                     <td class="py-4 sm:py-5 px-6 text-center font-black text-slate-800 tabular-nums text-base sm:text-lg">
                       {{ executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg ? `${executiveAnalytics.units.LEAU.avg_ratings.overall_avg} ★` : 'N/A' }}
                     </td>
@@ -273,7 +286,6 @@
                     <td class="py-4 sm:py-5 px-4 text-center font-bold tabular-nums text-slate-900 text-base sm:text-lg">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</td>
                     <td class="py-4 sm:py-5 px-4 text-center font-black text-emerald-700 tabular-nums text-base sm:text-lg">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</td>
                     <td class="py-4 sm:py-5 px-4 text-center font-semibold text-slate-600 tabular-nums text-base sm:text-lg">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</td>
-                    <td class="py-4 sm:py-5 px-4 text-center font-black text-slate-900 tabular-nums text-base sm:text-lg">{{ executiveAnalytics?.units?.SSU?.completion_rate ?? 0 }}%</td>
                     <td class="py-4 sm:py-5 px-6 text-center font-black text-slate-800 tabular-nums text-base sm:text-lg">
                       {{ executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg ? `${executiveAnalytics.units.SSU.avg_ratings.overall_avg} ★` : 'N/A' }}
                     </td>
@@ -285,9 +297,130 @@
                     <td class="py-5 px-4 text-center text-slate-900 tabular-nums text-base sm:text-lg font-black">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</td>
                     <td class="py-5 px-4 text-center text-emerald-800 tabular-nums text-base sm:text-lg font-black">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</td>
                     <td class="py-5 px-4 text-center text-slate-700 tabular-nums text-base sm:text-lg font-black">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</td>
-                    <td class="py-5 px-4 text-center text-slate-900 tabular-nums text-base sm:text-lg font-black">{{ executiveAnalytics?.summary?.completion_rate ?? 0 }}%</td>
                     <td class="py-5 px-6 text-center text-slate-900 tabular-nums text-base sm:text-lg font-black">
                       {{ executiveAnalytics?.summary?.overall_ratings?.overall_avg ? `${executiveAnalytics.summary.overall_ratings.overall_avg} ★` : 'N/A' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Materials Consumption & Resource Valuation Table -->
+          <div class="space-y-4 pt-2">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <h4 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2.5">
+                  <span class="w-2 h-4 rounded-full bg-emerald-600"></span>
+                  Materials Consumed &amp; Cost Valuation ({{ executiveAnalytics?.filter?.label || 'Current Period' }})
+                </h4>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                  Consolidated inventory disbursement across FGMU &amp; LEAU service maintenance orders
+                </p>
+              </div>
+
+              <!-- Action Buttons & Search -->
+              <div class="flex flex-wrap items-center gap-2.5">
+                <!-- Search Filter -->
+                <div class="relative min-w-[200px] sm:min-w-[240px]">
+                  <input
+                    v-model="materialSearchQuery"
+                    type="text"
+                    placeholder="Filter materials or ticket..."
+                    class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all shadow-2xs"
+                  />
+                  <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+
+                <!-- Generate & Download Materials Document Button -->
+                <button
+                  @click="handleDownloadMaterialsReport"
+                  :disabled="isGeneratingMaterialsPdf || !executiveAnalytics"
+                  class="px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-xs active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
+                  title="Generate and download official materials consumption PDF document"
+                >
+                  <svg v-if="isGeneratingMaterialsPdf" class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>{{ isGeneratingMaterialsPdf ? 'Generating...' : 'Export Materials PDF' }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Materials Table -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-xs max-h-[420px] overflow-y-auto">
+              <table class="min-w-[700px] w-full text-left border-collapse">
+                <thead class="sticky top-0 z-10">
+                  <tr class="bg-slate-100/95 backdrop-blur-xs text-slate-700 text-xs sm:text-sm font-black uppercase tracking-wider border-b border-slate-200">
+                    <th class="py-3.5 px-4 text-center w-12">#</th>
+                    <th class="py-3.5 px-6">Material Description</th>
+                    <th class="py-3.5 px-4 text-center">Unit</th>
+                    <th class="py-3.5 px-4 text-center">Quantity</th>
+                    <th class="py-3.5 px-4 text-right">Unit Price</th>
+                    <th class="py-3.5 px-4 text-right">Total Worth</th>
+                    <th class="py-3.5 px-4 text-center">Sub-Unit</th>
+                    <th class="py-3.5 px-6 text-center">Ticket Ref</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm sm:text-base">
+                  <tr v-if="filteredMaterials.length === 0">
+                    <td colspan="8" class="py-8 text-center text-slate-400 font-medium text-xs sm:text-sm">
+                      {{ materialSearchQuery ? 'No materials match the search query.' : 'No materials or supplies recorded for this period.' }}
+                    </td>
+                  </tr>
+                  <tr
+                    v-for="(item, idx) in filteredMaterials"
+                    :key="item.id || idx"
+                    class="hover:bg-slate-50/70 transition-colors"
+                  >
+                    <td class="py-3.5 px-4 text-center text-xs font-bold text-slate-400 tabular-nums">
+                      {{ idx + 1 }}
+                    </td>
+                    <td class="py-3.5 px-6">
+                      <div class="font-bold text-slate-900 text-sm sm:text-base">{{ item.material_name }}</div>
+                      <div v-if="item.ticket_title" class="text-xs text-slate-400 truncate max-w-xs">{{ item.ticket_title }}</div>
+                    </td>
+                    <td class="py-3.5 px-4 text-center text-xs sm:text-sm font-semibold text-slate-600">
+                      {{ (item.unit_measurement || 'pcs').toLowerCase() }}
+                    </td>
+                    <td class="py-3.5 px-4 text-center font-extrabold text-slate-900 tabular-nums text-sm sm:text-base">
+                      {{ item.quantity }}
+                    </td>
+                    <td class="py-3.5 px-4 text-right font-medium text-slate-700 tabular-nums text-sm sm:text-base">
+                      ₱{{ formatCurrency(item.unit_price) }}
+                    </td>
+                    <td class="py-3.5 px-4 text-right font-black text-slate-900 tabular-nums text-sm sm:text-base">
+                      ₱{{ formatCurrency(item.total_price) }}
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                      <span
+                        class="px-2.5 py-1 rounded-full text-xs font-black"
+                        :class="item.unit_code === 'LEAU' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-slate-100 text-slate-800 border border-slate-200/60'"
+                      >
+                        {{ item.unit_code }}
+                      </span>
+                    </td>
+                    <td class="py-3.5 px-6 text-center text-xs font-mono font-bold text-slate-600">
+                      {{ item.ticket_id || '—' }}
+                    </td>
+                  </tr>
+
+                  <!-- Materials Grand Total Row -->
+                  <tr class="bg-slate-50 font-black text-slate-900 border-t-2 border-slate-200 sticky bottom-0">
+                    <td colspan="5" class="py-4 px-6 text-right text-xs sm:text-sm font-black tracking-wider text-slate-900">
+                      Consolidated Materials Valuation:
+                    </td>
+                    <td class="py-4 px-4 text-right text-emerald-800 tabular-nums text-sm sm:text-base font-black">
+                      ₱{{ formatCurrency(executiveAnalytics?.materials_summary?.total_worth) }}
+                    </td>
+                    <td colspan="2" class="py-4 px-6 text-center text-xs text-slate-500 font-bold">
+                      {{ executiveAnalytics?.materials_summary?.total_records || 0 }} distinct records
                     </td>
                   </tr>
                 </tbody>
@@ -378,12 +511,36 @@ import { onMounted, ref, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
 import { downloadDirectorReportPdf } from '@/utils/directorReportPdfGenerator';
+import { downloadMaterialsReportPdf } from '@/utils/materialsReportPdfGenerator';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 
 // Executive Analytics State
 const executiveAnalytics = ref(null);
 const isGeneratingPdf = ref(false);
+const isGeneratingMaterialsPdf = ref(false);
+const materialSearchQuery = ref('');
+
+// Format currency helper
+const formatCurrency = (val) => {
+  return Number(val || 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+// Filtered materials computed
+const filteredMaterials = computed(() => {
+  const list = executiveAnalytics.value?.materials_summary?.items || [];
+  const q = materialSearchQuery.value.trim().toLowerCase();
+  if (!q) return list;
+  return list.filter(m => 
+    (m.material_name || '').toLowerCase().includes(q) ||
+    (m.ticket_id || '').toLowerCase().includes(q) ||
+    (m.unit_code || '').toLowerCase().includes(q) ||
+    (m.ticket_title || '').toLowerCase().includes(q)
+  );
+});
 
 // Date / Period Controls
 const currentYear = new Date().getFullYear();
@@ -474,6 +631,23 @@ const handleDownloadReport = async () => {
     toast.error('Failed to download official report PDF.');
   } finally {
     isGeneratingPdf.value = false;
+  }
+};
+
+const handleDownloadMaterialsReport = async () => {
+  if (!executiveAnalytics.value) {
+    toast.error('Analytics summary data is still loading.');
+    return;
+  }
+  isGeneratingMaterialsPdf.value = true;
+  try {
+    await downloadMaterialsReportPdf(executiveAnalytics.value);
+    toast.success('Official Materials Report downloaded successfully.');
+  } catch (error) {
+    console.error('Failed to download materials report PDF:', error);
+    toast.error('Failed to download official materials report PDF.');
+  } finally {
+    isGeneratingMaterialsPdf.value = false;
   }
 };
 
