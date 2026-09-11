@@ -18,13 +18,13 @@
               <span class="text-emerald-700">Materials Valuation</span>
             </div>
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <span>Materials &amp; Supplies Valuation</span>
+              <span>Materials &amp; Supplies Used</span>
               <span class="text-xs sm:text-sm font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60">
-                Official Inventory Logs
+                Usage Records
               </span>
             </h1>
             <p class="text-sm sm:text-base text-slate-500 font-medium mt-1 max-w-3xl">
-              Consolidated itemized consumption logs, unit pricing, and expenditure valuations for materials disbursed across university maintenance and service operations.
+              A complete list of all materials and supplies used across maintenance and service jobs, including quantities and their total cost.
             </p>
           </div>
 
@@ -134,40 +134,40 @@
           <!-- 1. Total Worth of Materials -->
           <div class="p-6 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col justify-between min-h-[150px]">
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-black uppercase tracking-wider text-slate-400">Total Materials Valuation</span>
-              <span class="px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 text-xs font-bold">Consolidated</span>
+              <span class="text-xs font-black uppercase tracking-wider text-slate-400">Total Cost of Materials</span>
+              <span class="px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 text-xs font-bold">All Units</span>
             </div>
             <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-white mb-2">
               ₱{{ formatCurrency(materialsSummary?.total_worth) }}
             </div>
             <p class="text-xs text-slate-400 font-medium">
-              Gross estimated materials expenditure
+              Total amount spent on materials for the selected period
             </p>
           </div>
 
           <!-- 2. Items Consumed / Recorded -->
           <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-black uppercase tracking-wider text-slate-600">Material Items Logged</span>
+              <span class="text-xs font-black uppercase tracking-wider text-slate-600">Materials Recorded</span>
               <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-black">
-                Records
+                Entries
               </span>
             </div>
             <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
               {{ materialsSummary?.total_records || 0 }}
-              <span class="text-sm font-bold text-slate-400">entries</span>
+              <span class="text-sm font-bold text-slate-400">items</span>
             </div>
             <p class="text-xs text-slate-500 font-medium">
-              Distinct material line items across job orders
+              Number of different materials used across all job orders
             </p>
           </div>
 
           <!-- 3. Physical Units Dispensed -->
           <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-black uppercase tracking-wider text-slate-600">Total Quantity Utilized</span>
+              <span class="text-xs font-black uppercase tracking-wider text-slate-600">Total Items Used</span>
               <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
-                Volume
+                Quantity
               </span>
             </div>
             <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-slate-900 mb-2">
@@ -175,14 +175,14 @@
               <span class="text-sm font-bold text-slate-400">units</span>
             </div>
             <p class="text-xs text-slate-500 font-medium">
-              Aggregate quantity (pcs, meters, cans, etc.)
+              Total count of all materials used (pieces, meters, cans, etc.)
             </p>
           </div>
 
           <!-- 4. FGMU Facilities Valuation -->
           <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-black uppercase tracking-wider text-blue-700">FGMU Facilities Share</span>
+              <span class="text-xs font-black uppercase tracking-wider text-blue-700">FGMU — Facilities</span>
               <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200/60 text-xs font-black">
                 {{ materialsSummary?.by_unit?.FGMU?.count || 0 }} Items
               </span>
@@ -191,14 +191,14 @@
               ₱{{ formatCurrency(materialsSummary?.by_unit?.FGMU?.total_worth) }}
             </div>
             <p class="text-xs text-slate-500 font-medium">
-              Electrical, Plumbing, Carpentry, HVAC
+              Electrical, plumbing, carpentry, and HVAC jobs
             </p>
           </div>
 
           <!-- 5. LEAU Landscaping Valuation -->
           <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-sm flex flex-col justify-between min-h-[150px]">
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-black uppercase tracking-wider text-emerald-700">LEAU Ecology Share</span>
+              <span class="text-xs font-black uppercase tracking-wider text-emerald-700">LEAU — Landscaping</span>
               <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-black">
                 {{ materialsSummary?.by_unit?.LEAU?.count || 0 }} Items
               </span>
@@ -207,7 +207,7 @@
               ₱{{ formatCurrency(materialsSummary?.by_unit?.LEAU?.total_worth) }}
             </div>
             <p class="text-xs text-slate-500 font-medium">
-              Campus grounds, planting, landscaping
+              Campus grounds, planting, and landscaping jobs
             </p>
           </div>
         </div>
@@ -218,7 +218,7 @@
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <!-- Left: Sub-unit Filter Tabs -->
             <div class="flex items-center gap-2">
-              <span class="text-xs font-black uppercase tracking-wider text-slate-400 mr-1">Unit Scope:</span>
+              <span class="text-xs font-black uppercase tracking-wider text-slate-400 mr-1">Filter by Unit:</span>
               <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 gap-1">
                 <button
                   v-for="scope in unitScopes"
@@ -257,14 +257,14 @@
               <thead>
                 <tr class="bg-slate-100/90 text-slate-700 text-xs font-black uppercase tracking-wider border-b border-slate-200">
                   <th class="py-3.5 px-4 text-center w-12">#</th>
-                  <th class="py-3.5 px-6">Material Description</th>
+                  <th class="py-3.5 px-6">Material / Supply Name</th>
+                  <th class="py-3.5 px-4 text-center">Measurement</th>
+                  <th class="py-3.5 px-4 text-center">Qty Used</th>
+                  <th class="py-3.5 px-4 text-right">Price per Unit</th>
+                  <th class="py-3.5 px-4 text-right">Total Cost</th>
                   <th class="py-3.5 px-4 text-center">Unit</th>
-                  <th class="py-3.5 px-4 text-center">Quantity</th>
-                  <th class="py-3.5 px-4 text-right">Unit Price</th>
-                  <th class="py-3.5 px-4 text-right">Total Price</th>
-                  <th class="py-3.5 px-4 text-center">Sub-Unit</th>
-                  <th class="py-3.5 px-6 text-center">Ticket Ref</th>
-                  <th class="py-3.5 px-6 text-center">Date Logged</th>
+                  <th class="py-3.5 px-6 text-center">Job Order #</th>
+                  <th class="py-3.5 px-6 text-center">Date Used</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-sm">
@@ -349,13 +349,13 @@
                     {{ formatNumber(filteredTotalQuantity) }}
                   </td>
                   <td class="py-4 px-4 text-right text-xs font-bold text-slate-500 uppercase">
-                    Filtered Worth:
+                    Total Cost:
                   </td>
                   <td class="py-4 px-4 text-right text-emerald-800 tabular-nums text-base font-black">
                     ₱{{ formatCurrency(filteredTotalWorth) }}
                   </td>
                   <td colspan="3" class="py-4 px-6 text-center text-xs text-slate-500 font-bold">
-                    Official Institutional Disbursement
+                    Based on current filter selection
                   </td>
                 </tr>
               </tbody>
