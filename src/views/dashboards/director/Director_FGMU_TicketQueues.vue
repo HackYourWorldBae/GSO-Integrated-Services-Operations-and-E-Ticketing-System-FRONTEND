@@ -56,24 +56,24 @@
         <!-- ═══ Unified Compact Toolbar: Tabs + Search + Filter ═══ -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
           <!-- Top row: Stage Tabs -->
-          <div class="flex items-center gap-1 p-1.5 border-b border-slate-100">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 border-b border-slate-100">
             <!-- Tab 1: Pending Approval -->
             <button
               @click="switchTab('pending')"
               :class="[
-                'flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200',
+                'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
                 activeTab === 'pending'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>1. Pending Approval</span>
+              <span class="truncate">1. Pending Approval</span>
               <span
                 :class="[
-                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
                   activeTab === 'pending' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
                 ]"
               >
@@ -85,19 +85,19 @@
             <button
               @click="switchTab('approved')"
               :class="[
-                'flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200',
+                'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
                 activeTab === 'approved'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>2. Approved (Awaiting Dispatch)</span>
+              <span class="truncate">2. Approved (Awaiting Dispatch)</span>
               <span
                 :class="[
-                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
                   activeTab === 'approved' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800'
                 ]"
               >
@@ -109,19 +109,19 @@
             <button
               @click="switchTab('active')"
               :class="[
-                'flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200',
+                'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
                 activeTab === 'active'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <span>3. Dispatched & In Progress</span>
+              <span class="truncate">3. Dispatched & In Progress</span>
               <span
                 :class="[
-                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
                   activeTab === 'active' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
                 ]"
               >
