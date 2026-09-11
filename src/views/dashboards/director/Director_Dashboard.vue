@@ -194,19 +194,15 @@
             <div class="p-6 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col justify-between hover:border-amber-300 hover:shadow-md transition-all duration-200">
               <div class="flex items-center justify-between gap-2 mb-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Client Satisfaction</span>
-                <div class="flex items-center gap-0.5 text-amber-500">
-                  <svg v-for="i in 5" :key="i" class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                  </svg>
-                </div>
+                <span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 text-xs font-bold">
+                  {{ executiveAnalytics?.summary?.overall_ratings?.total_feedbacks || 0 }} Reviews
+                </span>
               </div>
-              <div class="flex items-baseline gap-1.5 my-1">
+              <div class="flex items-baseline gap-2 my-1">
                 <span class="text-4xl sm:text-5xl font-extrabold tracking-tight tabular-nums text-slate-900">
                   {{ executiveAnalytics?.summary?.overall_ratings?.overall_avg ? parseFloat(executiveAnalytics.summary.overall_ratings.overall_avg).toFixed(2) : '5.00' }}
                 </span>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  ({{ executiveAnalytics?.summary?.overall_ratings?.total_feedbacks || 0 }} reviews)
-                </span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">rating</span>
               </div>
             </div>
           </div>
@@ -254,9 +250,8 @@
                     <td class="py-4 px-4 text-center font-bold text-emerald-700 tabular-nums text-base">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</td>
                     <td class="py-4 px-4 text-center font-semibold text-slate-600 tabular-nums text-base">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</td>
                     <td class="py-4 px-6 text-center font-bold text-slate-900 tabular-nums text-base">
-                      <span v-if="executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg" class="inline-flex items-center gap-1">
-                        <span>{{ executiveAnalytics.units.FGMU.avg_ratings.overall_avg }}</span>
-                        <span class="text-amber-500">★</span>
+                      <span v-if="executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg">
+                        {{ executiveAnalytics.units.FGMU.avg_ratings.overall_avg }}
                       </span>
                       <span v-else class="text-slate-400 text-xs font-medium">N/A</span>
                     </td>
@@ -279,9 +274,8 @@
                     <td class="py-4 px-4 text-center font-bold text-emerald-700 tabular-nums text-base">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</td>
                     <td class="py-4 px-4 text-center font-semibold text-slate-600 tabular-nums text-base">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</td>
                     <td class="py-4 px-6 text-center font-bold text-slate-900 tabular-nums text-base">
-                      <span v-if="executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg" class="inline-flex items-center gap-1">
-                        <span>{{ executiveAnalytics.units.LEAU.avg_ratings.overall_avg }}</span>
-                        <span class="text-amber-500">★</span>
+                      <span v-if="executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg">
+                        {{ executiveAnalytics.units.LEAU.avg_ratings.overall_avg }}
                       </span>
                       <span v-else class="text-slate-400 text-xs font-medium">N/A</span>
                     </td>
@@ -304,9 +298,8 @@
                     <td class="py-4 px-4 text-center font-bold text-emerald-700 tabular-nums text-base">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</td>
                     <td class="py-4 px-4 text-center font-semibold text-slate-600 tabular-nums text-base">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</td>
                     <td class="py-4 px-6 text-center font-bold text-slate-900 tabular-nums text-base">
-                      <span v-if="executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg" class="inline-flex items-center gap-1">
-                        <span>{{ executiveAnalytics.units.SSU.avg_ratings.overall_avg }}</span>
-                        <span class="text-amber-500">★</span>
+                      <span v-if="executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg">
+                        {{ executiveAnalytics.units.SSU.avg_ratings.overall_avg }}
                       </span>
                       <span v-else class="text-slate-400 text-xs font-medium">N/A</span>
                     </td>
@@ -321,9 +314,8 @@
                     <td class="py-4 px-4 text-center text-emerald-700 tabular-nums text-base sm:text-lg font-extrabold">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</td>
                     <td class="py-4 px-4 text-center text-slate-700 tabular-nums text-base sm:text-lg font-extrabold">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</td>
                     <td class="py-4 px-6 text-center text-slate-900 tabular-nums text-base sm:text-lg font-extrabold">
-                      <span v-if="executiveAnalytics?.summary?.overall_ratings?.overall_avg" class="inline-flex items-center gap-1">
-                        <span>{{ executiveAnalytics.summary.overall_ratings.overall_avg }}</span>
-                        <span class="text-amber-500">★</span>
+                      <span v-if="executiveAnalytics?.summary?.overall_ratings?.overall_avg">
+                        {{ executiveAnalytics.summary.overall_ratings.overall_avg }}
                       </span>
                       <span v-else class="text-slate-400 text-xs font-medium">N/A</span>
                     </td>

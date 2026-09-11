@@ -248,7 +248,7 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               {
                 stack: [
                   { text: 'CLIENT SATISFACTION', fontSize: 7, bold: true, color: '#4b5563', alignment: 'center' },
-                  { text: ratings.overall_avg ? `${parseFloat(ratings.overall_avg).toFixed(2)} ★` : '5.00 ★', fontSize: 15, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
+                  { text: ratings.overall_avg ? parseFloat(ratings.overall_avg).toFixed(2) : '5.00', fontSize: 15, bold: true, color: '#111827', alignment: 'center', margin: [0, 2, 0, 0] },
                   { text: `Based on ${ratings.total_feedbacks || 0} Surveys`, fontSize: 6.5, color: '#6b7280', alignment: 'center' },
                 ],
                 fillColor: '#f9fafb',
