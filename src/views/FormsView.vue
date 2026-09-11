@@ -54,6 +54,12 @@ onMounted(async () => {
   if (storedOthers) otherSpecifics.value = JSON.parse(storedOthers);
   if (storedCustomDesc) customDescriptions.value = JSON.parse(storedCustomDesc);
   
+  if (authStore.isDeactivated) {
+    toast.error('Your account is deactivated. Service request submissions are disabled.');
+    router.push('/user/dashboard');
+    return;
+  }
+
   if (!Object.values(selectedServicesRaw.value).some(v => v === true)) {
     router.push('/services');
   }
@@ -98,6 +104,11 @@ const hasOthers = computed(() => otherServices.value.length > 0);
 const goBack = () => router.back();
 
 const handleFinalSubmit = async () => {
+  if (authStore.isDeactivated) {
+    toast.error('Your account is deactivated. Service request submissions are disabled.');
+    return;
+  }
+
   formsStore.v$.$touch();
   let isValid = true;
   

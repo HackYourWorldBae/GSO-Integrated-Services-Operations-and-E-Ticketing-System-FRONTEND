@@ -43,8 +43,30 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in">
 
+        <!-- Deactivated Account Notice Banner -->
+        <div v-if="authStore.isDeactivated" class="rounded-2xl border border-orange-200/80 bg-gradient-to-r from-orange-50/90 via-amber-50/80 to-orange-50/90 p-5 shadow-sm">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <div class="p-2.5 rounded-xl bg-orange-100 text-orange-700 shrink-0 mt-0.5">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <h4 class="text-sm font-black text-orange-950">Account Deactivated</h4>
+                  <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-orange-200/80 text-orange-800">Requests Disabled</span>
+                </div>
+                <p class="text-xs text-orange-800/90 max-w-2xl leading-relaxed">
+                  Your account has been deactivated by the administrator. You can review your past tickets and profile, but you cannot submit new service requests. Please visit or contact the GSO office to reactivate your account.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Identity Verification Pending Notice -->
-        <div v-if="!isUserVerified" class="rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/90 via-orange-50/80 to-amber-50/90 p-5 shadow-sm">
+        <div v-else-if="!isUserVerified" class="rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/90 via-orange-50/80 to-amber-50/90 p-5 shadow-sm">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-start gap-3.5">
               <div class="p-2.5 rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5">
@@ -81,7 +103,7 @@
               <p class="text-emerald-200/80 text-sm mt-1">Submit a new service request to the GSO in seconds.</p>
             </div>
             <button
-              v-if="authStore.hasPermission('tickets.create') && isUserVerified"
+              v-if="authStore.hasPermission('tickets.create') && isUserVerified && !authStore.isDeactivated"
               @click="$router.push('/services')"
               class="group flex items-center gap-2.5 bg-white hover:bg-emerald-50 text-emerald-700 font-black px-6 py-3.5 rounded-xl shadow-lg shadow-black/20 transition-all hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap shrink-0"
             >
@@ -90,6 +112,15 @@
               </svg>
               New Service Request
             </button>
+            <div
+              v-else-if="authStore.isDeactivated"
+              class="flex items-center gap-2 bg-orange-950/40 text-orange-100 font-bold px-4 py-3 rounded-xl border border-orange-400/40 text-xs shadow-inner"
+            >
+              <svg class="h-4 w-4 text-orange-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+              <span>Requests Disabled (Deactivated)</span>
+            </div>
             <div
               v-else-if="!isUserVerified"
               class="flex items-center gap-2 bg-emerald-900/40 text-emerald-100 font-bold px-4 py-3 rounded-xl border border-emerald-500/30 text-xs shadow-inner"

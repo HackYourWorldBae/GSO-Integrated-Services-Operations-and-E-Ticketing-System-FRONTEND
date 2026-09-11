@@ -8,11 +8,12 @@ const route     = useRoute();
 const authStore = useAuthStore();
 
 // State
-const identifier     = ref('');
-const password       = ref('');
-const isLoading      = ref(false);
-const errorMessage   = ref('');
-const successMessage = ref('');
+const identifier         = ref('');
+const password           = ref('');
+const isLoading          = ref(false);
+const errorMessage       = ref('');
+const isAccountSuspended = ref(false);
+const successMessage     = ref('');
 
 onMounted(() => {
   if (route.query?.registered === '1' || route.query?.registered === 'true') {
@@ -24,13 +25,15 @@ onMounted(() => {
 });
 
 const handleLogin = async () => {
-  isLoading.value    = true;
-  errorMessage.value = '';
+  isLoading.value          = true;
+  errorMessage.value       = '';
+  isAccountSuspended.value = false;
 
   try {
     const result = await authStore.login(identifier.value, password.value);
 
     if (!result.success) {
+      isAccountSuspended.value = Boolean(result.isSuspended);
       errorMessage.value = result.message || 'Login failed. Please try again.';
       return;
     }
@@ -116,8 +119,28 @@ const handleLogin = async () => {
         <p class="text-slate-500 text-xs font-medium">Please sign in to access your dashboard.</p>
       </div>
 
-      <!-- Error Message -->
-      <div v-if="errorMessage" class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-sm text-center font-bold animate-fade-in shrink-0 shadow-sm">
+      <!-- Account Suspended Warning Banner -->
+      <div v-if="isAccountSuspended" class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 animate-fade-in shrink-0 shadow-sm text-left">
+        <div class="flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-bold text-amber-950">Account Suspended</h3>
+            <p class="text-xs text-amber-800 mt-1 leading-relaxed">
+              {{ errorMessage }}
+            </p>
+            <p class="text-[11px] text-amber-700 mt-2 font-medium bg-amber-100/60 p-2 rounded-lg border border-amber-200/50">
+              Notice: Suspended accounts cannot log in. Please visit the General Services Office (GSO) in person or contact administration to appeal.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Standard Error Message -->
+      <div v-else-if="errorMessage" class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-sm text-center font-bold animate-fade-in shrink-0 shadow-sm">
         {{ errorMessage }}
       </div>
 

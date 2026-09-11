@@ -44,6 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
   });
 
   const unitId = computed(() => user.value?.unit_id ?? null);
+  const isDeactivated = computed(() => user.value?.status === 'Deactivated');
 
   /**
    * Check whether current user has permission for a specific feature key.
@@ -53,6 +54,11 @@ export const useAuthStore = defineStore('auth', () => {
   const hasPermission = (featureKey) => {
     if (!featureKey) return true;
     if (role.value === 'superadmin') return true;
+
+    // Deactivated user accounts can view and log in, but are barred from creating tickets
+    if (user.value?.status === 'Deactivated' && featureKey === 'tickets.create') {
+      return false;
+    }
 
     const list = Array.isArray(permissions.value) && permissions.value.length > 0
       ? permissions.value
@@ -216,7 +222,8 @@ export const useAuthStore = defineStore('auth', () => {
       return { success: true, role: userData.role };
     } catch (err) {
       const message = err.response?.data?.message || 'Login failed. Please try again.';
-      return { success: false, message };
+      const isSuspended = Boolean(err.response?.data?.data?.is_suspended || message.toLowerCase().includes('suspended'));
+      return { success: false, message, isSuspended };
     }
   };
 
@@ -327,6 +334,7 @@ export const useAuthStore = defineStore('auth', () => {
     contactNumber,
     capitalizedRole,
     unitId,
+    isDeactivated,
     hasPermission,
     login,
     logout,

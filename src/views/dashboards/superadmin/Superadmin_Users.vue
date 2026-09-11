@@ -92,6 +92,7 @@
             >
               <option value="all">All Statuses</option>
               <option value="Active">Active</option>
+              <option value="Deactivated">Deactivated</option>
               <option value="Pending">Pending</option>
               <option value="Suspended">Suspended</option>
               <option value="Rejected">Rejected</option>
@@ -245,7 +246,7 @@
 
                       <button
                         @click="openInspectModal(user)"
-                        class="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer"
+                        class="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer border border-purple-200/50"
                         title="Inspect Institutional ID Card"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -254,20 +255,96 @@
                         </svg>
                         ID
                       </button>
+
+                      <!-- Edit Button (Locked/Hidden for Student & Employee registered accounts) -->
                       <button
+                        v-if="!isRegisteredUser(user)"
                         @click="openEditModal(user)"
-                        class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-                        title="Edit User"
+                        class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer border border-slate-200"
+                        title="Edit Administrative Privileges"
                       >
                         Edit
                       </button>
-                      <button
-                        @click="openDeactivateModal(user)"
-                        class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition-colors cursor-pointer"
-                        title="Delete / Suspend User"
-                      >
-                        Delete
-                      </button>
+
+                      <!-- Account Status Actions -->
+                      <template v-if="!isCurrentUser(user)">
+                        <!-- If Active -->
+                        <template v-if="user.status === 'Active'">
+                          <button
+                            @click="openStatusModal(user, 'Deactivated')"
+                            class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors cursor-pointer border border-amber-200/60"
+                            title="Deactivate Account (User can log in, but cannot request services)"
+                          >
+                            Deactivate
+                          </button>
+                          <button
+                            @click="openStatusModal(user, 'Suspended')"
+                            class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer border border-rose-200/60"
+                            title="Suspend Account (Cannot log in, shows Account Suspended)"
+                          >
+                            Suspend
+                          </button>
+                        </template>
+
+                        <!-- If Deactivated -->
+                        <template v-else-if="user.status === 'Deactivated'">
+                          <button
+                            @click="openStatusModal(user, 'Active')"
+                            class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition-colors cursor-pointer border border-emerald-200/60"
+                            title="Reactivate Account (Restore request capability)"
+                          >
+                            Reactivate
+                          </button>
+                          <button
+                            @click="openStatusModal(user, 'Suspended')"
+                            class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer border border-rose-200/60"
+                            title="Suspend Account (Revoke login access)"
+                          >
+                            Suspend
+                          </button>
+                        </template>
+
+                        <!-- If Suspended -->
+                        <template v-else-if="user.status === 'Suspended'">
+                          <button
+                            @click="openStatusModal(user, 'Active')"
+                            class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition-colors cursor-pointer border border-emerald-200/60"
+                            title="Reactivate Account (Restore portal access)"
+                          >
+                            Reactivate
+                          </button>
+                          <button
+                            @click="openStatusModal(user, 'Deactivated')"
+                            class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors cursor-pointer border border-amber-200/60"
+                            title="Deactivate Account (Allow login, block requests)"
+                          >
+                            Deactivate
+                          </button>
+                        </template>
+
+                        <!-- Fallback for other statuses (e.g. Rejected) -->
+                        <template v-else>
+                          <button
+                            @click="openStatusModal(user, 'Suspended')"
+                            class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer border border-rose-200/60"
+                            title="Suspend Account"
+                          >
+                            Suspend
+                          </button>
+                        </template>
+
+                        <!-- Strict Multistep Delete -->
+                        <button
+                          @click="openStrictDeleteModal(user)"
+                          class="px-2 py-1.5 rounded-lg bg-slate-50 hover:bg-rose-50 hover:text-rose-600 text-slate-500 font-bold text-xs transition-colors cursor-pointer border border-slate-200 hover:border-rose-200"
+                          title="Strict Multistep Permanent Deletion"
+                        >
+                          Delete
+                        </button>
+                      </template>
+                      <span v-else class="px-2 py-1 text-[11px] font-bold text-slate-400 italic">
+                        Current User
+                      </span>
                     </div>
                   </td>
                 </tr>
@@ -331,7 +408,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center gap-2 pt-2 border-t border-slate-200">
+              <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-200">
                 <template v-if="!isUserVerified(user) && user.status !== 'Rejected'">
                   <button @click="openApproveModal(user)" class="py-2 px-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition-colors cursor-pointer" title="Approve Sign-Up">
                     ✓
@@ -340,15 +417,45 @@
                     ✕
                   </button>
                 </template>
-                <button @click="openInspectModal(user)" class="py-2 px-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold hover:bg-purple-100 transition-colors text-center flex items-center justify-center gap-1 cursor-pointer">
-                  Inspect ID
+                <button @click="openInspectModal(user)" class="py-1.5 px-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold hover:bg-purple-100 transition-colors text-center flex items-center justify-center gap-1 cursor-pointer">
+                  ID
                 </button>
-                <button @click="openEditModal(user)" class="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-colors text-center cursor-pointer">
+                <button v-if="!isRegisteredUser(user)" @click="openEditModal(user)" class="py-1.5 px-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-colors text-center cursor-pointer">
                   Edit
                 </button>
-                <button @click="openDeactivateModal(user)" class="py-2 px-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 transition-colors text-center cursor-pointer">
-                  Delete
-                </button>
+
+                <template v-if="!isCurrentUser(user)">
+                  <!-- Status Actions -->
+                  <button
+                    v-if="user.status === 'Active'"
+                    @click="openStatusModal(user, 'Deactivated')"
+                    class="py-1.5 px-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-colors cursor-pointer"
+                  >
+                    Deactivate
+                  </button>
+                  <button
+                    v-else-if="user.status === 'Deactivated' || user.status === 'Suspended'"
+                    @click="openStatusModal(user, 'Active')"
+                    class="py-1.5 px-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-colors cursor-pointer"
+                  >
+                    Reactivate
+                  </button>
+
+                  <button
+                    v-if="user.status !== 'Suspended'"
+                    @click="openStatusModal(user, 'Suspended')"
+                    class="py-1.5 px-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-colors cursor-pointer"
+                  >
+                    Suspend
+                  </button>
+
+                  <button @click="openStrictDeleteModal(user)" class="py-1.5 px-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold hover:bg-rose-50 hover:text-rose-600 transition-colors text-center cursor-pointer ml-auto">
+                    Delete
+                  </button>
+                </template>
+                <span v-else class="text-[11px] font-bold text-slate-400 italic ml-auto py-1">
+                  Current User
+                </span>
               </div>
             </div>
 
@@ -609,6 +716,7 @@
               <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Account Status</label>
               <select v-model="editForm.status" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer">
                 <option value="Active">Active</option>
+                <option value="Deactivated">Deactivated</option>
                 <option value="Pending">Pending</option>
                 <option value="Suspended">Suspended</option>
                 <option value="Rejected">Rejected</option>
@@ -771,7 +879,7 @@
         </div>
       </div>
 
-      <!-- Custom Confirmation Modal for Approve, Reject, and Deactivate -->
+      <!-- Custom Confirmation Modal for Approve, Reject, and Status Transitions -->
       <ConfirmModal
         :is-open="confirmModal.isOpen"
         :title="confirmModal.title"
@@ -795,6 +903,17 @@
           ></textarea>
         </div>
       </ConfirmModal>
+
+      <!-- Strict Multistep Account Deletion Modal -->
+      <StrictDeleteModal
+        :is-open="strictDeleteModal.isOpen"
+        :user="strictDeleteModal.user"
+        :is-loading="strictDeleteModal.isLoading"
+        :error-message="strictDeleteModal.errorMessage"
+        @close="closeStrictDeleteModal"
+        @deactivate-instead="handleDeactivateFromDeleteModal"
+        @confirm-delete="handleStrictDeleteConfirm"
+      />
     </template>
   </MainLayout>
 </template>
@@ -805,7 +924,13 @@ import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import StrictDeleteModal from '@/components/StrictDeleteModal.vue';
+import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
+
+const authStore = useAuthStore();
+const isCurrentUser = (u) => Boolean(u && authStore.user?.id && authStore.user.id === u.id);
+const isRegisteredUser = (u) => Boolean(u && ['student', 'employee'].includes(u.role));
 
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '');
 
@@ -836,7 +961,7 @@ const openInspectModal = (user) => {
   isInspectModalOpen.value = true;
 };
 
-// Confirmation modal state for Approve, Reject, and Deactivate actions
+// Confirmation modal state for Approve, Reject, and direct Status transitions
 const confirmModal = reactive({
   isOpen: false,
   title: '',
@@ -845,15 +970,16 @@ const confirmModal = reactive({
   cancelText: 'Cancel',
   type: 'danger',
   isLoading: false,
-  actionType: '', // 'approve', 'reject', 'deactivate'
+  actionType: '', // 'approve', 'reject', 'status_change'
   targetUser: null,
+  newStatus: '',
   reason: 'Identity document could not be verified.'
 });
 
 const openApproveModal = (user) => {
   if (!user) return;
   confirmModal.title = 'Approve User Sign-Up';
-  confirmModal.message = `Are you sure you want to approve and verify identity for ${user.first_name} ${user.last_name} (${user.email})?\nThis will grant them active requester privileges.`;
+  confirmModal.message = `Are you sure you want to approve and verify identity for ${user.first_name} ${user.last_name} (${user.email || user.student_id_number})?\nThis will grant them active requester privileges.`;
   confirmModal.confirmText = 'Approve & Verify';
   confirmModal.cancelText = 'Cancel';
   confirmModal.type = 'success';
@@ -866,7 +992,7 @@ const openApproveModal = (user) => {
 const openRejectModal = (user) => {
   if (!user) return;
   confirmModal.title = 'Reject User Sign-Up';
-  confirmModal.message = `Are you sure you want to reject identity verification for ${user.first_name} ${user.last_name} (${user.email})?\nThe account will be flagged as Rejected.`;
+  confirmModal.message = `Are you sure you want to reject identity verification for ${user.first_name} ${user.last_name} (${user.email || user.student_id_number})?\nThe account will be flagged as Rejected.`;
   confirmModal.confirmText = 'Reject Verification';
   confirmModal.cancelText = 'Cancel';
   confirmModal.type = 'danger';
@@ -877,17 +1003,46 @@ const openRejectModal = (user) => {
   confirmModal.isOpen = true;
 };
 
-const openDeactivateModal = (user) => {
+const openStatusModal = (user, newStatus) => {
   if (!user) return;
-  confirmModal.title = 'Deactivate User Account';
-  confirmModal.message = `Are you sure you want to deactivate or suspend ${user.first_name} ${user.last_name} (${user.email})?\nThey will no longer be able to log in to the system.`;
-  confirmModal.confirmText = 'Deactivate Account';
-  confirmModal.cancelText = 'Cancel';
-  confirmModal.type = 'danger';
-  confirmModal.isLoading = false;
-  confirmModal.actionType = 'deactivate';
+  if (isCurrentUser(user)) {
+    toast.error('Cannot modify the status of your own active Superadmin account.');
+    return;
+  }
+
   confirmModal.targetUser = user;
+  confirmModal.newStatus = newStatus;
+  confirmModal.actionType = 'status_change';
+  confirmModal.isLoading = false;
+
+  const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'User';
+  const roleName = (user.role || 'user').toUpperCase();
+
+  if (newStatus === 'Deactivated') {
+    confirmModal.title = 'Deactivate User Account';
+    confirmModal.message = `Are you sure you want to deactivate ${fullName} (${roleName})?\n\n• The user can still log in and view their historical tickets.\n• The user will be BLOCKED from submitting new service requests.\n• This is the recommended action for inactive or suspended requesters.`;
+    confirmModal.confirmText = 'Deactivate Account';
+    confirmModal.cancelText = 'Cancel';
+    confirmModal.type = 'warning';
+  } else if (newStatus === 'Suspended') {
+    confirmModal.title = 'Suspend User Account';
+    confirmModal.message = `Are you sure you want to suspend ${fullName} (${roleName})?\n\n• All active sessions will be terminated immediately.\n• The user will be BLOCKED from logging into the portal.\n• An "Account Suspended" notice will be displayed upon login attempt.`;
+    confirmModal.confirmText = 'Suspend Account';
+    confirmModal.cancelText = 'Cancel';
+    confirmModal.type = 'danger';
+  } else if (newStatus === 'Active') {
+    confirmModal.title = 'Reactivate User Account';
+    confirmModal.message = `Are you sure you want to reactivate ${fullName} (${roleName})?\n\n• Full portal login and request submission privileges will be restored.\n• Account verification status will be confirmed.`;
+    confirmModal.confirmText = 'Reactivate Account';
+    confirmModal.cancelText = 'Cancel';
+    confirmModal.type = 'success';
+  }
+
   confirmModal.isOpen = true;
+};
+
+const openDeactivateModal = (user) => {
+  openStatusModal(user, 'Deactivated');
 };
 
 const closeConfirmModal = () => {
@@ -895,6 +1050,7 @@ const closeConfirmModal = () => {
   confirmModal.isOpen = false;
   confirmModal.targetUser = null;
   confirmModal.actionType = '';
+  confirmModal.newStatus = '';
 };
 
 const handleConfirmAction = async () => {
@@ -916,9 +1072,11 @@ const handleConfirmAction = async () => {
       isInspectModalOpen.value = false;
       closeConfirmModal();
       await fetchUsers();
-    } else if (confirmModal.actionType === 'deactivate') {
-      const res = await api.delete(`/superadmin/users/${user.id}`);
-      toast.success(res.data?.message || 'User account deactivated successfully.');
+    } else if (confirmModal.actionType === 'status_change') {
+      const res = await api.patch(`/superadmin/users/${user.id}/status`, {
+        status: confirmModal.newStatus
+      });
+      toast.success(res.data?.message || `Account status updated to ${confirmModal.newStatus}.`);
       closeConfirmModal();
       await fetchUsers();
     }
@@ -927,6 +1085,57 @@ const handleConfirmAction = async () => {
   } finally {
     confirmModal.isLoading = false;
   }
+};
+
+// Strict Multistep Deletion Modal state & handlers
+const strictDeleteModal = reactive({
+  isOpen: false,
+  user: null,
+  isLoading: false,
+  errorMessage: ''
+});
+
+const openStrictDeleteModal = (user) => {
+  if (!user) return;
+  if (isCurrentUser(user)) {
+    toast.error('Cannot delete your own active Superadmin account.');
+    return;
+  }
+  strictDeleteModal.user = user;
+  strictDeleteModal.isLoading = false;
+  strictDeleteModal.errorMessage = '';
+  strictDeleteModal.isOpen = true;
+};
+
+const closeStrictDeleteModal = () => {
+  if (strictDeleteModal.isLoading) return;
+  strictDeleteModal.isOpen = false;
+  strictDeleteModal.user = null;
+  strictDeleteModal.errorMessage = '';
+};
+
+const handleStrictDeleteConfirm = async ({ user, reason }) => {
+  strictDeleteModal.isLoading = true;
+  strictDeleteModal.errorMessage = '';
+  try {
+    const res = await api.delete(`/superadmin/users/${user.id}`, {
+      data: { reason }
+    });
+    toast.success(res.data?.message || 'User account permanently deleted.');
+    closeStrictDeleteModal();
+    await fetchUsers();
+  } catch (err) {
+    const message = err.response?.data?.message || 'Failed to permanently delete account.';
+    strictDeleteModal.errorMessage = message;
+    toast.error(message);
+  } finally {
+    strictDeleteModal.isLoading = false;
+  }
+};
+
+const handleDeactivateFromDeleteModal = (user) => {
+  closeStrictDeleteModal();
+  openStatusModal(user, 'Deactivated');
 };
 
 const pagination = reactive({
@@ -1018,6 +1227,7 @@ const getRoleBadgeClass = (role) => {
 const getStatusBadgeClass = (status) => {
   const map = {
     Active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    Deactivated: 'bg-orange-50 text-orange-700 border-orange-200',
     Pending: 'bg-amber-50 text-amber-700 border-amber-200',
     Suspended: 'bg-rose-50 text-rose-700 border-rose-200',
     Rejected: 'bg-rose-50 text-rose-700 border-rose-200'
@@ -1172,12 +1382,16 @@ const submitCreateUser = async () => {
 };
 
 const openEditModal = (user) => {
+  if (isRegisteredUser(user)) {
+    toast.warning('Registered user accounts (Student / Employee) are self-managed and cannot be edited by Superadmin. You can Deactivate or Suspend their access instead.');
+    return;
+  }
   modalError.value = '';
   editForm.id = user.id;
   editForm.first_name = user.first_name || '';
   editForm.last_name = user.last_name || '';
   editForm.email = user.email || '';
-  editForm.role = user.role || 'student';
+  editForm.role = user.role || 'admin';
   editForm.unit_id = user.unit_id || null;
   editForm.status = user.status || 'Active';
   editForm.password = '';
@@ -1187,6 +1401,11 @@ const openEditModal = (user) => {
 };
 
 const submitEditUser = async () => {
+  if (isRegisteredUser(editForm)) {
+    toast.error('Registered user accounts cannot have their profile details modified by Superadmin.');
+    return;
+  }
+
   isSubmitting.value = true;
   modalError.value = '';
   try {
@@ -1230,7 +1449,7 @@ const submitEditUser = async () => {
 };
 
 const confirmDeleteUser = (user) => {
-  openDeactivateModal(user);
+  openStrictDeleteModal(user);
 };
 
 onMounted(() => {

@@ -457,6 +457,16 @@ router.beforeEach((to, from, next) => {
     // 2.1 Identity Verification Gate for Ticket Intake
     // Unverified users can browse their dashboard/settings, but cannot create tickets
     if (to.path === '/services' || to.path.startsWith('/services/forms')) {
+      if (user.status === 'Deactivated') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Account Deactivated',
+          text: 'Your account has been deactivated. You can view your past tickets, but you cannot submit new requests. Please contact the GSO office to reactivate your account.',
+          confirmButtonColor: '#059669',
+        });
+        return next('/user/dashboard');
+      }
+
       const isVerified = user.is_verified === 1 || user.is_verified === true || user.is_verified === '1';
       if (!isVerified) {
         Swal.fire({
