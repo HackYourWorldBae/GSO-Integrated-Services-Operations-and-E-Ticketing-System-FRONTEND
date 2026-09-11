@@ -276,6 +276,19 @@
               <!-- Actions -->
               <td class="px-3 py-3 whitespace-nowrap text-right" @click.stop>
                 <div class="flex items-center justify-end gap-1.5">
+                  <!-- Job Order Print / Preview Action Button -->
+                  <button
+                    type="button"
+                    @click="openJobOrderDocument(ticket)"
+                    class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1 cursor-pointer border border-slate-200"
+                    title="Print / View Job Order (Official Job Request Form)"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>Job Order</span>
+                  </button>
+
                   <!-- Extend Button -->
                   <button
                     type="button"
@@ -413,6 +426,17 @@
 
         <!-- Card Actions -->
         <div class="flex items-center gap-2 pt-1 border-t border-slate-100" @click.stop>
+          <button
+            type="button"
+            @click="openJobOrderDocument(ticket)"
+            class="py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold text-center transition-all flex items-center justify-center gap-1 cursor-pointer"
+            title="Print / View Job Order"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            <span>Job Order</span>
+          </button>
           <button
             type="button"
             @click="openExtensionModal(ticket)"
@@ -589,6 +613,37 @@
               </p>
             </div>
 
+            <!-- Official Job Order Document Section -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div :class="['w-10 h-10 rounded-xl flex items-center justify-center font-bold border shrink-0', themeAttachmentIconBg]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="text-xs sm:text-sm font-black text-slate-900 leading-tight">
+                      Official Job Order (QM-GSO-{{ unitCode }}-01)
+                    </h4>
+                    <p class="text-[11px] text-slate-500 font-medium mt-0.5">
+                      Official job request document filled with requester information, location, designated technician, and scheduled dates.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  @click="openJobOrderDocument(selectedTicketForModal)"
+                  class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  </svg>
+                  <span>Print / View Job Order</span>
+                </button>
+              </div>
+            </div>
+
             <!-- Attachments & Proof Documents -->
             <div class="space-y-2.5">
               <span class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
@@ -639,6 +694,18 @@
             <div class="flex items-center gap-2">
               <button
                 type="button"
+                @click="openJobOrderDocument(selectedTicketForModal)"
+                class="px-4 py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 text-xs font-black uppercase tracking-wider transition-all shadow-2xs active:scale-95 cursor-pointer flex items-center gap-1.5"
+                title="Print official Job Order document"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                <span>Print Job Order</span>
+              </button>
+
+              <button
+                type="button"
                 @click="selectedTicketForModal = null; openExtensionModal(selectedTicketForModal)"
                 class="px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100 text-xs font-black transition-colors cursor-pointer"
               >
@@ -687,6 +754,15 @@
       @close="showReceiptModal = false"
     />
 
+    <!-- Document Viewer Modal for Job Order & Attachments -->
+    <DocumentViewerModal
+      :is-open="viewerModal.isOpen"
+      :title="viewerModal.title"
+      :file-name="viewerModal.fileName"
+      :file-blob="viewerModal.fileBlob"
+      @close="viewerModal.isOpen = false"
+    />
+
   </div>
 </template>
 
@@ -697,6 +773,8 @@ import { toast } from 'vue3-toastify';
 import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
+import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
+import { generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
 import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
 
 const props = defineProps({
@@ -727,6 +805,14 @@ const showMaterialModal = ref(false);
 const selectedTicketForCompletion = ref(null);
 const showReceiptModal = ref(false);
 const receiptTicket = ref(null);
+
+// Document Viewer state
+const viewerModal = reactive({
+  isOpen: false,
+  title: '',
+  fileName: '',
+  fileBlob: null,
+});
 
 // Live durations tick
 const liveDurations = reactive({});
@@ -985,19 +1071,51 @@ const handleJobCompleted = (result) => {
   showReceiptModal.value = true;
 };
 
+const openJobOrderDocument = async (ticket) => {
+  if (!ticket) return;
+  try {
+    const ticketId = ticket.ticketId || ticket.id;
+    const unit = props.unitCode?.toUpperCase() || ticket.unit_code || 'FGMU';
+    viewerModal.title = `${unit} Job Order (Job Request Form) - #${ticketId}`;
+    viewerModal.fileName = `${unit}_Job_Order_#${ticketId}.pdf`;
+
+    const ticketData = {
+      ...ticket,
+      unit_code: unit,
+      unit: unit,
+      ticketRef: ticket.ticket_number || ticket.reference_number || `${unit}-TIC-${ticketId}`,
+    };
+
+    const blob = await generateFgmuJobRequestFormBlob(ticketData, ticket.feedback);
+    viewerModal.fileBlob = blob;
+    viewerModal.isOpen = true;
+  } catch (err) {
+    console.error('Failed to generate Job Order document:', err);
+    toast.error('Failed to generate Job Order document preview.');
+  }
+};
+
 const downloadAttachment = async (att) => {
   try {
     const response = await api.get(`attachments/${att.id}`, { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([response.data], { type: att.file_type || 'application/octet-stream' }));
-    if (att.file_type && att.file_type.startsWith('image/')) {
-      window.open(url, '_blank');
+    const mimeType = att.file_type || response.headers?.['content-type'] || 'application/octet-stream';
+    const blob = new Blob([response.data], { type: mimeType });
+
+    const fileNameLower = (att.file_name || '').toLowerCase();
+    if (fileNameLower.endsWith('.pdf') || mimeType === 'application/pdf' || mimeType.startsWith('image/')) {
+      viewerModal.title = att.file_name || 'Attachment Preview';
+      viewerModal.fileName = att.file_name || 'attachment.pdf';
+      viewerModal.fileBlob = blob;
+      viewerModal.isOpen = true;
     } else {
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', att.file_name || 'attachment');
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
     }
   } catch (error) {
     console.error('Failed to download attachment', error);

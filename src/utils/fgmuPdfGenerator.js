@@ -63,14 +63,28 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     assignment.assigned_at ||
     ''
   );
-  const dateCompleted = formatDocDate(ticket.completed_at || ticket.updated_at || new Date());
+  
+  // Only show Date Completed if ticket is actually resolved or closed
+  const isCompleted = ticket.status === 'closed' || ticket.status === 'resolved' || !!ticket.completed_at;
+  const dateCompleted = isCompleted ? formatDocDate(ticket.completed_at || ticket.updated_at) : '—';
 
   const building     = details.college_building || ticket.location || details.location || ticket.college_building || 'N/A';
   const room         = details.office_room       || ticket.office_room || ticket.officeRoom || 'N/A';
   const fund         = details.source_of_fund    || ticket.source_of_fund || ticket.sourceOfFund || 'N/A';
-  const requestor    = details.end_user || details.requesting_personnel || ticket.requestedBy || ticket.requested_by || ticket.user_name || ticket.requester || 'N/A';
-  const workingDays  = String(ticket.working_days || ticket.project_working_days || assignment.working_days || ticket.workingDays || 'N/A');
-  const jobParticulars = (ticket.description || ticket.job_description || ticket.title || ticket.service_type || ticket.service || 'General maintenance and repair service.').trim();
+  
+  const baseRequestor = details.end_user || details.requesting_personnel || ticket.requestedBy || ticket.requested_by || ticket.user_name || ticket.requester || 'N/A';
+  const contactNum = ticket.contact_number || ticket.requester_contact || details.contact_number || ticket.user?.contact_number || '';
+  const requestor = contactNum && contactNum !== 'N/A' && !baseRequestor.includes(contactNum)
+    ? `${baseRequestor} (Tel: ${contactNum})`
+    : baseRequestor;
+
+  const workingDays  = String(ticket.working_days || ticket.project_working_days || assignment.working_days || ticket.workingDays || '1');
+  
+  let jobParticulars = (ticket.description || ticket.job_description || ticket.title || 'General maintenance and repair service.').trim();
+  const serviceCategory = ticket.service || ticket.service_type || ticket.type;
+  if (serviceCategory && serviceCategory !== 'General' && !jobParticulars.toLowerCase().includes(serviceCategory.toLowerCase())) {
+    jobParticulars = `[${serviceCategory}]\n${jobParticulars}`;
+  }
 
   // Personnel extraction — supports assignments array, personnel array, or comma-separated name string
   let personnelNames = [];
@@ -90,14 +104,17 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     return lower !== 'unassigned' && lower !== 'n/a' && lower !== 'none' && lower !== '';
   });
 
-  const isLeau = ticket.unit_code === 'LEAU' || ticket.unit === 'LEAU' || ticket.unit_id === 2;
+  const isLeau = ticket.unit_code === 'LEAU' || ticket.unit === 'LEAU' || ticket.unit_id === 2 || (typeof ticket.id === 'string' && ticket.id.includes('LEAU'));
   const unitCode = isLeau ? 'LEAU' : 'FGMU';
   const unitFullName = isLeau
     ? 'Landscaping & Environmental Aesthetics Unit (LEAU)'
     : 'Facilities & Grounds Maintenance Unit (FGMU)';
-  const ticketRef = String(ticket.ticketId || ticket.id || '0000');
+  const ticketRef = String(ticket.ticket_number || ticket.reference_number || ticket.ticketRef || ticket.ticketId || ticket.id || '0000');
 
-  const remarks = (feedback.remarks || ticket.remarks || '').trim() || 'Work completed satisfactorily.';
+  let remarks = (feedback.remarks || ticket.remarks || assignment.instructions || assignment.task_briefing || '').trim();
+  if (!remarks) {
+    remarks = isCompleted ? 'Work completed satisfactorily.' : 'Work order issued. Awaiting job execution.';
+  }
 
   return {
     ticketId:        String(ticket.ticketId || ticket.id || '0000').padStart(4, '0'),
@@ -132,10 +149,12 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
  * @returns {Object} pdfmake docDefinition
  */
 const buildDocDefinition = (data, logoDataUrl) => {
-  /** Helper: a labeled underlined field row */
-  const fieldRow = (label, value) => [
-    { text: label, bold: true, noWrap: true, border: [false, false, false, false], fontSize: 9, color: '#475569' },
-    { text: value || '', border: [false, false, false, true], fontSize: 10, borderColor: ['', '', '', '#64748b'] },
+  /** Helper: a labeled underlined 4-cell field row */
+  const fieldRow = (label1, value1, label2 = '', value2 = '') => [
+    { text: label1, bold: true, noWrap: true, border: [false, false, false, false], fontSize: 9, color: '#475569' },
+    { text: value1 || '', border: [false, false, false, true], fontSize: 10, borderColor: ['', '', '', '#64748b'] },
+    { text: label2, bold: true, noWrap: true, border: [false, false, false, false], fontSize: 9, color: '#475569', margin: [15, 0, 0, 0] },
+    { text: value2 || '', border: [false, false, false, true], fontSize: 10, borderColor: ['', '', '', '#64748b'] },
   ];
 
   /** Helper: blank signature line */
@@ -181,7 +200,7 @@ const buildDocDefinition = (data, logoDataUrl) => {
         { canvas: [{ type: 'line', x1: 0, y1: 8, x2: 522, y2: 8, lineWidth: 1.5, lineColor: '#0f172a' }] },
         {
           columns: [
-            { text: 'JOB REQUEST FORM', fontSize: 11, bold: true, decoration: 'underline', alignment: 'left', margin: [0, 5, 0, 0] },
+            { text: 'JOB REQUEST / WORK ORDER', fontSize: 11, bold: true, decoration: 'underline', alignment: 'left', margin: [0, 5, 0, 0] },
             { text: `Page ${currentPage} of ${pageCount}`, fontSize: 8, color: '#94a3b8', alignment: 'right', margin: [0, 7, 0, 0] },
           ],
         },
@@ -193,7 +212,7 @@ const buildDocDefinition = (data, logoDataUrl) => {
       margin: [45, 0, 45, 0],
       stack: [
         { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 522, y2: 0, lineWidth: 0.5, lineColor: '#cbd5e1' }] },
-        { text: `BSU General Services Office — ${data.unitCode} Job Request Form  |  System-Generated Document`, fontSize: 7, color: '#94a3b8', alignment: 'center', margin: [0, 4, 0, 0] },
+        { text: `BSU General Services Office — ${data.unitCode} Job Order / Request Form  |  System-Generated Document`, fontSize: 7, color: '#94a3b8', alignment: 'center', margin: [0, 4, 0, 0] },
       ],
     }),
 
@@ -203,7 +222,7 @@ const buildDocDefinition = (data, logoDataUrl) => {
       {
         columns: [
           { text: [{ text: 'Date Filed: ', bold: true, fontSize: 9, color: '#475569' }, { text: data.Date, fontSize: 10 }], width: '*' },
-          { text: [{ text: 'Ticket No: ', bold: true, fontSize: 9, color: '#475569' }, { text: `TIC-${data.unitCode}-${data.ticketId}`, fontSize: 10, bold: true }], width: 'auto', alignment: 'right' },
+          { text: [{ text: 'Ticket No: ', bold: true, fontSize: 9, color: '#475569' }, { text: data.ticketRef.startsWith('#') ? data.ticketRef : `#${data.ticketRef}`, fontSize: 10, bold: true }], width: 'auto', alignment: 'right' },
         ],
         margin: [0, 0, 0, 6],
       },
@@ -214,7 +233,7 @@ const buildDocDefinition = (data, logoDataUrl) => {
           widths: ['auto', '*', 'auto', '*'],
           body: [
             fieldRow('Building / Location:', data.Building, 'Office / Room:', data.Room),
-            fieldRow('Office / Room:', data.Room, 'Fund Source:', data.Fund),
+            fieldRow('Requested by:', data.Requestor, 'Fund Source:', data.Fund),
           ],
         },
         layout: {
@@ -222,26 +241,9 @@ const buildDocDefinition = (data, logoDataUrl) => {
           vLineWidth: () => 0,
           hLineColor: () => '#cbd5e1',
           paddingLeft:   () => 0,
-          paddingRight:  (i) => i === 1 ? 20 : 6,
-          paddingTop:    () => 3,
-          paddingBottom: () => 3,
-        },
-        margin: [0, 0, 0, 4],
-      },
-      {
-        table: {
-          widths: ['auto', '*', 'auto', '*'],
-          body: [
-            fieldRow('Requested by:', data.Requestor, 'Fund Source:', data.Fund),
-          ],
-        },
-        layout: {
-          hLineWidth: () => 0,
-          vLineWidth: () => 0,
-          paddingLeft:   () => 0,
-          paddingRight:  (i) => i === 1 ? 20 : 6,
-          paddingTop:    () => 3,
-          paddingBottom: () => 3,
+          paddingRight:  (i) => (i === 1 ? 20 : 6),
+          paddingTop:    () => 4,
+          paddingBottom: () => 4,
         },
         margin: [0, 0, 0, 10],
       },
@@ -286,7 +288,7 @@ const buildDocDefinition = (data, logoDataUrl) => {
               { text: 'Date Started:', bold: true, fontSize: 9, color: '#475569', border: [false, false, false, false] },
               { text: data.Date_started || 'N/A',      border: [false, false, false, true], fontSize: 10, borderColor: ['', '', '', '#64748b'] },
               { text: 'Date Completed:', bold: true, fontSize: 9, color: '#475569', border: [false, false, false, false], margin: [12, 0, 0, 0] },
-              { text: data.Date_completed || 'N/A',    border: [false, false, false, true], fontSize: 10, borderColor: ['', '', '', '#64748b'] },
+              { text: data.Date_completed || '—',      border: [false, false, false, true], fontSize: 10, borderColor: ['', '', '', '#64748b'] },
               { text: 'Working Days:', bold: true, fontSize: 9, color: '#475569', border: [false, false, false, false], margin: [12, 0, 0, 0] },
               { text: data.Working_days || 'N/A',      border: [false, false, false, true], fontSize: 10, borderColor: ['', '', '', '#64748b'] },
             ],
@@ -297,7 +299,7 @@ const buildDocDefinition = (data, logoDataUrl) => {
       },
 
       // ── Remarks ───────────────────────────────────────────────────────────
-      { text: 'Remarks / Observations:', bold: true, fontSize: 9, color: '#475569', margin: [0, 0, 0, 3] },
+      { text: 'Remarks / Observations / Instructions:', bold: true, fontSize: 9, color: '#475569', margin: [0, 0, 0, 3] },
       {
         table: {
           widths: ['*'],
@@ -311,7 +313,7 @@ const buildDocDefinition = (data, logoDataUrl) => {
       {
         columns: [
           signatureLine('Requesting Party', 'End-User / Department Representative'),
-          signatureLine('FGMU Dispatcher / In-Charge', 'GSO-FGMU Staff'),
+          signatureLine(`${data.unitCode} Dispatcher / In-Charge`, `GSO-${data.unitCode} Staff`),
           signatureLine('GSO Director / Authorized Rep.', 'Office of the GSO Director'),
         ],
         columnGap: 20,
@@ -405,6 +407,21 @@ export const downloadFgmuJobRequestFormDocx = async (ticket, feedbackData = null
     templateData,
     `FGMU Job Request Form - #${ticketId}.docx`
   );
+};
+
+/**
+ * Triggers browser print dialog for the FGMU/LEAU Job Request Form / Work Order.
+ * @param {Object} ticket
+ * @param {Object|null} feedbackData
+ */
+export const printFgmuJobRequestForm = async (ticket, feedbackData = null) => {
+  const [pdfMake, data, logoDataUrl] = await Promise.all([
+    getPdfMake(),
+    buildFgmuTemplateData(ticket, feedbackData),
+    getLogoDataUrl(),
+  ]);
+  const docDef = buildDocDefinition(data, logoDataUrl);
+  pdfMake.createPdf(docDef).print();
 };
 
 /**

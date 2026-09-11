@@ -33,6 +33,19 @@
 
             <!-- Action Toolbar Buttons -->
             <div class="flex items-center gap-2 shrink-0">
+              <!-- Print Button (PDF/Image) -->
+              <button 
+                v-if="isPdf || isImage"
+                @click="printDocument" 
+                class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                title="Print document directly"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                <span>Print</span>
+              </button>
+
               <!-- Open in New Tab (PDF/Image) -->
               <button 
                 v-if="isPdf || isImage"
@@ -264,6 +277,38 @@ watch(
 const emitClose = () => {
   emit('update:isOpen', false);
   emit('close');
+};
+
+const printDocument = () => {
+  try {
+    if (pdfIframeRef.value && pdfIframeRef.value.contentWindow) {
+      pdfIframeRef.value.contentWindow.focus();
+      pdfIframeRef.value.contentWindow.print();
+    } else {
+      let url = pdfBlobUrl.value || imageUrl.value;
+      if (!url && props.fileBlob) {
+        url = URL.createObjectURL(props.fileBlob);
+      } else if (!url && props.fileUrl) {
+        url = props.fileUrl;
+      }
+      if (url) {
+        const printWin = window.open(url, '_blank');
+        if (printWin) {
+          printWin.focus();
+          setTimeout(() => {
+            try {
+              printWin.print();
+            } catch (err) {
+              console.warn('Auto print error:', err);
+            }
+          }, 500);
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Print failed:', e);
+    openInNewTab();
+  }
 };
 
 const openInNewTab = () => {
