@@ -52,11 +52,26 @@ const unitLabel = computed(() => activeUnit.value.toUpperCase());
 // Exact and prefix active matcher
 const isItemActive = (item) => {
   const currentPath = route.path.toLowerCase();
-  const targetPath = item.to.split('?')[0].toLowerCase();
+  const [targetPath, targetQuery] = item.to.toLowerCase().split('?');
+
+  // If item specifies query parameters (e.g. ?tab=verification), compare against fullPath
+  if (targetQuery) {
+    return route.fullPath.toLowerCase().includes(targetQuery);
+  }
 
   if (item.exact) {
     return currentPath === targetPath;
   }
+
+  // Disambiguation: If another navigation item has an exact match for currentPath,
+  // do not fall back to loose prefix matching on shorter parent paths.
+  const hasExactItemMatch = navGroups.value.some(group =>
+    group.items.some(navItem => navItem.to.toLowerCase().split('?')[0] === currentPath)
+  );
+  if (hasExactItemMatch) {
+    return currentPath === targetPath;
+  }
+
   return currentPath === targetPath || (currentPath.startsWith(targetPath + '/') && targetPath !== '/');
 };
 
@@ -172,12 +187,14 @@ const rawNavGroups = computed(() => {
           {
             label: 'FGMU Ticket Queues',
             to: '/director/fgmu/queues',
+            exact: true,
             icon: 'tools',
             permission: 'tickets.view_all'
           },
           {
             label: 'LEAU Ticket Queues',
             to: '/director/leau/queues',
+            exact: true,
             icon: 'leaf',
             permission: 'tickets.view_all'
           }
@@ -189,18 +206,21 @@ const rawNavGroups = computed(() => {
           {
             label: 'FGMU Facilities',
             to: '/director/fgmu',
+            exact: true,
             icon: 'tools',
             permission: 'reports.view'
           },
           {
             label: 'LEAU Environment',
             to: '/director/leau',
+            exact: true,
             icon: 'leaf',
             permission: 'reports.view'
           },
           {
             label: 'SSU Security',
             to: '/director/ssu',
+            exact: true,
             icon: 'shield',
             permission: 'reports.view'
           }
@@ -265,6 +285,7 @@ const navGroups = computed(() => {
           v-for="item in group.items"
           :key="item.to"
           :to="item.to"
+          exact-active-class="router-link-exact-active"
           :class="[
             'nav-item group',
             isItemActive(item) ? 'router-link-active' : ''
