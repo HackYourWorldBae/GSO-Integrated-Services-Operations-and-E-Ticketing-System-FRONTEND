@@ -18,6 +18,7 @@ import api from '@/api/client';
 import { loadImageAsPngDataUrl } from '@/utils/imageUtils';
 import { getPdfMake } from '@/utils/pdfmakeInit';
 import { generateDocxBlob, generateDocx } from '@/utils/docxGenerator';
+import { generateFgmuJobRequestFormPdfBlob, generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Date Formatting
@@ -351,49 +352,44 @@ async function getLogoDataUrl() {
 }
 
 /**
- * Generates the FGMU Job Request Form as a PDF Blob.
+ * Generates the FGMU Job Request Form as a PDF Blob by filling
+ * public/templates/FGMU Job Request Form.docx and converting it to PDF.
  * @param {Object} ticket
  * @param {Object|null} feedbackData
  * @returns {Promise<Blob>}
  */
 export const generateFgmuJobRequestFormBlob = async (ticket, feedbackData = null) => {
-  const [pdfMake, data, logoDataUrl] = await Promise.all([
-    getPdfMake(),
-    buildFgmuTemplateData(ticket, feedbackData),
-    getLogoDataUrl().catch(() => null),
-  ]);
+  try {
+    return await generateFgmuJobRequestFormPdfBlob(ticket, feedbackData);
+  } catch (docxPdfErr) {
+    console.warn('Docx-to-PDF template conversion fallback:', docxPdfErr);
+    const [pdfMake, data, logoDataUrl] = await Promise.all([
+      getPdfMake(),
+      buildFgmuTemplateData(ticket, feedbackData),
+      getLogoDataUrl().catch(() => null),
+    ]);
 
-  const docDef = buildDocDefinition(data, logoDataUrl);
-  const pdfDoc = pdfMake.createPdf(docDef);
+    const docDef = buildDocDefinition(data, logoDataUrl);
+    const pdfDoc = pdfMake.createPdf(docDef);
 
-  // pdfmake v0.2/v0.3 getBlob() returns a Promise<Blob>
-  if (typeof pdfDoc.getBlob === 'function') {
-    const result = pdfDoc.getBlob();
-    if (result && typeof result.then === 'function') {
-      return await result;
+    if (typeof pdfDoc.getBlob === 'function') {
+      const result = pdfDoc.getBlob();
+      if (result && typeof result.then === 'function') {
+        return await result;
+      }
     }
+
+    return new Promise((resolve, reject) => {
+      try {
+        pdfDoc.getBlob(blob => resolve(blob));
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
-
-  // Fallback for older callback-based pdfmake versions
-  return new Promise((resolve, reject) => {
-    try {
-      pdfDoc.getBlob(blob => resolve(blob));
-    } catch (err) {
-      reject(err);
-    }
-  });
 };
 
-/**
- * Generates the FGMU Job Request Form as a Word (.docx) Blob.
- * @param {Object} ticket
- * @param {Object|null} feedbackData
- * @returns {Promise<Blob>}
- */
-export const generateFgmuJobRequestFormDocxBlob = async (ticket, feedbackData = null) => {
-  const templateData = buildFgmuTemplateData(ticket, feedbackData);
-  return await generateDocxBlob('/templates/FGMU Job Request Form.docx', templateData);
-};
+export { generateFgmuJobRequestFormDocxBlob };
 
 /**
  * Triggers a browser PDF download for the FGMU Job Request Form.

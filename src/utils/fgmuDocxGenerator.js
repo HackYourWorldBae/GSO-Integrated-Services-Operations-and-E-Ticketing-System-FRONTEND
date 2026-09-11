@@ -56,19 +56,20 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     assignment.assigned_at ||
     ''
   );
-  const dateCompleted = formatDocDate(
-    ticket.completed_at ||
-    ticket.updated_at ||
-    new Date()
-  );
+  const isCompleted = ticket.status === 'closed' || ticket.status === 'resolved' || !!ticket.completed_at;
+  const dateCompleted = isCompleted ? formatDocDate(ticket.completed_at || ticket.updated_at) : '—';
 
   // Extract building & room
   const building = details.college_building || ticket.location || details.location || ticket.college_building || 'N/A';
   const room = details.office_room || ticket.office_room || ticket.officeRoom || 'N/A';
   const fund = details.source_of_fund || ticket.source_of_fund || ticket.sourceOfFund || 'N/A';
 
-  // Requestor name
-  const requestor = details.end_user || details.requesting_personnel || ticket.requestedBy || ticket.requested_by || ticket.user_name || ticket.requester || 'N/A';
+  // Requestor name + contact number
+  const baseRequestor = details.end_user || details.requesting_personnel || ticket.requestedBy || ticket.requested_by || ticket.user_name || ticket.requester || 'N/A';
+  const contactNum = ticket.contact_number || ticket.requester_contact || details.contact_number || ticket.user?.contact_number || '';
+  const requestor = contactNum && contactNum !== 'N/A' && !baseRequestor.includes(contactNum)
+    ? `${baseRequestor} (Tel: ${contactNum})`
+    : baseRequestor;
 
   // Working days duration
   const workingDays = String(
@@ -76,11 +77,11 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     ticket.project_working_days ||
     assignment.working_days ||
     ticket.workingDays ||
-    'N/A'
+    '1'
   );
 
   // Job description / particulars
-  const jobParticulars = (
+  let jobParticulars = (
     ticket.description ||
     ticket.job_description ||
     ticket.title ||
@@ -88,6 +89,11 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     ticket.service ||
     'General maintenance and repair service.'
   ).trim();
+
+  const serviceCategory = ticket.service || ticket.service_type || ticket.type;
+  if (serviceCategory && serviceCategory !== 'General' && !jobParticulars.toLowerCase().includes(serviceCategory.toLowerCase())) {
+    jobParticulars = `[${serviceCategory}]\n${jobParticulars}`;
+  }
 
   // Robust parsing of assigned personnel into Personnel_1 .. Personnel_4
   let personnelNames = [];
@@ -124,7 +130,12 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
   const personnel4 = personnelNames[3] || '';
 
   // Performance evaluation / remarks
-  const remarks = (feedback.remarks || ticket.remarks || '').trim() || 'Work completed satisfactorily.';
+  let remarks = (feedback.remarks || ticket.remarks || assignment.instructions || assignment.task_briefing || '').trim();
+  if (!remarks) {
+    remarks = isCompleted ? 'Work completed satisfactorily.' : 'Work order issued. Awaiting job execution.';
+  }
+
+  const ticketRef = String(ticket.ticket_number || ticket.reference_number || ticket.ticketRef || ticket.ticketId || ticket.id || '0000');
 
   return {
     Date: dateFiling,
@@ -133,26 +144,116 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     Fund: fund,
     Requestor: requestor,
     Working_days: workingDays,
+    'Working_days': workingDays,
+    ' Working_days ': workingDays,
     Date_started: dateStarted,
+    'Date_started': dateStarted,
+    ' Date_started ': dateStarted,
     'Date Completed': dateCompleted,
+    Date_completed: dateCompleted,
     Job_particulars: jobParticulars,
     Personnel_1: personnel1,
     Personnel_2: personnel2,
     Personnel_3: personnel3,
     Personnel_4: personnel4,
     Remarks: remarks,
+    JR_No: ticketRef,
+    'JR No.': ticketRef,
   };
 };
 
 /**
- * Generates the FGMU Job Request Form Docx file as a Blob.
+ * Converts a filled DOCX Blob into a real vector/raster PDF Blob using docx-preview and html2pdf.js.
+ * Runs completely client-side in the browser.
+ * @param {Blob} docxBlob 
+ * @param {string} [filename]
+ * @returns {Promise<Blob>}
+ */
+export const convertDocxBlobToPdfBlob = async (docxBlob, filename = 'FGMU_Job_Request_Form.pdf') => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    throw new Error('convertDocxBlobToPdfBlob requires a browser DOM environment.');
+  }
+
+  const { renderAsync } = await import('docx-preview');
+  const html2pdf = (await import('html2pdf.js')).default;
+
+  // Off-screen rendering container
+  const container = document.createElement('div');
+  container.className = 'docx-pdf-render-offscreen';
+  container.style.position = 'fixed';
+  container.style.left = '-99999px';
+  container.style.top = '0';
+  container.style.width = '816px'; // 8.5in at 96 DPI
+  container.style.background = '#ffffff';
+  container.style.color = '#000000';
+  container.style.zIndex = '-9999';
+  document.body.appendChild(container);
+
+  try {
+    await renderAsync(docxBlob, container, undefined, {
+      className: 'docx-preview',
+      inWrapper: false,
+      ignoreWidth: false,
+      ignoreHeight: false,
+      breakPages: true,
+      renderHeaders: true,
+      renderFooters: true,
+      renderFootnotes: true,
+      renderEndnotes: true,
+    });
+
+    const opt = {
+      margin: [6, 6, 6, 6],
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'letter',
+        orientation: 'portrait',
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    };
+
+    const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
+    return pdfBlob;
+  } finally {
+    if (container.parentNode) {
+      container.parentNode.removeChild(container);
+    }
+  }
+};
+
+/**
+ * Generates the FGMU Job Request Form Docx file as a Blob by filling public/templates/FGMU Job Request Form.docx.
  * @param {Object} ticket - Ticket data
  * @param {Object} [feedbackData] - User feedback data
  * @returns {Promise<Blob>}
  */
-export const generateFgmuJobRequestFormBlob = async (ticket, feedbackData = null) => {
+export const generateFgmuJobRequestFormDocxBlob = async (ticket, feedbackData = null) => {
   const templateData = buildFgmuTemplateData(ticket, feedbackData);
   return await generateDocxBlob('/templates/FGMU Job Request Form.docx', templateData);
+};
+
+// Alias for backwards compatibility
+export const generateFgmuJobRequestFormBlob = generateFgmuJobRequestFormDocxBlob;
+
+/**
+ * Generates the FGMU Job Request Form filled from /templates/FGMU Job Request Form.docx
+ * and converts it into a genuine PDF Blob.
+ * @param {Object} ticket
+ * @param {Object} [feedbackData]
+ * @returns {Promise<Blob>}
+ */
+export const generateFgmuJobRequestFormPdfBlob = async (ticket, feedbackData = null) => {
+  const ticketId = ticket.ticketId || ticket.id || 'document';
+  const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticket, feedbackData);
+  return await convertDocxBlobToPdfBlob(docxBlob, `FGMU Job Request Form - #${ticketId}.pdf`);
 };
 
 /**
@@ -167,11 +268,19 @@ export const attachFgmuJobRequestForm = async (ticket, feedbackData = null) => {
     throw new Error('Ticket ID is required to attach document.');
   }
 
-  const docBlob = await generateFgmuJobRequestFormBlob(ticket, feedbackData);
-  const fileName = `FGMU Job Request Form - #${ticketId}.docx`;
+  const [docxBlob, pdfBlob] = await Promise.all([
+    generateFgmuJobRequestFormDocxBlob(ticket, feedbackData),
+    generateFgmuJobRequestFormPdfBlob(ticket, feedbackData).catch(err => {
+      console.warn('PDF conversion warning during attachment:', err);
+      return null;
+    }),
+  ]);
 
   const formData = new FormData();
-  formData.append('attachments[]', docBlob, fileName);
+  if (pdfBlob) {
+    formData.append('attachments[]', pdfBlob, `FGMU Job Request Form - #${ticketId}.pdf`);
+  }
+  formData.append('attachments[]', docxBlob, `FGMU Job Request Form - #${ticketId}.docx`);
 
   return await api.post(`tickets/${ticketId}/attachments`, formData, {
     headers: { 'Content-Type': undefined },
@@ -191,4 +300,22 @@ export const downloadFgmuJobRequestForm = async (ticket, feedbackData = null) =>
     templateData,
     `FGMU Job Request Form - #${ticketId}.docx`
   );
+};
+
+/**
+ * Generates and downloads the FGMU Job Request Form as a PDF directly.
+ * @param {Object} ticket
+ * @param {Object} [feedbackData]
+ */
+export const downloadFgmuJobRequestFormPdf = async (ticket, feedbackData = null) => {
+  const ticketId = ticket.ticketId || ticket.id || 'document';
+  const pdfBlob = await generateFgmuJobRequestFormPdfBlob(ticket, feedbackData);
+  const url = window.URL.createObjectURL(pdfBlob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `FGMU Job Request Form - #${ticketId}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
 };

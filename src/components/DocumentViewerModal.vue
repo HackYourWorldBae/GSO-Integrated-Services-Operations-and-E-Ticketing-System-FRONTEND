@@ -33,9 +33,9 @@
 
             <!-- Action Toolbar Buttons -->
             <div class="flex items-center gap-2 shrink-0">
-              <!-- Print Button (PDF/Image) -->
+              <!-- Print Button (PDF/Docx/Image) -->
               <button 
-                v-if="isPdf || isImage"
+                v-if="isPdf || isDocx || isImage"
                 @click="printDocument" 
                 class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
                 title="Print document directly"
@@ -59,15 +59,34 @@
                 <span class="hidden sm:inline">New Tab</span>
               </button>
 
+              <!-- Download PDF button (when viewing Word docx) -->
+              <button 
+                v-if="isDocx"
+                @click="downloadDocxAsPdf" 
+                :disabled="isConvertingPdf"
+                class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 disabled:opacity-50"
+                title="Download as official PDF document"
+              >
+                <svg v-if="!isConvertingPdf" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <svg v-else class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isConvertingPdf ? 'Exporting...' : 'Save PDF' }}</span>
+              </button>
+
+              <!-- Primary Download Button -->
               <button 
                 @click="downloadFile" 
                 class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95"
-                title="Download file"
+                :title="isDocx ? 'Download Word (.docx) file' : 'Download file'"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                <span>Download</span>
+                <span>{{ isDocx ? 'Download .DOCX' : 'Download' }}</span>
               </button>
 
               <div class="h-6 w-[1px] bg-slate-700 mx-1 hidden sm:block"></div>
@@ -95,7 +114,7 @@
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               </div>
-              <p class="text-sm font-bold text-slate-700">Generating PDF preview...</p>
+              <p class="text-sm font-bold text-slate-700">Rendering document preview...</p>
               <p class="text-xs text-slate-400 font-medium">Please wait while the document is processed.</p>
             </div>
 
@@ -123,6 +142,17 @@
               type="application/pdf"
             />
 
+            <!-- Docx Preview Paper Canvas -->
+            <div 
+              v-show="!isLoading && !renderError && isDocx" 
+              class="w-full h-full overflow-y-auto p-3 sm:p-8 bg-slate-300 flex justify-center custom-scrollbar"
+            >
+              <div 
+                ref="docxContainerRef" 
+                class="docx-render-paper bg-white shadow-2xl rounded-sm w-full max-w-[850px] p-6 sm:p-12 border border-slate-300 my-2"
+              ></div>
+            </div>
+
             <!-- Image Preview -->
             <div v-if="!isLoading && !renderError && isImage" class="w-full h-full flex items-center justify-center p-6 overflow-auto bg-slate-200">
               <img :src="imageUrl" :alt="fileName" class="max-h-full max-w-full object-contain rounded-xl shadow-xl border border-slate-300" />
@@ -134,7 +164,7 @@
           <div class="px-6 py-3 bg-white border-t border-slate-100 text-xs text-slate-400 flex items-center justify-between font-bold shrink-0">
             <span>Benguet State University • Document Viewer</span>
             <span class="text-[10px] uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-              {{ isPdf ? 'PDF' : isImage ? 'Image' : 'File' }} Preview
+              {{ isPdf ? 'PDF' : isDocx ? 'Word (.docx)' : isImage ? 'Image' : 'File' }} Preview
             </span>
           </div>
 
@@ -180,11 +210,13 @@ const props = defineProps({
 
 const emit = defineEmits(['update:isOpen', 'close', 'download']);
 
-const pdfIframeRef  = ref(null);
-const isLoading     = ref(false);
-const renderError   = ref('');
-const imageUrl      = ref('');
-const pdfBlobUrl    = ref('');
+const pdfIframeRef     = ref(null);
+const docxContainerRef = ref(null);
+const isLoading        = ref(false);
+const isConvertingPdf  = ref(false);
+const renderError      = ref('');
+const imageUrl         = ref('');
+const pdfBlobUrl       = ref('');
 
 /** Revokes all object URLs to avoid memory leaks. */
 const revokeUrls = () => {
@@ -208,6 +240,17 @@ const isPdf = computed(() => {
   const name = (props.fileName || '').toLowerCase();
   const type = (props.fileBlob?.type || '');
   return name.endsWith('.pdf') || type === 'application/pdf' || type.includes('pdf');
+});
+
+const isDocx = computed(() => {
+  const name = (props.fileName || '').toLowerCase();
+  const type = (props.fileBlob?.type || '');
+  return (
+    name.endsWith('.docx') ||
+    name.endsWith('.doc') ||
+    type.includes('wordprocessingml') ||
+    type.includes('msword')
+  );
 });
 
 const isImage = computed(() => {
@@ -250,10 +293,27 @@ const renderPreview = async () => {
       await nextTick();
       // Create an object URL and bind it to the iframe — browsers render PDFs natively
       pdfBlobUrl.value = URL.createObjectURL(blob);
+    } else if (isDocx.value) {
+      await nextTick();
+      if (docxContainerRef.value) {
+        docxContainerRef.value.innerHTML = '';
+        const { renderAsync } = await import('docx-preview');
+        await renderAsync(blob, docxContainerRef.value, undefined, {
+          className: 'docx-preview',
+          inWrapper: false,
+          ignoreWidth: false,
+          ignoreHeight: false,
+          breakPages: true,
+          renderHeaders: true,
+          renderFooters: true,
+          renderFootnotes: true,
+          renderEndnotes: true,
+        });
+      }
     } else if (isImage.value) {
       imageUrl.value = URL.createObjectURL(blob);
     } else {
-      renderError.value = 'In-browser preview is available for PDF and image files. Use the Download button to open this file type locally.';
+      renderError.value = 'In-browser preview is available for PDF, Word (.docx), and image files. Use the Download button to open this file type locally.';
     }
   } catch (err) {
     console.error('Failed to render document preview:', err);
@@ -285,8 +345,63 @@ const emitClose = () => {
   emit('close');
 };
 
+const printDocxContainer = () => {
+  if (!docxContainerRef.value) return;
+  const printIframe = document.createElement('iframe');
+  printIframe.style.position = 'fixed';
+  printIframe.style.right = '0';
+  printIframe.style.bottom = '0';
+  printIframe.style.width = '0';
+  printIframe.style.height = '0';
+  printIframe.style.border = '0';
+  document.body.appendChild(printIframe);
+
+  const doc = printIframe.contentWindow.document;
+  doc.open();
+  doc.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>${props.title || 'Job Order'}</title>
+        <style>
+          @page { size: letter; margin: 8mm; }
+          body { font-family: 'Times New Roman', serif; margin: 0; padding: 0; color: #000; }
+          table { border-collapse: collapse; width: 100%; margin: 6px 0; }
+          th, td { border: 1px solid #334155; padding: 4px 6px; font-size: 10pt; }
+          p { margin: 3px 0; font-size: 10pt; line-height: 1.3; }
+          img { max-width: 100%; height: auto; }
+        </style>
+      </head>
+      <body>
+        ${docxContainerRef.value.innerHTML}
+      </body>
+    </html>
+  `);
+  doc.close();
+
+  printIframe.contentWindow.focus();
+  setTimeout(() => {
+    try {
+      printIframe.contentWindow.print();
+    } catch (e) {
+      console.warn('Print iframe error:', e);
+    } finally {
+      setTimeout(() => {
+        if (printIframe.parentNode) {
+          document.body.removeChild(printIframe);
+        }
+      }, 60000);
+    }
+  }, 350);
+};
+
 const printDocument = () => {
-  // 1. Try printing via the embedded iframe
+  if (isDocx.value) {
+    printDocxContainer();
+    return;
+  }
+
+  // 1. Try printing via the embedded iframe for PDF
   try {
     if (pdfIframeRef.value && pdfIframeRef.value.contentWindow) {
       pdfIframeRef.value.contentWindow.focus();
@@ -321,6 +436,39 @@ const printDocument = () => {
   } catch (e) {
     console.error('Print failed:', e);
     openInNewTab();
+  }
+};
+
+const downloadDocxAsPdf = async () => {
+  if (!docxContainerRef.value) return;
+  isConvertingPdf.value = true;
+  try {
+    const html2pdf = (await import('html2pdf.js')).default;
+    const opt = {
+      margin: [6, 6, 6, 6],
+      filename: (props.fileName || 'FGMU_Job_Request_Form').replace(/\.docx?$/i, '') + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'letter',
+        orientation: 'portrait',
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    };
+
+    await html2pdf().set(opt).from(docxContainerRef.value).save();
+    toast.success('Official PDF exported and downloaded!');
+  } catch (err) {
+    console.error('Failed to convert docx to PDF:', err);
+    toast.error('Could not convert to PDF directly. Use Print -> Save as PDF.');
+  } finally {
+    isConvertingPdf.value = false;
   }
 };
 

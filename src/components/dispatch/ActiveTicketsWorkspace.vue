@@ -774,7 +774,7 @@ import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue'
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import { generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
+import { generateFgmuJobRequestFormBlob, generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuPdfGenerator';
 import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
 
 const props = defineProps({
@@ -1091,9 +1091,16 @@ const openJobOrderDocument = async (ticket) => {
     const blob = await generateFgmuJobRequestFormBlob(ticketData, ticket.feedback);
     viewerModal.fileBlob = blob;
   } catch (err) {
-    console.error('Failed to generate Job Order document:', err);
-    viewerModal.isOpen = false;
-    toast.error('Failed to generate Job Order document preview.');
+    console.warn('Job order PDF generation warning, falling back to docx preview:', err);
+    try {
+      const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticket, ticket.feedback);
+      viewerModal.fileName = `${props.unitCode?.toUpperCase() || 'FGMU'}_Job_Order_#${ticket.ticketId || ticket.id}.docx`;
+      viewerModal.fileBlob = docxBlob;
+    } catch (fallbackErr) {
+      console.error('Failed to generate Job Order document:', fallbackErr);
+      viewerModal.isOpen = false;
+      toast.error('Failed to generate Job Order document.');
+    }
   }
 };
 
