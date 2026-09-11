@@ -61,8 +61,8 @@
       </div>
 
       <!-- Bottom Row: Scheduling & Turnaround Configuration Controls -->
-      <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-        <!-- Implementation Date Picker -->
+      <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+        <!-- Implementation Date Picker with VueDatePicker -->
         <div class="flex items-center gap-3 bg-white/5 p-3.5 rounded-2xl border border-white/10 hover:border-emerald-400/50 transition-all">
           <div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -70,15 +70,20 @@
             </svg>
           </div>
           <div class="flex flex-col flex-1 min-w-0">
-            <label for="sched-date" class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer">
+            <label class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer mb-0.5">
               Implementation Date <span class="text-rose-400">*</span>
             </label>
-            <input
-              id="sched-date"
-              type="date"
-              :min="todayIsoDate"
+            <VueDatePicker
               v-model="implementationDate"
-              class="bg-transparent text-white text-sm font-black outline-none cursor-pointer mt-0.5"
+              model-type="yyyy-MM-dd"
+              :min-date="new Date()"
+              :format="friendlyDateFormat"
+              :auto-apply="true"
+              :enable-time-picker="false"
+              :teleport="true"
+              :dark="true"
+              placeholder="Select Implementation Date"
+              class="custom-datepicker"
             />
           </div>
         </div>
@@ -91,49 +96,21 @@
             </svg>
           </div>
           <div class="flex flex-col flex-1 min-w-0">
-            <label for="sched-days" class="text-[10px] font-black text-slate-300 uppercase tracking-widest">
-              Working Days <span class="text-rose-400">*</span>
+            <label for="sched-days" class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer">
+              Target Working Days <span class="text-rose-400">*</span>
             </label>
-            <input
-              id="sched-days"
-              type="number"
-              min="1"
-              max="90"
-              v-model="workingDays"
-              placeholder="e.g. 5"
-              class="bg-transparent text-white text-sm font-black outline-none w-full mt-0.5 placeholder:text-slate-500"
-            />
-          </div>
-        </div>
-
-        <!-- EODB SLA Basis Preset Chips -->
-        <div class="flex flex-col justify-center gap-1.5 bg-white/5 p-3.5 rounded-2xl border border-white/10">
-          <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">EODB SLA Basis (RA 11032)</span>
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <button
-              type="button"
-              @click="setEodbTier('simple')"
-              :class="eodbTier === 'simple' ? 'bg-emerald-500 text-white font-black shadow-xs' : 'bg-white/10 text-slate-300 hover:bg-white/20'"
-              class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
-            >
-              Simple (3d)
-            </button>
-            <button
-              type="button"
-              @click="setEodbTier('moderate')"
-              :class="eodbTier === 'moderate' ? 'bg-amber-500 text-white font-black shadow-xs' : 'bg-white/10 text-slate-300 hover:bg-white/20'"
-              class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
-            >
-              Moderate (7d)
-            </button>
-            <button
-              type="button"
-              @click="setEodbTier('complex')"
-              :class="eodbTier === 'complex' ? 'bg-purple-500 text-white font-black shadow-xs' : 'bg-white/10 text-slate-300 hover:bg-white/20'"
-              class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
-            >
-              Complex (21d)
-            </button>
+            <div class="flex items-center gap-2 mt-0.5">
+              <input
+                id="sched-days"
+                type="number"
+                min="1"
+                max="90"
+                v-model="workingDays"
+                placeholder="e.g. 5"
+                class="bg-transparent text-white text-sm font-black outline-none w-20 placeholder:text-slate-500"
+              />
+              <span class="text-xs font-bold text-slate-400">working days</span>
+            </div>
           </div>
         </div>
       </div>
@@ -663,6 +640,8 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+import { VueDatePicker } from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 const props = defineProps({
   unitCode: {
@@ -692,10 +671,39 @@ const currentAssignments = ref([]);
 const todayIsoDate = new Date().toISOString().split('T')[0];
 const implementationDate = ref(todayIsoDate);
 const workingDays = ref(5);
-const eodbTier = ref('moderate');
 const isEmergency = ref(false);
 const pauseCurrentTask = ref(false);
 const taskNotes = ref('');
+
+// User-friendly date formatter: shows weekday name, month name, day, and year
+const friendlyDateFormat = (date) => {
+  if (!date) return '';
+  let d;
+  if (date instanceof Date) {
+    d = date;
+  } else if (typeof date === 'string') {
+    const parts = date.split('-');
+    if (parts.length === 3) {
+      const year = Number(parts[0]);
+      const month = Number(parts[1]) - 1;
+      const day = Number(parts[2]);
+      d = new Date(year, month, day);
+    } else {
+      d = new Date(date);
+    }
+  } else {
+    d = new Date(date);
+  }
+
+  if (isNaN(d.getTime())) return String(date);
+
+  return d.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
 
 // Personnel filter state
 const personnelSearch = ref('');
@@ -716,13 +724,6 @@ const workingCount = computed(() => {
 const onLeaveCount = computed(() => {
   return (props.store?.personnel || []).filter(w => w.status === 'On Leave').length;
 });
-
-const setEodbTier = (tier) => {
-  eodbTier.value = tier;
-  if (tier === 'simple') workingDays.value = 3;
-  else if (tier === 'moderate') workingDays.value = 7;
-  else if (tier === 'complex') workingDays.value = 21;
-};
 
 const getInitials = (name) => {
   if (!name) return '??';
@@ -975,4 +976,96 @@ onMounted(async () => {
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
 @keyframes scale-up { from { opacity: 0; transform: scale(0.97) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 .animate-scale-up { animation: scale-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* Custom Dark Theme Styles for VueDatePicker in Dispatch Workspace */
+:deep(.dp__theme_dark) {
+  --dp-background-color: #0f172a;
+  --dp-text-color: #f8fafc;
+  --dp-hover-color: #1e293b;
+  --dp-hover-text-color: #ffffff;
+  --dp-hover-icon-color: #ffffff;
+  --dp-primary-color: #10b981;
+  --dp-primary-text-color: #ffffff;
+  --dp-secondary-color: #94a3b8;
+  --dp-border-color: #334155;
+  --dp-menu-border-color: #334155;
+  --dp-border-color-hover: #10b981;
+  --dp-disabled-color: #475569;
+  --dp-scroll-bar-background: #1e293b;
+  --dp-scroll-bar-color: #475569;
+  --dp-success-color: #10b981;
+  --dp-icon-color: #10b981;
+  --dp-danger-color: #f43f5e;
+  --dp-border-radius: 1rem;
+  --dp-font-family: inherit;
+}
+
+:deep(.custom-datepicker) {
+  width: 100%;
+}
+
+:deep(.custom-datepicker .dp__input_wrap) {
+  width: 100%;
+}
+
+:deep(.custom-datepicker .dp__input) {
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 0.875rem !important;
+  font-weight: 800 !important;
+  padding: 0.125rem 0 !important;
+  height: auto !important;
+  line-height: 1.25rem !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+}
+
+:deep(.custom-datepicker .dp__input:hover) {
+  color: #6ee7b7 !important;
+}
+
+:deep(.custom-datepicker .dp__input_icon) {
+  display: none !important;
+}
+
+:deep(.custom-datepicker .dp__clear_icon) {
+  display: none !important;
+}
+
+:deep(.custom-datepicker .dp__input_focus) {
+  border: none !important;
+  outline: none !important;
+}
+
+:deep(.dp__menu) {
+  border-radius: 1.25rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid #334155 !important;
+  padding: 0.75rem !important;
+  z-index: 99999 !important;
+}
+
+:deep(.dp__calendar_header_item) {
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  color: #94a3b8 !important;
+}
+
+:deep(.dp__cell_inner) {
+  border-radius: 0.75rem !important;
+  font-weight: 700 !important;
+  font-size: 0.8125rem !important;
+}
+
+:deep(.dp__active_date) {
+  background: #059669 !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+:deep(.dp__today) {
+  border: 1px solid #10b981 !important;
+}
 </style>
