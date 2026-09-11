@@ -3,7 +3,7 @@
     <template #header-title>
       <div class="flex flex-col">
         <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">FGMU Operations</h2>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Personnel Roster &amp; Workforce Management</p>
+        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Personnel Management &amp; Workforce Administration</p>
       </div>
     </template>
 
@@ -17,10 +17,10 @@
               <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
                 FGMU Workforce
               </span>
-              <span class="text-xs text-slate-400 font-bold">Roster Administration</span>
+              <span class="text-xs text-slate-400 font-bold">Personnel Administration</span>
             </div>
             <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-              Personnel Roster
+              Personnel Management
             </h2>
             <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
               Manage unit staff, job specialties, contact information, and availability status.
@@ -28,15 +28,15 @@
           </div>
 
           <div class="flex flex-wrap items-center gap-2.5">
-            <!-- Go to Ticket Dispatch Console -->
+            <!-- Go to Assign Workers Console -->
             <router-link
-              to="/admin/fgmu/dispatch"
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition-all shadow-sm active:scale-95 cursor-pointer"
+              to="/admin/fgmu/assign-workers"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <span>Ticket Dispatch</span>
+              <span>Assign Workers</span>
               <span v-if="pendingTicketsCount > 0" class="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-black leading-none">
                 {{ pendingTicketsCount }}
               </span>

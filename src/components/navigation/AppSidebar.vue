@@ -113,17 +113,22 @@ const rawNavGroups = computed(() => {
             }
           ] : [
             {
-              label: 'Ticket Dispatch',
-              to: `/admin/${unit}/dispatch`,
+              label: 'Approved Tickets',
+              to: `/admin/${unit}/approved-tickets`,
+              icon: 'queue'
+            },
+            {
+              label: 'Assign Workers',
+              to: `/admin/${unit}/assign-workers`,
               icon: 'dispatch'
             },
             {
-              label: 'Active & Scheduled Jobs',
+              label: 'Dispatched Tickets',
               to: `/admin/${unit}/dispatched`,
               icon: 'tools'
             },
             {
-              label: 'Personnel Roster',
+              label: 'Personnel Management',
               to: `/admin/${unit}/personnel`,
               icon: 'users'
             }

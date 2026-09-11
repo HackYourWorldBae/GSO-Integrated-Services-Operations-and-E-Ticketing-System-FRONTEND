@@ -25,6 +25,8 @@ const FGMU_DispatchedTickets = () => import('../views/dashboards/admin/fgmu/FGMU
 const LEAU_DispatchedTickets = () => import('../views/dashboards/admin/leau/LEAU_DispatchedTickets.vue');
 const FGMU_TicketDispatch = () => import('../views/dashboards/admin/fgmu/FGMU_TicketDispatch.vue');
 const LEAU_TicketDispatch = () => import('../views/dashboards/admin/leau/LEAU_TicketDispatch.vue');
+const FGMU_ApprovedTickets = () => import('../views/dashboards/admin/fgmu/FGMU_ApprovedTickets.vue');
+const LEAU_ApprovedTickets = () => import('../views/dashboards/admin/leau/LEAU_ApprovedTickets.vue');
 const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
@@ -102,8 +104,15 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU' }
     },
     {
-      path: '/admin/fgmu/dispatch',
-      name: 'fgmu-ticket-dispatch',
+      path: '/admin/fgmu/approved-tickets',
+      name: 'fgmu-approved-tickets',
+      component: FGMU_ApprovedTickets,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU', permission: 'tickets.dispatch' }
+    },
+    {
+      path: '/admin/fgmu/assign-workers',
+      alias: ['/admin/fgmu/dispatch'],
+      name: 'fgmu-assign-workers',
       component: FGMU_TicketDispatch,
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU', permission: 'tickets.dispatch' }
     },
@@ -142,8 +151,15 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU' }
     },
     {
-      path: '/admin/leau/dispatch',
-      name: 'leau-ticket-dispatch',
+      path: '/admin/leau/approved-tickets',
+      name: 'leau-approved-tickets',
+      component: LEAU_ApprovedTickets,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU', permission: 'tickets.dispatch' }
+    },
+    {
+      path: '/admin/leau/assign-workers',
+      alias: ['/admin/leau/dispatch'],
+      name: 'leau-assign-workers',
       component: LEAU_TicketDispatch,
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
