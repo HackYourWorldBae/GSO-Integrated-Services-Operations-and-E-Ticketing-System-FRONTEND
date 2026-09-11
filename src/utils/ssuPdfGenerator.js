@@ -328,15 +328,23 @@ const buildSsuDocDefinition = (data, logoDataUrl) => {
 export const generateSsuIncidentReportBlob = async (ticket) => {
   const [pdfMake, logoDataUrl] = await Promise.all([
     getPdfMake(),
-    getLogoDataUrl(),
+    getLogoDataUrl().catch(() => null),
   ]);
 
   const data = buildSsuTemplateData(ticket);
+  const docDef = buildSsuDocDefinition(data, logoDataUrl);
+  const pdfDoc = pdfMake.createPdf(docDef);
+
+  if (typeof pdfDoc.getBlob === 'function') {
+    const result = pdfDoc.getBlob();
+    if (result && typeof result.then === 'function') {
+      return await result;
+    }
+  }
 
   return new Promise((resolve, reject) => {
     try {
-      const docDef = buildSsuDocDefinition(data, logoDataUrl);
-      pdfMake.createPdf(docDef).getBlob((blob) => resolve(blob));
+      pdfDoc.getBlob((blob) => resolve(blob));
     } catch (err) {
       reject(err);
     }

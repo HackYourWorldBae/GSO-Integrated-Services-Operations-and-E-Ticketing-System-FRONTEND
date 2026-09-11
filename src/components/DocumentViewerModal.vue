@@ -227,7 +227,12 @@ const renderPreview = async () => {
   renderError.value = '';
   revokeUrls();
 
-  if (!props.isOpen || (!props.fileBlob && !props.fileUrl)) return;
+  if (!props.isOpen) return;
+
+  if (!props.fileBlob && !props.fileUrl) {
+    isLoading.value = true;
+    return;
+  }
 
   isLoading.value = true;
 
@@ -265,6 +270,7 @@ watch(
       renderPreview();
     } else {
       revokeUrls();
+      isLoading.value = false;
     }
   },
   { immediate: true }
@@ -280,29 +286,36 @@ const emitClose = () => {
 };
 
 const printDocument = () => {
+  // 1. Try printing via the embedded iframe
   try {
     if (pdfIframeRef.value && pdfIframeRef.value.contentWindow) {
       pdfIframeRef.value.contentWindow.focus();
       pdfIframeRef.value.contentWindow.print();
-    } else {
-      let url = pdfBlobUrl.value || imageUrl.value;
-      if (!url && props.fileBlob) {
-        url = URL.createObjectURL(props.fileBlob);
-      } else if (!url && props.fileUrl) {
-        url = props.fileUrl;
-      }
-      if (url) {
-        const printWin = window.open(url, '_blank');
-        if (printWin) {
-          printWin.focus();
-          setTimeout(() => {
-            try {
-              printWin.print();
-            } catch (err) {
-              console.warn('Auto print error:', err);
-            }
-          }, 500);
-        }
+      return;
+    }
+  } catch (iframeErr) {
+    console.warn('Direct iframe print blocked or failed, falling back to print window:', iframeErr);
+  }
+
+  // 2. Fallback: Open in popup window and trigger print
+  try {
+    let url = pdfBlobUrl.value || imageUrl.value;
+    if (!url && props.fileBlob) {
+      url = URL.createObjectURL(props.fileBlob);
+    } else if (!url && props.fileUrl) {
+      url = props.fileUrl;
+    }
+    if (url) {
+      const printWin = window.open(url, '_blank');
+      if (printWin) {
+        printWin.focus();
+        setTimeout(() => {
+          try {
+            printWin.print();
+          } catch (err) {
+            console.warn('Auto print error in new window:', err);
+          }
+        }, 500);
       }
     }
   } catch (e) {

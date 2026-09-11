@@ -17,7 +17,12 @@ let cachedLogoDataUrl = null;
 
 async function getLogoDataUrl() {
   if (!cachedLogoDataUrl) {
-    cachedLogoDataUrl = await loadImageAsPngDataUrl('/bsu-logo.png');
+    try {
+      cachedLogoDataUrl = await loadImageAsPngDataUrl('/bsu-logo.png');
+    } catch (err) {
+      console.warn('Could not load logo for Material Slip PDF:', err);
+      cachedLogoDataUrl = null;
+    }
   }
   return cachedLogoDataUrl;
 }
@@ -182,13 +187,15 @@ const buildMaterialSlipDocDefinition = (data, logoDataUrl) => {
       stack: [
         {
           columns: [
-            {
-              image: logoDataUrl,
-              width: 54,
-              height: 54,
-              alignment: 'center',
-              margin: [0, 0, 8, 0],
-            },
+            logoDataUrl
+              ? {
+                  image: logoDataUrl,
+                  width: 54,
+                  height: 54,
+                  alignment: 'center',
+                  margin: [0, 0, 8, 0],
+                }
+              : { text: '', width: 54, margin: [0, 0, 8, 0] },
             {
               stack: [
                 { text: 'Republic of the Philippines', fontSize: 8, italics: true, color: '#64748b', alignment: 'center' },
@@ -403,15 +410,23 @@ const buildMaterialSlipDocDefinition = (data, logoDataUrl) => {
 export const generateMaterialSlipPdfBlob = async (ticket) => {
   const [pdfMake, logoDataUrl] = await Promise.all([
     getPdfMake(),
-    getLogoDataUrl(),
+    getLogoDataUrl().catch(() => null),
   ]);
 
   const data = buildMaterialSlipData(ticket);
+  const docDef = buildMaterialSlipDocDefinition(data, logoDataUrl);
+  const pdfDoc = pdfMake.createPdf(docDef);
+
+  if (typeof pdfDoc.getBlob === 'function') {
+    const result = pdfDoc.getBlob();
+    if (result && typeof result.then === 'function') {
+      return await result;
+    }
+  }
 
   return new Promise((resolve, reject) => {
     try {
-      const docDef = buildMaterialSlipDocDefinition(data, logoDataUrl);
-      pdfMake.createPdf(docDef).getBlob(blob => resolve(blob));
+      pdfDoc.getBlob(blob => resolve(blob));
     } catch (err) {
       reject(err);
     }
@@ -426,7 +441,7 @@ export const downloadMaterialSlipPdf = async (ticket) => {
   const ticketId = ticket.ticketId || ticket.id || 'slip';
   const [pdfMake, logoDataUrl] = await Promise.all([
     getPdfMake(),
-    getLogoDataUrl(),
+    getLogoDataUrl().catch(() => null),
   ]);
   const data = buildMaterialSlipData(ticket);
   const docDef = buildMaterialSlipDocDefinition(data, logoDataUrl);

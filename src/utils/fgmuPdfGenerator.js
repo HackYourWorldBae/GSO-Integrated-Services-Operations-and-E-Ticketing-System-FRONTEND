@@ -178,13 +178,15 @@ const buildDocDefinition = (data, logoDataUrl) => {
       stack: [
         {
           columns: [
-            {
-              image: logoDataUrl,
-              width:  56,
-              height: 56,
-              alignment: 'center',
-              margin: [0, 0, 10, 0],
-            },
+            logoDataUrl
+              ? {
+                  image: logoDataUrl,
+                  width:  56,
+                  height: 56,
+                  alignment: 'center',
+                  margin: [0, 0, 10, 0],
+                }
+              : { text: '', width: 56, margin: [0, 0, 10, 0] },
             {
               stack: [
                 { text: 'Republic of the Philippines',          fontSize: 8,    italics: true, color: '#64748b', alignment: 'center' },
@@ -338,7 +340,12 @@ let cachedLogoDataUrl = null;
 
 async function getLogoDataUrl() {
   if (!cachedLogoDataUrl) {
-    cachedLogoDataUrl = await loadImageAsPngDataUrl('/bsu-logo.png');
+    try {
+      cachedLogoDataUrl = await loadImageAsPngDataUrl('/bsu-logo.png');
+    } catch (err) {
+      console.warn('Could not load logo for Job Order PDF:', err);
+      cachedLogoDataUrl = null;
+    }
   }
   return cachedLogoDataUrl;
 }
@@ -353,13 +360,24 @@ export const generateFgmuJobRequestFormBlob = async (ticket, feedbackData = null
   const [pdfMake, data, logoDataUrl] = await Promise.all([
     getPdfMake(),
     buildFgmuTemplateData(ticket, feedbackData),
-    getLogoDataUrl(),
+    getLogoDataUrl().catch(() => null),
   ]);
 
+  const docDef = buildDocDefinition(data, logoDataUrl);
+  const pdfDoc = pdfMake.createPdf(docDef);
+
+  // pdfmake v0.2/v0.3 getBlob() returns a Promise<Blob>
+  if (typeof pdfDoc.getBlob === 'function') {
+    const result = pdfDoc.getBlob();
+    if (result && typeof result.then === 'function') {
+      return await result;
+    }
+  }
+
+  // Fallback for older callback-based pdfmake versions
   return new Promise((resolve, reject) => {
     try {
-      const docDef = buildDocDefinition(data, logoDataUrl);
-      pdfMake.createPdf(docDef).getBlob(blob => resolve(blob));
+      pdfDoc.getBlob(blob => resolve(blob));
     } catch (err) {
       reject(err);
     }
@@ -387,10 +405,10 @@ export const downloadFgmuJobRequestForm = async (ticket, feedbackData = null) =>
   const [pdfMake, data, logoDataUrl] = await Promise.all([
     getPdfMake(),
     buildFgmuTemplateData(ticket, feedbackData),
-    getLogoDataUrl(),
+    getLogoDataUrl().catch(() => null),
   ]);
   const docDef  = buildDocDefinition(data, logoDataUrl);
-  const filename = `FGMU Job Request Form - #${ticketId}.pdf`;
+  const filename = `${data.unitCode || 'FGMU'} Job Request Form - #${ticketId}.pdf`;
   pdfMake.createPdf(docDef).download(filename);
 };
 
@@ -418,7 +436,7 @@ export const printFgmuJobRequestForm = async (ticket, feedbackData = null) => {
   const [pdfMake, data, logoDataUrl] = await Promise.all([
     getPdfMake(),
     buildFgmuTemplateData(ticket, feedbackData),
-    getLogoDataUrl(),
+    getLogoDataUrl().catch(() => null),
   ]);
   const docDef = buildDocDefinition(data, logoDataUrl);
   pdfMake.createPdf(docDef).print();

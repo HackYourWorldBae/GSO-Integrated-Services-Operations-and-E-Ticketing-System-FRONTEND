@@ -1078,6 +1078,8 @@ const openJobOrderDocument = async (ticket) => {
     const unit = props.unitCode?.toUpperCase() || ticket.unit_code || 'FGMU';
     viewerModal.title = `${unit} Job Order (Job Request Form) - #${ticketId}`;
     viewerModal.fileName = `${unit}_Job_Order_#${ticketId}.pdf`;
+    viewerModal.fileBlob = null;
+    viewerModal.isOpen = true;
 
     const ticketData = {
       ...ticket,
@@ -1088,9 +1090,9 @@ const openJobOrderDocument = async (ticket) => {
 
     const blob = await generateFgmuJobRequestFormBlob(ticketData, ticket.feedback);
     viewerModal.fileBlob = blob;
-    viewerModal.isOpen = true;
   } catch (err) {
     console.error('Failed to generate Job Order document:', err);
+    viewerModal.isOpen = false;
     toast.error('Failed to generate Job Order document preview.');
   }
 };
