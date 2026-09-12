@@ -1,101 +1,16 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">LEAU Operations</h2>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Landscaping Personnel Management &amp; Workforce Administration</p>
+      <div class="flex items-center gap-2">
+        <span class="text-xs px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-black uppercase tracking-wider">LEAU</span>
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Personnel Management</h2>
       </div>
     </template>
 
     <template #main-content>
-      <div class="space-y-6 animate-fade-in pb-12 px-4 sm:px-8 py-8 max-w-[1600px] mx-auto min-h-screen">
+      <div class="space-y-6 animate-fade-in pb-12 px-4 sm:px-8 py-6 max-w-[1600px] mx-auto min-h-screen">
 
-        <!-- Page Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
-                LEAU Workforce
-              </span>
-              <span class="text-xs text-slate-400 font-bold">Personnel Administration</span>
-            </div>
-            <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-              Personnel Management
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-              Manage landscaping and janitorial personnel, specialties, contact numbers, and availability.
-            </p>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2.5">
-            <!-- Go to Assign Workers Console -->
-            <router-link
-              to="/admin/leau/assign-workers"
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span>Assign Workers</span>
-              <span v-if="pendingTicketsCount > 0" class="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-black leading-none">
-                {{ pendingTicketsCount }}
-              </span>
-            </router-link>
-
-            <!-- Manage Categories -->
-            <button
-              v-if="isAdmin"
-              @click="showCategoryModal = true"
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-black hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs cursor-pointer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-              </svg>
-              <span>Manage Categories</span>
-            </button>
-
-            <!-- Add Personnel -->
-            <button
-              v-if="isAdmin"
-              @click="openAddModal"
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs shadow-emerald-200 active:scale-95 cursor-pointer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              <span>Add Personnel</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Quick Summary KPI Ribbon -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Total Workforce</span>
-            <span class="text-2xl font-black text-slate-900 tabular-nums">{{ store.personnel.length }}</span>
-            <span class="text-[11px] text-slate-400 block mt-0.5">Active Staff</span>
-          </div>
-
-          <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-            <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest block mb-1">Available Staff</span>
-            <span class="text-2xl font-black text-emerald-600 tabular-nums">{{ availableCount }}</span>
-            <span class="text-[11px] text-slate-400 block mt-0.5">Ready for deployment</span>
-          </div>
-
-          <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-            <span class="text-[10px] font-black text-amber-600 uppercase tracking-widest block mb-1">On Active Job</span>
-            <span class="text-2xl font-black text-amber-600 tabular-nums">{{ workingCount }}</span>
-            <span class="text-[11px] text-slate-400 block mt-0.5">Assigned / In Progress</span>
-          </div>
-
-          <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-            <span class="text-[10px] font-black text-rose-500 uppercase tracking-widest block mb-1">On Leave</span>
-            <span class="text-2xl font-black text-rose-500 tabular-nums">{{ onLeaveCount }}</span>
-            <span class="text-[11px] text-slate-400 block mt-0.5">Temporarily off-duty</span>
-          </div>
-        </div>
-
-        <!-- Search & Filter Controls Card -->
+        <!-- Top Toolbar: Search, Actions & Filters -->
         <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <!-- Search bar -->
@@ -103,7 +18,7 @@
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Search landscaping staff by name, role, phone..."
+                placeholder="Search staff by name or profession..."
                 class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-slate-50/50"
               />
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,6 +26,34 @@
               </svg>
             </div>
 
+            <!-- Action Buttons: Manage Categories & Add Personnel -->
+            <div class="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
+              <button
+                v-if="isAdmin"
+                @click="showCategoryModal = true"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-black hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+                <span>Manage Categories</span>
+              </button>
+
+              <button
+                v-if="isAdmin"
+                @click="openAddModal"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs shadow-emerald-200 active:scale-95 cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Add Personnel</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Status & Specialty Filters -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
             <!-- Status Filter Tabs -->
             <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs">
               <button
@@ -138,24 +81,24 @@
                 On Leave ({{ onLeaveCount }})
               </button>
             </div>
-          </div>
 
-          <!-- Specialty Category Filter Pills -->
-          <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pt-1 text-xs">
-            <button
-              @click="categoryFilter = 'all'"
-              :class="['px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap', categoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
-            >
-              All Categories
-            </button>
-            <button
-              v-for="cat in store.categories"
-              :key="cat.id"
-              @click="categoryFilter = cat.name"
-              :class="['px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap', categoryFilter === cat.name ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
-            >
-              {{ cat.name }}
-            </button>
+            <!-- Specialty Category Filter Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pt-1 sm:pt-0 text-xs">
+              <button
+                @click="categoryFilter = 'all'"
+                :class="['px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap', categoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+              >
+                All Categories
+              </button>
+              <button
+                v-for="cat in store.categories"
+                :key="cat.id"
+                @click="categoryFilter = cat.name"
+                :class="['px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap', categoryFilter === cat.name ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+              >
+                {{ cat.name }}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -176,19 +119,20 @@
             :key="worker.id"
             class="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 hover:shadow-md transition-all flex flex-col justify-between gap-4 group"
           >
-            <!-- Card Top: Avatar, Name, Role & Status -->
-            <div>
-              <div class="flex items-start justify-between gap-3 mb-3">
+            <!-- Card Body: Name, Profession, Status & Assigned Tickets Dropdown -->
+            <div class="space-y-3.5">
+              <!-- Top Row: Avatar, Name, Profession & Status Badge -->
+              <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-800 flex items-center justify-center font-black text-sm shrink-0 border border-slate-200 shadow-xs">
+                  <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-800 flex items-center justify-center font-black text-sm shrink-0 border border-slate-200 shadow-xs">
                     {{ getInitials(worker.name) }}
                   </div>
                   <div class="min-w-0">
                     <h4 class="text-sm font-black text-slate-900 truncate leading-tight">
                       {{ worker.name }}
                     </h4>
-                    <span class="inline-block text-[11px] font-bold text-slate-500 truncate mt-0.5">
-                      {{ worker.specialty || worker.role || 'Landscaping Staff' }}
+                    <span class="inline-block text-xs font-bold text-slate-500 truncate mt-0.5">
+                      {{ worker.specialty || worker.role || 'Staff' }}
                     </span>
                   </div>
                 </div>
@@ -208,22 +152,76 @@
                 </span>
               </div>
 
-              <!-- Metadata: Contact & Workload details -->
-              <div class="space-y-1.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
-                <div class="flex items-center justify-between text-slate-600">
-                  <span class="text-slate-400 font-bold text-[11px]">Contact Number:</span>
-                  <span class="font-bold text-slate-800">{{ worker.contact_number || 'None provided' }}</span>
-                </div>
-                <div class="flex items-center justify-between text-slate-600">
-                  <span class="text-slate-400 font-bold text-[11px]">Current Job:</span>
-                  <span v-if="worker.status === 'Working' || worker.assignedTicket" class="font-black text-amber-700 truncate max-w-[150px]">
-                    #{{ worker.assignedTicket }} {{ worker.ticketTask ? '· ' + worker.ticketTask : '' }}
-                  </span>
-                  <span v-else class="font-bold text-emerald-700">Idle / Ready</span>
-                </div>
-                <div v-if="worker.implementationDate" class="flex items-center justify-between text-slate-600">
-                  <span class="text-slate-400 font-bold text-[11px]">Target Date:</span>
-                  <span class="font-bold text-slate-800">{{ worker.implementationDate }}</span>
+              <!-- Assigned Tickets Accordion Toggle -->
+              <div>
+                <button
+                  type="button"
+                  @click="toggleWorkerTickets(worker.id)"
+                  class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200/70 text-xs font-bold transition-all cursor-pointer group/toggle"
+                >
+                  <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 group-hover/toggle:text-emerald-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    <span class="text-slate-700 font-black">Assigned Tickets</span>
+                    <span
+                      :class="[
+                        'px-2 py-0.5 rounded-full text-[10px] font-black',
+                        (worker.assignments?.length || 0) > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/70 text-slate-500'
+                      ]"
+                    >
+                      {{ worker.assignments?.length || 0 }}
+                    </span>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 text-slate-400 transition-transform duration-200"
+                    :class="{ 'rotate-180': isWorkerExpanded(worker.id) }"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                <!-- Dropdown List of All Assigned Tickets -->
+                <div v-if="isWorkerExpanded(worker.id)" class="mt-2 space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar animate-fade-in">
+                  <div v-if="!worker.assignments || worker.assignments.length === 0" class="p-4 text-center rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-xs text-slate-400 font-bold">
+                    No tickets currently assigned.
+                  </div>
+                  <div
+                    v-else
+                    v-for="(ticket, tIdx) in worker.assignments"
+                    :key="ticket.id || tIdx"
+                    class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs space-y-1.5 hover:border-slate-300 transition-all"
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-black text-slate-900">#{{ ticket.ticket_id }}</span>
+                        <span v-if="ticket.is_emergency" class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider">
+                          Urgent
+                        </span>
+                        <span v-if="ticket.is_project" class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 text-[9px] font-black uppercase tracking-wider">
+                          Project
+                        </span>
+                      </div>
+                      <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                        {{ ticket.queue_order === 1 ? 'Active Job' : `Queue #${ticket.queue_order}` }}
+                      </span>
+                    </div>
+
+                    <p class="text-slate-700 font-bold leading-tight">
+                      {{ ticket.task || ticket.project_title || ticket.service_type || 'Assigned Work' }}
+                    </p>
+
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 font-medium pt-1 border-t border-slate-200/50">
+                      <span>Scheduled: {{ ticket.implementation_date || ticket.target_completion_date || 'TBD' }}</span>
+                      <span class="font-bold capitalize" :class="ticket.ticket_status === 'in_progress' ? 'text-amber-600' : 'text-slate-500'">
+                        {{ ticket.ticket_status ? ticket.ticket_status.replace('_', ' ') : 'Active' }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -274,158 +272,164 @@
         </div>
 
       </div>
-
       <!-- Add Personnel Modal -->
-      <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-        <div class="bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-6 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
-                New Staff
-              </span>
-              <h3 class="text-xl font-black text-slate-900 mt-1">Add Personnel</h3>
-            </div>
-            <button @click="showAddModal = false" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
-
-          <form @submit.prevent="submitAddPersonnel" class="space-y-4">
-            <div>
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">First Name *</label>
-              <input v-model="addForm.firstName" required placeholder="e.g. Maria" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-            </div>
-            <div class="grid grid-cols-2 gap-3">
+      <Teleport to="body">
+        <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
+          <div class="bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-6 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-6">
               <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Middle Initial</label>
-                <input v-model="addForm.middleInitial" maxlength="2" placeholder="e.g. S." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
+                  New Staff
+                </span>
+                <h3 class="text-xl font-black text-slate-900 mt-1">Add Personnel</h3>
               </div>
-              <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Name Extension</label>
-                <input v-model="addForm.nameExtension" placeholder="e.g. Jr." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-              </div>
-            </div>
-            <div>
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Last Name *</label>
-              <input v-model="addForm.lastName" required placeholder="e.g. Santos" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-            </div>
-            <div>
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Specialty / Role *</label>
-              <select v-model="addForm.specialty" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
-                <option value="" disabled>Select Specialty</option>
-                <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Contact Number (11 digits)</label>
-              <input v-model="addForm.contactNumber" maxlength="11" placeholder="09123456789" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-            </div>
-
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
-              <button type="button" @click="showAddModal = false" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer">Cancel</button>
-              <button type="submit" :disabled="submitting" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-sm shadow-emerald-200 active:scale-95 disabled:opacity-50 cursor-pointer">
-                {{ submitting ? 'Saving...' : 'Add to Roster' }}
+              <button @click="showAddModal = false" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-          </form>
+
+            <form @submit.prevent="submitAddPersonnel" class="space-y-4">
+              <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">First Name *</label>
+                <input v-model="addForm.firstName" required placeholder="e.g. Maria" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Middle Initial</label>
+                  <input v-model="addForm.middleInitial" maxlength="2" placeholder="e.g. S." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Name Extension</label>
+                  <select v-model="addForm.nameExtension" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer bg-white">
+                    <option value="">None</option>
+                    <option v-for="ext in nameExtensionOptions" :key="ext" :value="ext">{{ ext }}</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Last Name *</label>
+                <input v-model="addForm.lastName" required placeholder="e.g. Santos" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              </div>
+              <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Specialty / Role *</label>
+                <select v-model="addForm.specialty" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer bg-white">
+                  <option value="" disabled>Select Specialty</option>
+                  <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
+                </select>
+              </div>
+
+              <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
+                <button type="button" @click="showAddModal = false" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer">Cancel</button>
+                <button type="submit" :disabled="submitting" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-sm shadow-emerald-200 active:scale-95 disabled:opacity-50 cursor-pointer">
+                  {{ submitting ? 'Saving...' : 'Add to Roster' }}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      </Teleport>
 
       <!-- Edit Personnel Modal -->
-      <div v-if="showEditModal && editingWorker" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-        <div class="bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-6 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-black uppercase tracking-wider">
-                Edit Staff
-              </span>
-              <h3 class="text-xl font-black text-slate-900 mt-1">Edit Personnel Details</h3>
-            </div>
-            <button @click="showEditModal = false" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
-
-          <form @submit.prevent="submitEditPersonnel" class="space-y-4">
-            <div>
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Full Name *</label>
-              <input v-model="editForm.name" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-            </div>
-            <div>
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Specialty / Role *</label>
-              <select v-model="editForm.specialty" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
-                <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Contact Number (11 digits)</label>
-              <input v-model="editForm.contactNumber" maxlength="11" placeholder="09123456789" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-            </div>
-
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
-              <button type="button" @click="showEditModal = false" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer">Cancel</button>
-              <button type="submit" :disabled="submittingEdit" class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer">
-                {{ submittingEdit ? 'Saving...' : 'Save Changes' }}
+      <Teleport to="body">
+        <div v-if="showEditModal && editingWorker" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
+          <div class="bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-6 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-black uppercase tracking-wider">
+                  Edit Staff
+                </span>
+                <h3 class="text-xl font-black text-slate-900 mt-1">Edit Personnel Details</h3>
+              </div>
+              <button @click="showEditModal = false" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-          </form>
+
+            <form @submit.prevent="submitEditPersonnel" class="space-y-4">
+              <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Full Name *</label>
+                <input v-model="editForm.name" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              </div>
+              <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Specialty / Role *</label>
+                <select v-model="editForm.specialty" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer bg-white">
+                  <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Contact Number (11 digits)</label>
+                <input v-model="editForm.contactNumber" maxlength="11" placeholder="09123456789" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              </div>
+
+              <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
+                <button type="button" @click="showEditModal = false" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer">Cancel</button>
+                <button type="submit" :disabled="submittingEdit" class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer">
+                  {{ submittingEdit ? 'Saving...' : 'Save Changes' }}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      </Teleport>
 
       <!-- Category Management Modal -->
-      <div v-if="showCategoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-        <div class="bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-6 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up">
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-black text-slate-900">Manage Categories</h3>
-            <button @click="showCategoryModal = false" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
+      <Teleport to="body">
+        <div v-if="showCategoryModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
+          <div class="bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-6 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-xl font-black text-slate-900">Manage Categories</h3>
+              <button @click="showCategoryModal = false" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
 
-          <form @submit.prevent="submitCategory" class="flex items-center gap-2 mb-6">
-            <input v-model="newCategoryName" placeholder="New category name..." class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-            <button type="submit" :disabled="categorySubmitting || !newCategoryName.trim()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer">Add</button>
-          </form>
+            <form @submit.prevent="submitCategory" class="flex items-center gap-2 mb-6">
+              <input v-model="newCategoryName" placeholder="New category name..." class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              <button type="submit" :disabled="categorySubmitting || !newCategoryName.trim()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer">Add</button>
+            </form>
 
-          <div class="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
-            <div v-if="store.categories.length === 0" class="text-xs text-slate-400 font-bold text-center py-4">No custom categories yet.</div>
-            <div v-else v-for="cat in store.categories" :key="cat.id" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <div v-if="editingCategory === cat.id" class="flex items-center gap-2 flex-1 mr-2">
-                <input v-model="editingCategoryName" class="flex-1 px-2.5 py-1 rounded-lg border border-slate-300 text-xs font-bold text-slate-800" />
-                <button @click="saveCategory(cat)" :disabled="categoryUpdating" class="text-xs font-black text-emerald-600 hover:text-emerald-700 cursor-pointer">Save</button>
-                <button @click="cancelEditingCategory" class="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer">Cancel</button>
-              </div>
-              <span v-else class="text-xs font-black text-slate-800">{{ cat.name }}</span>
+            <div class="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
+              <div v-if="store.categories.length === 0" class="text-xs text-slate-400 font-bold text-center py-4">No custom categories yet.</div>
+              <div v-else v-for="cat in store.categories" :key="cat.id" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div v-if="editingCategory === cat.id" class="flex items-center gap-2 flex-1 mr-2">
+                  <input v-model="editingCategoryName" class="flex-1 px-2.5 py-1 rounded-lg border border-slate-300 text-xs font-bold text-slate-800" />
+                  <button @click="saveCategory(cat)" :disabled="categoryUpdating" class="text-xs font-black text-emerald-600 hover:text-emerald-700 cursor-pointer">Save</button>
+                  <button @click="cancelEditingCategory" class="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer">Cancel</button>
+                </div>
+                <span v-else class="text-xs font-black text-slate-800">{{ cat.name }}</span>
 
-              <div v-if="editingCategory !== cat.id" class="flex items-center gap-2">
-                <button @click="startEditingCategory(cat)" class="text-slate-400 hover:text-slate-700 p-1 cursor-pointer" title="Edit">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                </button>
-                <button @click="deleteCategory(cat)" :disabled="categoryDeleting === cat.id" class="text-rose-400 hover:text-rose-600 p-1 cursor-pointer" title="Delete">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                </button>
+                <div v-if="editingCategory !== cat.id" class="flex items-center gap-2">
+                  <button @click="startEditingCategory(cat)" class="text-slate-400 hover:text-slate-700 p-1 cursor-pointer" title="Edit">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                  </button>
+                  <button @click="deleteCategory(cat)" :disabled="categoryDeleting === cat.id" class="text-rose-400 hover:text-rose-600 p-1 cursor-pointer" title="Delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Teleport>
 
       <!-- Delete Confirmation Modal -->
-      <div v-if="workerToDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-slate-100 text-center animate-scale-up">
-          <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-          </div>
-          <h4 class="text-base font-black text-slate-900 mb-1">Remove Personnel</h4>
-          <p class="text-xs text-slate-500 mb-6">Are you sure you want to remove <strong class="text-slate-800">{{ workerToDelete.name }}</strong> from the roster?</p>
-          <div class="flex items-center justify-center gap-3">
-            <button @click="workerToDelete = null" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer">Cancel</button>
-            <button @click="submitDelete" :disabled="deleteSubmitting" class="px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-black transition-all shadow-sm shadow-rose-200 active:scale-95 disabled:opacity-50 cursor-pointer">
-              {{ deleteSubmitting ? 'Removing...' : 'Yes, Remove' }}
-            </button>
+      <Teleport to="body">
+        <div v-if="workerToDelete" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
+          <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-slate-100 text-center animate-scale-up my-auto">
+            <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </div>
+            <h4 class="text-base font-black text-slate-900 mb-1">Remove Personnel</h4>
+            <p class="text-xs text-slate-500 mb-6">Are you sure you want to remove <strong class="text-slate-800">{{ workerToDelete.name }}</strong> from the roster?</p>
+            <div class="flex items-center justify-center gap-3">
+              <button @click="workerToDelete = null" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer">Cancel</button>
+              <button @click="submitDelete" :disabled="deleteSubmitting" class="px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-black transition-all shadow-sm shadow-rose-200 active:scale-95 disabled:opacity-50 cursor-pointer">
+                {{ deleteSubmitting ? 'Removing...' : 'Yes, Remove' }}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </Teleport>
 
       <!-- Staff Leave Modal -->
       <StaffLeaveModal
@@ -448,7 +452,6 @@ import StaffLeaveModal from '@/components/StaffLeaveModal.vue';
 import { useLeauPersonnelStore } from '@/stores/leauPersonnel';
 import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue3-toastify';
-import api from '@/api/client';
 
 const store = useLeauPersonnelStore();
 const authStore = useAuthStore();
@@ -497,19 +500,15 @@ const getInitials = (name) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-// ── Pending Tickets Badge ───────────────────────────────────────────────────
-const pendingTicketsCount = ref(0);
-
-const fetchPendingCount = async () => {
-  try {
-    const res = await api.get('tickets/dispatch/LEAU');
-    pendingTicketsCount.value = res.data?.data?.tickets?.length || 0;
-  } catch (err) {
-    console.error('Failed to fetch pending tickets count:', err);
-  }
+// ── Assigned Tickets Dropdown ───────────────────────────────────────────────
+const expandedWorkers = reactive({});
+const toggleWorkerTickets = (workerId) => {
+  expandedWorkers[workerId] = !expandedWorkers[workerId];
 };
+const isWorkerExpanded = (workerId) => Boolean(expandedWorkers[workerId]);
 
 // ── Add Personnel Modal ─────────────────────────────────────────────────────
+const nameExtensionOptions = ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 const showAddModal = ref(false);
 const submitting = ref(false);
 const addForm = reactive({
@@ -517,8 +516,7 @@ const addForm = reactive({
   middleInitial: '',
   lastName: '',
   nameExtension: '',
-  specialty: '',
-  contactNumber: ''
+  specialty: ''
 });
 
 const openAddModal = () => {
@@ -527,7 +525,6 @@ const openAddModal = () => {
   addForm.lastName = '';
   addForm.nameExtension = '';
   addForm.specialty = store.categories[0]?.name || '';
-  addForm.contactNumber = '';
   showAddModal.value = true;
 };
 
@@ -696,8 +693,7 @@ const handleLeaveUpdated = async () => {
 onMounted(async () => {
   await Promise.all([
     store.fetchPersonnel(),
-    store.fetchCategories(),
-    fetchPendingCount()
+    store.fetchCategories()
   ]);
 });
 </script>

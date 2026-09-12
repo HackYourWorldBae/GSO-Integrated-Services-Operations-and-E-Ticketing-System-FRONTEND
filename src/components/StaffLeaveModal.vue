@@ -1,6 +1,7 @@
 <template>
-  <Transition name="fade">
-    <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto">
+  <Teleport to="body">
+    <Transition name="fade">
+      <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto">
       <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-xs" @click="$emit('close')"></div>
 
       <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 sm:p-8 relative z-10 animate-modal-pop border border-slate-100 max-h-[92vh] overflow-y-auto">
@@ -219,6 +220,7 @@
       </div>
     </div>
   </Transition>
+  </Teleport>
 </template>
 
 <script setup>
