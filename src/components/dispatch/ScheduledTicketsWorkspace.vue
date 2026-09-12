@@ -139,9 +139,7 @@
             <tr class="bg-slate-50 border-b border-slate-200">
               <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Job / Service</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Assigned Personnel</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Target Schedule</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
@@ -150,7 +148,7 @@
             
             <!-- Loading State -->
             <tr v-if="loading && scheduledTickets.length === 0">
-              <td colspan="7" class="py-16 text-center">
+              <td colspan="5" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                   <svg class="animate-spin h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -163,7 +161,7 @@
 
             <!-- Empty State -->
             <tr v-else-if="paginatedTickets.length === 0">
-              <td colspan="7" class="py-16 text-center">
+              <td colspan="5" class="py-16 text-center">
                 <div class="max-w-sm mx-auto flex flex-col items-center">
                   <div class="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -197,10 +195,10 @@
                     themeBarColor
                   ]"
                 ></span>
-                <div class="relative inline-flex items-center gap-1.5">
+                <div class="relative inline-flex items-center gap-1.5 flex-wrap">
                   <div
                     :class="[
-                      'font-mono text-xs font-bold px-2.5 py-1 rounded-lg border inline-flex items-center transition-all duration-150',
+                      'font-mono text-sm font-bold px-3 py-1 rounded-lg border inline-flex items-center transition-all duration-150 shadow-2xs',
                       themeMonoBadge
                     ]"
                   >
@@ -213,7 +211,6 @@
                     Emergency
                   </span>
                 </div>
-                <div class="text-[10px] text-slate-400 mt-0.5">{{ formatDate(ticket.created_at || ticket.submitted_at) }}</div>
               </td>
 
               <!-- Requester -->
@@ -229,39 +226,10 @@
                 </div>
               </td>
 
-              <!-- Job / Service -->
-              <td class="px-3 py-2.5 max-w-[220px]">
-                <div class="text-xs font-semibold text-slate-900 line-clamp-1" :title="ticket.job_description || ticket.title">
-                  {{ ticket.job_description || ticket.title || '—' }}
-                </div>
-                <div :class="['text-[10px] font-bold mt-0.5 flex items-center gap-1.5', themeText]">
-                  <span>{{ ticket.service || ticket.type || 'General' }}</span>
-                  <span v-if="ticket.attachments && ticket.attachments.length > 0" class="inline-flex items-center gap-0.5 text-slate-400 font-normal">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                    </svg>
-                    {{ ticket.attachments.length }}
-                  </span>
-                </div>
-              </td>
-
               <!-- Location -->
               <td class="px-3 py-2.5 whitespace-nowrap">
                 <div class="text-xs font-semibold text-slate-700">{{ ticket.location || ticket.college_building || 'Main Campus' }}</div>
                 <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
-              </td>
-
-              <!-- Assigned Worker -->
-              <td class="px-3 py-2.5 whitespace-nowrap">
-                <div class="flex items-center gap-2">
-                  <div class="w-7 h-7 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-black flex items-center justify-center shrink-0">
-                    {{ getInitials(ticket.assignment?.personnel_name || 'Worker') }}
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-xs font-bold text-slate-800 truncate block max-w-[130px]">{{ ticket.assignment?.personnel_name || 'Assigned Personnel' }}</span>
-                    <span class="text-[10px] text-slate-400 block truncate">{{ ticket.assignment?.specialty || ticket.assignment?.profession || 'Personnel' }}</span>
-                  </div>
-                </div>
               </td>
 
               <!-- Target Schedule -->
@@ -379,7 +347,7 @@
         <!-- Top Row: Ref & Target Date Badge -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-2">
-            <span :class="['font-mono text-xs font-black px-2 py-0.5 rounded-lg border', themeMonoBadge]">
+            <span :class="['font-mono text-sm font-bold px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs', themeMonoBadge]">
               #{{ ticket.id }}
             </span>
             <span v-if="ticket.is_emergency" class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200">
@@ -394,26 +362,16 @@
           </span>
         </div>
 
-        <!-- Ticket Body -->
-        <div>
-          <h4 class="text-xs font-bold text-slate-900 line-clamp-2 leading-snug">{{ ticket.job_description || ticket.title || 'Scheduled Maintenance Task' }}</h4>
-          <div class="flex items-center gap-2 mt-1 text-[10px] text-slate-500">
-            <span :class="['font-bold', themeText]">{{ ticket.service || ticket.type }}</span>
-            <span>•</span>
-            <span>{{ ticket.location || ticket.college_building || 'Campus' }} {{ ticket.office_room ? `(${ticket.office_room})` : '' }}</span>
+        <!-- Location & Requester (job/service and personnel removed) -->
+        <div class="mt-2 flex items-center justify-between text-xs text-slate-600">
+          <div class="flex items-center gap-1.5 truncate">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="truncate">{{ ticket.location || ticket.college_building || 'Main Campus' }}{{ ticket.office_room ? ` (Rm ${ticket.office_room})` : '' }}</span>
           </div>
-        </div>
-
-        <!-- Personnel & Requester Meta -->
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-2 text-[11px]">
-          <div>
-            <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Personnel</span>
-            <span class="font-bold text-slate-800 truncate block">{{ ticket.assignment?.personnel_name || 'Assigned Personnel' }}</span>
-          </div>
-          <div class="text-right">
-            <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Requester</span>
-            <span class="font-semibold text-slate-700 truncate block">{{ ticket.requester }}</span>
-          </div>
+          <span class="text-xs font-semibold text-slate-700 truncate max-w-[140px]">{{ ticket.requester }}</span>
         </div>
 
         <!-- Card Actions -->

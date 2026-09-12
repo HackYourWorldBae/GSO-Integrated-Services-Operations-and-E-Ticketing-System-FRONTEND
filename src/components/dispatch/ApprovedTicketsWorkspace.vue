@@ -139,9 +139,7 @@
             <tr class="bg-slate-50 border-b border-slate-200">
               <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Job / Service</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Approved</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
           </thead>
@@ -149,7 +147,7 @@
             
             <!-- Loading State -->
             <tr v-if="loading && tickets.length === 0">
-              <td colspan="6" class="py-16 text-center">
+              <td colspan="4" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                   <svg class="animate-spin h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -162,7 +160,7 @@
 
             <!-- Empty State -->
             <tr v-else-if="paginatedTickets.length === 0">
-              <td colspan="6" class="py-16 text-center">
+              <td colspan="4" class="py-16 text-center">
                 <div class="max-w-sm mx-auto flex flex-col items-center">
                   <div class="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -196,10 +194,10 @@
                     themeBarColor
                   ]"
                 ></span>
-                <div class="relative inline-flex items-center gap-1.5">
+                <div class="relative inline-flex items-center gap-1.5 flex-wrap">
                   <div
                     :class="[
-                      'font-mono text-xs font-bold px-2.5 py-1 rounded-lg border inline-flex items-center transition-all duration-150',
+                      'font-mono text-sm font-bold px-3 py-1 rounded-lg border inline-flex items-center transition-all duration-150 shadow-2xs',
                       themeMonoBadge
                     ]"
                   >
@@ -212,7 +210,6 @@
                     Emergency
                   </span>
                 </div>
-                <div class="text-[10px] text-slate-400 mt-0.5">{{ ticket.submittedAt }}</div>
               </td>
 
               <!-- Requester -->
@@ -228,39 +225,10 @@
                 </div>
               </td>
 
-              <!-- Job / Service -->
-              <td class="px-3 py-2.5 max-w-[220px]">
-                <div class="text-xs font-semibold text-slate-900 line-clamp-1" :title="ticket.job_description || ticket.title">
-                  {{ ticket.job_description || ticket.title || '—' }}
-                </div>
-                <div :class="['text-[10px] font-bold mt-0.5 flex items-center gap-1.5', themeText]">
-                  <span>{{ ticket.service || ticket.type || 'General' }}</span>
-                  <span v-if="ticket.attachments && ticket.attachments.length > 0" class="inline-flex items-center gap-0.5 text-slate-400 font-normal">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                    </svg>
-                    {{ ticket.attachments.length }}
-                  </span>
-                </div>
-              </td>
-
               <!-- Location -->
               <td class="px-3 py-2.5 whitespace-nowrap">
                 <div class="text-xs font-semibold text-slate-700">{{ ticket.location || ticket.college_building || 'Main Campus' }}</div>
                 <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
-              </td>
-
-              <!-- Approved Date -->
-              <td class="px-3 py-2.5 whitespace-nowrap">
-                <div class="text-xs font-semibold text-slate-700">{{ ticket.reviewed_at ? formatDate(ticket.reviewed_at) : ticket.submittedAt }}</div>
-                <span
-                  :class="[
-                    'inline-block px-1.5 py-0.5 rounded text-[9px] font-black uppercase border',
-                    themeStatusBadge
-                  ]"
-                >
-                  Approved
-                </span>
               </td>
 
               <!-- Actions -->
@@ -366,7 +334,7 @@
           <div class="flex items-center gap-2 min-w-0">
             <span
               :class="[
-                'font-mono text-xs font-bold px-2 py-0.5 rounded border transition-colors shrink-0',
+                'font-mono text-sm font-bold px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs',
                 themeMonoBadge
               ]"
             >
@@ -380,16 +348,20 @@
             </span>
             <span class="text-xs font-semibold text-slate-700 truncate">{{ ticket.requester }}</span>
           </div>
-          <span class="text-[10px] text-slate-400 shrink-0">{{ ticket.submittedAt }}</span>
         </div>
 
-        <!-- Description + Service -->
-        <div class="mt-2">
-          <p class="text-xs font-semibold text-slate-800 line-clamp-1">{{ ticket.job_description || ticket.title }}</p>
-          <div class="flex items-center justify-between mt-1 text-[11px]">
-            <span :class="['font-bold', themeText]">{{ ticket.service || ticket.type }}</span>
-            <span class="text-slate-400 truncate max-w-[150px]">{{ ticket.location || ticket.college_building }}</span>
+        <!-- Location (job/service removed) -->
+        <div class="mt-2 flex items-center justify-between text-xs text-slate-600">
+          <div class="flex items-center gap-1.5 truncate">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="truncate">{{ ticket.location || ticket.college_building || 'Main Campus' }}{{ ticket.office_room ? ` (Rm ${ticket.office_room})` : '' }}</span>
           </div>
+          <span v-if="ticket.attachments && ticket.attachments.length > 0" class="text-[10px] font-bold text-slate-400 shrink-0">
+            {{ ticket.attachments.length }} files
+          </span>
         </div>
 
         <!-- Actions -->
