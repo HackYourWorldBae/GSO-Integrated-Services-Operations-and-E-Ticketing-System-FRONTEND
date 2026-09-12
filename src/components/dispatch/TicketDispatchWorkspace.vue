@@ -405,7 +405,7 @@
               <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
               </svg>
-              <span>{{ isEmergency ? '⚡ Preempt & Assign' : '+ Assign to Ticket' }}</span>
+              <span>{{ isEmergency ? 'Preempt & Assign' : 'Assign to Ticket' }}</span>
             </button>
 
             <!-- Already Assigned Indicator -->
