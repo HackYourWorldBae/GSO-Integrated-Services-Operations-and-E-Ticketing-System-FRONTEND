@@ -70,7 +70,7 @@ const breadcrumbs = computed(() => {
     crumbs.push({ label: 'Completed Tickets', to: null });
   } else if (path.includes('/tickets')) {
     crumbs.push({ label: 'My Tickets', to: null });
-  } else if (path.includes('/edit-profile')) {
+  } else if (path.includes('/edit-profile') || path.includes('/settings')) {
     crumbs.push({ label: 'Account Settings', to: null });
   } else if (path.includes('/forms')) {
     crumbs.push({ label: 'Request Intake Form', to: null });

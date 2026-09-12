@@ -113,6 +113,12 @@ const rawNavGroups = computed(() => {
             to: '/superadmin/logs',
             exact: true,
             icon: 'archive'
+          },
+          {
+            label: 'Account Settings',
+            to: '/superadmin/settings',
+            exact: true,
+            icon: 'settings'
           }
         ]
       }
@@ -172,6 +178,17 @@ const rawNavGroups = computed(() => {
             label: isSSU ? 'Archived Incidents' : 'Archived Tickets',
             to: `/admin/${unit}/archives`,
             icon: 'archive'
+          }
+        ]
+      },
+      {
+        title: 'Account',
+        items: [
+          {
+            label: 'Account Settings',
+            to: `/admin/${unit}/settings`,
+            exact: true,
+            icon: 'settings'
           }
         ]
       }
@@ -239,6 +256,17 @@ const rawNavGroups = computed(() => {
             exact: true,
             icon: 'shield',
             permission: 'reports.view'
+          }
+        ]
+      },
+      {
+        title: 'Account',
+        items: [
+          {
+            label: 'Account Settings',
+            to: '/director/settings',
+            exact: true,
+            icon: 'settings'
           }
         ]
       }

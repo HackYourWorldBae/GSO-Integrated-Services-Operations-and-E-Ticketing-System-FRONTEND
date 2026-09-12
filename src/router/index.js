@@ -42,6 +42,9 @@ const Superadmin_Dashboard = () => import('../views/dashboards/superadmin/Supera
 const Superadmin_Users = () => import('../views/dashboards/superadmin/Superadmin_Users.vue');
 const Superadmin_VerificationQueue = () => import('../views/dashboards/superadmin/Superadmin_VerificationQueue.vue');
 const Superadmin_AuditLogs = () => import('../views/dashboards/superadmin/Superadmin_AuditLogs.vue');
+const Superadmin_Settings = () => import('../views/dashboards/superadmin/Superadmin_Settings.vue');
+const Director_Settings = () => import('../views/dashboards/director/Director_Settings.vue');
+const Admin_Settings = () => import('../views/dashboards/admin/Admin_Settings.vue');
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,25 +83,26 @@ const router = createRouter({
       path: '/user/dashboard',
       name: 'user-dashboard',
       component: User_Dashboard,
-      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director', 'worker'] }
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'worker'] }
     },
     {
       path: '/user/tickets',
       name: 'user-tickets',
       component: User_Tickets,
-      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director', 'worker'] }
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'worker'] }
     },
     {
       path: '/user/edit-profile',
+      alias: ['/user/settings'],
       name: 'user-settings',
       component: User_Settings,
-      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director', 'worker'] }
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'worker'] }
     },
     {
       path: '/user/completed-tickets',
       name: 'user-completed-tickets',
       component: User_CompletedTickets,
-      meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'dispatcher', 'director', 'worker'] }
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'worker'] }
     },
 
     // Sub-unit Dashboards — FGMU Admin
@@ -146,6 +150,12 @@ const router = createRouter({
       name: 'fgmu-admin-archives',
       component: FGMU_Archives,
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'FGMU' }
+    },
+    {
+      path: '/admin/fgmu/settings',
+      name: 'fgmu-admin-settings',
+      component: Admin_Settings,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'superadmin'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/announcements',
@@ -203,6 +213,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'LEAU' }
     },
     {
+      path: '/admin/leau/settings',
+      name: 'leau-admin-settings',
+      component: Admin_Settings,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'superadmin'], unit: 'LEAU' }
+    },
+    {
       path: '/admin/leau/announcements',
       redirect: '/admin/leau'
     },
@@ -235,6 +251,30 @@ const router = createRouter({
       component: SSU_Archives,
       meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'SSU' }
     },
+    {
+      path: '/admin/ssu/settings',
+      name: 'ssu-admin-settings',
+      component: Admin_Settings,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'superadmin'], unit: 'SSU' }
+    },
+    {
+      path: '/admin/settings',
+      redirect: to => {
+        let unit = 'fgmu';
+        try {
+          const raw = sessionStorage.getItem('auth');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const user = parsed.user || parsed;
+            const uId = Number(user.unit_id || 0);
+            if (uId === 2) unit = 'leau';
+            else if (uId === 3) unit = 'ssu';
+            else if (user.unit_code) unit = String(user.unit_code).toLowerCase();
+          }
+        } catch {}
+        return `/admin/${unit}/settings`;
+      }
+    },
 
     // Superadmin Portal
     {
@@ -264,6 +304,12 @@ const router = createRouter({
       path: '/superadmin/logs',
       name: 'superadmin-logs',
       component: Superadmin_AuditLogs,
+      meta: { requiresAuth: true, roles: ['superadmin'] }
+    },
+    {
+      path: '/superadmin/settings',
+      name: 'superadmin-settings',
+      component: Superadmin_Settings,
       meta: { requiresAuth: true, roles: ['superadmin'] }
     },
 
@@ -327,6 +373,12 @@ const router = createRouter({
     {
       path: '/director/org-chart',
       redirect: '/director/dashboard'
+    },
+    {
+      path: '/director/settings',
+      name: 'director-settings',
+      component: Director_Settings,
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'] }
     },
 
     // Dispatcher Dashboards — Redirect to unified Admin & Operations portal

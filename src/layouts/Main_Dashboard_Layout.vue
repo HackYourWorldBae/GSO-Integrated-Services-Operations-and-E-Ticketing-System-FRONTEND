@@ -205,7 +205,7 @@
                   </div>
                   <div class="p-2 space-y-1">
                     <router-link
-                      to="/user/edit-profile"
+                      :to="accountSettingsRoute"
                       @click="isDropdownOpen = false"
                       class="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2.5 cursor-pointer"
                     >
@@ -260,7 +260,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import AppSidebar from '@/components/navigation/AppSidebar.vue';
@@ -269,9 +269,28 @@ import api from '@/api/client';
 import { useNetworkStatus } from '@/utils/networkMonitor';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const userName = ref('');
 const userRole = ref('');
+
+const accountSettingsRoute = computed(() => {
+  const role = (authStore.role || userRole.value || '').toLowerCase();
+  if (role === 'superadmin') return '/superadmin/settings';
+  if (role === 'director') return '/director/settings';
+  if (['admin', 'dispatcher'].includes(role)) {
+    const path = route.path.toLowerCase();
+    if (path.includes('/leau')) return '/admin/leau/settings';
+    if (path.includes('/ssu')) return '/admin/ssu/settings';
+    if (path.includes('/fgmu')) return '/admin/fgmu/settings';
+
+    const unitId = Number(authStore.unitId ?? authStore.user?.unit_id ?? 0);
+    if (unitId === 2) return '/admin/leau/settings';
+    if (unitId === 3) return '/admin/ssu/settings';
+    return '/admin/fgmu/settings';
+  }
+  return '/user/edit-profile';
+});
 const isSidebarOpen = ref(true);
 const isMobileSidebarOpen = ref(false);
 const isDropdownOpen = ref(false);
