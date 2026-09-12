@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { sanitizeObject, getSecurityHeaders } from '@/utils/security';
+import { recordNetworkActivity } from '@/utils/networkMonitor';
 
 // ============================================================================
 // API Client — GSO Integrated Services Operations & E-Ticketing System
@@ -73,6 +74,7 @@ apiClient.interceptors.request.use(
 // ----------------------------------------------------------------------------
 apiClient.interceptors.response.use(
   (response) => {
+    recordNetworkActivity(true);
     return response;
   },
   async (error) => {

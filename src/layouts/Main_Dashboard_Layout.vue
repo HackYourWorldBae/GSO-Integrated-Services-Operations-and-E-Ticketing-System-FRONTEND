@@ -497,7 +497,11 @@ const handleNotificationClick = async (notif) => {
     targetPath = '/superadmin/users';
   } else {
     // Requestor (student, employee, etc.)
-    targetPath = isCompleted ? '/user/completed-tickets' : '/user/tickets';
+    // Tickets in 'resolved' status await user satisfaction rating and must open on /user/tickets
+    const isUserClosed = notif.is_archived === 1 || 
+      ['completed', 'closed', 'declined', 'cancelled'].includes(notif.status) ||
+      text.includes('closed') || text.includes('archived') || text.includes('declined') || text.includes('cancelled');
+    targetPath = isUserClosed ? '/user/completed-tickets' : '/user/tickets';
   }
 
   // 5. Navigate to target path passing ticket reference

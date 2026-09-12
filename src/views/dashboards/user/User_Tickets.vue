@@ -1046,7 +1046,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted, defineComponent, h } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import { attachFgmuJobRequestForm, generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
@@ -1055,6 +1055,8 @@ import { useAuthStore } from '@/stores/auth';
 import { useNetworkStatus } from '@/utils/networkMonitor';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+
+const router = useRouter();
 
 const { onReconnected } = useNetworkStatus();
 const isSyncingTicket = ref(false);
@@ -1374,26 +1376,10 @@ const syncOpenTicket = async (targetId = null) => {
 
 const fetchTickets = async () => {
   try {
-    const [activeRes, completedRes] = await Promise.all([
-      api.get('tickets/my-requests'),
-      api.get('tickets/completed'),
-    ]);
-
+    const activeRes = await api.get('tickets/my-requests');
     const activeList = activeRes.data?.data?.tickets || [];
-    const completedList = completedRes.data?.data?.tickets || [];
 
-    // Deduplicate by ticket ID (active takes precedence)
-    const combinedMap = new Map();
-    for (const t of completedList) {
-      if (t.id) combinedMap.set(String(t.id), t);
-    }
-    for (const t of activeList) {
-      if (t.id) combinedMap.set(String(t.id), t);
-    }
-
-    const allList = Array.from(combinedMap.values());
-
-    tickets.value = allList.map(mapTicketData);
+    tickets.value = activeList.map(mapTicketData);
 
     const ackMap = JSON.parse(localStorage.getItem('gso_ssu_acknowledged_incidents') || '{}');
     tickets.value.forEach(t => {
@@ -1417,26 +1403,59 @@ const fetchTickets = async () => {
 };
 
 let pollingInterval = null;
+let handledRouteQueryKey = null;
+
+const clearRouteQueryTicket = () => {
+  if (route.query.ticketId || route.query.highlight || route.query._t) {
+    const nextQuery = { ...route.query };
+    delete nextQuery.ticketId;
+    delete nextQuery.highlight;
+    delete nextQuery._t;
+    router.replace({ query: nextQuery }).catch(() => {});
+  }
+};
 
 const handleRouteTicket = () => {
   const target = route.query.ticketId || route.query.highlight;
-  if (target) {
-    highlightedTicket.value = target;
-    statusFilter.value = 'all';
-    searchQuery.value = target;
+  const triggerKey = target ? `${target}_${route.query._t || 'init'}` : null;
 
-    const match = tickets.value.find(t =>
-      String(t.ticketId || t.id).toLowerCase() === String(target).toLowerCase()
-    );
-    if (match && !selectedTicket.value) {
+  if (!target) {
+    handledRouteQueryKey = null;
+    return;
+  }
+
+  // Prevent auto-reopening the same routed notification ticket once handled
+  if (handledRouteQueryKey === triggerKey) {
+    return;
+  }
+
+  highlightedTicket.value = target;
+  statusFilter.value = 'all';
+  searchQuery.value = target;
+
+  const match = tickets.value.find(t =>
+    String(t.ticketId || t.id).toLowerCase() === String(target).toLowerCase()
+  );
+
+  if (match) {
+    handledRouteQueryKey = triggerKey;
+    if (!selectedTicket.value) {
       openTimeline(match);
     }
-
-    setTimeout(() => {
-      const el = document.getElementById(target);
-      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 300);
+  } else if (tickets.value.length > 0) {
+    // If ticket is not in active requests, it's completed/closed; redirect to completed tickets
+    handledRouteQueryKey = triggerKey;
+    router.replace({
+      path: '/user/completed-tickets',
+      query: { ticketId: target, highlight: target, _t: Date.now() }
+    }).catch(() => {});
+    return;
   }
+
+  setTimeout(() => {
+    const el = document.getElementById(target);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300);
 };
 
 watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
@@ -1504,8 +1523,10 @@ const statusTabs = computed(() => {
     { value: 'pending',    label: 'Pending',         count: statusCounts.value.pending,    activeClass: 'bg-amber-50 text-amber-700 border-amber-400' },
     { value: 'processing', label: 'In Progress',     count: statusCounts.value.processing, activeClass: 'bg-blue-50 text-blue-700 border-blue-400' },
     { value: 'resolved',   label: 'Awaiting Rating', count: statusCounts.value.resolved,   activeClass: 'bg-emerald-50 text-emerald-700 border-emerald-400' },
-    { value: 'completed',  label: 'Completed',       count: statusCounts.value.completed,  activeClass: 'bg-slate-800 text-white border-slate-800' },
   ];
+  if (statusCounts.value.completed > 0) {
+    tabs.push({ value: 'completed', label: 'Completed', count: statusCounts.value.completed, activeClass: 'bg-slate-800 text-white border-slate-800' });
+  }
   if (statusCounts.value.cancelled > 0) {
     tabs.push({ value: 'cancelled', label: 'Cancelled', count: statusCounts.value.cancelled, activeClass: 'bg-slate-100 text-slate-700 border-slate-400' });
   }
@@ -1541,6 +1562,7 @@ const openTimeline = (ticket) => {
 const closeTimeline = () => {
   selectedTicket.value = null;
   document.body.style.overflow = '';
+  clearRouteQueryTicket();
 };
 
 // ---- Cancel Ticket Modal ----

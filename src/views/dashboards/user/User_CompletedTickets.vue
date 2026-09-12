@@ -496,7 +496,7 @@
 </template>
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import { parseDateLocal } from '@/utils/workCalendar';
@@ -511,6 +511,7 @@ const formatDate = (dateStr) => {
 };
 
 const route = useRoute();
+const router = useRouter();
 
 import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
 
@@ -592,14 +593,34 @@ onMounted(async () => {
   }
 });
 
+let handledRouteQueryKey = null;
+
+const clearRouteQueryTicket = () => {
+  if (route.query.ticketId || route.query.highlight || route.query._t) {
+    const nextQuery = { ...route.query };
+    delete nextQuery.ticketId;
+    delete nextQuery.highlight;
+    delete nextQuery._t;
+    router.replace({ query: nextQuery }).catch(() => {});
+  }
+};
+
 const checkRouteTicket = () => {
   const target = route.query.ticketId || route.query.highlight;
-  if (!target) return;
+  const triggerKey = target ? `${target}_${route.query._t || 'init'}` : null;
+  if (!target) {
+    handledRouteQueryKey = null;
+    return;
+  }
+  if (handledRouteQueryKey === triggerKey) {
+    return;
+  }
   const match = tickets.value.find(t => 
     String(t.ticketId).toLowerCase() === String(target).toLowerCase() || 
     String(t.id).toLowerCase() === String(target).toLowerCase()
   );
   if (match) {
+    handledRouteQueryKey = triggerKey;
     viewDetails(match);
   } else {
     searchQuery.value = String(target);
@@ -670,6 +691,7 @@ const viewDetails = (ticket) => {
 const closeDetailsModal = () => {
   showDetailsModal.value = false;
   selectedTicket.value = null;
+  clearRouteQueryTicket();
 };
 
 // ---- Step definitions for completed ticket tracking ----
@@ -735,6 +757,7 @@ const openTimeline = (ticket) => {
 
 const closeTimeline = () => {
   selectedTimelineTicket.value = null;
+  clearRouteQueryTicket();
 };
 </script>
 

@@ -18,18 +18,44 @@ const lastOfflineTime = ref(null);
 const reconnectionCallbacks = new Set();
 let healthProbeTimer = null;
 
+let consecutiveFailures = 0;
+const FAILURE_THRESHOLD = 3;
+let offlineDebounceTimer = null;
+
+/**
+ * Record successful real API communication from anywhere in the app.
+ * Resets failure counters and guarantees online state.
+ */
+export const recordNetworkActivity = (success = true) => {
+  if (success) {
+    consecutiveFailures = 0;
+    if (offlineDebounceTimer) {
+      clearTimeout(offlineDebounceTimer);
+      offlineDebounceTimer = null;
+    }
+    if (!isOnline.value || wasOffline.value) {
+      handleConnectionRestored();
+    } else {
+      isOnline.value = true;
+      lastOnlineTime.value = Date.now();
+    }
+  }
+};
+
 /**
  * Perform a lightweight HTTP probe to verify true end-to-end backend reachability.
  * Distinguishes between local Wi-Fi connectivity without internet and true server access.
  */
 export const checkServerHealth = async () => {
   if (typeof window === 'undefined') return true;
+  // If the browser tab is hidden or backgrounded on mobile, avoid triggering false alarms
+  if (typeof document !== 'undefined' && document.hidden) return isOnline.value;
 
   isChecking.value = true;
   try {
     const healthUrl = `${BASE_URL.replace(/\/+$/, '')}/health?_probe=${Date.now()}`;
     const response = await axios.get(healthUrl, {
-      timeout: 4000,
+      timeout: 8000, // 8s timeout to tolerate mobile cellular radio wake-ups
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
@@ -38,6 +64,11 @@ export const checkServerHealth = async () => {
 
     const isHealthy = response.status >= 200 && response.status < 300;
     if (isHealthy) {
+      consecutiveFailures = 0;
+      if (offlineDebounceTimer) {
+        clearTimeout(offlineDebounceTimer);
+        offlineDebounceTimer = null;
+      }
       if (!isOnline.value || wasOffline.value) {
         handleConnectionRestored();
       } else {
@@ -46,15 +77,24 @@ export const checkServerHealth = async () => {
       }
       return true;
     }
-    handleConnectionLost();
+    
+    consecutiveFailures++;
+    if (consecutiveFailures >= FAILURE_THRESHOLD) {
+      handleConnectionLost();
+    }
     return false;
   } catch (error) {
-    // If the server explicitly rejected with 404/500, the network is alive
+    // If the server explicitly responded with any HTTP status code (even 4xx/5xx), network is alive
     if (error.response) {
+      consecutiveFailures = 0;
       if (!isOnline.value) handleConnectionRestored();
       return true;
     }
-    handleConnectionLost();
+    
+    consecutiveFailures++;
+    if (consecutiveFailures >= FAILURE_THRESHOLD) {
+      handleConnectionLost();
+    }
     return false;
   } finally {
     isChecking.value = false;
@@ -109,10 +149,11 @@ const handleConnectionRestored = () => {
 const startPeriodicHealthProbe = () => {
   if (healthProbeTimer) return;
   healthProbeTimer = setInterval(async () => {
+    if (typeof document !== 'undefined' && document.hidden) return;
     if (navigator.onLine) {
       await checkServerHealth();
     }
-  }, 4000);
+  }, 6000);
 };
 
 const stopPeriodicHealthProbe = () => {
@@ -126,12 +167,19 @@ const stopPeriodicHealthProbe = () => {
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => {
     console.info('[NetworkMonitor] Browser fired "online" event. Verifying server health...');
+    consecutiveFailures = 0;
     checkServerHealth();
   });
 
+  // Debounce offline events to prevent false alerts on mobile power-saving radio switches
   window.addEventListener('offline', () => {
-    console.warn('[NetworkMonitor] Browser fired "offline" event.');
-    handleConnectionLost();
+    console.warn('[NetworkMonitor] Browser fired "offline" event. Verifying before entering offline mode...');
+    if (offlineDebounceTimer) clearTimeout(offlineDebounceTimer);
+    offlineDebounceTimer = setTimeout(async () => {
+      if (!navigator.onLine) {
+        await checkServerHealth();
+      }
+    }, 3000);
   });
 }
 
