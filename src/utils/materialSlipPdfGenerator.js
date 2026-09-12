@@ -333,41 +333,7 @@ const buildMaterialSlipDocDefinition = (data, logoDataUrl) => {
           ],
           margin: [0, 0, 0, 20],
         },
-      ] : [{ text: ' ', margin: [0, 0, 0, 16] }]),
-
-      // ── Signatures & Accountability Section ───────────────────────────────
-      {
-        columns: [
-          {
-            stack: [
-              { text: 'Dispatched & Liquidated By:', fontSize: 8, color: '#64748b', bold: true, alignment: 'center' },
-              { text: ' ', fontSize: 24 },
-              { canvas: [{ type: 'line', x1: 5, y1: 0, x2: 155, y2: 0, lineWidth: 0.8, lineColor: '#1e293b' }] },
-              { text: `${data.unitCode} Dispatcher`, fontSize: 8.5, bold: true, alignment: 'center', margin: [0, 3, 0, 0] },
-              { text: 'GSO Dispatch In-Charge', fontSize: 7.5, color: '#64748b', alignment: 'center' },
-            ],
-          },
-          {
-            stack: [
-              { text: 'Accomplished & Performed By:', fontSize: 8, color: '#64748b', bold: true, alignment: 'center' },
-              { text: ' ', fontSize: 24 },
-              { canvas: [{ type: 'line', x1: 5, y1: 0, x2: 155, y2: 0, lineWidth: 0.8, lineColor: '#1e293b' }] },
-              { text: data.personnelDisplay, fontSize: 8.5, bold: true, alignment: 'center', margin: [0, 3, 0, 0] },
-              { text: 'Technical & Maintenance Personnel', fontSize: 7.5, color: '#64748b', alignment: 'center' },
-            ],
-          },
-          {
-            stack: [
-              { text: 'Received & Verified By:', fontSize: 8, color: '#64748b', bold: true, alignment: 'center' },
-              { text: ' ', fontSize: 24 },
-              { canvas: [{ type: 'line', x1: 5, y1: 0, x2: 155, y2: 0, lineWidth: 0.8, lineColor: '#1e293b' }] },
-              { text: data.requester, fontSize: 8.5, bold: true, alignment: 'center', margin: [0, 3, 0, 0] },
-              { text: 'Requesting End-User / Representative', fontSize: 7.5, color: '#64748b', alignment: 'center' },
-            ],
-          },
-        ],
-        columnGap: 18,
-      },
+      ] : []),
     ],
 
     styles: {

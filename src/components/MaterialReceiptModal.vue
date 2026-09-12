@@ -76,8 +76,8 @@
           </div>
 
           <!-- Printable Receipt Canvas / Scrollable Viewport -->
-          <div class="flex-1 overflow-y-auto p-4 sm:p-8 md:p-10 bg-slate-100/80 flex justify-center custom-scrollbar">
-            <div id="printable-receipt" class="bg-white w-full max-w-3xl p-6 sm:p-10 md:p-12 rounded-3xl border border-slate-200/90 shadow-xl print:shadow-none print:border-none print:p-0 print:m-0 print:w-full space-y-7 text-slate-900">
+          <div class="flex-1 overflow-y-auto p-4 sm:p-8 md:p-10 bg-slate-100/80 custom-scrollbar">
+            <div id="printable-receipt" class="bg-white w-full max-w-3xl min-h-fit mx-auto p-6 sm:p-10 md:p-12 rounded-3xl border border-slate-200/90 shadow-xl print:shadow-none print:border-none print:p-0 print:m-0 print:w-full space-y-7 text-slate-900">
               
               <!-- University & Office Header with Official BSU Logo -->
               <div class="border-b-2 border-slate-900 pb-6 text-center relative">
@@ -209,33 +209,6 @@
                 </p>
               </div>
 
-              <!-- Signatures & Accountability Section (Generous, Well-Spaced) -->
-              <div class="pt-6 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-xs">
-                <div class="flex flex-col justify-between">
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-12">Dispatched & Liquidated By</p>
-                  <div>
-                    <div class="border-b border-slate-800 mx-4"></div>
-                    <p class="text-xs font-black text-slate-900 mt-2 uppercase tracking-wide">{{ unitCode }} Dispatcher</p>
-                    <p class="text-[10px] text-slate-500 font-medium">GSO Dispatch In-Charge</p>
-                  </div>
-                </div>
-                <div class="flex flex-col justify-between">
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-12">Accomplished & Performed By</p>
-                  <div>
-                    <div class="border-b border-slate-800 mx-4"></div>
-                    <p class="text-xs font-black text-slate-900 mt-2 uppercase tracking-wide truncate px-1">{{ personnelDisplay }}</p>
-                    <p class="text-[10px] text-slate-500 font-medium">Technical & Maintenance Personnel</p>
-                  </div>
-                </div>
-                <div class="flex flex-col justify-between">
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-12">Received & Verified By</p>
-                  <div>
-                    <div class="border-b border-slate-800 mx-4"></div>
-                    <p class="text-xs font-black text-slate-900 mt-2 uppercase tracking-wide truncate px-1">{{ ticket?.details?.end_user || ticket?.details?.requesting_personnel || ticket?.requestedBy || ticket?.requested_by || 'End User' }}</p>
-                    <p class="text-[10px] text-slate-500 font-medium">Requesting End-User / Representative</p>
-                  </div>
-                </div>
-              </div>
 
               <!-- Official Footer Note -->
               <div class="pt-4 text-center text-[10px] text-slate-400 border-t border-dashed border-slate-200">
