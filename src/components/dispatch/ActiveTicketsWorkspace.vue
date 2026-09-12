@@ -534,24 +534,44 @@
             <!-- Assigned Personnel & Live Timeline Card -->
             <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white space-y-3">
               <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Field Personnel</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Field Personnel</span>
+                  <span v-if="getAssignedWorkers(selectedTicketForModal).length > 0" class="px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 text-[10px] font-black">
+                    {{ getAssignedWorkers(selectedTicketForModal).length }} {{ getAssignedWorkers(selectedTicketForModal).length === 1 ? 'Worker' : 'Workers' }}
+                  </span>
+                </div>
                 <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
                   {{ liveDurations[selectedTicketForModal.id] || computeLiveDuration(selectedTicketForModal.assignment, selectedTicketForModal.overtime_hours) || 'Working' }}
                 </span>
               </div>
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center font-black text-sm border border-white/20">
-                  {{ getInitials(selectedTicketForModal.assignment?.personnel_name || 'Personnel') }}
-                </div>
-                <div>
-                  <h4 class="text-sm sm:text-base font-black text-white leading-tight">
-                    {{ selectedTicketForModal.assignment?.personnel_name || 'Assigned Personnel' }}
-                  </h4>
-                  <p class="text-xs text-slate-400 font-medium mt-0.5">
-                    {{ selectedTicketForModal.assignment?.specialty || selectedTicketForModal.assignment?.profession || 'Personnel' }}
-                  </p>
+
+              <!-- Workers Grid -->
+              <div v-if="getAssignedWorkers(selectedTicketForModal).length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div
+                  v-for="(worker, wIdx) in getAssignedWorkers(selectedTicketForModal)"
+                  :key="worker.id || wIdx"
+                  class="flex items-center gap-3 p-3 rounded-xl bg-slate-800/90 border border-slate-700/70"
+                >
+                  <div class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center font-black text-xs shrink-0">
+                    {{ getWorkerInitials(worker.name) }}
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs sm:text-sm font-black text-white leading-tight truncate">{{ worker.name }}</p>
+                    <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 text-[10px] font-bold border border-emerald-500/25 truncate">
+                        {{ worker.profession }}
+                      </span>
+                      <span v-if="worker.contact" class="text-[10px] text-slate-400 truncate">
+                        {{ worker.contact }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <div v-else class="text-xs text-slate-400 italic">
+                No personnel assigned.
+              </div>
+
               <div class="pt-2 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] text-slate-300">
                 <div>
                   <span class="text-[9px] text-slate-400 uppercase font-black block">Start Date</span>
@@ -786,6 +806,7 @@ import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
+import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
 
 const route = useRoute();
 

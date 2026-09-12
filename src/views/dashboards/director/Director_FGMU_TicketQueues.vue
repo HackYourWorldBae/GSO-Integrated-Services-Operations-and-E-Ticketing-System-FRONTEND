@@ -539,16 +539,41 @@
           </div>
 
           <!-- Assigned Personnel Banner (if assigned) -->
-          <div v-if="selectedTicketForModal.assignment?.personnel_name" class="p-4 sm:p-5 rounded-2xl bg-slate-900 text-white space-y-2">
-            <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400 block">Assigned Personnel</span>
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p class="text-sm sm:text-base font-black text-white leading-tight">{{ selectedTicketForModal.assignment?.personnel_name }}</p>
-                <p class="text-xs text-slate-400 font-medium mt-0.5">{{ selectedTicketForModal.assignment?.specialty || selectedTicketForModal.assignment?.profession || 'Personnel' }}</p>
+          <div v-if="getAssignedWorkers(selectedTicketForModal).length > 0" class="p-4 sm:p-5 rounded-2xl bg-slate-900 text-white space-y-3">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Assigned Personnel</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black">
+                  {{ getAssignedWorkers(selectedTicketForModal).length }} {{ getAssignedWorkers(selectedTicketForModal).length === 1 ? 'Worker' : 'Workers' }}
+                </span>
               </div>
               <span v-if="selectedTicketForModal.assignment?.implementation_date" class="text-xs font-bold text-slate-300">
                 Scheduled: {{ formatDate(selectedTicketForModal.assignment?.implementation_date) }}
               </span>
+            </div>
+
+            <!-- Structured Worker Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div
+                v-for="(worker, wIdx) in getAssignedWorkers(selectedTicketForModal)"
+                :key="worker.id || wIdx"
+                class="flex items-center gap-3 p-3 rounded-xl bg-slate-800/90 border border-slate-700/70"
+              >
+                <div class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center font-black text-xs shrink-0">
+                  {{ getWorkerInitials(worker.name) }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs sm:text-sm font-black text-white leading-tight truncate">{{ worker.name }}</p>
+                  <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 text-[10px] font-bold border border-emerald-500/25 truncate">
+                      {{ worker.profession }}
+                    </span>
+                    <span v-if="worker.contact" class="text-[10px] text-slate-400 truncate">
+                      {{ worker.contact }}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -749,6 +774,7 @@ import DirectorSidebar from '@/views/dashboards/director/DirectorSidebar.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import { FGMU_SERVICES } from '@/constants/services';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
+import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
 
 const authStore = useAuthStore();
 const route = useRoute();
