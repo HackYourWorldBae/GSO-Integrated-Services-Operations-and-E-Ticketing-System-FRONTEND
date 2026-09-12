@@ -18,7 +18,7 @@ import api from '@/api/client';
 import { loadImageAsPngDataUrl } from '@/utils/imageUtils';
 import { getPdfMake } from '@/utils/pdfmakeInit';
 import { generateDocxBlob, generateDocx } from '@/utils/docxGenerator';
-import { generateFgmuJobRequestFormPdfBlob, generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
+import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Date Formatting
@@ -359,34 +359,29 @@ async function getLogoDataUrl() {
  * @returns {Promise<Blob>}
  */
 export const generateFgmuJobRequestFormBlob = async (ticket, feedbackData = null) => {
-  try {
-    return await generateFgmuJobRequestFormPdfBlob(ticket, feedbackData);
-  } catch (docxPdfErr) {
-    console.warn('Docx-to-PDF template conversion fallback:', docxPdfErr);
-    const [pdfMake, data, logoDataUrl] = await Promise.all([
-      getPdfMake(),
-      buildFgmuTemplateData(ticket, feedbackData),
-      getLogoDataUrl().catch(() => null),
-    ]);
+  const [pdfMake, data, logoDataUrl] = await Promise.all([
+    getPdfMake(),
+    buildFgmuTemplateData(ticket, feedbackData),
+    getLogoDataUrl().catch(() => null),
+  ]);
 
-    const docDef = buildDocDefinition(data, logoDataUrl);
-    const pdfDoc = pdfMake.createPdf(docDef);
+  const docDef = buildDocDefinition(data, logoDataUrl);
+  const pdfDoc = pdfMake.createPdf(docDef);
 
-    if (typeof pdfDoc.getBlob === 'function') {
-      const result = pdfDoc.getBlob();
-      if (result && typeof result.then === 'function') {
-        return await result;
-      }
+  if (typeof pdfDoc.getBlob === 'function') {
+    const result = pdfDoc.getBlob();
+    if (result && typeof result.then === 'function') {
+      return await result;
     }
-
-    return new Promise((resolve, reject) => {
-      try {
-        pdfDoc.getBlob(blob => resolve(blob));
-      } catch (err) {
-        reject(err);
-      }
-    });
   }
+
+  return new Promise((resolve, reject) => {
+    try {
+      pdfDoc.getBlob(blob => resolve(blob));
+    } catch (err) {
+      reject(err);
+    }
+  });
 };
 
 export { generateFgmuJobRequestFormDocxBlob };
@@ -468,21 +463,10 @@ export const attachFgmuJobRequestForm = async (ticket, feedbackData = null) => {
   const ticketId = ticket.ticketId || ticket.id;
   if (!ticketId) throw new Error('Ticket ID is required to attach document.');
 
-  // Concurrently generate BOTH PDF and DOCX files
-  const [pdfBlob, docxBlob] = await Promise.all([
-    generateFgmuJobRequestFormBlob(ticket, feedbackData),
-    generateFgmuJobRequestFormDocxBlob(ticket, feedbackData).catch(err => {
-      console.warn('DOCX template generation fallback warning:', err);
-      return null;
-    }),
-  ]);
+  const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticket, feedbackData);
 
   const formData = new FormData();
-  formData.append('attachments[]', pdfBlob, `FGMU Job Request Form - #${ticketId}.pdf`);
-
-  if (docxBlob) {
-    formData.append('attachments[]', docxBlob, `FGMU Job Request Form - #${ticketId}.docx`);
-  }
+  formData.append('attachments[]', docxBlob, `FGMU Job Request Form - #${ticketId}.docx`);
 
   return await api.post(`tickets/${ticketId}/attachments`, formData, {
     headers: { 'Content-Type': undefined },

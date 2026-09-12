@@ -163,101 +163,6 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
 };
 
 /**
- * Converts a filled DOCX Blob into a real vector/raster PDF Blob using docx-preview and html2pdf.js.
- * Runs completely client-side in the browser.
- * @param {Blob} docxBlob 
- * @param {string} [filename]
- * @returns {Promise<Blob>}
- */
-export const convertDocxBlobToPdfBlob = async (docxBlob, filename = 'FGMU_Job_Request_Form.pdf') => {
-  if (typeof window === 'undefined' || typeof document === 'undefined') {
-    throw new Error('convertDocxBlobToPdfBlob requires a browser DOM environment.');
-  }
-
-  const { renderAsync } = await import('docx-preview');
-  const html2pdf = (await import('html2pdf.js')).default;
-
-  // Rendering container: Must NOT use left: -99999px because html2canvas ignores / clips
-  // elements outside viewport boundaries. Instead, position it fixed at (0, 0) with opacity 0.01
-  // and pointer-events: none so it is invisible to users but has positive layout coordinates for html2canvas.
-  const container = document.createElement('div');
-  container.className = 'docx-pdf-render-offscreen';
-  container.style.position = 'fixed';
-  container.style.left = '0';
-  container.style.top = '0';
-  container.style.width = '816px';
-  container.style.background = '#ffffff';
-  container.style.color = '#000000';
-  container.style.zIndex = '-99999';
-  container.style.opacity = '1';
-  container.style.pointerEvents = 'none';
-  document.body.appendChild(container);
-
-  try {
-    await renderAsync(docxBlob, container, undefined, {
-      className: 'docx-preview',
-      inWrapper: false,
-      ignoreWidth: false,
-      ignoreHeight: true,
-      breakPages: true,
-      renderHeaders: true,
-      renderFooters: true,
-      renderFootnotes: true,
-      renderEndnotes: true,
-    });
-
-    // Wait for docx-preview styling, layout calculations, and embedded images to settle
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    // Ensure all sections and tables expand fully without fixed-height clipping
-    const sections = container.querySelectorAll('section');
-    sections.forEach(s => {
-      s.style.width = '100%';
-      s.style.minHeight = 'auto';
-      s.style.height = 'auto';
-      s.style.padding = '0';
-      s.style.margin = '0';
-      s.style.overflow = 'visible';
-    });
-
-    const tables = container.querySelectorAll('table');
-    tables.forEach(t => {
-      t.style.width = '100%';
-      t.style.maxWidth = '100%';
-      t.style.tableLayout = 'auto';
-    });
-
-    const opt = {
-      margin: [8, 8, 8, 8],
-      filename: filename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: 816,
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait',
-      },
-      pagebreak: { mode: ['css', 'legacy'] },
-    };
-
-    const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
-    return pdfBlob;
-  } finally {
-    if (container.parentNode) {
-      container.parentNode.removeChild(container);
-    }
-  }
-};
-
-/**
  * Generates the FGMU Job Request Form Docx file as a Blob by filling public/templates/FGMU Job Request Form.docx.
  * @param {Object} ticket - Ticket data
  * @param {Object} [feedbackData] - User feedback data
@@ -272,20 +177,7 @@ export const generateFgmuJobRequestFormDocxBlob = async (ticket, feedbackData = 
 export const generateFgmuJobRequestFormBlob = generateFgmuJobRequestFormDocxBlob;
 
 /**
- * Generates the FGMU Job Request Form filled from /templates/FGMU Job Request Form.docx
- * and converts it into a genuine PDF Blob.
- * @param {Object} ticket
- * @param {Object} [feedbackData]
- * @returns {Promise<Blob>}
- */
-export const generateFgmuJobRequestFormPdfBlob = async (ticket, feedbackData = null) => {
-  const ticketId = ticket.ticketId || ticket.id || 'document';
-  const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticket, feedbackData);
-  return await convertDocxBlobToPdfBlob(docxBlob, `FGMU Job Request Form - #${ticketId}.pdf`);
-};
-
-/**
- * Generates and automatically uploads the FGMU Job Request Form as a permanent attachment to the ticket.
+ * Generates and automatically uploads the filled FGMU Job Request Form docx as a permanent attachment to the ticket.
  * @param {Object} ticket - Ticket data
  * @param {Object} [feedbackData] - Feedback data
  * @returns {Promise<Object>} API Response
@@ -296,18 +188,9 @@ export const attachFgmuJobRequestForm = async (ticket, feedbackData = null) => {
     throw new Error('Ticket ID is required to attach document.');
   }
 
-  const [docxBlob, pdfBlob] = await Promise.all([
-    generateFgmuJobRequestFormDocxBlob(ticket, feedbackData),
-    generateFgmuJobRequestFormPdfBlob(ticket, feedbackData).catch(err => {
-      console.warn('PDF conversion warning during attachment:', err);
-      return null;
-    }),
-  ]);
+  const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticket, feedbackData);
 
   const formData = new FormData();
-  if (pdfBlob) {
-    formData.append('attachments[]', pdfBlob, `FGMU Job Request Form - #${ticketId}.pdf`);
-  }
   formData.append('attachments[]', docxBlob, `FGMU Job Request Form - #${ticketId}.docx`);
 
   return await api.post(`tickets/${ticketId}/attachments`, formData, {
@@ -328,22 +211,4 @@ export const downloadFgmuJobRequestForm = async (ticket, feedbackData = null) =>
     templateData,
     `FGMU Job Request Form - #${ticketId}.docx`
   );
-};
-
-/**
- * Generates and downloads the FGMU Job Request Form as a PDF directly.
- * @param {Object} ticket
- * @param {Object} [feedbackData]
- */
-export const downloadFgmuJobRequestFormPdf = async (ticket, feedbackData = null) => {
-  const ticketId = ticket.ticketId || ticket.id || 'document';
-  const pdfBlob = await generateFgmuJobRequestFormPdfBlob(ticket, feedbackData);
-  const url = window.URL.createObjectURL(pdfBlob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', `FGMU Job Request Form - #${ticketId}.pdf`);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
 };

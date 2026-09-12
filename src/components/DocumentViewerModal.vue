@@ -73,29 +73,11 @@
                 <span class="hidden sm:inline">New Tab</span>
               </button>
 
-              <!-- Download PDF button (when viewing Word docx) -->
-              <button 
-                v-if="isDocx"
-                @click="downloadDocxAsPdf" 
-                :disabled="isConvertingPdf"
-                class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 disabled:opacity-50"
-                title="Download as official PDF document"
-              >
-                <svg v-if="!isConvertingPdf" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                <svg v-else class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>{{ isConvertingPdf ? 'Exporting...' : 'Save PDF' }}</span>
-              </button>
-
-              <!-- Primary Download Button -->
+              <!-- Primary Download Button (directly downloads filled docx or file) -->
               <button 
                 @click="downloadFile" 
                 class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95"
-                :title="isDocx ? 'Download Word (.docx) file' : 'Download file'"
+                :title="isDocx ? 'Download Word (.docx) file directly' : 'Download file'"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -121,15 +103,15 @@
           <div class="flex-1 overflow-hidden relative bg-slate-200">
 
             <!-- Loading State -->
-            <div v-if="isLoading" class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-100/80 z-10">
+            <div v-if="isLoading || isRegenerating" class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-100/90 z-10">
               <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
                 <svg class="animate-spin h-6 w-6 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               </div>
-              <p class="text-sm font-bold text-slate-700">Rendering document preview...</p>
-              <p class="text-xs text-slate-400 font-medium">Please wait while the document is processed.</p>
+              <p class="text-sm font-bold text-slate-700">{{ isRegenerating ? 'Generating new document with latest ticket data...' : 'Rendering document preview...' }}</p>
+              <p class="text-xs text-slate-400 font-medium">{{ isRegenerating ? 'Please wait while a fresh document is built and uploaded.' : 'Please wait while the document is processed.' }}</p>
             </div>
 
             <!-- Error State with Fallback Re-generate Action -->
@@ -161,7 +143,7 @@
 
             <!-- PDF Viewer — native browser iframe, full fidelity -->
             <iframe
-              v-show="!isLoading && !renderError && isPdf"
+              v-show="!isLoading && !isRegenerating && !renderError && isPdf"
               ref="pdfIframeRef"
               :src="pdfBlobUrl"
               class="w-full h-full border-0"
@@ -169,14 +151,14 @@
               type="application/pdf"
             />
 
-            <!-- Docx Preview Paper Canvas -->
+            <!-- Docx Preview Paper Canvas (block flow with mx-auto to let white background wrap 100% of height) -->
             <div 
-              v-show="!isLoading && !renderError && isDocx" 
-              class="w-full h-full overflow-y-auto p-3 sm:p-8 bg-slate-300 flex justify-center custom-scrollbar"
+              v-show="!isLoading && !isRegenerating && !renderError && isDocx" 
+              class="w-full h-full overflow-y-auto p-3 sm:p-8 bg-slate-300 custom-scrollbar"
             >
               <div 
                 ref="docxContainerRef" 
-                class="docx-render-paper w-full max-w-[880px] my-2"
+                class="docx-render-paper mx-auto w-full max-w-[880px] my-4 block"
               ></div>
             </div>
 
@@ -258,7 +240,6 @@ const emitRegenerate = () => {
 const pdfIframeRef     = ref(null);
 const docxContainerRef = ref(null);
 const isLoading        = ref(false);
-const isConvertingPdf  = ref(false);
 const renderError      = ref('');
 const imageUrl         = ref('');
 const pdfBlobUrl       = ref('');
@@ -361,6 +342,14 @@ const renderPreview = async () => {
           s.style.minHeight = 'auto';
           s.style.height = 'auto';
           s.style.overflow = 'visible';
+          s.style.backgroundColor = '#ffffff';
+        });
+
+        const articles = docxContainerRef.value.querySelectorAll('article');
+        articles.forEach(a => {
+          a.style.minHeight = 'auto';
+          a.style.height = 'auto';
+          a.style.overflow = 'visible';
         });
       }
     } else if (isImage.value) {
@@ -402,10 +391,12 @@ const printDocxContainer = () => {
   if (!docxContainerRef.value) return;
   const printIframe = document.createElement('iframe');
   printIframe.style.position = 'fixed';
-  printIframe.style.right = '0';
-  printIframe.style.bottom = '0';
-  printIframe.style.width = '0';
-  printIframe.style.height = '0';
+  printIframe.style.top = '-9999px';
+  printIframe.style.left = '-9999px';
+  printIframe.style.width = '1024px';
+  printIframe.style.height = '1400px';
+  printIframe.style.opacity = '0';
+  printIframe.style.pointerEvents = 'none';
   printIframe.style.border = '0';
   document.body.appendChild(printIframe);
 
@@ -423,20 +414,21 @@ const printDocxContainer = () => {
         <title>${props.title || 'Job Order'}</title>
         <style>
           @page { size: A4 portrait; margin: 8mm; }
+          * { box-sizing: border-box; }
           body { 
             font-family: Arial, Helvetica, sans-serif; 
             margin: 0; 
-            padding: 0; 
+            padding: 8px; 
             color: #000; 
             background: #fff;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
-          table { border-collapse: collapse; width: 100%; margin: 4px 0; }
+          table { border-collapse: collapse; width: 100% !important; margin: 4px 0; }
           th, td { border: 1px solid #334155; padding: 4px 6px; font-size: 9pt; }
           p { margin: 2px 0; font-size: 9pt; line-height: 1.3; }
           img { max-width: 100%; height: auto; }
-          section { width: 100% !important; min-height: auto !important; height: auto !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+          section { width: 100% !important; min-height: auto !important; height: auto !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; background: #fff !important; }
           article { width: 100% !important; overflow: visible !important; }
           ${inlineStyles}
         </style>
@@ -448,9 +440,9 @@ const printDocxContainer = () => {
   `);
   doc.close();
 
-  printIframe.contentWindow.focus();
-  setTimeout(() => {
+  const triggerPrint = () => {
     try {
+      printIframe.contentWindow.focus();
       printIframe.contentWindow.print();
     } catch (e) {
       console.warn('Print iframe error:', e);
@@ -459,9 +451,36 @@ const printDocxContainer = () => {
         if (printIframe.parentNode) {
           document.body.removeChild(printIframe);
         }
-      }, 60000);
+      }, 30000);
     }
-  }, 400);
+  };
+
+  // Wait for all images in the iframe to finish loading before triggering print
+  const images = doc.images;
+  if (!images || images.length === 0) {
+    setTimeout(triggerPrint, 250);
+  } else {
+    let pending = images.length;
+    const onImgDone = () => {
+      pending--;
+      if (pending <= 0) {
+        triggerPrint();
+      }
+    };
+    for (let i = 0; i < images.length; i++) {
+      if (images[i].complete) {
+        pending--;
+      } else {
+        images[i].onload = onImgDone;
+        images[i].onerror = onImgDone;
+      }
+    }
+    if (pending <= 0) {
+      setTimeout(triggerPrint, 250);
+    } else {
+      setTimeout(triggerPrint, 1500);
+    }
+  }
 };
 
 const printDocument = () => {
@@ -505,93 +524,6 @@ const printDocument = () => {
   } catch (e) {
     console.error('Print failed:', e);
     openInNewTab();
-  }
-};
-
-const downloadDocxAsPdf = async () => {
-  if (!docxContainerRef.value) return;
-  isConvertingPdf.value = true;
-  try {
-    const html2pdf = (await import('html2pdf.js')).default;
-    
-    // Create an isolated clone container to prevent scroll offsets and Tailwind v4 stylesheet conflicts
-    const sourceEl = docxContainerRef.value;
-    const clone = sourceEl.cloneNode(true);
-    clone.style.width = '800px';
-    clone.style.maxWidth = '800px';
-    clone.style.margin = '0 auto';
-    clone.style.padding = '24px 32px';
-    clone.style.background = '#ffffff';
-    clone.style.color = '#000000';
-    clone.style.boxSizing = 'border-box';
-    clone.style.overflow = 'visible';
-    clone.style.height = 'auto';
-
-    // Normalize all sections inside the clone
-    const sections = clone.querySelectorAll('section');
-    sections.forEach(s => {
-      s.style.width = '100%';
-      s.style.minHeight = 'auto';
-      s.style.height = 'auto';
-      s.style.padding = '0';
-      s.style.margin = '0';
-      s.style.overflow = 'visible';
-    });
-
-    const tables = clone.querySelectorAll('table');
-    tables.forEach(t => {
-      t.style.width = '100%';
-      t.style.maxWidth = '100%';
-      t.style.tableLayout = 'auto';
-    });
-
-    const offscreenContainer = document.createElement('div');
-    offscreenContainer.style.position = 'fixed';
-    offscreenContainer.style.left = '0';
-    offscreenContainer.style.top = '0';
-    offscreenContainer.style.width = '800px';
-    offscreenContainer.style.zIndex = '-99999';
-    offscreenContainer.style.background = '#ffffff';
-    offscreenContainer.style.opacity = '1';
-    offscreenContainer.appendChild(clone);
-    document.body.appendChild(offscreenContainer);
-
-    try {
-      const filename = (props.fileName || 'FGMU_Job_Request_Form').replace(/\.docx?$/i, '') + '.pdf';
-      const opt = {
-        margin: [8, 8, 8, 8],
-        filename: filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff',
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: 800,
-        },
-        jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait',
-        },
-        pagebreak: { mode: ['css', 'legacy'] },
-      };
-
-      await html2pdf().set(opt).from(clone).save();
-      toast.success('Official PDF exported and downloaded!');
-    } finally {
-      if (offscreenContainer.parentNode) {
-        document.body.removeChild(offscreenContainer);
-      }
-    }
-  } catch (err) {
-    console.error('Failed to convert docx to PDF via html2pdf, falling back to print dialog:', err);
-    printDocxContainer();
-    toast.info('Opening Print dialog — select "Save as PDF" to save.');
-  } finally {
-    isConvertingPdf.value = false;
   }
 };
 
@@ -669,10 +601,11 @@ const downloadFile = () => {
   background-color: #ffffff !important;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
   border: 1px solid #cbd5e1 !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
   padding: 32px 40px 48px 40px !important;
-  min-height: auto !important;
+  min-height: min-content !important;
   height: auto !important;
+  display: block !important;
   overflow: visible !important;
   box-sizing: border-box !important;
   margin: 16px auto !important;
@@ -682,7 +615,7 @@ const downloadFile = () => {
 .docx-render-paper section.docx-preview,
 .docx-render-paper section.docx,
 .docx-render-paper section {
-  background: transparent !important;
+  background: #ffffff !important;
   box-shadow: none !important;
   width: 100% !important;
   max-width: 100% !important;
@@ -698,6 +631,7 @@ const downloadFile = () => {
 .docx-render-paper section > article {
   width: 100% !important;
   max-width: 100% !important;
+  height: auto !important;
   overflow: visible !important;
   display: block !important;
 }

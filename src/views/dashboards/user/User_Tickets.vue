@@ -1049,7 +1049,7 @@ import { ref, reactive, computed, watch, onMounted, onUnmounted, defineComponent
 import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import { attachFgmuJobRequestForm, generateFgmuJobRequestFormBlob } from '@/utils/fgmuPdfGenerator';
+import { attachFgmuJobRequestForm, generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuPdfGenerator';
 import { parseDateLocal } from '@/utils/workCalendar';
 import { useAuthStore } from '@/stores/auth';
 import { useNetworkStatus } from '@/utils/networkMonitor';
@@ -1246,20 +1246,30 @@ const openJobRequestFormViewer = async (ticket) => {
   try {
     const ticketId = ticket.ticketId || ticket.id;
     viewerModal.title = `FGMU Job Request Form - #${ticketId}`;
-    viewerModal.fileName = `FGMU Job Request Form - #${ticketId}.pdf`;
     
-    // Check if PDF attachment already exists in ticket attachments
+    // Check if DOCX or PDF attachment already exists in ticket attachments
+    const existingDocxAtt = (ticket.attachments || []).find(a => 
+      a.file_name && 
+      (a.file_name.toLowerCase().includes('job request form') || a.file_name.toLowerCase().includes('job_order') || a.file_name.toLowerCase().includes('fgmu')) &&
+      a.file_name.toLowerCase().endsWith('.docx')
+    );
     const existingPdfAtt = (ticket.attachments || []).find(a => 
       a.file_name && 
       (a.file_name.toLowerCase().includes('job request form') || a.file_name.toLowerCase().includes('fgmu')) &&
       a.file_name.toLowerCase().endsWith('.pdf')
     );
     
-    if (existingPdfAtt) {
+    if (existingDocxAtt) {
+      viewerModal.fileName = existingDocxAtt.file_name;
+      const response = await api.get(`attachments/${existingDocxAtt.id}`, { responseType: 'blob' });
+      viewerModal.fileBlob = response.data;
+    } else if (existingPdfAtt) {
+      viewerModal.fileName = existingPdfAtt.file_name;
       const response = await api.get(`attachments/${existingPdfAtt.id}`, { responseType: 'blob' });
       viewerModal.fileBlob = new Blob([response.data], { type: 'application/pdf' });
     } else {
-      const blob = await generateFgmuJobRequestFormBlob(ticket, ticket.feedback);
+      viewerModal.fileName = `FGMU Job Request Form - #${ticketId}.docx`;
+      const blob = await generateFgmuJobRequestFormDocxBlob(ticket, ticket.feedback);
       viewerModal.fileBlob = blob;
     }
     

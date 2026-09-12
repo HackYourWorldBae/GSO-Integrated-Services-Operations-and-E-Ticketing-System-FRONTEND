@@ -784,7 +784,7 @@ import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue'
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import { generateFgmuJobRequestFormBlob, generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuPdfGenerator';
+import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
 
 const route = useRoute();
@@ -1100,14 +1100,26 @@ const openJobOrderDocument = async (ticket) => {
     viewerModal.isRegenerating = false;
     viewerModal.isOpen = true;
 
+    // Fetch fresh ticket data from server to ensure latest assignments & details
+    let freshTicket = ticket;
+    try {
+      const res = await api.get(`tickets/${ticketId}`);
+      if (res.data?.data) {
+        freshTicket = mapTicket(res.data.data);
+        activeJobOrderTicket.value = freshTicket;
+      }
+    } catch (e) {
+      console.warn('Using in-memory ticket data:', e);
+    }
+
     const ticketData = {
-      ...ticket,
+      ...freshTicket,
       unit_code: unit,
       unit: unit,
-      ticketRef: ticket.ticket_number || ticket.reference_number || `${unit}-TIC-${ticketId}`,
+      ticketRef: freshTicket.ticket_number || freshTicket.reference_number || `${unit}-TIC-${ticketId}`,
     };
 
-    const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticketData, ticket.feedback);
+    const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticketData, freshTicket.feedback);
     viewerModal.fileBlob = docxBlob;
   } catch (err) {
     console.error('Failed to generate Job Order document:', err);
@@ -1119,25 +1131,52 @@ const openJobOrderDocument = async (ticket) => {
 const handleRegenerateJobOrder = async () => {
   if (!activeJobOrderTicket.value) return;
   viewerModal.isRegenerating = true;
+  // Clear fileBlob so viewer shows active generation rather than stale document
+  viewerModal.fileBlob = null;
+
   try {
-    toast.info('Re-generating Job Order document...');
+    toast.info('Generating new Job Order document with latest ticket data...');
     const ticket = activeJobOrderTicket.value;
     const ticketId = ticket.ticketId || ticket.id;
     const unit = props.unitCode?.toUpperCase() || ticket.unit_code || 'FGMU';
-    
-    // Find latest ticket data from list if available
-    const latestTicket = rawTickets.value.find(t => (t.id === ticketId || t.ticketId === ticketId)) || ticket;
-    
+
+    // 1. Fetch fresh ticket details directly from server to capture all recent modifications
+    let freshTicket = ticket;
+    try {
+      const res = await api.get(`tickets/${ticketId}`);
+      if (res.data?.data) {
+        freshTicket = mapTicket(res.data.data);
+        activeJobOrderTicket.value = freshTicket;
+      }
+    } catch (fetchErr) {
+      console.warn('Could not fetch single ticket, falling back to cached list:', fetchErr);
+      freshTicket = rawTickets.value.find(t => (t.id === ticketId || t.ticketId === ticketId)) || ticket;
+    }
+
     const ticketData = {
-      ...latestTicket,
+      ...freshTicket,
       unit_code: unit,
       unit: unit,
-      ticketRef: latestTicket.ticket_number || latestTicket.reference_number || `${unit}-TIC-${ticketId}`,
+      ticketRef: freshTicket.ticket_number || freshTicket.reference_number || `${unit}-TIC-${ticketId}`,
+      regenerated_at: new Date().toISOString()
     };
 
-    const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticketData, latestTicket.feedback);
+    // 2. Generate brand-new document Blob
+    const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticketData, freshTicket.feedback);
+
+    // 3. Upload new document as permanent ticket attachment on the server
+    try {
+      const formData = new FormData();
+      formData.append('attachments[]', docxBlob, `${unit}_Job_Order_#${ticketId}.docx`);
+      await api.post(`tickets/${ticketId}/attachments`, formData, {
+        headers: { 'Content-Type': undefined }
+      });
+    } catch (attachErr) {
+      console.warn('Could not save regenerated attachment to backend:', attachErr);
+    }
+
     viewerModal.fileBlob = docxBlob;
-    toast.success('Job Order document re-generated successfully!');
+    toast.success('New Job Order document generated with latest data!');
   } catch (err) {
     console.error('Failed to re-generate document:', err);
     toast.error('Failed to re-generate document: ' + (err.message || 'Unknown error'));
