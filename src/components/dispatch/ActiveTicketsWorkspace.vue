@@ -139,6 +139,7 @@
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Elapsed Duration</th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Target Duration</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
           </thead>
@@ -146,7 +147,7 @@
             
             <!-- Loading State -->
             <tr v-if="loading && activeTickets.length === 0">
-              <td colspan="5" class="py-16 text-center">
+              <td colspan="6" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                   <svg class="animate-spin h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -159,7 +160,7 @@
 
             <!-- Empty State -->
             <tr v-else-if="paginatedTickets.length === 0">
-              <td colspan="5" class="py-16 text-center">
+              <td colspan="6" class="py-16 text-center">
                 <div class="max-w-sm mx-auto flex flex-col items-center">
                   <div class="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -241,6 +242,19 @@
                 <span class="block text-[9px] font-black uppercase tracking-wider text-emerald-700 mt-0.5">
                   ● In Progress
                 </span>
+              </td>
+
+              <!-- Target Duration -->
+              <td class="px-3 py-2.5 whitespace-nowrap">
+                <div class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>{{ ticket.working_days || ticket.assignment?.working_days || 1 }} {{ (ticket.working_days || ticket.assignment?.working_days || 1) === 1 ? 'Day' : 'Days' }}</span>
+                  <span v-if="ticket.extension_days > 0" class="ml-1.5 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-black border border-amber-200" title="Extension Days">
+                    +{{ ticket.extension_days }}d
+                  </span>
+                </div>
               </td>
 
               <!-- Actions -->
@@ -386,6 +400,15 @@
             <span class="truncate">{{ ticket.location || ticket.college_building || 'Main Campus' }}{{ ticket.office_room ? ` (Rm ${ticket.office_room})` : '' }}</span>
           </div>
           <span class="text-xs font-semibold text-slate-700 truncate max-w-[140px]">{{ ticket.requester }}</span>
+        </div>
+
+        <!-- Target Duration Meta -->
+        <div class="flex items-center justify-between text-xs text-slate-500 pt-0.5">
+          <span class="text-[11px] font-medium text-slate-500">Target Duration:</span>
+          <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
+            {{ ticket.working_days || ticket.assignment?.working_days || 1 }} Target {{ (ticket.working_days || ticket.assignment?.working_days || 1) === 1 ? 'Day' : 'Days' }}
+            <span v-if="ticket.extension_days > 0" class="text-amber-600 ml-0.5 font-black">+{{ ticket.extension_days }}d</span>
+          </span>
         </div>
 
         <!-- Card Actions -->
