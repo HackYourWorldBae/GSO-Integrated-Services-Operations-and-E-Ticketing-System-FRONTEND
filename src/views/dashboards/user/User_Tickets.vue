@@ -1316,6 +1316,7 @@ const mapTicketData = (t) => ({
   assignment: t.assignment || null,
   assignments: t.assignments || [],
   assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
+  assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
   assignedContact: t.assignment?.personnel_contact || null,
   details: t.details || null,
   feedback: t.feedback || null,
@@ -1591,17 +1592,17 @@ const unitSteps = {
     { label: 'Digital Submission',  description: 'The client completes the required fields in the digital form.' },
     { label: 'Ticket Creation',     description: 'System generated a Digital Ticket.' },
     { label: 'Admin Approval',      description: 'Approved by the administration unit.' },
-    { label: 'Dispatch & Schedule', description: 'Dispatcher assigned workers and scheduled implementation.' },
-    { label: 'Job Started',         description: 'Workers have started the job.' },
-    { label: 'Job Finished',        description: 'Workers marked the job as complete.' },
+    { label: 'Dispatch & Schedule', description: 'Dispatcher assigned personnel and scheduled implementation.' },
+    { label: 'Job Started',         description: 'Personnel have started the job.' },
+    { label: 'Job Finished',        description: 'Personnel marked the job as complete.' },
   ],
   LEAU: [
     { label: 'Digital Submission',  description: 'The client completes the required fields in the digital form.' },
     { label: 'Ticket Creation',     description: 'System generated a Digital Ticket and assigned "Pending Approval" status.' },
     { label: 'Admin Approval',      description: 'Approved by the administration unit.' },
-    { label: 'Dispatch & Schedule', description: 'Dispatcher assigned workers and scheduled implementation.' },
-    { label: 'Job Started',         description: 'Workers have started the job.' },
-    { label: 'Job Finished',        description: 'Workers marked the job as complete.' },
+    { label: 'Dispatch & Schedule', description: 'Dispatcher assigned personnel and scheduled implementation.' },
+    { label: 'Job Started',         description: 'Personnel have started the job.' },
+    { label: 'Job Finished',        description: 'Personnel marked the job as complete.' },
   ],
   SSU: {
     'Incident Report': [
@@ -1625,7 +1626,8 @@ const getSteps = (ticket) => {
   if (ticket.implementationDate && (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') && steps.length > 3) {
     const durationText = ticket.workingDays ? ` (${ticket.workingDays} working days expected)` : '';
     const extText = ticket.extension_days > 0 ? ` [Extended by +${ticket.extension_days} working day(s) to ${formatDate(ticket.effective_target_date || ticket.target_completion_date)}]` : '';
-    steps[3].description = `Dispatcher assigned workers and scheduled implementation for ${ticket.implementationDate}${durationText}.${extText}`;
+    const workerText = ticket.assignedWorker ? ` Assigned Personnel: ${ticket.assignedWorker}${ticket.assignedProfession ? ` (${ticket.assignedProfession})` : ''}.` : '';
+    steps[3].description = `Dispatcher assigned personnel and scheduled implementation for ${ticket.implementationDate}${durationText}.${extText}${workerText}`;
   }
 
   if (ticket.status === 'declined' || ticket.status === 'rejected') {

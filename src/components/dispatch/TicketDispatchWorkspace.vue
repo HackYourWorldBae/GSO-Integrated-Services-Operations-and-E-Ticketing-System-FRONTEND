@@ -169,7 +169,7 @@
       <div class="max-w-md">
         <h3 class="text-xl font-black text-slate-900 tracking-tight">No Assignment Target Selected</h3>
         <p class="text-xs sm:text-sm text-slate-500 mt-1">
-          Pick an approved service request from the queue to start scheduling technicians, setting implementation dates, and dispatching work orders.
+          Pick an approved service request from the queue to start scheduling personnel, setting implementation dates, and dispatching work orders.
         </p>
       </div>
 
@@ -189,7 +189,7 @@
       </div>
     </div>
 
-    <!-- ═══ 3. Current Assignments Panel (Shown when technicians are assigned to the target) ═══ -->
+    <!-- ═══ 3. Current Assignments Panel (Shown when personnel are assigned to the target) ═══ -->
     <div
       v-if="selectedTicket && currentAssignments.length > 0"
       class="p-5 sm:p-6 rounded-3xl bg-slate-900 text-white shadow-lg border border-slate-800 space-y-4 animate-scale-up"
@@ -250,7 +250,7 @@
             </div>
             <div class="min-w-0">
               <h5 class="text-xs font-black text-white truncate">{{ assign.workerName }}</h5>
-              <span class="text-[10px] text-slate-400 block truncate">{{ assign.specialty || 'General Technician' }}</span>
+              <span class="text-[10px] text-slate-400 block truncate">{{ assign.specialty || assign.profession || 'Personnel' }}</span>
             </div>
           </div>
 
@@ -277,7 +277,7 @@
             Available Personnel
           </h3>
           <p class="text-xs text-slate-500 mt-0.5">
-            Select technicians below to assign them to the active target request.
+            Select personnel below to assign them to the active target request.
           </p>
         </div>
 
@@ -311,7 +311,7 @@
           <input
             v-model="personnelSearch"
             type="text"
-            placeholder="Search technician by name or specialty..."
+            placeholder="Search personnel by name or profession..."
             class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 bg-slate-50/60 transition-all placeholder:text-slate-400"
           />
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">

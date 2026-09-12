@@ -296,6 +296,9 @@
                   <!-- Active: Staff + Schedule (merged) -->
                   <td v-if="activeTab === 'active'" class="px-3 py-2.5 whitespace-nowrap">
                     <div class="text-xs font-semibold text-slate-800">{{ ticket.assignment?.personnel_name || '—' }}</div>
+                    <div v-if="ticket.assignment?.specialty || ticket.assignment?.profession" class="text-[10px] text-slate-500 font-medium truncate max-w-[140px]">
+                      {{ ticket.assignment?.specialty || ticket.assignment?.profession }}
+                    </div>
                     <div class="text-[10px] text-slate-400 flex items-center gap-1">
                       {{ formatDate(ticket.effective_target_date || ticket.assignment?.implementation_date) }}
                       <span v-if="ticket.extension_days > 0" class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[9px] font-black">+{{ ticket.extension_days }}d</span>
@@ -456,10 +459,13 @@
               <p class="text-[11px] text-emerald-600 font-bold mt-0.5">{{ ticket.service }}</p>
             </div>
 
-            <!-- Active tab: worker + hours inline -->
+            <!-- Active tab: personnel + hours inline -->
             <div v-if="activeTab === 'active'" class="mt-2 flex items-center justify-between text-[11px] text-slate-600">
-              <span>{{ ticket.assignment?.personnel_name || 'Unassigned' }}</span>
-              <strong class="text-emerald-700">{{ liveWorkingDurations[ticket.id] || 'Counting...' }}</strong>
+              <span class="truncate max-w-[200px]">
+                <span class="font-semibold text-slate-800">{{ ticket.assignment?.personnel_name || 'Unassigned' }}</span>
+                <span v-if="ticket.assignment?.specialty || ticket.assignment?.profession" class="text-slate-500 text-[10px] ml-1">({{ ticket.assignment?.specialty || ticket.assignment?.profession }})</span>
+              </span>
+              <strong class="text-emerald-700 shrink-0">{{ liveWorkingDurations[ticket.id] || 'Counting...' }}</strong>
             </div>
 
             <!-- Actions -->
@@ -532,6 +538,20 @@
                 <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 <span>{{ selectedTicketForModal.office_room ? `Room / Office: ${selectedTicketForModal.office_room}` : 'No specific room designated' }}</span>
               </p>
+            </div>
+          </div>
+
+          <!-- Assigned Personnel Banner (if assigned) -->
+          <div v-if="selectedTicketForModal.assignment?.personnel_name" class="p-4 sm:p-5 rounded-2xl bg-slate-900 text-white space-y-2">
+            <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400 block">Assigned Personnel</span>
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm sm:text-base font-black text-white leading-tight">{{ selectedTicketForModal.assignment?.personnel_name }}</p>
+                <p class="text-xs text-slate-400 font-medium mt-0.5">{{ selectedTicketForModal.assignment?.specialty || selectedTicketForModal.assignment?.profession || 'Personnel' }}</p>
+              </div>
+              <span v-if="selectedTicketForModal.assignment?.implementation_date" class="text-xs font-bold text-slate-300">
+                Scheduled: {{ formatDate(selectedTicketForModal.assignment?.implementation_date) }}
+              </span>
             </div>
           </div>
 

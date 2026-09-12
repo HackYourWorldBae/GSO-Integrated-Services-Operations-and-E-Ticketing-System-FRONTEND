@@ -258,6 +258,15 @@
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Location / Office</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.location }} - {{ selectedTicket.office_room }}</p>
               </div>
+              <div v-if="selectedTicket.assignedWorker && selectedTicket.assignedWorker !== 'Unassigned'" class="col-span-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Assigned Personnel</p>
+                <p class="text-base font-semibold text-slate-900">
+                  {{ selectedTicket.assignedWorker }}
+                  <span v-if="selectedTicket.assignment?.specialty || selectedTicket.assignment?.profession || selectedTicket.assignedProfession" class="text-xs text-slate-500 font-normal">
+                    ({{ selectedTicket.assignment?.specialty || selectedTicket.assignment?.profession || selectedTicket.assignedProfession }})
+                  </span>
+                </p>
+              </div>
               <div class="col-span-2">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Job Particulars / Description</p>
                 <div class="p-4 bg-white border border-slate-200 rounded-xl">
@@ -589,6 +598,7 @@ const fetchArchives = async () => {
         office_room: t.office_room || t.details?.office_room || 'N/A',
         attachments: t.attachments || [],
         assignedWorker: t.assignment?.personnel_name || t.assignments?.[0]?.assigned_to_name || 'Unassigned',
+        assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
         assignment: t.assignment || null,
         assignments: t.assignments || [],
         details: t.details || null,

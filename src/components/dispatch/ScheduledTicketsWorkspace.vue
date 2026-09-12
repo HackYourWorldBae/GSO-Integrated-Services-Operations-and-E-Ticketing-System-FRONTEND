@@ -141,7 +141,7 @@
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Job / Service</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Assigned Worker</th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Assigned Personnel</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Target Schedule</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
@@ -258,8 +258,8 @@
                     {{ getInitials(ticket.assignment?.personnel_name || 'Worker') }}
                   </div>
                   <div class="min-w-0">
-                    <span class="text-xs font-bold text-slate-800 truncate block max-w-[130px]">{{ ticket.assignment?.personnel_name || 'Assigned Tech' }}</span>
-                    <span class="text-[10px] text-slate-400 block truncate">{{ ticket.assignment?.specialty || 'Technician' }}</span>
+                    <span class="text-xs font-bold text-slate-800 truncate block max-w-[130px]">{{ ticket.assignment?.personnel_name || 'Assigned Personnel' }}</span>
+                    <span class="text-[10px] text-slate-400 block truncate">{{ ticket.assignment?.specialty || ticket.assignment?.profession || 'Personnel' }}</span>
                   </div>
                 </div>
               </td>
@@ -404,11 +404,11 @@
           </div>
         </div>
 
-        <!-- Technician & Requester Meta -->
+        <!-- Personnel & Requester Meta -->
         <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-2 text-[11px]">
           <div>
-            <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Worker</span>
-            <span class="font-bold text-slate-800 truncate block">{{ ticket.assignment?.personnel_name || 'Assigned Tech' }}</span>
+            <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Personnel</span>
+            <span class="font-bold text-slate-800 truncate block">{{ ticket.assignment?.personnel_name || 'Assigned Personnel' }}</span>
           </div>
           <div class="text-right">
             <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Requester</span>
@@ -491,7 +491,7 @@
                 </span>
               </div>
               <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Scheduled Ticket Particulars</h3>
-              <p class="text-xs text-slate-500 font-medium mt-0.5">Assigned technician parameters, planned implementation schedule, and institutional particulars</p>
+              <p class="text-xs text-slate-500 font-medium mt-0.5">Assigned personnel parameters, planned implementation schedule, and institutional particulars</p>
             </div>
             <button
               type="button"
@@ -508,24 +508,24 @@
           <!-- Scrollable Modal Body -->
           <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
             
-            <!-- Assigned Technician & Schedule Banner -->
+            <!-- Assigned Personnel & Schedule Banner -->
             <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 to-slate-900 text-white space-y-3">
               <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Designated Technician</span>
+                <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Designated Personnel</span>
                 <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-amber-500/30">
                   Awaiting Start
                 </span>
               </div>
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center font-black text-sm border border-white/20">
-                  {{ getInitials(selectedTicketForModal.assignment?.personnel_name || 'Worker') }}
+                  {{ getInitials(selectedTicketForModal.assignment?.personnel_name || 'Personnel') }}
                 </div>
                 <div>
                   <h4 class="text-sm sm:text-base font-black text-white leading-tight">
-                    {{ selectedTicketForModal.assignment?.personnel_name || 'Assigned Technician' }}
+                    {{ selectedTicketForModal.assignment?.personnel_name || 'Assigned Personnel' }}
                   </h4>
                   <p class="text-xs text-amber-200/80 font-medium mt-0.5">
-                    {{ selectedTicketForModal.assignment?.specialty || 'Lead Field Technician' }}
+                    {{ selectedTicketForModal.assignment?.specialty || selectedTicketForModal.assignment?.profession || 'Personnel' }}
                   </p>
                 </div>
               </div>
@@ -606,7 +606,7 @@
                       Official Job Order (QM-GSO-{{ unitCode }}-01)
                     </h4>
                     <p class="text-[11px] text-slate-500 font-medium mt-0.5">
-                      Official job request document filled with requester information, location, designated technician, and scheduled dates to issue before starting the job.
+                      Official job request document filled with requester information, location, designated personnel, and scheduled dates to issue before starting the job.
                     </p>
                   </div>
                 </div>

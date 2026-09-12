@@ -94,7 +94,7 @@
                   <div>
                     <span class="text-xs font-black text-slate-900 block leading-tight">Reassign Job</span>
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">
-                      Transfer active ticket to another available technician immediately.
+                      Transfer active ticket to another available personnel immediately.
                     </p>
                   </div>
                 </div>
@@ -141,7 +141,7 @@
               required
               class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
             >
-              <option value="" disabled>Select an available technician</option>
+              <option value="" disabled>Select an available personnel</option>
               <option
                 v-for="cand in filteredReplacementWorkers"
                 :key="cand.id"

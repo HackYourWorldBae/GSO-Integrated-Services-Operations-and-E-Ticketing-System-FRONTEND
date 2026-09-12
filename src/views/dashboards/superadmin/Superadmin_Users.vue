@@ -594,7 +594,7 @@
                 <select v-model="createForm.role" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer">
                   <option value="student">Student (Requester)</option>
                   <option value="employee">Employee (Requester)</option>
-                  <option value="worker">Worker (Field Technician)</option>
+                  <option value="worker">Worker (Field Personnel)</option>
                   <option value="dispatcher">Dispatcher (Control)</option>
                   <option value="admin">Admin (Unit Governance)</option>
                   <option value="director">Director (Executive)</option>
