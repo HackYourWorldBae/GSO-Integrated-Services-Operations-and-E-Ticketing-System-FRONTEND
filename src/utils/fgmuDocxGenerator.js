@@ -185,12 +185,11 @@ export const convertDocxBlobToPdfBlob = async (docxBlob, filename = 'FGMU_Job_Re
   container.style.position = 'fixed';
   container.style.left = '0';
   container.style.top = '0';
-  container.style.width = '816px'; // 8.5in at 96 DPI
-  container.style.minHeight = '1056px';
+  container.style.width = '816px';
   container.style.background = '#ffffff';
   container.style.color = '#000000';
   container.style.zIndex = '-99999';
-  container.style.opacity = '0.01';
+  container.style.opacity = '1';
   container.style.pointerEvents = 'none';
   document.body.appendChild(container);
 
@@ -199,7 +198,7 @@ export const convertDocxBlobToPdfBlob = async (docxBlob, filename = 'FGMU_Job_Re
       className: 'docx-preview',
       inWrapper: false,
       ignoreWidth: false,
-      ignoreHeight: false,
+      ignoreHeight: true,
       breakPages: true,
       renderHeaders: true,
       renderFooters: true,
@@ -208,10 +207,28 @@ export const convertDocxBlobToPdfBlob = async (docxBlob, filename = 'FGMU_Job_Re
     });
 
     // Wait for docx-preview styling, layout calculations, and embedded images to settle
-    await new Promise(resolve => setTimeout(resolve, 400));
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Ensure all sections and tables expand fully without fixed-height clipping
+    const sections = container.querySelectorAll('section');
+    sections.forEach(s => {
+      s.style.width = '100%';
+      s.style.minHeight = 'auto';
+      s.style.height = 'auto';
+      s.style.padding = '0';
+      s.style.margin = '0';
+      s.style.overflow = 'visible';
+    });
+
+    const tables = container.querySelectorAll('table');
+    tables.forEach(t => {
+      t.style.width = '100%';
+      t.style.maxWidth = '100%';
+      t.style.tableLayout = 'auto';
+    });
 
     const opt = {
-      margin: [6, 6, 6, 6],
+      margin: [8, 8, 8, 8],
       filename: filename,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
@@ -222,20 +239,13 @@ export const convertDocxBlobToPdfBlob = async (docxBlob, filename = 'FGMU_Job_Re
         scrollX: 0,
         scrollY: 0,
         windowWidth: 816,
-        onclone: (clonedDoc) => {
-          const el = clonedDoc.querySelector('.docx-pdf-render-offscreen');
-          if (el) {
-            el.style.opacity = '1';
-            el.style.zIndex = '1';
-          }
-        },
       },
       jsPDF: {
         unit: 'mm',
-        format: 'letter',
+        format: 'a4',
         orientation: 'portrait',
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
 
     const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');

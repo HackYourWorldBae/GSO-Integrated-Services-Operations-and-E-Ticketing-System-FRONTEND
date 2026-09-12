@@ -176,7 +176,7 @@
             >
               <div 
                 ref="docxContainerRef" 
-                class="docx-render-paper bg-white shadow-2xl rounded-sm w-full max-w-[850px] p-6 sm:p-12 border border-slate-300 my-2"
+                class="docx-render-paper w-full max-w-[880px] my-2"
               ></div>
             </div>
 
@@ -347,12 +347,20 @@ const renderPreview = async () => {
           className: 'docx-preview',
           inWrapper: false,
           ignoreWidth: false,
-          ignoreHeight: false,
+          ignoreHeight: true,
           breakPages: true,
           renderHeaders: true,
           renderFooters: true,
           renderFootnotes: true,
           renderEndnotes: true,
+        });
+
+        // Ensure all rendered section and article elements expand dynamically without clipping
+        const sections = docxContainerRef.value.querySelectorAll('section');
+        sections.forEach(s => {
+          s.style.minHeight = 'auto';
+          s.style.height = 'auto';
+          s.style.overflow = 'visible';
         });
       }
     } else if (isImage.value) {
@@ -401,6 +409,11 @@ const printDocxContainer = () => {
   printIframe.style.border = '0';
   document.body.appendChild(printIframe);
 
+  // Extract all inline style elements rendered by docx-preview
+  const styleTags = docxContainerRef.value.querySelectorAll('style');
+  let inlineStyles = '';
+  styleTags.forEach(s => { inlineStyles += s.innerHTML + '\n'; });
+
   const doc = printIframe.contentWindow.document;
   doc.open();
   doc.write(`
@@ -409,12 +422,23 @@ const printDocxContainer = () => {
       <head>
         <title>${props.title || 'Job Order'}</title>
         <style>
-          @page { size: letter; margin: 8mm; }
-          body { font-family: 'Times New Roman', serif; margin: 0; padding: 0; color: #000; }
-          table { border-collapse: collapse; width: 100%; margin: 6px 0; }
-          th, td { border: 1px solid #334155; padding: 4px 6px; font-size: 10pt; }
-          p { margin: 3px 0; font-size: 10pt; line-height: 1.3; }
+          @page { size: A4 portrait; margin: 8mm; }
+          body { 
+            font-family: Arial, Helvetica, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            color: #000; 
+            background: #fff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          table { border-collapse: collapse; width: 100%; margin: 4px 0; }
+          th, td { border: 1px solid #334155; padding: 4px 6px; font-size: 9pt; }
+          p { margin: 2px 0; font-size: 9pt; line-height: 1.3; }
           img { max-width: 100%; height: auto; }
+          section { width: 100% !important; min-height: auto !important; height: auto !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+          article { width: 100% !important; overflow: visible !important; }
+          ${inlineStyles}
         </style>
       </head>
       <body>
@@ -437,7 +461,7 @@ const printDocxContainer = () => {
         }
       }, 60000);
     }
-  }, 350);
+  }, 400);
 };
 
 const printDocument = () => {
@@ -489,29 +513,83 @@ const downloadDocxAsPdf = async () => {
   isConvertingPdf.value = true;
   try {
     const html2pdf = (await import('html2pdf.js')).default;
-    const opt = {
-      margin: [6, 6, 6, 6],
-      filename: (props.fileName || 'FGMU_Job_Request_Form').replace(/\.docx?$/i, '') + '.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'letter',
-        orientation: 'portrait',
-      },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-    };
+    
+    // Create an isolated clone container to prevent scroll offsets and Tailwind v4 stylesheet conflicts
+    const sourceEl = docxContainerRef.value;
+    const clone = sourceEl.cloneNode(true);
+    clone.style.width = '800px';
+    clone.style.maxWidth = '800px';
+    clone.style.margin = '0 auto';
+    clone.style.padding = '24px 32px';
+    clone.style.background = '#ffffff';
+    clone.style.color = '#000000';
+    clone.style.boxSizing = 'border-box';
+    clone.style.overflow = 'visible';
+    clone.style.height = 'auto';
 
-    await html2pdf().set(opt).from(docxContainerRef.value).save();
-    toast.success('Official PDF exported and downloaded!');
+    // Normalize all sections inside the clone
+    const sections = clone.querySelectorAll('section');
+    sections.forEach(s => {
+      s.style.width = '100%';
+      s.style.minHeight = 'auto';
+      s.style.height = 'auto';
+      s.style.padding = '0';
+      s.style.margin = '0';
+      s.style.overflow = 'visible';
+    });
+
+    const tables = clone.querySelectorAll('table');
+    tables.forEach(t => {
+      t.style.width = '100%';
+      t.style.maxWidth = '100%';
+      t.style.tableLayout = 'auto';
+    });
+
+    const offscreenContainer = document.createElement('div');
+    offscreenContainer.style.position = 'fixed';
+    offscreenContainer.style.left = '0';
+    offscreenContainer.style.top = '0';
+    offscreenContainer.style.width = '800px';
+    offscreenContainer.style.zIndex = '-99999';
+    offscreenContainer.style.background = '#ffffff';
+    offscreenContainer.style.opacity = '1';
+    offscreenContainer.appendChild(clone);
+    document.body.appendChild(offscreenContainer);
+
+    try {
+      const filename = (props.fileName || 'FGMU_Job_Request_Form').replace(/\.docx?$/i, '') + '.pdf';
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: 800,
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait',
+        },
+        pagebreak: { mode: ['css', 'legacy'] },
+      };
+
+      await html2pdf().set(opt).from(clone).save();
+      toast.success('Official PDF exported and downloaded!');
+    } finally {
+      if (offscreenContainer.parentNode) {
+        document.body.removeChild(offscreenContainer);
+      }
+    }
   } catch (err) {
-    console.error('Failed to convert docx to PDF:', err);
-    toast.error('Could not convert to PDF directly. Use Print -> Save as PDF.');
+    console.error('Failed to convert docx to PDF via html2pdf, falling back to print dialog:', err);
+    printDocxContainer();
+    toast.info('Opening Print dialog — select "Save as PDF" to save.');
   } finally {
     isConvertingPdf.value = false;
   }
@@ -584,5 +662,74 @@ const downloadFile = () => {
 .doc-modal-enter-from,
 .doc-modal-leave-to {
   opacity: 0;
+}
+
+/* ── Docx Paper Canvas ─────────────────────────────────────────────────────── */
+.docx-render-paper {
+  background-color: #ffffff !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  padding: 32px 40px 48px 40px !important;
+  min-height: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+  margin: 16px auto !important;
+}
+
+/* Override docx-preview internal styles that cause clipping and overflows */
+.docx-render-paper section.docx-preview,
+.docx-render-paper section.docx,
+.docx-render-paper section {
+  background: transparent !important;
+  box-shadow: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  display: block !important;
+}
+
+.docx-render-paper section.docx-preview > article,
+.docx-render-paper section > article {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+  display: block !important;
+}
+
+.docx-render-paper section.docx-preview > header,
+.docx-render-paper section > header {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 0 !important;
+  margin-bottom: 12px !important;
+  min-height: auto !important;
+  overflow: visible !important;
+}
+
+/* Ensure tables fit nicely without horizontal or vertical clipping */
+.docx-render-paper table {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-collapse: collapse !important;
+  margin-bottom: 8px !important;
+}
+
+.docx-render-paper td,
+.docx-render-paper th {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Ensure images, shapes and drawings stay inside the paper */
+.docx-render-paper img,
+.docx-render-paper svg {
+  max-width: 100% !important;
+  height: auto !important;
 }
 </style>
