@@ -627,24 +627,29 @@
                         <!-- Step dot -->
                         <div :class="[
                           'absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white text-xs font-black transition-all duration-500',
-                          selectedTicket.currentStep > (index + 1)  ? 'bg-emerald-500 text-white shadow-emerald-500/30 shadow-md' :
-                          selectedTicket.currentStep === (index + 1) ? getActiveDot(selectedTicket.status) + ' shadow-md' :
-                          'bg-slate-200 text-slate-400'
+                          isStepCompleted(selectedTicket, index)
+                            ? 'bg-emerald-500 text-white shadow-emerald-500/30 shadow-md'
+                            : isStepActive(selectedTicket, index)
+                              ? getActiveDot(selectedTicket.status) + ' shadow-md'
+                              : 'bg-slate-200 text-slate-400'
                         ]">
-                          <svg v-if="selectedTicket.currentStep > (index + 1)" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <svg v-if="isStepCompleted(selectedTicket, index)" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                           </svg>
                           <span v-else class="leading-none">{{ index + 1 }}</span>
                         </div>
 
                         <!-- Step content -->
-                        <div :class="['ml-2 pb-1', selectedTicket.currentStep < (index + 1) ? 'opacity-40' : '']">
+                        <div :class="['ml-2 pb-1', !isStepCompleted(selectedTicket, index) && selectedTicket.currentStep < (index + 1) ? 'opacity-40' : '']">
                           <div class="flex items-center gap-2 mb-0.5">
-                            <h4 :class="['font-bold text-sm leading-tight', selectedTicket.currentStep >= (index + 1) ? 'text-slate-900' : 'text-slate-400']">
+                            <h4 :class="['font-bold text-sm leading-tight', isStepCompleted(selectedTicket, index) || selectedTicket.currentStep >= (index + 1) ? 'text-slate-900' : 'text-slate-400']">
                               {{ step.label }}
                             </h4>
-                            <span v-if="selectedTicket.currentStep === (index + 1)" :class="['px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest', getActiveStepBadge(selectedTicket.status)]">
+                            <span v-if="isStepActive(selectedTicket, index)" :class="['px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest', getActiveStepBadge(selectedTicket.status)]">
                               Current
+                            </span>
+                            <span v-else-if="isStepCompleted(selectedTicket, index) && (index === getSteps(selectedTicket).length - 1 || step.label === 'Job Finished')" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700">
+                              Completed
                             </span>
                           </div>
                           <p class="text-xs text-slate-500 leading-relaxed">{{ getStepDescription(selectedTicket, step, index) }}</p>
@@ -927,21 +932,6 @@
                     <p v-else class="text-sm text-slate-500">
                       Thank you for your feedback! This ticket has been successfully closed.
                     </p>
-
-                    <!-- Official FGMU Job Request Form Action -->
-                    <div v-if="selectedTicket.unit === 'FGMU' || selectedTicket.unit_code === 'FGMU' || selectedTicket.unit_id === 1" class="mt-5 pt-4 border-t border-slate-200/80 w-full flex flex-col items-center">
-                      <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Official Service Document</p>
-                      <button
-                        type="button"
-                        @click="openJobRequestFormViewer(selectedTicket)"
-                        class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-emerald-600/20 active:scale-95 flex items-center gap-2 cursor-pointer"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span>View Official Job Request Form</span>
-                      </button>
-                    </div>
                   </div>
 
                 </div>
@@ -1312,7 +1302,9 @@ const mapTicketData = (t) => ({
   purpose: t.details?.purpose_of_travel || t.details?.purposeOfTravel || t.details?.purpose || 'N/A',
   attachments: t.attachments || [],
   declineReason: t.decline_reason || '',
-  currentStep: parseInt(t.current_step) || (['closed', 'completed'].includes(t.status) ? 6 : 1),
+  currentStep: (['closed', 'completed', 'resolved'].includes(t.status) || !!t.completed_at)
+    ? Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? (['closed', 'completed'].includes(t.status) ? 5 : 4) : 6)
+    : (parseInt(t.current_step) || 1),
   assignment: t.assignment || null,
   assignments: t.assignments || [],
   assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
@@ -1746,6 +1738,45 @@ const isFeedbackEligible = (ticket) => {
   // Ratings supported for FGMU and LEAU at completed step 6 or resolved status
   if (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') return ticket.currentStep === 6 || ticket.status === 'resolved';
   return false;
+};
+
+const isStepCompleted = (ticket, index) => {
+  if (!ticket) return false;
+  const stepNum = index + 1;
+  const steps = getSteps(ticket);
+  const totalSteps = steps.length;
+
+  // Fully closed / completed tickets have all steps completed
+  if (ticket.isClosed || ['closed', 'completed'].includes(ticket.status)) {
+    return stepNum <= totalSteps;
+  }
+
+  // Previous steps before currentStep are completed
+  if (ticket.currentStep > stepNum) {
+    return true;
+  }
+
+  // Check if this step is "Job Finished" (or the final step of the workflow)
+  const isFinalOrFinishedStep = stepNum === totalSteps || steps[index]?.label === 'Job Finished';
+  if (isFinalOrFinishedStep) {
+    return (
+      ticket.currentStep >= stepNum ||
+      ['resolved', 'completed', 'closed'].includes(ticket.status) ||
+      ticket.statusLabel === 'Awaiting User Rating' ||
+      ticket.statusLabel === 'Awaiting Material Liquidation' ||
+      ticket.statusLabel === 'Resolved' ||
+      !!ticket.completed_at ||
+      isFeedbackEligible(ticket)
+    );
+  }
+
+  return false;
+};
+
+const isStepActive = (ticket, index) => {
+  if (!ticket) return false;
+  if (isStepCompleted(ticket, index)) return false;
+  return ticket.currentStep === (index + 1);
 };
 
 const isFormValid = computed(() => {

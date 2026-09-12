@@ -456,16 +456,10 @@
               <div class="relative pl-8 space-y-6 before:absolute before:inset-y-2 before:left-[15px] before:w-0.5 before:bg-slate-200">
                 <div v-for="(step, index) in getSteps(selectedTimelineTicket)" :key="index" class="relative">
                   <!-- Step dot -->
-                  <div :class="[
-                    'absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white text-xs font-black transition-all duration-500',
-                    selectedTimelineTicket.currentStep >= (index + 1)
-                      ? 'bg-emerald-500 text-white shadow-emerald-500/30 shadow-md'
-                      : 'bg-slate-200 text-slate-400'
-                  ]">
-                    <svg v-if="selectedTimelineTicket.currentStep >= (index + 1)" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white text-xs font-black transition-all duration-500 bg-emerald-500 text-white shadow-emerald-500/30 shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                     </svg>
-                    <span v-else>{{ index + 1 }}</span>
                   </div>
 
                   <!-- Step Content -->
@@ -567,7 +561,7 @@ onMounted(async () => {
         attachments: t.attachments || [],
         isDeclining: false,
         declineReason: t.decline_reason || '',
-        currentStep: parseInt(t.current_step) || (['closed', 'completed'].includes(t.status) ? 6 : 1),
+        currentStep: Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 6),
         assignedWorker: t.assignment?.personnel_name || t.assigned_worker || 'Unassigned',
         assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
         assignment: t.assignment || null,
