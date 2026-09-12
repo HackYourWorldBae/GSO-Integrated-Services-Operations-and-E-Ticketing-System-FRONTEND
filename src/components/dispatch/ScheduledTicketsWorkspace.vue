@@ -180,9 +180,11 @@
             <tr
               v-for="ticket in paginatedTickets"
               :key="ticket.id"
+              :id="'ticket-' + ticket.id"
               :class="[
                 'transition-all duration-150 group cursor-pointer relative',
-                themeHoverRow
+                themeHoverRow,
+                isTicketHighlighted(ticket) ? 'bg-amber-50/80 ring-2 ring-amber-500' : ''
               ]"
               @click="openDetailsModal(ticket)"
             >
@@ -367,7 +369,11 @@
       <div
         v-for="ticket in paginatedTickets"
         :key="ticket.id"
-        class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 space-y-3"
+        :id="'mob-ticket-' + ticket.id"
+        :class="[
+          'bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 space-y-3 cursor-pointer transition-all',
+          isTicketHighlighted(ticket) ? 'ring-2 ring-amber-500 bg-amber-50/40' : ''
+        ]"
         @click="openDetailsModal(ticket)"
       >
         <!-- Top Row: Ref & Target Date Badge -->
@@ -722,8 +728,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -743,6 +749,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const route = useRoute();
 
 // State
 const rawTickets = ref([]);
@@ -1093,8 +1100,49 @@ const downloadAttachment = async (att) => {
   }
 };
 
+const isTicketHighlighted = (ticket) => {
+  const target = route.query.ticketId || route.query.highlight;
+  if (!target || !ticket) return false;
+  const targetStr = String(target).toLowerCase().trim().replace(/^#/, '');
+  const idStr = String(ticket.id || '').toLowerCase().trim().replace(/^#/, '');
+  const ticketIdStr = String(ticket.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+  return targetStr === idStr || targetStr === ticketIdStr;
+};
+
+const checkRouteQueryTicket = () => {
+  const targetId = route.query.ticketId || route.query.highlight;
+  if (!targetId || rawTickets.value.length === 0) return;
+  const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
+  const match = scheduledTickets.value.find(t => {
+    const idStr = String(t.id || '').toLowerCase().trim().replace(/^#/, '');
+    const ticketIdStr = String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+    return idStr === targetStr || ticketIdStr === targetStr;
+  }) || rawTickets.value.find(t => {
+    const idStr = String(t.id || '').toLowerCase().trim().replace(/^#/, '');
+    const ticketIdStr = String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+    return idStr === targetStr || ticketIdStr === targetStr;
+  });
+
+  if (match) {
+    selectedTicketForModal.value = match;
+    const idx = filteredTickets.value.findIndex(t => String(t.id) === String(match.id));
+    if (idx !== -1) {
+      currentPage.value = Math.floor(idx / pageSize.value) + 1;
+    }
+    setTimeout(() => {
+      const el = document.getElementById('ticket-' + match.id) || document.getElementById('mob-ticket-' + match.id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 250);
+  }
+};
+
+watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
+  checkRouteQueryTicket();
+});
+
 onMounted(async () => {
   await fetchScheduledTickets();
+  checkRouteQueryTicket();
 });
 </script>
 

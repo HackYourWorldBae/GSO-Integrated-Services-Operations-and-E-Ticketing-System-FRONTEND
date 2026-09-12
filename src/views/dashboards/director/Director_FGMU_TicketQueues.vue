@@ -229,7 +229,11 @@
                 <tr
                   v-for="ticket in paginatedTickets"
                   :key="ticket.id"
-                  class="hover:bg-emerald-50/50 hover:shadow-xs transition-all duration-150 group cursor-pointer relative"
+                  :id="'ticket-' + ticket.id"
+                  :class="[
+                    'hover:bg-emerald-50/50 hover:shadow-xs transition-all duration-150 group cursor-pointer relative',
+                    isTicketHighlighted(ticket) ? 'bg-emerald-50/80 ring-2 ring-emerald-500' : ''
+                  ]"
                   @click="openDetailsModal(ticket)"
                 >
                   <!-- Ticket Reference -->
@@ -428,7 +432,11 @@
           <div
             v-for="ticket in paginatedTickets"
             :key="ticket.id"
-            class="bg-white rounded-xl border border-slate-200 hover:border-emerald-400 hover:shadow-sm transition-all cursor-pointer p-3.5 group active:scale-[0.99]"
+            :id="'mob-ticket-' + ticket.id"
+            :class="[
+              'bg-white rounded-xl border border-slate-200 hover:border-emerald-400 hover:shadow-sm transition-all cursor-pointer p-3.5 group active:scale-[0.99]',
+              isTicketHighlighted(ticket) ? 'ring-2 ring-emerald-500 bg-emerald-50/40' : ''
+            ]"
             @click="openDetailsModal(ticket)"
           >
             <!-- Header row: ID + requester + date -->
@@ -928,10 +936,8 @@ const fetchAllQueues = async () => {
     }
 
     updateLiveWorkingDurations();
-    if (isInitialFetch) {
-      checkRouteQueryTicket();
-      isInitialFetch = false;
-    }
+    checkRouteQueryTicket();
+    isInitialFetch = false;
   } catch (error) {
     console.error('Failed to fetch FGMU queues:', error);
   } finally {
@@ -955,16 +961,33 @@ const updateLiveWorkingDurations = () => {
   liveWorkingDurations.value = result;
 };
 
+const isTicketHighlighted = (ticket) => {
+  const target = route.query.ticketId || route.query.highlight;
+  if (!target || !ticket) return false;
+  const targetStr = String(target).toLowerCase().trim().replace(/^#/, '');
+  const idStr = String(ticket.id || '').toLowerCase().trim().replace(/^#/, '');
+  const ticketIdStr = String(ticket.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+  return targetStr === idStr || targetStr === ticketIdStr;
+};
+
 const checkRouteQueryTicket = () => {
   const targetId = route.query.ticketId || route.query.highlight;
   if (!targetId || handledRouteQueryTicketId === String(targetId)) return;
   const allTickets = Object.values(queuesData.value).flat();
-  if (allTickets.length === 0) return;
+  if (allTickets.length === 0) {
+    if (!isLoading.value) {
+      fetchAllQueues();
+    }
+    return;
+  }
 
-  const match = allTickets.find(t => 
-    String(t.ticketId).toLowerCase() === String(targetId).toLowerCase() || 
-    String(t.id).toLowerCase() === String(targetId).toLowerCase()
-  );
+  const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
+  const match = allTickets.find(t => {
+    const idStr = String(t.id || '').toLowerCase().trim().replace(/^#/, '');
+    const ticketIdStr = String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+    return idStr === targetStr || ticketIdStr === targetStr;
+  });
+
   if (match) {
     handledRouteQueryTicketId = String(targetId);
     selectedTicketForModal.value = match;
@@ -978,17 +1001,27 @@ const checkRouteQueryTicket = () => {
     }
 
     clearRouteQueryTicket();
+    setTimeout(() => {
+      const el = document.getElementById('ticket-' + match.id) || document.getElementById('mob-ticket-' + match.id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 250);
   } else {
-    handledRouteQueryTicketId = String(targetId);
+    if (!isLoading.value && isInitialFetch) {
+      fetchAllQueues();
+    }
     searchQuery.value = String(targetId);
-    clearRouteQueryTicket();
   }
 };
 
 watch(() => [route.query.ticketId, route.query.highlight, route.query._t], ([newTicketId, newHighlight]) => {
   if (newTicketId || newHighlight) {
     handledRouteQueryTicketId = null;
-    checkRouteQueryTicket();
+    const allTickets = Object.values(queuesData.value).flat();
+    if (allTickets.length === 0) {
+      fetchAllQueues();
+    } else {
+      checkRouteQueryTicket();
+    }
   }
 });
 

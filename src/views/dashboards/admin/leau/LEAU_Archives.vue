@@ -535,19 +535,20 @@ const fetchArchives = async () => {
 const checkRouteQueryTicket = () => {
   const targetId = route.query.ticketId || route.query.highlight;
   if (!targetId) return;
+  const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
   const match = tickets.value.find(t => 
-    String(t.ticketId).toLowerCase() === String(targetId).toLowerCase() || 
-    String(t.id).toLowerCase() === String(targetId).toLowerCase()
+    String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '') === targetStr || 
+    String(t.id || '').toLowerCase().trim().replace(/^#/, '') === targetStr
   );
   if (match) {
     viewDetails(match);
   } else {
-    searchQuery.value = String(targetId);
+    searchQuery.value = String(targetId).replace(/^#/, '').trim();
     applyFilter();
   }
 };
 
-watch(() => [route.query.ticketId, route.query._t], () => {
+watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
   checkRouteQueryTicket();
 });
 

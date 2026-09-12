@@ -179,9 +179,11 @@
             <tr
               v-for="ticket in paginatedTickets"
               :key="ticket.id"
+              :id="'ticket-' + ticket.id"
               :class="[
                 'transition-all duration-150 group cursor-pointer relative',
-                themeHoverRow
+                themeHoverRow,
+                isTicketHighlighted(ticket) ? 'bg-emerald-50/80 ring-2 ring-emerald-500' : ''
               ]"
               @click="openDetailsModal(ticket)"
             >
@@ -351,9 +353,11 @@
       <div
         v-for="ticket in paginatedTickets"
         :key="'mob-' + ticket.id"
+        :id="'mob-ticket-' + ticket.id"
         :class="[
           'bg-white rounded-xl border border-slate-200 hover:shadow-sm transition-all cursor-pointer p-3.5 group active:scale-[0.99]',
-          themeMobileBorderHover
+          themeMobileBorderHover,
+          isTicketHighlighted(ticket) ? 'ring-2 ring-emerald-500 bg-emerald-50/40' : ''
         ]"
         @click="openDetailsModal(ticket)"
       >
@@ -601,9 +605,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+
+const route = useRoute();
 
 const props = defineProps({
   unitCode: {
@@ -815,11 +822,48 @@ const downloadAttachment = async (att) => {
   }
 };
 
+const isTicketHighlighted = (ticket) => {
+  const target = route.query.ticketId || route.query.highlight;
+  if (!target || !ticket) return false;
+  const targetStr = String(target).toLowerCase().trim().replace(/^#/, '');
+  const idStr = String(ticket.id || '').toLowerCase().trim().replace(/^#/, '');
+  const ticketIdStr = String(ticket.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+  return targetStr === idStr || targetStr === ticketIdStr;
+};
+
+const checkRouteQueryTicket = () => {
+  const targetId = route.query.ticketId || route.query.highlight;
+  if (!targetId || tickets.value.length === 0) return;
+  const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
+  const match = tickets.value.find(t => {
+    const idStr = String(t.id || '').toLowerCase().trim().replace(/^#/, '');
+    const ticketIdStr = String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+    return idStr === targetStr || ticketIdStr === targetStr;
+  });
+
+  if (match) {
+    selectedTicketForModal.value = match;
+    const idx = filteredTickets.value.findIndex(t => String(t.id) === String(match.id));
+    if (idx !== -1) {
+      currentPage.value = Math.floor(idx / perPage.value) + 1;
+    }
+    setTimeout(() => {
+      const el = document.getElementById('ticket-' + match.id) || document.getElementById('mob-ticket-' + match.id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 250);
+  }
+};
+
+watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
+  checkRouteQueryTicket();
+});
+
 onMounted(async () => {
   if (props.store?.fetchPersonnel) {
     await props.store.fetchPersonnel();
   }
   await fetchApprovedTickets();
+  checkRouteQueryTicket();
 });
 </script>
 

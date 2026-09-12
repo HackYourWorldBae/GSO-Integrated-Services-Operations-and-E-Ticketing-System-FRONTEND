@@ -344,17 +344,29 @@ const fetchQueue = async () => {
 const checkRouteQueryTicket = () => {
   const targetId = route.query.ticketId || route.query.highlight;
   if (!targetId) return;
-  highlightedTicketId.value = targetId;
-  setTimeout(() => {
-    const el = document.getElementById('ticket-' + targetId);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, 250);
+
+  const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
+  const match = allTickets.value.find(t => {
+    const idStr = String(t.id || '').toLowerCase().trim().replace(/^#/, '');
+    const ticketIdStr = String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+    return idStr === targetStr || ticketIdStr === targetStr;
+  });
+
+  if (match) {
+    highlightedTicketId.value = match.id;
+    setTimeout(() => {
+      const el = document.getElementById('ticket-' + match.id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 250);
+  }
 };
 
-watch(() => route.query.ticketId, () => {
-  checkRouteQueryTicket();
+watch(() => [route.query.ticketId, route.query.highlight, route.query._t], ([newTicketId, newHighlight]) => {
+  if (newTicketId || newHighlight) {
+    checkRouteQueryTicket();
+  }
 });
 
 const fetchCompletedCount = async () => {

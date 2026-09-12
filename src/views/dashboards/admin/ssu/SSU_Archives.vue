@@ -385,15 +385,20 @@ const fetchArchives = async () => {
 const checkRouteQueryTicket = () => {
   const targetId = route.query.ticketId || route.query.highlight;
   if (!targetId || tickets.value.length === 0) return;
-  const match = tickets.value.find(t => String(t.id || t.ticketId).toLowerCase() === String(targetId).toLowerCase());
+  const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
+  const match = tickets.value.find(t => {
+    const idStr = String(t.id || '').toLowerCase().trim().replace(/^#/, '');
+    const ticketIdStr = String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+    return idStr === targetStr || ticketIdStr === targetStr;
+  });
   if (match) {
-    searchQuery.value = String(targetId);
+    searchQuery.value = String(targetId).replace(/^#/, '').trim();
     applyFilter();
     viewDetails(match);
   }
 };
 
-watch(() => route.query.ticketId, () => {
+watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
   checkRouteQueryTicket();
 });
 

@@ -419,6 +419,10 @@ const handleNotificationClick = async (notif) => {
     }
   }
 
+  if (ticketId) {
+    ticketId = String(ticketId).replace(/^#/, '').trim();
+  }
+
   const role = (authStore.user?.role || localStorage.getItem('user_role') || '').toLowerCase();
 
   if (!ticketId) {
@@ -457,6 +461,7 @@ const handleNotificationClick = async (notif) => {
 
   const isActive = notif.status === 'in_progress' || text.includes('in progress') || text.includes('started');
   const isDispatched = notif.status === 'processing' || text.includes('dispatched') || text.includes('assigned') || text.includes('scheduled');
+  const isApproved = notif.status === 'approved' || text.includes('approved');
 
   let targetPath = '';
 
@@ -467,17 +472,27 @@ const handleNotificationClick = async (notif) => {
       if (isCompleted) targetPath = '/admin/leau/archives';
       else if (isActive) targetPath = '/admin/leau/active-tickets';
       else if (isDispatched) targetPath = '/admin/leau/dispatched';
-      else targetPath = '/admin/leau';
+      else if (isApproved) targetPath = '/admin/leau/approved-tickets';
+      else targetPath = '/admin/leau/queues';
     } else {
       if (isCompleted) targetPath = '/admin/fgmu/archives';
       else if (isActive) targetPath = '/admin/fgmu/active-tickets';
       else if (isDispatched) targetPath = '/admin/fgmu/dispatched';
-      else targetPath = '/admin/fgmu';
+      else if (isApproved) targetPath = '/admin/fgmu/approved-tickets';
+      else targetPath = '/admin/fgmu/queues';
     }
   } else if (role === 'director') {
-    if (unitCode === 'leau') targetPath = '/director/leau';
-    else if (unitCode === 'ssu') targetPath = '/director/ssu';
-    else targetPath = '/director/fgmu';
+    if (isCompleted) {
+      if (unitCode === 'ssu') targetPath = '/admin/ssu/archives';
+      else if (unitCode === 'leau') targetPath = '/admin/leau/archives';
+      else targetPath = '/admin/fgmu/archives';
+    } else if (unitCode === 'ssu') {
+      targetPath = '/admin/ssu/queues/incidents';
+    } else if (unitCode === 'leau') {
+      targetPath = '/director/leau/queues';
+    } else {
+      targetPath = '/director/fgmu/queues';
+    }
   } else if (role === 'superadmin') {
     targetPath = '/superadmin/users';
   } else {

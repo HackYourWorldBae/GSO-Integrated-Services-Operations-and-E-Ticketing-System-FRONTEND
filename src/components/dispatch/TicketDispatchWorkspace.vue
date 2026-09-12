@@ -919,16 +919,22 @@ const fetchDispatchQueue = async () => {
 };
 
 const checkRouteQueryTicket = async () => {
-  const ticketParam = route.query.ticket;
+  const ticketParam = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!ticketParam) return;
 
-  const found = dispatchQueue.value.find(t => String(t.id) === String(ticketParam));
+  const targetStr = String(ticketParam).toLowerCase().trim().replace(/^#/, '');
+
+  const found = dispatchQueue.value.find(t => 
+    String(t.id || '').toLowerCase().trim().replace(/^#/, '') === targetStr ||
+    String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '') === targetStr
+  );
   if (found) {
     selectTicket(found);
   } else {
     // If not found in queue, fetch individual ticket directly
     try {
-      const res = await api.get(`tickets/${ticketParam}`);
+      const cleanParam = String(ticketParam).trim().replace(/^#/, '');
+      const res = await api.get(`tickets/${cleanParam}`);
       const t = res.data?.data?.ticket;
       if (t) {
         selectTicket({
@@ -957,8 +963,10 @@ const checkRouteQueryTicket = async () => {
   }
 };
 
-watch(() => route.query.ticket, () => {
-  checkRouteQueryTicket();
+watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t], ([newTicket, newTicketId, newHighlight]) => {
+  if (newTicket || newTicketId || newHighlight) {
+    checkRouteQueryTicket();
+  }
 });
 
 const refreshData = async () => {

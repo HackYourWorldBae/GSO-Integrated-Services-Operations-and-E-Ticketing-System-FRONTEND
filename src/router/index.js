@@ -145,7 +145,7 @@ const router = createRouter({
       path: '/admin/fgmu/archives',
       name: 'fgmu-admin-archives',
       component: FGMU_Archives,
-      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/announcements',
@@ -200,7 +200,7 @@ const router = createRouter({
       path: '/admin/leau/archives',
       name: 'leau-admin-archives',
       component: LEAU_Archives,
-      meta: { requiresAuth: true, roles: ['admin', 'dispatcher'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/announcements',
@@ -233,7 +233,7 @@ const router = createRouter({
       path: '/admin/ssu/archives',
       name: 'ssu-admin-archives',
       component: SSU_Archives,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU' }
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'SSU' }
     },
 
     // Superadmin Portal
