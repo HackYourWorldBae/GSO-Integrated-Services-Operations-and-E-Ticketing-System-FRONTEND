@@ -555,7 +555,7 @@ onMounted(async () => {
         statusLabel: t.status_label,
         date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         submitted_at: t.submitted_at,
-        completed_at: t.completed_at || t.updated_at,
+        completed_at: t.completed_at || null,
         requestedBy: userName.value,
         location: t.location || t.details?.college_building || 'N/A',
         office_room: t.office_room || t.details?.office_room || 'N/A',

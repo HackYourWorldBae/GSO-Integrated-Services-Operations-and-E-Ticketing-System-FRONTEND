@@ -640,9 +640,9 @@
                         </div>
 
                         <!-- Step content -->
-                        <div :class="['ml-2 pb-1', !isStepCompleted(selectedTicket, index) && selectedTicket.currentStep < (index + 1) ? 'opacity-40' : '']">
+                        <div :class="['ml-2 pb-1', !isStepCompleted(selectedTicket, index) && !isStepActive(selectedTicket, index) ? 'opacity-40' : '']">
                           <div class="flex items-center gap-2 mb-0.5">
-                            <h4 :class="['font-bold text-sm leading-tight', isStepCompleted(selectedTicket, index) || selectedTicket.currentStep >= (index + 1) ? 'text-slate-900' : 'text-slate-400']">
+                            <h4 :class="['font-bold text-sm leading-tight', isStepCompleted(selectedTicket, index) || isStepActive(selectedTicket, index) ? 'text-slate-900' : 'text-slate-400']">
                               {{ step.label }}
                             </h4>
                             <span v-if="isStepActive(selectedTicket, index)" :class="['px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest', getActiveStepBadge(selectedTicket.status)]">
@@ -1304,9 +1304,20 @@ const mapTicketData = (t) => ({
   purpose: t.details?.purpose_of_travel || t.details?.purposeOfTravel || t.details?.purpose || 'N/A',
   attachments: t.attachments || [],
   declineReason: t.decline_reason || '',
-  currentStep: (['closed', 'completed', 'resolved'].includes(t.status) || !!t.completed_at)
-    ? Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? (['closed', 'completed'].includes(t.status) ? 5 : 4) : 6)
-    : (parseInt(t.current_step) || 1),
+  currentStep: (() => {
+    const rawStep = parseInt(t.current_step, 10);
+    const isClosedOrResolved = ['closed', 'completed', 'resolved'].includes(t.status);
+    if (isClosedOrResolved) {
+      const isSsu = t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3;
+      return Math.max(rawStep || 0, isSsu ? (['closed', 'completed'].includes(t.status) ? 5 : 4) : 6);
+    }
+    if (!rawStep || isNaN(rawStep)) {
+      if (t.status === 'approved') return 3;
+      if (t.status === 'processing') return 4;
+      return 2;
+    }
+    return Math.min(rawStep, 5);
+  })(),
   assignment: t.assignment || null,
   assignments: t.assignments || [],
   assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
@@ -1317,7 +1328,7 @@ const mapTicketData = (t) => ({
   materials: t.materials || [],
   total_material_cost: t.total_material_cost || 0,
   submitted_at: t.submitted_at,
-  completed_at: t.completed_at || t.updated_at,
+  completed_at: t.completed_at || null,
   implementationDate: t.assignment?.implementation_date
     ? formatDate(t.assignment.implementation_date)
     : null,
@@ -1773,22 +1784,17 @@ const isStepCompleted = (ticket, index) => {
     return stepNum <= totalSteps;
   }
 
-  // Previous steps before currentStep are completed
+  // Any step strictly before currentStep is completed
   if (ticket.currentStep > stepNum) {
     return true;
   }
 
-  // Check if this step is "Job Finished" (or the final step of the workflow)
-  const isFinalOrFinishedStep = stepNum === totalSteps || steps[index]?.label === 'Job Finished';
-  if (isFinalOrFinishedStep) {
+  // The final step ("Job Finished" for FGMU/LEAU or final step of workflow) is completed
+  // ONLY if the ticket actually reached that step AND is in resolved or completed status
+  if (stepNum === totalSteps || steps[index]?.label === 'Job Finished') {
     return (
-      ticket.currentStep >= stepNum ||
-      ['resolved', 'completed', 'closed'].includes(ticket.status) ||
-      ticket.statusLabel === 'Awaiting User Rating' ||
-      ticket.statusLabel === 'Awaiting Material Liquidation' ||
-      ticket.statusLabel === 'Resolved' ||
-      !!ticket.completed_at ||
-      isFeedbackEligible(ticket)
+      ticket.currentStep >= totalSteps &&
+      ['resolved', 'completed', 'closed'].includes(ticket.status)
     );
   }
 
