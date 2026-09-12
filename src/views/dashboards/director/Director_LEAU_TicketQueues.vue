@@ -188,20 +188,17 @@
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
                   <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
-                  <th v-if="activeTab !== 'active'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
-                  <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Job / Service</th>
-                  <th v-if="activeTab === 'pending'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
+                  <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
+                  <th v-if="activeTab === 'pending' || activeTab === 'approved'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
                   <th v-if="activeTab === 'pending'" class="px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">Files</th>
-                  <th v-if="activeTab === 'approved'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Approved</th>
-                  <th v-if="activeTab === 'active'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Staff / Schedule</th>
-                  <th v-if="activeTab === 'active'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Working Time</th>
+                  <th v-if="activeTab === 'active'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Elapsed Duration</th>
                   <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <!-- Loading State -->
                 <tr v-if="isLoading && currentTabTickets.length === 0">
-                  <td colspan="7" class="py-16 text-center">
+                  <td colspan="6" class="py-16 text-center">
                     <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                       <svg class="animate-spin h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -214,7 +211,7 @@
 
                 <!-- Empty State -->
                 <tr v-else-if="paginatedTickets.length === 0">
-                  <td colspan="7" class="py-16 text-center">
+                  <td colspan="6" class="py-16 text-center">
                     <div class="max-w-sm mx-auto flex flex-col items-center">
                       <div class="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -242,7 +239,7 @@
                   <td class="px-4 py-2.5 whitespace-nowrap relative">
                     <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
                     <div class="relative inline-flex items-center gap-1.5 flex-wrap">
-                      <div class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-100 inline-flex items-center group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all duration-150">
+                      <div class="font-mono text-sm font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-100 inline-flex items-center group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all duration-150 shadow-2xs">
                         #{{ ticket.ticketId }}
                       </div>
                       <span
@@ -252,27 +249,20 @@
                         Urgent
                       </span>
                     </div>
-                    <div class="text-[10px] text-slate-400 mt-0.5">{{ ticket.date }}</div>
                   </td>
 
                   <!-- Requester -->
-                  <td v-if="activeTab !== 'active'" class="px-3 py-2.5">
+                  <td class="px-3 py-2.5">
                     <div class="flex items-center gap-2">
                       <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
                         {{ getInitials(ticket.requestedBy) }}
                       </div>
-                      <span class="text-xs font-semibold text-slate-800 truncate max-w-[120px]">{{ ticket.requestedBy }}</span>
+                      <span class="text-xs font-semibold text-slate-800 truncate max-w-[140px]">{{ ticket.requestedBy }}</span>
                     </div>
                   </td>
 
-                  <!-- Job / Service -->
-                  <td class="px-3 py-2.5 max-w-[200px]">
-                    <div class="text-xs font-semibold text-slate-900 line-clamp-1" :title="ticket.description || ticket.title">{{ ticket.description || ticket.title || '—' }}</div>
-                    <div class="text-[10px] text-amber-700 font-bold mt-0.5">{{ ticket.service || 'General' }}</div>
-                  </td>
-
-                  <!-- Pending: Location -->
-                  <td v-if="activeTab === 'pending'" class="px-3 py-2.5 whitespace-nowrap">
+                  <!-- Location (Pending & Approved) -->
+                  <td v-if="activeTab === 'pending' || activeTab === 'approved'" class="px-3 py-2.5 whitespace-nowrap">
                     <div class="text-xs font-semibold text-slate-700">{{ ticket.location || 'Main Campus' }}</div>
                     <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
                   </td>
@@ -290,27 +280,21 @@
                     <span v-else class="text-[10px] text-slate-300">—</span>
                   </td>
 
-                  <!-- Approved: Date -->
-                  <td v-if="activeTab === 'approved'" class="px-3 py-2.5 whitespace-nowrap">
-                    <div class="text-xs font-semibold text-slate-700">{{ ticket.reviewed_at ? formatDate(ticket.reviewed_at) : ticket.date }}</div>
-                  </td>
-
-                  <!-- Active: Staff + Schedule (merged) -->
+                  <!-- Active: Elapsed Duration & Target Days -->
                   <td v-if="activeTab === 'active'" class="px-3 py-2.5 whitespace-nowrap">
-                    <div class="text-xs font-semibold text-slate-800">{{ ticket.assignment?.personnel_name || '—' }}</div>
-                    <div v-if="ticket.assignment?.specialty || ticket.assignment?.profession" class="text-[10px] text-slate-500 font-medium truncate max-w-[140px]">
-                      {{ ticket.assignment?.specialty || ticket.assignment?.profession }}
+                    <div class="flex items-center gap-2.5">
+                      <div>
+                        <div class="text-xs font-bold text-slate-900">{{ liveWorkingDurations[ticket.id] || ticket.computed_working_duration || 'Counting...' }}</div>
+                        <div class="text-[9px] text-amber-600 font-semibold">Work hrs only</div>
+                      </div>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700 shrink-0" title="Target Duration">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {{ ticket.working_days || ticket.assignment?.working_days || 1 }} Target {{ (ticket.working_days || ticket.assignment?.working_days || 1) === 1 ? 'Day' : 'Days' }}
+                        <span v-if="ticket.extension_days > 0" class="ml-1 text-amber-600 font-black">+{{ ticket.extension_days }}d</span>
+                      </span>
                     </div>
-                    <div class="text-[10px] text-slate-400 flex items-center gap-1">
-                      {{ formatDate(ticket.effective_target_date || ticket.assignment?.implementation_date) }}
-                      <span v-if="ticket.extension_days > 0" class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[9px] font-black">+{{ ticket.extension_days }}d</span>
-                    </div>
-                  </td>
-
-                  <!-- Active: Working Time -->
-                  <td v-if="activeTab === 'active'" class="px-3 py-2.5 whitespace-nowrap">
-                    <div class="text-xs font-bold text-slate-900">{{ liveWorkingDurations[ticket.id] || ticket.computed_working_duration || 'Counting...' }}</div>
-                    <div class="text-[9px] text-amber-600 font-semibold">Work hrs only</div>
                   </td>
 
                   <!-- Actions -->
@@ -444,30 +428,43 @@
             ]"
             @click="openDetailsModal(ticket)"
           >
-            <!-- Header row: ID + requester + date -->
+            <!-- Header row: ID + requester -->
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2 min-w-0">
-                <span class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 group-hover:bg-amber-600 group-hover:text-white transition-colors shrink-0">
+                <span class="font-mono text-sm font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-100 group-hover:bg-amber-600 group-hover:text-white transition-colors shrink-0 shadow-2xs">
                   #{{ ticket.ticketId }}
                 </span>
-                <span class="text-xs font-semibold text-slate-700 truncate">{{ ticket.requestedBy }}</span>
+                <span class="text-xs font-semibold text-slate-800 truncate">{{ ticket.requestedBy }}</span>
               </div>
-              <span class="text-[10px] text-slate-400 shrink-0">{{ ticket.date }}</span>
-            </div>
-
-            <!-- Description + service -->
-            <div class="mt-2">
-              <p class="text-xs font-semibold text-slate-800 line-clamp-1">{{ ticket.description || ticket.title }}</p>
-              <p class="text-[11px] text-amber-600 font-bold mt-0.5">{{ ticket.service }}</p>
-            </div>
-
-            <!-- Active tab: personnel + hours inline -->
-            <div v-if="activeTab === 'active'" class="mt-2 flex items-center justify-between text-[11px] text-slate-600">
-              <span class="truncate max-w-[200px]">
-                <span class="font-semibold text-slate-800">{{ ticket.assignment?.personnel_name || 'Unassigned' }}</span>
-                <span v-if="ticket.assignment?.specialty || ticket.assignment?.profession" class="text-slate-500 text-[10px] ml-1">({{ ticket.assignment?.specialty || ticket.assignment?.profession }})</span>
+              <span
+                v-if="ticket.is_emergency"
+                class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider shrink-0"
+              >
+                Urgent
               </span>
-              <strong class="text-amber-700 shrink-0">{{ liveWorkingDurations[ticket.id] || 'Counting...' }}</strong>
+            </div>
+
+            <!-- Location for Pending and Approved (job/service removed) -->
+            <div v-if="activeTab === 'pending' || activeTab === 'approved'" class="mt-2 flex items-center justify-between text-xs text-slate-600">
+              <div class="flex items-center gap-1.5 truncate">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="truncate">{{ ticket.location || 'Main Campus' }}{{ ticket.office_room ? ` (Rm ${ticket.office_room})` : '' }}</span>
+              </div>
+              <span v-if="ticket.attachments && ticket.attachments.length > 0" class="text-[10px] font-bold text-slate-400 shrink-0">
+                {{ ticket.attachments.length }} files
+              </span>
+            </div>
+
+            <!-- Active tab: Elapsed Duration + Target Days (job/service and staff/schedule removed) -->
+            <div v-if="activeTab === 'active'" class="mt-2 flex items-center justify-between text-xs">
+              <span class="text-slate-600 font-medium">Elapsed: <strong class="text-amber-700 font-bold ml-1">{{ liveWorkingDurations[ticket.id] || ticket.computed_working_duration || 'Counting...' }}</strong></span>
+              <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
+                {{ ticket.working_days || ticket.assignment?.working_days || 1 }} Target {{ (ticket.working_days || ticket.assignment?.working_days || 1) === 1 ? 'Day' : 'Days' }}
+                <span v-if="ticket.extension_days > 0" class="text-amber-600 ml-0.5">+{{ ticket.extension_days }}d</span>
+              </span>
             </div>
 
             <!-- Actions -->
@@ -927,6 +924,7 @@ const mapTicket = (t) => {
     location: t.location || t.college_building,
     office_room: t.office_room,
     attachments: t.attachments || [],
+    working_days: Number(t.working_days || t.project_working_days || t.assignment?.working_days) || 1,
     extension_days: Number(t.extension_days) || 0,
     overtime_hours: Number(t.overtime_hours) || 0,
     is_emergency: Boolean(Number(t.is_emergency) === 1 || t.is_emergency === true || t.urgency === 'Emergency' || t.urgency === 'High'),
