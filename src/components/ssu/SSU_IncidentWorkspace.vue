@@ -1,127 +1,7 @@
 <template>
-  <div class="space-y-6 animate-fade-in relative pb-16">
+  <div class="space-y-4 animate-fade-in relative pb-16">
 
-    <!-- ═══ 1. Metric Stat Summary Cards ═══ -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <!-- Pending / Submitted -->
-      <div
-        @click="switchQueue('submitted')"
-        :class="[
-          'p-5 rounded-2xl sm:rounded-3xl border shadow-xs transition-all cursor-pointer flex items-center gap-4 group',
-          activeQueue === 'submitted'
-            ? 'bg-amber-50/50 border-amber-300 ring-2 ring-amber-400/20 shadow-md'
-            : 'bg-white border-slate-200/80 hover:border-amber-200 hover:bg-slate-50/50'
-        ]"
-      >
-        <div class="p-3.5 rounded-2xl bg-amber-100/80 text-amber-700 shrink-0 group-hover:scale-105 transition-transform">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <div class="min-w-0">
-          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Submitted Reports</p>
-          <p class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums leading-none">{{ submittedTickets.length }}</p>
-          <p class="text-[11px] font-semibold text-amber-600 mt-1 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-            Awaiting Investigation
-          </p>
-        </div>
-      </div>
-
-      <!-- Under Investigation -->
-      <div
-        @click="switchQueue('investigating')"
-        :class="[
-          'p-5 rounded-2xl sm:rounded-3xl border shadow-xs transition-all cursor-pointer flex items-center gap-4 group',
-          activeQueue === 'investigating'
-            ? 'bg-violet-50/50 border-violet-300 ring-2 ring-violet-400/20 shadow-md'
-            : 'bg-white border-slate-200/80 hover:border-violet-200 hover:bg-slate-50/50'
-        ]"
-      >
-        <div class="p-3.5 rounded-2xl bg-violet-100/80 text-violet-700 shrink-0 group-hover:scale-105 transition-transform">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-        <div class="min-w-0">
-          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Under Investigation</p>
-          <p class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums leading-none">{{ investigatingTickets.length }}</p>
-          <p class="text-[11px] font-semibold text-violet-600 mt-1 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></span>
-            Active Case Work
-          </p>
-        </div>
-      </div>
-
-      <!-- Resolved / Archived -->
-      <router-link
-        to="/admin/ssu/archives"
-        class="p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-emerald-200 hover:bg-slate-50/50 transition-all flex items-center gap-4 group cursor-pointer"
-      >
-        <div class="p-3.5 rounded-2xl bg-emerald-100/80 text-emerald-700 shrink-0 group-hover:scale-105 transition-transform">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <div class="min-w-0">
-          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Resolved Reports</p>
-          <p class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums leading-none">{{ resolvedCount }}</p>
-          <p class="text-[11px] font-semibold text-emerald-600 mt-1 flex items-center gap-1">
-            <span>View Archived Cases</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-          </p>
-        </div>
-      </router-link>
-    </div>
-
-    <!-- ═══ 2. Quick Navigation Tabs ═══ -->
-    <div class="flex items-center gap-2 p-1.5 bg-slate-200/60 rounded-2xl border border-slate-300/60 max-w-fit">
-      <button
-        type="button"
-        @click="switchQueue('submitted')"
-        :class="[
-          'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer touch-manipulation',
-          activeQueue === 'submitted'
-            ? 'bg-white text-slate-900 shadow-xs'
-            : 'text-slate-600 hover:text-slate-900'
-        ]"
-      >
-        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-        <span>Submitted Tickets</span>
-        <span
-          :class="[
-            'px-2 py-0.5 rounded-full text-[10px] font-black',
-            activeQueue === 'submitted' ? 'bg-amber-100 text-amber-800' : 'bg-slate-300/70 text-slate-700'
-          ]"
-        >
-          {{ submittedTickets.length }}
-        </span>
-      </button>
-
-      <button
-        type="button"
-        @click="switchQueue('investigating')"
-        :class="[
-          'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer touch-manipulation',
-          activeQueue === 'investigating'
-            ? 'bg-white text-slate-900 shadow-xs'
-            : 'text-slate-600 hover:text-slate-900'
-        ]"
-      >
-        <span class="w-2 h-2 rounded-full bg-violet-600"></span>
-        <span>Under Investigation</span>
-        <span
-          :class="[
-            'px-2 py-0.5 rounded-full text-[10px] font-black',
-            activeQueue === 'investigating' ? 'bg-violet-100 text-violet-800' : 'bg-slate-300/70 text-slate-700'
-          ]"
-        >
-          {{ investigatingTickets.length }}
-        </span>
-      </button>
-    </div>
-
-    <!-- ═══ 3. Unified Compact Toolbar ═══ -->
+    <!-- ═══ Unified Compact Toolbar ═══ -->
     <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs">
       <!-- Top Row: Stage Indicator & Urgency Filter Pills -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 border-b border-slate-100">
@@ -917,8 +797,6 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:activeQueue']);
-
 const router = useRouter();
 const route  = useRoute();
 
@@ -926,7 +804,6 @@ const route  = useRoute();
 const loading            = ref(false);
 const isSubmitting       = ref(false);
 const allTickets         = ref([]);
-const resolvedCount      = ref(0);
 const highlightedTicketId = ref(null);
 
 const rawSearchQuery       = ref('');
@@ -942,17 +819,6 @@ const onSearchInput = debounce((val) => {
 }, 200);
 
 watch(rawSearchQuery, (val) => onSearchInput(val));
-
-// ── Navigation / Switch Queue ──────────────────────────────────────────────
-const switchQueue = (target) => {
-  if (target === props.activeQueue) return;
-  if (target === 'submitted') {
-    router.push('/admin/ssu/submitted-tickets');
-  } else {
-    router.push('/admin/ssu/investigating-tickets');
-  }
-  emit('update:activeQueue', target);
-};
 
 // ── Ticket Mapping ─────────────────────────────────────────────────────────
 const mapTicket = (t) => ({
@@ -1230,13 +1096,6 @@ const fetchQueues = async () => {
   }
 };
 
-const fetchCompletedCount = async () => {
-  try {
-    const res = await api.get('tickets/stats/SSU');
-    resolvedCount.value = res.data?.data?.stats?.resolved || 0;
-  } catch (_) {}
-};
-
 const checkRouteHighlight = () => {
   const targetId = route.query.ticketId || route.query.highlight;
   if (!targetId) return;
@@ -1267,14 +1126,12 @@ const handleFocus = () => {
     const isInteracting = notationModal.isOpen || resolveModal.isOpen || dismissModal.isOpen || detailsModal.isOpen;
     if (!isInteracting) {
       fetchQueues();
-      fetchCompletedCount();
     }
   }
 };
 
 onMounted(() => {
   fetchQueues();
-  fetchCompletedCount();
 
   pollingTimer = setInterval(() => {
     if (document.hidden) return;

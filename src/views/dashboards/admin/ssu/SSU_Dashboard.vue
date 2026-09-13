@@ -176,8 +176,8 @@
             </span>
           </div>
 
-          <!-- Bottom 3 Cards Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <!-- Bottom 2 Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <!-- 1. Pending Review -->
             <div 
               @click="router.push('/admin/ssu/submitted-tickets')"
@@ -209,23 +209,6 @@
               <div>
                 <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">{{ stats.processing || 0 }}</h3>
                 <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Under Investigation</p>
-              </div>
-            </div>
-
-            <!-- 3. Active Cases (Work In Progress) -->
-            <div 
-              @click="router.push('/admin/ssu/investigating-tickets')"
-              class="group p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer flex flex-col justify-between"
-            >
-              <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-emerald-100 text-emerald-700 shrink-0 group-hover:scale-105 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                </div>
-                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Active</span>
-              </div>
-              <div>
-                <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">{{ stats.active_working || stats.processing || 0 }}</h3>
-                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Active Security Response</p>
               </div>
             </div>
           </div>
