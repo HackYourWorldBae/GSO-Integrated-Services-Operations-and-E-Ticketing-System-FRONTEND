@@ -40,33 +40,33 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in relative pb-12">
         <!-- Search and Filters -->
-        <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
           <div class="flex-1 w-full relative">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input v-model="searchQuery" type="text" placeholder="Search Full Ticket Number (e.g. FGMU-TIC-42-2026)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
+            <input v-model="searchQuery" type="text" placeholder="Search Full Ticket Number (e.g. FGMU-TIC-42-2026)" class="w-full pl-12 pr-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
           </div>
           <div class="flex flex-wrap md:flex-nowrap gap-3 w-full md:w-auto">
-            <select v-model="yearFilter" @change="applyFilter" class="w-full md:w-36 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+            <select v-model="yearFilter" @change="applyFilter" class="w-full md:w-36 px-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
               <option value="all">All Years</option>
               <option v-for="yr in availableYears" :key="yr" :value="yr">
                 Year {{ yr }}
               </option>
             </select>
-            <select v-model="serviceFilter" @change="applyFilter" class="w-full md:w-48 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+            <select v-model="serviceFilter" @change="applyFilter" class="w-full md:w-48 px-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
               <option value="">All Services</option>
               <option v-for="service in serviceCategories" :key="service" :value="service">
                 {{ service }}
               </option>
             </select>
-            <button @click="applyFilter" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl transition-all text-sm whitespace-nowrap cursor-pointer active:scale-95">
+            <button @click="applyFilter" class="w-full md:w-auto px-5 py-3 min-h-[44px] bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl transition-all text-sm whitespace-nowrap cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center">
               Filter
             </button>
             <button
               @click="showExportModal = true"
               type="button"
-              class="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 active:scale-95 transition-all text-sm whitespace-nowrap flex items-center gap-2 cursor-pointer shrink-0"
+              class="w-full md:w-auto px-5 py-3 min-h-[44px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 active:scale-95 transition-all text-sm whitespace-nowrap flex items-center justify-center gap-2 cursor-pointer shrink-0 touch-manipulation"
               title="Export Yearly Archives (.ZIP)"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,9 +77,10 @@
           </div>
         </div>
 
-        <!-- Tickets List (Data Table) -->
-        <div class="rounded-[2.5rem] bg-white border border-slate-200 p-8 overflow-hidden shadow-sm mt-6">
-          <div class="overflow-x-auto">
+        <!-- Tickets List (Data Table & Mobile Card Stack) -->
+        <div class="rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200 p-4 sm:p-6 md:p-8 overflow-hidden shadow-sm mt-6">
+          <!-- Desktop Table (hidden md:block) -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-separate border-spacing-y-4 min-w-[800px]">
               <thead>
                 <tr class="border-b border-slate-100">
@@ -133,6 +134,67 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile Card Stack (block md:hidden) -->
+          <div class="block md:hidden space-y-3.5">
+            <div
+              v-for="ticket in paginatedTickets"
+              :key="'m-' + ticket.id"
+              class="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <span class="text-sm font-black text-slate-900">#{{ ticket.ticketId }}</span>
+                  <p class="text-xs font-bold text-slate-800 line-clamp-1 mt-0.5">
+                    {{ ticket.service_type || ticket.service || ticket.title }}
+                  </p>
+                </div>
+                <span
+                  :class="[
+                    'px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap shrink-0',
+                    (ticket.status === 'declined' || ticket.status === 'rejected')
+                      ? 'bg-rose-50 text-rose-600 border-rose-200'
+                      : 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                  ]"
+                >
+                  {{ ticket.statusLabel }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 text-slate-500">
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Requester</span>
+                  <span class="font-bold text-slate-700 truncate block">{{ ticket.requestedBy }}</span>
+                </div>
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Completed</span>
+                  <span class="font-bold text-slate-700 block">{{ ticket.date }}</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                @click="viewDetails(ticket)"
+                class="w-full min-h-[44px] py-2.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-slate-700 hover:text-emerald-700 text-xs font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-[0.99]"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span>View Details</span>
+              </button>
+            </div>
+
+            <div v-if="filteredTickets.length === 0" class="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl">
+              <div class="w-12 h-12 bg-white border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-xs">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+              </div>
+              <h3 class="text-base font-black text-slate-900 mb-0.5">No Archived Tickets Found</h3>
+              <p class="text-xs text-slate-500">Try adjusting your search or filters.</p>
+            </div>
           </div>
 
           <!-- Pagination Toolbar -->

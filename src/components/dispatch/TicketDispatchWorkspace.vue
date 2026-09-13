@@ -45,14 +45,14 @@
           <button
             type="button"
             @click="openTicketScopeModal"
-            class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-black rounded-xl transition-all border border-white/10 cursor-pointer"
+            class="px-4 py-2.5 min-h-[44px] bg-white/10 hover:bg-white/20 text-white text-xs font-black rounded-xl transition-all border border-white/10 cursor-pointer touch-manipulation flex items-center justify-center"
           >
             Review Full Details
           </button>
           <button
             type="button"
             @click="clearSelectedTicket"
-            class="p-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 hover:text-white rounded-xl transition-colors border border-rose-500/30 cursor-pointer"
+            class="p-2.5 min-h-[44px] min-w-[44px] bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 hover:text-white rounded-xl transition-colors border border-rose-500/30 cursor-pointer touch-manipulation flex items-center justify-center"
             title="Deselect ticket"
           >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -65,7 +65,7 @@
         <!-- Implementation Date Picker Card -->
         <div
           @click="openDatePicker"
-          class="flex items-center justify-between gap-3.5 bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-emerald-400/50 hover:bg-white/[0.08] transition-all cursor-pointer group select-none"
+          class="flex items-center justify-between gap-3.5 bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-emerald-400/50 hover:bg-white/[0.08] transition-all cursor-pointer group select-none min-h-[44px]"
         >
           <div class="flex items-center gap-3.5 min-w-0">
             <div class="w-11 h-11 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30 group-hover:scale-105 transition-transform">
@@ -93,7 +93,7 @@
               aria-hidden="true"
             />
             <div
-              class="px-3.5 py-2 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all"
+              class="px-3.5 py-2 min-h-[38px] rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all touch-manipulation"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -124,7 +124,7 @@
             <button
               type="button"
               @click="workingDays = Math.max(1, Number(workingDays || 1) - 1)"
-              class="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 select-none"
+              class="w-11 h-11 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 select-none touch-manipulation"
               title="Decrease days"
             >
               −
@@ -135,12 +135,12 @@
               min="1"
               max="90"
               v-model.number="workingDays"
-              class="w-16 text-center bg-transparent text-2xl sm:text-3xl font-black text-white outline-none font-mono selection:bg-emerald-500"
+              class="w-14 sm:w-16 text-center bg-transparent text-xl sm:text-3xl font-black text-white outline-none font-mono selection:bg-emerald-500"
             />
             <button
               type="button"
               @click="workingDays = Math.min(90, Number(workingDays || 0) + 1)"
-              class="w-9 h-9 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 shadow-xs select-none"
+              class="w-11 h-11 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 shadow-xs select-none touch-manipulation"
               title="Increase days"
             >
               +
@@ -177,7 +177,7 @@
         <router-link
           :to="`/admin/${unitCode.toLowerCase()}/approved-tickets`"
           :class="[
-            'px-5 py-2.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer inline-flex items-center gap-2',
+            'px-5 py-3 min-h-[44px] rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 touch-manipulation',
             unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'
           ]"
         >
@@ -207,8 +207,8 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-black">
+        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <span class="px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-black">
             {{ currentAssignments.length }} Assigned
           </span>
 
@@ -217,7 +217,7 @@
             type="button"
             @click="dispatchAll"
             :disabled="isDispatching"
-            class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] w-full sm:w-auto rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50 touch-manipulation"
           >
             <svg
               v-if="isDispatching"
@@ -257,10 +257,10 @@
           <button
             type="button"
             @click="removeAssignment(assign)"
-            class="p-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 hover:text-white transition-colors cursor-pointer shrink-0"
+            class="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 hover:text-white transition-colors cursor-pointer shrink-0 touch-manipulation"
             title="Remove from assignment"
           >
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
       </div>
@@ -287,7 +287,7 @@
             type="button"
             @click="refreshData"
             :disabled="loadingTickets"
-            class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-1.5 shadow-2xs"
+            class="px-3 py-2 min-h-[38px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-1.5 shadow-2xs touch-manipulation"
             title="Refresh workforce roster and queue"
           >
             <svg
@@ -312,19 +312,19 @@
             v-model="personnelSearch"
             type="text"
             placeholder="Search personnel by name or profession..."
-            class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 bg-slate-50/60 transition-all placeholder:text-slate-400"
+            class="w-full pl-9 pr-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 bg-slate-50/60 transition-all placeholder:text-slate-400"
           />
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
 
         <!-- Specialty Category Chips -->
-        <div v-if="store.categories && store.categories.length > 0" class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pt-1 text-xs">
+        <div v-if="store.categories && store.categories.length > 0" class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pt-1 text-xs pb-1">
           <button
             type="button"
             @click="personnelCategoryFilter = 'all'"
-            :class="['px-3 py-1 rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap', personnelCategoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+            :class="['px-3 py-1.5 min-h-[36px] flex items-center rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation', personnelCategoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
           >
             All Specialties
           </button>
@@ -333,7 +333,7 @@
             :key="cat.id"
             type="button"
             @click="personnelCategoryFilter = cat.name"
-            :class="['px-3 py-1 rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap', personnelCategoryFilter === cat.name ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+            :class="['px-3 py-1.5 min-h-[36px] flex items-center rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation', personnelCategoryFilter === cat.name ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
           >
             {{ cat.name }}
           </button>
@@ -393,7 +393,7 @@
               type="button"
               @click="assignWorkerToTicket(worker)"
               :class="[
-                'flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1.5',
+                'flex-1 py-2.5 px-3 min-h-[40px] rounded-xl text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 touch-manipulation',
                 isEmergency
                   ? 'bg-rose-600 hover:bg-rose-700 text-white'
                   : 'bg-emerald-600 hover:bg-emerald-700 text-white'
@@ -413,7 +413,7 @@
               v-else-if="selectedTicket && isWorkerAssigned(worker.id)"
               type="button"
               @click="removeAssignment({ workerId: worker.id, workerName: worker.name })"
-              class="flex-1 py-2 px-3 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-black border border-emerald-300 hover:bg-rose-100 hover:text-rose-800 hover:border-rose-300 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              class="flex-1 py-2.5 px-3 min-h-[40px] rounded-xl bg-emerald-100 text-emerald-800 text-xs font-black border border-emerald-300 hover:bg-rose-100 hover:text-rose-800 hover:border-rose-300 transition-colors flex items-center justify-center gap-1.5 cursor-pointer touch-manipulation"
               title="Click to remove from assignment"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -425,7 +425,7 @@
             <!-- Disabled if On Leave -->
             <div
               v-else-if="worker.status === 'On Leave'"
-              class="flex-1 py-2 px-3 rounded-xl bg-slate-100 text-slate-400 text-xs font-bold text-center border border-slate-200 cursor-not-allowed"
+              class="flex-1 py-2.5 px-3 min-h-[40px] rounded-xl bg-slate-100 text-slate-400 text-xs font-bold text-center flex items-center justify-center border border-slate-200 cursor-not-allowed"
             >
               On Leave (Unavailable)
             </div>
@@ -434,7 +434,7 @@
             <router-link
               v-else
               :to="`/admin/${unitCode.toLowerCase()}/approved-tickets`"
-              class="flex-1 py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold text-center transition-colors cursor-pointer block"
+              class="flex-1 py-2.5 px-3 min-h-[40px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold text-center transition-colors cursor-pointer flex items-center justify-center"
             >
               Select Ticket to Assign
             </router-link>
@@ -447,7 +447,7 @@
     <Teleport to="body">
       <div
         v-if="showScopeModal && selectedTicket"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in pointer-events-auto"
         @click.self="showScopeModal = false"
       >
         <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-hidden">
@@ -480,7 +480,7 @@
             <button
               type="button"
               @click="showScopeModal = false"
-              class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              class="text-slate-400 hover:text-slate-700 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shrink-0 touch-manipulation"
               title="Close modal"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -590,11 +590,11 @@
           </div>
 
           <!-- Fixed Modal Footer Actions -->
-          <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex items-center justify-end shrink-0">
             <button
               type="button"
               @click="showScopeModal = false"
-              class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+              class="w-full sm:w-auto px-5 py-2.5 min-h-[40px] rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer shadow-2xs touch-manipulation flex items-center justify-center"
             >
               Close Full Info
             </button>

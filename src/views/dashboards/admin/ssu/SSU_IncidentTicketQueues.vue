@@ -141,105 +141,111 @@
       </div>
 
       <!-- ===== NOTATION EDITOR MODAL ===== -->
-      <div v-if="notationTicket" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-        <div class="bg-white rounded-[2rem] p-8 max-w-lg w-full shadow-2xl border border-slate-100">
-          <div class="flex items-center gap-3 mb-6">
-            <div class="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
+      <Teleport to="body">
+        <div v-if="notationTicket" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeNotationEditor">
+          <div class="bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <h3 class="text-lg font-black text-slate-900 leading-tight">Add Recommendation / Notation</h3>
+                <p class="text-[11px] text-slate-400 font-semibold truncate">Ticket <span class="text-rose-500">{{ notationTicket.ticketId }}</span> — visible to reporter</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-lg font-black text-slate-900 leading-tight">Add Recommendation / Notation</h3>
-              <p class="text-[11px] text-slate-400 font-semibold">Ticket <span class="text-rose-500">{{ notationTicket.ticketId }}</span> — visible to reporter</p>
+
+            <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-5">
+              <p class="text-xs font-semibold text-blue-700 leading-relaxed">
+                <strong class="font-black">Note:</strong> Adding a notation does <strong>not</strong> close the ticket. The notation will be displayed to the reporter in their dashboard. Once a notation is added, the ticket can then be marked as Resolved.
+              </p>
             </div>
-          </div>
 
-          <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-5">
-            <p class="text-xs font-semibold text-blue-700 leading-relaxed">
-              <strong class="font-black">Note:</strong> Adding a notation does <strong>not</strong> close the ticket. The notation will be displayed to the reporter in their dashboard. Once a notation is added, the ticket can then be marked as Resolved.
-            </p>
-          </div>
+            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Recommendation / Notation <span class="text-rose-500">*</span></label>
+            <textarea
+              v-model="notationText"
+              rows="4"
+              class="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50 text-base sm:text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none resize-none"
+              placeholder="Enter recommendations, actions taken, or instructions for the reporter..."
+            ></textarea>
 
-          <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Recommendation / Notation <span class="text-rose-500">*</span></label>
-          <textarea
-            v-model="notationText"
-            rows="4"
-            class="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none resize-none"
-            placeholder="Enter recommendations, actions taken, or instructions for the reporter..."
-          ></textarea>
-
-          <div class="flex gap-3 mt-5">
-            <button @click="closeNotationEditor" class="flex-1 px-5 py-3 bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-200 transition-all active:scale-95">
-              Cancel
-            </button>
-            <button
-              :disabled="!notationText.trim() || isSubmitting"
-              @click="submitNotation"
-              class="flex-1 px-5 py-3 bg-blue-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ isSubmitting ? 'Saving…' : 'Add Notation' }}
-            </button>
+            <div class="flex flex-col sm:flex-row gap-3 mt-5">
+              <button @click="closeNotationEditor" class="w-full sm:flex-1 px-5 py-3 min-h-[44px] bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-200 transition-all active:scale-95 touch-manipulation flex items-center justify-center">
+                Cancel
+              </button>
+              <button
+                :disabled="!notationText.trim() || isSubmitting"
+                @click="submitNotation"
+                class="w-full sm:flex-1 px-5 py-3 min-h-[44px] bg-blue-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation flex items-center justify-center"
+              >
+                {{ isSubmitting ? 'Saving…' : 'Add Notation' }}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </Teleport>
 
       <!-- ===== RESOLVE CONFIRM MODAL ===== -->
-      <div v-if="resolveTicket" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-        <div class="bg-white rounded-[2rem] p-8 max-w-lg w-full shadow-2xl border border-slate-100">
-          <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3 class="text-2xl font-black text-slate-900 text-center mb-2">Mark as Resolved?</h3>
-          <p class="text-slate-500 text-center font-medium mb-5">
-            This will resolve and archive incident <strong class="text-slate-800">{{ resolveTicket.ticketId }}</strong>. This action cannot be undone.
-          </p>
+      <Teleport to="body">
+        <div v-if="resolveTicket" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="resolveTicket = null">
+          <div class="bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 text-center mb-2">Mark as Resolved?</h3>
+            <p class="text-slate-500 text-center font-medium mb-5 text-sm">
+              This will resolve and archive incident <strong class="text-slate-800">{{ resolveTicket.ticketId }}</strong>. This action cannot be undone.
+            </p>
 
-          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-6">
-            <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1.5">Notation that was communicated to reporter:</p>
-            <p class="text-xs text-slate-700 font-semibold leading-relaxed italic">"{{ resolveTicket.notation }}"</p>
-          </div>
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-6">
+              <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1.5">Notation that was communicated to reporter:</p>
+              <p class="text-xs text-slate-700 font-semibold leading-relaxed italic">"{{ resolveTicket.notation }}"</p>
+            </div>
 
-          <div class="flex gap-4">
-            <button @click="resolveTicket = null" class="w-full px-6 py-4 bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-200 transition-all active:scale-95">
-              Cancel
-            </button>
-            <button @click="confirmResolve" :disabled="isSubmitting" class="w-full px-6 py-4 bg-emerald-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition-all active:scale-95 disabled:opacity-50">
-              {{ isSubmitting ? 'Resolving…' : 'Confirm &amp; Resolve' }}
-            </button>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <button @click="resolveTicket = null" class="w-full px-6 py-3 min-h-[44px] bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-200 transition-all active:scale-95 touch-manipulation flex items-center justify-center">
+                Cancel
+              </button>
+              <button @click="confirmResolve" :disabled="isSubmitting" class="w-full px-6 py-3 min-h-[44px] bg-emerald-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition-all active:scale-95 disabled:opacity-50 touch-manipulation flex items-center justify-center">
+                {{ isSubmitting ? 'Resolving…' : 'Confirm &amp; Resolve' }}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </Teleport>
 
       <!-- ===== DECLINE CONFIRM MODAL ===== -->
-      <div v-if="declineTicket" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-        <div class="bg-white rounded-[2rem] p-8 max-w-lg w-full shadow-2xl border border-slate-100">
-          <div class="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </div>
-          <h3 class="text-2xl font-black text-slate-900 text-center mb-2">Dismiss Report</h3>
-          <p class="text-slate-500 text-center font-medium mb-5">Provide a reason for dismissing <strong class="text-slate-800">{{ declineTicket.ticketId }}</strong>.</p>
-          <label class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-2 block">Reason for Dismissal <span class="text-rose-500">*</span></label>
-          <textarea
-            v-model="declineReason"
-            rows="3"
-            class="w-full p-4 rounded-2xl border border-rose-200 bg-rose-50/50 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all outline-none resize-none mb-5"
-            placeholder="Explain why this incident report is being dismissed..."
-          ></textarea>
-          <div class="flex gap-4">
-            <button @click="declineTicket = null; declineReason = ''" class="w-full px-6 py-4 bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-200 transition-all active:scale-95">
-              Cancel
-            </button>
-            <button :disabled="!declineReason.trim() || isSubmitting" @click="confirmDecline" class="w-full px-6 py-4 bg-rose-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-rose-600/20 hover:bg-rose-500 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-              {{ isSubmitting ? 'Dismissing…' : 'Confirm Dismissal' }}
-            </button>
+      <Teleport to="body">
+        <div v-if="declineTicket" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="declineTicket = null; declineReason = ''">
+          <div class="bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 text-center mb-2">Dismiss Report</h3>
+            <p class="text-slate-500 text-center font-medium mb-5 text-sm">Provide a reason for dismissing <strong class="text-slate-800">{{ declineTicket.ticketId }}</strong>.</p>
+            <label class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-2 block">Reason for Dismissal <span class="text-rose-500">*</span></label>
+            <textarea
+              v-model="declineReason"
+              rows="3"
+              class="w-full p-4 rounded-2xl border border-rose-200 bg-rose-50/50 text-base sm:text-sm font-medium text-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all outline-none resize-none mb-5"
+              placeholder="Explain why this incident report is being dismissed..."
+            ></textarea>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <button @click="declineTicket = null; declineReason = ''" class="w-full px-6 py-3 min-h-[44px] bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-200 transition-all active:scale-95 touch-manipulation flex items-center justify-center">
+                Cancel
+              </button>
+              <button :disabled="!declineReason.trim() || isSubmitting" @click="confirmDecline" class="w-full px-6 py-3 min-h-[44px] bg-rose-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-rose-600/20 hover:bg-rose-500 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation flex items-center justify-center">
+                {{ isSubmitting ? 'Dismissing…' : 'Confirm Dismissal' }}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </Teleport>
 
     </template>
   </MainLayout>
@@ -508,7 +514,7 @@ const IncidentTicketCard = defineComponent({
 
     return () => h('div', {
       id: 'ticket-' + props.ticket.id,
-      class: `group relative overflow-hidden border rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all ${borderClass.value}`,
+      class: `group relative overflow-hidden border rounded-2xl sm:rounded-[2rem] p-4 sm:p-6 shadow-sm hover:shadow-xl transition-all ${borderClass.value}`,
     }, [
       // -- Main ticket layout --
       h('div', { class: 'flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10' }, [
@@ -597,12 +603,12 @@ const IncidentTicketCard = defineComponent({
         ]),
 
         // Right: Action buttons
-        h('div', { class: 'flex flex-col gap-2 shrink-0 pt-2 min-w-[220px]' }, [
+        h('div', { class: 'flex flex-col gap-2 shrink-0 pt-2 w-full md:w-56 md:shrink-0' }, [
 
           // 1. Set to Under Investigation (toggle)
           h('button', {
             onClick: () => emit('investigate', props.ticket),
-            class: `w-full px-5 py-3 text-xs font-black uppercase tracking-[0.15em] rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 border ${
+            class: `w-full px-4 py-3 min-h-[40px] text-xs font-black uppercase tracking-[0.12em] rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 touch-manipulation border ${
               isInvestigating.value
                 ? 'bg-violet-600 text-white border-violet-600 shadow-lg shadow-violet-600/20 hover:bg-violet-700'
                 : 'bg-white text-violet-700 border-violet-300 hover:bg-violet-50'
@@ -617,7 +623,7 @@ const IncidentTicketCard = defineComponent({
           // 2. Add / Update Notation
           h('button', {
             onClick: () => emit('notation', props.ticket),
-            class: 'w-full px-5 py-3 text-xs font-black uppercase tracking-[0.15em] rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 border bg-white text-blue-700 border-blue-300 hover:bg-blue-50',
+            class: 'w-full px-4 py-3 min-h-[40px] text-xs font-black uppercase tracking-[0.12em] rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 touch-manipulation border bg-white text-blue-700 border-blue-300 hover:bg-blue-50',
           }, [
             h('svg', { xmlns: 'http://www.w3.org/2000/svg', class: 'h-4 w-4', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
               h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' }),
@@ -629,7 +635,7 @@ const IncidentTicketCard = defineComponent({
           hasNotation.value
             ? h('button', {
                 onClick: () => emit('resolve', props.ticket),
-                class: 'w-full px-5 py-3 text-xs font-black uppercase tracking-[0.15em] rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500',
+                class: 'w-full px-4 py-3 min-h-[40px] text-xs font-black uppercase tracking-[0.12em] rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 touch-manipulation bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500',
               }, [
                 h('svg', { xmlns: 'http://www.w3.org/2000/svg', class: 'h-4 w-4', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
                   h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' }),
@@ -637,13 +643,13 @@ const IncidentTicketCard = defineComponent({
                 'Mark as Resolved',
               ])
             : h('div', {
-                class: 'w-full px-5 py-3 text-xs font-bold text-slate-400 text-center rounded-xl border border-dashed border-slate-200 bg-slate-50',
+                class: 'w-full px-4 py-2.5 min-h-[40px] text-xs font-bold text-slate-400 text-center rounded-xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center',
               }, 'Add notation to enable resolve'),
 
           // 4. Dismiss Report
           h('button', {
             onClick: () => emit('dismiss', props.ticket),
-            class: 'w-full px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 bg-white text-rose-600 border border-rose-200 hover:bg-rose-50',
+            class: 'w-full px-4 py-2.5 min-h-[38px] text-[10px] font-black uppercase tracking-[0.18em] rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 touch-manipulation bg-white text-rose-600 border border-rose-200 hover:bg-rose-50',
           }, [
             h('svg', { xmlns: 'http://www.w3.org/2000/svg', class: 'h-4 w-4', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
               h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M6 18L18 6M6 6l12 12' }),

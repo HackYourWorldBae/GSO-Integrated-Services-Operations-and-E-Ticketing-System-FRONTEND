@@ -26,12 +26,12 @@
         </div>
 
         <!-- Urgency Filters -->
-        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto">
+        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
             type="button"
             @click="setUrgencyFilter('all')"
             :class="[
-              'px-3 py-1 rounded-lg transition-all cursor-pointer',
+              'px-3 py-1.5 min-h-[36px] rounded-lg transition-all cursor-pointer touch-manipulation',
               urgencyFilter === 'all'
                 ? 'bg-white text-slate-900 shadow-xs font-black'
                 : 'text-slate-500 hover:text-slate-800'
@@ -43,7 +43,7 @@
             type="button"
             @click="setUrgencyFilter('emergency')"
             :class="[
-              'px-3 py-1 rounded-lg transition-all cursor-pointer',
+              'px-3 py-1.5 min-h-[36px] rounded-lg transition-all cursor-pointer touch-manipulation',
               urgencyFilter === 'emergency'
                 ? 'bg-rose-600 text-white shadow-xs font-black'
                 : 'text-rose-600 hover:bg-rose-50'
@@ -55,7 +55,7 @@
             type="button"
             @click="setUrgencyFilter('standard')"
             :class="[
-              'px-3 py-1 rounded-lg transition-all cursor-pointer',
+              'px-3 py-1.5 min-h-[36px] rounded-lg transition-all cursor-pointer touch-manipulation',
               urgencyFilter === 'standard'
                 ? 'bg-white text-slate-900 shadow-xs font-black'
                 : 'text-slate-500 hover:text-slate-800'
@@ -71,7 +71,7 @@
         <!-- Search Input -->
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
@@ -81,16 +81,16 @@
             type="text"
             placeholder="Search ticket #, title, service, requester, location..."
             :class="[
-              'w-full pl-8 pr-8 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:bg-white transition-all',
+              'w-full pl-9 pr-9 py-2.5 min-h-[44px] rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:bg-white transition-all',
               themeFocusRing
             ]"
           />
           <button
             v-if="searchQuery"
             @click="searchQuery = ''; currentPage = 1"
-            class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer min-h-[44px] min-w-[44px] justify-center"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -101,7 +101,7 @@
           v-model="selectedServiceFilter"
           @change="currentPage = 1"
           :class="[
-            'px-2.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none transition-all shrink-0 cursor-pointer',
+            'px-3 py-2.5 min-h-[44px] rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-base sm:text-xs font-semibold focus:outline-none transition-all shrink-0 cursor-pointer',
             themeFocusBorder
           ]"
         >
@@ -114,12 +114,12 @@
           type="button"
           @click="fetchApprovedTickets"
           :disabled="loading"
-          class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 cursor-pointer active:scale-95"
+          class="p-2.5 min-h-[44px] min-w-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
           title="Refresh approved ticket list"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="h-3.5 w-3.5"
+            class="h-4 w-4"
             :class="{ 'animate-spin': loading }"
             fill="none"
             viewBox="0 0 24 24"
@@ -369,14 +369,14 @@
           <button
             type="button"
             @click="openDetailsModal(ticket)"
-            class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 cursor-pointer"
+            class="px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-all active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
           >
             Full Info
           </button>
           <router-link
             :to="`${assignRoute}?ticket=${ticket.id}`"
             :class="[
-              'px-3.5 py-1.5 rounded-lg text-white text-xs font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-xs cursor-pointer',
+              'px-4 py-2 min-h-[38px] rounded-xl text-white text-xs font-black uppercase tracking-wider inline-flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95 touch-manipulation',
               themeAccentBg
             ]"
           >
@@ -389,7 +389,7 @@
       </div>
 
       <!-- Mobile Pagination Footer -->
-      <div v-if="filteredTickets.length > 0" class="p-4 bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-2 text-xs text-slate-500">
+      <div v-if="filteredTickets.length > 0" class="p-4 bg-white rounded-2xl border border-slate-200 flex items-center justify-between gap-2 text-xs text-slate-500">
         <div>
           Page <span class="font-bold text-slate-800">{{ currentPage }}</span> of <span class="font-bold text-slate-800">{{ totalPages }}</span>
         </div>
@@ -398,7 +398,7 @@
             type="button"
             @click="changePage(currentPage - 1)"
             :disabled="currentPage === 1"
-            class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer"
+            class="px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer touch-manipulation flex items-center justify-center"
           >
             Prev
           </button>
@@ -406,7 +406,7 @@
             type="button"
             @click="changePage(currentPage + 1)"
             :disabled="currentPage === totalPages"
-            class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer"
+            class="px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer touch-manipulation flex items-center justify-center"
           >
             Next
           </button>
@@ -418,7 +418,7 @@
     <Teleport to="body">
       <div
         v-if="selectedTicketForModal"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in pointer-events-auto"
         @click.self="selectedTicketForModal = null"
       >
         <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-hidden">
