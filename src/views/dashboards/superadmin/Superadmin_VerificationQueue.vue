@@ -460,9 +460,10 @@ const openRejectModal = (user) => {
   confirmModal.isOpen = true;
 };
 
-const closeConfirmModal = () => {
-  if (confirmModal.isLoading) return;
+const closeConfirmModal = (force = false) => {
+  if (!force && confirmModal.isLoading) return;
   confirmModal.isOpen = false;
+  confirmModal.isLoading = false;
   confirmModal.targetUser = null;
   confirmModal.actionType = '';
 };
@@ -476,7 +477,7 @@ const handleConfirmAction = async () => {
       const res = await api.patch(`/superadmin/users/${user.id}/verify`, {});
       toast.success(res.data?.message || 'User identity verified and approved!');
       isInspectModalOpen.value = false;
-      closeConfirmModal();
+      closeConfirmModal(true);
       await fetchPendingUsers();
     } else if (confirmModal.actionType === 'reject') {
       const res = await api.patch(`/superadmin/users/${user.id}/reject`, {
@@ -484,7 +485,7 @@ const handleConfirmAction = async () => {
       });
       toast.info(res.data?.message || 'User verification has been rejected.');
       isInspectModalOpen.value = false;
-      closeConfirmModal();
+      closeConfirmModal(true);
       await fetchPendingUsers();
     }
   } catch (err) {

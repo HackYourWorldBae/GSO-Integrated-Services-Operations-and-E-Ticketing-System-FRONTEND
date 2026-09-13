@@ -1107,9 +1107,10 @@ const openDeactivateModal = (user) => {
   openStatusModal(user, 'Deactivated');
 };
 
-const closeConfirmModal = () => {
-  if (confirmModal.isLoading) return;
+const closeConfirmModal = (force = false) => {
+  if (!force && confirmModal.isLoading) return;
   confirmModal.isOpen = false;
+  confirmModal.isLoading = false;
   confirmModal.targetUser = null;
   confirmModal.actionType = '';
   confirmModal.newStatus = '';
@@ -1124,7 +1125,7 @@ const handleConfirmAction = async () => {
       const res = await api.patch(`/superadmin/users/${user.id}/verify`, {});
       toast.success(res.data?.message || 'User identity verified and approved!');
       isInspectModalOpen.value = false;
-      closeConfirmModal();
+      closeConfirmModal(true);
       await fetchUsers();
     } else if (confirmModal.actionType === 'reject') {
       const res = await api.patch(`/superadmin/users/${user.id}/reject`, {
@@ -1132,14 +1133,14 @@ const handleConfirmAction = async () => {
       });
       toast.info(res.data?.message || 'User verification has been rejected.');
       isInspectModalOpen.value = false;
-      closeConfirmModal();
+      closeConfirmModal(true);
       await fetchUsers();
     } else if (confirmModal.actionType === 'status_change') {
       const res = await api.patch(`/superadmin/users/${user.id}/status`, {
         status: confirmModal.newStatus
       });
       toast.success(res.data?.message || `Account status updated to ${confirmModal.newStatus}.`);
-      closeConfirmModal();
+      closeConfirmModal(true);
       await fetchUsers();
     }
   } catch (err) {
@@ -1169,9 +1170,10 @@ const openStrictDeleteModal = (user) => {
   strictDeleteModal.isOpen = true;
 };
 
-const closeStrictDeleteModal = () => {
-  if (strictDeleteModal.isLoading) return;
+const closeStrictDeleteModal = (force = false) => {
+  if (!force && strictDeleteModal.isLoading) return;
   strictDeleteModal.isOpen = false;
+  strictDeleteModal.isLoading = false;
   strictDeleteModal.user = null;
   strictDeleteModal.errorMessage = '';
 };
@@ -1184,7 +1186,7 @@ const handleStrictDeleteConfirm = async ({ user, reason }) => {
       data: { reason }
     });
     toast.success(res.data?.message || 'User account permanently deleted.');
-    closeStrictDeleteModal();
+    closeStrictDeleteModal(true);
     await fetchUsers();
   } catch (err) {
     const message = err.response?.data?.message || 'Failed to permanently delete account.';
