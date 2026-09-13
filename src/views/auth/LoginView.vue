@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
@@ -8,13 +8,50 @@ const route     = useRoute();
 const authStore = useAuthStore();
 
 // State
-const identifier         = ref('');
-const password           = ref('');
-const isLoading          = ref(false);
-const errorMessage       = ref('');
-const isAccountSuspended = ref(false);
-const successMessage     = ref('');
-const timeoutMessage     = ref('');
+const identifier               = ref('');
+const password                 = ref('');
+const isLoading                = ref(false);
+const errorMessage             = ref('');
+const isAccountSuspended       = ref(false);
+const isAccountLocked          = ref(false);
+const lockoutRemainingSeconds  = ref(0);
+const remainingAttemptsNotice  = ref(null);
+const successMessage           = ref('');
+const timeoutMessage           = ref('');
+
+let lockoutIntervalId = null;
+
+const formattedLockoutTime = computed(() => {
+  const total = Math.max(0, lockoutRemainingSeconds.value);
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+});
+
+const startLockoutTimer = (seconds) => {
+  stopLockoutTimer();
+  lockoutRemainingSeconds.value = seconds > 0 ? seconds : 900;
+  isAccountLocked.value = true;
+  remainingAttemptsNotice.value = null;
+
+  lockoutIntervalId = setInterval(() => {
+    if (lockoutRemainingSeconds.value > 1) {
+      lockoutRemainingSeconds.value -= 1;
+    } else {
+      stopLockoutTimer();
+      isAccountLocked.value = false;
+      errorMessage.value = '';
+      successMessage.value = 'Lockout period has expired. You may now attempt to sign in.';
+    }
+  }, 1000);
+};
+
+const stopLockoutTimer = () => {
+  if (lockoutIntervalId) {
+    clearInterval(lockoutIntervalId);
+    lockoutIntervalId = null;
+  }
+};
 
 onMounted(() => {
   if (route.query?.timeout === '1' || route.query?.timeout === 'true') {
@@ -27,10 +64,17 @@ onMounted(() => {
   }
 });
 
+onUnmounted(() => {
+  stopLockoutTimer();
+});
+
 const handleLogin = async () => {
-  isLoading.value          = true;
-  errorMessage.value       = '';
-  isAccountSuspended.value = false;
+  if (isAccountLocked.value) return;
+
+  isLoading.value               = true;
+  errorMessage.value            = '';
+  isAccountSuspended.value      = false;
+  remainingAttemptsNotice.value = null;
 
   try {
     let submittedIdentifier = identifier.value.trim();
@@ -56,7 +100,15 @@ const handleLogin = async () => {
 
     if (!result.success) {
       isAccountSuspended.value = Boolean(result.isSuspended);
-      errorMessage.value = result.message || 'Login failed. Please try again.';
+
+      if (result.isLocked) {
+        startLockoutTimer(result.remainingSeconds || 900);
+        errorMessage.value = result.message || 'Account temporarily locked due to 5 consecutive failed login attempts.';
+      } else {
+        isAccountLocked.value = false;
+        remainingAttemptsNotice.value = typeof result.remainingAttempts === 'number' ? result.remainingAttempts : null;
+        errorMessage.value = result.message || 'Login failed. Please try again.';
+      }
       return;
     }
 
@@ -141,8 +193,37 @@ const handleLogin = async () => {
         <p class="text-slate-500 text-xs font-medium">Please sign in to access your dashboard.</p>
       </div>
 
+      <!-- Account Temporarily Locked Banner (5 failed attempts -> 15 min lock) -->
+      <div v-if="isAccountLocked" class="mb-6 p-4 sm:p-5 rounded-2xl bg-rose-50/95 border border-rose-200 text-rose-950 animate-fade-in shrink-0 shadow-sm text-left backdrop-blur-sm">
+        <div class="flex items-start gap-3.5">
+          <div class="p-2.5 rounded-2xl bg-rose-100 text-rose-700 shrink-0 mt-0.5 border border-rose-200/60 shadow-xs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <h3 class="text-sm font-black text-rose-950">Account Temporarily Locked</h3>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-200/80 text-rose-900 font-mono font-black text-xs border border-rose-300 shadow-xs">
+                <svg class="w-3.5 h-3.5 animate-pulse text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ formattedLockoutTime }}</span>
+              </span>
+            </div>
+            <p class="text-xs text-rose-800 mt-1.5 leading-relaxed font-medium">
+              This account has been locked for 15 minutes due to 5 consecutive failed login attempts with an incorrect password.
+            </p>
+            <div class="mt-2.5 p-2.5 rounded-xl bg-white/80 border border-rose-200/70 flex items-center justify-between text-[11px] font-semibold text-rose-900">
+              <span>Time remaining before unlock:</span>
+              <span class="font-mono font-black text-xs text-rose-700">{{ formattedLockoutTime }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Account Suspended Warning Banner -->
-      <div v-if="isAccountSuspended" class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 animate-fade-in shrink-0 shadow-sm text-left">
+      <div v-else-if="isAccountSuspended" class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 animate-fade-in shrink-0 shadow-sm text-left">
         <div class="flex items-start gap-3">
           <div class="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,6 +238,29 @@ const handleLogin = async () => {
             <p class="text-[11px] text-amber-700 mt-2 font-medium bg-amber-100/60 p-2 rounded-lg border border-amber-200/50">
               Notice: Suspended accounts cannot log in. Please visit the General Services Office (GSO) in person or contact administration to appeal.
             </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Remaining Attempts Warning Notice (1 to 4 failed attempts) -->
+      <div v-else-if="remainingAttemptsNotice !== null && remainingAttemptsNotice > 0" class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 animate-fade-in shrink-0 shadow-xs text-left">
+        <div class="flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-bold text-amber-950">Incorrect Password</h3>
+            <p class="text-xs text-amber-800 mt-1 leading-relaxed">
+              {{ errorMessage }}
+            </p>
+            <div class="mt-2 flex items-center gap-1.5 flex-wrap">
+              <span class="inline-block px-2.5 py-0.5 rounded-md bg-amber-200 text-amber-950 text-[10px] font-black uppercase tracking-wider">
+                {{ remainingAttemptsNotice }} {{ remainingAttemptsNotice === 1 ? 'Attempt' : 'Attempts' }} Remaining
+              </span>
+              <span class="text-[10px] text-amber-700 font-medium">Account will lock for 15 minutes if exceeded.</span>
+            </div>
           </div>
         </div>
       </div>
@@ -185,9 +289,9 @@ const handleLogin = async () => {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div>
-          <p class="font-bold text-emerald-900">Account Successfully Created!</p>
+          <p class="font-bold text-emerald-900">Notice</p>
           <p class="text-[11px] text-emerald-700 mt-0.5 font-normal leading-relaxed">
-            Please sign in to access your portal. Your uploaded ID is being reviewed by the Super Administrator.
+            {{ successMessage }}
           </p>
         </div>
       </div>
@@ -208,7 +312,8 @@ const handleLogin = async () => {
             v-model="identifier"
             type="text" 
             required
-            class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-300 shadow-sm hover:border-emerald-500/50"
+            :disabled="isAccountLocked"
+            class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-300 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed"
             placeholder="e.g. 2024-1234 or name@bsu.edu.ph"
           />
         </div>
@@ -227,20 +332,25 @@ const handleLogin = async () => {
             v-model="password"
             type="password" 
             required
-            class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-300 shadow-sm hover:border-emerald-500/50"
+            :disabled="isAccountLocked"
+            class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-300 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed"
             placeholder="••••••••"
           />
         </div>
 
         <button 
-          :disabled="isLoading"
+          :disabled="isLoading || isAccountLocked"
           type="submit"
-          class="w-full py-3.5 mt-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full py-3.5 mt-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          <span v-if="!isLoading">Secure Sign In</span>
+          <span v-if="isAccountLocked" class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+            Locked ({{ formattedLockoutTime }})
+          </span>
+          <span v-else-if="!isLoading">Secure Sign In</span>
           <span v-else>Authenticating...</span>
-          <svg v-if="!isLoading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-          <svg v-else class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <svg v-if="!isLoading && !isAccountLocked" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          <svg v-else-if="isLoading" class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
         </button>
 
         <div class="pt-4 border-t border-slate-100 text-center">

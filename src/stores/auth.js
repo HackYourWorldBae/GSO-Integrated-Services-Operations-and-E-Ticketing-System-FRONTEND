@@ -233,9 +233,27 @@ export const useAuthStore = defineStore('auth', () => {
 
       return { success: true, role: userData.role };
     } catch (err) {
-      const message = err.response?.data?.message || 'Login failed. Please try again.';
-      const isSuspended = Boolean(err.response?.data?.data?.is_suspended || message.toLowerCase().includes('suspended'));
-      return { success: false, message, isSuspended };
+      const resData = err.response?.data || {};
+      const errors = resData.errors || {};
+      const extraData = resData.data || {};
+      const message = resData.message || 'Login failed. Please try again.';
+      const status = err.response?.status;
+
+      const isSuspended = Boolean(extraData.is_suspended || errors.is_suspended || message.toLowerCase().includes('suspended'));
+      const isLocked = Boolean(status === 429 || extraData.is_locked || errors.is_locked);
+      const remainingSeconds = Number(extraData.remaining_seconds || errors.remaining_seconds || 0);
+      const remainingAttempts = extraData.remaining_attempts ?? errors.remaining_attempts ?? null;
+      const lockoutUntil = extraData.lockout_until || errors.lockout_until || null;
+
+      return {
+        success: false,
+        message,
+        isSuspended,
+        isLocked,
+        remainingSeconds,
+        remainingAttempts,
+        lockoutUntil,
+      };
     }
   };
 

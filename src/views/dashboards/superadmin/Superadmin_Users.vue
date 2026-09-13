@@ -209,9 +209,21 @@
 
                   <!-- Status -->
                   <td class="py-3.5 px-3">
-                    <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getStatusBadgeClass(user.status)">
-                      {{ user.status || 'Active' }}
-                    </span>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getStatusBadgeClass(user.status)">
+                        {{ user.status || 'Active' }}
+                      </span>
+                      <span
+                        v-if="isUserLocked(user)"
+                        class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1 animate-pulse"
+                        title="Account temporarily locked due to failed login attempts"
+                      >
+                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        Locked
+                      </span>
+                    </div>
                   </td>
 
                   <!-- Joined Date -->
@@ -222,6 +234,19 @@
                   <!-- Action Buttons -->
                   <td class="py-3.5 px-3 text-right">
                     <div class="flex items-center justify-end gap-1.5">
+                      <!-- Unlock Button if Account is Locked -->
+                      <button
+                        v-if="isUserLocked(user) && !isCurrentUser(user)"
+                        @click="openUnlockModal(user)"
+                        class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs transition-colors cursor-pointer border border-emerald-300 flex items-center gap-1 shadow-xs"
+                        title="Unlock User Account (Reset failed attempts & lockout)"
+                      >
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                        </svg>
+                        Unlock
+                      </button>
+
                       <!-- Quick Approve / Reject for Pending Users -->
                       <template v-if="!isUserVerified(user) && user.status !== 'Rejected'">
                         <button
@@ -386,9 +411,20 @@
                     Pending ID
                   </span>
                 </div>
-                <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getStatusBadgeClass(user.status)">
-                  {{ user.status || 'Active' }}
-                </span>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span
+                    v-if="isUserLocked(user)"
+                    class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1 animate-pulse"
+                  >
+                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Locked
+                  </span>
+                  <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getStatusBadgeClass(user.status)">
+                    {{ user.status || 'Active' }}
+                  </span>
+                </div>
               </div>
 
               <!-- Middle: User Avatar & Info -->
@@ -468,6 +504,18 @@
                     class="py-2 px-3 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
                   >
                     Edit
+                  </button>
+
+                  <button
+                    v-if="isUserLocked(user) && !isCurrentUser(user)"
+                    type="button"
+                    @click="openUnlockModal(user)"
+                    class="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold transition-colors flex items-center gap-1 min-h-[40px] touch-manipulation cursor-pointer"
+                  >
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                    </svg>
+                    <span>Unlock</span>
                   </button>
 
                   <template v-if="!isCurrentUser(user)">
@@ -1018,6 +1066,30 @@ const isUserVerified = (u) => {
   return Number(u.is_verified) === 1;
 };
 
+const isUserLocked = (u) => {
+  if (!u) return false;
+  if (u.is_locked) return true;
+  if (u.lockout_until) {
+    return new Date(u.lockout_until) > new Date();
+  }
+  return false;
+};
+
+const openUnlockModal = (user) => {
+  if (!user) return;
+  confirmModal.targetUser = user;
+  confirmModal.actionType = 'unlock';
+  confirmModal.isLoading = false;
+
+  const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'User';
+  confirmModal.title = 'Unlock User Account';
+  confirmModal.message = `Are you sure you want to unlock ${fullName} (${user.email || user.student_id_number})?\n\n• The 15-minute security lockout will be removed immediately.\n• Failed login attempts counter will be reset to 0.\n• The user will be able to log in with their correct password immediately.`;
+  confirmModal.confirmText = 'Unlock Account';
+  confirmModal.cancelText = 'Cancel';
+  confirmModal.type = 'success';
+  confirmModal.isOpen = true;
+};
+
 const openInspectModal = (user) => {
   inspectingUser.value = user;
   isInspectModalOpen.value = true;
@@ -1140,6 +1212,11 @@ const handleConfirmAction = async () => {
         status: confirmModal.newStatus
       });
       toast.success(res.data?.message || `Account status updated to ${confirmModal.newStatus}.`);
+      closeConfirmModal(true);
+      await fetchUsers();
+    } else if (confirmModal.actionType === 'unlock') {
+      const res = await api.post(`/superadmin/users/${user.id}/unlock`, {});
+      toast.success(res.data?.message || 'User account unlocked successfully!');
       closeConfirmModal(true);
       await fetchUsers();
     }

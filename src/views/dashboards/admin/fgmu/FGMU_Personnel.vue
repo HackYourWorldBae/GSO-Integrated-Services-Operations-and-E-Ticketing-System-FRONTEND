@@ -357,10 +357,6 @@
                   <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
                 </select>
               </div>
-              <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Contact Number (11 digits)</label>
-                <input v-model="editForm.contactNumber" maxlength="11" placeholder="09123456789" class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-              </div>
 
               <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
                 <button type="button" @click="showEditModal = false" class="px-5 py-3 min-h-[44px] rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer touch-manipulation">Cancel</button>
@@ -493,8 +489,7 @@ const filteredPersonnel = computed(() => {
     const q = debouncedSearchQuery.value.toLowerCase().trim();
     list = list.filter(w =>
       String(w.name || '').toLowerCase().includes(q) ||
-      String(w.specialty || w.role || '').toLowerCase().includes(q) ||
-      String(w.contact_number || '').toLowerCase().includes(q)
+      String(w.specialty || w.role || '').toLowerCase().includes(q)
     );
   }
 
@@ -560,15 +555,13 @@ const editingWorker = ref(null);
 const submittingEdit = ref(false);
 const editForm = reactive({
   name: '',
-  specialty: '',
-  contactNumber: ''
+  specialty: ''
 });
 
 const openEditModal = (worker) => {
   editingWorker.value = worker;
   editForm.name = worker.name || '';
   editForm.specialty = worker.specialty || worker.role || '';
-  editForm.contactNumber = worker.contact_number || '';
   showEditModal.value = true;
 };
 
@@ -581,8 +574,7 @@ const submitEditPersonnel = async () => {
   try {
     await store.updatePersonnel(editingWorker.value.id, {
       name: editForm.name,
-      specialty: editForm.specialty,
-      contactNumber: editForm.contactNumber
+      specialty: editForm.specialty
     });
     toast.success('Personnel details updated.');
     showEditModal.value = false;
