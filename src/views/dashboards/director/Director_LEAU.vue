@@ -33,7 +33,7 @@
                   v-for="p in periodOptions"
                   :key="p.key"
                   @click="changePeriod(p.key)"
-                  class="px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer"
+                  class="px-2.5 sm:px-3 py-1.5 sm:py-1 min-h-[40px] sm:min-h-0 text-xs font-bold rounded-lg transition-all cursor-pointer touch-manipulation flex items-center justify-center"
                   :class="selectedPeriod === p.key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'"
                 >
                   {{ p.label }}
@@ -45,7 +45,7 @@
                 <select
                   v-model="selectedYear"
                   @change="fetchStats"
-                  class="appearance-none pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer"
+                  class="appearance-none pl-3 pr-8 py-2 sm:py-1.5 min-h-[44px] sm:min-h-0 bg-white border border-slate-200 rounded-xl text-base sm:text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer touch-manipulation"
                 >
                   <option v-for="yr in availableYears" :key="yr" :value="yr">
                     Year {{ yr }}
@@ -61,7 +61,7 @@
                 <select
                   v-model="selectedMonth"
                   @change="fetchStats"
-                  class="appearance-none pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer"
+                  class="appearance-none pl-3 pr-8 py-2 sm:py-1.5 min-h-[44px] sm:min-h-0 bg-white border border-slate-200 rounded-xl text-base sm:text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer touch-manipulation"
                 >
                   <option v-for="m in monthOptions" :key="m.value" :value="m.value">
                     {{ m.label }}
@@ -77,7 +77,7 @@
                 <select
                   v-model="selectedQuarter"
                   @change="fetchStats"
-                  class="appearance-none pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer"
+                  class="appearance-none pl-3 pr-8 py-2 sm:py-1.5 min-h-[44px] sm:min-h-0 bg-white border border-slate-200 rounded-xl text-base sm:text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer touch-manipulation"
                 >
                   <option v-for="q in quarterOptions" :key="q.value" :value="q.value">
                     {{ q.label }}
@@ -93,7 +93,7 @@
           <!-- Top 3 Cards Grid: Total, Resolved, Declined -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- 1. Total Requests -->
-            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-slate-900 text-white shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -107,7 +107,7 @@
             </div>
 
             <!-- 2. Resolved Tickets -->
-            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
@@ -121,7 +121,7 @@
             </div>
 
             <!-- 3. Declined Requests -->
-            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-rose-50 text-rose-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
@@ -152,7 +152,7 @@
           <!-- Bottom 3 Cards Grid: Pending, Dispatched, Active -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- 1. Pending -->
-            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-amber-50 text-amber-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -166,7 +166,7 @@
             </div>
 
             <!-- 2. Dispatched & Scheduled -->
-            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-blue-50 text-blue-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -180,7 +180,7 @@
             </div>
 
             <!-- 3. Active Dispatches -->
-            <div class="group p-5 sm:p-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
+            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-emerald-100 text-emerald-700 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
@@ -199,7 +199,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           <!-- Performance Evaluation Averages -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px]">
+          <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[350px]">
             <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
               <div class="w-2 h-6 bg-teal-500 rounded-full"></div>
               Evaluation Averages
@@ -227,7 +227,7 @@
           </div>
 
           <!-- Job Completion Health (Words & Numbers) -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
+          <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-6">
                 <h4 class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
@@ -299,7 +299,7 @@
           </div>
 
           <!-- Delay & Barrier Root Cause Analysis (Ranked Words & Numbers) -->
-          <div class="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-2 space-y-6">
+          <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-2 space-y-6">
             <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
               <div>
                 <h4 class="text-lg font-black text-slate-900 flex items-center gap-2 italic">

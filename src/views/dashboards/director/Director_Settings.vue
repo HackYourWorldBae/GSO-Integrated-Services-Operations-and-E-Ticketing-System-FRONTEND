@@ -22,8 +22,8 @@
     <template #main-content>
       <div class="max-w-4xl mx-auto space-y-8 animate-fade-in pb-12">
         <!-- Profile Form Card -->
-        <div class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
-          <div class="p-6 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
+        <div class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+          <div class="p-4 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
             <div class="flex items-center gap-4">
               <div class="relative group cursor-pointer shrink-0" @click="triggerAvatarUpload" title="Click to change profile picture">
                 <input
@@ -62,9 +62,9 @@
             </div>
           </div>
 
-          <div class="p-6 sm:p-10 md:p-12 space-y-10">
+          <div class="p-4 sm:p-8 md:p-12 space-y-8">
             <!-- Account Details Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
               <!-- First Name -->
               <div class="space-y-2.5">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">First Name</label>
@@ -77,7 +77,7 @@
                   <input
                     v-model="form.firstName"
                     type="text"
-                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                    class="block w-full pl-11 pr-4 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                     placeholder="Enter first name"
                   />
                 </div>
@@ -95,7 +95,7 @@
                   <input
                     v-model="form.lastName"
                     type="text"
-                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                    class="block w-full pl-11 pr-4 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                     placeholder="Enter last name"
                   />
                 </div>
@@ -114,7 +114,7 @@
                     v-model="form.email"
                     type="email"
                     disabled
-                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 cursor-not-allowed outline-none"
+                    class="block w-full pl-11 pr-4 py-3 sm:py-3.5 min-h-[44px] bg-slate-100/70 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-500 cursor-not-allowed outline-none"
                     placeholder="director@bsu.edu.ph"
                   />
                 </div>
@@ -133,13 +133,13 @@
                   <input
                     v-model="form.password"
                     :type="showPassword ? 'text' : 'password'"
-                    class="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                    class="block w-full pl-11 pr-12 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                     placeholder="Leave blank to keep current"
                   />
                   <button
                     type="button"
                     @click="showPassword = !showPassword"
-                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                    class="absolute inset-y-0 right-0 w-11 min-w-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer touch-manipulation"
                   >
                     <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -170,7 +170,7 @@
                   <input
                     v-model="form.confirmPassword"
                     :type="showPassword ? 'text' : 'password'"
-                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                    class="block w-full pl-11 pr-4 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                     placeholder="Re-type new password"
                   />
                 </div>
@@ -178,7 +178,7 @@
             </div>
 
             <!-- Role Scope Information Callout -->
-            <div class="p-5 rounded-2xl bg-emerald-50/60 border border-emerald-200/70 flex items-start gap-3.5">
+            <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/60 border border-emerald-200/70 flex items-start gap-3.5">
               <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -194,12 +194,12 @@
           </div>
 
           <!-- Bottom Action Bar -->
-          <div class="p-6 sm:p-8 bg-slate-50/70 border-t border-slate-100 flex items-center justify-end">
+          <div class="p-4 sm:p-6 md:p-8 bg-slate-50/70 border-t border-slate-100 flex items-center justify-end">
             <button
               type="button"
               @click="handleSave"
               :disabled="isSaving"
-              class="px-8 py-3.5 bg-slate-900 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-98 flex items-center gap-2.5 cursor-pointer disabled:cursor-not-allowed"
+              class="w-full sm:w-auto px-8 py-3.5 min-h-[44px] bg-slate-900 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-98 flex items-center justify-center gap-2.5 cursor-pointer disabled:cursor-not-allowed touch-manipulation"
             >
               <svg v-if="!isSaving" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />

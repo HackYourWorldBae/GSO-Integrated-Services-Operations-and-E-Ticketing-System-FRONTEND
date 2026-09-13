@@ -23,10 +23,10 @@
         <!-- ================================================================= -->
         <!-- EXECUTIVE ANALYTICS SUMMARY & OFFICIAL REPORTS SECTION           -->
         <!-- ================================================================= -->
-        <div class="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-6 sm:space-y-8">
+        <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-6 sm:space-y-8">
           
           <!-- Section Header & Export Toolbar -->
-          <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+          <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-6 pb-6 border-b border-slate-100">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
@@ -38,15 +38,15 @@
               <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 Performance Overview &amp; Reports
               </h3>
-              <p class="text-sm text-slate-500 font-normal">Across all GSO operational units for the selected period.</p>
+              <p class="text-xs sm:text-sm text-slate-500 font-normal">Across all GSO operational units for the selected period.</p>
             </div>
 
             <!-- PDF Action Button -->
-            <div class="flex items-center gap-3 shrink-0">
+            <div class="flex items-center gap-3 shrink-0 w-full sm:w-auto">
               <button
                 @click="handleDownloadReport"
                 :disabled="isGeneratingPdf || !executiveAnalytics"
-                class="px-5 py-3 rounded-xl bg-slate-900 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                class="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-900 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] touch-manipulation"
                 title="Generate and download official PDF report"
               >
                 <svg v-if="isGeneratingPdf" class="animate-spin h-4 w-4 text-emerald-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -65,12 +65,12 @@
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
             <!-- Period Tabs (Segmented Control) -->
             <div class="flex flex-wrap items-center gap-2">
-              <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1">
+              <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1 w-full sm:w-auto">
                 <button
                   v-for="p in periodOptions"
                   :key="p.key"
                   @click="changePeriod(p.key)"
-                  class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer"
+                  class="flex-1 sm:flex-none px-3.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[40px] touch-manipulation flex items-center justify-center"
                   :class="selectedPeriod === p.key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
                 >
                   {{ p.label }}
@@ -79,13 +79,13 @@
             </div>
 
             <!-- Dynamic Selectors (Year, Month, Quarter) & Refresh -->
-            <div class="flex flex-wrap items-center gap-2.5">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
               <!-- Year Selector -->
-              <div v-if="selectedPeriod !== 'all'" class="relative">
+              <div v-if="selectedPeriod !== 'all'" class="relative flex-1 sm:flex-none">
                 <select
                   v-model="selectedYear"
                   @change="fetchExecutiveAnalytics"
-                  class="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors"
+                  class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-base sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
                 >
                   <option v-for="yr in availableYears" :key="yr" :value="yr">
                     Year {{ yr }}
@@ -97,11 +97,11 @@
               </div>
 
               <!-- Month Selector -->
-              <div v-if="selectedPeriod === 'month'" class="relative">
+              <div v-if="selectedPeriod === 'month'" class="relative flex-1 sm:flex-none">
                 <select
                   v-model="selectedMonth"
                   @change="fetchExecutiveAnalytics"
-                  class="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors"
+                  class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-base sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
                 >
                   <option v-for="m in monthOptions" :key="m.value" :value="m.value">
                     {{ m.label }}
@@ -113,11 +113,11 @@
               </div>
 
               <!-- Quarter Selector -->
-              <div v-if="selectedPeriod === 'quarter'" class="relative">
+              <div v-if="selectedPeriod === 'quarter'" class="relative flex-1 sm:flex-none">
                 <select
                   v-model="selectedQuarter"
                   @change="fetchExecutiveAnalytics"
-                  class="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors"
+                  class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-base sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
                 >
                   <option v-for="q in quarterOptions" :key="q.value" :value="q.value">
                     {{ q.label }}
@@ -131,7 +131,7 @@
               <!-- Refresh Button -->
               <button
                 @click="fetchExecutiveAnalytics"
-                class="p-2 bg-white border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600 rounded-xl transition-all cursor-pointer shadow-2xs group"
+                class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600 rounded-xl transition-all cursor-pointer shadow-2xs group touch-manipulation shrink-0"
                 title="Refresh Report Data"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:rotate-180 duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -212,7 +212,8 @@
               <span class="text-xs font-semibold text-slate-400">{{ executiveAnalytics?.filter?.label || 'Current Period' }}</span>
             </div>
 
-            <div class="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-2xs">
+            <!-- Desktop Performance Table -->
+            <div class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 shadow-2xs">
               <table class="min-w-[650px] w-full text-left border-collapse">
                 <thead>
                   <tr class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
@@ -297,6 +298,114 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <!-- Mobile Sub-Unit Cards View -->
+            <div class="md:hidden space-y-3">
+              <!-- FGMU Mobile Card -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60 uppercase shrink-0">FGMU</span>
+                    <span class="font-bold text-slate-900 text-sm">Facilities Management</span>
+                  </div>
+                  <span class="text-xs font-bold text-amber-600 flex items-center gap-1 shrink-0">
+                    ★ {{ executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg || '—' }}
+                  </span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
+                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requests</span>
+                    <span class="text-sm font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</span>
+                  </div>
+                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
+                    <span class="text-sm font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</span>
+                  </div>
+                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
+                    <span class="text-sm font-black text-slate-600 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- LEAU Mobile Card -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase shrink-0">LEAU</span>
+                    <span class="font-bold text-slate-900 text-sm">Landscaping &amp; Environment</span>
+                  </div>
+                  <span class="text-xs font-bold text-amber-600 flex items-center gap-1 shrink-0">
+                    ★ {{ executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg || '—' }}
+                  </span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
+                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requests</span>
+                    <span class="text-sm font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</span>
+                  </div>
+                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
+                    <span class="text-sm font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</span>
+                  </div>
+                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
+                    <span class="text-sm font-black text-slate-600 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SSU Mobile Card -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200/60 uppercase shrink-0">SSU</span>
+                    <span class="font-bold text-slate-900 text-sm">Security Services</span>
+                  </div>
+                  <span class="text-xs font-bold text-amber-600 flex items-center gap-1 shrink-0">
+                    ★ {{ executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg || '—' }}
+                  </span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
+                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requests</span>
+                    <span class="text-sm font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</span>
+                  </div>
+                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
+                    <span class="text-sm font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</span>
+                  </div>
+                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
+                    <span class="text-sm font-black text-slate-600 tabular-nums">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- GSO Overall Summary Card -->
+              <div class="p-4 rounded-2xl bg-slate-900 text-white space-y-3 shadow-sm">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-black uppercase tracking-wider text-emerald-400">GSO Overall Total</span>
+                  <span class="text-xs font-bold text-amber-400 flex items-center gap-1 shrink-0">
+                    ★ {{ executiveAnalytics?.summary?.overall_ratings?.overall_avg || '5.00' }}
+                  </span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-center">
+                  <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requests</span>
+                    <span class="text-sm font-black text-white tabular-nums">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</span>
+                  </div>
+                  <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
+                    <span class="text-sm font-black text-emerald-400 tabular-nums">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</span>
+                  </div>
+                  <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
+                    <span class="text-sm font-black text-slate-300 tabular-nums">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

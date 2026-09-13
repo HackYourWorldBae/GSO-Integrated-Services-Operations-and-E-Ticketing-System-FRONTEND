@@ -36,11 +36,11 @@
           </div>
 
           <!-- Document Export Action -->
-          <div class="flex items-center gap-3 shrink-0">
+          <div class="flex items-center gap-3 shrink-0 w-full sm:w-auto">
             <button
               @click="handleDownloadMaterialsReport"
               :disabled="isGeneratingMaterialsPdf || isLoading || !executiveAnalytics"
-              class="px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.98] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              class="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.98] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] touch-manipulation"
               title="Generate and download official materials consumption PDF document"
             >
               <svg v-if="isGeneratingMaterialsPdf" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -59,12 +59,12 @@
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
           <!-- Period Selector Tabs -->
           <div class="flex flex-wrap items-center gap-2">
-            <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1">
+            <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1 w-full sm:w-auto">
               <button
                 v-for="p in periodOptions"
                 :key="p.key"
                 @click="changePeriod(p.key)"
-                class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer"
+                class="flex-1 sm:flex-none px-3.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[40px] touch-manipulation flex items-center justify-center"
                 :class="selectedPeriod === p.key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
               >
                 {{ p.label }}
@@ -73,13 +73,13 @@
           </div>
 
           <!-- Dynamic Selectors (Year, Month, Quarter) & Refresh -->
-          <div class="flex flex-wrap items-center gap-2.5">
+          <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
             <!-- Year Selector -->
-            <div v-if="selectedPeriod !== 'all'" class="relative">
+            <div v-if="selectedPeriod !== 'all'" class="relative flex-1 sm:flex-none">
               <select
                 v-model="selectedYear"
                 @change="fetchExecutiveAnalytics"
-                class="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors"
+                class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-base sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
               >
                 <option v-for="yr in availableYears" :key="yr" :value="yr">
                   Year {{ yr }}
@@ -91,11 +91,11 @@
             </div>
 
             <!-- Month Selector -->
-            <div v-if="selectedPeriod === 'month'" class="relative">
+            <div v-if="selectedPeriod === 'month'" class="relative flex-1 sm:flex-none">
               <select
                 v-model="selectedMonth"
                 @change="fetchExecutiveAnalytics"
-                class="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors"
+                class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-base sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
               >
                 <option v-for="m in monthOptions" :key="m.value" :value="m.value">
                   {{ m.label }}
@@ -107,11 +107,11 @@
             </div>
 
             <!-- Quarter Selector -->
-            <div v-if="selectedPeriod === 'quarter'" class="relative">
+            <div v-if="selectedPeriod === 'quarter'" class="relative flex-1 sm:flex-none">
               <select
                 v-model="selectedQuarter"
                 @change="fetchExecutiveAnalytics"
-                class="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors"
+                class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-base sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
               >
                 <option v-for="q in quarterOptions" :key="q.value" :value="q.value">
                   {{ q.label }}
@@ -125,7 +125,7 @@
             <!-- Refresh Button -->
             <button
               @click="fetchExecutiveAnalytics"
-              class="p-2 bg-white border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600 rounded-xl transition-all cursor-pointer shadow-2xs group"
+              class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600 rounded-xl transition-all cursor-pointer shadow-2xs group touch-manipulation shrink-0"
               title="Refresh Valuation Data"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:rotate-180 duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -209,17 +209,17 @@
         </div>
 
         <!-- Materials Interactive Data Table Section -->
-        <div class="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-5">
+        <div class="p-4 sm:p-6 lg:p-7 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-4 sm:space-y-5">
           <!-- Table Controls Toolbar -->
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
             <!-- Left: Sub-unit Filter Tabs (Segmented Control) -->
             <div class="flex items-center gap-2">
-              <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1">
+              <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1 w-full sm:w-auto">
                 <button
                   v-for="scope in unitScopes"
                   :key="scope.key"
                   @click="activeUnitScope = scope.key"
-                  class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer"
+                  class="flex-1 sm:flex-none px-3 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[38px] touch-manipulation flex items-center justify-center"
                   :class="activeUnitScope === scope.key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
                 >
                   {{ scope.label }}
@@ -228,13 +228,13 @@
             </div>
 
             <!-- Right: Search Input & Summary Count -->
-            <div class="flex items-center gap-3">
-              <div class="relative min-w-[240px] sm:min-w-[320px]">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+              <div class="relative w-full sm:min-w-[280px] md:min-w-[320px]">
                 <input
                   v-model="searchQuery"
                   type="text"
                   placeholder="Search material, ticket ref, or unit..."
-                  class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all shadow-2xs"
+                  class="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all shadow-2xs min-h-[44px]"
                 />
                 <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -242,20 +242,20 @@
                 <button
                   v-if="searchQuery"
                   @click="searchQuery = ''"
-                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 touch-manipulation cursor-pointer"
                   title="Clear search"
                 >
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
-              <span class="text-xs font-semibold text-slate-400 whitespace-nowrap hidden sm:inline-block">
+              <span class="text-xs font-semibold text-slate-400 whitespace-nowrap text-right sm:text-left">
                 Showing {{ filteredItems.length }} of {{ rawItems.length }} items
               </span>
             </div>
           </div>
 
-          <!-- Table Container -->
-          <div class="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-2xs">
+          <!-- Desktop Table Container -->
+          <div class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 shadow-2xs">
             <table class="min-w-[850px] w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
@@ -296,7 +296,7 @@
                   </td>
                 </tr>
 
-                  <tr
+                <tr
                   v-else
                   v-for="(item, idx) in filteredItems"
                   :key="item.id || idx"
@@ -335,6 +335,94 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile Materials Cards Stack -->
+          <div class="md:hidden space-y-3">
+            <!-- Loading State -->
+            <div v-if="isLoading" class="py-10 text-center bg-slate-50 rounded-2xl border border-slate-200">
+              <div class="inline-flex items-center gap-2 text-slate-400 text-sm font-medium">
+                <svg class="animate-spin h-4 w-4 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Loading materials data...</span>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else-if="filteredItems.length === 0" class="py-10 text-center bg-slate-50 rounded-2xl border border-slate-200 p-4">
+              <div class="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+              </div>
+              <p class="text-sm font-semibold text-slate-700">{{ searchQuery ? 'No materials match your search.' : 'No materials recorded for this period.' }}</p>
+            </div>
+
+            <!-- Mobile Material Cards List -->
+            <template v-else>
+              <div
+                v-for="(item, idx) in filteredItems"
+                :key="'mob-mat-' + (item.id || idx)"
+                class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 shadow-2xs"
+              >
+                <!-- Top Header: Badge, Unit, Ticket Ref, Date -->
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="w-6 h-6 rounded-lg bg-slate-200/70 text-slate-700 text-[10px] font-black flex items-center justify-center tabular-nums">
+                      {{ idx + 1 }}
+                    </span>
+                    <span
+                      class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider border"
+                      :class="item.unit_code === 'LEAU' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60' : 'bg-blue-50 text-blue-700 border-blue-200/60'"
+                    >
+                      {{ item.unit_code }}
+                    </span>
+                    <span class="text-xs font-mono font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">
+                      {{ item.ticket_id || 'No Ticket Ref' }}
+                    </span>
+                  </div>
+                  <span class="text-[11px] text-slate-400 font-medium whitespace-nowrap">{{ formatDate(item.created_at) }}</span>
+                </div>
+
+                <!-- Material Title & Category -->
+                <div>
+                  <h4 class="text-sm font-black text-slate-900 leading-snug">{{ item.material_name }}</h4>
+                  <p v-if="item.service_type || item.ticket_title" class="text-xs text-slate-500 font-medium mt-0.5 line-clamp-1">
+                    {{ item.service_type || item.ticket_title }}
+                  </p>
+                </div>
+
+                <!-- Pricing & Quantity Breakdown Card -->
+                <div class="p-3 rounded-xl bg-white border border-slate-200/70 grid grid-cols-3 gap-2 text-center">
+                  <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Quantity</span>
+                    <span class="text-xs font-extrabold text-slate-900 tabular-nums">
+                      {{ item.quantity }} <span class="text-[10px] text-slate-500 font-normal">{{ item.unit_measurement || 'pcs' }}</span>
+                    </span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Unit Price</span>
+                    <span class="text-xs font-semibold text-slate-700 tabular-nums">₱{{ formatCurrency(item.unit_price) }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Cost</span>
+                    <span class="text-xs font-black text-emerald-700 tabular-nums">₱{{ formatCurrency(item.total_price) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mobile Grand Total Summary Card -->
+              <div class="p-4 rounded-2xl bg-slate-900 text-white space-y-2 shadow-sm">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-300">
+                  <span>Total Items Recorded ({{ filteredItems.length }}):</span>
+                  <span class="font-extrabold text-white tabular-nums">{{ formatNumber(filteredTotalQuantity) }} units</span>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                  <span class="text-xs font-black uppercase tracking-wider text-emerald-400">Total Valuation:</span>
+                  <span class="text-base font-black text-emerald-400 tabular-nums">₱{{ formatCurrency(filteredTotalWorth) }}</span>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
 

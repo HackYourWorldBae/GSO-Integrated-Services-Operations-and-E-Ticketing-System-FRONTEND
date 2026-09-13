@@ -144,12 +144,12 @@
                 @input="currentPage = 1"
                 type="text"
                 placeholder="Search tickets..."
-                class="w-full pl-8 pr-8 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all"
+                class="w-full pl-8 pr-8 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all"
               />
               <button
                 v-if="searchQuery"
                 @click="searchQuery = ''; currentPage = 1"
-                class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600"
+                class="absolute inset-y-0 right-0 w-11 flex items-center justify-center text-slate-400 hover:text-slate-600 touch-manipulation cursor-pointer"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -160,7 +160,7 @@
             <select
               v-model="selectedServiceFilter"
               @change="currentPage = 1"
-              class="px-2.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-emerald-500 transition-all shrink-0"
+              class="px-2.5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-base sm:text-xs font-semibold focus:outline-none focus:border-emerald-500 transition-all shrink-0 touch-manipulation cursor-pointer"
             >
               <option value="">All Services</option>
               <option v-for="service in serviceCategories" :key="service" :value="service">{{ service }}</option>
@@ -169,10 +169,10 @@
             <button
               @click="fetchAllQueues"
               :disabled="isLoading"
-              class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0"
+              class="p-2 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 touch-manipulation cursor-pointer"
               title="Refresh queue"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="{ 'animate-spin': isLoading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="{ 'animate-spin': isLoading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
@@ -467,10 +467,36 @@
 
             <!-- Actions -->
             <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end gap-2" @click.stop>
-              <button v-if="activeTab === 'pending'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 rounded-lg border border-rose-200 text-rose-600 text-xs font-bold">Decline</button>
-              <button v-if="activeTab === 'pending'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-black uppercase tracking-wider">Approve</button>
-              <button v-if="activeTab === 'active'" @click="openExtensionModal(ticket)" class="px-3 py-1.5 rounded-lg bg-amber-600 text-white text-xs font-black uppercase tracking-wider">Extend</button>
-              <button @click="openDetailsModal(ticket)" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-bold">Details</button>
+              <button v-if="activeTab === 'pending'" @click="openDeclineModal(ticket)" class="px-3.5 py-2 min-h-[38px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+              <button v-if="activeTab === 'pending'" @click="initiateApproval(ticket)" class="px-4 py-2 min-h-[38px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
+              <button v-if="activeTab === 'active'" @click="openExtensionModal(ticket)" class="px-3.5 py-2 min-h-[38px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Extend</button>
+              <button @click="openDetailsModal(ticket)" class="px-3.5 py-2 min-h-[38px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Details</button>
+            </div>
+          </div>
+
+          <!-- Mobile Pagination Footer -->
+          <div v-if="filteredTickets.length > 0" class="p-3.5 bg-white rounded-xl border border-slate-200 flex flex-col gap-2.5 text-xs text-slate-500">
+            <div class="text-center font-medium">
+              Showing <span class="font-bold text-slate-800">{{ paginationRange.start }}</span> to <span class="font-bold text-slate-800">{{ paginationRange.end }}</span> of <span class="font-bold text-slate-800">{{ filteredTickets.length }}</span> tickets
+            </div>
+            <div class="flex items-center justify-center gap-2">
+              <button
+                @click="changePage(currentPage - 1)"
+                :disabled="currentPage === 1"
+                class="flex-1 py-2 min-h-[40px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold touch-manipulation flex items-center justify-center"
+              >
+                Previous
+              </button>
+              <div class="px-3 py-2 font-bold text-slate-700 min-w-[70px] text-center">
+                {{ currentPage }} / {{ totalPages }}
+              </div>
+              <button
+                @click="changePage(currentPage + 1)"
+                :disabled="currentPage === totalPages"
+                class="flex-1 py-2 min-h-[40px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold touch-manipulation flex items-center justify-center"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
