@@ -14,9 +14,12 @@ const isLoading          = ref(false);
 const errorMessage       = ref('');
 const isAccountSuspended = ref(false);
 const successMessage     = ref('');
+const timeoutMessage     = ref('');
 
 onMounted(() => {
-  if (route.query?.registered === '1' || route.query?.registered === 'true') {
+  if (route.query?.timeout === '1' || route.query?.timeout === 'true') {
+    timeoutMessage.value = 'Your session has ended due to 15 minutes of inactivity. Please sign in again to continue.';
+  } else if (route.query?.registered === '1' || route.query?.registered === 'true') {
     successMessage.value = 'Account successfully created! Please sign in with your ID number, contact number, or email.';
     if (route.query.identifier) {
       identifier.value = String(route.query.identifier);
@@ -144,8 +147,21 @@ const handleLogin = async () => {
         {{ errorMessage }}
       </div>
 
+      <!-- Inactivity Timeout Banner -->
+      <div v-if="timeoutMessage" class="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm font-semibold flex items-start gap-3 animate-fade-in shrink-0 shadow-xs text-left">
+        <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div>
+          <p class="font-bold text-amber-950">Session Expired</p>
+          <p class="text-[11px] text-amber-800 mt-0.5 font-normal leading-relaxed">
+            {{ timeoutMessage }}
+          </p>
+        </div>
+      </div>
+
       <!-- Success Notification from Registration -->
-      <div v-if="successMessage" class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs sm:text-sm font-semibold flex items-start gap-3 animate-fade-in shrink-0 shadow-xs">
+      <div v-else-if="successMessage" class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs sm:text-sm font-semibold flex items-start gap-3 animate-fade-in shrink-0 shadow-xs">
         <svg class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
