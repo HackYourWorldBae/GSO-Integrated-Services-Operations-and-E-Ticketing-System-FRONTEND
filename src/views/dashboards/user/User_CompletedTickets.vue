@@ -613,6 +613,7 @@ import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import { parseDateLocal } from '@/utils/workCalendar';
+import { handleAttachmentClick } from '@/utils/attachmentHelper';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 
@@ -625,9 +626,6 @@ const formatDate = (dateStr) => {
 
 const route = useRoute();
 const router = useRouter();
-
-import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
-
 const authStore = useAuthStore();
 
 const viewerModal = reactive({

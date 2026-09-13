@@ -44,7 +44,6 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
       }
     } catch (error) {
       console.error('Failed to fetch LEAU personnel:', error);
-      if (personnel.value.length === 0) personnel.value = [];
     }
   };
 
@@ -205,17 +204,11 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
     worker.status = 'Working';
   };
 
-  const getTicketInfo = (ticketId) => ({
-    id: ticketId, type: 'Landscaping Request', location: 'University Campus Area',
-    requester: 'GSO Administration', status: 'Pending',
-    desc: 'Scheduled Janitorial & Landscaping Maintenance Work', date: 'May 01, 2026'
-  });
-
   return {
     personnel, categories, groupedPersonnel,
     fetchPersonnel, fetchCategories, addCategory, removeCategory, updateCategory,
     addPersonnel, updatePersonnel, removePersonnel,
     toggleWorkerStatus, setWorkerStatus, assignWorker, unassignWorker,
-    updateTicketDate, startWork, getTicketInfo,
+    updateTicketDate, startWork,
   };
 });

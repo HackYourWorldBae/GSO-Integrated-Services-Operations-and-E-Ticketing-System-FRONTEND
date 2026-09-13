@@ -368,10 +368,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import BulkArchiveExportModal from '@/components/BulkArchiveExportModal.vue';
+const BulkArchiveExportModal = defineAsyncComponent(() => import('@/components/BulkArchiveExportModal.vue'));
 import { getTicketYear, getAvailableYearsFromTickets } from '@/utils/archiveBulkExporter';
 import api from '@/api/client';
 

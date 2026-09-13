@@ -975,7 +975,6 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import StrictDeleteModal from '@/components/StrictDeleteModal.vue';
@@ -985,6 +984,15 @@ import api from '@/api/client';
 const authStore = useAuthStore();
 const isCurrentUser = (u) => Boolean(u && authStore.user?.id && authStore.user.id === u.id);
 const isRegisteredUser = (u) => Boolean(u && ['student', 'employee'].includes(u.role));
+const isGlobalRole = (role) => ['student', 'employee', 'superadmin', 'director'].includes(role);
+
+const extractErrorMessage = (err, fallback) => {
+  const errorData = err?.response?.data;
+  if (errorData?.errors && typeof errorData.errors === 'object' && Object.keys(errorData.errors).length > 0) {
+    return Object.values(errorData.errors).join(' ');
+  }
+  return errorData?.message || fallback;
+};
 
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '');
 
@@ -1250,7 +1258,7 @@ const editForm = reactive({
 
 // Automatically manage sub-unit selection based on selected system role
 watch(() => createForm.role, (newRole) => {
-  if (['student', 'employee', 'superadmin', 'director'].includes(newRole)) {
+  if (isGlobalRole(newRole)) {
     createForm.unit_id = null;
   } else if (!createForm.unit_id) {
     createForm.unit_id = 1;
@@ -1258,7 +1266,7 @@ watch(() => createForm.role, (newRole) => {
 });
 
 watch(() => editForm.role, (newRole) => {
-  if (['student', 'employee', 'superadmin', 'director'].includes(newRole)) {
+  if (isGlobalRole(newRole)) {
     editForm.unit_id = null;
   } else if (!editForm.unit_id) {
     editForm.unit_id = 1;
@@ -1401,7 +1409,6 @@ const submitCreateUser = async () => {
   }
 
   try {
-    const isGlobal = ['student', 'employee', 'superadmin', 'director'].includes(createForm.role);
     const payload = {
       first_name: createForm.first_name.trim(),
       last_name: createForm.last_name.trim(),
@@ -1410,7 +1417,7 @@ const submitCreateUser = async () => {
       password: createForm.password,
       confirm_password: createForm.confirm_password,
       status: createForm.status,
-      unit_id: isGlobal ? null : (createForm.unit_id ? Number(createForm.unit_id) : null),
+      unit_id: isGlobalRole(createForm.role) ? null : (createForm.unit_id ? Number(createForm.unit_id) : null),
       contact_number: createForm.contact_number ? createForm.contact_number.trim() : null,
       student_id_number: createForm.role === 'student' && createForm.student_id_number ? createForm.student_id_number.trim() : null,
     };
@@ -1424,12 +1431,7 @@ const submitCreateUser = async () => {
       modalError.value = res.data?.message || 'Failed to create user.';
     }
   } catch (err) {
-    const errorData = err.response?.data;
-    if (errorData?.errors && typeof errorData.errors === 'object' && Object.keys(errorData.errors).length > 0) {
-      modalError.value = Object.values(errorData.errors).join(' ');
-    } else {
-      modalError.value = errorData?.message || 'Failed to provision account.';
-    }
+    modalError.value = extractErrorMessage(err, 'Failed to provision account.');
   } finally {
     isSubmitting.value = false;
   }
@@ -1463,13 +1465,12 @@ const submitEditUser = async () => {
   isSubmitting.value = true;
   modalError.value = '';
   try {
-    const isGlobal = ['student', 'employee', 'superadmin', 'director'].includes(editForm.role);
     const payload = {
       first_name: editForm.first_name ? editForm.first_name.trim() : undefined,
       last_name: editForm.last_name ? editForm.last_name.trim() : undefined,
       role: editForm.role,
       status: editForm.status,
-      unit_id: isGlobal ? null : (editForm.unit_id ? Number(editForm.unit_id) : null),
+      unit_id: isGlobalRole(editForm.role) ? null : (editForm.unit_id ? Number(editForm.unit_id) : null),
       contact_number: editForm.contact_number ? editForm.contact_number.trim() : null,
     };
     if (editForm.password && editForm.password.trim()) {
@@ -1491,12 +1492,7 @@ const submitEditUser = async () => {
       modalError.value = res.data?.message || 'Failed to update user.';
     }
   } catch (err) {
-    const errorData = err.response?.data;
-    if (errorData?.errors && typeof errorData.errors === 'object' && Object.keys(errorData.errors).length > 0) {
-      modalError.value = Object.values(errorData.errors).join(' ');
-    } else {
-      modalError.value = errorData?.message || 'Failed to update account.';
-    }
+    modalError.value = extractErrorMessage(err, 'Failed to update account.');
   } finally {
     isSubmitting.value = false;
   }

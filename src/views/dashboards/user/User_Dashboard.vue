@@ -503,7 +503,7 @@ onMounted(() => {
   pollingInterval = setInterval(() => {
     if (document.hidden) return;
     fetchDashboardData();
-  }, 15000);
+  }, 35000);
 
   window.addEventListener('focus', handleFocusOrVisibility);
   document.addEventListener('visibilitychange', handleFocusOrVisibility);

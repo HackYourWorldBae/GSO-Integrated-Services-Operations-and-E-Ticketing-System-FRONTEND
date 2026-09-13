@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted, reactive, computed } from 'vue';
+import { ref, onMounted, onUnmounted, reactive, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import { debounce } from '@/utils/debounce';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -18,7 +19,16 @@ const customDescriptions = reactive({});
 
 // Problem-based Natural Language Search & Category Filters
 const searchQuery = ref('');
+const debouncedSearchQuery = ref('');
 const activeCategoryFilter = ref('all');
+
+const updateDebouncedSearch = debounce((val) => {
+  debouncedSearchQuery.value = val;
+}, 200);
+
+watch(searchQuery, (val) => {
+  updateDebouncedSearch(val);
+});
 
 const categoryTabs = [
   { id: 'all', label: 'All Services' },
@@ -230,7 +240,7 @@ const totalSelected = computed(() =>
 
 // Filtered sub-units based on search query and category tabs
 const filteredSubUnits = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase();
+  const query = debouncedSearchQuery.value.trim().toLowerCase();
   const filter = activeCategoryFilter.value;
 
   return subUnits.value
@@ -266,11 +276,13 @@ const totalVisibleServices = computed(() => {
 });
 
 // --- INIT ---
+const handleOutsideClick = (e) => {
+  const el = document.getElementById('user-profile-menu');
+  if (el && !el.contains(e.target)) isDropdownOpen.value = false;
+};
+
 onMounted(() => {
-  document.addEventListener('click', (e) => {
-    const el = document.getElementById('user-profile-menu');
-    if (el && !el.contains(e.target)) isDropdownOpen.value = false;
-  });
+  document.addEventListener('click', handleOutsideClick);
 
   if (!authStore.isAuthenticated) {
     router.push({ name: 'login' });
@@ -287,6 +299,10 @@ onMounted(() => {
     otherSpecifics[cat.title] = '';
     tempCustom[cat.title] = { title: '', description: '' };
   });
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleOutsideClick);
 });
 
 // --- LOGOUT ---

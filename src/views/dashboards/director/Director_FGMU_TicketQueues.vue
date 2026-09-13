@@ -1174,6 +1174,15 @@ const handleTicketExtended = () => {
   fetchAllQueues();
 };
 
+const handleFocusOrVisibility = () => {
+  if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || selectedTicketForModal.value || showExtensionModal.value);
+    if (!isInteracting) {
+      fetchAllQueues();
+    }
+  }
+};
+
 onMounted(() => {
   fetchAllQueues();
   pollingInterval = setInterval(() => {
@@ -1182,12 +1191,16 @@ onMounted(() => {
     if (!isInteracting) {
       fetchAllQueues();
     }
-  }, 10000);
+  }, 35000);
 
   durationInterval = setInterval(updateLiveWorkingDurations, 60000);
+  window.addEventListener('focus', handleFocusOrVisibility);
+  document.addEventListener('visibilitychange', handleFocusOrVisibility);
 });
 
 onUnmounted(() => {
+  window.removeEventListener('focus', handleFocusOrVisibility);
+  document.removeEventListener('visibilitychange', handleFocusOrVisibility);
   if (pollingInterval) clearInterval(pollingInterval);
   if (durationInterval) clearInterval(durationInterval);
 });

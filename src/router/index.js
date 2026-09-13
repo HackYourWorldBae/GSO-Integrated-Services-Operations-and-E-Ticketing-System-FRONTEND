@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Swal from 'sweetalert2';
 import { useAuthStore } from '@/stores/auth';
+
+const showSwal = async (options) => {
+  const { default: Swal } = await import('sweetalert2');
+  return Swal.fire(options);
+};
 const LandingView = () => import('../views/LandingView.vue');
 const LoginView = () => import('../views/auth/LoginView.vue');
 const RegisterView = () => import('../views/auth/RegisterView.vue');
@@ -510,7 +514,7 @@ router.beforeEach((to, from, next) => {
     // Unverified users can browse their dashboard/settings, but cannot create tickets
     if (to.path === '/services' || to.path.startsWith('/services/forms')) {
       if (user.status === 'Deactivated') {
-        Swal.fire({
+        showSwal({
           icon: 'warning',
           title: 'Account Deactivated',
           text: 'Your account has been deactivated. You can view your past tickets, but you cannot submit new requests. Please contact the GSO office to reactivate your account.',
@@ -521,7 +525,7 @@ router.beforeEach((to, from, next) => {
 
       const isVerified = user.is_verified === 1 || user.is_verified === true || user.is_verified === '1';
       if (!isVerified) {
-        Swal.fire({
+        showSwal({
           icon: 'warning',
           title: 'Account Verification Pending',
           text: 'Your uploaded ID is currently being reviewed by the Super Administrator. You will be able to submit service requests once verified.',
@@ -595,7 +599,7 @@ if (typeof window !== 'undefined') {
 
     if (!isNotifyingSuperseded) {
       isNotifyingSuperseded = true;
-      Swal.fire({
+      showSwal({
         icon: 'warning',
         title: 'Session Ended',
         html: `

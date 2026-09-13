@@ -160,10 +160,10 @@ export const useAuthStore = defineStore('auth', () => {
       verifySession();
     }, 1500);
 
-    // Poll every 6 seconds while session is active
+    // Poll every 45 seconds while session is active (focus/visibility change sync immediately)
     heartbeatIntervalId = setInterval(() => {
       verifySession();
-    }, 6000);
+    }, 45000);
 
     window.addEventListener('focus', handleWindowFocusOrVisible);
     document.addEventListener('visibilitychange', handleWindowFocusOrVisible);

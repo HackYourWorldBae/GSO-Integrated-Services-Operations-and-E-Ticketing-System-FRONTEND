@@ -432,10 +432,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
-import { downloadMaterialsReportPdf } from '@/utils/materialsReportPdfGenerator';
+import { debounce } from '@/utils/debounce';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 
@@ -444,7 +444,16 @@ const executiveAnalytics = ref(null);
 const isLoading = ref(false);
 const isGeneratingMaterialsPdf = ref(false);
 const searchQuery = ref('');
+const debouncedSearchQuery = ref('');
 const activeUnitScope = ref('ALL');
+
+const updateDebouncedSearch = debounce((val) => {
+  debouncedSearchQuery.value = val;
+}, 200);
+
+watch(searchQuery, (val) => {
+  updateDebouncedSearch(val);
+});
 
 // Date / Period Controls
 const currentYear = new Date().getFullYear();
@@ -513,7 +522,7 @@ const filteredItems = computed(() => {
   if (activeUnitScope.value !== 'ALL') {
     list = list.filter(item => (item.unit_code || '').toUpperCase() === activeUnitScope.value);
   }
-  const q = searchQuery.value.trim().toLowerCase();
+  const q = debouncedSearchQuery.value.trim().toLowerCase();
   if (!q) return list;
   return list.filter(item =>
     (item.material_name || '').toLowerCase().includes(q) ||
@@ -593,6 +602,7 @@ const handleDownloadMaterialsReport = async () => {
   }
   isGeneratingMaterialsPdf.value = true;
   try {
+    const { downloadMaterialsReportPdf } = await import('@/utils/materialsReportPdfGenerator');
     await downloadMaterialsReportPdf(executiveAnalytics.value);
     toast.success('Official Materials Report downloaded successfully.');
   } catch (error) {

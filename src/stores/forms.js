@@ -3,96 +3,48 @@ import { ref, computed } from 'vue';
 import { useVuelidate } from '@vuelidate/core';
 import { required, minLength } from '@vuelidate/validators';
 
+const getFormattedToday = () => new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const createUnitFormState = () => ({
+  sectionA: {
+    date: getFormattedToday(),
+    college_building: '',
+    office_room: '',
+    source_of_fund: '',
+    end_user: '',
+    contact_number: '',
+    job_description: ''
+  },
+  attachments: []
+});
+
+const createSsuIncidentState = () => ({
+  date: getFormattedToday(),
+  incidents: [],
+  otherIncident: '',
+  information: [],
+  otherInformation: '',
+  followUp: false,
+  who: '',
+  where: '',
+  when: '',
+  how: '',
+  reportedBy: {
+    signature: '',
+    printedName: '',
+    roles: []
+  }
+});
+
 export const useFormsStore = defineStore('forms', () => {
-  const fgmuState = ref({
-    sectionA: {
-      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-      college_building: '',
-      office_room: '',
-      source_of_fund: '',
-      end_user: '',
-      contact_number: '',
-      job_description: ''
-    },
-    attachments: []
-  });
-
-  const leauState = ref({
-    sectionA: {
-      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-      college_building: '',
-      office_room: '',
-      source_of_fund: '',
-      end_user: '',
-      contact_number: '',
-      job_description: ''
-    },
-    attachments: []
-  });
-
-  const ssuIncidentState = ref({
-    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-    incidents: [],
-    otherIncident: '',
-    information: [],
-    otherInformation: '',
-    followUp: false,
-    who: '',
-    where: '',
-    when: '',
-    how: '',
-    reportedBy: {
-      signature: '',
-      printedName: '',
-      roles: []
-    }
-  });
+  const fgmuState = ref(createUnitFormState());
+  const leauState = ref(createUnitFormState());
+  const ssuIncidentState = ref(createSsuIncidentState());
 
   const clearForms = () => {
-    fgmuState.value = {
-      sectionA: {
-        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-        college_building: '',
-        office_room: '',
-        source_of_fund: '',
-        end_user: '',
-        contact_number: '',
-        job_description: ''
-      },
-      attachments: []
-    };
-
-    leauState.value = {
-      sectionA: {
-        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-        college_building: '',
-        office_room: '',
-        source_of_fund: '',
-        end_user: '',
-        contact_number: '',
-        job_description: ''
-      },
-      attachments: []
-    };
-
-    ssuIncidentState.value = {
-      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-      incidents: [],
-      otherIncident: '',
-      information: [],
-      otherInformation: '',
-      followUp: false,
-      who: '',
-      where: '',
-      when: '',
-      how: '',
-      reportedBy: {
-        signature: '',
-        printedName: '',
-        roles: []
-      }
-    };
-
+    fgmuState.value = createUnitFormState();
+    leauState.value = createUnitFormState();
+    ssuIncidentState.value = createSsuIncidentState();
     v$.value.$reset();
   };
 

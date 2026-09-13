@@ -113,7 +113,7 @@
         <!-- ===================== TICKET CARDS ===================== -->
         <div v-else class="space-y-3">
           <div
-            v-for="ticket in filteredTickets"
+            v-for="ticket in paginatedTickets"
             :key="ticket.id"
             :id="ticket.ticketId"
             :class="[
@@ -515,6 +515,57 @@
 
             <!-- Active/processing indicator bar -->
             <div v-if="ticket.status === 'processing'" class="h-0.5 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-400 animate-progress-bar"></div>
+          </div>
+
+          <!-- Pagination Bar for Tickets -->
+          <div v-if="filteredTickets.length > 0" class="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white rounded-2xl border border-slate-200 shadow-xs text-xs text-slate-500">
+            <div>
+              Showing <strong class="text-slate-800">{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
+              <strong class="text-slate-800">{{ Math.min(currentPage * perPage, filteredTickets.length) }}</strong> of
+              <strong class="text-slate-800">{{ filteredTickets.length }}</strong> requests
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                @click="currentPage = 1"
+                :disabled="currentPage === 1"
+                class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer"
+                title="First Page"
+              >
+                «
+              </button>
+              <button
+                type="button"
+                @click="currentPage--"
+                :disabled="currentPage === 1"
+                class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer"
+              >
+                ‹ Prev
+              </button>
+
+              <span class="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 font-extrabold border border-emerald-200">
+                Page {{ currentPage }} of {{ totalPages }}
+              </span>
+
+              <button
+                type="button"
+                @click="currentPage++"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer"
+              >
+                Next ›
+              </button>
+              <button
+                type="button"
+                @click="currentPage = totalPages"
+                :disabled="currentPage === totalPages"
+                class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer"
+                title="Last Page"
+              >
+                »
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1049,7 +1100,7 @@ import { ref, reactive, computed, watch, onMounted, onUnmounted, defineComponent
 import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import { attachFgmuJobRequestForm, generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuPdfGenerator';
+import { debounce } from '@/utils/debounce';
 import { parseDateLocal } from '@/utils/workCalendar';
 import { useAuthStore } from '@/stores/auth';
 import { useNetworkStatus } from '@/utils/networkMonitor';
@@ -1269,6 +1320,7 @@ const openJobRequestFormViewer = async (ticket) => {
       viewerModal.fileBlob = new Blob([response.data], { type: 'application/pdf' });
     } else {
       viewerModal.fileName = `FGMU Job Request Form - #${ticketId}.docx`;
+      const { generateFgmuJobRequestFormDocxBlob } = await import('@/utils/fgmuDocxGenerator');
       const blob = await generateFgmuJobRequestFormDocxBlob(ticket, ticket.feedback);
       viewerModal.fileBlob = blob;
     }
@@ -1453,6 +1505,7 @@ const handleRouteTicket = () => {
   highlightedTicket.value = target;
   statusFilter.value = 'all';
   searchQuery.value = target;
+  debouncedSearchQuery.value = target;
 
   const match = tickets.value.find(t =>
     String(t.ticketId || t.id).toLowerCase() === String(target).toLowerCase()
@@ -1460,6 +1513,10 @@ const handleRouteTicket = () => {
 
   if (match) {
     handledRouteQueryKey = triggerKey;
+    const matchIdx = filteredTickets.value.findIndex(t => String(t.ticketId || t.id).toLowerCase() === String(target).toLowerCase());
+    if (matchIdx !== -1) {
+      currentPage.value = Math.floor(matchIdx / perPage.value) + 1;
+    }
     if (!selectedTicket.value) {
       openTimeline(match);
     }
@@ -1501,7 +1558,7 @@ onMounted(() => {
   pollingInterval = setInterval(() => {
     if (document.hidden) return;
     fetchTickets();
-  }, 15000);
+  }, 35000);
 
   // Tab Focus & Visibility change recovery
   window.addEventListener('focus', handleFocusOrVisibility);
@@ -1525,9 +1582,20 @@ onUnmounted(() => {
   if (modalSyncTimer) clearInterval(modalSyncTimer);
 });
 
-// ---- Filtering ----
+// ---- Filtering & Pagination ----
 const searchQuery  = ref('');
+const debouncedSearchQuery = ref('');
 const statusFilter = ref('all');
+const currentPage = ref(1);
+const perPage = ref(8);
+
+const updateDebouncedSearch = debounce((val) => {
+  debouncedSearchQuery.value = val;
+}, 200);
+
+watch(searchQuery, (val) => {
+  updateDebouncedSearch(val);
+});
 
 const statusCounts = computed(() => ({
   all:        tickets.value.length,
@@ -1555,9 +1623,10 @@ const statusTabs = computed(() => {
 });
 
 const filteredTickets = computed(() => {
-  const query = searchQuery.value.toLowerCase();
+  const query = debouncedSearchQuery.value.trim().toLowerCase();
   return tickets.value.filter(ticket => {
-    const matchesSearch = ticket.ticketId.toLowerCase().includes(query)
+    const matchesSearch = !query
+      || ticket.ticketId.toLowerCase().includes(query)
       || ticket.service.toLowerCase().includes(query)
       || ticket.unit.toLowerCase().includes(query);
     const matchesStatus = statusFilter.value === 'all'
@@ -1567,6 +1636,19 @@ const filteredTickets = computed(() => {
         : ticket.status === statusFilter.value;
     return matchesSearch && matchesStatus;
   });
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredTickets.value.length / perPage.value) || 1;
+});
+
+const paginatedTickets = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredTickets.value.slice(start, start + perPage.value);
+});
+
+watch([debouncedSearchQuery, statusFilter], () => {
+  currentPage.value = 1;
 });
 
 // ---- Timeline Modal ----
@@ -1872,6 +1954,7 @@ const closeTicket = async (ticket) => {
     // Auto-generate and attach official FGMU Job Request Form if FGMU ticket
     if (ticket.unit === 'FGMU' || ticket.unit_code === 'FGMU' || ticket.unit_id === 1) {
       try {
+        const { attachFgmuJobRequestForm } = await import('@/utils/fgmuDocxGenerator');
         await attachFgmuJobRequestForm(ticket, payload);
       } catch (docErr) {
         console.error('Failed to auto-attach FGMU Job Request Form docx:', docErr);

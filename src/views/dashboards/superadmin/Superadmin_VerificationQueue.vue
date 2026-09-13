@@ -330,18 +330,27 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import { debounce } from '@/utils/debounce';
 import api from '@/api/client';
 
 const loading = ref(false);
 const isActionLoading = ref(false);
 const users = ref([]);
 const searchQuery = ref('');
+const debouncedSearchQuery = ref('');
 const selectedRole = ref('');
+
+const updateDebouncedSearch = debounce((val) => {
+  debouncedSearchQuery.value = val;
+}, 200);
+
+watch(searchQuery, (val) => {
+  updateDebouncedSearch(val);
+});
 
 const inspectingUser = ref(null);
 const isInspectModalOpen = ref(false);
@@ -387,8 +396,8 @@ const filteredPendingUsers = computed(() => {
     if (selectedRole.value && u.role !== selectedRole.value) {
       return false;
     }
-    if (searchQuery.value) {
-      const q = searchQuery.value.toLowerCase();
+    const q = debouncedSearchQuery.value.trim().toLowerCase();
+    if (q) {
       const name = `${u.first_name || ''} ${u.last_name || ''}`.toLowerCase();
       const email = (u.email || '').toLowerCase();
       const idNum = (u.student_id_number || '').toLowerCase();

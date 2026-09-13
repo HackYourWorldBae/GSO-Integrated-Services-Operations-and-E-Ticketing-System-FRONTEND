@@ -447,12 +447,13 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from 'vue';
+import { ref, computed, reactive, watch, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import StaffLeaveModal from '@/components/StaffLeaveModal.vue';
 import { useFgmuPersonnelStore } from '@/stores/fgmuPersonnel';
 import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue3-toastify';
+import { debounce } from '@/utils/debounce';
 
 const store = useFgmuPersonnelStore();
 const authStore = useAuthStore();
@@ -464,6 +465,12 @@ const isAdmin = computed(() => {
 
 // ── Search & Filter ─────────────────────────────────────────────────────────
 const searchQuery = ref('');
+const debouncedSearchQuery = ref('');
+const onSearchInput = debounce((val) => {
+  debouncedSearchQuery.value = val;
+}, 200);
+watch(searchQuery, (val) => onSearchInput(val));
+
 const statusFilter = ref('all');
 const categoryFilter = ref('all');
 
@@ -482,8 +489,8 @@ const filteredPersonnel = computed(() => {
     list = list.filter(w => (w.specialty || w.role) === categoryFilter.value);
   }
 
-  if (searchQuery.value.trim()) {
-    const q = searchQuery.value.toLowerCase().trim();
+  if (debouncedSearchQuery.value.trim()) {
+    const q = debouncedSearchQuery.value.toLowerCase().trim();
     list = list.filter(w =>
       String(w.name || '').toLowerCase().includes(q) ||
       String(w.specialty || w.role || '').toLowerCase().includes(q) ||

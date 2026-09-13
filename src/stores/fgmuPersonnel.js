@@ -44,7 +44,6 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
       }
     } catch (error) {
       console.error('Failed to fetch FGMU personnel:', error);
-      if (personnel.value.length === 0) personnel.value = [];
     }
   };
 
@@ -206,17 +205,11 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
     worker.status = 'Working';
   };
 
-  const getTicketInfo = (ticketId) => ({
-    id: ticketId, type: 'Facilities Maintenance', location: 'University Building',
-    requester: 'GSO Administration', status: 'Pending',
-    desc: 'Scheduled Facilities Maintenance Task', date: 'May 01, 2026'
-  });
-
   return {
     personnel, categories, groupedPersonnel,
     fetchPersonnel, fetchCategories, addCategory, removeCategory, updateCategory,
     addPersonnel, updatePersonnel, removePersonnel,
     toggleWorkerStatus, setWorkerStatus, assignWorker, unassignWorker,
-    updateTicketDate, startWork, getTicketInfo,
+    updateTicketDate, startWork,
   };
 });

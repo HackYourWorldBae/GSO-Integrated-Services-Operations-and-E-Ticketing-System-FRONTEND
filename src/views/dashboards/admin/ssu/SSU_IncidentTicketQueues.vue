@@ -384,6 +384,16 @@ const fetchCompletedCount = async () => {
 
 let pollingInterval = null;
 
+const handleFocusOrVisibility = () => {
+  if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+    const isInteracting = !!notationTicket.value || !!resolveTicket.value || !!declineTicket.value;
+    if (!isInteracting) {
+      fetchQueue();
+      fetchCompletedCount();
+    }
+  }
+};
+
 onMounted(() => {
   fetchQueue();
   fetchCompletedCount();
@@ -393,10 +403,15 @@ onMounted(() => {
     if (!isInteracting) {
       fetchQueue();
     }
-  }, 10000);
+  }, 35000);
+
+  window.addEventListener('focus', handleFocusOrVisibility);
+  document.addEventListener('visibilitychange', handleFocusOrVisibility);
 });
 
 onUnmounted(() => {
+  window.removeEventListener('focus', handleFocusOrVisibility);
+  document.removeEventListener('visibilitychange', handleFocusOrVisibility);
   if (pollingInterval) clearInterval(pollingInterval);
 });
 

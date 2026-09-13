@@ -597,7 +597,7 @@ onMounted(() => {
     notificationInterval = setInterval(() => {
       if (document.hidden) return;
       fetchNotifications();
-    }, 20000);
+    }, 40000);
   }
 
   // Fault Tolerance: Automatically re-sync notifications when network restores

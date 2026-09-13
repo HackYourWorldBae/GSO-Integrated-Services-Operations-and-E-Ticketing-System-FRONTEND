@@ -506,7 +506,6 @@
 import { onMounted, ref, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
-import { downloadDirectorReportPdf } from '@/utils/directorReportPdfGenerator';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 
@@ -598,6 +597,7 @@ const handleDownloadReport = async () => {
   }
   isGeneratingPdf.value = true;
   try {
+    const { downloadDirectorReportPdf } = await import('@/utils/directorReportPdfGenerator');
     await downloadDirectorReportPdf(executiveAnalytics.value);
     toast.success('Official BSU Report downloaded successfully.');
   } catch (error) {
