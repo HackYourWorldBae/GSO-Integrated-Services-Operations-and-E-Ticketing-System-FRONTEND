@@ -43,10 +43,10 @@
           </div>
 
           <!-- Actions & Modals Trigger -->
-          <div class="flex items-center gap-2 shrink-0">
+          <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
             <button
               @click="openCreateModal"
-              class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0"
+              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2 active:scale-95 min-h-[44px] touch-manipulation shrink-0"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -57,14 +57,14 @@
         </div>
 
         <!-- Faceted Filters Bar -->
-        <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
           <!-- Role Filter Tabs -->
-          <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 max-w-full">
+          <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1.5 w-full sm:w-auto max-w-full flex-nowrap">
             <button
               v-for="role in roleOptions"
               :key="role.value"
               @click="setRoleFilter(role.value)"
-              class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"
+              class="px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap min-h-[36px] touch-manipulation cursor-pointer shrink-0"
               :class="filters.role === role.value ? 'bg-slate-900 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'"
             >
               {{ role.label }}
@@ -72,11 +72,11 @@
           </div>
 
           <!-- Unit & Status Dropdowns -->
-          <div class="flex items-center gap-2 shrink-0">
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end shrink-0">
             <select
               v-model="filters.unit_id"
               @change="handleFilterChange"
-              class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500 cursor-pointer"
+              class="flex-1 sm:flex-initial px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500 cursor-pointer min-h-[40px] touch-manipulation"
             >
               <option value="all">All Units</option>
               <option value="1">FGMU</option>
@@ -88,7 +88,7 @@
             <select
               v-model="filters.status"
               @change="handleFilterChange"
-              class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500 cursor-pointer"
+              class="flex-1 sm:flex-initial px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500 cursor-pointer min-h-[40px] touch-manipulation"
             >
               <option value="all">All Statuses</option>
               <option value="Active">Active</option>
@@ -360,9 +360,10 @@
 
           <!-- Mobile Cards View -->
           <div v-if="!isLoading && !fetchError" class="md:hidden space-y-3">
-            <div v-for="user in users" :key="'mob-' + user.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
+            <div v-for="user in users" :key="'mob-' + user.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 shadow-2xs">
+              <!-- Top Row: Role, Status, and Verification Badges -->
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
                     {{ user.role }}
                   </span>
@@ -390,72 +391,123 @@
                 </span>
               </div>
 
+              <!-- Middle: User Avatar & Info -->
               <div class="flex items-center gap-3">
                 <img
                   v-if="user.avatar_path"
                   :src="getAvatarUrl(user.id)"
                   alt="Avatar"
-                  class="w-10 h-10 rounded-xl object-cover border border-purple-200 shrink-0"
+                  class="w-11 h-11 rounded-xl object-cover border border-purple-200 shrink-0"
                 />
-                <div v-else class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 font-bold flex items-center justify-center shrink-0 border border-purple-100">
+                <div v-else class="w-11 h-11 rounded-xl bg-purple-50 text-purple-700 font-bold flex items-center justify-center shrink-0 border border-purple-100 text-sm">
                   {{ user.first_name ? user.first_name.charAt(0).toUpperCase() : 'U' }}
                 </div>
-                <div class="min-w-0">
-                  <h4 class="text-sm font-black text-slate-900 leading-snug truncate">{{ user.first_name }} {{ user.last_name }}</h4>
-                  <p v-if="user.student_id_number" class="text-xs font-bold text-purple-700">ID: {{ user.student_id_number }}</p>
-                  <p class="text-xs text-slate-600 font-medium truncate">{{ user.email || 'No email provided' }}</p>
-                  <p v-if="user.unit_code" class="text-xs text-slate-500 font-semibold mt-0.5">Unit: <span class="font-bold text-slate-800">{{ user.unit_code }}</span></p>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h4 class="text-sm font-black text-slate-900 leading-snug">{{ user.first_name }} {{ user.last_name }}</h4>
+                    <span v-if="user.student_id_number" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200/60">
+                      {{ user.student_id_number }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-600 font-medium truncate mt-0.5">{{ user.email || 'No email provided' }}</p>
+                  <div class="flex items-center gap-2 text-[11px] text-slate-500 font-semibold mt-1">
+                    <span v-if="user.unit_code">Unit: <strong class="text-slate-800">{{ user.unit_code }}</strong></span>
+                    <span v-else class="italic text-slate-400">Global</span>
+                    <span v-if="user.contact_number">• {{ user.contact_number }}</span>
+                  </div>
                 </div>
               </div>
 
-              <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-200">
-                <template v-if="!isUserVerified(user) && user.status !== 'Rejected'">
-                  <button @click="openApproveModal(user)" class="py-2 px-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition-colors cursor-pointer" title="Approve Sign-Up">
-                    ✓
-                  </button>
-                  <button @click="openRejectModal(user)" class="py-2 px-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-colors cursor-pointer" title="Reject Sign-Up">
-                    ✕
-                  </button>
-                </template>
-                <button @click="openInspectModal(user)" class="py-1.5 px-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold hover:bg-purple-100 transition-colors text-center flex items-center justify-center gap-1 cursor-pointer">
-                  ID
-                </button>
-                <button v-if="!isRegisteredUser(user)" @click="openEditModal(user)" class="py-1.5 px-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-colors text-center cursor-pointer">
-                  Edit
-                </button>
-
-                <template v-if="!isCurrentUser(user)">
-                  <!-- Status Actions -->
+              <!-- Mobile Actions Area -->
+              <div class="pt-3 border-t border-slate-200 flex flex-col gap-2">
+                <!-- If Unverified: Prompt quick verification -->
+                <div v-if="!isUserVerified(user) && user.status !== 'Rejected'" class="flex items-center gap-2">
                   <button
-                    v-if="user.status === 'Active'"
-                    @click="openStatusModal(user, 'Deactivated')"
-                    class="py-1.5 px-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-colors cursor-pointer"
+                    type="button"
+                    @click="openInspectModal(user)"
+                    class="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-xs min-h-[40px] touch-manipulation cursor-pointer"
                   >
-                    Deactivate
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>Inspect ID</span>
                   </button>
                   <button
-                    v-else-if="user.status === 'Deactivated' || user.status === 'Suspended'"
-                    @click="openStatusModal(user, 'Active')"
-                    class="py-1.5 px-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-colors cursor-pointer"
+                    type="button"
+                    @click="openApproveModal(user)"
+                    class="py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold transition-colors flex items-center gap-1 min-h-[40px] touch-manipulation cursor-pointer"
                   >
-                    Reactivate
+                    <span>✓</span>
+                    <span>Approve</span>
                   </button>
-
                   <button
-                    v-if="user.status !== 'Suspended'"
-                    @click="openStatusModal(user, 'Suspended')"
-                    class="py-1.5 px-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-colors cursor-pointer"
+                    type="button"
+                    @click="openRejectModal(user)"
+                    class="py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-colors flex items-center gap-1 min-h-[40px] touch-manipulation cursor-pointer"
                   >
-                    Suspend
+                    <span>✕</span>
+                    <span>Reject</span>
+                  </button>
+                </div>
+
+                <!-- Secondary actions bar -->
+                <div class="flex items-center gap-2 flex-wrap">
+                  <button
+                    v-if="isUserVerified(user) || user.status === 'Rejected'"
+                    type="button"
+                    @click="openInspectModal(user)"
+                    class="py-2 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition-colors flex items-center justify-center gap-1 min-h-[40px] touch-manipulation cursor-pointer"
+                  >
+                    <span>View ID</span>
+                  </button>
+                  <button
+                    v-if="!isRegisteredUser(user)"
+                    type="button"
+                    @click="openEditModal(user)"
+                    class="py-2 px-3 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
+                  >
+                    Edit
                   </button>
 
-                  <button @click="openStrictDeleteModal(user)" class="py-1.5 px-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold hover:bg-rose-50 hover:text-rose-600 transition-colors text-center cursor-pointer ml-auto">
-                    Delete
-                  </button>
-                </template>
-                <span v-else class="text-[11px] font-bold text-slate-400 italic ml-auto py-1">
-                  Current User
-                </span>
+                  <template v-if="!isCurrentUser(user)">
+                    <button
+                      v-if="user.status === 'Active'"
+                      type="button"
+                      @click="openStatusModal(user, 'Deactivated')"
+                      class="py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
+                    >
+                      Deactivate
+                    </button>
+                    <button
+                      v-else-if="user.status === 'Deactivated' || user.status === 'Suspended'"
+                      type="button"
+                      @click="openStatusModal(user, 'Active')"
+                      class="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
+                    >
+                      Reactivate
+                    </button>
+                    <button
+                      v-if="user.status !== 'Suspended'"
+                      type="button"
+                      @click="openStatusModal(user, 'Suspended')"
+                      class="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
+                    >
+                      Suspend
+                    </button>
+
+                    <button
+                      type="button"
+                      @click="openStrictDeleteModal(user)"
+                      class="py-2 px-3 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 border border-slate-200 text-xs font-bold transition-colors ml-auto min-h-[40px] touch-manipulation cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </template>
+                  <span v-else class="text-[11px] font-bold text-slate-400 italic ml-auto py-2">
+                    Current User
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -545,12 +597,13 @@
     </template>
 
     <template #modal-overlay>
-      <!-- Provision User Modal -->
-      <div 
-        v-if="isCreateModalOpen" 
-        class="fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto"
-        @click.self="isCreateModalOpen = false"
-      >
+      <Teleport to="body">
+        <!-- Provision User Modal -->
+        <div 
+          v-if="isCreateModalOpen" 
+          class="fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto"
+          @click.self="isCreateModalOpen = false"
+        >
         <div 
           class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[90vh] overflow-y-auto custom-scrollbar pointer-events-auto"
           @click.stop
@@ -914,6 +967,7 @@
         @deactivate-instead="handleDeactivateFromDeleteModal"
         @confirm-delete="handleStrictDeleteConfirm"
       />
+      </Teleport>
     </template>
   </MainLayout>
 </template>

@@ -108,10 +108,10 @@
                 Provision and manage user roles, audit operational trail events, and monitor real-time ticket execution across all university maintenance units.
               </p>
             </div>
-            <div class="flex flex-wrap items-center gap-3">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
               <router-link
                 to="/superadmin/users"
-                class="px-5 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-purple-600/30 flex items-center gap-2 active:scale-95"
+                class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 active:scale-95 min-h-[44px] touch-manipulation"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -120,7 +120,7 @@
               </router-link>
               <router-link
                 to="/superadmin/logs"
-                class="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-black text-xs uppercase tracking-wider transition-all border border-white/20 backdrop-blur-sm flex items-center gap-2 active:scale-95"
+                class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-black text-xs uppercase tracking-wider transition-all border border-white/20 backdrop-blur-sm flex items-center justify-center gap-2 active:scale-95 min-h-[44px] touch-manipulation"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -184,7 +184,7 @@
                   </div>
                   <router-link to="/admin/fgmu" class="text-xs font-bold text-slate-600 hover:text-slate-900">Inspect Queue →</router-link>
                 </div>
-                <div class="grid grid-cols-4 gap-2 text-center">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                   <div class="p-2.5 bg-white rounded-xl border border-slate-200">
                     <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total</span>
                     <span class="text-base font-black text-slate-900 tabular-nums">{{ stats.tickets?.by_unit?.FGMU?.total || 0 }}</span>
@@ -213,7 +213,7 @@
                   </div>
                   <router-link to="/admin/leau" class="text-xs font-bold text-emerald-600 hover:text-emerald-700">Inspect Queue →</router-link>
                 </div>
-                <div class="grid grid-cols-4 gap-2 text-center">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                   <div class="p-2.5 bg-white rounded-xl border border-slate-200">
                     <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total</span>
                     <span class="text-base font-black text-slate-900 tabular-nums">{{ stats.tickets?.by_unit?.LEAU?.total || 0 }}</span>
@@ -242,7 +242,7 @@
                   </div>
                   <router-link to="/admin/ssu" class="text-xs font-bold text-stone-600 hover:text-stone-900">Inspect Queue →</router-link>
                 </div>
-                <div class="grid grid-cols-4 gap-2 text-center">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                   <div class="p-2.5 bg-white rounded-xl border border-slate-200">
                     <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total</span>
                     <span class="text-base font-black text-slate-900 tabular-nums">{{ stats.tickets?.by_unit?.SSU?.total || 0 }}</span>
@@ -265,19 +265,21 @@
           </div>
         </div>
 
-        <!-- Recent System Events Table -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-          <div class="flex items-center justify-between">
+        <!-- Recent System Events Table & Mobile Cards -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-sm space-y-5 sm:space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h4 class="text-lg font-black text-slate-900 tracking-tight">Recent System Activity</h4>
               <p class="text-xs text-slate-500 font-medium">Real-time audit log of operational and security events</p>
             </div>
-            <router-link to="/superadmin/logs" class="text-xs font-black text-purple-600 hover:text-purple-700 uppercase tracking-wider">
-              Explore All Logs →
+            <router-link to="/superadmin/logs" class="text-xs font-black text-purple-600 hover:text-purple-700 uppercase tracking-wider inline-flex items-center gap-1 self-start sm:self-auto py-1">
+              <span>Explore All Logs</span>
+              <span>→</span>
             </router-link>
           </div>
 
-          <div class="overflow-x-auto">
+          <!-- Desktop Table (md and up) -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left">
               <thead>
                 <tr class="border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -316,6 +318,41 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile Card Stack (screens < 768px) -->
+          <div class="block md:hidden space-y-3">
+            <div
+              v-for="log in recentLogs"
+              :key="'mob-log-' + log.id"
+              class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-200/70 text-slate-700">
+                  {{ log.action }}
+                </span>
+                <span class="text-[10px] text-slate-400 font-medium">
+                  {{ new Date(log.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) }} • {{ new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-slate-900 truncate">
+                    {{ log.first_name ? `${log.first_name} ${log.last_name}` : 'System Automation' }}
+                  </p>
+                  <p class="text-[10px] text-slate-400 truncate">{{ log.email || 'Automated Process' }}</p>
+                </div>
+                <span v-if="log.ticket_id" class="px-2 py-0.5 rounded-md font-mono text-[11px] font-bold text-purple-700 bg-purple-50 border border-purple-200 shrink-0">
+                  #{{ log.ticket_id }}
+                </span>
+              </div>
+              <p v-if="log.details" class="text-xs text-slate-600 font-medium leading-relaxed pt-2 border-t border-slate-200/60">
+                {{ log.details }}
+              </p>
+            </div>
+            <div v-if="recentLogs.length === 0" class="p-6 text-center text-slate-400 font-bold text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+              No recent audit log entries recorded.
+            </div>
           </div>
         </div>
 

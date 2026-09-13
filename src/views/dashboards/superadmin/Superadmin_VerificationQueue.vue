@@ -17,7 +17,8 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in relative pb-12">
         <!-- Control Header & Filters -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <!-- Control Header & Filters -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
           <!-- Search input -->
           <div class="relative flex-1">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -29,7 +30,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Search by name, email, or institutional ID..."
-              class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 focus:bg-white transition-all"
+              class="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 focus:bg-white transition-all min-h-[44px]"
             />
             <button
               v-if="searchQuery"
@@ -43,10 +44,10 @@
           </div>
 
           <!-- Role Filter & Refresh -->
-          <div class="flex items-center gap-2.5 shrink-0">
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end shrink-0">
             <select
               v-model="selectedRole"
-              class="px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer"
+              class="flex-1 sm:flex-initial px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer min-h-[44px] touch-manipulation"
             >
               <option value="">All Roles</option>
               <option value="student">Students</option>
@@ -57,13 +58,13 @@
             <button
               @click="fetchPendingUsers"
               :disabled="loading"
-              class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 text-xs font-bold transition-all flex items-center gap-2 disabled:opacity-50"
+              class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] touch-manipulation cursor-pointer shrink-0"
               title="Refresh Queue"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="{ 'animate-spin': loading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Refresh</span>
+              <span class="hidden xs:inline sm:inline">Refresh</span>
             </button>
           </div>
         </div>
@@ -84,7 +85,7 @@
           <div 
             v-for="user in filteredPendingUsers" 
             :key="'queue-' + user.id"
-            class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-purple-200 transition-all flex flex-col justify-between"
+            class="bg-white rounded-3xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-purple-200 transition-all flex flex-col justify-between"
           >
             <div class="space-y-3">
               <div class="flex items-center justify-between">
@@ -140,7 +141,7 @@
               <button
                 type="button"
                 @click="openInspectModal(user)"
-                class="flex-1 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5"
+                class="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 min-h-[44px] touch-manipulation cursor-pointer"
               >
                 Inspect & Verify
               </button>
@@ -148,7 +149,7 @@
                 type="button"
                 :disabled="isActionLoading"
                 @click="openApproveModal(user)"
-                class="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors border border-emerald-200 disabled:opacity-50 cursor-pointer"
+                class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors border border-emerald-200 disabled:opacity-50 flex items-center justify-center cursor-pointer touch-manipulation"
                 title="Quick Approve"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +160,7 @@
                 type="button"
                 :disabled="isActionLoading"
                 @click="openRejectModal(user)"
-                class="p-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors border border-rose-200 disabled:opacity-50 cursor-pointer"
+                class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors border border-rose-200 disabled:opacity-50 flex items-center justify-center cursor-pointer touch-manipulation"
                 title="Quick Reject"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,148 +187,150 @@
     </template>
 
     <template #modal-overlay>
-      <!-- Inspect ID Card & Verification Modal -->
-      <div 
-        v-if="isInspectModalOpen && inspectingUser" 
-        class="fixed inset-0 z-[75] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto"
-        @click.self="isInspectModalOpen = false"
-      >
+      <Teleport to="body">
+        <!-- Inspect ID Card & Verification Modal -->
         <div 
-          class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[92vh] overflow-y-auto custom-scrollbar pointer-events-auto"
-          @click.stop
+          v-if="isInspectModalOpen && inspectingUser" 
+          class="fixed inset-0 z-[9990] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 pointer-events-auto"
+          @click.self="closeInspectModal"
         >
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div>
-              <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[10px] font-black uppercase tracking-wider mb-1">
-                Institutional ID Inspection
+          <div 
+            class="bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full p-5 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[92vh] overflow-y-auto custom-scrollbar pointer-events-auto"
+            @click.stop
+          >
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[10px] font-black uppercase tracking-wider mb-1">
+                  Institutional ID Inspection
+                </div>
+                <h3 class="text-lg font-black text-slate-900 tracking-tight">Verify Account Identity</h3>
               </div>
-              <h3 class="text-lg font-black text-slate-900 tracking-tight">Verify Account Identity</h3>
-            </div>
-            <button 
-              type="button"
-              @click="isInspectModalOpen = false" 
-              class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- User Details Summary Grid -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-xs">
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</p>
-              <p class="font-bold text-slate-900 mt-0.5 truncate">{{ inspectingUser.first_name }} {{ inspectingUser.last_name }}</p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Role</p>
-              <p class="font-bold text-slate-900 mt-0.5 capitalize">{{ inspectingUser.role }}</p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ID Number</p>
-              <p class="font-bold text-emerald-700 mt-0.5">{{ inspectingUser.student_id_number || 'N/A' }}</p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact</p>
-              <p class="font-bold text-slate-900 mt-0.5">{{ inspectingUser.contact_number || 'N/A' }}</p>
-            </div>
-            <div class="col-span-2">
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</p>
-              <p class="font-bold text-slate-900 mt-0.5 truncate">{{ inspectingUser.email || 'N/A' }}</p>
-            </div>
-            <div class="col-span-2">
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Registered At</p>
-              <p class="font-bold text-slate-700 mt-0.5">{{ inspectingUser.created_at ? new Date(inspectingUser.created_at).toLocaleString() : 'N/A' }}</p>
-            </div>
-          </div>
-
-          <!-- Uploaded Document View -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <label class="text-[10px] font-black uppercase tracking-wider text-slate-500">Submitted Institutional ID Card</label>
-              <a 
-                :href="getIdCardUrl(inspectingUser.id)" 
-                target="_blank" 
-                class="text-xs font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1"
+              <button 
+                type="button"
+                @click="closeInspectModal" 
+                class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center cursor-pointer touch-manipulation"
               >
-                <span>Open Full Size</span>
-                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              </a>
+              </button>
             </div>
-            <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-900/5 p-2 flex items-center justify-center min-h-[220px] max-h-[380px] overflow-hidden">
-              <img 
-                :src="getIdCardUrl(inspectingUser.id)" 
-                alt="Institutional ID Preview" 
-                class="max-h-[360px] w-auto max-w-full rounded-xl object-contain shadow-sm"
-              />
+
+            <!-- User Details Summary Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-xs">
+              <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</p>
+                <p class="font-bold text-slate-900 mt-0.5 truncate">{{ inspectingUser.first_name }} {{ inspectingUser.last_name }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Role</p>
+                <p class="font-bold text-slate-900 mt-0.5 capitalize">{{ inspectingUser.role }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ID Number</p>
+                <p class="font-bold text-emerald-700 mt-0.5">{{ inspectingUser.student_id_number || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact</p>
+                <p class="font-bold text-slate-900 mt-0.5">{{ inspectingUser.contact_number || 'N/A' }}</p>
+              </div>
+              <div class="col-span-2">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</p>
+                <p class="font-bold text-slate-900 mt-0.5 truncate">{{ inspectingUser.email || 'N/A' }}</p>
+              </div>
+              <div class="col-span-2">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Registered At</p>
+                <p class="font-bold text-slate-700 mt-0.5">{{ inspectingUser.created_at ? new Date(inspectingUser.created_at).toLocaleString() : 'N/A' }}</p>
+              </div>
+            </div>
+
+            <!-- Uploaded Document View -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-[10px] font-black uppercase tracking-wider text-slate-500">Submitted Institutional ID Card</label>
+                <a 
+                  :href="getIdCardUrl(inspectingUser.id)" 
+                  target="_blank" 
+                  class="text-xs font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1"
+                >
+                  <span>Open Full Size</span>
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
+              <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-900/5 p-2 flex items-center justify-center min-h-[200px] max-h-[380px] overflow-hidden">
+                <img 
+                  :src="getIdCardUrl(inspectingUser.id)" 
+                  alt="Institutional ID Preview" 
+                  class="max-h-[360px] w-auto max-w-full rounded-xl object-contain shadow-sm"
+                />
+              </div>
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-3">
+              <button 
+                type="button"
+                @click="closeInspectModal" 
+                class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors min-h-[44px] touch-manipulation cursor-pointer flex items-center justify-center"
+              >
+                Cancel
+              </button>
+              <button 
+                type="button"
+                :disabled="isActionLoading || inspectingUser.status === 'Rejected'"
+                @click="openRejectModal(inspectingUser)" 
+                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] touch-manipulation"
+              >
+                <span>{{ inspectingUser.status === 'Rejected' ? 'Already Rejected' : 'Reject / Invalidate' }}</span>
+              </button>
+              <button 
+                type="button"
+                :disabled="isActionLoading || isUserVerified(inspectingUser)"
+                @click="openApproveModal(inspectingUser)" 
+                class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer min-h-[44px] touch-manipulation"
+              >
+                <svg v-if="!isActionLoading" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>{{ isUserVerified(inspectingUser) ? 'Already Verified' : 'Approve & Verify Identity' }}</span>
+              </button>
             </div>
           </div>
+        </div>
 
-          <!-- Modal Actions -->
-          <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-3">
-            <button 
-              type="button"
-              @click="isInspectModalOpen = false" 
-              class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors"
-            >
-              Cancel
-            </button>
-            <button 
-              type="button"
-              :disabled="isActionLoading || inspectingUser.status === 'Rejected'"
-              @click="openRejectModal(inspectingUser)" 
-              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <span>{{ inspectingUser.status === 'Rejected' ? 'Already Rejected' : 'Reject / Invalidate' }}</span>
-            </button>
-            <button 
-              type="button"
-              :disabled="isActionLoading || isUserVerified(inspectingUser)"
-              @click="openApproveModal(inspectingUser)" 
-              class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <svg v-if="!isActionLoading" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{{ isUserVerified(inspectingUser) ? 'Already Verified' : 'Approve & Verify Identity' }}</span>
-            </button>
+        <!-- Confirmation Modal for Approve and Reject -->
+        <ConfirmModal
+          :is-open="confirmModal.isOpen"
+          :title="confirmModal.title"
+          :message="confirmModal.message"
+          :confirm-text="confirmModal.confirmText"
+          :cancel-text="confirmModal.cancelText"
+          :type="confirmModal.type"
+          :is-loading="confirmModal.isLoading"
+          @confirm="handleConfirmAction"
+          @cancel="closeConfirmModal"
+        >
+          <div v-if="confirmModal.actionType === 'reject'" class="space-y-1.5 mt-2">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              Rejection Reason (Optional)
+            </label>
+            <textarea
+              v-model="confirmModal.reason"
+              rows="2"
+              placeholder="Explain why verification was rejected..."
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-rose-500 focus:bg-white transition-colors"
+            ></textarea>
           </div>
-        </div>
-      </div>
-
-      <!-- Confirmation Modal for Approve and Reject -->
-      <ConfirmModal
-        :is-open="confirmModal.isOpen"
-        :title="confirmModal.title"
-        :message="confirmModal.message"
-        :confirm-text="confirmModal.confirmText"
-        :cancel-text="confirmModal.cancelText"
-        :type="confirmModal.type"
-        :is-loading="confirmModal.isLoading"
-        @confirm="handleConfirmAction"
-        @cancel="closeConfirmModal"
-      >
-        <div v-if="confirmModal.actionType === 'reject'" class="space-y-1.5 mt-2">
-          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            Rejection Reason (Optional)
-          </label>
-          <textarea
-            v-model="confirmModal.reason"
-            rows="2"
-            placeholder="Explain why verification was rejected..."
-            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-rose-500 focus:bg-white transition-colors"
-          ></textarea>
-        </div>
-      </ConfirmModal>
+        </ConfirmModal>
+      </Teleport>
     </template>
   </MainLayout>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
@@ -398,6 +401,13 @@ const filteredPendingUsers = computed(() => {
 const openInspectModal = (user) => {
   inspectingUser.value = user;
   isInspectModalOpen.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const closeInspectModal = () => {
+  isInspectModalOpen.value = false;
+  inspectingUser.value = null;
+  document.body.style.overflow = '';
 };
 
 // Confirmation modal state
@@ -497,5 +507,9 @@ const getRoleBadgeClass = (role) => {
 
 onMounted(() => {
   fetchPendingUsers();
+});
+
+onBeforeUnmount(() => {
+  document.body.style.overflow = '';
 });
 </script>

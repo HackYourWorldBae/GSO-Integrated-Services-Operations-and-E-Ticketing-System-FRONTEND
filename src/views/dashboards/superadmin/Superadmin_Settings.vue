@@ -8,18 +8,18 @@
           </svg>
         </div>
         <div class="flex flex-col">
-          <h2 class="text-xl font-extrabold text-slate-900 tracking-tight leading-none mb-1">Superadmin Account Settings</h2>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight leading-snug mb-0.5">Superadmin Account Settings</h2>
           <p class="text-[10px] text-emerald-700 font-bold tracking-[0.15em] uppercase">Root System Administrator &amp; Security Controls</p>
         </div>
       </div>
     </template>
 
     <template #main-content>
-      <div class="max-w-4xl mx-auto space-y-8 animate-fade-in pb-12">
+      <div class="max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-fade-in pb-12">
         <!-- Profile Form Card -->
-        <div class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
-          <div class="p-6 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
-            <div class="flex items-center gap-4">
+        <div class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+          <div class="p-4 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
+            <div class="flex items-center gap-3 sm:gap-4">
               <div class="relative group cursor-pointer shrink-0" @click="triggerAvatarUpload" title="Click to change profile picture">
                 <input
                   type="file"
@@ -28,11 +28,11 @@
                   class="hidden"
                   @change="handleAvatarFileChange"
                 />
-                <div class="w-16 h-16 rounded-[1.25rem] overflow-hidden bg-slate-950 flex items-center justify-center text-emerald-400 shadow-lg shadow-slate-950/20 border-2 border-emerald-500/40">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[1.25rem] overflow-hidden bg-slate-950 flex items-center justify-center text-emerald-400 shadow-lg shadow-slate-950/20 border-2 border-emerald-500/40">
                   <img v-if="avatarPreviewUrl" :src="avatarPreviewUrl" alt="Avatar" class="w-full h-full object-cover" />
-                  <span v-else class="text-2xl font-black">{{ form.firstName ? form.firstName.charAt(0).toUpperCase() : 'S' }}</span>
+                  <span v-else class="text-xl sm:text-2xl font-black">{{ form.firstName ? form.firstName.charAt(0).toUpperCase() : 'S' }}</span>
                 </div>
-                <div class="absolute -bottom-1.5 -right-1.5 p-1.5 bg-white rounded-xl shadow-md border border-slate-200 text-slate-600 hover:text-emerald-600 transition-all group-hover:scale-110">
+                <div class="absolute -bottom-1 -right-1 p-1.5 bg-white rounded-xl shadow-md border border-slate-200 text-slate-600 hover:text-emerald-600 transition-all group-hover:scale-110">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -41,7 +41,7 @@
               </div>
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-lg font-black text-slate-900 tracking-tight">System Administrator Profile</h3>
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">System Administrator Profile</h3>
                   <span class="px-2.5 py-0.5 bg-slate-900 text-emerald-400 text-[10px] font-black uppercase tracking-wider rounded-md border border-slate-800">
                     Root Superadmin
                   </span>
@@ -57,11 +57,11 @@
             </div>
           </div>
 
-          <div class="p-6 sm:p-10 md:p-12 space-y-10">
+          <div class="p-4 sm:p-8 md:p-12 space-y-6 sm:space-y-10">
             <!-- Account Details Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8">
               <!-- First Name -->
-              <div class="space-y-2.5">
+              <div class="space-y-2">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">First Name</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
@@ -72,14 +72,14 @@
                   <input
                     v-model="form.firstName"
                     type="text"
-                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                    class="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none min-h-[44px]"
                     placeholder="Enter first name"
                   />
                 </div>
               </div>
 
               <!-- Last Name -->
-              <div class="space-y-2.5">
+              <div class="space-y-2">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Last Name</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
@@ -90,14 +90,14 @@
                   <input
                     v-model="form.lastName"
                     type="text"
-                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                    class="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none min-h-[44px]"
                     placeholder="Enter last name"
                   />
                 </div>
               </div>
 
               <!-- Email Address -->
-              <div class="space-y-2.5 md:col-span-2">
+              <div class="space-y-2 md:col-span-2">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Email Address</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
@@ -109,7 +109,7 @@
                     v-model="form.email"
                     type="email"
                     disabled
-                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 cursor-not-allowed outline-none"
+                    class="block w-full pl-11 pr-4 py-3 bg-slate-100/70 border border-slate-200 rounded-xl sm:rounded-2xl text-base sm:text-sm font-bold text-slate-500 cursor-not-allowed outline-none min-h-[44px]"
                     placeholder="superadmin@bsu.edu.ph"
                   />
                 </div>
@@ -117,7 +117,7 @@
               </div>
 
               <!-- New Password -->
-              <div class="space-y-2.5">
+              <div class="space-y-2">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">New Password</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
@@ -128,13 +128,14 @@
                   <input
                     v-model="form.password"
                     :type="showPassword ? 'text' : 'password'"
-                    class="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                    class="block w-full pl-11 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none min-h-[44px]"
                     placeholder="Leave blank to keep current"
                   />
                   <button
                     type="button"
                     @click="showPassword = !showPassword"
-                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                    class="absolute inset-y-0 right-0 w-11 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer touch-manipulation"
+                    aria-label="Toggle password visibility"
                   >
                     <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -149,7 +150,7 @@
               </div>
 
               <!-- Confirm Password -->
-              <div class="space-y-2.5">
+              <div class="space-y-2">
                 <div class="flex items-center justify-between ml-1">
                   <label class="block text-xs font-black text-slate-800 uppercase tracking-widest">Confirm Password</label>
                   <span v-if="form.password && form.confirmPassword" class="text-xs font-bold" :class="form.password === form.confirmPassword ? 'text-emerald-600' : 'text-rose-500'">
@@ -165,7 +166,7 @@
                   <input
                     v-model="form.confirmPassword"
                     :type="showPassword ? 'text' : 'password'"
-                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                    class="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none min-h-[44px]"
                     placeholder="Re-type new password"
                   />
                 </div>
@@ -173,7 +174,7 @@
             </div>
 
             <!-- Root Privileges Callout -->
-            <div class="p-5 rounded-2xl bg-slate-900 text-slate-300 flex items-start gap-3.5 shadow-md">
+            <div class="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-900 text-slate-300 flex items-start gap-3.5 shadow-md">
               <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -189,12 +190,12 @@
           </div>
 
           <!-- Bottom Action Bar -->
-          <div class="p-6 sm:p-8 bg-slate-50/70 border-t border-slate-100 flex items-center justify-end">
+          <div class="p-4 sm:p-8 bg-slate-50/70 border-t border-slate-100 flex items-center justify-stretch sm:justify-end">
             <button
               type="button"
               @click="handleSave"
               :disabled="isSaving"
-              class="px-8 py-3.5 bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-98 flex items-center gap-2.5 cursor-pointer disabled:cursor-not-allowed"
+              class="w-full sm:w-auto px-8 py-3.5 bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-98 flex items-center justify-center gap-2.5 cursor-pointer disabled:cursor-not-allowed min-h-[44px] touch-manipulation"
             >
               <svg v-if="!isSaving" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
