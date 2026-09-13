@@ -60,6 +60,12 @@ export const useAuthStore = defineStore('auth', () => {
       return false;
     }
 
+    // Pending/unverified accounts cannot create tickets until verified by Superadmin
+    const isVerified = user.value?.is_verified === 1 || user.value?.is_verified === true || user.value?.is_verified === '1';
+    if (!isVerified && featureKey === 'tickets.create') {
+      return false;
+    }
+
     const list = Array.isArray(permissions.value) && permissions.value.length > 0
       ? permissions.value
       : (user.value?.permissions || []);
@@ -81,7 +87,7 @@ export const useAuthStore = defineStore('auth', () => {
         return ['reports.view', 'tickets.view_all', 'tickets.verify_close'].includes(featureKey);
       }
       if (role.value === 'student' || role.value === 'employee') {
-        return ['tickets.create'].includes(featureKey);
+        return isVerified && user.value?.status !== 'Deactivated' ? ['tickets.create'].includes(featureKey) : false;
       }
       if (role.value === 'worker') {
         return ['tickets.complete_work'].includes(featureKey);
@@ -102,7 +108,7 @@ export const useAuthStore = defineStore('auth', () => {
    * Verify session status with the backend.
    * If the account was logged in elsewhere, backend JwtAuthFilter returns 401 SESSION_SUPERSEDED,
    * which triggers the signed-out modal via the apiClient response interceptor.
-   * Also synchronizes latest permissions in near real-time without requiring re-login.
+   * Also synchronizes latest permissions, status, and verification in near real-time.
    */
   const verifySession = async () => {
     if (typeof window === 'undefined') return;
@@ -126,6 +132,12 @@ export const useAuthStore = defineStore('auth', () => {
         if (user.value) {
           user.value.permissions = serverPermissions;
         }
+      }
+      if (res.data?.data?.status && user.value) {
+        user.value.status = res.data.data.status;
+      }
+      if (typeof res.data?.data?.is_verified !== 'undefined' && user.value) {
+        user.value.is_verified = res.data.data.is_verified;
       }
     } catch (error) {
       const status = error.response?.status;
