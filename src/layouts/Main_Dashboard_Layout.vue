@@ -486,7 +486,9 @@ const handleNotificationClick = async (notif) => {
 
   if (role === 'admin' || role === 'dispatcher') {
     if (unitCode === 'ssu') {
-      targetPath = isCompleted ? '/admin/ssu/archives' : '/admin/ssu/queues/incidents';
+      if (isCompleted) targetPath = '/admin/ssu/archives';
+      else if (isActive || isDispatched || text.includes('investigat')) targetPath = '/admin/ssu/investigating-tickets';
+      else targetPath = '/admin/ssu/submitted-tickets';
     } else if (unitCode === 'leau') {
       if (isCompleted) targetPath = '/admin/leau/archives';
       else if (isActive) targetPath = '/admin/leau/active-tickets';
@@ -506,7 +508,9 @@ const handleNotificationClick = async (notif) => {
       else if (unitCode === 'leau') targetPath = '/admin/leau/archives';
       else targetPath = '/admin/fgmu/archives';
     } else if (unitCode === 'ssu') {
-      targetPath = '/admin/ssu/queues/incidents';
+      targetPath = (isActive || isDispatched || text.includes('investigat'))
+        ? '/admin/ssu/investigating-tickets'
+        : '/admin/ssu/submitted-tickets';
     } else if (unitCode === 'leau') {
       targetPath = '/director/leau/queues';
     } else {

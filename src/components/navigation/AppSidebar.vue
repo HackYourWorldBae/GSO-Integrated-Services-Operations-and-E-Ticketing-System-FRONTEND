@@ -138,8 +138,13 @@ const rawNavGroups = computed(() => {
           },
           ...(isSSU ? [
             {
-              label: 'Incident Queues',
-              to: '/admin/ssu/queues/incidents',
+              label: 'Submitted Tickets',
+              to: '/admin/ssu/submitted-tickets',
+              icon: 'queue'
+            },
+            {
+              label: 'Under Investigation',
+              to: '/admin/ssu/investigating-tickets',
               icon: 'shield'
             }
           ] : [

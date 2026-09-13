@@ -16,6 +16,8 @@ const FGMU_Dashboard = () => import('../views/dashboards/admin/fgmu/FGMU_Dashboa
 const LEAU_Dashboard = () => import('../views/dashboards/admin/leau/LEAU_Dashboard.vue');
 
 const SSU_Dashboard = () => import('../views/dashboards/admin/ssu/SSU_Dashboard.vue');
+const SSU_SubmittedTickets = () => import('../views/dashboards/admin/ssu/SSU_SubmittedTickets.vue');
+const SSU_InvestigatingTickets = () => import('../views/dashboards/admin/ssu/SSU_InvestigatingTickets.vue');
 const SSU_IncidentTicketQueues = () => import('../views/dashboards/admin/ssu/SSU_IncidentTicketQueues.vue');
 const Director_Dashboard = () => import('../views/dashboards/director/Director_Dashboard.vue');
 const Director_Materials = () => import('../views/dashboards/director/Director_Materials.vue');
@@ -239,8 +241,22 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU' }
     },
     {
+      path: '/admin/ssu/submitted-tickets',
+      alias: ['/admin/ssu/queues/submitted'],
+      name: 'ssu-submitted-tickets',
+      component: SSU_SubmittedTickets,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'SSU', permission: 'tickets.view_all' }
+    },
+    {
+      path: '/admin/ssu/investigating-tickets',
+      alias: ['/admin/ssu/queues/investigating'],
+      name: 'ssu-investigating-tickets',
+      component: SSU_InvestigatingTickets,
+      meta: { requiresAuth: true, roles: ['admin', 'dispatcher', 'director', 'superadmin'], unit: 'SSU', permission: 'tickets.view_all' }
+    },
+    {
       path: '/admin/ssu/queues',
-      redirect: '/admin/ssu/queues/incidents'
+      redirect: '/admin/ssu/submitted-tickets'
     },
     {
       path: '/admin/ssu/queues/incidents',
