@@ -71,7 +71,7 @@
                     <span class="text-sm font-black text-slate-900">#{{ ticket.ticketId }}</span>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <div class="truncate max-w-[150px] sm:max-w-xs text-sm font-bold text-slate-900" :title="ticket.title || ticket.service">{{ ticket.title || ticket.service }}</div>
+                    <div class="truncate max-w-[150px] sm:max-w-xs text-sm font-bold text-slate-900" :title="ticket.service_type || ticket.service || ticket.title">{{ ticket.service_type || ticket.service || ticket.title }}</div>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
                     <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
@@ -235,7 +235,7 @@
               </div>
               <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.title || selectedTicket.service }}</p>
+                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.service_type || selectedTicket.service || selectedTicket.title }}</p>
               </div>
               <div v-if="selectedTicket.workingDays">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Duration</p>
@@ -249,6 +249,14 @@
               <div v-if="selectedTicket.effective_target_date || selectedTicket.target_completion_date">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Completion Date</p>
                 <p class="text-base font-semibold text-slate-800">{{ formatDate(selectedTicket.effective_target_date || selectedTicket.target_completion_date) }}</p>
+              </div>
+
+              <!-- Dedicated Job Particulars / Description Section -->
+              <div v-if="selectedTicket.description" class="col-span-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Job Particulars / Description</p>
+                <div class="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
+                  <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
+                </div>
               </div>
 
               <!-- Dedicated Extension Notice Section (If Applicable) -->
@@ -391,40 +399,51 @@
       />
 
 
-      <!-- Timeline Progress Modal -->
-      <div
-        v-if="selectedTimelineTicket"
-        class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
-        @click.self="closeTimeline"
-      >
-        <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden" @click.stop>
-          <!-- Modal Header -->
-          <div class="flex items-start justify-between px-6 pt-6 pb-5 border-b border-slate-100 shrink-0">
-            <div class="flex items-start gap-4">
-              <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 bg-emerald-50 text-emerald-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="text-lg font-black text-slate-900 leading-tight">{{ selectedTimelineTicket.title || selectedTimelineTicket.service }}</h3>
-                <div class="flex items-center gap-2 mt-1.5 flex-wrap">
-                  <span class="text-xs font-mono font-bold text-slate-400">#{{ selectedTimelineTicket.ticketId }}</span>
-                  <span class="text-slate-300">·</span>
-                  <span class="text-xs font-bold text-slate-500">{{ selectedTimelineTicket.unit }}</span>
-                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border bg-emerald-50 text-emerald-700 border-emerald-200">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    {{ selectedTimelineTicket.statusLabel }}
-                  </span>
+      <!-- Timeline Progress Modal (Teleported to body for mobile responsiveness & no pointer-events trapping) -->
+      <Teleport to="body">
+        <div
+          v-if="selectedTimelineTicket"
+          class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in pointer-events-auto"
+          @click.self="closeTimeline"
+        >
+          <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden pointer-events-auto" @click.stop>
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between px-5 sm:px-6 pt-5 sm:pt-6 pb-4 sm:pb-5 border-b border-slate-100 shrink-0">
+              <div class="flex items-start gap-3 sm:gap-4 min-w-0 flex-1 mr-2">
+                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center flex-shrink-0 bg-emerald-50 text-emerald-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight truncate" :title="selectedTimelineTicket.service_type || selectedTimelineTicket.service || selectedTimelineTicket.title">
+                    {{ selectedTimelineTicket.service_type || selectedTimelineTicket.service || selectedTimelineTicket.title }}
+                  </h3>
+                  <p v-if="selectedTimelineTicket.description && selectedTimelineTicket.description !== (selectedTimelineTicket.service_type || selectedTimelineTicket.service)" class="text-xs text-slate-500 line-clamp-1 mt-0.5" :title="selectedTimelineTicket.description">
+                    {{ selectedTimelineTicket.description }}
+                  </p>
+                  <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                    <span class="text-xs font-mono font-bold text-slate-400">#{{ selectedTimelineTicket.ticketId }}</span>
+                    <span class="text-slate-300">·</span>
+                    <span class="text-xs font-bold text-slate-500">{{ selectedTimelineTicket.unit }}</span>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border bg-emerald-50 text-emerald-700 border-emerald-200">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      {{ selectedTimelineTicket.statusLabel }}
+                    </span>
+                  </div>
                 </div>
               </div>
+              <button
+                type="button"
+                @click.stop="closeTimeline"
+                class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all active:scale-95 flex-shrink-0 cursor-pointer touch-manipulation"
+                aria-label="Close timeline"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-            <button @click="closeTimeline" class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all active:scale-95 flex-shrink-0 cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
 
           <!-- Modal Body -->
           <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
@@ -478,24 +497,39 @@
               </div>
             </div>
 
-            <!-- Finalized Card -->
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center">
-              <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-3 text-emerald-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <!-- Finalized Card -->
+              <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center">
+                <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-3 text-emerald-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h4 class="font-black text-slate-900 text-sm mb-1">Ticket Finalized & Archived</h4>
+                <p class="text-xs text-slate-500 leading-relaxed">Thank you for using GSO E-Ticketing. This service request has been completed and archived.</p>
               </div>
-              <h4 class="font-black text-slate-900 text-sm mb-1">Ticket Finalized & Archived</h4>
-              <p class="text-xs text-slate-500 leading-relaxed">Thank you for using GSO E-Ticketing. This service request has been completed and archived.</p>
+
+              <!-- Mobile Convenient Close Button -->
+              <div class="pt-2">
+                <button
+                  type="button"
+                  @click.stop="closeTimeline"
+                  class="w-full py-3.5 px-5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all active:scale-[0.98] text-sm shadow-md cursor-pointer flex items-center justify-center gap-2 touch-manipulation min-h-[44px]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span>Close Progress</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </Teleport>
     </template>
   </MainLayout>
 </template>
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
@@ -751,14 +785,31 @@ const getSteps = (ticket) => {
 
 const selectedTimelineTicket = ref(null);
 
+const handleKeydown = (e) => {
+  if (e.key === 'Escape' && selectedTimelineTicket.value) {
+    closeTimeline();
+  }
+};
+
 const openTimeline = (ticket) => {
   selectedTimelineTicket.value = ticket;
+  document.body.style.overflow = 'hidden';
 };
 
 const closeTimeline = () => {
   selectedTimelineTicket.value = null;
+  document.body.style.overflow = '';
   clearRouteQueryTicket();
 };
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown);
+  document.body.style.overflow = '';
+});
 </script>
 
 <style scoped>

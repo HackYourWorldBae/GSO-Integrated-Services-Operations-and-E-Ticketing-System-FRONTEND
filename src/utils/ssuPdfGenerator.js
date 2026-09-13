@@ -52,7 +52,7 @@ export const buildSsuTemplateData = (ticket = {}) => {
   const location = ticket.location || details.location || details.college_building || 'BSU Campus';
   const officeRoom = ticket.office_room || details.office_room || 'N/A';
   const reporter = ticket.requestedBy || details.reported_by || details.end_user || ticket.requested_by || 'Anonymous / Confidential';
-  const incidentType = ticket.title || ticket.service || ticket.service_type || 'General Incident';
+  const incidentType = ticket.service_type || ticket.service || ticket.title || 'General Incident';
   const status = ticket.statusLabel || ticket.status || 'Resolved';
   const description = (ticket.description || 'No detailed incident description provided.').trim();
   const ssuNotation = (ticket.ssu_notation || ticket.notation || details.notation || 'Incident resolved and documented under SSU safety protocols.').trim();

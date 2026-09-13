@@ -116,7 +116,7 @@
                 </div>
                 <div class="space-y-1">
                   <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Service Category</span>
-                  <span class="text-xs sm:text-sm font-bold text-slate-800 block leading-snug">{{ ticket?.title || ticket?.service_type || ticket?.service || 'N/A' }}</span>
+                  <span class="text-xs sm:text-sm font-bold text-slate-800 block leading-snug">{{ ticket?.service_type || ticket?.service || ticket?.title || 'N/A' }}</span>
                 </div>
                 <div class="space-y-1">
                   <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Requesting End-User</span>

@@ -146,7 +146,7 @@ export const exportJobRequestFormsZip = async ({
   const csvHeaders = [
     { label: 'Ticket ID', getValue: t => `#${t.ticketId || t.id}` },
     { label: 'Unit', getValue: () => unitCode },
-    { label: 'Service Category', getValue: t => t.title || t.service || t.service_type || 'General Service' },
+    { label: 'Service Category', getValue: t => t.service_type || t.service || t.title || 'General Service' },
     { label: 'Requester', getValue: t => t.requestedBy || t.details?.end_user || 'End User' },
     { label: 'Location / Building', getValue: t => t.location || t.details?.college_building || 'N/A' },
     { label: 'Office / Room', getValue: t => t.office_room || t.details?.office_room || 'N/A' },
@@ -287,7 +287,7 @@ export const exportMaterialSlipsZip = async ({
     { label: 'Date Completed', getValue: t => t.completed_at || t.updated_at || t.date || 'N/A' },
     { label: 'Requester', getValue: t => t.requestedBy || t.details?.end_user || 'End User' },
     { label: 'Location / Office', getValue: t => `${t.location || 'N/A'} - ${t.office_room || 'N/A'}` },
-    { label: 'Service Category', getValue: t => t.title || t.service || t.service_type || 'General Service' },
+    { label: 'Service Category', getValue: t => t.service_type || t.service || t.title || 'General Service' },
     { label: 'Assigned Personnel', getValue: t => t.assignedWorker || 'Unassigned' },
     { label: 'Total Material Cost (PHP)', getValue: t => formatPrice(t.total_material_cost) },
     {
@@ -415,7 +415,7 @@ export const exportSsuIncidentReportsZip = async ({
   // 1. Generate dedicated CSV Summary for SSU Incident Reports
   const csvHeaders = [
     { label: 'Incident Ticket ID', getValue: t => `#${t.ticketId || t.id}` },
-    { label: 'Nature of Incident', getValue: t => t.title || t.service || t.service_type || 'Incident Report' },
+    { label: 'Nature of Incident', getValue: t => t.service_type || t.service || t.title || 'Incident Report' },
     { label: 'Date Reported', getValue: t => t.date || t.submitted_at || 'N/A' },
     { label: 'Date Resolved', getValue: t => t.completed_at || t.updated_at || 'N/A' },
     { label: 'Reported By', getValue: t => t.requestedBy || t.details?.reported_by || 'Confidential' },

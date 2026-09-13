@@ -137,7 +137,7 @@ export const buildMaterialsReportDocDefinition = (data, logoDataUrl) => {
         {
           stack: [
             { text: item.material_name || 'Standard Consumable Item', bold: true, fontSize: 8.5, color: '#111827' },
-            { text: item.ticket_title ? `Job: ${item.ticket_title}` : '', fontSize: 7, color: '#6b7280', margin: [0, 1, 0, 0] },
+            { text: (item.service_type || item.ticket_title) ? `Service: ${item.service_type || item.ticket_title}` : '', fontSize: 7, color: '#6b7280', margin: [0, 1, 0, 0] },
           ],
           fillColor: rowBg,
         },

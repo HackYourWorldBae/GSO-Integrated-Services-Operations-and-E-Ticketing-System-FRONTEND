@@ -67,7 +67,7 @@ export const buildMaterialSlipData = (ticket = {}) => {
   const ticketId = String(ticket.ticketId || ticket.id || '0000').padStart(4, '0');
   const dateCompleted = formatDocDate(ticket.completed_at || ticket.updated_at || new Date());
 
-  const serviceCategory = ticket.title || ticket.service_type || ticket.service || 'General Maintenance Service';
+  const serviceCategory = ticket.service_type || ticket.service || ticket.title || 'General Maintenance Service';
   const requester = details.end_user || details.requesting_personnel || ticket.requestedBy || ticket.requested_by || ticket.user_name || ticket.requester || 'End User';
   const location = `${details.college_building || ticket.location || details.location || ticket.college_building || 'Main Campus'}${details.office_room || ticket.office_room ? ' • ' + (details.office_room || ticket.office_room) : ''}`;
 

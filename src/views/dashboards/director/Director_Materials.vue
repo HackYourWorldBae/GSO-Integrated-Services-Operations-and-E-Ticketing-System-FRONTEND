@@ -305,7 +305,7 @@
                   <td class="py-3 px-4 text-center text-xs font-bold text-slate-400 tabular-nums">{{ idx + 1 }}</td>
                   <td class="py-3 px-6">
                     <div class="font-bold text-slate-900 text-sm">{{ item.material_name }}</div>
-                    <div v-if="item.ticket_title" class="text-xs text-slate-400 truncate max-w-sm mt-0.5">{{ item.ticket_title }}</div>
+                    <div v-if="item.service_type || item.ticket_title" class="text-xs text-slate-400 truncate max-w-sm mt-0.5">{{ item.service_type || item.ticket_title }}</div>
                   </td>
                   <td class="py-3 px-4 text-center">
                     <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-semibold uppercase">{{ item.unit_measurement || 'pcs' }}</span>
