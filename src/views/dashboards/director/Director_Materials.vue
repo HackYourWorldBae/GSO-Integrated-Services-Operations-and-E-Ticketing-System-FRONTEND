@@ -266,7 +266,7 @@
                   <th class="py-3.5 px-4 text-right">Price per Unit</th>
                   <th class="py-3.5 px-4 text-right">Total Cost</th>
                   <th class="py-3.5 px-4 text-center">Unit</th>
-                  <th class="py-3.5 px-6 text-center">Job Order #</th>
+                  <th class="py-3.5 px-6 text-center">Ticket Ref #</th>
                   <th class="py-3.5 px-6 text-center">Date Used</th>
                 </tr>
               </thead>

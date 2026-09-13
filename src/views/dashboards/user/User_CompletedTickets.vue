@@ -43,7 +43,7 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in relative pb-12">
         <!-- Search and Filters -->
-        <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
           <div class="flex-1 w-full relative">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -52,10 +52,11 @@
           </div>
         </div>
 
-        <!-- Tickets List (Data Table) -->
-        <div class="rounded-[2.5rem] bg-white border border-slate-200 p-8 overflow-hidden shadow-sm mt-6">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-separate border-spacing-y-4 min-w-[800px]">
+        <!-- Tickets List Container -->
+        <div class="rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200 p-4 sm:p-6 md:p-8 overflow-hidden shadow-sm mt-6">
+          <!-- Desktop Table (Hidden on Mobile) -->
+          <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-left border-separate border-spacing-y-4 min-w-[700px]">
               <thead>
                 <tr class="border-b border-slate-100">
                   <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6">Ticket ID</th>
@@ -112,6 +113,82 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile Card List (Visible on Mobile only, zero horizontal scrolling) -->
+          <div class="block md:hidden space-y-3">
+            <div
+              v-for="ticket in paginatedTickets"
+              :key="'m-' + ticket.id"
+              class="p-4 rounded-2xl bg-slate-50/70 border border-slate-200 hover:border-emerald-400 hover:bg-white transition-all shadow-xs space-y-3"
+            >
+              <!-- Card Top: ID + Unit + Status -->
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-1.5">
+                  <span class="px-2 py-0.5 rounded-md bg-slate-200/70 text-slate-700 text-[10px] font-black uppercase tracking-wider">
+                    {{ ticket.unit }}
+                  </span>
+                  <span class="text-xs font-mono font-black text-slate-900">#{{ ticket.ticketId }}</span>
+                </div>
+                <span :class="['px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
+                  {{ ticket.statusLabel }}
+                </span>
+              </div>
+
+              <!-- Card Body: Service Type & Description -->
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 leading-snug">
+                  {{ ticket.service_type || ticket.service || ticket.title }}
+                </h4>
+                <p v-if="ticket.description && ticket.description !== (ticket.service_type || ticket.service)" class="text-xs text-slate-500 line-clamp-2 mt-1">
+                  {{ ticket.description }}
+                </p>
+              </div>
+
+              <!-- Card Meta: Date -->
+              <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium pt-2 border-t border-slate-200/60">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Completed: {{ ticket.date }}</span>
+              </div>
+
+              <!-- Card Actions: Two responsive 44px touch targets -->
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  @click="openTimeline(ticket)"
+                  class="w-full py-2.5 px-3 bg-white hover:bg-emerald-50 text-emerald-700 font-bold rounded-xl border border-emerald-200 hover:border-emerald-300 transition-all text-xs active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs min-h-[44px] touch-manipulation"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <span>Track</span>
+                </button>
+                <button
+                  type="button"
+                  @click="viewDetails(ticket)"
+                  class="w-full py-2.5 px-3 bg-white hover:bg-slate-100 text-slate-700 font-bold rounded-xl border border-slate-200 hover:border-slate-300 transition-all text-xs active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs min-h-[44px] touch-manipulation"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span>Details</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Empty State for mobile if 0 tickets -->
+            <div v-if="filteredTickets.length === 0" class="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl">
+              <div class="w-12 h-12 bg-white border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-xs">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+              </div>
+              <h4 class="text-base font-black text-slate-900 mb-1">No Completed Tickets</h4>
+              <p class="text-xs text-slate-500 font-medium">You don't have any completed or archived tickets yet.</p>
+            </div>
           </div>
 
           <!-- Pagination Toolbar -->
@@ -192,25 +269,26 @@
     </template>
 
     <template #modal-overlay>
-      <!-- Read-Only Ticket Details Modal -->
-      <div v-if="showDetailsModal && selectedTicket" class="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeDetailsModal">
-        <div class="bg-white rounded-[2rem] p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-2xl font-black text-slate-900">Completed Ticket Details</h3>
-            <div class="flex items-center gap-2">
-              <button @click="openTimeline(selectedTicket)" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
-                Track Progress
-              </button>
-              <button @click="closeDetailsModal" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full transition-colors active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+      <!-- Read-Only Ticket Details Modal (Teleported to body for mobile responsiveness & no pointer-events trapping) -->
+      <Teleport to="body">
+        <div v-if="showDetailsModal && selectedTicket" class="fixed inset-0 z-[9990] flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeDetailsModal">
+          <div class="bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto custom-scrollbar pointer-events-auto">
+            <div class="flex items-center justify-between mb-5 sm:mb-6">
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900">Completed Ticket Details</h3>
+              <div class="flex items-center gap-2">
+                <button @click="openTimeline(selectedTicket)" class="px-3 sm:px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer touch-manipulation min-h-[44px]">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <span>Track Progress</span>
+                </button>
+                <button @click="closeDetailsModal" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors active:scale-95 cursor-pointer touch-manipulation" aria-label="Close details">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
-          </div>
           
           <div class="space-y-6">
             <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-xl border border-emerald-100">
@@ -389,6 +467,7 @@
           </div>
         </div>
       </div>
+    </Teleport>
 
       <!-- Document & Attachment Viewer Modal -->
       <DocumentViewerModal
@@ -720,11 +799,15 @@ const userAttachments = computed(() => {
 const viewDetails = (ticket) => {
   selectedTicket.value = ticket;
   showDetailsModal.value = true;
+  document.body.style.overflow = 'hidden';
 };
 
 const closeDetailsModal = () => {
   showDetailsModal.value = false;
   selectedTicket.value = null;
+  if (!selectedTimelineTicket.value) {
+    document.body.style.overflow = '';
+  }
   clearRouteQueryTicket();
 };
 
@@ -786,8 +869,12 @@ const getSteps = (ticket) => {
 const selectedTimelineTicket = ref(null);
 
 const handleKeydown = (e) => {
-  if (e.key === 'Escape' && selectedTimelineTicket.value) {
-    closeTimeline();
+  if (e.key === 'Escape') {
+    if (selectedTimelineTicket.value) {
+      closeTimeline();
+    } else if (showDetailsModal.value) {
+      closeDetailsModal();
+    }
   }
 };
 
@@ -798,7 +885,9 @@ const openTimeline = (ticket) => {
 
 const closeTimeline = () => {
   selectedTimelineTicket.value = null;
-  document.body.style.overflow = '';
+  if (!showDetailsModal.value) {
+    document.body.style.overflow = '';
+  }
   clearRouteQueryTicket();
 };
 
