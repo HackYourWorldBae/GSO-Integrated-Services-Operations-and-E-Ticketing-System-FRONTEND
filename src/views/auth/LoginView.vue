@@ -33,7 +33,26 @@ const handleLogin = async () => {
   isAccountSuspended.value = false;
 
   try {
-    const result = await authStore.login(identifier.value, password.value);
+    let submittedIdentifier = identifier.value.trim();
+
+    // -------------------------------------------------------------------------
+    // TEMPORARY: Administrative mock account shortcut for ICT mentor testing.
+    // Automatically appends '@email.com' if only the mock username is typed.
+    // Mock targets: director, superadmin, fgmu-admin, leau-admin, ssu-admin
+    // TODO: Remove/disable once real institutional administrative credentials are deployed.
+    // -------------------------------------------------------------------------
+    const adminMockAccounts = [
+      'director',
+      'superadmin',
+      'fgmu-admin',
+      'leau-admin',
+      'ssu-admin'
+    ];
+    if (adminMockAccounts.includes(submittedIdentifier.toLowerCase())) {
+      submittedIdentifier = `${submittedIdentifier.toLowerCase()}@email.com`;
+    }
+
+    const result = await authStore.login(submittedIdentifier, password.value);
 
     if (!result.success) {
       isAccountSuspended.value = Boolean(result.isSuspended);
