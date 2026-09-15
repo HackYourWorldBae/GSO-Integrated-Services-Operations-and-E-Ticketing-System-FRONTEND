@@ -676,11 +676,27 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">First Name *</label>
-                <input v-model="createForm.first_name" type="text" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="e.g. John" />
+                <input 
+                  v-model="createForm.first_name" 
+                  type="text" 
+                  maxlength="50"
+                  required 
+                  @input="createForm.first_name = createForm.first_name.replace(/[^a-zA-ZÀ-ÿ\s\-'.]/g, '')"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" 
+                  placeholder="e.g. John" 
+                />
               </div>
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Last Name *</label>
-                <input v-model="createForm.last_name" type="text" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="e.g. Doe" />
+                <input 
+                  v-model="createForm.last_name" 
+                  type="text" 
+                  maxlength="50"
+                  required 
+                  @input="createForm.last_name = createForm.last_name.replace(/[^a-zA-ZÀ-ÿ\s\-'.]/g, '')"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" 
+                  placeholder="e.g. Doe" 
+                />
               </div>
             </div>
 
@@ -715,23 +731,45 @@
             </div>
 
             <div v-if="createForm.role === 'student'">
-              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Student ID Number (Optional)</label>
-              <input v-model="createForm.student_id_number" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="e.g. 21-12345" />
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Student ID Number (Strict 7 digits)</label>
+                <span class="text-[9px] text-slate-400 font-semibold">{{ createForm.student_id_number ? createForm.student_id_number.length : 0 }}/7 digits</span>
+              </div>
+              <input 
+                v-model="createForm.student_id_number" 
+                type="text" 
+                inputmode="numeric"
+                maxlength="7"
+                @input="createForm.student_id_number = createForm.student_id_number.replace(/\D/g, '').slice(0, 7)"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" 
+                placeholder="e.g. 2301219" 
+              />
             </div>
 
             <div>
-              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Contact Number</label>
-              <input v-model="createForm.contact_number" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="09xxxxxxxxx" />
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contact Number (Optional)</label>
+                <span class="text-[9px] text-slate-400 font-semibold">{{ createForm.contact_number ? createForm.contact_number.length : 0 }}/11 digits</span>
+              </div>
+              <input 
+                v-model="createForm.contact_number" 
+                type="tel" 
+                inputmode="numeric"
+                maxlength="11"
+                @input="createForm.contact_number = createForm.contact_number.replace(/\D/g, '').slice(0, 11)"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" 
+                placeholder="09171234567" 
+              />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Temporary Password *</label>
-                <input v-model="createForm.password" type="password" required minlength="6" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="Minimum 6 chars" />
+                <input v-model="createForm.password" type="password" required minlength="8" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="Minimum 8 chars" />
               </div>
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Confirm Password *</label>
-                <input v-model="createForm.confirm_password" type="password" required minlength="6" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="Re-type password" />
+                <input v-model="createForm.confirm_password" type="password" required minlength="8" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="Re-type password" />
               </div>
             </div>
 
@@ -1479,8 +1517,31 @@ const openCreateModal = () => {
 
 const submitCreateUser = async () => {
   isSubmitting.value = true;
-  modalError.value = '';
-
+  if (createForm.first_name.trim().length < 2) {
+    modalError.value = 'First name must be at least 2 characters.';
+    isSubmitting.value = false;
+    return;
+  }
+  if (createForm.last_name.trim().length < 2) {
+    modalError.value = 'Last name must be at least 2 characters.';
+    isSubmitting.value = false;
+    return;
+  }
+  if (createForm.role === 'student' && createForm.student_id_number && !/^\d{7}$/.test(createForm.student_id_number.trim())) {
+    modalError.value = 'Student ID Number must be exactly 7 numeric digits (e.g. 2301219).';
+    isSubmitting.value = false;
+    return;
+  }
+  if (createForm.contact_number && !/^09\d{9}$/.test(createForm.contact_number.trim())) {
+    modalError.value = 'Contact number must be an 11-digit Philippine mobile number starting with 09 (e.g. 09171234567).';
+    isSubmitting.value = false;
+    return;
+  }
+  if (createForm.password.length < 8) {
+    modalError.value = 'Password must be at least 8 characters long.';
+    isSubmitting.value = false;
+    return;
+  }
   if (createForm.password !== createForm.confirm_password) {
     modalError.value = 'Passwords do not match.';
     isSubmitting.value = false;
