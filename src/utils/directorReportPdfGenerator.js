@@ -99,6 +99,7 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
   const filter = data.filter || {};
   const summary = data.summary || {};
   const units = data.units || {};
+  const serviceBreakdownByUnit = data.service_breakdown_by_unit || null;
   const serviceBreakdown = data.service_breakdown || [];
   const materialsSummary = data.materials_summary || {};
   const compHealth = data.completion_health || {};
@@ -356,34 +357,83 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
       // ── Section 3 & 4: Two Clean Columns (Service Types + SLA Health) ──────
       {
         columns: [
-          // Left: Top Service Workload Distribution
+          // Left: Top Service Workload Distribution (Separated by Sub-Unit)
           {
             width: '52%',
             stack: [
-              { text: '3. SERVICE WORKLOAD DISTRIBUTION', fontSize: 9, bold: true, color: '#111827', margin: [0, 2, 0, 3] },
+              { text: '3. SERVICE WORKLOAD DISTRIBUTION (BY SUB-UNIT)', fontSize: 9, bold: true, color: '#111827', margin: [0, 2, 0, 3] },
               {
                 table: {
                   headerRows: 1,
                   widths: ['*', 35, 45],
-                  body: [
-                    [
-                      { text: 'SERVICE TYPE / CLASSIFICATION', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb' },
-                      { text: 'COUNT', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
-                      { text: 'SHARE', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
-                    ],
-                    ...(serviceBreakdown.length > 0
-                      ? serviceBreakdown.map((item, idx) => [
-                          { text: item.name, fontSize: 7.5, color: '#1f2937', fillColor: idx % 2 === 1 ? '#f9fafb' : '#ffffff' },
-                          { text: String(item.count), fontSize: 7.5, alignment: 'center', fillColor: idx % 2 === 1 ? '#f9fafb' : '#ffffff' },
-                          { text: `${item.percent}%`, fontSize: 7.5, bold: true, alignment: 'center', fillColor: idx % 2 === 1 ? '#f9fafb' : '#ffffff' },
-                        ])
-                      : [
-                          [
-                            { text: 'No service transactions recorded in this period.', colSpan: 3, italics: true, fontSize: 7.5, color: '#6b7280', alignment: 'center' },
+                  body: (() => {
+                    const rows = [
+                      [
+                        { text: 'SERVICE TYPE / SUB-UNIT', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb' },
+                        { text: 'COUNT', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
+                        { text: 'UNIT %', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
+                      ],
+                    ];
+
+                    if (serviceBreakdownByUnit) {
+                      const unitConfigs = [
+                        { code: 'FGMU', title: 'Facilities & Grounds (FGMU)', color: '#1e3a8a', bg: '#dbeafe' },
+                        { code: 'LEAU', title: 'Landscaping & Aesthetics (LEAU)', color: '#065f46', bg: '#d1fae5' },
+                        { code: 'SSU',  title: 'Safety & Security (SSU)', color: '#92400e', bg: '#fef3c7' },
+                      ];
+
+                      let hasAnyService = false;
+                      unitConfigs.forEach(u => {
+                        const uData = serviceBreakdownByUnit[u.code];
+                        const items = uData?.services || [];
+                        if (items.length > 0) {
+                          hasAnyService = true;
+                          rows.push([
+                            {
+                              text: `${u.title} — Total: ${uData.total || 0}`,
+                              colSpan: 3,
+                              bold: true,
+                              fontSize: 6.5,
+                              color: u.color,
+                              fillColor: u.bg,
+                              margin: [0, 1, 0, 1],
+                            },
                             {}, {},
-                          ],
-                        ]),
-                  ],
+                          ]);
+
+                          items.forEach((item, idx) => {
+                            rows.push([
+                              { text: item.name, fontSize: 7, color: '#1f2937', fillColor: idx % 2 === 1 ? '#f9fafb' : '#ffffff' },
+                              { text: String(item.count), fontSize: 7, alignment: 'center', fillColor: idx % 2 === 1 ? '#f9fafb' : '#ffffff' },
+                              { text: `${item.percent}%`, fontSize: 7, bold: true, alignment: 'center', fillColor: idx % 2 === 1 ? '#f9fafb' : '#ffffff' },
+                            ]);
+                          });
+                        }
+                      });
+
+                      if (!hasAnyService) {
+                        rows.push([
+                          { text: 'No service transactions recorded in this period.', colSpan: 3, italics: true, fontSize: 7, color: '#6b7280', alignment: 'center' },
+                          {}, {},
+                        ]);
+                      }
+                    } else if (serviceBreakdown.length > 0) {
+                      serviceBreakdown.forEach((item, idx) => {
+                        rows.push([
+                          { text: item.unit_code ? `[${item.unit_code}] ${item.name}` : item.name, fontSize: 7, color: '#1f2937', fillColor: idx % 2 === 1 ? '#f9fafb' : '#ffffff' },
+                          { text: String(item.count), fontSize: 7, alignment: 'center', fillColor: idx % 2 === 1 ? '#f9fafb' : '#ffffff' },
+                          { text: `${item.percent}%`, fontSize: 7, bold: true, alignment: 'center', fillColor: idx % 2 === 1 ? '#f9fafb' : '#ffffff' },
+                        ]);
+                      });
+                    } else {
+                      rows.push([
+                        { text: 'No service transactions recorded in this period.', colSpan: 3, italics: true, fontSize: 7, color: '#6b7280', alignment: 'center' },
+                        {}, {},
+                      ]);
+                    }
+
+                    return rows;
+                  })(),
                 },
                 layout: {
                   hLineWidth: () => 0.5,

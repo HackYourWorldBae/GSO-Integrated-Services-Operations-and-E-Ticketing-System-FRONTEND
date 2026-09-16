@@ -12,7 +12,7 @@
           </svg>
         </div>
         <div class="flex flex-col">
-          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mb-1">Director Dashboard</h2>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mb-1">Director's Dashboard</h2>
           <p class="text-xs text-emerald-700 font-extrabold tracking-wider uppercase">Executive Unit Oversight &amp; Reports</p>
         </div>
       </div>
@@ -411,17 +411,91 @@
 
           <!-- Operational Insights (Service Distribution & SLA Health) -->
           <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 pt-2">
-            <!-- Left: Service Workload Share -->
-            <div class="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm">
-              <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
-                <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Top Service Categories</h4>
+            <!-- Left: Service Workload Share by Sub-Unit -->
+            <div class="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm flex flex-col">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                  <svg class="w-5 h-5 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+                  <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Top Service Categories</h4>
+                </div>
+
+                <!-- Sub-unit Filter Tabs -->
+                <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/70 gap-1 self-start sm:self-auto flex-wrap">
+                  <button
+                    v-for="tab in serviceTabs"
+                    :key="tab.key"
+                    type="button"
+                    @click="activeServiceTab = tab.key"
+                    class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[30px] touch-manipulation flex items-center gap-1.5"
+                    :class="activeServiceTab === tab.key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
+                  >
+                    <span>{{ tab.label }}</span>
+                    <span
+                      v-if="tab.key !== 'ALL' && executiveAnalytics?.service_breakdown_by_unit?.[tab.key]?.total"
+                      class="px-1.5 py-0.2 rounded-full text-[10px] font-black"
+                      :class="activeServiceTab === tab.key ? 'bg-slate-100 text-slate-800' : 'bg-slate-200 text-slate-600'"
+                    >
+                      {{ executiveAnalytics.service_breakdown_by_unit[tab.key].total }}
+                    </span>
+                  </button>
+                </div>
               </div>
 
-              <div v-if="executiveAnalytics?.service_breakdown?.length" class="space-y-3">
+              <!-- Per-Unit Service Groups -->
+              <div v-if="displayedServiceGroups.length" class="space-y-4">
+                <div
+                  v-for="group in displayedServiceGroups"
+                  :key="group.code"
+                  class="p-4 rounded-xl border space-y-3"
+                  :class="group.code === 'FGMU' ? 'bg-blue-50/40 border-blue-100' : group.code === 'LEAU' ? 'bg-emerald-50/40 border-emerald-100' : 'bg-amber-50/40 border-amber-100'"
+                >
+                  <!-- Unit Header Bar -->
+                  <div class="flex items-center justify-between pb-2 border-b" :class="group.code === 'FGMU' ? 'border-blue-200/60' : group.code === 'LEAU' ? 'border-emerald-200/60' : 'border-amber-200/60'">
+                    <div class="flex items-center gap-2">
+                      <span
+                        class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider"
+                        :class="group.code === 'FGMU' ? 'bg-blue-600 text-white' : group.code === 'LEAU' ? 'bg-emerald-600 text-white' : 'bg-amber-600 text-white'"
+                      >
+                        {{ group.code }}
+                      </span>
+                      <span class="text-xs font-black text-slate-800">{{ group.name }}</span>
+                    </div>
+                    <span class="text-xs font-bold text-slate-600 tabular-nums">
+                      {{ group.total }} request{{ group.total !== 1 ? 's' : '' }}
+                    </span>
+                  </div>
+
+                  <!-- Services List -->
+                  <div class="space-y-2.5">
+                    <div v-for="item in group.services" :key="item.name" class="space-y-1">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs sm:text-sm font-semibold text-slate-800 truncate">{{ item.name }}</span>
+                        <span class="tabular-nums text-slate-700 font-bold text-xs sm:text-sm shrink-0">
+                          {{ item.count }} <span class="text-slate-500 font-normal">({{ item.percent }}%)</span>
+                        </span>
+                      </div>
+                      <div class="w-full h-1.5 bg-white/80 rounded-full overflow-hidden border border-slate-200/60">
+                        <div
+                          class="h-full rounded-full transition-all duration-500"
+                          :class="group.code === 'FGMU' ? 'bg-blue-500' : group.code === 'LEAU' ? 'bg-emerald-500' : 'bg-amber-500'"
+                          :style="{ width: `${item.percent}%` }"
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fallback to flat list if by_unit is not present -->
+              <div v-else-if="executiveAnalytics?.service_breakdown?.length" class="space-y-3">
                 <div v-for="(item, idx) in executiveAnalytics.service_breakdown" :key="item.name" class="space-y-1.5">
                   <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs sm:text-sm font-bold text-slate-800 truncate">{{ item.name }}</span>
+                    <div class="flex items-center gap-1.5 truncate">
+                      <span v-if="item.unit_code" class="px-1.5 py-0.5 rounded text-[10px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                        {{ item.unit_code }}
+                      </span>
+                      <span class="text-xs sm:text-sm font-bold text-slate-800 truncate">{{ item.name }}</span>
+                    </div>
                     <span class="tabular-nums text-slate-600 font-black text-xs sm:text-sm ml-2 shrink-0">{{ item.count }} <span class="text-slate-500 font-semibold">({{ item.percent }}%)</span></span>
                   </div>
                   <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -525,6 +599,43 @@ const selectedYear = ref(currentYear);
 const selectedMonth = ref(currentMonth);
 const selectedQuarter = ref(currentQuarter);
 const selectedUnitScope = ref('ALL');
+
+const activeServiceTab = ref('ALL');
+
+const serviceTabs = [
+  { key: 'ALL',  label: 'All Units' },
+  { key: 'FGMU', label: 'FGMU' },
+  { key: 'LEAU', label: 'LEAU' },
+  { key: 'SSU',  label: 'SSU' },
+];
+
+const displayedServiceGroups = computed(() => {
+  const byUnit = executiveAnalytics.value?.service_breakdown_by_unit;
+  if (!byUnit) {
+    return [];
+  }
+
+  if (activeServiceTab.value === 'ALL') {
+    return [
+      { code: 'FGMU', name: byUnit.FGMU?.unit_name || 'Facilities & Grounds Management Unit', total: byUnit.FGMU?.total || 0, services: byUnit.FGMU?.services || [], color: 'blue' },
+      { code: 'LEAU', name: byUnit.LEAU?.unit_name || 'Landscaping & Environmental Aesthetics Unit', total: byUnit.LEAU?.total || 0, services: byUnit.LEAU?.services || [], color: 'emerald' },
+      { code: 'SSU',  name: byUnit.SSU?.unit_name || 'Safety & Security Services Unit', total: byUnit.SSU?.total || 0, services: byUnit.SSU?.services || [], color: 'amber' },
+    ].filter(g => g.services.length > 0);
+  }
+
+  const selected = byUnit[activeServiceTab.value];
+  if (!selected) return [];
+  const colorMap = { FGMU: 'blue', LEAU: 'emerald', SSU: 'amber' };
+  return [
+    {
+      code: activeServiceTab.value,
+      name: selected.unit_name,
+      total: selected.total || 0,
+      services: selected.services || [],
+      color: colorMap[activeServiceTab.value] || 'emerald',
+    }
+  ];
+});
 
 const periodOptions = [
   { key: 'month',   label: 'Monthly' },
