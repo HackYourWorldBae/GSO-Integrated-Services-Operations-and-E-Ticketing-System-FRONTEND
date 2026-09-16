@@ -103,7 +103,7 @@
           </div>
         </div>
 
-        <!-- Target Working Days Card (Emphasized Number, No 'working days' Label) -->
+        <!-- Target Working Days Card (Strict 1-31 Days Limit) -->
         <div class="flex items-center justify-between gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-emerald-400/40 transition-all">
           <div class="flex items-center gap-3.5 min-w-0">
             <div class="w-11 h-11 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30">
@@ -112,19 +112,22 @@
               </svg>
             </div>
             <div class="flex flex-col min-w-0">
-              <label for="sched-days" class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer">
-                Target Working Days <span class="text-rose-400">*</span>
+              <label for="sched-days" class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer flex items-center gap-1.5">
+                <span>Target Working Days</span>
+                <span class="text-rose-400">*</span>
+                <span class="text-[9px] px-1.5 py-0.5 text-emerald-300 bg-emerald-500/20 rounded font-black tracking-normal border border-emerald-500/30">1–31 Days</span>
               </label>
-              <span class="text-[11px] text-slate-400 font-medium">Estimated project turnaround</span>
+              <span class="text-[11px] text-slate-400 font-medium">Estimated turnaround (strictly max 31 days)</span>
             </div>
           </div>
 
-          <!-- Emphasized Number with Steppers -->
+          <!-- Emphasized Number with Steppers Clamped Strictly to 1..31 -->
           <div class="flex items-center gap-1.5 bg-white/10 p-1.5 rounded-xl border border-white/10 shrink-0">
             <button
               type="button"
-              @click="workingDays = Math.max(1, Number(workingDays || 1) - 1)"
-              class="w-11 h-11 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 select-none touch-manipulation"
+              @click="setWorkingDays(Math.max(1, Number(workingDays || 1) - 1))"
+              :disabled="Number(workingDays) <= 1"
+              class="w-11 h-11 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 select-none touch-manipulation"
               title="Decrease days"
             >
               −
@@ -133,14 +136,18 @@
               id="sched-days"
               type="number"
               min="1"
-              max="90"
+              max="31"
+              step="1"
               v-model.number="workingDays"
+              @input="handleWorkingDaysInput"
+              @blur="handleWorkingDaysBlur"
               class="w-14 sm:w-16 text-center bg-transparent text-xl sm:text-3xl font-black text-white outline-none font-mono selection:bg-emerald-500"
             />
             <button
               type="button"
-              @click="workingDays = Math.min(90, Number(workingDays || 0) + 1)"
-              class="w-11 h-11 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 shadow-xs select-none touch-manipulation"
+              @click="setWorkingDays(Math.min(31, Number(workingDays || 0) + 1))"
+              :disabled="Number(workingDays) >= 31"
+              class="w-11 h-11 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 shadow-xs select-none touch-manipulation"
               title="Increase days"
             >
               +
@@ -767,12 +774,69 @@ const filteredPersonnel = computed(() => {
   return list;
 });
 
+const setWorkingDays = (val) => {
+  const n = parseInt(val, 10);
+  if (isNaN(n) || n < 1) {
+    workingDays.value = 1;
+  } else if (n > 31) {
+    workingDays.value = 31;
+    toast.warning('Working days cannot exceed 31 days.');
+  } else {
+    workingDays.value = n;
+  }
+};
+
+const handleWorkingDaysInput = (e) => {
+  const raw = e.target.value;
+  if (raw === '') return;
+  const parsed = parseInt(raw, 10);
+  if (isNaN(parsed)) {
+    workingDays.value = 1;
+    e.target.value = 1;
+    return;
+  }
+  if (parsed > 31) {
+    workingDays.value = 31;
+    e.target.value = 31;
+    toast.warning('Working days duration is strictly limited to a maximum of 31 days.');
+  } else if (parsed < 1) {
+    workingDays.value = 1;
+    e.target.value = 1;
+  } else {
+    workingDays.value = parsed;
+  }
+};
+
+const handleWorkingDaysBlur = () => {
+  if (!workingDays.value || workingDays.value < 1) {
+    workingDays.value = 1;
+  } else if (workingDays.value > 31) {
+    workingDays.value = 31;
+  }
+};
+
+watch(workingDays, (newVal) => {
+  if (newVal === '' || newVal === null || newVal === undefined) return;
+  const n = Number(newVal);
+  if (n > 31) {
+    workingDays.value = 31;
+  } else if (n < 1) {
+    workingDays.value = 1;
+  }
+});
+
 const selectTicket = (ticket) => {
   selectedTicket.value = ticket;
   currentAssignments.value = [];
   isEmergency.value = !!ticket.is_emergency;
   if (ticket.implementationDate) {
     implementationDate.value = ticket.implementationDate;
+  }
+  if (ticket.working_days || ticket.workingDays) {
+    const d = Number(ticket.working_days || ticket.workingDays);
+    if (!isNaN(d) && d >= 1) {
+      workingDays.value = Math.min(31, Math.max(1, d));
+    }
   }
 };
 
@@ -791,8 +855,9 @@ const assignWorkerToTicket = (worker) => {
     toast.error('Please select an implementation date.');
     return;
   }
-  if (!workingDays.value || Number(workingDays.value) < 1) {
-    toast.error('Please specify target working days.');
+  const days = Number(workingDays.value);
+  if (!days || days < 1 || days > 31) {
+    toast.error('Please specify target working days between 1 and 31 days.');
     return;
   }
 
@@ -825,8 +890,9 @@ const dispatchAll = async () => {
     toast.error('Please specify an implementation date.');
     return;
   }
-  if (!workingDays.value || Number(workingDays.value) < 1) {
-    toast.error('Please specify valid working days.');
+  const days = Number(workingDays.value);
+  if (!days || days < 1 || days > 31) {
+    toast.error('Please specify valid working days between 1 and 31 days.');
     return;
   }
 
@@ -837,7 +903,7 @@ const dispatchAll = async () => {
         ticket_id: selectedTicket.value.id,
         personnel_id: assign.workerId,
         implementation_date: implementationDate.value,
-        working_days: Number(workingDays.value),
+        working_days: Math.min(31, Math.max(1, days)),
         task_notes: taskNotes.value.trim() || selectedTicket.value.service || selectedTicket.value.type || 'Maintenance Task',
         is_emergency: isEmergency.value ? 1 : 0,
         pause_current: pauseCurrentTask.value ? 1 : 0
