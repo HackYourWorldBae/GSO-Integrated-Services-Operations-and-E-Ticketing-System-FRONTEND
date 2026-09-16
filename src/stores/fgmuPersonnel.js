@@ -56,8 +56,8 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
     }
   };
 
-  const addCategory = async (name) => {
-    const response = await api.post('personnel/categories', { unit_code: 'FGMU', name });
+  const addCategory = async (name, services = []) => {
+    const response = await api.post('personnel/categories', { unit_code: 'FGMU', name, services });
     await fetchCategories();
     return response.data;
   };
@@ -67,8 +67,11 @@ export const useFgmuPersonnelStore = defineStore('fgmuPersonnel', () => {
     await fetchCategories();
   };
 
-  const updateCategory = async (categoryId, name) => {
-    const response = await api.patch(`personnel/categories/${categoryId}`, { name });
+  const updateCategory = async (categoryId, name, services = null) => {
+    const payload = {};
+    if (name !== undefined && name !== null) payload.name = name;
+    if (services !== undefined && services !== null) payload.services = services;
+    const response = await api.patch(`personnel/categories/${categoryId}`, payload);
     await fetchCategories();
     // After updating category, fetch personnel to sync changed specialties
     await fetchPersonnel();

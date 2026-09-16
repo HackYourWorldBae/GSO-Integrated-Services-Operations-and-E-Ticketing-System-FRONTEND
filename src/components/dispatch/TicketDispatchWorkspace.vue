@@ -314,6 +314,56 @@
 
       <!-- Search & Specialty Category Filter Bar -->
       <div class="space-y-3">
+        <!-- 🎯 Smart Service Auto-Filter Banner -->
+        <div
+          v-if="selectedTicket && targetService"
+          class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-emerald-500/5 to-teal-500/10 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+                  Specialty Auto-Filter
+                </span>
+                <span class="text-xs font-black text-slate-900 truncate">
+                  {{ targetService }}
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                <template v-if="serviceMatchedWorkersCount > 0">
+                  Filtering <strong class="text-emerald-700 font-bold">{{ serviceMatchedWorkersCount }}</strong> worker{{ serviceMatchedWorkersCount !== 1 ? 's' : '' }} specialized for this service
+                </template>
+                <template v-else>
+                  No workers currently configured with this exact specialty. Showing all roster.
+                </template>
+              </p>
+            </div>
+          </div>
+
+          <!-- Filter Mode Switcher -->
+          <div class="flex items-center gap-1.5 shrink-0 bg-white/80 p-1 rounded-xl border border-slate-200/80">
+            <button
+              type="button"
+              @click="autoFilterByService = true; personnelCategoryFilter = 'all'"
+              :class="['px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer touch-manipulation', autoFilterByService ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900']"
+            >
+              Matched Specialists ({{ serviceMatchedWorkersCount }})
+            </button>
+            <button
+              type="button"
+              @click="autoFilterByService = false; personnelCategoryFilter = 'all'"
+              :class="['px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer touch-manipulation', !autoFilterByService && personnelCategoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900']"
+            >
+              Show All Workers ({{ props.store?.personnel?.length || 0 }})
+            </button>
+          </div>
+        </div>
+
         <div class="relative max-w-md">
           <input
             v-model="personnelSearch"
@@ -330,8 +380,8 @@
         <div v-if="store.categories && store.categories.length > 0" class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pt-1 text-xs pb-1">
           <button
             type="button"
-            @click="personnelCategoryFilter = 'all'"
-            :class="['px-3 py-1.5 min-h-[36px] flex items-center rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation', personnelCategoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+            @click="autoFilterByService = false; personnelCategoryFilter = 'all'"
+            :class="['px-3 py-1.5 min-h-[36px] flex items-center rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation', !autoFilterByService && personnelCategoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
           >
             All Specialties
           </button>
@@ -339,17 +389,37 @@
             v-for="cat in store.categories"
             :key="cat.id"
             type="button"
-            @click="personnelCategoryFilter = cat.name"
-            :class="['px-3 py-1.5 min-h-[36px] flex items-center rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation', personnelCategoryFilter === cat.name ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+            @click="autoFilterByService = false; personnelCategoryFilter = cat.name"
+            :class="[
+              'px-3 py-1.5 min-h-[36px] flex items-center gap-1.5 rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation',
+              !autoFilterByService && personnelCategoryFilter === cat.name
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+              selectedTicket && isServiceMatchingCategory(cat, targetService) ? 'ring-2 ring-emerald-500/50 font-black' : ''
+            ]"
           >
-            {{ cat.name }}
+            <span>{{ cat.name }}</span>
+            <span
+              v-if="selectedTicket && isServiceMatchingCategory(cat, targetService)"
+              class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"
+              title="Supports requested service"
+            ></span>
           </button>
         </div>
       </div>
 
       <!-- Personnel Cards Grid -->
-      <div v-if="filteredPersonnel.length === 0" class="py-16 text-center text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-        No personnel found matching the specified filters.
+      <div v-if="filteredPersonnel.length === 0" class="py-16 text-center text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-3">
+        <p>No personnel found matching the specified filters.</p>
+        <div v-if="autoFilterByService && selectedTicket" class="pt-1">
+          <button
+            type="button"
+            @click="autoFilterByService = false; personnelCategoryFilter = 'all'"
+            class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-black transition-all cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+          >
+            <span>Show All Available Workers</span>
+          </button>
+        </div>
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -743,6 +813,77 @@ onUnmounted(() => {
 // Personnel filter state
 const personnelSearch = ref('');
 const personnelCategoryFilter = ref('all');
+const autoFilterByService = ref(true);
+
+const targetService = computed(() => {
+  return selectedTicket.value?.service || selectedTicket.value?.type || selectedTicket.value?.service_type || '';
+});
+
+const isServiceMatchingCategory = (cat, serviceName) => {
+  if (!cat || !serviceName) return false;
+  const sNorm = String(serviceName).trim().toLowerCase();
+  
+  // 1. Check supported_services / services list
+  const list = Array.isArray(cat.services)
+    ? cat.services
+    : Array.isArray(cat.supported_services)
+      ? cat.supported_services
+      : [];
+  if (list.some(s => s && String(s).trim().toLowerCase() === sNorm)) {
+    return true;
+  }
+
+  // 2. Keyword heuristic fallback
+  const cNorm = String(cat.name || '').trim().toLowerCase();
+  if (!cNorm) return false;
+  if (sNorm.includes(cNorm) || cNorm.includes(sNorm)) return true;
+
+  if (cNorm.includes('plumb') && sNorm.includes('plumb')) return true;
+  if (cNorm.includes('electr') && sNorm.includes('electr')) return true;
+  if (cNorm.includes('carpent') && sNorm.includes('carpent')) return true;
+  if (cNorm.includes('weld') && sNorm.includes('weld')) return true;
+  if (cNorm.includes('paint') && sNorm.includes('paint')) return true;
+  if ((cNorm.includes('aircon') || cNorm.includes('hvac') || cNorm.includes('refrigeration')) && (sNorm.includes('mechanical') || sNorm.includes('aircon'))) return true;
+  if (cNorm.includes('mason') && (sNorm.includes('mason') || sNorm.includes('concrete'))) return true;
+  if ((cNorm.includes('landscape') || cNorm.includes('garden')) && (sNorm.includes('plant') || sNorm.includes('landscape'))) return true;
+  if (cNorm.includes('janitor') && (sNorm.includes('clean') || sNorm.includes('disinfection'))) return true;
+  if (cNorm.includes('disinfection') && sNorm.includes('disinfection')) return true;
+  if (cNorm.includes('grass') && (sNorm.includes('mow') || sNorm.includes('weed') || sNorm.includes('prun'))) return true;
+  if ((cNorm.includes('garbage') || cNorm.includes('hauler') || cNorm.includes('hauling')) && (sNorm.includes('haul') || sNorm.includes('stage'))) return true;
+
+  return false;
+};
+
+const matchedCategories = computed(() => {
+  if (!selectedTicket.value || !targetService.value) return [];
+  const cats = props.store?.categories || [];
+  return cats.filter(cat => isServiceMatchingCategory(cat, targetService.value));
+});
+
+const doesWorkerMatchService = (worker, serviceName) => {
+  if (!worker || !serviceName) return false;
+  const wSpec = String(worker.specialty || worker.role || '').toLowerCase();
+  if (!wSpec) return false;
+
+  const matched = matchedCategories.value;
+  if (matched.some(cat => wSpec.includes(cat.name.toLowerCase()) || cat.name.toLowerCase().includes(wSpec))) {
+    return true;
+  }
+
+  const cats = props.store?.categories || [];
+  const workerCategory = cats.find(c => c.name.toLowerCase() === wSpec);
+  if (workerCategory && isServiceMatchingCategory(workerCategory, serviceName)) {
+    return true;
+  }
+
+  return false;
+};
+
+const serviceMatchedWorkersCount = computed(() => {
+  if (!selectedTicket.value || !targetService.value) return 0;
+  const allWorkers = props.store?.personnel || [];
+  return allWorkers.filter(w => doesWorkerMatchService(w, targetService.value)).length;
+});
 
 // Modals
 const showScopeModal = ref(false);
@@ -759,7 +900,16 @@ const isWorkerAssigned = (workerId) => {
 const filteredPersonnel = computed(() => {
   let list = props.store?.personnel || [];
 
-  if (personnelCategoryFilter.value !== 'all') {
+  // Auto-filter by service specialty if ticket is active and autoFilter is enabled
+  if (
+    selectedTicket.value &&
+    autoFilterByService.value &&
+    targetService.value &&
+    matchedCategories.value.length > 0 &&
+    serviceMatchedWorkersCount.value > 0
+  ) {
+    list = list.filter(w => doesWorkerMatchService(w, targetService.value));
+  } else if (personnelCategoryFilter.value !== 'all') {
     list = list.filter(w => w.specialty === personnelCategoryFilter.value);
   }
 
@@ -828,6 +978,8 @@ watch(workingDays, (newVal) => {
 const selectTicket = (ticket) => {
   selectedTicket.value = ticket;
   currentAssignments.value = [];
+  autoFilterByService.value = true;
+  personnelCategoryFilter.value = 'all';
   isEmergency.value = !!ticket.is_emergency;
   if (ticket.implementationDate) {
     implementationDate.value = ticket.implementationDate;
@@ -843,6 +995,8 @@ const selectTicket = (ticket) => {
 const clearSelectedTicket = () => {
   selectedTicket.value = null;
   currentAssignments.value = [];
+  autoFilterByService.value = true;
+  personnelCategoryFilter.value = 'all';
   router.replace({ query: {} });
 };
 

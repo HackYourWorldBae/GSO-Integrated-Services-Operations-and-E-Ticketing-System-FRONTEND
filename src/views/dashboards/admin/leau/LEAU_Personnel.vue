@@ -371,36 +371,226 @@
       <!-- Category Management Modal -->
       <Teleport to="body">
         <div v-if="showCategoryModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
-          <div class="pointer-events-auto bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-5 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-xl font-black text-slate-900">Manage Categories</h3>
+          <div class="pointer-events-auto bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-2xl p-5 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+              <div>
+                <h3 class="text-xl font-black text-slate-900 tracking-tight">Manage Categories &amp; Specialties</h3>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Define professions and designate the unit services each category handles.</p>
+              </div>
               <button @click="showCategoryModal = false" class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer touch-manipulation">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
-            <form @submit.prevent="submitCategory" class="flex items-center gap-2 mb-6">
-              <input v-model="newCategoryName" placeholder="New category name..." class="flex-1 px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-              <button type="submit" :disabled="categorySubmitting || !newCategoryName.trim()" class="px-4 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer touch-manipulation">Add</button>
-            </form>
+            <!-- Create Category Form -->
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 mb-6 space-y-4">
+              <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add New Profession / Category
+              </h4>
 
-            <div class="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
-              <div v-if="store.categories.length === 0" class="text-xs text-slate-400 font-bold text-center py-4">No custom categories yet.</div>
-              <div v-else v-for="cat in store.categories" :key="cat.id" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <div v-if="editingCategory === cat.id" class="flex items-center gap-2 flex-1 mr-2">
-                  <input v-model="editingCategoryName" class="flex-1 px-2.5 py-1 min-h-[36px] rounded-lg border border-slate-300 text-xs font-bold text-slate-800" />
-                  <button @click="saveCategory(cat)" :disabled="categoryUpdating" class="text-xs font-black text-emerald-600 hover:text-emerald-700 cursor-pointer min-h-[36px] touch-manipulation">Save</button>
-                  <button @click="cancelEditingCategory" class="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer min-h-[36px] touch-manipulation">Cancel</button>
+              <form @submit.prevent="submitCategory" class="space-y-3.5">
+                <div>
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Category Name *</label>
+                  <input
+                    v-model="newCategoryName"
+                    placeholder="e.g. Groundskeeper, Janitor, Tree Trimmer..."
+                    class="w-full px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                  />
                 </div>
-                <span v-else class="text-xs font-black text-slate-800">{{ cat.name }}</span>
 
-                <div v-if="editingCategory !== cat.id" class="flex items-center gap-2">
-                  <button @click="startEditingCategory(cat)" class="text-slate-400 hover:text-slate-700 p-2 min-w-[36px] min-h-[36px] flex items-center justify-center cursor-pointer touch-manipulation" title="Edit">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                <!-- Services Multi-Select Checkboxes -->
+                <div>
+                  <div class="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                      Supported Unit Services ({{ newCategoryServices.length }} selected)
+                    </label>
+                    <div class="flex items-center gap-2 text-xs">
+                      <button
+                        type="button"
+                        @click="selectAllNewServices"
+                        class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 cursor-pointer"
+                      >
+                        Select All
+                      </button>
+                      <span class="text-slate-300">|</span>
+                      <button
+                        type="button"
+                        @click="clearNewServices"
+                        class="text-[11px] font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-48 overflow-y-auto p-2 bg-white rounded-xl border border-slate-200/80 custom-scrollbar">
+                    <label
+                      v-for="serv in LEAU_SERVICES"
+                      :key="serv"
+                      class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer select-none transition-colors"
+                      :class="newCategoryServices.includes(serv) ? 'bg-emerald-50 text-emerald-900 border border-emerald-200/80' : 'hover:bg-slate-50 text-slate-700'"
+                    >
+                      <input
+                        type="checkbox"
+                        :checked="newCategoryServices.includes(serv)"
+                        @change="toggleNewService(serv)"
+                        class="w-4 h-4 rounded text-emerald-600 border-slate-300 focus:ring-emerald-500 cursor-pointer"
+                      />
+                      <span class="truncate">{{ serv }}</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="flex justify-end pt-1">
+                  <button
+                    type="submit"
+                    :disabled="categorySubmitting || !newCategoryName.trim()"
+                    class="px-5 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer touch-manipulation flex items-center gap-1.5"
+                  >
+                    <span>{{ categorySubmitting ? 'Adding...' : 'Add Category' }}</span>
                   </button>
-                  <button @click="deleteCategory(cat)" :disabled="categoryDeleting === cat.id" class="text-rose-400 hover:text-rose-600 p-2 min-w-[36px] min-h-[36px] flex items-center justify-center cursor-pointer touch-manipulation" title="Delete">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Existing Categories List -->
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider">
+                  Configured Categories ({{ store.categories.length }})
+                </h4>
+                <span class="text-[11px] text-slate-400 font-medium">Click edit to adjust supported services</span>
+              </div>
+
+              <div class="space-y-2.5 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
+                <div v-if="store.categories.length === 0" class="text-xs text-slate-400 font-bold text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  No custom categories yet.
+                </div>
+
+                <div
+                  v-else
+                  v-for="cat in store.categories"
+                  :key="cat.id"
+                  class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-2"
+                >
+                  <!-- Edit State -->
+                  <div v-if="editingCategory === cat.id" class="space-y-3 p-1">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Edit Category</span>
+                      <div class="flex items-center gap-2">
+                        <button
+                          type="button"
+                          @click="saveCategory(cat)"
+                          :disabled="categoryUpdating"
+                          class="px-3 py-1.5 min-h-[34px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black cursor-pointer shadow-xs"
+                        >
+                          {{ categoryUpdating ? 'Saving...' : 'Save' }}
+                        </button>
+                        <button
+                          type="button"
+                          @click="cancelEditingCategory"
+                          class="px-3 py-1.5 min-h-[34px] rounded-lg border border-slate-200 text-xs font-bold text-slate-500 hover:bg-slate-50 cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+
+                    <input
+                      v-model="editingCategoryName"
+                      class="w-full px-3 py-2 min-h-[40px] rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500"
+                      placeholder="Category name"
+                    />
+
+                    <div>
+                      <div class="flex items-center justify-between gap-2 mb-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          Supported Services ({{ editingCategoryServices.length }} selected)
+                        </label>
+                        <div class="flex items-center gap-2 text-xs">
+                          <button type="button" @click="selectAllEditingServices" class="text-[10px] font-bold text-emerald-700 cursor-pointer">All</button>
+                          <span class="text-slate-300">|</span>
+                          <button type="button" @click="clearEditingServices" class="text-[10px] font-bold text-slate-400 cursor-pointer">None</button>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-36 overflow-y-auto p-2 bg-slate-50 rounded-xl border border-slate-200 custom-scrollbar">
+                        <label
+                          v-for="serv in LEAU_SERVICES"
+                          :key="serv"
+                          class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none"
+                          :class="editingCategoryServices.includes(serv) ? 'bg-emerald-100/70 text-emerald-950 font-bold' : 'text-slate-600 hover:bg-white'"
+                        >
+                          <input
+                            type="checkbox"
+                            :checked="editingCategoryServices.includes(serv)"
+                            @change="toggleEditingService(serv)"
+                            class="w-3.5 h-3.5 rounded text-emerald-600 border-slate-300 focus:ring-emerald-500 cursor-pointer"
+                          />
+                          <span class="truncate text-[11px]">{{ serv }}</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Normal Display State -->
+                  <div v-else class="space-y-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm font-black text-slate-900">{{ cat.name }}</span>
+                        <span
+                          v-if="cat.is_system"
+                          class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200"
+                        >
+                          System Default
+                        </span>
+                      </div>
+
+                      <div class="flex items-center gap-1">
+                        <button
+                          type="button"
+                          @click="startEditingCategory(cat)"
+                          class="text-slate-400 hover:text-emerald-700 p-2 min-w-[34px] min-h-[34px] rounded-lg hover:bg-slate-100 flex items-center justify-center cursor-pointer touch-manipulation transition-colors"
+                          title="Edit Category &amp; Services"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        </button>
+                        <button
+                          type="button"
+                          v-if="!cat.is_system"
+                          @click="deleteCategory(cat)"
+                          :disabled="categoryDeleting === cat.id"
+                          class="text-rose-400 hover:text-rose-600 p-2 min-w-[34px] min-h-[34px] rounded-lg hover:bg-rose-50 flex items-center justify-center cursor-pointer touch-manipulation transition-colors"
+                          title="Delete Category"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Supported Service Badges -->
+                    <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
+                      <template v-if="(cat.services || cat.supported_services || []).length > 0">
+                        <span
+                          v-for="s in (cat.services || cat.supported_services)"
+                          :key="s"
+                          class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/60 flex items-center gap-1"
+                        >
+                          <span class="w-1 h-1 rounded-full bg-emerald-500"></span>
+                          {{ s }}
+                        </span>
+                      </template>
+                      <span
+                        v-else
+                        class="text-[11px] text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60 flex items-center gap-1"
+                      >
+                        <span>⚠️</span> No services mapped yet — click edit to assign
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -448,6 +638,7 @@ import StaffLeaveModal from '@/components/StaffLeaveModal.vue';
 import { useLeauPersonnelStore } from '@/stores/leauPersonnel';
 import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue3-toastify';
+import { LEAU_SERVICES } from '@/constants/services';
 
 const store = useLeauPersonnelStore();
 const authStore = useAuthStore();
@@ -602,30 +793,76 @@ const submitDelete = async () => {
 // ── Category Management ─────────────────────────────────────────────────────
 const showCategoryModal = ref(false);
 const newCategoryName  = ref('');
+const newCategoryServices = ref([]);
 const categorySubmitting = ref(false);
 const categoryDeleting = ref(null);
 const editingCategory = ref(null);
 const editingCategoryName = ref('');
+const editingCategoryServices = ref([]);
 const categoryUpdating = ref(false);
+
+const toggleNewService = (service) => {
+  const idx = newCategoryServices.value.indexOf(service);
+  if (idx >= 0) {
+    newCategoryServices.value.splice(idx, 1);
+  } else {
+    newCategoryServices.value.push(service);
+  }
+};
+
+const selectAllNewServices = () => {
+  newCategoryServices.value = [...LEAU_SERVICES];
+};
+
+const clearNewServices = () => {
+  newCategoryServices.value = [];
+};
+
+const toggleEditingService = (service) => {
+  const idx = editingCategoryServices.value.indexOf(service);
+  if (idx >= 0) {
+    editingCategoryServices.value.splice(idx, 1);
+  } else {
+    editingCategoryServices.value.push(service);
+  }
+};
+
+const selectAllEditingServices = () => {
+  editingCategoryServices.value = [...LEAU_SERVICES];
+};
+
+const clearEditingServices = () => {
+  editingCategoryServices.value = [];
+};
 
 const startEditingCategory = (cat) => {
   editingCategory.value = cat.id;
   editingCategoryName.value = cat.name;
+  editingCategoryServices.value = Array.isArray(cat.services)
+    ? [...cat.services]
+    : Array.isArray(cat.supported_services)
+      ? [...cat.supported_services]
+      : [];
 };
 
 const cancelEditingCategory = () => {
   editingCategory.value = null;
   editingCategoryName.value = '';
+  editingCategoryServices.value = [];
 };
 
 const saveCategory = async (cat) => {
-  if (!editingCategoryName.value.trim() || editingCategoryName.value.trim() === cat.name) {
-    cancelEditingCategory();
+  if (!editingCategoryName.value.trim()) {
+    toast.error('Category name cannot be empty.');
     return;
   }
   categoryUpdating.value = true;
   try {
-    await store.updateCategory(cat.id, editingCategoryName.value.trim());
+    await store.updateCategory(
+      cat.id,
+      editingCategoryName.value.trim(),
+      editingCategoryServices.value
+    );
     toast.success('Category updated.');
     cancelEditingCategory();
   } catch (err) {
@@ -639,9 +876,10 @@ const submitCategory = async () => {
   if (!newCategoryName.value.trim()) return;
   categorySubmitting.value = true;
   try {
-    await store.addCategory(newCategoryName.value.trim());
+    await store.addCategory(newCategoryName.value.trim(), newCategoryServices.value);
     toast.success('Category added!');
     newCategoryName.value = '';
+    newCategoryServices.value = [];
   } catch (err) {
     toast.error(err?.response?.data?.message || 'Failed to add category.');
   } finally {

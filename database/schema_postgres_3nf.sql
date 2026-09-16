@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS personnel_categories (
     unit_id INT NOT NULL REFERENCES units(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     is_system BOOLEAN NOT NULL DEFAULT FALSE,
+    supported_services TEXT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uq_category_unit UNIQUE (unit_id, name)
 );

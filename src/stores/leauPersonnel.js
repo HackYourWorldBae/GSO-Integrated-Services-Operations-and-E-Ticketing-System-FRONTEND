@@ -56,8 +56,8 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
     }
   };
 
-  const addCategory = async (name) => {
-    const response = await api.post('personnel/categories', { unit_code: 'LEAU', name });
+  const addCategory = async (name, services = []) => {
+    const response = await api.post('personnel/categories', { unit_code: 'LEAU', name, services });
     await fetchCategories();
     return response.data;
   };
@@ -67,8 +67,11 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
     await fetchCategories();
   };
 
-  const updateCategory = async (categoryId, name) => {
-    const response = await api.patch(`personnel/categories/${categoryId}`, { name });
+  const updateCategory = async (categoryId, name, services = null) => {
+    const payload = {};
+    if (name !== undefined && name !== null) payload.name = name;
+    if (services !== undefined && services !== null) payload.services = services;
+    const response = await api.patch(`personnel/categories/${categoryId}`, payload);
     await fetchCategories();
     await fetchPersonnel();
     return response.data;

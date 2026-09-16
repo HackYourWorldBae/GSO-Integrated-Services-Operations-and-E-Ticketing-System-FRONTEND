@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS personnel_categories (
     unit_id INT UNSIGNED NOT NULL,
     name VARCHAR(100) NOT NULL,
     is_system TINYINT(1) NOT NULL DEFAULT 0,
+    supported_services TEXT NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uq_category_unit (unit_id, name),
     FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE
