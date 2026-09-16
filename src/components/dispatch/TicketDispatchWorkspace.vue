@@ -844,6 +844,18 @@ const dispatchAll = async () => {
       });
     }
 
+    // Auto-generate official Job Order document and attach to ticket with latest assignment details
+    try {
+      const ticketRes = await api.get(`tickets/${selectedTicket.value.id}`);
+      const freshTicket = ticketRes.data?.data?.ticket || ticketRes.data?.data;
+      if (freshTicket) {
+        const { attachFgmuJobRequestForm } = await import('@/utils/fgmuDocxGenerator');
+        await attachFgmuJobRequestForm(freshTicket);
+      }
+    } catch (genErr) {
+      console.warn('Could not auto-attach job order at dispatch:', genErr);
+    }
+
     toast.success(`Workers successfully dispatched for #${selectedTicket.value.id}!`);
     await fetchDispatchQueue();
     clearSelectedTicket();

@@ -8,6 +8,17 @@ import api from '@/api/client';
  */
 export const formatDocDate = (dateVal) => {
   if (!dateVal) return '';
+  if (typeof dateVal === 'string') {
+    const ymdMatch = dateVal.trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (ymdMatch) {
+      const [_, y, m, d] = ymdMatch;
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthIdx = parseInt(m, 10) - 1;
+      if (monthIdx >= 0 && monthIdx < 12) {
+        return `${monthNames[monthIdx]} ${parseInt(d, 10)}, ${y}`;
+      }
+    }
+  }
   const parsed = new Date(typeof dateVal === 'string' ? dateVal.replace(' ', 'T') : dateVal);
   if (isNaN(parsed.getTime())) return String(dateVal);
   return parsed.toLocaleDateString('en-US', {
@@ -37,105 +48,144 @@ export const formatDocDate = (dateVal) => {
  *  {Personnel_4}
  *  {Remarks}
  *
- * @param {Object} ticket - Enriched ticket object
- * @param {Object} [feedbackData] - Optional feedback submission object { remarks, quality_rating, etc. }
+ * @param {Object} ticket - Enriched ticket object (or wrapped in { ticket })
+ * @param {Object} [feedbackData] - Optional feedback submission object
  * @returns {Object} Template data mapping
  */
 export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
-  const details = ticket.details || {};
-  const assignment = ticket.assignment || {};
-  const feedback = feedbackData || ticket.feedback || {};
+  // Defensively unwrap if wrapped in { ticket: ... }
+  const t = ticket.ticket || ticket || {};
+  const details = t.details || {};
+  const assignment = t.assignment || (Array.isArray(t.assignments) && t.assignments[0]) || {};
+  const feedback = feedbackData || t.feedback || {};
 
-  // Extract date values
-  const dateFiling = formatDocDate(ticket.submitted_at || ticket.created_at || ticket.date || new Date());
+  // 1. Filing date (when ticket intake was submitted)
+  const dateFiling = formatDocDate(t.submitted_at || t.created_at || t.date || new Date());
+
+  // 2. Implementation / Start date (when workers are scheduled/dispatched to start)
   const dateStarted = formatDocDate(
-    assignment.dispatched_at ||
     assignment.implementation_date ||
-    ticket.scheduled_date ||
-    ticket.implementationDate ||
+    assignment.dispatched_at ||
+    t.implementationDate ||
+    t.implementation_date ||
+    t.scheduled_date ||
+    t.project_target_date ||
     assignment.assigned_at ||
+    t.submitted_at ||
+    t.created_at ||
     ''
   );
-  const isCompleted = ticket.status === 'closed' || ticket.status === 'resolved' || !!ticket.completed_at;
-  const dateCompleted = isCompleted ? formatDocDate(ticket.completed_at || ticket.updated_at) : '—';
 
-  // Extract building & room
-  const building = details.college_building || ticket.location || details.location || ticket.college_building || 'N/A';
-  const room = details.office_room || ticket.office_room || ticket.officeRoom || 'N/A';
-  const fund = details.source_of_fund || ticket.source_of_fund || ticket.sourceOfFund || 'N/A';
+  // 3. Completion date
+  const isCompleted = t.status === 'closed' || t.status === 'resolved' || t.status === 'completed' || !!t.completed_at;
+  const dateCompleted = isCompleted ? formatDocDate(t.completed_at || t.updated_at) : '—';
 
-  // Requestor name + contact number
-  const baseRequestor = details.end_user || details.requesting_personnel || ticket.requestedBy || ticket.requested_by || ticket.user_name || ticket.requester || 'N/A';
-  const contactNum = ticket.contact_number || ticket.requester_contact || details.contact_number || ticket.user?.contact_number || '';
+  // 4. Physical Location (Building & Room)
+  const building = details.college_building || t.college_building || t.location || details.location || 'Campus Facility';
+  const room = details.office_room || t.office_room || t.officeRoom || details.room || 'N/A';
+  const fund = details.source_of_fund || t.source_of_fund || t.sourceOfFund || details.fund || 'N/A';
+
+  // 5. True Requestor name & contact number
+  const userFullName = t.user ? `${t.user.first_name || ''} ${t.user.last_name || ''}`.trim() : '';
+  const directFullName = (t.first_name || t.last_name) ? `${t.first_name || ''} ${t.last_name || ''}`.trim() : '';
+  const baseRequestor = (
+    t.requestedBy ||
+    t.requested_by ||
+    t.requester ||
+    details.requesting_personnel ||
+    details.end_user ||
+    userFullName ||
+    directFullName ||
+    t.user_name ||
+    'End User'
+  ).trim();
+
+  const contactNum = (
+    t.contact_number ||
+    t.requester_contact ||
+    details.contact_number ||
+    t.user?.contact_number ||
+    t.user?.requester_contact ||
+    ''
+  ).trim();
+
   const requestor = contactNum && contactNum !== 'N/A' && !baseRequestor.includes(contactNum)
     ? `${baseRequestor} (Tel: ${contactNum})`
     : baseRequestor;
 
-  // Working days duration
+  // 6. Target Working Days Duration
   const workingDays = String(
-    ticket.working_days ||
-    ticket.project_working_days ||
+    t.working_days ||
+    t.project_working_days ||
     assignment.working_days ||
-    ticket.workingDays ||
+    t.workingDays ||
+    t.total_working_days ||
+    t.eodb_days ||
     '1'
   );
 
-  // Job description / particulars
+  // 7. Nature of Work / Job Particulars
   let jobParticulars = (
-    ticket.description ||
-    ticket.job_description ||
-    ticket.title ||
-    ticket.service_type ||
-    ticket.service ||
+    t.job_description ||
+    t.description ||
+    t.title ||
+    t.project_title ||
+    t.service_type ||
+    t.service ||
     'General maintenance and repair service.'
   ).trim();
 
-  const serviceCategory = ticket.service || ticket.service_type || ticket.type;
+  const serviceCategory = t.service || t.service_type || t.type;
   if (serviceCategory && serviceCategory !== 'General' && !jobParticulars.toLowerCase().includes(serviceCategory.toLowerCase())) {
     jobParticulars = `[${serviceCategory}]\n${jobParticulars}`;
   }
 
-  // Robust parsing of assigned personnel into Personnel_1 .. Personnel_4
-  let personnelNames = [];
-  if (Array.isArray(ticket.assignments) && ticket.assignments.length > 0) {
-    personnelNames = ticket.assignments
-      .map(a => a.personnel_name || a.assigned_to_name || a.name)
-      .filter(Boolean);
-  } else if (Array.isArray(ticket.personnel) && ticket.personnel.length > 0) {
-    personnelNames = ticket.personnel
-      .map(p => (typeof p === 'string' ? p : (p.name || p.personnel_name)))
-      .filter(Boolean);
-  } else {
-    const rawPersonnel = 
-      assignment.personnel_name || 
-      ticket.assignedWorker || 
-      ticket.assigned_worker || 
-      ticket.assigned_personnel || 
-      '';
-    if (rawPersonnel && typeof rawPersonnel === 'string') {
-      personnelNames = rawPersonnel.split(/[,;\n]+/).map(n => n.trim()).filter(Boolean);
-    }
+  // 8. Assigned Personnel Extraction (Personnel_1 .. Personnel_4)
+  let rawWorkers = [];
+  if (Array.isArray(t.assignments) && t.assignments.length > 0) {
+    t.assignments.forEach(a => {
+      const name = a.personnel_name || a.assigned_to_name || a.name || '';
+      if (name) rawWorkers.push(...name.split(/[,;\n]+/));
+    });
+  }
+  if (Array.isArray(t.personnel) && t.personnel.length > 0) {
+    t.personnel.forEach(p => {
+      const name = typeof p === 'string' ? p : (p.name || p.personnel_name || '');
+      if (name) rawWorkers.push(...name.split(/[,;\n]+/));
+    });
+  }
+  const fallbackWorkers = assignment.personnel_name || t.assignedWorker || t.assigned_worker || t.assigned_personnel || '';
+  if (fallbackWorkers && typeof fallbackWorkers === 'string') {
+    rawWorkers.push(...fallbackWorkers.split(/[,;\n]+/));
   }
 
-  // Deduplicate and filter out 'Unassigned', 'N/A', 'None', etc.
-  personnelNames = Array.from(new Set(personnelNames))
-    .filter(name => {
-      const lower = String(name).toLowerCase().trim();
-      return lower !== 'unassigned' && lower !== 'n/a' && lower !== 'none' && lower !== '';
-    });
+  const personnelNames = Array.from(new Set(rawWorkers.map(n => n.trim()))).filter(name => {
+    const lower = name.toLowerCase();
+    return lower && lower !== 'unassigned' && lower !== 'n/a' && lower !== 'none';
+  });
 
   const personnel1 = personnelNames[0] || '';
   const personnel2 = personnelNames[1] || '';
   const personnel3 = personnelNames[2] || '';
   const personnel4 = personnelNames[3] || '';
 
-  // Performance evaluation / remarks
-  let remarks = (feedback.remarks || ticket.remarks || assignment.instructions || assignment.task_briefing || '').trim();
+  // 9. Dispatcher & Task Remarks
+  let remarks = (
+    feedback.remarks ||
+    t.remarks ||
+    assignment.dispatcher_notes ||
+    assignment.task_notes ||
+    assignment.instructions ||
+    assignment.task_briefing ||
+    ''
+  ).trim();
+
   if (!remarks) {
     remarks = isCompleted ? 'Work completed satisfactorily.' : 'Work order issued. Awaiting job execution.';
   }
 
-  const ticketRef = String(ticket.ticket_number || ticket.reference_number || ticket.ticketRef || ticket.ticketId || ticket.id || '0000');
+  const ticketRef = String(t.ticket_number || t.reference_number || t.ticketRef || t.ticketId || t.id || '0000');
+  const jrNo = details.jr_no || t.jr_no || ticketRef;
 
   return {
     Date: dateFiling,
@@ -157,8 +207,11 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     Personnel_3: personnel3,
     Personnel_4: personnel4,
     Remarks: remarks,
-    JR_No: ticketRef,
-    'JR No.': ticketRef,
+    JR_No: jrNo,
+    'JR No.': jrNo,
+    JR_no: jrNo,
+    ticketId: String(t.ticketId || t.id || '0000'),
+    ticketRef: ticketRef,
   };
 };
 
@@ -183,15 +236,17 @@ export const generateFgmuJobRequestFormBlob = generateFgmuJobRequestFormDocxBlob
  * @returns {Promise<Object>} API Response
  */
 export const attachFgmuJobRequestForm = async (ticket, feedbackData = null) => {
-  const ticketId = ticket.ticketId || ticket.id;
+  const t = ticket.ticket || ticket || {};
+  const ticketId = t.ticketId || t.id;
   if (!ticketId) {
     throw new Error('Ticket ID is required to attach document.');
   }
 
-  const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticket, feedbackData);
+  const docxBlob = await generateFgmuJobRequestFormDocxBlob(t, feedbackData);
+  const unit = t.unit_code || t.unit || 'FGMU';
 
   const formData = new FormData();
-  formData.append('attachments[]', docxBlob, `FGMU Job Request Form - #${ticketId}.docx`);
+  formData.append('attachments[]', docxBlob, `${unit}_Job_Order_#${ticketId}.docx`);
 
   return await api.post(`tickets/${ticketId}/attachments`, formData, {
     headers: { 'Content-Type': undefined },

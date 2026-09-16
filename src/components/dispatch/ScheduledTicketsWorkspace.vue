@@ -901,12 +901,21 @@ const formatDate = (dateStr) => {
   return parsed.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 };
 
-const mapTicket = (t) => {
+const mapTicket = (input) => {
+  const t = input?.ticket || input || {};
   const requesterName = t.requester 
+    || t.requestedBy
+    || t.requested_by
     || t.details?.requesting_personnel
+    || t.details?.end_user
     || (t.user ? `${t.user.first_name || ''} ${t.user.last_name || ''}`.trim() : '')
     || (t.first_name || t.last_name ? `${t.first_name || ''} ${t.last_name || ''}`.trim() : '')
     || 'End User';
+
+  const assignmentObj = t.assignment || (Array.isArray(t.assignments) && t.assignments[0]) || null;
+  const assignmentsArr = Array.isArray(t.assignments) ? t.assignments : (assignmentObj ? [assignmentObj] : []);
+  const workingDaysVal = t.working_days || t.project_working_days || assignmentObj?.working_days || t.workingDays || t.eodb_days || null;
+  const implDate = assignmentObj?.implementation_date || t.implementation_date || t.implementationDate || t.project_target_date || null;
 
   return {
     ...t,
@@ -918,7 +927,7 @@ const mapTicket = (t) => {
     type: t.service || t.service_type || t.title || t.type || 'Service Request',
     location: t.location || t.college_building || t.details?.college_building || 'Campus Facility',
     college_building: t.details?.college_building || t.college_building || t.location || 'Campus Facility',
-    office_room: t.details?.office_room || t.office_room,
+    office_room: t.details?.office_room || t.office_room || 'N/A',
     source_of_fund: t.details?.source_of_fund || t.source_of_fund || 'N/A',
     contact_number: t.contact_number || t.requester_contact || t.details?.contact_number || t.user?.contact_number || 'N/A',
     requester: requesterName,
@@ -930,7 +939,16 @@ const mapTicket = (t) => {
     attachments: t.attachments || [],
     submitted_at: t.submitted_at || t.created_at,
     reviewed_at: t.reviewed_at || t.approved_at,
-    assignment: t.assignment || (t.assignments && t.assignments[0]) || null,
+    assignment: assignmentObj,
+    assignments: assignmentsArr,
+    assignedWorker: assignmentObj?.personnel_name || t.assignedWorker || null,
+    assignedProfession: assignmentObj?.specialty || assignmentObj?.profession || t.assignedProfession || null,
+    working_days: workingDaysVal,
+    workingDays: workingDaysVal,
+    implementation_date: implDate,
+    implementationDate: implDate,
+    feedback: t.feedback || null,
+    details: t.details || null,
   };
 };
 
@@ -1008,8 +1026,9 @@ const openJobOrderDocument = async (ticket) => {
     let freshTicket = ticket;
     try {
       const res = await api.get(`tickets/${ticketId}`);
-      if (res.data?.data) {
-        freshTicket = mapTicket(res.data.data);
+      const raw = res.data?.data?.ticket || res.data?.data;
+      if (raw) {
+        freshTicket = mapTicket(raw);
         activeJobOrderTicket.value = freshTicket;
       }
     } catch (e) {
@@ -1048,8 +1067,9 @@ const handleRegenerateJobOrder = async () => {
     let freshTicket = ticket;
     try {
       const res = await api.get(`tickets/${ticketId}`);
-      if (res.data?.data) {
-        freshTicket = mapTicket(res.data.data);
+      const raw = res.data?.data?.ticket || res.data?.data;
+      if (raw) {
+        freshTicket = mapTicket(raw);
         activeJobOrderTicket.value = freshTicket;
       }
     } catch (fetchErr) {
