@@ -613,7 +613,7 @@ import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import { parseDateLocal } from '@/utils/workCalendar';
-import { handleAttachmentClick } from '@/utils/attachmentHelper';
+import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 
@@ -655,6 +655,8 @@ onMounted(async () => {
       tickets.value = response.data.data.tickets.map(t => ({
         id: t.id,
         ticketId: t.id,
+        ticket_number: t.ticket_number || t.reference_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
+        reference_number: t.reference_number || t.ticket_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
         title: t.title,
         service: t.service_type,
         service_type: t.service_type,
@@ -726,9 +728,13 @@ const checkRouteTicket = () => {
   if (handledRouteQueryKey === triggerKey) {
     return;
   }
+  const targetStr = String(target).trim().toLowerCase();
   const match = tickets.value.find(t => 
-    String(t.ticketId).toLowerCase() === String(target).toLowerCase() || 
-    String(t.id).toLowerCase() === String(target).toLowerCase()
+    String(t.ticketId).toLowerCase() === targetStr || 
+    String(t.id).toLowerCase() === targetStr ||
+    String(t.ticket_number || '').toLowerCase() === targetStr ||
+    String(t.reference_number || '').toLowerCase() === targetStr ||
+    `${String(t.unit || t.unit_code).toLowerCase()}-tic-${String(t.id).toLowerCase()}` === targetStr
   );
   if (match) {
     handledRouteQueryKey = triggerKey;
@@ -754,8 +760,15 @@ watch(searchQuery, () => {
 
 const filteredTickets = computed(() => {
   if (!searchQuery.value) return tickets.value;
+  const q = searchQuery.value.trim().toLowerCase();
   return tickets.value.filter(ticket => 
-    ticket.ticketId.toLowerCase().includes(searchQuery.value.trim().toLowerCase())
+    String(ticket.ticketId).toLowerCase().includes(q) ||
+    String(ticket.id).toLowerCase().includes(q) ||
+    String(ticket.ticket_number || '').toLowerCase().includes(q) ||
+    String(ticket.reference_number || '').toLowerCase().includes(q) ||
+    String(ticket.service_type || ticket.service || '').toLowerCase().includes(q) ||
+    String(ticket.title || '').toLowerCase().includes(q) ||
+    `${String(ticket.unit || ticket.unit_code).toLowerCase()}-tic-${String(ticket.id).toLowerCase()}`.includes(q)
   );
 });
 
