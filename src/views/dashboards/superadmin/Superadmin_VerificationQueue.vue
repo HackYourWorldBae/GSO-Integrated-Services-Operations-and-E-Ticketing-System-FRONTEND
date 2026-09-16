@@ -89,9 +89,14 @@
           >
             <div class="space-y-3">
               <div class="flex items-center justify-between">
-                <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
-                  {{ user.role }}
-                </span>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
+                    {{ user.role }}
+                  </span>
+                  <span v-if="user.role === 'student' && user.student_type" class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
+                    {{ user.student_type === 'rso' ? 'RSO' : 'SSG' }}
+                  </span>
+                </div>
                 <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
                   Awaiting Verification
                 </span>
@@ -105,6 +110,9 @@
                   <h4 class="text-sm font-black text-slate-900 truncate">{{ user.first_name }} {{ user.last_name }}</h4>
                   <p class="text-xs font-bold text-emerald-700 mt-0.5">
                     ID: {{ user.student_id_number || 'Not Stated' }}
+                  </p>
+                  <p v-if="user.organization_name" class="text-[11px] font-semibold text-purple-700 truncate mt-0.5">
+                    🏛️ {{ user.organization_name }}
                   </p>
                   <p class="text-[11px] text-slate-500 truncate">
                     {{ user.email || 'No email provided' }}
@@ -241,6 +249,18 @@
               <div class="col-span-2">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Registered At</p>
                 <p class="font-bold text-slate-700 mt-0.5">{{ inspectingUser.created_at ? new Date(inspectingUser.created_at).toLocaleString() : 'N/A' }}</p>
+              </div>
+
+              <!-- Student Organization Details -->
+              <div v-if="inspectingUser.role === 'student'" class="col-span-2 sm:col-span-4 p-3 rounded-xl bg-purple-50/80 border border-purple-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">Student Affiliation</p>
+                  <p class="font-bold text-slate-900 mt-0.5">{{ inspectingUser.student_type === 'rso' ? 'Recognized Student Organization (RSO)' : 'Supreme Student Government (SSG)' }}</p>
+                </div>
+                <div v-if="inspectingUser.organization_name" class="sm:text-right">
+                  <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">{{ inspectingUser.student_type === 'rso' ? 'Organization / Club' : 'Officer Position / Committee' }}</p>
+                  <p class="font-bold text-purple-900 mt-0.5">{{ inspectingUser.organization_name }}</p>
+                </div>
               </div>
             </div>
 
@@ -503,10 +523,6 @@ const getRoleBadgeClass = (role) => {
       return 'bg-indigo-100 text-indigo-800 border-indigo-300';
     case 'admin':
       return 'bg-blue-100 text-blue-800 border-blue-300';
-    case 'dispatcher':
-      return 'bg-sky-100 text-sky-800 border-sky-300';
-    case 'worker':
-      return 'bg-amber-100 text-amber-800 border-amber-300';
     case 'employee':
       return 'bg-teal-100 text-teal-800 border-teal-300';
     case 'student':

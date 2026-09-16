@@ -164,9 +164,14 @@
 
                   <!-- Role -->
                   <td class="py-3.5 px-3">
-                    <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
-                      {{ user.role }}
-                    </span>
+                    <div class="flex flex-col gap-1 items-start">
+                      <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
+                        {{ user.role }}
+                      </span>
+                      <span v-if="user.role === 'student' && user.student_type" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-purple-50 text-purple-700 border border-purple-200">
+                        {{ user.student_type === 'rso' ? 'RSO' : 'SSG' }}
+                      </span>
+                    </div>
                   </td>
 
                   <!-- Unit -->
@@ -391,6 +396,9 @@
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
                     {{ user.role }}
+                  </span>
+                  <span v-if="user.role === 'student' && user.student_type" class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
+                    {{ user.student_type === 'rso' ? 'RSO' : 'SSG' }}
                   </span>
                   <span 
                     v-if="user.status === 'Rejected'" 
@@ -711,8 +719,6 @@
                 <select v-model="createForm.role" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer">
                   <option value="student">Student (Requester)</option>
                   <option value="employee">Employee (Requester)</option>
-                  <option value="worker">Worker (Field Personnel)</option>
-                  <option value="dispatcher">Dispatcher (Control)</option>
                   <option value="admin">Admin (Unit Governance)</option>
                   <option value="director">Director (Executive)</option>
                   <option value="superadmin">Superadmin (Master)</option>
@@ -832,8 +838,6 @@
                 <select v-model="editForm.role" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer">
                   <option value="student">Student</option>
                   <option value="employee">Employee</option>
-                  <option value="worker">Worker</option>
-                  <option value="dispatcher">Dispatcher</option>
                   <option value="admin">Admin</option>
                   <option value="director">Director</option>
                   <option value="superadmin">Superadmin</option>
@@ -1334,9 +1338,7 @@ const filters = reactive({
 const roleOptions = [
   { value: 'all', label: 'All Roles' },
   { value: 'admin', label: 'Admins' },
-  { value: 'dispatcher', label: 'Dispatchers' },
   { value: 'director', label: 'Directors' },
-  { value: 'worker', label: 'Workers' },
   { value: 'employee', label: 'Employees' },
   { value: 'student', label: 'Students' },
   { value: 'superadmin', label: 'Superadmin' }

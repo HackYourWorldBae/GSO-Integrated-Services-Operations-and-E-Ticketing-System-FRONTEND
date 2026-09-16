@@ -10,6 +10,8 @@ const form = ref({
   first_name: '',
   last_name: '',
   role: 'student', // 'student' or 'employee'
+  student_type: 'rso', // 'rso' or 'ssg'
+  organization_name: '',
   student_id_number: '',
   contact_number: '',
   email: '',
@@ -67,6 +69,25 @@ const handleRoleSelect = (selectedRole) => {
   form.value.student_id_number = '';
   if (fieldErrors.value.student_id_number) {
     delete fieldErrors.value.student_id_number;
+  }
+};
+
+// Student Type Switcher Handler (RSO or SSG)
+const handleStudentTypeSelect = (selectedType) => {
+  if (form.value.student_type === selectedType) return;
+  form.value.student_type = selectedType;
+  if (fieldErrors.value.student_type) {
+    delete fieldErrors.value.student_type;
+  }
+  if (fieldErrors.value.organization_name) {
+    delete fieldErrors.value.organization_name;
+  }
+};
+
+const handleOrganizationNameInput = (event) => {
+  form.value.organization_name = event.target.value;
+  if (fieldErrors.value.organization_name) {
+    delete fieldErrors.value.organization_name;
   }
 };
 
@@ -249,6 +270,21 @@ const validateClient = () => {
     }
   }
 
+  // 3.1 Student Organization Representative Validation
+  if (form.value.role === 'student') {
+    if (!form.value.student_type) {
+      fieldErrors.value.student_type = 'Please select whether you represent an RSO or the SSG.';
+    }
+    const org = form.value.organization_name.trim();
+    if (!org) {
+      fieldErrors.value.organization_name = form.value.student_type === 'rso'
+        ? 'Recognized Student Organization (RSO) name is required.'
+        : 'SSG Committee or Officer Position is required.';
+    } else if (org.length < 2) {
+      fieldErrors.value.organization_name = 'Organization/Position must be at least 2 characters long.';
+    }
+  }
+
   // 4. Contact Number (Strict 11 digits starting with 09)
   const contact = form.value.contact_number.trim();
   if (!contact) {
@@ -309,6 +345,10 @@ const handleRegister = async () => {
     formData.append('first_name', form.value.first_name.trim());
     formData.append('last_name', form.value.last_name.trim());
     formData.append('role', form.value.role);
+    if (form.value.role === 'student') {
+      formData.append('student_type', form.value.student_type);
+      formData.append('organization_name', form.value.organization_name.trim());
+    }
     formData.append('student_id_number', form.value.student_id_number.trim());
     formData.append('contact_number', form.value.contact_number.trim());
     
@@ -428,7 +468,7 @@ const handleRegister = async () => {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
               </svg>
-              BSU Student
+              Student (RSO / SSG)
             </button>
             <button 
               type="button" 
@@ -441,6 +481,114 @@ const handleRegister = async () => {
               </svg>
               BSU Faculty / Staff
             </button>
+          </div>
+        </div>
+
+        <!-- Student Organization Classification (RSO / SSG only) -->
+        <div v-if="form.role === 'student'" class="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 space-y-3.5 transition-all">
+          <div class="flex items-start gap-2.5">
+            <div class="p-1.5 rounded-lg bg-emerald-600 text-white shrink-0 mt-0.5 shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-emerald-950 leading-snug">
+                Authorized Student Representative Sign-Up
+              </h3>
+              <p class="text-[11px] text-emerald-800 font-medium leading-relaxed mt-0.5">
+                Student accounts are strictly reserved for accredited officers of Recognized Student Organizations (RSO) and the Supreme Student Government (SSG) requesting services on behalf of student bodies.
+              </p>
+            </div>
+          </div>
+
+          <!-- RSO vs SSG Choice Cards -->
+          <div>
+            <label class="block text-slate-700 text-[11px] font-black uppercase tracking-wider mb-1.5">
+              Select Student Affiliation <span class="text-rose-500">*</span>
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <!-- RSO Option -->
+              <button
+                type="button"
+                @click="handleStudentTypeSelect('rso')"
+                :class="form.student_type === 'rso' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/70 border-slate-200 hover:border-slate-300 text-slate-700'"
+                class="p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5"
+              >
+                <div 
+                  :class="form.student_type === 'rso' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
+                  class="p-1.5 rounded-lg shrink-0 mt-0.5 transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
+                    RSO Representative
+                    <span v-if="form.student_type === 'rso'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-black uppercase">Selected</span>
+                  </div>
+                  <p class="text-[10.5px] text-slate-500 font-medium leading-tight mt-0.5">
+                    Recognized Student Organization (Academic clubs, student councils)
+                  </p>
+                </div>
+              </button>
+
+              <!-- SSG Option -->
+              <button
+                type="button"
+                @click="handleStudentTypeSelect('ssg')"
+                :class="form.student_type === 'ssg' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/70 border-slate-200 hover:border-slate-300 text-slate-700'"
+                class="p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5"
+              >
+                <div 
+                  :class="form.student_type === 'ssg' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
+                  class="p-1.5 rounded-lg shrink-0 mt-0.5 transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
+                    SSG Representative
+                    <span v-if="form.student_type === 'ssg'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-black uppercase">Selected</span>
+                  </div>
+                  <p class="text-[10.5px] text-slate-500 font-medium leading-tight mt-0.5">
+                    Supreme Student Government (Officers, Senators, Committees)
+                  </p>
+                </div>
+              </button>
+            </div>
+            <p v-if="fieldErrors.student_type" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+              {{ fieldErrors.student_type }}
+            </p>
+          </div>
+
+          <!-- Dynamic Name/Role Input based on RSO vs SSG -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-slate-700 text-[11px] font-black uppercase tracking-wider">
+                {{ form.student_type === 'rso' ? 'Recognized Student Organization (RSO) Name' : 'SSG Committee / Officer Position' }} <span class="text-rose-500">*</span>
+              </label>
+              <span class="text-[10px] text-slate-400 font-medium">Official name / role</span>
+            </div>
+            <input
+              v-model="form.organization_name"
+              type="text"
+              maxlength="150"
+              spellcheck="false"
+              required
+              @input="handleOrganizationNameInput"
+              :class="fieldErrors.organization_name ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white'"
+              class="w-full px-4 py-2.5 rounded-xl border text-slate-900 text-xs sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all"
+              :placeholder="form.student_type === 'rso' ? 'e.g. Computer Society (CS), Junior Marketing Association' : 'e.g. Committee on Logistics, Senator, Executive Board'"
+            />
+            <p v-if="fieldErrors.organization_name" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+              {{ fieldErrors.organization_name }}
+            </p>
           </div>
         </div>
 

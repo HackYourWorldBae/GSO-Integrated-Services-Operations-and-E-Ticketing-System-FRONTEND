@@ -60,6 +60,25 @@ onMounted(async () => {
     return;
   }
 
+  // Student Account Role Authorization Guard (RSO / SSG accounts)
+  const userRole = (user.value?.role || authStore.role || '').toLowerCase();
+  if (userRole === 'student') {
+    const ALLOWED_STUDENT_SERVICES = [
+      'Incident Report',
+      'Borrowing of tools/ equipment',
+      'Borrowing of plants',
+      'Hauling',
+      'Stage & Hall Decoration',
+    ];
+
+    const hasUnauthorized = selectedList.value.some(s => !ALLOWED_STUDENT_SERVICES.includes(s.service));
+    if (hasUnauthorized) {
+      toast.error('Student accounts are only authorized for Borrowing of Tools/Equipment, Borrowing of Plants, Hauling, Stage & Hall Decoration, and Incident Reports.');
+      router.push('/services');
+      return;
+    }
+  }
+
   if (!Object.values(selectedServicesRaw.value).some(v => v === true)) {
     router.push('/services');
   }

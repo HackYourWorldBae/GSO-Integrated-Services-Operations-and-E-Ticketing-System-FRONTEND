@@ -401,9 +401,7 @@ const getRoleBadgeClass = (role) => {
   const map = {
     superadmin: 'bg-purple-100 text-purple-700',
     admin: 'bg-slate-200 text-slate-800',
-    dispatcher: 'bg-blue-100 text-blue-700',
     director: 'bg-indigo-100 text-indigo-700',
-    worker: 'bg-amber-100 text-amber-700',
     employee: 'bg-emerald-100 text-emerald-700',
     student: 'bg-teal-100 text-teal-700'
   };
@@ -413,12 +411,10 @@ const getRoleBadgeClass = (role) => {
 const getRoleDescription = (role) => {
   const map = {
     superadmin: 'Full system & user administration',
-    admin: 'Unit governance, approval & announcements',
-    dispatcher: 'Work order dispatch & scheduling',
+    admin: 'Unit governance, approval, dispatch & personnel management',
     director: 'University-wide executive analytics',
-    worker: 'Field execution & material reporting',
     employee: 'Faculty/Staff service requester',
-    student: 'Student service requester'
+    student: 'Student organization/SSG service requester'
   };
   return map[role] || 'General portal user';
 };

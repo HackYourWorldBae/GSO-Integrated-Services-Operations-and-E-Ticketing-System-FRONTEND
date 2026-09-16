@@ -41,7 +41,3 @@ __screenshots__/
 backup.env
 #rules
 .agents/rules
-
-#temporary ddl
-
-/database

@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, reactive, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { toast } from 'vue3-toastify';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { debounce } from '@/utils/debounce';
 
@@ -319,14 +320,56 @@ const handleLogout = () => {
   });
 };
 
+// --- STUDENT ROLE SERVICE RESTRICTION RULES ---
+const isStudentUser = computed(() => {
+  const r = (authStore.user?.role || authStore.role || '').toLowerCase();
+  return r === 'student';
+});
+
+const studentAffiliationText = computed(() => {
+  if (!isStudentUser.value) return '';
+  const type = (authStore.user?.student_type || 'rso').toUpperCase();
+  const org = authStore.user?.organization_name;
+  return org ? `${type} — ${org}` : type;
+});
+
+// Authorized 5 services for students (RSO and SSG)
+const ALLOWED_STUDENT_SERVICES = [
+  'Incident Report',
+  'Borrowing of tools/ equipment',
+  'Borrowing of plants',
+  'Hauling',
+  'Stage & Hall Decoration',
+];
+
+const isServiceAllowed = (unitId, serviceName) => {
+  if (!isStudentUser.value) return true; // Faculty, staff, and employees have full access
+  // Students are blocked from all FGMU facilities services
+  if (unitId === 'fgmu') return false;
+  // Students are restricted to the 5 authorized services
+  return ALLOWED_STUDENT_SERVICES.includes(serviceName);
+};
+
+const handleRestrictedClick = (service) => {
+  toast.warning(`"${service}" is reserved for University Faculty and Staff. Student accounts are authorized for Borrowing of Tools/Equipment, Borrowing of Plants, Hauling, Stage & Hall Decoration, and Incident Reports.`);
+};
+
 // --- TOGGLE ---
-const toggleService = (catTitle, service) => {
+const toggleService = (unitId, catTitle, service) => {
+  if (!isServiceAllowed(unitId, service)) {
+    handleRestrictedClick(service);
+    return;
+  }
   const key = `${catTitle}-${service}`;
   selectedServices[key] = !selectedServices[key];
 };
 
 // --- CUSTOM SERVICE ---
-const confirmCustomService = (catTitle) => {
+const confirmCustomService = (unitId, catTitle) => {
+  if (isStudentUser.value && unitId !== 'ssu') {
+    toast.error('Student accounts cannot create custom service tickets in Facilities or Ground Management.');
+    return;
+  }
   const custom = tempCustom[catTitle];
   if (!custom.title.trim()) {
     alert("Please provide a title for your custom service.");
@@ -374,6 +417,19 @@ const handleSubmit = () => {
     alert("Please select at least one service.");
     return;
   }
+
+  // Double check authorization for students before proceeding
+  if (isStudentUser.value) {
+    for (const [key, isSelected] of Object.entries(selectedServices)) {
+      if (!isSelected) continue;
+      const srvName = key.split('-').slice(1).join('-');
+      if (!ALLOWED_STUDENT_SERVICES.includes(srvName)) {
+        toast.error(`The service "${srvName}" is restricted to faculty and staff. Please deselect it.`);
+        return;
+      }
+    }
+  }
+
   localStorage.setItem('selectedServices', JSON.stringify(selectedServices));
   localStorage.setItem('otherSpecifics', JSON.stringify(otherSpecifics));
   localStorage.setItem('customDescriptions', JSON.stringify(customDescriptions));
@@ -475,6 +531,28 @@ const handleSubmit = () => {
         </div>
       </div>
 
+      <!-- ─── STUDENT REPRESENTATIVE ACCESS NOTICE BANNER ─── -->
+      <div v-if="isStudentUser" class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-fade-in">
+        <div class="flex items-start sm:items-center gap-3.5">
+          <div class="p-2.5 rounded-xl bg-emerald-600 text-white shrink-0 shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h2 class="text-sm font-black text-emerald-950">Student Organization Representative Mode</h2>
+              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-200/70 text-emerald-800 border border-emerald-300">
+                {{ studentAffiliationText }}
+              </span>
+            </div>
+            <p class="text-xs text-emerald-800/90 font-medium mt-1 leading-relaxed">
+              Your account is authorized to request: <strong>Borrowing of Tools/Equipment</strong>, <strong>Borrowing of Plants</strong>, <strong>Hauling</strong>, <strong>Stage & Hall Decoration</strong>, and <strong>Incident Reports</strong>. Structural and facilities maintenance services are restricted to university faculty and staff.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- ─── PROBLEM SEARCH & INTENT FILTERS ─── -->
       <div class="space-y-4 mb-8 sm:mb-12">
         <!-- Natural Language Problem Search Bar -->
@@ -541,20 +619,24 @@ const handleSubmit = () => {
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
                   <template v-for="service in category.services" :key="service">
 
-                    <!-- Regular: Checkable Service Card -->
+                    <!-- Service Card (Interactive or Restricted) -->
                     <div
-                      @click="toggleService(category.title, service)"
-                      class="group relative cursor-pointer select-none rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 transition-all duration-300 border-2 flex flex-col items-center justify-center gap-2.5 sm:gap-3 text-center min-h-[130px] sm:min-h-[145px]"
-                      :class="selectedServices[`${category.title}-${service}`]
-                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20 -translate-y-0.5'
-                        : ['bg-white border-slate-100 text-slate-600 shadow-sm hover:-translate-y-0.5 hover:shadow-md', unit.accentHover]"
+                      @click="toggleService(unit.id, category.title, service)"
+                      class="group relative select-none rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 transition-all duration-300 border-2 flex flex-col items-center justify-center gap-2.5 sm:gap-3 text-center min-h-[130px] sm:min-h-[145px]"
+                      :class="[
+                        !isServiceAllowed(unit.id, service)
+                          ? 'opacity-50 cursor-not-allowed bg-slate-100/70 border-dashed border-slate-200 text-slate-400 hover:border-slate-300'
+                          : selectedServices[`${category.title}-${service}`]
+                            ? 'cursor-pointer bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20 -translate-y-0.5'
+                            : ['cursor-pointer bg-white border-slate-100 text-slate-600 shadow-sm hover:-translate-y-0.5 hover:shadow-md', unit.accentHover]
+                      ]"
                     >
                       <!-- Icon -->
                       <div
                         class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all duration-300 shrink-0"
                         :class="selectedServices[`${category.title}-${service}`]
                           ? 'text-white bg-white/15'
-                          : [unit.accentBg, unit.accentIcon, 'group-hover:scale-110']"
+                          : [unit.accentBg, unit.accentIcon, isServiceAllowed(unit.id, service) ? 'group-hover:scale-110' : '']"
                         v-html="getServiceIcon(service)"
                       ></div>
 
@@ -574,8 +656,18 @@ const handleSubmit = () => {
                         <p v-if="customDescriptions[`${category.title}-${service}`]" class="text-[9px] sm:text-[10px] opacity-70 line-clamp-2 max-w-[90%]">{{ customDescriptions[`${category.title}-${service}`] }}</p>
                       </div>
 
-                      <!-- Check indicator -->
+                      <!-- Restricted Lock Badge or Check Indicator -->
                       <div
+                        v-if="!isServiceAllowed(unit.id, service)"
+                        class="absolute top-2.5 right-2.5 px-1.5 py-0.5 rounded-md bg-slate-200/90 text-slate-600 text-[9px] font-bold flex items-center gap-1 border border-slate-300/60 shadow-xs"
+                      >
+                        <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        Faculty Only
+                      </div>
+                      <div
+                        v-else
                         class="absolute top-2.5 right-2.5 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300"
                         :class="selectedServices[`${category.title}-${service}`] ? 'bg-white/25 scale-100' : 'scale-0 group-hover:scale-100 bg-slate-100'"
                       >
@@ -618,7 +710,7 @@ const handleSubmit = () => {
                       </div>
                       <div class="flex justify-end gap-2 sm:gap-3 pt-1">
                         <button type="button" @click="cancelCustomService(category.title)" class="px-4 sm:px-6 py-2.5 sm:py-3 bg-white hover:bg-slate-50 text-slate-500 font-bold rounded-xl border border-slate-200 text-sm transition-colors">Cancel</button>
-                        <button type="button" @click="confirmCustomService(category.title)" class="px-4 sm:px-6 py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow text-sm transition-colors">Confirm Service</button>
+                        <button type="button" @click="confirmCustomService(unit.id, category.title)" class="px-4 sm:px-6 py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow text-sm transition-colors">Confirm Service</button>
                       </div>
                     </div>
                   </div>
