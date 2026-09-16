@@ -209,6 +209,20 @@
                   >
                     Emergency
                   </span>
+                  <span
+                    v-if="ticket.is_labor_only"
+                    class="px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 text-[9px] font-black uppercase tracking-wider border border-sky-200"
+                    title="Designated as Labor Only Service"
+                  >
+                    Labor Only
+                  </span>
+                  <span
+                    v-else-if="ticket.materials && ticket.materials.length > 0"
+                    class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[9px] font-bold border border-emerald-200"
+                    :title="`${ticket.materials.length} material(s) assessed / logged`"
+                  >
+                    {{ ticket.materials.length }} part{{ ticket.materials.length !== 1 ? 's' : '' }}
+                  </span>
                 </div>
               </td>
 
@@ -296,6 +310,19 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span>Extend</span>
+                  </button>
+
+                  <!-- Adjust Materials Button -->
+                  <button
+                    type="button"
+                    @click="openAdjustModal(ticket)"
+                    class="px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                    title="Adjust ongoing materials and supplies"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span>Materials</span>
                   </button>
 
                   <!-- Complete Job Button -->
@@ -423,6 +450,20 @@
           </span>
         </div>
 
+        <!-- Materials Meta / Labor Only badge -->
+        <div class="flex items-center justify-between text-xs text-slate-500 pt-0.5">
+          <span class="text-[11px] font-medium text-slate-500">Materials:</span>
+          <span v-if="ticket.is_labor_only" class="px-2 py-0.5 rounded bg-sky-50 border border-sky-200 text-[10px] font-black text-sky-700">
+            Labor Only
+          </span>
+          <span v-else-if="ticket.materials && ticket.materials.length > 0" class="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800">
+            {{ ticket.materials.length }} part(s) • ₱{{ Number(ticket.total_material_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+          </span>
+          <span v-else class="text-[10px] text-slate-400 italic">
+            None recorded
+          </span>
+        </div>
+
         <!-- Card Actions -->
         <div class="flex items-center gap-2 pt-1 border-t border-slate-100 flex-wrap sm:flex-nowrap" @click.stop>
           <button
@@ -453,6 +494,14 @@
             class="flex-1 py-2.5 px-3 min-h-[38px] rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center"
           >
             Extend
+          </button>
+          <button
+            type="button"
+            @click="openAdjustModal(ticket)"
+            class="flex-1 py-2.5 px-2.5 min-h-[38px] rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-black text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center gap-1"
+            title="Adjust ongoing materials and supplies"
+          >
+            <span>Materials</span>
           </button>
           <button
             type="button"
@@ -757,6 +806,13 @@
               </button>
               <button
                 type="button"
+                @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openAdjustModal(t); })()"
+                class="px-4 py-2.5 min-h-[40px] rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 text-xs font-black transition-colors cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+              >
+                <span>Adjust Materials</span>
+              </button>
+              <button
+                type="button"
                 @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openMaterialCompletionModal(t); })()"
                 :class="[
                   'px-5 py-2.5 min-h-[40px] rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center',
@@ -790,6 +846,15 @@
       @completed="handleJobCompleted"
     />
 
+    <!-- Adjust Ongoing Materials Modal -->
+    <AdjustOngoingMaterialsModal
+      :is-open="showAdjustModal"
+      :ticket="selectedTicketForAdjust"
+      :unit-code="unitCode"
+      @close="showAdjustModal = false"
+      @updated="handleMaterialsAdjusted"
+    />
+
     <!-- Material Receipt Modal -->
     <MaterialReceiptModal
       :is-open="showReceiptModal"
@@ -819,6 +884,7 @@ import { useRoute } from 'vue-router';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue';
+import AdjustOngoingMaterialsModal from '@/components/AdjustOngoingMaterialsModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
@@ -854,6 +920,8 @@ const showExtensionModal = ref(false);
 const ticketToExtend = ref(null);
 const showMaterialModal = ref(false);
 const selectedTicketForCompletion = ref(null);
+const showAdjustModal = ref(false);
+const selectedTicketForAdjust = ref(null);
 const showReceiptModal = ref(false);
 const receiptTicket = ref(null);
 
@@ -1094,6 +1162,10 @@ const mapTicket = (input) => {
     implementationDate: implDate,
     feedback: t.feedback || null,
     details: t.details || null,
+    materials: Array.isArray(t.materials) ? t.materials : [],
+    total_material_cost: Number(t.total_material_cost || 0),
+    is_labor_only: !!(t.is_labor_only == 1 || t.is_labor_only === true || t.is_labor_only === '1'),
+    materials_stage: t.materials_stage || 'none',
   };
 };
 
@@ -1129,6 +1201,16 @@ const handleTicketExtended = () => {
 const openMaterialCompletionModal = (ticket) => {
   selectedTicketForCompletion.value = ticket;
   showMaterialModal.value = true;
+};
+
+const openAdjustModal = (ticket) => {
+  selectedTicketForAdjust.value = ticket;
+  showAdjustModal.value = true;
+};
+
+const handleMaterialsAdjusted = () => {
+  toast.success('Materials successfully updated for ticket #' + (selectedTicketForAdjust.value?.id || ''));
+  fetchActiveTickets();
 };
 
 const handleJobCompleted = (result) => {

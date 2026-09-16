@@ -109,6 +109,8 @@ CREATE TABLE IF NOT EXISTS tickets (
     office_room VARCHAR(100) NULL,
     is_archived BOOLEAN NOT NULL DEFAULT FALSE,
     materials_logged BOOLEAN NOT NULL DEFAULT FALSE,
+    is_labor_only BOOLEAN NOT NULL DEFAULT FALSE,
+    materials_stage VARCHAR(20) NOT NULL DEFAULT 'none',
     is_under_investigation BOOLEAN NOT NULL DEFAULT FALSE,
     ssu_notation TEXT NULL,
     submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -269,6 +271,7 @@ CREATE TABLE IF NOT EXISTS ticket_materials (
     unit_measurement VARCHAR(50) NULL,
     unit_price NUMERIC(10,2) NOT NULL DEFAULT 0.00,
     total_price NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    stage VARCHAR(20) NOT NULL DEFAULT 'assessment',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

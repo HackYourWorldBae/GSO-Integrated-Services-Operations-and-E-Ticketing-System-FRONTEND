@@ -110,6 +110,8 @@ CREATE TABLE IF NOT EXISTS tickets (
     office_room VARCHAR(100) NULL,
     is_archived TINYINT(1) NOT NULL DEFAULT 0,
     materials_logged TINYINT(1) NOT NULL DEFAULT 0,
+    is_labor_only TINYINT(1) NOT NULL DEFAULT 0,
+    materials_stage VARCHAR(20) NOT NULL DEFAULT 'none',
     -- SSU Incident Report workflow columns
     is_under_investigation TINYINT(1) NOT NULL DEFAULT 0,
     ssu_notation TEXT NULL,
@@ -286,6 +288,7 @@ CREATE TABLE IF NOT EXISTS ticket_materials (
     unit_measurement VARCHAR(50) NULL, -- e.g., pcs, meters, liters
     unit_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     total_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    stage VARCHAR(20) NOT NULL DEFAULT 'assessment',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_materials_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
     CONSTRAINT fk_materials_assignment FOREIGN KEY (assignment_id) REFERENCES ticket_assignments(id) ON DELETE SET NULL ON UPDATE CASCADE,

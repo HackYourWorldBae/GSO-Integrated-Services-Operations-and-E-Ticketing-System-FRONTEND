@@ -155,6 +155,185 @@
           </div>
         </div>
       </div>
+
+      <!-- Row 3: Initial Material Assessment & Labor-Only Scope -->
+      <div class="relative z-10 pt-2 border-t border-white/10">
+        <div class="bg-white/5 rounded-2xl border border-white/10 p-4 sm:p-5 space-y-4">
+          
+          <!-- Section Header & Quick Scope Indicator -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-400/30 flex items-center justify-center font-black shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="text-sm sm:text-base font-black text-white">Initial Material Assessment</h4>
+                  <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    Pre-Job Requirement
+                  </span>
+                </div>
+                <p class="text-[11px] text-slate-300 font-medium mt-0.5">
+                  Input estimated materials needed prior to work start, or designate as a labor-only service.
+                </p>
+              </div>
+            </div>
+
+            <!-- Labor Only Toggle Switch -->
+            <label class="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 transition-all cursor-pointer select-none shrink-0 touch-manipulation">
+              <input
+                type="checkbox"
+                v-model="assessmentLaborOnly"
+                class="w-4 h-4 text-emerald-500 rounded border-white/20 focus:ring-emerald-400 cursor-pointer"
+              />
+              <span class="text-xs font-bold text-white">Labor Only Service (No Materials)</span>
+            </label>
+          </div>
+
+          <!-- When Labor Only is Checked -->
+          <div v-if="assessmentLaborOnly" class="p-4 rounded-xl bg-white/[0.04] border border-dashed border-white/20 text-center space-y-1">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-500/20 text-sky-300 text-xs font-black border border-sky-500/30">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Designated as Pure Labor Service</span>
+            </div>
+            <p class="text-xs text-slate-300 font-medium">No material items required. This initial assessment will remain in place through completion without blocking liquidation.</p>
+          </div>
+
+          <!-- When Materials are Required -->
+          <div v-else class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-black uppercase tracking-wider text-slate-300">Itemized Estimated Supplies & Parts</span>
+              <button
+                type="button"
+                @click="addAssessmentMaterialRow"
+                class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer touch-manipulation active:scale-95"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                <span>Add Item</span>
+              </button>
+            </div>
+
+            <div class="border border-white/10 rounded-xl overflow-hidden bg-slate-900/60">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-white/5 border-b border-white/10 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <th class="py-2.5 px-3 w-8 text-center">#</th>
+                    <th class="py-2.5 px-3">Material / Item Description</th>
+                    <th class="py-2.5 px-3 w-20">Qty</th>
+                    <th class="py-2.5 px-3 w-28">Unit</th>
+                    <th class="py-2.5 px-3 w-28 text-right">Est. Price (₱)</th>
+                    <th class="py-2.5 px-3 w-28 text-right">Total (₱)</th>
+                    <th class="py-2.5 px-2 w-10 text-center"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                  <tr v-for="(item, idx) in assessmentMaterials" :key="idx" class="hover:bg-white/[0.03] transition-colors">
+                    <td class="py-2 px-3 text-center font-bold text-slate-400">{{ idx + 1 }}</td>
+                    <td class="py-2 px-3">
+                      <input
+                        v-model="item.material_name"
+                        type="text"
+                        placeholder="e.g., PVC Pipe, 18W Bulb, Cement"
+                        class="w-full px-2.5 py-1.5 bg-white/10 border border-white/15 rounded-lg text-xs font-semibold text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
+                      />
+                    </td>
+                    <td class="py-2 px-3">
+                      <input
+                        v-model.number="item.quantity"
+                        type="number"
+                        min="0.1"
+                        step="any"
+                        class="w-full px-2 py-1.5 bg-white/10 border border-white/15 rounded-lg text-xs font-bold text-white text-center focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
+                      />
+                    </td>
+                    <td class="py-2 px-3">
+                      <select
+                        v-model="item.unit_measurement"
+                        class="w-full px-2 py-1.5 bg-slate-800 border border-white/15 rounded-lg text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all cursor-pointer"
+                      >
+                        <option value="pcs">pcs</option>
+                        <option value="meters">meters</option>
+                        <option value="liters">liters</option>
+                        <option value="kg">kg</option>
+                        <option value="rolls">rolls</option>
+                        <option value="sets">sets</option>
+                        <option value="bags">bags</option>
+                        <option value="cans">cans</option>
+                        <option value="pairs">pairs</option>
+                        <option value="boxes">boxes</option>
+                        <option value="units">units</option>
+                        <option value="sheets">sheets</option>
+                        <option value="gallons">gallons</option>
+                        <option value="lengths">lengths</option>
+                      </select>
+                    </td>
+                    <td class="py-2 px-3 text-right">
+                      <input
+                        v-model.number="item.unit_price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        class="w-full px-2 py-1.5 bg-white/10 border border-white/15 rounded-lg text-xs font-bold text-white text-right focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
+                      />
+                    </td>
+                    <td class="py-2 px-3 text-right font-black text-emerald-300">
+                      ₱{{ Number((item.quantity || 0) * (item.unit_price || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                    </td>
+                    <td class="py-2 px-2 text-center">
+                      <button
+                        type="button"
+                        @click="removeAssessmentMaterialRow(idx)"
+                        :disabled="assessmentMaterials.length === 1"
+                        class="p-1 text-slate-400 hover:text-rose-400 disabled:opacity-20 cursor-pointer transition-colors"
+                        title="Remove row"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="bg-white/5 border-t border-white/10 font-black">
+                    <td colspan="4" class="py-2.5 px-3 text-right uppercase tracking-widest text-[10px] text-slate-300">
+                      Total Estimated Cost:
+                    </td>
+                    <td colspan="2" class="py-2.5 px-3 text-right text-sm text-emerald-300 font-black">
+                      ₱{{ totalAssessmentCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                    </td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div class="flex items-center justify-between text-xs pt-1">
+              <span class="text-slate-400">
+                {{ validAssessmentMaterialsCount }} item(s) • Total: <strong class="text-emerald-300">₱{{ totalAssessmentCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</strong>
+              </span>
+              <button
+                type="button"
+                @click="saveInitialAssessmentDirectly"
+                :disabled="isSavingAssessment"
+                class="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all border border-white/15 cursor-pointer flex items-center gap-1.5"
+              >
+                <svg v-if="isSavingAssessment" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isSavingAssessment ? 'Saving...' : 'Save Assessment' }}</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
 
     <!-- ═══ 2B. Empty Target State (When No Ticket Selected) ═══ -->
@@ -725,6 +904,82 @@ const isEmergency = ref(false);
 const pauseCurrentTask = ref(false);
 const taskNotes = ref('');
 
+// Initial Material Assessment State
+const assessmentLaborOnly = ref(false);
+const assessmentMaterials = ref([
+  { material_name: '', quantity: 1, unit_measurement: 'pcs', unit_price: 0 },
+]);
+const isSavingAssessment = ref(false);
+
+const addAssessmentMaterialRow = () => {
+  assessmentMaterials.value.push({
+    material_name: '',
+    quantity: 1,
+    unit_measurement: 'pcs',
+    unit_price: 0,
+  });
+};
+
+const removeAssessmentMaterialRow = (idx) => {
+  if (assessmentMaterials.value.length > 1) {
+    assessmentMaterials.value.splice(idx, 1);
+  }
+};
+
+const totalAssessmentCost = computed(() => {
+  if (assessmentLaborOnly.value) return 0;
+  return assessmentMaterials.value.reduce((sum, item) => {
+    const qty = parseFloat(item.quantity) || 0;
+    const price = parseFloat(item.unit_price) || 0;
+    return sum + (qty * price);
+  }, 0);
+});
+
+const validAssessmentMaterialsCount = computed(() => {
+  if (assessmentLaborOnly.value) return 0;
+  return assessmentMaterials.value.filter(m => m.material_name && m.material_name.trim() !== '').length;
+});
+
+const saveInitialAssessmentDirectly = async () => {
+  if (!selectedTicket.value) return;
+
+  let payloadMaterials = [];
+  if (!assessmentLaborOnly.value) {
+    payloadMaterials = assessmentMaterials.value
+      .filter(m => m.material_name && m.material_name.trim() !== '')
+      .map(m => ({
+        material_name: m.material_name.trim(),
+        quantity: Math.max(0.01, parseFloat(m.quantity) || 1),
+        unit_measurement: m.unit_measurement || 'pcs',
+        unit_price: Math.max(0, parseFloat(m.unit_price) || 0),
+        total_price: (Math.max(0.01, parseFloat(m.quantity) || 1)) * (Math.max(0, parseFloat(m.unit_price) || 0)),
+      }));
+
+    if (payloadMaterials.length === 0 && !assessmentLaborOnly.value) {
+      toast.warning('Please enter at least one material item or check "Labor only service".');
+      return;
+    }
+  }
+
+  isSavingAssessment.value = true;
+  try {
+    const payload = {
+      is_labor_only: assessmentLaborOnly.value ? 1 : 0,
+      stage: 'assessment',
+      materials: payloadMaterials,
+    };
+    await api.post(`tickets/${selectedTicket.value.id}/materials`, payload);
+    toast.success(`Initial material assessment saved for #${selectedTicket.value.id}!`);
+    selectedTicket.value.is_labor_only = assessmentLaborOnly.value ? 1 : 0;
+    selectedTicket.value.materials = payloadMaterials;
+  } catch (err) {
+    console.error('Failed to save assessment:', err);
+    toast.error('Failed to save initial material assessment.');
+  } finally {
+    isSavingAssessment.value = false;
+  }
+};
+
 // Flatpickr ref and instance
 const datePickerInput = ref(null);
 let fpInstance = null;
@@ -981,6 +1236,28 @@ const selectTicket = (ticket) => {
   autoFilterByService.value = true;
   personnelCategoryFilter.value = 'all';
   isEmergency.value = !!ticket.is_emergency;
+
+  // Initialize Material Assessment from Ticket
+  if (ticket.is_labor_only) {
+    assessmentLaborOnly.value = true;
+    assessmentMaterials.value = [
+      { material_name: '', quantity: 1, unit_measurement: 'pcs', unit_price: 0 },
+    ];
+  } else if (Array.isArray(ticket.materials) && ticket.materials.length > 0) {
+    assessmentLaborOnly.value = false;
+    assessmentMaterials.value = ticket.materials.map(m => ({
+      material_name: m.material_name || m.name || '',
+      quantity: parseFloat(m.quantity) || 1,
+      unit_measurement: m.unit_measurement || m.unit || 'pcs',
+      unit_price: parseFloat(m.unit_price || m.price) || 0,
+    }));
+  } else {
+    assessmentLaborOnly.value = false;
+    assessmentMaterials.value = [
+      { material_name: '', quantity: 1, unit_measurement: 'pcs', unit_price: 0 },
+    ];
+  }
+
   if (ticket.implementationDate) {
     implementationDate.value = ticket.implementationDate;
   }
@@ -997,6 +1274,10 @@ const clearSelectedTicket = () => {
   currentAssignments.value = [];
   autoFilterByService.value = true;
   personnelCategoryFilter.value = 'all';
+  assessmentLaborOnly.value = false;
+  assessmentMaterials.value = [
+    { material_name: '', quantity: 1, unit_measurement: 'pcs', unit_price: 0 },
+  ];
   router.replace({ query: {} });
 };
 
@@ -1052,7 +1333,20 @@ const dispatchAll = async () => {
 
   isDispatching.value = true;
   try {
-    for (const assign of currentAssignments.value) {
+    const payloadMaterials = (!assessmentLaborOnly.value)
+      ? assessmentMaterials.value
+          .filter(m => m.material_name && m.material_name.trim() !== '')
+          .map(m => ({
+            material_name: m.material_name.trim(),
+            quantity: Math.max(0.01, parseFloat(m.quantity) || 1),
+            unit_measurement: m.unit_measurement || 'pcs',
+            unit_price: Math.max(0, parseFloat(m.unit_price) || 0),
+            total_price: (Math.max(0.01, parseFloat(m.quantity) || 1)) * (Math.max(0, parseFloat(m.unit_price) || 0)),
+          }))
+      : [];
+
+    for (let i = 0; i < currentAssignments.value.length; i++) {
+      const assign = currentAssignments.value[i];
       await api.post('dispatch/assign', {
         ticket_id: selectedTicket.value.id,
         personnel_id: assign.workerId,
@@ -1060,7 +1354,9 @@ const dispatchAll = async () => {
         working_days: Math.min(31, Math.max(1, days)),
         task_notes: taskNotes.value.trim() || selectedTicket.value.service || selectedTicket.value.type || 'Maintenance Task',
         is_emergency: isEmergency.value ? 1 : 0,
-        pause_current: pauseCurrentTask.value ? 1 : 0
+        pause_current: pauseCurrentTask.value ? 1 : 0,
+        is_labor_only: assessmentLaborOnly.value ? 1 : 0,
+        materials: (i === 0) ? payloadMaterials : [],
       });
     }
 
