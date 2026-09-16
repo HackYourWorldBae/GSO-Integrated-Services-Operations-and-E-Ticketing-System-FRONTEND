@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen w-full bg-slate-50 font-sans flex overflow-hidden text-slate-900">
+  <div class="min-h-[100dvh] w-full bg-slate-50 font-sans flex overflow-hidden text-slate-900">
     <!-- Mobile Sidebar Dark Overlay -->
     <Transition name="fade">
       <div 
@@ -14,11 +14,11 @@
       :class="[
         'fixed md:relative flex flex-col transition-all duration-500 ease-in-out z-50 h-[100dvh] border-r border-slate-200 shadow-xl bg-white backdrop-blur-xl overflow-hidden', 
         isSidebarOpen ? 'w-72 border-r' : 'w-0 border-none',
-        isMobileSidebarOpen ? 'translate-x-0 w-72 border-r' : '-translate-x-full md:translate-x-0'
+        isMobileSidebarOpen ? 'translate-x-0 w-72 max-w-[85vw] border-r' : '-translate-x-full md:translate-x-0'
       ]"
     >
       <!-- Sidebar Header -->
-      <div class="sidebar-header shrink-0 overflow-hidden min-w-[288px]">
+      <div class="sidebar-header shrink-0 overflow-hidden min-w-[288px] pt-safe">
         <!-- Decorative gradient band -->
         <div class="sidebar-header-band"></div>
 
@@ -49,7 +49,7 @@
     </aside>
 
     <!-- Main Content wrapper -->
-    <div class="flex-1 flex flex-col w-full h-screen overflow-hidden relative" style="transform: translateZ(0);">
+    <div class="flex-1 flex flex-col w-full h-[100dvh] overflow-hidden relative" style="transform: translateZ(0);">
       <!-- Global Network Fault-Tolerance Status Banner -->
       <Transition name="slide-down">
         <div
@@ -76,7 +76,7 @@
             type="button"
             @click="manualReconnectCheck"
             :disabled="isCheckingNetwork"
-            class="ml-1 px-2.5 py-1 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer"
+            class="ml-1 px-2.5 py-1 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer"
           >
             {{ isCheckingNetwork ? 'Checking...' : 'Retry Now' }}
           </button>
@@ -84,12 +84,12 @@
       </Transition>
 
       <!-- Top Navbar -->
-      <header class="h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0">
+      <header class="min-h-20 pt-safe bg-white/85 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0">
         <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
           <!-- Sidebar Toggle Button (Desktop & Mobile) -->
           <button 
             @click="handleToggle" 
-            class="p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none shadow-sm active:scale-95 shrink-0"
+            class="p-2.5 sm:p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none shadow-sm active:scale-95 shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
             title="Toggle Sidebar"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform duration-500" :class="{ 'rotate-180': !isSidebarOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -100,31 +100,31 @@
           <!-- Page Title -->
           <div class="flex items-center min-w-0">
             <slot name="header-title">
-              <h2 class="text-base sm:text-xl font-bold text-slate-900 tracking-tight truncate">Dashboard Overview</h2>
+              <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight truncate">Dashboard Overview</h2>
             </slot>
           </div>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 sm:gap-4 shrink-0">
           <slot name="header-actions">
             <!-- Notifications (hidden for superadmin) -->
             <div v-if="!isSuperAdmin" class="relative" id="layout-notification-menu">
               <button 
                 @click="toggleNotification" 
-                class="relative p-2.5 rounded-xl bg-slate-50 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-200"
+                class="relative p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:animate-swing" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
-                <span v-if="unreadNotificationCount > 0" class="absolute top-2.5 right-2.5 w-2 h-2 bg-amber-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(245,158,11,0.4)]"></span>
+                <span v-if="unreadNotificationCount > 0" class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(245,158,11,0.4)]"></span>
               </button>
 
               <!-- Notification Dropdown -->
               <Transition name="slide-up">
-                <div v-if="isNotificationOpen" class="absolute top-full right-0 mt-3 w-80 bg-white border border-slate-200 rounded-[2rem] shadow-2xl overflow-hidden z-50 origin-top-right flex flex-col max-h-[500px]">
+                <div v-if="isNotificationOpen" class="absolute top-full right-0 mt-3 w-[min(22rem,calc(100vw-1.5rem))] bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden z-50 origin-top-right flex flex-col max-h-[500px]">
                   <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest">Notifications</h3>
-                    <span v-if="unreadNotificationCount > 0" class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-md">{{ unreadNotificationCount }} New</span>
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">Notifications</h3>
+                    <span v-if="unreadNotificationCount > 0" class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-black rounded-md">{{ unreadNotificationCount }} New</span>
                   </div>
                   
                   <div class="overflow-y-auto custom-scrollbar flex-1">
@@ -152,12 +152,12 @@
                         </div>
                         <div class="space-y-1 overflow-hidden flex-1">
                           <div class="flex items-center justify-between gap-1">
-                            <p :class="['text-xs truncate transition-colors group-hover:text-emerald-700', notif.is_read == 0 ? 'font-black text-slate-900' : 'font-bold text-slate-600']">{{ notif.title }}</p>
+                            <p :class="['text-sm truncate transition-colors group-hover:text-emerald-700', notif.is_read == 0 ? 'font-black text-slate-900' : 'font-bold text-slate-700']">{{ notif.title }}</p>
                           </div>
-                          <p :class="['text-[11px] font-medium leading-relaxed line-clamp-2', notif.is_read == 0 ? 'text-slate-600' : 'text-slate-400']">{{ notif.message }}</p>
+                          <p :class="['text-xs font-medium leading-relaxed line-clamp-2', notif.is_read == 0 ? 'text-slate-700' : 'text-slate-500']">{{ notif.message }}</p>
                           <div class="flex items-center justify-between pt-1">
-                            <span class="text-[9px] text-slate-400 font-bold uppercase">{{ new Date(notif.created_at).toLocaleString() }}</span>
-                            <span class="inline-flex items-center gap-0.5 text-[10px] font-black text-emerald-600 group-hover:translate-x-0.5 transition-transform">
+                            <span class="text-[11px] text-slate-500 font-bold uppercase">{{ new Date(notif.created_at).toLocaleString() }}</span>
+                            <span class="inline-flex items-center gap-0.5 text-xs font-black text-emerald-600 group-hover:translate-x-0.5 transition-transform">
                               View Ticket ›
                             </span>
                           </div>
@@ -167,8 +167,8 @@
                   </div>
                   
                   <div class="p-4 bg-slate-50 border-t border-slate-100 flex flex-col gap-2 shrink-0">
-                    <button v-if="unreadNotificationCount > 0" @click="markAllAsRead" class="w-full py-2 text-xs font-black text-emerald-600 hover:text-emerald-500 uppercase tracking-widest transition-colors">Mark All As Read</button>
-                    <button @click="clearReadNotifications" class="w-full py-2 text-xs font-black text-slate-400 hover:text-red-500 uppercase tracking-widest transition-colors">Clear Read</button>
+                    <button v-if="unreadNotificationCount > 0" @click="markAllAsRead" class="w-full py-2.5 text-xs font-black text-emerald-600 hover:text-emerald-500 uppercase tracking-wider transition-colors min-h-[38px] cursor-pointer">Mark All As Read</button>
+                    <button @click="clearReadNotifications" class="w-full py-2.5 text-xs font-black text-slate-500 hover:text-red-500 uppercase tracking-wider transition-colors min-h-[38px] cursor-pointer">Clear Read</button>
                   </div>
                 </div>
               </Transition>
@@ -178,44 +178,44 @@
             <div class="relative" id="layout-user-menu">
               <button 
                 @click="toggleDropdown" 
-                class="flex items-center gap-2 p-1.5 pr-1.5 sm:pr-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-emerald-500/30 text-slate-900 transition-all select-none"
+                class="flex items-center gap-2 p-1.5 pr-2 sm:pr-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-emerald-500/40 text-slate-900 transition-all select-none min-h-[44px] cursor-pointer"
               >
-                <div class="w-8 h-8 rounded-lg overflow-hidden bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0 border border-emerald-500/20">
+                <div class="w-9 h-9 rounded-xl overflow-hidden bg-emerald-500/10 text-emerald-700 flex items-center justify-center font-black text-sm shrink-0 border border-emerald-500/20">
                   <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar" class="w-full h-full object-cover" />
                   <span v-else>{{ userName ? userName.charAt(0).toUpperCase() : 'U' }}</span>
                 </div>
-                <span class="hidden sm:block text-sm font-semibold truncate max-w-[120px]">{{ userName || 'Profile' }}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 transition-transform duration-300 hidden sm:block shrink-0" :class="isDropdownOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                <span class="hidden sm:block text-sm font-bold text-slate-800 truncate max-w-[130px]">{{ userName || 'Profile' }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500 transition-transform duration-300 hidden sm:block shrink-0" :class="isDropdownOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               
               <!-- Dropdown -->
               <Transition name="slide-up">
-                <div v-if="isDropdownOpen" class="absolute top-full right-0 mt-3 w-60 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-50 origin-top-right">
-                  <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl overflow-hidden bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-sm shrink-0 border border-emerald-200">
+                <div v-if="isDropdownOpen" class="absolute top-full right-0 mt-3 w-64 max-w-[calc(100vw-1.5rem)] bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-50 origin-top-right">
+                  <div class="px-4 py-3.5 border-b border-slate-100 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl overflow-hidden bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-base shrink-0 border border-emerald-200">
                       <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar" class="w-full h-full object-cover" />
                       <span v-else>{{ userName ? userName.charAt(0).toUpperCase() : 'U' }}</span>
                     </div>
                     <div class="min-w-0">
-                      <p class="text-[10px] text-slate-400 font-black uppercase tracking-wider mb-0.5">{{ userRole || 'Member' }}</p>
-                      <p class="text-sm font-bold text-slate-900 truncate">{{ userName || 'User' }}</p>
+                      <p class="text-xs text-slate-500 font-extrabold uppercase tracking-wider mb-0.5">{{ userRole || 'Member' }}</p>
+                      <p class="text-base font-extrabold text-slate-900 truncate">{{ userName || 'User' }}</p>
                     </div>
                   </div>
                   <div class="p-2 space-y-1">
                     <router-link
                       :to="accountSettingsRoute"
                       @click="isDropdownOpen = false"
-                      class="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2.5 cursor-pointer"
+                      class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2.5 cursor-pointer min-h-[44px]"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                       <span>Account Settings</span>
                     </router-link>
-                    <button @click="handleLogout" class="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2.5 cursor-pointer">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                    <button @click="handleLogout" class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2.5 cursor-pointer min-h-[44px]">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                       Logout
                     </button>
                   </div>
@@ -227,7 +227,7 @@
       </header>
 
       <!-- Main Scrollable Area -->
-      <main class="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-6 md:p-10 relative">
+      <main class="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-6 md:p-10 pb-safe relative">
         <div class="fixed top-20 right-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none -mr-40 -mt-20"></div>
         <div class="fixed bottom-0 left-0 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none -ml-20 -mb-20"></div>
          
@@ -723,7 +723,7 @@ const handleLogout = () => {
 }
 
 .sidebar-app-name {
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 900;
   color: #ffffff;
   letter-spacing: -0.01em;
@@ -731,9 +731,9 @@ const handleLogout = () => {
 }
 
 .sidebar-app-university {
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.75);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   line-height: 1.4;
@@ -742,10 +742,10 @@ const handleLogout = () => {
 .sidebar-app-sub {
   display: inline-flex;
   align-items: center;
-  font-size: 0.58rem;
+  font-size: 0.72rem;
   font-weight: 800;
   color: #f0cc00;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-top: 2px;
 }
@@ -757,17 +757,17 @@ const handleLogout = () => {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 11px 14px;
-  border-radius: 12px;
-  color: #64748b;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  color: #475569;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: 700;
+  font-size: 0.95rem;
   white-space: nowrap;
   text-decoration: none;
   border: 1px solid transparent;
-  margin: 2px 0;
+  margin: 3px 0;
   overflow: hidden;
 }
 

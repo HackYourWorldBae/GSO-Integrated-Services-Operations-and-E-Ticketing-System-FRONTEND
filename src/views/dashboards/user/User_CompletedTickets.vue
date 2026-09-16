@@ -35,20 +35,20 @@
 
     <template #header-title>
       <div class="flex flex-col">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">Completed Tickets</h2>
-        <p class="text-xs font-medium text-slate-500">View your past and resolved requests</p>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none mb-1">Completed Tickets</h2>
+        <p class="text-sm font-semibold text-slate-600">View your past and resolved requests</p>
       </div>
     </template>
 
     <template #main-content>
       <div class="space-y-6 animate-fade-in relative pb-12">
         <!-- Search and Filters -->
-        <div class="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
           <div class="flex-1 w-full relative">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input v-model="searchQuery" type="text" placeholder="Search Ticket ID (e.g. FGMU-TIC-42)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
+            <input v-model="searchQuery" type="text" placeholder="Search Ticket ID (e.g. FGMU-TIC-42)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all min-h-[44px]" />
           </div>
         </div>
 
@@ -59,39 +59,39 @@
             <table class="w-full text-left border-separate border-spacing-y-4 min-w-[700px]">
               <thead>
                 <tr class="border-b border-slate-100">
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6">Ticket ID</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Service</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Status</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Completed</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 text-right">Actions</th>
+                  <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-6">Ticket ID</th>
+                  <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-4">Service</th>
+                  <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-4">Status</th>
+                  <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-4">Completed</th>
+                  <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="ticket in paginatedTickets" :key="ticket.id" class="group transition-all duration-200">
                   <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all">
-                    <span class="text-sm font-black text-slate-900">#{{ ticket.ticketId }}</span>
+                    <span class="text-sm font-black text-slate-900 font-mono">#{{ ticket.ticketId }}</span>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <div class="truncate max-w-[150px] sm:max-w-xs text-sm font-bold text-slate-900" :title="ticket.service_type || ticket.service || ticket.title">{{ ticket.service_type || ticket.service || ticket.title }}</div>
+                    <div class="truncate max-w-[160px] sm:max-w-xs text-base font-bold text-slate-900" :title="ticket.service_type || ticket.service || ticket.title">{{ ticket.service_type || ticket.service || ticket.title }}</div>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
+                    <span :class="['px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
                       {{ ticket.statusLabel }}
                     </span>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <span class="text-xs font-bold text-slate-500">{{ ticket.date }}</span>
+                    <span class="text-sm font-bold text-slate-600">{{ ticket.date }}</span>
                   </td>
                   <td class="py-5 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all text-right">
                     <div class="inline-flex items-center justify-end gap-2">
-                      <button @click="openTimeline(ticket)" class="px-3.5 py-2 bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all text-[11px] active:scale-95 inline-flex items-center gap-1.5 cursor-pointer shadow-xs">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <button @click="openTimeline(ticket)" class="px-4 py-2.5 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all text-xs active:scale-95 inline-flex items-center gap-1.5 cursor-pointer shadow-xs min-h-[38px]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                         Track Progress
                       </button>
-                      <button @click="viewDetails(ticket)" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-[11px] font-bold rounded-xl transition-all shadow-xs active:scale-95 inline-flex items-center gap-1.5 cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <button @click="viewDetails(ticket)" class="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 text-xs font-bold rounded-xl transition-all shadow-xs active:scale-95 inline-flex items-center gap-1.5 cursor-pointer min-h-[38px]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
@@ -116,49 +116,49 @@
           </div>
 
           <!-- Mobile Card List (Visible on Mobile only, zero horizontal scrolling) -->
-          <div class="block md:hidden space-y-3">
+          <div class="block md:hidden space-y-3.5">
             <div
               v-for="ticket in paginatedTickets"
               :key="'m-' + ticket.id"
-              class="p-4 rounded-2xl bg-slate-50/70 border border-slate-200 hover:border-emerald-400 hover:bg-white transition-all shadow-xs space-y-3"
+              class="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200 hover:border-emerald-400 hover:bg-white transition-all shadow-xs space-y-3"
             >
               <!-- Card Top: ID + Unit + Status -->
               <div class="flex items-center justify-between gap-2 flex-wrap">
                 <div class="flex items-center gap-1.5">
-                  <span class="px-2 py-0.5 rounded-md bg-slate-200/70 text-slate-700 text-[10px] font-black uppercase tracking-wider">
+                  <span class="px-2.5 py-0.5 rounded-md bg-slate-200 text-slate-800 text-xs font-black uppercase tracking-wider">
                     {{ ticket.unit }}
                   </span>
-                  <span class="text-xs font-mono font-black text-slate-900">#{{ ticket.ticketId }}</span>
+                  <span class="text-sm font-mono font-black text-slate-900">#{{ ticket.ticketId }}</span>
                 </div>
-                <span :class="['px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
+                <span :class="['px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
                   {{ ticket.statusLabel }}
                 </span>
               </div>
 
               <!-- Card Body: Service Type & Description -->
               <div>
-                <h4 class="text-sm font-bold text-slate-900 leading-snug">
+                <h4 class="text-base font-black text-slate-900 leading-snug">
                   {{ ticket.service_type || ticket.service || ticket.title }}
                 </h4>
-                <p v-if="ticket.description && ticket.description !== (ticket.service_type || ticket.service)" class="text-xs text-slate-500 line-clamp-2 mt-1">
+                <p v-if="ticket.description && ticket.description !== (ticket.service_type || ticket.service)" class="text-sm text-slate-600 line-clamp-2 mt-1.5 leading-relaxed font-medium">
                   {{ ticket.description }}
                 </p>
               </div>
 
               <!-- Card Meta: Date -->
-              <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium pt-2 border-t border-slate-200/60">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-500 font-semibold pt-2 border-t border-slate-200/80">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                 </svg>
                 <span>Completed: {{ ticket.date }}</span>
               </div>
 
               <!-- Card Actions: Two responsive 44px touch targets -->
-              <div class="grid grid-cols-2 gap-2 pt-1">
+              <div class="grid grid-cols-2 gap-2.5 pt-1">
                 <button
                   type="button"
                   @click="openTimeline(ticket)"
-                  class="w-full py-2.5 px-3 bg-white hover:bg-emerald-50 text-emerald-700 font-bold rounded-xl border border-emerald-200 hover:border-emerald-300 transition-all text-xs active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs min-h-[44px] touch-manipulation"
+                  class="w-full py-2.5 px-3 bg-white hover:bg-emerald-50 text-emerald-700 font-black rounded-xl border border-emerald-200 hover:border-emerald-300 transition-all text-xs sm:text-sm active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs min-h-[44px] touch-manipulation"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -168,7 +168,7 @@
                 <button
                   type="button"
                   @click="viewDetails(ticket)"
-                  class="w-full py-2.5 px-3 bg-white hover:bg-slate-100 text-slate-700 font-bold rounded-xl border border-slate-200 hover:border-slate-300 transition-all text-xs active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs min-h-[44px] touch-manipulation"
+                  class="w-full py-2.5 px-3 bg-white hover:bg-slate-100 text-slate-700 font-black rounded-xl border border-slate-200 hover:border-slate-300 transition-all text-xs sm:text-sm active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs min-h-[44px] touch-manipulation"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

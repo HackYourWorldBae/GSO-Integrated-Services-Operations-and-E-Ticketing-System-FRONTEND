@@ -35,8 +35,8 @@
 
     <template #header-title>
       <div class="flex flex-col">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">My Service Tickets</h2>
-        <p class="text-xs font-medium text-slate-500 hidden sm:block">Track and manage your requests</p>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none mb-1">My Service Tickets</h2>
+        <p class="text-sm font-semibold text-slate-600 hidden sm:block">Track and manage your requests</p>
       </div>
     </template>
 
@@ -44,12 +44,12 @@
       <div class="space-y-5 animate-fade-in relative">
 
         <!-- ===================== FILTERS BAR ===================== -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-          <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div class="flex flex-col md:flex-row md:items-center gap-3.5">
             <!-- Search -->
             <div class="relative flex-1">
               <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </span>
@@ -57,7 +57,7 @@
                 type="text"
                 v-model="searchQuery"
                 placeholder="Search by ID, service, or unit..."
-                class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                class="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none min-h-[44px]"
               />
             </div>
 
@@ -68,14 +68,14 @@
                 :key="tab.value"
                 @click="statusFilter = tab.value"
                 :class="[
-                  'px-3.5 py-2 rounded-xl text-xs font-bold transition-all border',
+                  'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all border min-h-[44px] flex items-center cursor-pointer',
                   statusFilter === tab.value
                     ? tab.activeClass
-                    : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300'
+                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300'
                 ]"
               >
                 {{ tab.label }}
-                <span v-if="tab.count !== undefined" class="ml-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-black" :class="statusFilter === tab.value ? 'bg-white/30' : 'bg-slate-200 text-slate-600'">
+                <span v-if="tab.count !== undefined" class="ml-1.5 px-2 py-0.5 rounded-md text-xs font-black" :class="statusFilter === tab.value ? 'bg-white/30' : 'bg-slate-200 text-slate-700'">
                   {{ tab.count }}
                 </span>
               </button>
@@ -84,9 +84,9 @@
             <!-- New Request -->
             <button
               @click="$router.push('/services')"
-              class="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm shadow-emerald-600/20 transition-all active:scale-95 text-sm whitespace-nowrap"
+              class="flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-sm shadow-emerald-600/20 transition-all active:scale-95 text-sm sm:text-base whitespace-nowrap min-h-[44px] cursor-pointer"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
               </svg>
               New Request
@@ -95,23 +95,23 @@
         </div>
 
         <!-- ===================== EMPTY STATE ===================== -->
-        <div v-if="filteredTickets.length === 0" class="bg-white border border-slate-200 rounded-2xl p-16 flex flex-col items-center text-center shadow-sm">
+        <div v-if="filteredTickets.length === 0" class="bg-white border border-slate-200 rounded-2xl p-12 sm:p-16 flex flex-col items-center text-center shadow-sm">
           <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-5">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
             </svg>
           </div>
-          <p class="text-base font-black text-slate-700 mb-1">No tickets found</p>
-          <p class="text-sm text-slate-400 mb-6">
+          <p class="text-lg font-black text-slate-900 mb-1">No tickets found</p>
+          <p class="text-sm text-slate-500 font-medium mb-6">
             {{ searchQuery || statusFilter !== 'all' ? 'Try adjusting your search or filters.' : 'Submit your first service request to get started.' }}
           </p>
-          <button @click="$router.push('/services')" class="px-5 py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-sm hover:bg-emerald-700 transition-colors">
+          <button @click="$router.push('/services')" class="px-6 py-3 bg-emerald-600 text-white font-black rounded-xl text-sm sm:text-base hover:bg-emerald-700 transition-colors min-h-[44px] cursor-pointer">
             New Service Request
           </button>
         </div>
 
         <!-- ===================== TICKET CARDS ===================== -->
-        <div v-else class="space-y-3">
+        <div v-else class="space-y-3.5">
           <div
             v-for="ticket in paginatedTickets"
             :key="ticket.id"
@@ -124,65 +124,63 @@
             ]"
           >
             <!-- Colored left border accent by status -->
-            <div class="absolute left-0 inset-y-0 w-1 rounded-l-2xl" :class="getStatusAccent(ticket.status)"></div>
+            <div class="absolute left-0 inset-y-0 w-1.5 rounded-l-2xl" :class="getStatusAccent(ticket.status)"></div>
 
-            <div class="pl-5 pr-5 py-5">
+            <div class="pl-5 pr-5 py-5 sm:py-6">
               <div class="flex flex-col md:flex-row md:items-start gap-4">
 
                 <!-- Main info -->
                 <div class="flex-1 min-w-0">
                   <!-- Meta / Badges Row -->
-                  <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+                  <div class="flex flex-wrap items-start justify-between gap-2 mb-2.5">
                     <div class="flex items-center gap-2 flex-wrap">
                       <!-- Unit badge -->
-                      <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider border border-slate-200">
+                      <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 text-xs font-black uppercase tracking-wider border border-slate-200">
                         {{ ticket.unit }}
                       </span>
-                      <span class="font-mono font-bold text-[10px] text-slate-400">#{{ ticket.ticketId }}</span>
+                      <span class="font-mono font-black text-xs text-slate-500">#{{ ticket.ticketId }}</span>
                     </div>
                     
                     <!-- Status badge -->
-                    <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wide border', getStatusBadge(ticket.status)]">
-                      <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(ticket.status)"></span>
+                    <span :class="['inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border', getStatusBadge(ticket.status)]">
+                      <span class="w-2 h-2 rounded-full" :class="getStatusDot(ticket.status)"></span>
                       {{ ticket.statusLabel }}
                     </span>
                   </div>
 
                   <!-- Title -->
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight mb-2 truncate" :title="ticket.title || ticket.service">{{ ticket.title || ticket.service }}</h3>
+                  <h3 class="text-lg sm:text-xl font-black text-slate-900 leading-snug mb-2 truncate" :title="ticket.title || ticket.service">{{ ticket.title || ticket.service }}</h3>
 
                   <!-- Categories / Service Type -->
-                  <div class="flex flex-wrap gap-1.5 mb-2" v-if="ticket.title && ticket.title !== ticket.service">
-                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider border border-slate-200">{{ ticket.service }}</span>
+                  <div class="flex flex-wrap gap-1.5 mb-2.5" v-if="ticket.title && ticket.title !== ticket.service">
+                    <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-bold uppercase tracking-wider border border-slate-200">{{ ticket.service }}</span>
                   </div>
 
-
-
                   <!-- Dates Row -->
-                  <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                    <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <div class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-500 font-semibold">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                       </svg>
                       Submitted {{ ticket.date }}
                     </div>
-                    <div v-if="ticket.implementationDate" class="flex items-center gap-1.5 text-xs text-emerald-600 font-bold">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div v-if="ticket.implementationDate" class="flex items-center gap-1.5 text-xs sm:text-sm text-emerald-700 font-bold">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                       </svg>
                       Scheduled: {{ ticket.implementationDate }}
                     </div>
-                    <div v-if="ticket.workingDays" class="flex items-center gap-1.5 text-xs text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/80">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div v-if="ticket.workingDays" class="flex items-center gap-1.5 text-xs sm:text-sm text-amber-900 font-black bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>Target: {{ ticket.workingDays }} Working Day(s)</span>
-                      <span v-if="ticket.extension_days > 0" class="text-[9px] font-black text-amber-700 bg-amber-100 px-1 py-0.2 rounded border border-amber-200">
+                      <span v-if="ticket.extension_days > 0" class="text-xs font-black text-amber-800 bg-amber-200/80 px-1.5 py-0.5 rounded border border-amber-300">
                         +{{ ticket.extension_days }}d Ext
                       </span>
                     </div>
-                    <div v-if="ticket.effective_target_date || ticket.target_completion_date" class="flex items-center gap-1.5 text-xs text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div v-if="ticket.effective_target_date || ticket.target_completion_date" class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-800 font-bold bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                       </svg>
                       Target Completion: {{ formatDate(ticket.effective_target_date || ticket.target_completion_date) }}
@@ -190,79 +188,77 @@
                   </div>
 
                   <!-- Official Timeline Extension Notice Card -->
-                  <div v-if="ticket.is_extended && ticket.extension_days > 0" class="mt-3 flex items-start gap-3 p-3.5 bg-amber-50/90 border border-amber-200/90 rounded-2xl animate-fade-in shadow-xs">
-                    <div class="p-2 bg-amber-100 rounded-xl shrink-0 mt-0.5 text-amber-700">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div v-if="ticket.is_extended && ticket.extension_days > 0" class="mt-3.5 flex items-start gap-3 p-4 bg-amber-50/90 border border-amber-200 rounded-2xl animate-fade-in shadow-xs">
+                    <div class="p-2.5 bg-amber-100 rounded-xl shrink-0 mt-0.5 text-amber-800">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2 mb-1 flex-wrap">
-                        <span class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Official Timeline Extension Notice</span>
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-200 text-amber-800 border border-amber-300 uppercase tracking-wider">
+                        <span class="text-xs sm:text-sm font-black text-amber-900 uppercase tracking-wide">Official Timeline Extension Notice</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-200 text-amber-900 border border-amber-300 uppercase tracking-wider">
                           +{{ ticket.extension_days }} Working Day{{ ticket.extension_days > 1 ? 's' : '' }} Extension
                         </span>
                       </div>
-                      <p class="text-xs text-amber-900 font-semibold leading-relaxed">
+                      <p class="text-sm text-amber-950 font-semibold leading-relaxed">
                         Target completion date has been adjusted to <strong>{{ formatDate(ticket.effective_target_date || ticket.target_completion_date) }}</strong> (total expected duration: {{ ticket.workingDays }} working days).
                       </p>
-                      <p v-if="ticket.extension_reason" class="text-xs text-amber-800 font-medium mt-1 italic">
-                        <span class="font-bold not-italic text-[10px] uppercase tracking-wider text-amber-900">Reason:</span> "{{ ticket.extension_reason }}"
+                      <p v-if="ticket.extension_reason" class="text-sm text-amber-900 font-medium mt-1 italic">
+                        <span class="font-bold not-italic text-xs uppercase tracking-wider text-amber-950">Reason:</span> "{{ ticket.extension_reason }}"
                       </p>
                     </div>
                   </div>
 
                   <!-- Decline reason inline -->
-                  <div v-if="(ticket.status === 'declined' || ticket.status === 'rejected') && ticket.declineReason" class="mt-3 flex items-start gap-2 p-3 bg-rose-50 border border-rose-100 rounded-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div v-if="(ticket.status === 'declined' || ticket.status === 'rejected') && ticket.declineReason" class="mt-3.5 flex items-start gap-3 p-4 bg-rose-50 border border-rose-200 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <div>
-                      <p class="text-[10px] font-black text-rose-500 uppercase tracking-wider mb-0.5">Decline Reason</p>
-                      <p class="text-xs font-medium text-rose-700 leading-relaxed">{{ ticket.declineReason }}</p>
+                      <p class="text-xs font-black text-rose-700 uppercase tracking-wider mb-0.5">Decline Reason</p>
+                      <p class="text-sm font-semibold text-rose-900 leading-relaxed">{{ ticket.declineReason }}</p>
                     </div>
                   </div>
 
-
-
                   <!-- Rate Instruction & Action Required Callout -->
-                  <div v-if="isFeedbackEligible(ticket)" class="mt-3 flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl animate-fade-in">
-                    <div class="p-1.5 bg-amber-100 rounded-lg shrink-0 mt-0.5">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" viewBox="0 0 20 20" fill="currentColor">
+                  <div v-if="isFeedbackEligible(ticket)" class="mt-3.5 flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl animate-fade-in">
+                    <div class="p-2 bg-amber-100 rounded-lg shrink-0 mt-0.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-700" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                     </div>
                     <div>
-                      <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-0.5">Action Required</p>
-                      <p class="text-xs font-semibold text-amber-800 leading-relaxed">This service request has been completed! Please click the <strong>"Rate"</strong> button to submit your service evaluation and finalize this ticket.</p>
+                      <p class="text-xs font-black text-amber-800 uppercase tracking-wider mb-0.5">Action Required</p>
+                      <p class="text-sm font-semibold text-amber-900 leading-relaxed">This service request has been completed! Please click the <strong>"Rate Service"</strong> button to submit your service evaluation and finalize this ticket.</p>
                     </div>
                   </div>
                 </div>
 
                 <!-- Actions -->
-                <div class="flex-shrink-0 flex items-center gap-2 md:self-start">
+                <div class="flex-shrink-0 flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full md:w-auto mt-3 md:mt-0">
                   <!-- Progress indicator -->
-                  <div v-if="ticket.status !== 'declined' && ticket.status !== 'rejected'" class="hidden lg:flex items-center gap-1.5 mr-2">
+                  <div v-if="ticket.status !== 'declined' && ticket.status !== 'rejected'" class="hidden xl:flex items-center gap-1.5 mr-2">
                     <div
                       v-for="i in getSteps(ticket).length"
                       :key="i"
-                      class="h-1.5 rounded-full transition-all duration-500"
+                      class="h-2 rounded-full transition-all duration-500"
                       :class="[
-                        i === getSteps(ticket).length ? 'w-4' : 'w-2',
+                        i === getSteps(ticket).length ? 'w-5' : 'w-2.5',
                         ticket.currentStep >= i ? getStepFill(ticket.status) : 'bg-slate-200'
                       ]"
                     ></div>
-                    <span class="text-[10px] font-black text-slate-400 ml-0.5">{{ ticket.currentStep }}/{{ getSteps(ticket).length }}</span>
+                    <span class="text-xs font-black text-slate-500 ml-1">{{ ticket.currentStep }}/{{ getSteps(ticket).length }}</span>
                   </div>
 
                   <!-- Cancel Request Button (Pending Only) -->
                   <button
                     v-if="ticket.status === 'pending'"
                     @click="promptCancelTicket(ticket)"
-                    class="flex items-center gap-1.5 px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 font-bold rounded-xl border border-rose-200/70 transition-all text-xs active:scale-95 whitespace-nowrap"
+                    class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 font-black rounded-xl border border-rose-200 transition-all text-xs sm:text-sm active:scale-95 whitespace-nowrap min-h-[44px] cursor-pointer"
                     title="Cancel this pending request"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     Cancel Request
@@ -270,7 +266,7 @@
 
                   <button
                     @click="openTimeline(ticket)"
-                    class="flex items-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all text-xs active:scale-95 whitespace-nowrap"
+                    class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 font-black rounded-xl border border-slate-200 hover:border-emerald-200 transition-all text-xs sm:text-sm active:scale-95 whitespace-nowrap min-h-[44px] cursor-pointer"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -281,7 +277,7 @@
                   <button
                     v-if="isFeedbackEligible(ticket) && !ticket.isClosed"
                     @click="toggleRatingForm(ticket)"
-                    class="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-xl shadow-sm shadow-amber-500/25 transition-all text-xs sm:text-sm active:scale-95 whitespace-nowrap cursor-pointer"
+                    class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-xl shadow-sm shadow-amber-500/25 transition-all text-xs sm:text-sm active:scale-95 whitespace-nowrap min-h-[44px] cursor-pointer"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />

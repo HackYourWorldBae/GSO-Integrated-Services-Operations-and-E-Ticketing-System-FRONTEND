@@ -12,8 +12,8 @@
           </svg>
         </div>
         <div class="flex flex-col">
-          <h2 class="text-xl font-extrabold text-slate-900 tracking-tight leading-none mb-1">Director Dashboard</h2>
-          <p class="text-[10px] text-emerald-700 font-bold tracking-[0.15em] uppercase">Executive Unit Oversight &amp; Reports</p>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mb-1">Director Dashboard</h2>
+          <p class="text-xs text-emerald-700 font-extrabold tracking-wider uppercase">Executive Unit Oversight &amp; Reports</p>
         </div>
       </div>
     </template>
@@ -23,22 +23,22 @@
         <!-- ================================================================= -->
         <!-- EXECUTIVE ANALYTICS SUMMARY & OFFICIAL REPORTS SECTION           -->
         <!-- ================================================================= -->
-        <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-6 sm:space-y-8">
+        <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-md space-y-6 sm:space-y-8">
           
           <!-- Section Header & Export Toolbar -->
           <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-6 pb-6 border-b border-slate-100">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                   Executive Overview
                 </span>
-                <span class="text-xs font-medium text-slate-400">BSU General Services Office</span>
+                <span class="text-xs sm:text-sm font-bold text-slate-500">BSU General Services Office</span>
               </div>
-              <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                 Performance Overview &amp; Reports
               </h3>
-              <p class="text-xs sm:text-sm text-slate-500 font-normal">Across all GSO operational units for the selected period.</p>
+              <p class="text-xs sm:text-sm text-slate-600 font-medium">Across all GSO operational units for the selected period.</p>
             </div>
 
             <!-- PDF Action Button -->
@@ -46,7 +46,7 @@
               <button
                 @click="handleDownloadReport"
                 :disabled="isGeneratingPdf || !executiveAnalytics"
-                class="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-900 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] touch-manipulation"
+                class="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-900 hover:bg-emerald-800 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] touch-manipulation"
                 title="Generate and download official PDF report"
               >
                 <svg v-if="isGeneratingPdf" class="animate-spin h-4 w-4 text-emerald-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -70,8 +70,8 @@
                   v-for="p in periodOptions"
                   :key="p.key"
                   @click="changePeriod(p.key)"
-                  class="flex-1 sm:flex-none px-3.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[40px] touch-manipulation flex items-center justify-center"
-                  :class="selectedPeriod === p.key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
+                  class="flex-1 sm:flex-none px-3.5 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer min-h-[44px] touch-manipulation flex items-center justify-center"
+                  :class="selectedPeriod === p.key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
                 >
                   {{ p.label }}
                 </button>
@@ -85,7 +85,7 @@
                 <select
                   v-model="selectedYear"
                   @change="fetchExecutiveAnalytics"
-                  class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-base sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
+                  class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
                 >
                   <option v-for="yr in availableYears" :key="yr" :value="yr">
                     Year {{ yr }}
@@ -101,7 +101,7 @@
                 <select
                   v-model="selectedMonth"
                   @change="fetchExecutiveAnalytics"
-                  class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-base sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
+                  class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
                 >
                   <option v-for="m in monthOptions" :key="m.value" :value="m.value">
                     {{ m.label }}
@@ -117,7 +117,7 @@
                 <select
                   v-model="selectedQuarter"
                   @change="fetchExecutiveAnalytics"
-                  class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-base sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
+                  class="w-full sm:w-auto appearance-none pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
                 >
                   <option v-for="q in quarterOptions" :key="q.value" :value="q.value">
                     {{ q.label }}
@@ -131,7 +131,7 @@
               <!-- Refresh Button -->
               <button
                 @click="fetchExecutiveAnalytics"
-                class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600 rounded-xl transition-all cursor-pointer shadow-2xs group touch-manipulation shrink-0"
+                class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600 rounded-xl transition-all cursor-pointer shadow-sm group touch-manipulation shrink-0"
                 title="Refresh Report Data"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:rotate-180 duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -142,62 +142,62 @@
           </div>
 
           <!-- Executive KPI Cards Grid (Consolidated Overview) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <!-- 1. Total Requests Filed -->
-            <div class="p-5 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col gap-3 group hover:shadow-md transition-all duration-200">
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-slate-900 text-white shadow-md flex flex-col justify-between gap-4 group hover:shadow-xl transition-all duration-200">
               <div class="flex items-center justify-between gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
-                  <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                 </div>
-                <span class="px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700/60 text-[10px] font-bold tracking-wider">
+                <span class="px-3 py-1 rounded-full bg-slate-800 text-emerald-400 border border-slate-700/60 text-xs font-black tracking-wider shrink-0">
                   {{ executiveAnalytics?.filter?.label || 'All-Time' }}
                 </span>
               </div>
               <div>
-                <div class="text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums text-white">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</div>
-                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mt-1">Total Requests Filed</div>
+                <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-white">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</div>
+                <div class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300 mt-1">Total Requests Filed</div>
               </div>
             </div>
 
             <!-- 2. Resolved & Completed -->
-            <div class="p-5 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col gap-3 hover:border-emerald-300 hover:shadow-md transition-all duration-200">
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4 hover:border-emerald-300 hover:shadow-xl transition-all duration-200">
               <div class="flex items-center justify-between gap-2">
-                <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200/60 flex items-center justify-center shrink-0">
-                  <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-[10px] font-bold tracking-wider">Closed</span>
+                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-black tracking-wider shrink-0">Closed</span>
               </div>
               <div>
-                <div class="text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums text-emerald-700">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</div>
-                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mt-1">Resolved &amp; Completed</div>
+                <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-emerald-700">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</div>
+                <div class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mt-1">Resolved &amp; Completed</div>
               </div>
             </div>
 
             <!-- 3. Declined / Out of Scope -->
-            <div class="p-5 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col gap-3 hover:border-slate-300 hover:shadow-md transition-all duration-200">
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4 hover:border-slate-300 hover:shadow-xl transition-all duration-200">
               <div class="flex items-center justify-between gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200/60 flex items-center justify-center shrink-0">
-                  <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/60 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60 text-[10px] font-bold tracking-wider">Disapproved</span>
+                <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-black tracking-wider shrink-0">Disapproved</span>
               </div>
               <div>
-                <div class="text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums text-slate-800">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</div>
-                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mt-1">Declined / Out of Scope</div>
+                <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-slate-900">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</div>
+                <div class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mt-1">Declined / Out of Scope</div>
               </div>
             </div>
 
             <!-- 4. Client Satisfaction Rating -->
-            <div class="p-5 rounded-2xl bg-white border border-slate-200/80 text-slate-900 shadow-2xs flex flex-col gap-3 hover:border-amber-300 hover:shadow-md transition-all duration-200">
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4 hover:border-amber-300 hover:shadow-xl transition-all duration-200">
               <div class="flex items-center justify-between gap-2">
-                <div class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200/60 flex items-center justify-center shrink-0">
-                  <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                 </div>
-                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 text-[10px] font-bold tracking-wider">{{ executiveAnalytics?.summary?.overall_ratings?.total_feedbacks || 0 }} Reviews</span>
+                <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-xs font-black tracking-wider shrink-0">{{ executiveAnalytics?.summary?.overall_ratings?.total_feedbacks || 0 }} Reviews</span>
               </div>
               <div>
-                <div class="text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums text-slate-900">{{ executiveAnalytics?.summary?.overall_ratings?.overall_avg ? parseFloat(executiveAnalytics.summary.overall_ratings.overall_avg).toFixed(2) : '5.00' }}<span class="text-base font-bold text-slate-400 ml-1">/5</span></div>
-                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mt-1">Client Satisfaction</div>
+                <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-slate-900">{{ executiveAnalytics?.summary?.overall_ratings?.overall_avg ? parseFloat(executiveAnalytics.summary.overall_ratings.overall_avg).toFixed(2) : '5.00' }}<span class="text-lg font-bold text-slate-400 ml-1">/5</span></div>
+                <div class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mt-1">Client Satisfaction</div>
               </div>
             </div>
           </div>
@@ -206,17 +206,17 @@
           <div class="space-y-3 pt-2">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M10 4v16M14 4v16" /></svg>
-                <h4 class="text-sm font-extrabold text-slate-900 tracking-tight uppercase tracking-wider">Performance by Sub-Unit</h4>
+                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M10 4v16M14 4v16" /></svg>
+                <h4 class="text-sm sm:text-base font-black text-slate-900 tracking-tight uppercase tracking-wider">Performance by Sub-Unit</h4>
               </div>
-              <span class="text-xs font-semibold text-slate-400">{{ executiveAnalytics?.filter?.label || 'Current Period' }}</span>
+              <span class="text-xs sm:text-sm font-bold text-slate-500">{{ executiveAnalytics?.filter?.label || 'Current Period' }}</span>
             </div>
 
             <!-- Desktop Performance Table -->
-            <div class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 shadow-2xs">
+            <div class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 shadow-sm">
               <table class="min-w-[650px] w-full text-left border-collapse">
                 <thead>
-                  <tr class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                  <tr class="bg-slate-50 text-slate-700 text-xs sm:text-sm font-black uppercase tracking-wider border-b border-slate-200">
                     <th class="py-3 px-5">Sub-Unit</th>
                     <th class="py-3 px-4 text-center">Requests</th>
                     <th class="py-3 px-4 text-center">Resolved</th>
@@ -227,19 +227,19 @@
                 <tbody class="divide-y divide-slate-100 text-sm">
                   <!-- FGMU -->
                   <tr class="hover:bg-slate-50/80 transition-colors border-l-2 border-l-transparent hover:border-l-blue-400">
-                    <td class="py-3 px-5">
-                      <div class="flex items-center gap-2.5">
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60 uppercase shrink-0">FGMU</span>
+                    <td class="py-3.5 px-5">
+                      <div class="flex items-center gap-3">
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-blue-50 text-blue-700 border border-blue-200/60 uppercase shrink-0">FGMU</span>
                         <div>
-                          <div class="font-bold text-slate-900 text-sm">Facilities Management</div>
-                          <span class="text-xs text-slate-400 font-normal">Electrical, Plumbing, Carpentry, HVAC</span>
+                          <div class="font-bold text-slate-900 text-sm sm:text-base">Facilities Management</div>
+                          <span class="text-xs sm:text-sm text-slate-500 font-medium">Electrical, Plumbing, Carpentry, HVAC</span>
                         </div>
                       </div>
                     </td>
-                    <td class="py-3 px-4 text-center font-bold tabular-nums text-slate-900 text-sm">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</td>
-                    <td class="py-3 px-4 text-center font-bold text-emerald-700 tabular-nums text-sm">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</td>
-                    <td class="py-3 px-4 text-center font-semibold text-slate-600 tabular-nums text-sm">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</td>
-                    <td class="py-3 px-5 text-center font-bold text-slate-900 tabular-nums text-sm">
+                    <td class="py-3.5 px-4 text-center font-black tabular-nums text-slate-900 text-sm sm:text-base">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center font-black text-emerald-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center font-bold text-slate-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</td>
+                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">
                       <span v-if="executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg">{{ executiveAnalytics.units.FGMU.avg_ratings.overall_avg }}</span>
                       <span v-else class="text-slate-400 text-xs font-medium">—</span>
                     </td>
@@ -247,19 +247,19 @@
 
                   <!-- LEAU -->
                   <tr class="hover:bg-slate-50/80 transition-colors border-l-2 border-l-transparent hover:border-l-emerald-400">
-                    <td class="py-3 px-5">
-                      <div class="flex items-center gap-2.5">
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase shrink-0">LEAU</span>
+                    <td class="py-3.5 px-5">
+                      <div class="flex items-center gap-3">
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase shrink-0">LEAU</span>
                         <div>
-                          <div class="font-bold text-slate-900 text-sm">Landscaping &amp; Environment</div>
-                          <span class="text-xs text-slate-400 font-normal">Grounds, Campus Ecology, Tree Pruning</span>
+                          <div class="font-bold text-slate-900 text-sm sm:text-base">Landscaping &amp; Environment</div>
+                          <span class="text-xs sm:text-sm text-slate-500 font-medium">Grounds, Campus Ecology, Tree Pruning</span>
                         </div>
                       </div>
                     </td>
-                    <td class="py-3 px-4 text-center font-bold tabular-nums text-slate-900 text-sm">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</td>
-                    <td class="py-3 px-4 text-center font-bold text-emerald-700 tabular-nums text-sm">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</td>
-                    <td class="py-3 px-4 text-center font-semibold text-slate-600 tabular-nums text-sm">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</td>
-                    <td class="py-3 px-5 text-center font-bold text-slate-900 tabular-nums text-sm">
+                    <td class="py-3.5 px-4 text-center font-black tabular-nums text-slate-900 text-sm sm:text-base">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center font-black text-emerald-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center font-bold text-slate-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</td>
+                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">
                       <span v-if="executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg">{{ executiveAnalytics.units.LEAU.avg_ratings.overall_avg }}</span>
                       <span v-else class="text-slate-400 text-xs font-medium">—</span>
                     </td>
@@ -267,31 +267,31 @@
 
                   <!-- SSU -->
                   <tr class="hover:bg-slate-50/80 transition-colors border-l-2 border-l-transparent hover:border-l-rose-400">
-                    <td class="py-3 px-5">
-                      <div class="flex items-center gap-2.5">
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200/60 uppercase shrink-0">SSU</span>
+                    <td class="py-3.5 px-5">
+                      <div class="flex items-center gap-3">
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-rose-50 text-rose-700 border border-rose-200/60 uppercase shrink-0">SSU</span>
                         <div>
-                          <div class="font-bold text-slate-900 text-sm">Security Services</div>
-                          <span class="text-xs text-slate-400 font-normal">Campus Safety, Guard Posts &amp; Surveillance</span>
+                          <div class="font-bold text-slate-900 text-sm sm:text-base">Security Services</div>
+                          <span class="text-xs sm:text-sm text-slate-500 font-medium">Campus Safety, Guard Posts &amp; Surveillance</span>
                         </div>
                       </div>
                     </td>
-                    <td class="py-3 px-4 text-center font-bold tabular-nums text-slate-900 text-sm">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</td>
-                    <td class="py-3 px-4 text-center font-bold text-emerald-700 tabular-nums text-sm">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</td>
-                    <td class="py-3 px-4 text-center font-semibold text-slate-600 tabular-nums text-sm">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</td>
-                    <td class="py-3 px-5 text-center font-bold text-slate-900 tabular-nums text-sm">
+                    <td class="py-3.5 px-4 text-center font-black tabular-nums text-slate-900 text-sm sm:text-base">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center font-black text-emerald-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center font-bold text-slate-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</td>
+                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">
                       <span v-if="executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg">{{ executiveAnalytics.units.SSU.avg_ratings.overall_avg }}</span>
                       <span v-else class="text-slate-400 text-xs font-medium">—</span>
                     </td>
                   </tr>
 
                   <!-- Consolidated Total Row -->
-                  <tr class="bg-slate-50 font-extrabold text-slate-900 border-t-2 border-slate-200">
-                    <td class="py-3 px-5 text-xs font-extrabold tracking-widest text-slate-500 uppercase">GSO Overall</td>
-                    <td class="py-3 px-4 text-center text-slate-900 tabular-nums text-sm font-extrabold">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</td>
-                    <td class="py-3 px-4 text-center text-emerald-700 tabular-nums text-sm font-extrabold">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</td>
-                    <td class="py-3 px-4 text-center text-slate-700 tabular-nums text-sm font-extrabold">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</td>
-                    <td class="py-3 px-5 text-center text-slate-900 tabular-nums text-sm font-extrabold">
+                  <tr class="bg-slate-50 font-black text-slate-900 border-t-2 border-slate-200">
+                    <td class="py-3.5 px-5 text-xs sm:text-sm font-black tracking-wider text-slate-700 uppercase">GSO Overall</td>
+                    <td class="py-3.5 px-4 text-center text-slate-900 tabular-nums text-sm sm:text-base font-black">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center text-emerald-700 tabular-nums text-sm sm:text-base font-black">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center text-slate-700 tabular-nums text-sm sm:text-base font-black">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</td>
+                    <td class="py-3.5 px-5 text-center text-slate-900 tabular-nums text-sm sm:text-base font-black">
                       <span v-if="executiveAnalytics?.summary?.overall_ratings?.overall_avg">{{ executiveAnalytics.summary.overall_ratings.overall_avg }}</span>
                       <span v-else class="text-slate-400 text-xs font-medium">—</span>
                     </td>
@@ -306,25 +306,25 @@
               <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60 uppercase shrink-0">FGMU</span>
-                    <span class="font-bold text-slate-900 text-sm">Facilities Management</span>
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-blue-50 text-blue-700 border border-blue-200/60 uppercase shrink-0">FGMU</span>
+                    <span class="font-bold text-slate-900 text-sm sm:text-base">Facilities Management</span>
                   </div>
-                  <span class="text-xs font-bold text-amber-600 flex items-center gap-1 shrink-0">
+                  <span class="text-xs sm:text-sm font-black text-amber-700 flex items-center gap-1 shrink-0">
                     ★ {{ executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg || '—' }}
                   </span>
                 </div>
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
-                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requests</span>
-                    <span class="text-sm font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Requests</span>
+                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</span>
                   </div>
-                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
-                    <span class="text-sm font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Resolved</span>
+                    <span class="text-base font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</span>
                   </div>
-                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
-                    <span class="text-sm font-black text-slate-600 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Declined</span>
+                    <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</span>
                   </div>
                 </div>
               </div>
@@ -333,25 +333,25 @@
               <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase shrink-0">LEAU</span>
-                    <span class="font-bold text-slate-900 text-sm">Landscaping &amp; Environment</span>
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase shrink-0">LEAU</span>
+                    <span class="font-bold text-slate-900 text-sm sm:text-base">Landscaping &amp; Environment</span>
                   </div>
-                  <span class="text-xs font-bold text-amber-600 flex items-center gap-1 shrink-0">
+                  <span class="text-xs sm:text-sm font-black text-amber-700 flex items-center gap-1 shrink-0">
                     ★ {{ executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg || '—' }}
                   </span>
                 </div>
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
-                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requests</span>
-                    <span class="text-sm font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Requests</span>
+                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</span>
                   </div>
-                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
-                    <span class="text-sm font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Resolved</span>
+                    <span class="text-base font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</span>
                   </div>
-                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
-                    <span class="text-sm font-black text-slate-600 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Declined</span>
+                    <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</span>
                   </div>
                 </div>
               </div>
@@ -360,25 +360,25 @@
               <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200/60 uppercase shrink-0">SSU</span>
-                    <span class="font-bold text-slate-900 text-sm">Security Services</span>
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-rose-50 text-rose-700 border border-rose-200/60 uppercase shrink-0">SSU</span>
+                    <span class="font-bold text-slate-900 text-sm sm:text-base">Security Services</span>
                   </div>
-                  <span class="text-xs font-bold text-amber-600 flex items-center gap-1 shrink-0">
+                  <span class="text-xs sm:text-sm font-black text-amber-700 flex items-center gap-1 shrink-0">
                     ★ {{ executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg || '—' }}
                   </span>
                 </div>
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
-                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requests</span>
-                    <span class="text-sm font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Requests</span>
+                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</span>
                   </div>
-                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
-                    <span class="text-sm font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Resolved</span>
+                    <span class="text-base font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</span>
                   </div>
-                  <div class="p-2 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
-                    <span class="text-sm font-black text-slate-600 tabular-nums">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Declined</span>
+                    <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</span>
                   </div>
                 </div>
               </div>
@@ -386,23 +386,23 @@
               <!-- GSO Overall Summary Card -->
               <div class="p-4 rounded-2xl bg-slate-900 text-white space-y-3 shadow-sm">
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-xs font-black uppercase tracking-wider text-emerald-400">GSO Overall Total</span>
-                  <span class="text-xs font-bold text-amber-400 flex items-center gap-1 shrink-0">
+                  <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-emerald-400">GSO Overall Total</span>
+                  <span class="text-xs sm:text-sm font-black text-amber-400 flex items-center gap-1 shrink-0">
                     ★ {{ executiveAnalytics?.summary?.overall_ratings?.overall_avg || '5.00' }}
                   </span>
                 </div>
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-center">
-                  <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requests</span>
-                    <span class="text-sm font-black text-white tabular-nums">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Requests</span>
+                    <span class="text-base font-black text-white tabular-nums">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</span>
                   </div>
-                  <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
-                    <span class="text-sm font-black text-emerald-400 tabular-nums">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
+                    <span class="text-base font-black text-emerald-400 tabular-nums">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</span>
                   </div>
-                  <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
-                    <span class="text-sm font-black text-slate-300 tabular-nums">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</span>
+                  <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
+                    <span class="text-base font-black text-slate-300 tabular-nums">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</span>
                   </div>
                 </div>
               </div>
@@ -412,19 +412,19 @@
           <!-- Operational Insights (Service Distribution & SLA Health) -->
           <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 pt-2">
             <!-- Left: Service Workload Share -->
-            <div class="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-2xs">
+            <div class="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm">
               <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
-                <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Top Service Categories</h4>
+                <svg class="w-5 h-5 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+                <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Top Service Categories</h4>
               </div>
 
               <div v-if="executiveAnalytics?.service_breakdown?.length" class="space-y-3">
-                <div v-for="(item, idx) in executiveAnalytics.service_breakdown" :key="item.name" class="space-y-1">
-                  <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-700 truncate">{{ item.name }}</span>
-                    <span class="tabular-nums text-slate-500 font-bold text-[11px] ml-2 shrink-0">{{ item.count }} <span class="text-slate-400">({{ item.percent }}%)</span></span>
+                <div v-for="(item, idx) in executiveAnalytics.service_breakdown" :key="item.name" class="space-y-1.5">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs sm:text-sm font-bold text-slate-800 truncate">{{ item.name }}</span>
+                    <span class="tabular-nums text-slate-600 font-black text-xs sm:text-sm ml-2 shrink-0">{{ item.count }} <span class="text-slate-500 font-semibold">({{ item.percent }}%)</span></span>
                   </div>
-                  <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div
                       class="h-full rounded-full transition-all duration-500"
                       :class="idx % 3 === 0 ? 'bg-blue-500' : idx % 3 === 1 ? 'bg-emerald-500' : 'bg-rose-400'"
@@ -433,62 +433,62 @@
                   </div>
                 </div>
               </div>
-              <p v-else class="text-xs text-slate-400 font-medium py-6 text-center">No categories recorded for this period.</p>
+              <p v-else class="text-xs sm:text-sm text-slate-500 font-medium py-6 text-center">No categories recorded for this period.</p>
             </div>
 
             <!-- Right: SLA Compliance & Quality Dimensions -->
-            <div class="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-2xs">
+            <div class="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm">
               <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Service Completion &amp; Quality</h4>
+                <svg class="w-5 h-5 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Service Completion &amp; Quality</h4>
               </div>
 
               <!-- 3 Health Tiles -->
               <div class="grid grid-cols-3 gap-2.5">
                 <div class="p-3.5 bg-emerald-50/70 rounded-xl border border-emerald-200/60 text-center">
-                  <svg class="w-4 h-4 text-emerald-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                  <span class="text-xl sm:text-2xl font-extrabold text-emerald-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.on_time ?? 0 }}</span>
-                  <span class="text-[10px] font-bold text-emerald-700 block">{{ executiveAnalytics?.completion_health?.on_time_percent ?? 0 }}%</span>
-                  <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block mt-0.5">On-Time</span>
+                  <svg class="w-5 h-5 text-emerald-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                  <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.on_time ?? 0 }}</span>
+                  <span class="text-xs font-black text-emerald-700 block">{{ executiveAnalytics?.completion_health?.on_time_percent ?? 0 }}%</span>
+                  <span class="text-xs font-black text-emerald-800 uppercase tracking-wider block mt-0.5">On-Time</span>
                 </div>
                 <div class="p-3.5 bg-amber-50/70 rounded-xl border border-amber-200/60 text-center">
-                  <svg class="w-4 h-4 text-amber-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                  <span class="text-xl sm:text-2xl font-extrabold text-amber-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.beyond_time ?? 0 }}</span>
-                  <span class="text-[10px] font-bold text-amber-700 block">{{ executiveAnalytics?.completion_health?.beyond_time_percent ?? 0 }}%</span>
-                  <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider block mt-0.5">Overdue</span>
+                  <svg class="w-5 h-5 text-amber-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                  <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.beyond_time ?? 0 }}</span>
+                  <span class="text-xs font-black text-amber-700 block">{{ executiveAnalytics?.completion_health?.beyond_time_percent ?? 0 }}%</span>
+                  <span class="text-xs font-black text-amber-800 uppercase tracking-wider block mt-0.5">Overdue</span>
                 </div>
                 <div class="p-3.5 bg-slate-100/70 rounded-xl border border-slate-200/60 text-center">
-                  <svg class="w-4 h-4 text-slate-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  <span class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.not_completed ?? 0 }}</span>
-                  <span class="text-[10px] font-bold text-slate-500 block">{{ executiveAnalytics?.completion_health?.not_completed_percent ?? 0 }}%</span>
-                  <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mt-0.5">Incomplete</span>
+                  <svg class="w-4 h-4 text-slate-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.not_completed ?? 0 }}</span>
+                  <span class="text-xs font-black text-slate-600 block">{{ executiveAnalytics?.completion_health?.not_completed_percent ?? 0 }}%</span>
+                  <span class="text-xs font-black text-slate-700 uppercase tracking-wider block mt-0.5">Incomplete</span>
                 </div>
               </div>
 
               <!-- Rating Breakdown Dimensions -->
               <div class="pt-3 border-t border-slate-100 space-y-2.5">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Client Rating Breakdown</span>
+                <span class="text-xs font-black text-slate-500 uppercase tracking-wider block">Client Rating Breakdown</span>
                 <div class="grid grid-cols-3 gap-2">
                   <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1">
                     <div class="flex items-center gap-1.5">
-                      <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                      <span class="text-[10px] font-bold text-slate-500 uppercase">Quality</span>
+                      <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                      <span class="text-xs font-black text-slate-600 uppercase">Quality</span>
                     </div>
-                    <span class="text-base font-extrabold text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_quality ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
+                    <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_quality ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
                   </div>
                   <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1">
                     <div class="flex items-center gap-1.5">
-                      <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                      <span class="text-[10px] font-bold text-slate-500 uppercase">Efficiency</span>
+                      <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                      <span class="text-xs font-black text-slate-600 uppercase">Efficiency</span>
                     </div>
-                    <span class="text-base font-extrabold text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
+                    <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
                   </div>
                   <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1">
                     <div class="flex items-center gap-1.5">
-                      <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      <span class="text-[10px] font-bold text-slate-500 uppercase">Timeliness</span>
+                      <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <span class="text-xs font-black text-slate-600 uppercase">Timeliness</span>
                     </div>
-                    <span class="text-base font-extrabold text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
+                    <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
                   </div>
                 </div>
               </div>

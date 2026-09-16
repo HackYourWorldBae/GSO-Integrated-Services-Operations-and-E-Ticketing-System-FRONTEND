@@ -95,14 +95,14 @@ const breadcrumbs = computed(() => {
 </script>
 
 <template>
-  <nav aria-label="Breadcrumb" class="mb-5 flex items-center gap-1.5 text-xs text-slate-500 overflow-x-auto custom-scrollbar py-1">
-    <ol class="flex items-center gap-1.5 flex-nowrap">
-      <li v-for="(crumb, index) in breadcrumbs" :key="index" class="flex items-center gap-1.5 shrink-0">
+  <nav aria-label="Breadcrumb" class="mb-5 flex items-center gap-2 text-sm text-slate-600 overflow-x-auto custom-scrollbar py-1.5">
+    <ol class="flex items-center gap-2 flex-nowrap">
+      <li v-for="(crumb, index) in breadcrumbs" :key="index" class="flex items-center gap-2 shrink-0">
         <!-- Breadcrumb separator -->
         <svg
           v-if="index > 0"
           xmlns="http://www.w3.org/2000/svg"
-          class="h-3.5 w-3.5 text-slate-300 shrink-0"
+          class="h-4 w-4 text-slate-300 shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -114,10 +114,10 @@ const breadcrumbs = computed(() => {
         <router-link
           v-if="crumb.isHome"
           :to="crumb.to"
-          class="inline-flex items-center gap-1 font-semibold text-slate-400 hover:text-emerald-600 transition-colors"
+          class="inline-flex items-center gap-1.5 font-bold text-slate-500 hover:text-emerald-700 transition-colors"
           title="Go to Portal Overview"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
           <span class="hover:underline">{{ crumb.label }}</span>
@@ -127,7 +127,7 @@ const breadcrumbs = computed(() => {
         <router-link
           v-else-if="crumb.to && index < breadcrumbs.length - 1"
           :to="crumb.to"
-          class="font-medium text-slate-500 hover:text-emerald-700 hover:underline transition-colors truncate max-w-[160px]"
+          class="font-semibold text-slate-600 hover:text-emerald-700 hover:underline transition-colors truncate max-w-[180px]"
         >
           {{ crumb.label }}
         </router-link>
@@ -135,7 +135,7 @@ const breadcrumbs = computed(() => {
         <!-- Current / Terminal Crumb -->
         <span
           v-else
-          class="font-bold text-slate-800 truncate max-w-[200px]"
+          class="font-black text-slate-900 truncate max-w-[240px]"
           aria-current="page"
         >
           {{ crumb.label }}

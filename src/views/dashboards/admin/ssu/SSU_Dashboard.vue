@@ -23,7 +23,7 @@
       </router-link>
 
       <div class="mt-8 mb-4 px-4">
-        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Archived Tickets</p>
+        <p class="text-xs font-black text-slate-500 uppercase tracking-wider">Archived Tickets</p>
       </div>
       <router-link to="/admin/ssu/archives" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -35,8 +35,8 @@
 
     <template #header-title>
       <div class="flex flex-col">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">SSU Dashboard</h2>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Security Services Unit Control</p>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">SSU Dashboard</h2>
+        <p class="text-xs text-rose-600 font-extrabold tracking-wider uppercase">Security Services Unit Control</p>
       </div>
     </template>
 
@@ -47,11 +47,11 @@
         <div class="space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
             <div>
-              <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <span class="w-2 h-4 rounded-full bg-slate-900"></span>
+              <h3 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                <span class="w-2.5 h-5 rounded-full bg-slate-900 shrink-0"></span>
                 Throughput &amp; Incident Volume Analytics
               </h3>
-              <p class="text-[11px] text-slate-400 font-medium">Outcome metrics filtered by timeframe for {{ currentYear }}</p>
+              <p class="text-xs sm:text-sm text-slate-600 font-medium">Outcome metrics filtered by timeframe for {{ currentYear }}</p>
             </div>
 
             <!-- Filter Controls for Current Year -->
@@ -62,8 +62,8 @@
                   v-for="p in periodOptions"
                   :key="p.key"
                   @click="changePeriod(p.key)"
-                  class="px-3 py-1.5 sm:py-1 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[36px] sm:min-h-[32px] touch-manipulation flex items-center justify-center"
-                  :class="selectedPeriod === p.key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'"
+                  class="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer min-h-[44px] touch-manipulation flex items-center justify-center"
+                  :class="selectedPeriod === p.key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
                 >
                   {{ p.label }}
                 </button>
@@ -74,14 +74,14 @@
                 <select
                   v-model="selectedMonth"
                   @change="fetchStats"
-                  class="appearance-none pl-3 pr-8 py-2 sm:py-1.5 min-h-[40px] sm:min-h-[36px] bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer"
+                  class="appearance-none pl-3.5 pr-8 py-2 min-h-[44px] bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer"
                 >
                   <option v-for="m in monthOptions" :key="m.value" :value="m.value">
                     {{ m.label }}
                   </option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </div>
               </div>
 
@@ -90,14 +90,14 @@
                 <select
                   v-model="selectedQuarter"
                   @change="fetchStats"
-                  class="appearance-none pl-3 pr-8 py-2 sm:py-1.5 min-h-[40px] sm:min-h-[36px] bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer"
+                  class="appearance-none pl-3.5 pr-8 py-2 min-h-[44px] bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm cursor-pointer"
                 >
                   <option v-for="q in quarterOptions" :key="q.value" :value="q.value">
                     {{ q.label }}
                   </option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </div>
               </div>
             </div>
@@ -108,53 +108,53 @@
             <!-- 1. Total Requests -->
             <div 
               @click="router.push('/admin/ssu/submitted-tickets')"
-              class="group p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all cursor-pointer flex flex-col justify-between"
+              class="group p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between"
             >
               <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900 text-white shrink-0 group-hover:scale-105 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div class="p-3 rounded-xl sm:rounded-2xl bg-slate-900 text-white shrink-0 group-hover:scale-105 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
+                <span class="text-xs font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">
                   {{ stats.filter?.label || 'All Time' }}
                 </span>
               </div>
               <div>
-                <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
-                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Total Reports</p>
+                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+                <p class="text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-wider mt-1">Total Reports</p>
               </div>
             </div>
 
             <!-- 2. Resolved Reports -->
             <div 
               @click="router.push('/admin/ssu/archives')"
-              class="group p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer flex flex-col justify-between"
+              class="group p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between"
             >
               <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-600 shrink-0 group-hover:scale-105 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <div class="p-3 rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-600 shrink-0 group-hover:scale-105 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                 </div>
-                <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Completed</span>
+                <span class="text-xs font-black text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">Completed</span>
               </div>
               <div>
-                <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">{{ stats.resolved || 0 }}</h3>
-                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Resolved Reports</p>
+                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ stats.resolved || 0 }}</h3>
+                <p class="text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-wider mt-1">Resolved Reports</p>
               </div>
             </div>
 
             <!-- 3. Declined Reports -->
             <div 
               @click="router.push('/admin/ssu/archives')" 
-              class="group p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer flex flex-col justify-between"
+              class="group p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between"
             >
               <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-rose-50 text-rose-600 group-hover:scale-110 transition-transform shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                <div class="p-3 rounded-xl sm:rounded-2xl bg-rose-50 text-rose-600 group-hover:scale-110 transition-transform shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                 </div>
-                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Declined</span>
+                <span class="text-xs font-black text-rose-700 bg-rose-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">Declined</span>
               </div>
               <div>
-                <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">{{ stats.declined || 0 }}</h3>
-                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Declined Reports</p>
+                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ stats.declined || 0 }}</h3>
+                <p class="text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-wider mt-1">Declined Reports</p>
               </div>
             </div>
           </div>
@@ -162,16 +162,16 @@
 
         <!-- Live Operations & Queue Status (Bottom 3 Cards) -->
         <div class="space-y-4">
-          <div class="flex items-center justify-between px-1">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
             <div>
-              <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <span class="w-2 h-4 rounded-full bg-rose-600"></span>
+              <h3 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                <span class="w-2.5 h-5 rounded-full bg-rose-600 shrink-0"></span>
                 Active Operations &amp; Workload
               </h3>
-              <p class="text-[11px] text-slate-400 font-medium">Real-time incident response and security pipeline</p>
+              <p class="text-xs sm:text-sm text-slate-600 font-medium">Real-time incident response and security pipeline</p>
             </div>
-            <span class="text-[10px] font-black text-rose-700 bg-rose-50 border border-rose-200/60 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+            <span class="self-start sm:self-auto text-xs font-black text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 shrink-0">
+              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
               Live Pipeline
             </span>
           </div>
@@ -181,34 +181,34 @@
             <!-- 1. Pending Review -->
             <div 
               @click="router.push('/admin/ssu/submitted-tickets')"
-              class="group p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer flex flex-col justify-between"
+              class="group p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between"
             >
               <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-amber-50 text-amber-600 shrink-0 group-hover:scale-105 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div class="p-3 rounded-xl sm:rounded-2xl bg-amber-50 text-amber-600 shrink-0 group-hover:scale-105 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Pending</span>
+                <span class="text-xs font-black text-amber-700 bg-amber-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">Pending</span>
               </div>
               <div>
-                <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">{{ stats.pending || 0 }}</h3>
-                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Awaiting Review</p>
+                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ stats.pending || 0 }}</h3>
+                <p class="text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-wider mt-1">Awaiting Review</p>
               </div>
             </div>
 
             <!-- 2. Under Investigation (Processing) -->
             <div 
               @click="router.push('/admin/ssu/investigating-tickets')"
-              class="group p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer flex flex-col justify-between"
+              class="group p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between"
             >
               <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-blue-50 text-blue-600 shrink-0 group-hover:scale-105 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div class="p-3 rounded-xl sm:rounded-2xl bg-blue-50 text-blue-600 shrink-0 group-hover:scale-105 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Processing</span>
+                <span class="text-xs font-black text-blue-700 bg-blue-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">Processing</span>
               </div>
               <div>
-                <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">{{ stats.processing || 0 }}</h3>
-                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Under Investigation</p>
+                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ stats.processing || 0 }}</h3>
+                <p class="text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-wider mt-1">Under Investigation</p>
               </div>
             </div>
           </div>
@@ -219,9 +219,9 @@
         <div class="grid grid-cols-1 gap-6 sm:gap-8">
           
           <!-- Incident Distribution -->
-          <div class="p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[300px] sm:min-h-[350px] lg:h-[400px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2 h-6 bg-rose-500 rounded-full"></div>
+          <div class="p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200/80 shadow-md flex flex-col min-h-[300px] sm:min-h-[350px] lg:h-[400px]">
+            <h4 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2 italic">
+              <div class="w-2.5 h-6 bg-rose-500 rounded-full shrink-0"></div>
               Incident Heatmap (By Category)
             </h4>
             <div class="flex-1 relative">

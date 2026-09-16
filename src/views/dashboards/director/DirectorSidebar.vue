@@ -18,7 +18,7 @@
 
     <!-- Ticket Queues -->
     <div>
-      <p class="px-4 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2.5">Ticket Queues</p>
+      <p class="px-4 text-xs font-black text-slate-500 uppercase tracking-wider mb-2.5">Ticket Queues</p>
       <nav class="space-y-1">
         <!-- FGMU Ticket Queues: Tools / Facilities Maintenance -->
         <router-link to="/director/fgmu/queues" exact-active-class="router-link-active" active-class="" class="nav-item group">
@@ -41,7 +41,7 @@
 
     <!-- Unit Analytics -->
     <div>
-      <p class="px-4 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2.5">Unit Analytics</p>
+      <p class="px-4 text-xs font-black text-slate-500 uppercase tracking-wider mb-2.5">Unit Analytics</p>
       <nav class="space-y-1">
         <!-- FGMU Facilities: Tools / Facilities Maintenance -->
         <router-link to="/director/fgmu" exact-active-class="router-link-active" active-class="" class="nav-item group">
@@ -72,7 +72,7 @@
 
     <!-- Account Settings -->
     <div>
-      <p class="px-4 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2.5">Account</p>
+      <p class="px-4 text-xs font-black text-slate-500 uppercase tracking-wider mb-2.5">Account</p>
       <nav class="space-y-1">
         <router-link to="/director/settings" exact-active-class="router-link-active" active-class="" class="nav-item group">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-slate-500 group-hover:text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
