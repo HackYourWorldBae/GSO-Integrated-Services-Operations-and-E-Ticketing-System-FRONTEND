@@ -273,6 +273,18 @@
                     <span>Job Order</span>
                   </button>
 
+                  <!-- Re-generate Document Button -->
+                  <button
+                    type="button"
+                    @click="handleDirectRegenerate(ticket)"
+                    class="p-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-900 border border-amber-200 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center justify-center cursor-pointer"
+                    title="Re-inject ticket data and generate fresh Job Order document"
+                  >
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+
                   <!-- Extend Button -->
                   <button
                     type="button"
@@ -416,13 +428,24 @@
           <button
             type="button"
             @click="openJobOrderDocument(ticket)"
-            class="py-2.5 px-3 min-h-[38px] rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold text-center transition-all flex items-center justify-center gap-1 cursor-pointer touch-manipulation active:scale-95"
+            class="py-2.5 px-2.5 min-h-[38px] rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold text-center transition-all flex items-center justify-center gap-1 cursor-pointer touch-manipulation active:scale-95"
             title="Print / View Job Order"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
             <span>Job Order</span>
+          </button>
+          <button
+            type="button"
+            @click="handleDirectRegenerate(ticket)"
+            class="py-2.5 px-2.5 min-h-[38px] rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold text-center transition-all active:scale-95 cursor-pointer border border-amber-200 flex items-center justify-center gap-1 touch-manipulation"
+            title="Re-inject data and re-generate Job Order"
+          >
+            <svg class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Re-gen</span>
           </button>
           <button
             type="button"
@@ -638,16 +661,30 @@
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  @click="openJobOrderDocument(selectedTicketForModal)"
-                  class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 flex items-center justify-center gap-2 cursor-pointer shrink-0"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                  </svg>
-                  <span>Print / View Job Order</span>
-                </button>
+                <div class="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
+                  <button
+                    type="button"
+                    @click="handleDirectRegenerate(selectedTicketForModal)"
+                    class="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                    title="Re-inject latest ticket data and generate fresh document"
+                  >
+                    <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Re-generate</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    @click="openJobOrderDocument(selectedTicketForModal)"
+                    class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>Print / View Job Order</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1156,7 +1193,7 @@ const handleRegenerateJobOrder = async () => {
   viewerModal.fileBlob = null;
 
   try {
-    toast.info('Generating new Job Order document with latest ticket data...');
+    toast.info('Re-injecting ticket data and generating new Job Order document...');
     const ticket = activeJobOrderTicket.value;
     const ticketId = ticket.ticketId || ticket.id;
     const unit = props.unitCode?.toUpperCase() || ticket.unit_code || 'FGMU';
@@ -1183,28 +1220,63 @@ const handleRegenerateJobOrder = async () => {
       regenerated_at: new Date().toISOString()
     };
 
-    // 2. Generate brand-new document Blob
+    // 2. Generate brand-new document Blob with re-injected data
     const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticketData, freshTicket.feedback);
 
-    // 3. Upload new document as permanent ticket attachment on the server
+    // 3. Upload new document as permanent ticket attachment on the server (replacing old versions)
     try {
       const formData = new FormData();
       formData.append('attachments[]', docxBlob, `${unit}_Job_Order_#${ticketId}.docx`);
       await api.post(`tickets/${ticketId}/attachments`, formData, {
         headers: { 'Content-Type': undefined }
       });
+
+      // Re-fetch ticket to update attachments array and all synchronized fields
+      const refreshRes = await api.get(`tickets/${ticketId}`);
+      const refreshRaw = refreshRes.data?.data?.ticket || refreshRes.data?.data;
+      if (refreshRaw) {
+        freshTicket = mapTicket(refreshRaw);
+        activeJobOrderTicket.value = freshTicket;
+      }
     } catch (attachErr) {
       console.warn('Could not save regenerated attachment to backend:', attachErr);
     }
 
+    // 4. Update modal state and workspace tickets list
+    if (selectedTicketForModal.value && (selectedTicketForModal.value.id === ticketId || selectedTicketForModal.value.ticketId === ticketId)) {
+      selectedTicketForModal.value = freshTicket;
+    }
+
+    // Update rawTickets list in background
+    const foundIdx = rawTickets.value.findIndex(t => (t.id === ticketId || t.ticketId === ticketId));
+    if (foundIdx !== -1) {
+      rawTickets.value[foundIdx] = freshTicket;
+    }
+    fetchActiveTickets().catch(() => {});
+
+    // 5. Update viewer with new document
     viewerModal.fileBlob = docxBlob;
-    toast.success('New Job Order document generated with latest data!');
+    toast.success('New Job Order document successfully re-generated with updated data!');
   } catch (err) {
     console.error('Failed to re-generate document:', err);
     toast.error('Failed to re-generate document: ' + (err.message || 'Unknown error'));
   } finally {
     viewerModal.isRegenerating = false;
   }
+};
+
+const handleDirectRegenerate = async (ticket) => {
+  if (!ticket) return;
+  const ticketId = ticket.ticketId || ticket.id;
+  const unit = props.unitCode?.toUpperCase() || ticket.unit_code || 'FGMU';
+  activeJobOrderTicket.value = ticket;
+  viewerModal.title = `${unit} Job Order (Job Request Form) - #${ticketId}`;
+  viewerModal.fileName = `${unit}_Job_Order_#${ticketId}.docx`;
+  viewerModal.fileBlob = null;
+  viewerModal.allowRegenerate = true;
+  viewerModal.isRegenerating = true;
+  viewerModal.isOpen = true;
+  await handleRegenerateJobOrder();
 };
 
 const downloadAttachment = async (att) => {

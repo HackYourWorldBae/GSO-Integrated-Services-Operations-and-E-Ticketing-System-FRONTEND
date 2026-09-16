@@ -56,7 +56,7 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
   // Defensively unwrap if wrapped in { ticket: ... }
   const t = ticket.ticket || ticket || {};
   const details = t.details || {};
-  const assignment = t.assignment || (Array.isArray(t.assignments) && t.assignments[0]) || {};
+  const assignment = t.assignment || (Array.isArray(t.assignments) && t.assignments[t.assignments.length - 1]) || (Array.isArray(t.assignments) && t.assignments[0]) || {};
   const feedback = feedbackData || t.feedback || {};
 
   // 1. Filing date (when ticket intake was submitted)
@@ -65,9 +65,9 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
   // 2. Implementation / Start date (when workers are scheduled/dispatched to start)
   const dateStarted = formatDocDate(
     assignment.implementation_date ||
-    assignment.dispatched_at ||
     t.implementationDate ||
     t.implementation_date ||
+    assignment.dispatched_at ||
     t.scheduled_date ||
     t.project_target_date ||
     assignment.assigned_at ||
@@ -116,8 +116,8 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
   // 6. Target Working Days Duration
   const workingDays = String(
     t.working_days ||
-    t.project_working_days ||
     assignment.working_days ||
+    t.project_working_days ||
     t.workingDays ||
     t.total_working_days ||
     t.eodb_days ||
@@ -144,7 +144,7 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
   let rawWorkers = [];
   if (Array.isArray(t.assignments) && t.assignments.length > 0) {
     t.assignments.forEach(a => {
-      const name = a.personnel_name || a.assigned_to_name || a.name || '';
+      const name = a.personnel_name || a.assigned_to_name || a.name || a.personnel?.name || a.worker?.name || '';
       if (name) rawWorkers.push(...name.split(/[,;\n]+/));
     });
   }
@@ -175,6 +175,8 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     t.remarks ||
     assignment.dispatcher_notes ||
     assignment.task_notes ||
+    t.task_notes ||
+    t.dispatcher_notes ||
     assignment.instructions ||
     assignment.task_briefing ||
     ''
