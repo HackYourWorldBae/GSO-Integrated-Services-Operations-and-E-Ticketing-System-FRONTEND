@@ -133,30 +133,6 @@
           </div>
         </div>
 
-        <!-- Metric Cards -->
-        <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 2xl:grid-cols-5 gap-3.5 sm:gap-4">
-          <div
-            v-for="metric in metrics"
-            :key="metric.label"
-            @click="metric.onClick"
-            class="group relative bg-white border border-slate-200 rounded-2xl p-5 hover:border-transparent hover:shadow-lg cursor-pointer transition-all duration-300 flex flex-col justify-between"
-            :class="metric.hoverShadow"
-          >
-            <!-- Top accent bar on hover -->
-            <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" :class="metric.accentBar"></div>
-
-            <div class="flex items-start justify-between gap-2 mb-4">
-              <div class="p-3 rounded-xl transition-transform duration-300 group-hover:scale-110 shrink-0" :class="metric.iconBg">
-                <component :is="metric.icon" class="h-5 w-5 sm:h-6 sm:w-6" :class="metric.iconColor" />
-              </div>
-              <span class="text-xs font-black uppercase tracking-wider mt-0.5 shrink-0 whitespace-nowrap px-2 py-0.5 rounded-md" :class="metric.labelColor">{{ metric.tag }}</span>
-            </div>
-            <div>
-              <p class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums leading-none mb-1.5">{{ metric.value }}</p>
-              <p class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600">{{ metric.label }}</p>
-            </div>
-          </div>
-        </div>
 
         <!-- Recent Activity — Ticket Status Updates -->
         <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
@@ -244,7 +220,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, h } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useAuthStore } from '@/stores/auth';
@@ -275,82 +251,6 @@ const allTickets = computed(() => {
   }
   return Array.from(map.values());
 });
-
-const openTicketsCount     = computed(() => allTickets.value.filter(t => t.status === 'processing' || t.status === 'in_progress' || t.status === 'approved').length);
-const pendingTicketsCount  = computed(() => allTickets.value.filter(t => t.status === 'pending').length);
-const resolvedTicketsCount = computed(() => allTickets.value.filter(t => t.status === 'resolved' || t.status === 'completed' || t.status === 'closed').length);
-const declinedTicketsCount = computed(() => allTickets.value.filter(t => t.status === 'declined' || t.status === 'rejected').length);
-const totalRequestsCount   = computed(() => allTickets.value.length);
-
-// SVG icon components inline for metric cards
-const TicketIcon = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z' })]) };
-const ClockIcon  = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' })]) };
-const CheckIcon  = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' })]) };
-const BanIcon    = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636' })]) };
-const ChartIcon  = { render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' })]) };
-
-const metrics = computed(() => [
-  {
-    label: 'Open Tickets',
-    value: openTicketsCount.value,
-    tag: 'Ongoing',
-    icon: TicketIcon,
-    iconBg: 'bg-blue-50',
-    iconColor: 'text-blue-600',
-    labelColor: 'text-blue-400',
-    accentBar: 'bg-gradient-to-r from-blue-400 to-blue-600',
-    hoverShadow: 'hover:shadow-blue-500/10',
-    onClick: () => router.push({ path: '/user/tickets', query: { status: 'processing' } }),
-  },
-  {
-    label: 'Pending Tickets',
-    value: pendingTicketsCount.value,
-    tag: 'Reviewing',
-    icon: ClockIcon,
-    iconBg: 'bg-amber-50',
-    iconColor: 'text-amber-500',
-    labelColor: 'text-amber-400',
-    accentBar: 'bg-gradient-to-r from-amber-400 to-amber-500',
-    hoverShadow: 'hover:shadow-amber-500/10',
-    onClick: () => router.push({ path: '/user/tickets', query: { status: 'pending' } }),
-  },
-  {
-    label: 'Resolved Tickets',
-    value: resolvedTicketsCount.value,
-    tag: 'Finished',
-    icon: CheckIcon,
-    iconBg: 'bg-emerald-50',
-    iconColor: 'text-emerald-600',
-    labelColor: 'text-emerald-400',
-    accentBar: 'bg-gradient-to-r from-emerald-400 to-emerald-600',
-    hoverShadow: 'hover:shadow-emerald-500/10',
-    onClick: () => router.push('/user/completed-tickets'),
-  },
-  {
-    label: 'Declined Requests',
-    value: declinedTicketsCount.value,
-    tag: 'Declined',
-    icon: BanIcon,
-    iconBg: 'bg-rose-50',
-    iconColor: 'text-rose-600',
-    labelColor: 'text-rose-400',
-    accentBar: 'bg-gradient-to-r from-rose-400 to-rose-600',
-    hoverShadow: 'hover:shadow-rose-500/10',
-    onClick: () => router.push('/user/completed-tickets'),
-  },
-  {
-    label: 'Total Requests',
-    value: totalRequestsCount.value,
-    tag: 'History',
-    icon: ChartIcon,
-    iconBg: 'bg-slate-100',
-    iconColor: 'text-slate-600',
-    labelColor: 'text-slate-400',
-    accentBar: 'bg-gradient-to-r from-slate-400 to-slate-600',
-    hoverShadow: 'hover:shadow-slate-500/10',
-    onClick: () => router.push('/user/tickets'),
-  },
-]);
 
 const recentUpdates = computed(() => {
   const sorted = [...allTickets.value].sort((a, b) => {
