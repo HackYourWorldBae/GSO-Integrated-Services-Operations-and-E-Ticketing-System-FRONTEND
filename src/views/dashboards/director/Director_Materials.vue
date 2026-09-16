@@ -20,7 +20,7 @@
                 <span>Executive Overview</span>
               </router-link>
               <span class="text-slate-300">/</span>
-              <span class="text-emerald-700 font-bold">Materials Valuation</span>
+              <span class="text-emerald-700 font-bold">Material Expenses</span>
             </div>
 
             <div class="flex items-center gap-3">
@@ -126,7 +126,7 @@
             <button
               @click="fetchExecutiveAnalytics"
               class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600 rounded-xl transition-all cursor-pointer shadow-2xs group touch-manipulation shrink-0"
-              title="Refresh Valuation Data"
+              title="Refresh Materials Data"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:rotate-180 duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -135,7 +135,7 @@
           </div>
         </div>
 
-        <!-- Materials Valuation KPI Cards Grid -->
+        <!-- Materials Cost KPI Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <!-- 1. Total Cost of Materials -->
           <div class="p-5 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col gap-3 hover:shadow-md transition-all duration-200">
@@ -418,7 +418,7 @@
                   <span class="font-extrabold text-white tabular-nums">{{ formatNumber(filteredTotalQuantity) }} units</span>
                 </div>
                 <div class="flex items-center justify-between pt-2 border-t border-slate-800">
-                  <span class="text-xs font-black uppercase tracking-wider text-emerald-400">Total Valuation:</span>
+                  <span class="text-xs font-black uppercase tracking-wider text-emerald-400">Total Material Cost:</span>
                   <span class="text-base font-black text-emerald-400 tabular-nums">₱{{ formatCurrency(filteredTotalWorth) }}</span>
                 </div>
               </div>
@@ -589,7 +589,7 @@ const fetchExecutiveAnalytics = async () => {
     }
   } catch (error) {
     console.error('Failed to load executive materials analytics:', error);
-    toast.error('Failed to load materials valuation data.');
+    toast.error('Failed to load material expenses data.');
   } finally {
     isLoading.value = false;
   }

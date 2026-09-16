@@ -2,12 +2,12 @@
  * materialsReportPdfGenerator.js
  *
  * Generates Official Benguet State University (BSU) Executive Materials Consumption &
- * Resource Valuation Reports for the General Services Office (GSO) Director using pdfmake.
+ * Cost Reports for the General Services Office (GSO) Director using pdfmake.
  *
  * Designed with a formal, prestigious, institutional layout:
  * - Republic of the Philippines & BSU Official Header with University Seal
  * - Document Control Number & Classification
- * - Executive Valuation Summary Blocks (Total Worth ₱, Units Consumed, FGMU & LEAU Shares)
+ * - Executive Cost Summary Blocks (Total Cost ₱, Units Consumed, FGMU & LEAU Shares)
  * - Complete Itemized Materials Table with Units of Measurement and Pricing
  * - Grand Total Row
  *
@@ -161,7 +161,7 @@ export const buildMaterialsReportDocDefinition = (data, logoDataUrl) => {
   // Grand Total Row
   tableBody.push([
     {
-      text: 'CONSOLIDATED MATERIALS VALUATION TOTAL:',
+      text: 'CONSOLIDATED TOTAL MATERIAL COST:',
       colSpan: 5,
       alignment: 'right',
       bold: true,
@@ -277,7 +277,7 @@ export const buildMaterialsReportDocDefinition = (data, logoDataUrl) => {
                     columns: [
                       {
                         stack: [
-                          { text: 'EXECUTIVE MATERIALS CONSUMPTION & RESOURCE VALUATION REPORT', fontSize: 10, bold: true, color: '#111827' },
+                          { text: 'EXECUTIVE MATERIALS CONSUMPTION & COST REPORT', fontSize: 10, bold: true, color: '#111827' },
                           { text: `Report Period: ${periodLabel}  •  Scope: Facilities (FGMU) & Grounds (LEAU)`, fontSize: 7.5, color: '#4b5563', margin: [0, 2, 0, 0] },
                         ],
                       },
@@ -306,7 +306,7 @@ export const buildMaterialsReportDocDefinition = (data, logoDataUrl) => {
 
       // Section 1: Executive KPI Summary Cards (4 Columns)
       {
-        text: '1. EXECUTIVE MATERIALS VALUATION OVERVIEW',
+        text: '1. EXECUTIVE MATERIALS CONSUMPTION & COST OVERVIEW',
         fontSize: 8.5,
         bold: true,
         color: '#111827',

@@ -218,7 +218,7 @@ const rawNavGroups = computed(() => {
             icon: 'home'
           },
           {
-            label: 'Materials Valuation',
+            label: 'Material Expenses',
             to: '/director/materials',
             exact: true,
             icon: 'materials'

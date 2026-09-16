@@ -187,7 +187,7 @@
               <div class="space-y-0.5">
                 <h4 class="text-xs font-black text-emerald-950 uppercase tracking-wider">Executive Directorate Privileges</h4>
                 <p class="text-xs text-emerald-800 leading-relaxed font-medium">
-                  Your account holds institutional oversight across all General Services Office sub-units (FGMU, LEAU, SSU) with university-wide report generation and materials valuation authorizations.
+                  Your account holds institutional oversight across all General Services Office sub-units (FGMU, LEAU, SSU) with university-wide report generation and material expense tracking authorizations.
                 </p>
               </div>
             </div>

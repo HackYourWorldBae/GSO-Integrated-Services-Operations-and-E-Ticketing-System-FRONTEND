@@ -526,9 +526,9 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
         margin: [0, 0, 0, 12],
       },
 
-      // ── Section 6: Materials Utilization & Resource Valuation ─────────────
+      // ── Section 6: Materials Utilization & Cost Summary ─────────────
       {
-        text: '6. MATERIALS UTILIZATION & RESOURCE VALUATION SUMMARY',
+        text: '6. MATERIALS UTILIZATION & COST SUMMARY',
         fontSize: 9,
         bold: true,
         color: '#111827',
@@ -539,7 +539,7 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
           widths: ['35%', '25%', '20%', '20%'],
           body: [
             [
-              { text: 'TOTAL MATERIALS VALUE', bold: true, fontSize: 7, color: '#4b5563', fillColor: '#f3f4f6' },
+              { text: 'TOTAL MATERIAL COST', bold: true, fontSize: 7, color: '#4b5563', fillColor: '#f3f4f6' },
               { text: 'LINE ITEMS CONSUMED', bold: true, fontSize: 7, color: '#4b5563', fillColor: '#f3f4f6' },
               { text: 'FGMU SHARE', bold: true, fontSize: 7, color: '#4b5563', fillColor: '#f3f4f6' },
               { text: 'LEAU SHARE', bold: true, fontSize: 7, color: '#4b5563', fillColor: '#f3f4f6' },
