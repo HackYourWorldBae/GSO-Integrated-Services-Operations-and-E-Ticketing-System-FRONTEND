@@ -1351,15 +1351,6 @@ const mapTicketData = (t) => ({
   requestedBy: userName.value || 'User',
   location: t.location,
   office_room: t.office_room,
-  make_series: t.details?.make_series || '',
-  color: t.details?.type_color || '',
-  address: t.details?.house_street
-    ? `${t.details.house_street}, ${t.details.barangay}, ${t.details.city_municipality}, ${t.details.province}`
-    : (t.details?.complete_address || ''),
-  destination: t.details?.destination || 'N/A',
-  passengers: t.details?.num_passengers || t.details?.number_of_passengers || t.details?.numberOfPassengers || 'N/A',
-  dateOfTravel: t.details?.date_of_travel || t.details?.dateOfTravel || 'N/A',
-  purpose: t.details?.purpose_of_travel || t.details?.purposeOfTravel || t.details?.purpose || 'N/A',
   attachments: t.attachments || [],
   declineReason: t.decline_reason || '',
   currentStep: (() => {
@@ -1622,9 +1613,9 @@ const filteredTickets = computed(() => {
   const query = debouncedSearchQuery.value.trim().toLowerCase();
   return tickets.value.filter(ticket => {
     const matchesSearch = !query
-      || ticket.ticketId.toLowerCase().includes(query)
-      || ticket.service.toLowerCase().includes(query)
-      || ticket.unit.toLowerCase().includes(query);
+      || (ticket.ticketId || '').toLowerCase().includes(query)
+      || (ticket.service || '').toLowerCase().includes(query)
+      || (ticket.unit || '').toLowerCase().includes(query);
     const matchesStatus = statusFilter.value === 'all'
       ? true
       : statusFilter.value === 'completed'

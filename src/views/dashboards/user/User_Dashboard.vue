@@ -366,7 +366,7 @@ const fetchDashboardData = async () => {
         service: t.service_type,
         status: t.status,
         statusLabel: t.status_label,
-        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        date: new Date(t.submitted_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         submitted_at: t.submitted_at,
         completed_at: t.completed_at || t.updated_at,
         unit: t.unit_code
@@ -380,7 +380,7 @@ const fetchDashboardData = async () => {
         service: t.service_type,
         status: t.status,
         statusLabel: t.status_label,
-        date: new Date(t.completed_at || t.updated_at || t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        date: new Date(t.completed_at || t.updated_at || t.submitted_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         submitted_at: t.submitted_at,
         completed_at: t.completed_at || t.updated_at,
         unit: t.unit_code

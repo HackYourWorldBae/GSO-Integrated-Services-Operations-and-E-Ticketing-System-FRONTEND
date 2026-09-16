@@ -70,10 +70,12 @@ const selectedList = computed(() => {
   return Object.entries(selectedServicesRaw.value)
     .filter(([_, isSelected]) => isSelected)
     .map(([key, _]) => {
-      const parts = key.split('-');
+      const idx = key.indexOf('-');
+      const category = idx !== -1 ? key.substring(0, idx) : key;
+      const service = idx !== -1 ? key.substring(idx + 1) : '';
       return { 
-        category: parts[0], 
-        service: parts[1],
+        category, 
+        service,
         description: customDescriptions.value[key] || ''
       };
     });
@@ -95,7 +97,7 @@ const otherServices = computed(() => selectedList.value.filter(s =>
 const hasFGMU = computed(() => fgmuServices.value.length > 0);
 const hasLEAU = computed(() => leauServices.value.length > 0);
 const hasSSU = computed(() => ssuServices.value.length > 0);
-const hasIncidentReport = computed(() => ssuServices.value.some(s => s.service === 'Incident Report'));
+const hasIncidentReport = computed(() => ssuServices.value.length > 0);
 const hasOthers = computed(() => otherServices.value.length > 0);
 
 // File handlers have been moved to individual form components
