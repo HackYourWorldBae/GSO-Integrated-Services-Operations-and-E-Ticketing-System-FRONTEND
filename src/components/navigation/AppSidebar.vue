@@ -109,10 +109,16 @@ const rawNavGroups = computed(() => {
             permission: 'users.provision'
           },
           {
-            label: 'Audit Trail',
+            label: 'Business Audit Trail',
             to: '/superadmin/logs',
             exact: true,
             icon: 'archive'
+          },
+          {
+            label: 'Account Activity Audit',
+            to: '/superadmin/account-logs',
+            exact: true,
+            icon: 'shield'
           },
           {
             label: 'Account Settings',

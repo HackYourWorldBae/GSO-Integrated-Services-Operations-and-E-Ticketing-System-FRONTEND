@@ -15,6 +15,30 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in relative pb-12">
 
+        <!-- Top Dual-Audit Navigation Tabs -->
+        <div class="flex items-center gap-2 p-1.5 bg-slate-200/80 rounded-2xl w-fit max-w-full overflow-x-auto border border-slate-200">
+          <button
+            type="button"
+            class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black bg-white text-purple-900 shadow-sm border border-slate-200/80 min-h-[44px] flex items-center gap-2 whitespace-nowrap cursor-pointer touch-manipulation"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <span>Business Process Trail</span>
+            <span class="w-2 h-2 rounded-full bg-purple-600"></span>
+          </button>
+
+          <router-link
+            to="/superadmin/account-logs"
+            class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900 hover:bg-white/60 min-h-[44px] flex items-center gap-2 whitespace-nowrap cursor-pointer touch-manipulation"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span>Account Activities Trail</span>
+          </router-link>
+        </div>
+
         <!-- Controls & Search Bar -->
         <div class="bg-white rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
           <!-- Search input -->

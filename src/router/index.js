@@ -48,6 +48,7 @@ const Superadmin_Dashboard = () => import('../views/dashboards/superadmin/Supera
 const Superadmin_Users = () => import('../views/dashboards/superadmin/Superadmin_Users.vue');
 const Superadmin_VerificationQueue = () => import('../views/dashboards/superadmin/Superadmin_VerificationQueue.vue');
 const Superadmin_AuditLogs = () => import('../views/dashboards/superadmin/Superadmin_AuditLogs.vue');
+const Superadmin_AccountLogs = () => import('../views/dashboards/superadmin/Superadmin_AccountLogs.vue');
 const Superadmin_Settings = () => import('../views/dashboards/superadmin/Superadmin_Settings.vue');
 const Director_Settings = () => import('../views/dashboards/director/Director_Settings.vue');
 const Admin_Settings = () => import('../views/dashboards/admin/Admin_Settings.vue');
@@ -324,6 +325,12 @@ const router = createRouter({
       path: '/superadmin/logs',
       name: 'superadmin-logs',
       component: Superadmin_AuditLogs,
+      meta: { requiresAuth: true, roles: ['superadmin'] }
+    },
+    {
+      path: '/superadmin/account-logs',
+      name: 'superadmin-account-logs',
+      component: Superadmin_AccountLogs,
       meta: { requiresAuth: true, roles: ['superadmin'] }
     },
     {
