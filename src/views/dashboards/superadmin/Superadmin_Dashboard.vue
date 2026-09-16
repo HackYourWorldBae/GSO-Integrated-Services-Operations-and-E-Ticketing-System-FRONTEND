@@ -130,21 +130,12 @@
               </router-link>
               <router-link
                 to="/superadmin/logs"
-                class="w-full sm:w-auto px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all border border-white/20 backdrop-blur-sm flex items-center justify-center gap-2 active:scale-95 min-h-[44px] touch-manipulation"
+                class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all border border-white/20 backdrop-blur-sm flex items-center justify-center gap-2 active:scale-95 min-h-[44px] touch-manipulation"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>Process Audit</span>
-              </router-link>
-              <router-link
-                to="/superadmin/account-logs"
-                class="w-full sm:w-auto px-4 py-3 rounded-2xl bg-purple-900/40 hover:bg-purple-900/60 text-purple-200 font-black text-xs sm:text-sm uppercase tracking-wider transition-all border border-purple-500/30 backdrop-blur-sm flex items-center justify-center gap-2 active:scale-95 min-h-[44px] touch-manipulation"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <span>Account Audit</span>
+                <span>Audit Logs</span>
               </router-link>
             </div>
           </div>
@@ -291,17 +282,10 @@
               <h4 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Recent System Activity</h4>
               <p class="text-xs sm:text-sm text-slate-600 font-medium">Real-time audit log of operational and security events</p>
             </div>
-            <div class="flex items-center gap-3 self-start sm:self-auto flex-wrap">
-              <router-link to="/superadmin/logs" class="text-xs sm:text-sm font-black text-purple-600 hover:text-purple-700 uppercase tracking-wider inline-flex items-center gap-1 py-1">
-                <span>Process Trail</span>
-                <span>→</span>
-              </router-link>
-              <span class="text-slate-300">|</span>
-              <router-link to="/superadmin/account-logs" class="text-xs sm:text-sm font-black text-emerald-700 hover:text-emerald-800 uppercase tracking-wider inline-flex items-center gap-1 py-1">
-                <span>Account Audit</span>
-                <span>→</span>
-              </router-link>
-            </div>
+            <router-link to="/superadmin/logs" class="text-xs sm:text-sm font-black text-purple-600 hover:text-purple-700 uppercase tracking-wider inline-flex items-center gap-1 self-start sm:self-auto py-1">
+              <span>Explore All Logs</span>
+              <span>→</span>
+            </router-link>
           </div>
 
           <!-- Desktop Table (md and up) -->
