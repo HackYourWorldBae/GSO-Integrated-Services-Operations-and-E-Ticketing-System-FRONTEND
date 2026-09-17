@@ -114,6 +114,9 @@
                   <p v-if="user.organization_name" class="text-[11px] font-semibold text-purple-700 truncate mt-0.5">
                     🏛️ {{ user.organization_name }}
                   </p>
+                  <p v-if="user.college" class="text-[11px] font-medium text-slate-600 truncate mt-0.5">
+                    🎓 {{ user.college }}
+                  </p>
                   <p class="text-[11px] text-slate-500 truncate">
                     {{ user.email || 'No email provided' }}
                   </p>
@@ -252,14 +255,18 @@
               </div>
 
               <!-- Student Organization Details -->
-              <div v-if="inspectingUser.role === 'student'" class="col-span-2 sm:col-span-4 p-3 rounded-xl bg-purple-50/80 border border-purple-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div v-if="inspectingUser.role === 'student'" class="col-span-2 sm:col-span-4 p-3.5 rounded-xl bg-purple-50/80 border border-purple-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">Student Affiliation</p>
-                  <p class="font-bold text-slate-900 mt-0.5">{{ getStudentAffiliationFullLabel(inspectingUser.student_type) }}</p>
+                  <p class="font-bold text-slate-900 mt-0.5 text-xs sm:text-sm">{{ getStudentAffiliationFullLabel(inspectingUser.student_type) }}</p>
                 </div>
-                <div v-if="inspectingUser.organization_name" class="sm:text-right">
+                <div v-if="inspectingUser.organization_name">
                   <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">{{ (inspectingUser.student_type || '').toLowerCase().trim() === 'ssg' ? 'Officer Position / Committee' : 'Organization / Club' }}</p>
-                  <p class="font-bold text-purple-900 mt-0.5">{{ inspectingUser.organization_name }}</p>
+                  <p class="font-bold text-purple-900 mt-0.5 text-xs sm:text-sm">{{ inspectingUser.organization_name }}</p>
+                </div>
+                <div v-if="inspectingUser.college">
+                  <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">College / Academic Unit</p>
+                  <p class="font-bold text-purple-900 mt-0.5 text-xs sm:text-sm">{{ inspectingUser.college }}</p>
                 </div>
               </div>
             </div>

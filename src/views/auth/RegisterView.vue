@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { register as apiRegister } from '@/api/auth';
+import { BSU_COLLEGES } from '@/constants/colleges';
 
 const router = useRouter();
 
@@ -12,6 +13,7 @@ const form = ref({
   role: 'student', // 'student' or 'employee'
   student_type: 'rso', // 'rso' or 'ssg'
   organization_name: '',
+  college: '',
   student_id_number: '',
   contact_number: '',
   email: '',
@@ -67,8 +69,20 @@ const handleRoleSelect = (selectedRole) => {
   if (form.value.role === selectedRole) return;
   form.value.role = selectedRole;
   form.value.student_id_number = '';
+  if (selectedRole !== 'student') {
+    form.value.college = '';
+    if (fieldErrors.value.college) {
+      delete fieldErrors.value.college;
+    }
+  }
   if (fieldErrors.value.student_id_number) {
     delete fieldErrors.value.student_id_number;
+  }
+};
+
+const handleCollegeChange = () => {
+  if (fieldErrors.value.college) {
+    delete fieldErrors.value.college;
   }
 };
 
@@ -283,6 +297,9 @@ const validateClient = () => {
     } else if (org.length < 2) {
       fieldErrors.value.organization_name = 'Organization/Position must be at least 2 characters long.';
     }
+    if (!form.value.college) {
+      fieldErrors.value.college = 'Please select your College / Academic Unit.';
+    }
   }
 
   // 4. Contact Number (Strict 11 digits starting with 09)
@@ -348,6 +365,7 @@ const handleRegister = async () => {
     if (form.value.role === 'student') {
       formData.append('student_type', (form.value.student_type || 'rso').toLowerCase().trim());
       formData.append('organization_name', form.value.organization_name.trim());
+      formData.append('college', form.value.college);
     }
     formData.append('student_id_number', form.value.student_id_number.trim());
     formData.append('contact_number', form.value.contact_number.trim());
@@ -598,6 +616,43 @@ const handleRegister = async () => {
             <p v-if="fieldErrors.organization_name" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
               {{ fieldErrors.organization_name }}
+            </p>
+          </div>
+
+          <!-- College / Academic Unit Selection (BSU Main Campus) -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5 ml-0.5">
+              <label class="block text-slate-700 text-xs font-bold">
+                College / Academic Unit <span class="text-rose-500">*</span>
+              </label>
+              <span class="text-[11px] text-slate-400 font-medium">BSU La Trinidad</span>
+            </div>
+            <div class="relative">
+              <select
+                v-model="form.college"
+                @change="handleCollegeChange"
+                required
+                :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20 text-rose-900' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white text-slate-900'"
+                class="w-full px-4 py-3 pr-10 rounded-xl border text-base sm:text-sm font-medium focus:outline-none transition-all min-h-[48px] appearance-none cursor-pointer"
+              >
+                <option value="" disabled>Select your college or academic unit...</option>
+                <option 
+                  v-for="c in BSU_COLLEGES" 
+                  :key="c.code" 
+                  :value="c.name"
+                >
+                  {{ c.name }}
+                </option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+              {{ fieldErrors.college }}
             </p>
           </div>
         </div>

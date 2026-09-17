@@ -129,8 +129,12 @@
                 <p class="text-sm font-bold text-slate-900">
                   {{ authStore.user?.organization_name || 'Accredited Representative' }}
                 </p>
+                <p v-if="authStore.user?.college" class="text-xs font-semibold text-purple-700 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                  <span>{{ authStore.user.college }}</span>
+                </p>
                 <p class="text-[11px] text-slate-500 font-medium">
-                  Your student representative account is authorized to request: Borrowing of Tools/Equipment, Borrowing of Plants, Hauling, Stage & Hall Decoration, and Incident Reports.
+                  Your student representative account is authorized to request: Borrowing of Tools/Equipment, Borrowing of Plants, Hauling, Stage &amp; Hall Decoration, and Incident Reports.
                 </p>
               </div>
 

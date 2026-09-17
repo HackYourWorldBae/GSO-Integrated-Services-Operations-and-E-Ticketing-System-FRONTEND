@@ -252,7 +252,7 @@ const unitCode = computed(() => {
 
 const unitFullName = computed(() => {
   switch (unitCode.value) {
-    case 'LEAU': return 'Landscaping & Environmental Amenities Unit';
+    case 'LEAU': return 'Landscaping & Environmental Aesthetics Unit';
     case 'SSU': return 'Special Services Unit';
     default: return 'Facilities & Grounds Maintenance Unit';
   }

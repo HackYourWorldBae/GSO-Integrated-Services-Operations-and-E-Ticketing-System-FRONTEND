@@ -51,6 +51,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const studentType = computed(() => (user.value?.student_type || '').toLowerCase().trim());
   const organizationName = computed(() => user.value?.organization_name || '');
+  const college = computed(() => user.value?.college || '');
 
   const unitId = computed(() => user.value?.unit_id ?? null);
   const isDeactivated = computed(() => user.value?.status === 'Deactivated');
@@ -374,6 +375,7 @@ export const useAuthStore = defineStore('auth', () => {
     capitalizedRole,
     studentType,
     organizationName,
+    college,
     unitId,
     isDeactivated,
     hasPermission,

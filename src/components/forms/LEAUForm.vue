@@ -68,7 +68,7 @@ const removeFile = (idx) => {
 
     <div class="p-4 sm:p-10 space-y-6 sm:space-y-12">
       <div class="bg-amber-50/50 p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-amber-100/60">
-        <h4 class="text-xs font-black text-amber-800 uppercase tracking-wider mb-3">Service(s) chosen will be handled by Landscape & Environment Aesthetics Unit</h4>
+        <h4 class="text-xs font-black text-amber-800 uppercase tracking-wider mb-3">Service(s) chosen will be handled by Landscaping &amp; Environmental Aesthetics Unit</h4>
         <div class="flex flex-wrap gap-2">
           <div v-for="s in services" :key="s.service" class="px-3.5 py-2 bg-white border border-amber-200/80 rounded-xl text-xs font-bold text-amber-800 shadow-xs flex items-center gap-2">
             <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>

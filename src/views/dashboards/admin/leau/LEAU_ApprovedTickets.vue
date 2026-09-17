@@ -12,7 +12,7 @@
           </span>
         </div>
         <p class="text-[10px] text-amber-600 font-extrabold tracking-[0.2em] uppercase mt-1">
-          Landscaping &amp; Environmental Affairs Unit
+          Landscaping &amp; Environmental Aesthetics Unit
         </p>
       </div>
     </template>
@@ -20,7 +20,7 @@
     <template #main-content>
       <ApprovedTicketsWorkspace
         unit-code="LEAU"
-        unit-title="Landscaping &amp; Environmental Affairs Unit"
+        unit-title="Landscaping &amp; Environmental Aesthetics Unit"
         assign-route="/admin/leau/assign-workers"
         :store="leauStore"
       />

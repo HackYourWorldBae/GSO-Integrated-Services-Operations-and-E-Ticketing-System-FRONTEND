@@ -12,7 +12,7 @@
           </span>
         </div>
         <p class="text-[10px] text-amber-700 font-extrabold tracking-[0.2em] uppercase mt-1">
-          Land &amp; Energy Amenities Unit
+          Landscaping &amp; Environmental Aesthetics Unit
         </p>
       </div>
     </template>
@@ -20,7 +20,7 @@
     <template #main-content>
       <ActiveTicketsWorkspace
         unit-code="LEAU"
-        unit-title="Land &amp; Energy Amenities Unit"
+        unit-title="Landscaping &amp; Environmental Aesthetics Unit"
       />
     </template>
   </MainLayout>

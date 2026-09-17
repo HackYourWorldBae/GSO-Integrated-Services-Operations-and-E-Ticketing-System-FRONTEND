@@ -10,7 +10,7 @@
     <template #main-content>
       <TicketDispatchWorkspace
         unit-code="LEAU"
-        unit-title="Landscaping &amp; Environmental Affairs Unit"
+        unit-title="Landscaping &amp; Environmental Aesthetics Unit"
         :store="leauStore"
       />
     </template>
