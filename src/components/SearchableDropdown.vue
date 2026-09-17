@@ -175,12 +175,12 @@ const itemHoverClass = computed(() => {
         @keydown.enter.prevent="handleEnter"
         :placeholder="placeholder"
         :disabled="disabled"
-        class="w-full h-14 px-6 pr-12 rounded-2xl bg-slate-50 border-2 focus:bg-white text-sm font-bold outline-none transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 pr-12 rounded-xl sm:rounded-2xl bg-slate-50 border-2 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
         :class="focusBorderClass"
       />
       <div 
         @click="toggleDropdown" 
-        class="absolute inset-y-0 right-2 w-10 flex items-center justify-center cursor-pointer text-slate-400 hover:text-slate-600 transition-colors"
+        class="absolute inset-y-0 right-1 w-11 flex items-center justify-center cursor-pointer text-slate-400 hover:text-slate-600 transition-colors"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-200" :class="isOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -191,21 +191,21 @@ const itemHoverClass = computed(() => {
     <!-- Dropdown Menu -->
     <div 
       v-if="isOpen && !disabled" 
-      class="absolute z-50 w-full mt-2 bg-white rounded-3xl shadow-2xl shadow-slate-200 border border-slate-100 overflow-hidden animate-fade-in"
+      class="absolute z-50 w-full mt-2 bg-white rounded-2xl sm:rounded-3xl shadow-2xl shadow-slate-200 border border-slate-100 overflow-hidden animate-fade-in"
     >
-      <div class="max-h-64 overflow-y-auto p-3 scrollbar-thin">
+      <div class="max-h-64 overflow-y-auto p-2 sm:p-3 scrollbar-thin">
         
         <!-- Grouped Options (e.g. Colleges, Admin, Auxiliary) -->
         <template v-if="isGrouped && filteredGroupedOptions.length > 0">
-          <div v-for="category in filteredGroupedOptions" :key="category.group" class="mb-3 last:mb-0">
-            <div class="px-4 py-2 text-[10px] font-black uppercase tracking-widest bg-slate-50 rounded-xl mb-1" :class="groupTextClass">
+          <div v-for="category in filteredGroupedOptions" :key="category.group" class="mb-2 sm:mb-3 last:mb-0">
+            <div class="px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest bg-slate-50 rounded-lg sm:rounded-xl mb-1" :class="groupTextClass">
               {{ category.group }}
             </div>
             <div 
               v-for="loc in category.items" 
               :key="loc"
               @click="selectOption(loc)"
-              class="px-4 py-3 text-sm font-bold text-slate-600 rounded-xl cursor-pointer transition-colors"
+              class="px-3.5 py-2.5 sm:py-3 min-h-[44px] flex items-center text-xs sm:text-sm font-bold text-slate-600 rounded-lg sm:rounded-xl cursor-pointer transition-colors active:bg-slate-100"
               :class="itemHoverClass"
             >
               {{ loc }}
@@ -219,7 +219,7 @@ const itemHoverClass = computed(() => {
             v-for="loc in filteredFlatOptions" 
             :key="loc"
             @click="selectOption(loc)"
-            class="px-4 py-3 text-sm font-bold text-slate-600 rounded-xl cursor-pointer transition-colors"
+            class="px-3.5 py-2.5 sm:py-3 min-h-[44px] flex items-center text-xs sm:text-sm font-bold text-slate-600 rounded-lg sm:rounded-xl cursor-pointer transition-colors active:bg-slate-100"
             :class="itemHoverClass"
           >
             {{ loc }}

@@ -426,26 +426,26 @@ const handleRegister = async () => {
     </router-link>
 
     <!-- Main Registration Card -->
-    <div class="relative z-10 w-full max-w-2xl my-8 p-6 sm:p-10 rounded-[2rem] border border-slate-200/80 bg-white/95 backdrop-blur-2xl shadow-2xl transition-all duration-300">
+    <div class="relative z-10 w-full max-w-2xl my-6 sm:my-8 p-5 sm:p-10 rounded-3xl sm:rounded-[2rem] border border-slate-200/80 bg-white/95 backdrop-blur-2xl shadow-2xl transition-all duration-300">
       
       <!-- Mobile In-Card University Branding (displayed inline in document flow so it never floats or disrupts filling up form) -->
       <router-link to="/" class="sm:hidden flex items-center gap-3 mb-5 p-2.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/70 hover:bg-emerald-100/60 transition-colors shadow-xs">
-        <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 bg-white shadow-xs border border-emerald-200/80">
+        <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-white shadow-xs border border-emerald-200/80">
           <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-cover" />
         </div>
         <div class="text-left min-w-0">
-          <h2 class="text-emerald-900 font-black tracking-wider text-[11px] uppercase leading-tight truncate">Benguet State University</h2>
+          <h2 class="text-emerald-900 font-extrabold tracking-wider text-[11px] uppercase leading-tight truncate">Benguet State University</h2>
           <p class="text-emerald-700 font-bold text-[10px] truncate">General Services Office</p>
         </div>
       </router-link>
 
       <!-- Card Header -->
       <div class="mb-6 text-left">
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-[11px] font-bold uppercase tracking-wider mb-2.5">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-[11px] font-bold uppercase tracking-wider mb-2">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           User Registration & Identity Verification
         </div>
-        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight mb-2">
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight mb-1.5">
           Create your <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">GSO Account</span>
         </h1>
         <p class="text-slate-500 text-xs sm:text-sm font-medium">
@@ -461,19 +461,19 @@ const handleRegister = async () => {
         <div>{{ errorMessage }}</div>
       </div>
 
-      <form @submit.prevent="handleRegister" class="space-y-5" novalidate>
+      <form @submit.prevent="handleRegister" class="space-y-4 sm:space-y-5" novalidate>
         
         <!-- Role Selector Toggle -->
         <div>
-          <label class="block text-slate-600 text-[11px] font-black uppercase tracking-wider mb-1.5">
+          <label class="block text-slate-700 text-xs font-bold mb-1.5 ml-0.5">
             Account Classification <span class="text-rose-500">*</span>
           </label>
-          <div class="grid grid-cols-2 gap-3 p-1.5 bg-slate-100 rounded-xl border border-slate-200">
+          <div class="grid grid-cols-2 gap-2.5 p-1.5 bg-slate-100 rounded-xl border border-slate-200">
             <button 
               type="button" 
               @click="handleRoleSelect('student')"
               :class="form.role === 'student' ? 'bg-white text-emerald-800 font-bold shadow-sm border border-emerald-200/50' : 'text-slate-600 hover:text-slate-900 font-medium'"
-              class="py-2.5 rounded-lg text-xs transition-all flex items-center justify-center gap-2"
+              class="min-h-[44px] py-2.5 rounded-lg text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
@@ -485,7 +485,7 @@ const handleRegister = async () => {
               type="button" 
               @click="handleRoleSelect('employee')"
               :class="form.role === 'employee' ? 'bg-white text-emerald-800 font-bold shadow-sm border border-emerald-200/50' : 'text-slate-600 hover:text-slate-900 font-medium'"
-              class="py-2.5 rounded-lg text-xs transition-all flex items-center justify-center gap-2"
+              class="min-h-[44px] py-2.5 rounded-lg text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -496,7 +496,7 @@ const handleRegister = async () => {
         </div>
 
         <!-- Student Organization Classification (RSO / SSG only) -->
-        <div v-if="form.role === 'student'" class="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 space-y-3.5 transition-all">
+        <div v-if="form.role === 'student'" class="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 space-y-3 transition-all">
           <div class="flex items-start gap-2.5">
             <div class="p-1.5 rounded-lg bg-emerald-600 text-white shrink-0 mt-0.5 shadow-sm">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -507,15 +507,15 @@ const handleRegister = async () => {
               <h3 class="text-xs font-bold text-emerald-950 leading-snug">
                 Authorized Student Representative Sign-Up
               </h3>
-              <p class="text-[11px] text-emerald-800 font-medium leading-relaxed mt-0.5">
-                Student accounts are strictly reserved for accredited officers of Recognized Student Organizations (RSO) and the Supreme Student Government (SSG) requesting services on behalf of student bodies.
+              <p class="text-xs text-emerald-800/90 font-medium leading-relaxed mt-0.5">
+                Student accounts are strictly reserved for accredited officers of Recognized Student Organizations (RSO) and Supreme Student Government (SSG).
               </p>
             </div>
           </div>
 
           <!-- RSO vs SSG Choice Cards -->
           <div>
-            <label class="block text-slate-700 text-[11px] font-black uppercase tracking-wider mb-1.5">
+            <label class="block text-slate-700 text-xs font-bold mb-1.5 ml-0.5">
               Select Student Affiliation <span class="text-rose-500">*</span>
             </label>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -523,8 +523,8 @@ const handleRegister = async () => {
               <button
                 type="button"
                 @click="handleStudentTypeSelect('rso')"
-                :class="form.student_type === 'rso' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/70 border-slate-200 hover:border-slate-300 text-slate-700'"
-                class="p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5"
+                :class="form.student_type === 'rso' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700'"
+                class="min-h-[56px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5 cursor-pointer"
               >
                 <div 
                   :class="form.student_type === 'rso' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
@@ -537,10 +537,10 @@ const handleRegister = async () => {
                 <div>
                   <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
                     RSO Representative
-                    <span v-if="form.student_type === 'rso'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-black uppercase">Selected</span>
+                    <span v-if="form.student_type === 'rso'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">Selected</span>
                   </div>
-                  <p class="text-[10.5px] text-slate-500 font-medium leading-tight mt-0.5">
-                    Recognized Student Organization (Academic clubs, student councils)
+                  <p class="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                    Recognized Student Organization (Clubs, councils)
                   </p>
                 </div>
               </button>
@@ -549,8 +549,8 @@ const handleRegister = async () => {
               <button
                 type="button"
                 @click="handleStudentTypeSelect('ssg')"
-                :class="form.student_type === 'ssg' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/70 border-slate-200 hover:border-slate-300 text-slate-700'"
-                class="p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5"
+                :class="form.student_type === 'ssg' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700'"
+                class="min-h-[56px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5 cursor-pointer"
               >
                 <div 
                   :class="form.student_type === 'ssg' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
@@ -563,15 +563,15 @@ const handleRegister = async () => {
                 <div>
                   <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
                     SSG Representative
-                    <span v-if="form.student_type === 'ssg'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-black uppercase">Selected</span>
+                    <span v-if="form.student_type === 'ssg'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">Selected</span>
                   </div>
-                  <p class="text-[10.5px] text-slate-500 font-medium leading-tight mt-0.5">
-                    Supreme Student Government (Officers, Senators, Committees)
+                  <p class="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                    Supreme Student Government (Officers, Committees)
                   </p>
                 </div>
               </button>
             </div>
-            <p v-if="fieldErrors.student_type" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+            <p v-if="fieldErrors.student_type" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
               {{ fieldErrors.student_type }}
             </p>
@@ -579,11 +579,10 @@ const handleRegister = async () => {
 
           <!-- Dynamic Name/Role Input based on RSO vs SSG -->
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="block text-slate-700 text-[11px] font-black uppercase tracking-wider">
+            <div class="flex items-center justify-between mb-1.5 ml-0.5">
+              <label class="block text-slate-700 text-xs font-bold">
                 {{ form.student_type === 'rso' ? 'Recognized Student Organization (RSO) Name' : 'SSG Committee / Officer Position' }} <span class="text-rose-500">*</span>
               </label>
-              <span class="text-[10px] text-slate-400 font-medium">Official name / role</span>
             </div>
             <input
               v-model="form.organization_name"
@@ -593,24 +592,24 @@ const handleRegister = async () => {
               required
               @input="handleOrganizationNameInput"
               :class="fieldErrors.organization_name ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white'"
-              class="w-full px-4 py-2.5 rounded-xl border text-slate-900 text-xs sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all"
+              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
               :placeholder="form.student_type === 'rso' ? 'e.g. Computer Society (CS), Junior Marketing Association' : 'e.g. Committee on Logistics, Senator, Executive Board'"
             />
-            <p v-if="fieldErrors.organization_name" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+            <p v-if="fieldErrors.organization_name" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
               {{ fieldErrors.organization_name }}
             </p>
           </div>
         </div>
 
-        <!-- Name Fields (Two Columns) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Name Fields (Two Columns on sm+, stacked on mobile) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="block text-slate-600 text-[11px] font-black uppercase tracking-wider">
+            <div class="flex items-center justify-between mb-1.5 ml-0.5">
+              <label class="block text-slate-700 text-xs font-bold">
                 First Name <span class="text-rose-500">*</span>
               </label>
-              <span class="text-[10px] text-slate-400 font-medium">Letters only</span>
+              <span class="text-[11px] text-slate-400 font-medium">Letters only</span>
             </div>
             <input 
               v-model="form.first_name"
@@ -622,21 +621,21 @@ const handleRegister = async () => {
               @input="handleFirstNameInput"
               @blur="handleFirstNameBlur"
               :class="fieldErrors.first_name ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-              class="w-full px-4 py-2.5 rounded-xl border text-slate-900 text-xs sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all"
+              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
               placeholder="e.g. Juan"
             />
-            <p v-if="fieldErrors.first_name" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+            <p v-if="fieldErrors.first_name" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
               {{ fieldErrors.first_name }}
             </p>
           </div>
 
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="block text-slate-600 text-[11px] font-black uppercase tracking-wider">
+            <div class="flex items-center justify-between mb-1.5 ml-0.5">
+              <label class="block text-slate-700 text-xs font-bold">
                 Last Name <span class="text-rose-500">*</span>
               </label>
-              <span class="text-[10px] text-slate-400 font-medium">Letters only</span>
+              <span class="text-[11px] text-slate-400 font-medium">Letters only</span>
             </div>
             <input 
               v-model="form.last_name"
@@ -648,10 +647,10 @@ const handleRegister = async () => {
               @input="handleLastNameInput"
               @blur="handleLastNameBlur"
               :class="fieldErrors.last_name ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-              class="w-full px-4 py-2.5 rounded-xl border text-slate-900 text-xs sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all"
+              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
               placeholder="e.g. Dela Cruz"
             />
-            <p v-if="fieldErrors.last_name" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+            <p v-if="fieldErrors.last_name" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
               {{ fieldErrors.last_name }}
             </p>
@@ -659,22 +658,22 @@ const handleRegister = async () => {
         </div>
 
         <!-- Identifier & Contact Fields -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
           
           <!-- ID Number (Strict 7 digits for students) -->
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="block text-slate-600 text-[11px] font-black uppercase tracking-wider">
+            <div class="flex items-center justify-between mb-1.5 ml-0.5">
+              <label class="block text-slate-700 text-xs font-bold">
                 {{ form.role === 'student' ? 'Student ID Number' : 'Employee ID Number' }} <span class="text-rose-500">*</span>
               </label>
               <span 
                 v-if="form.role === 'student'" 
-                :class="form.student_id_number.length === 7 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : 'text-slate-500 bg-slate-100 border-slate-200'"
+                :class="form.student_id_number.length === 7 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-slate-500 bg-slate-100 border-slate-200'"
                 class="text-[10px] font-bold px-1.5 py-0.5 rounded border transition-colors"
               >
                 {{ form.student_id_number.length }}/7 digits
               </span>
-              <span v-else class="text-[10px] text-slate-400 font-medium">
+              <span v-else class="text-[11px] text-slate-400 font-medium">
                 Alphanumeric
               </span>
             </div>
@@ -686,26 +685,26 @@ const handleRegister = async () => {
               required
               @input="handleStudentIdInput"
               :class="fieldErrors.student_id_number ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-              class="w-full px-4 py-2.5 rounded-xl border text-slate-900 text-xs sm:text-sm font-semibold tracking-wider placeholder-slate-400 focus:outline-none transition-all"
+              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-semibold tracking-wider placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
               :placeholder="form.role === 'student' ? 'e.g. 2301219' : 'e.g. EMP-9876'"
             />
-            <p v-if="fieldErrors.student_id_number" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+            <p v-if="fieldErrors.student_id_number" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
               {{ fieldErrors.student_id_number }}
             </p>
-            <p v-else class="mt-1 text-[10px] text-slate-400">
+            <p v-else class="mt-1 text-[11px] text-slate-400">
               {{ form.role === 'student' ? 'Strict 7-digit institutional student ID (numbers only).' : 'Institutional employee or faculty ID code.' }}
             </p>
           </div>
 
           <!-- Contact Number (Strict 11 digits starting with 09) -->
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="block text-slate-600 text-[11px] font-black uppercase tracking-wider">
+            <div class="flex items-center justify-between mb-1.5 ml-0.5">
+              <label class="block text-slate-700 text-xs font-bold">
                 Contact Number <span class="text-rose-500">*</span>
               </label>
               <span 
-                :class="form.contact_number.length === 11 && form.contact_number.startsWith('09') ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : 'text-slate-500 bg-slate-100 border-slate-200'"
+                :class="form.contact_number.length === 11 && form.contact_number.startsWith('09') ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-slate-500 bg-slate-100 border-slate-200'"
                 class="text-[10px] font-bold px-1.5 py-0.5 rounded border transition-colors"
               >
                 {{ form.contact_number.length }}/11 digits
@@ -720,14 +719,14 @@ const handleRegister = async () => {
               required
               @input="handleContactNumberInput"
               :class="fieldErrors.contact_number ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-              class="w-full px-4 py-2.5 rounded-xl border text-slate-900 text-xs sm:text-sm font-semibold tracking-wider placeholder-slate-400 focus:outline-none transition-all"
+              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-semibold tracking-wider placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
               placeholder="e.g. 09171234567"
             />
-            <p v-if="fieldErrors.contact_number" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+            <p v-if="fieldErrors.contact_number" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
               {{ fieldErrors.contact_number }}
             </p>
-            <p v-else class="mt-1 text-[10px] text-slate-400">
+            <p v-else class="mt-1 text-[11px] text-slate-400">
               Philippine mobile number starting with 09 (numbers only).
             </p>
           </div>
@@ -735,8 +734,8 @@ const handleRegister = async () => {
 
         <!-- Email Address (Optional) -->
         <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block text-slate-600 text-[11px] font-black uppercase tracking-wider">
+          <div class="flex items-center justify-between mb-1.5 ml-0.5">
+            <label class="block text-slate-700 text-xs font-bold">
               Email Address
             </label>
             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
@@ -751,10 +750,10 @@ const handleRegister = async () => {
             maxlength="100"
             @blur="handleEmailBlur"
             :class="fieldErrors.email ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-            class="w-full px-4 py-2.5 rounded-xl border text-slate-900 text-xs sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all"
+            class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
             placeholder="e.g. juan.delacruz@bsu.edu.ph"
           />
-          <p v-if="fieldErrors.email" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+          <p v-if="fieldErrors.email" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
             <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
             {{ fieldErrors.email }}
           </p>
@@ -764,18 +763,18 @@ const handleRegister = async () => {
         </div>
 
         <!-- Password Fields -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
           
           <!-- Password Input -->
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="block text-slate-600 text-[11px] font-black uppercase tracking-wider">
+            <div class="flex items-center justify-between mb-1.5 ml-0.5">
+              <label class="block text-slate-700 text-xs font-bold">
                 Password <span class="text-rose-500">*</span>
               </label>
               <button 
                 type="button" 
                 @click="showPassword = !showPassword"
-                class="text-[10px] font-bold uppercase text-slate-400 hover:text-emerald-700 transition-colors flex items-center gap-1"
+                class="text-xs font-bold text-slate-500 hover:text-emerald-700 transition-colors p-1 -m-1 cursor-pointer"
               >
                 <span>{{ showPassword ? 'Hide' : 'Show' }}</span>
               </button>
@@ -788,11 +787,11 @@ const handleRegister = async () => {
                 maxlength="64"
                 required
                 :class="fieldErrors.password ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-                class="w-full px-4 py-2.5 rounded-xl border text-slate-900 text-xs sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all"
+                class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
                 placeholder="Minimum 8 characters"
               />
             </div>
-            <p v-if="fieldErrors.password" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+            <p v-if="fieldErrors.password" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
               {{ fieldErrors.password }}
             </p>
@@ -800,14 +799,14 @@ const handleRegister = async () => {
 
           <!-- Confirm Password Input -->
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="block text-slate-600 text-[11px] font-black uppercase tracking-wider">
+            <div class="flex items-center justify-between mb-1.5 ml-0.5">
+              <label class="block text-slate-700 text-xs font-bold">
                 Confirm Password <span class="text-rose-500">*</span>
               </label>
               <button 
                 type="button" 
                 @click="showConfirmPassword = !showConfirmPassword"
-                class="text-[10px] font-bold uppercase text-slate-400 hover:text-emerald-700 transition-colors flex items-center gap-1"
+                class="text-xs font-bold text-slate-500 hover:text-emerald-700 transition-colors p-1 -m-1 cursor-pointer"
               >
                 <span>{{ showConfirmPassword ? 'Hide' : 'Show' }}</span>
               </button>
@@ -820,23 +819,23 @@ const handleRegister = async () => {
                 maxlength="64"
                 required
                 :class="fieldErrors.password_confirm ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : (isPasswordMatch ? 'border-emerald-300 ring-1 ring-emerald-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white')"
-                class="w-full px-4 py-2.5 rounded-xl border text-slate-900 text-xs sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all"
+                class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
                 placeholder="Re-enter password"
               />
             </div>
             
             <!-- Real-time match indicator -->
             <div v-if="isConfirmPasswordTouched" class="mt-1">
-              <p v-if="isPasswordMatch" class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+              <p v-if="isPasswordMatch" class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                 Passwords match
               </p>
-              <p v-else class="text-[11px] text-rose-500 font-medium flex items-center gap-1">
+              <p v-else class="text-xs text-rose-500 font-medium flex items-center gap-1">
                 <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                 Passwords do not match
               </p>
             </div>
-            <p v-else-if="fieldErrors.password_confirm" class="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+            <p v-else-if="fieldErrors.password_confirm" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
               {{ fieldErrors.password_confirm }}
             </p>
@@ -846,13 +845,13 @@ const handleRegister = async () => {
         <!-- Elder-Friendly Password Requirements Card (No special characters required) -->
         <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
               <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
               Password Checklist
             </span>
-            <span class="text-[10px] text-slate-500 font-medium">Simple & Easy to Remember</span>
+            <span class="text-[11px] text-slate-500 font-medium">Simple & Easy</span>
           </div>
 
           <!-- Progress Bar Indicator -->
@@ -871,7 +870,7 @@ const handleRegister = async () => {
             ></div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
             <div 
               :class="passwordCriteria.hasLength ? 'text-emerald-700 font-semibold' : 'text-slate-500'" 
               class="flex items-center gap-1.5 transition-colors"
@@ -899,21 +898,18 @@ const handleRegister = async () => {
               Contains numbers (0-9)
             </div>
           </div>
-          <p class="mt-2 text-[10px] text-slate-400 italic">
-            Note: Special symbols (like @, #, $) are optional so elderly and non-technical users can log in easily.
-          </p>
         </div>
 
         <!-- Mandatory ID Card Upload Section -->
         <div class="pt-2 border-t border-slate-200/80">
-          <div class="flex items-center justify-between mb-1.5">
-            <label class="block text-slate-700 text-xs font-black uppercase tracking-wider">
+          <div class="flex items-center justify-between mb-1.5 ml-0.5">
+            <label class="block text-slate-700 text-xs font-bold">
               Identity Verification: {{ form.role === 'student' ? 'Student ID Card' : 'Employee ID Card' }} Photo <span class="text-rose-500">*</span>
             </label>
-            <span class="text-[10px] text-slate-500 font-medium">Max 5MB (JPG, PNG, WebP)</span>
+            <span class="text-[11px] text-slate-500 font-medium">Max 5MB</span>
           </div>
-          <p class="text-xs text-slate-500 mb-3">
-            Please provide a clear, readable snapshot or scan of your institutional ID card. The Super Administrator will inspect this photo to verify your identity.
+          <p class="text-xs text-slate-500 mb-3 ml-0.5">
+            Please provide a clear snapshot or scan of your institutional ID card for Super Administrator verification.
           </p>
 
           <!-- Single Hidden File Input -->
@@ -925,66 +921,67 @@ const handleRegister = async () => {
             @change="handleFileSelect"
           />
 
-          <!-- Drag and Drop Box -->
+          <!-- Mobile-Friendly Upload Tap Box -->
           <div 
             v-if="!idCardPreview"
             @dragover.prevent 
             @drop="handleDrop"
             @click="$refs.fileInputRef?.click()"
-            class="border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/70 hover:bg-emerald-50/20 rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 group"
+            class="min-h-[110px] border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/80 hover:bg-emerald-50/30 rounded-2xl p-5 text-center cursor-pointer transition-all duration-200 group active:scale-[0.99]"
           >
-            <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <div class="w-11 h-11 bg-white rounded-full shadow-xs flex items-center justify-center mx-auto mb-2.5 group-hover:scale-105 transition-transform border border-slate-100">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
             <p class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-emerald-700">
-              Click to upload or drag & drop your ID picture
+              Tap to take photo or choose from library
             </p>
             <p class="text-[11px] text-slate-500 mt-1">
-              Make sure details, photo, and ID number are clearly visible
+              Supports JPG, PNG, WebP up to 5MB
             </p>
           </div>
 
           <!-- Preview Card -->
-          <div v-else class="relative rounded-2xl border border-slate-200 bg-slate-50 p-4 flex flex-col sm:flex-row items-center gap-4">
-            <div class="w-32 h-24 sm:w-40 sm:h-28 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 flex-shrink-0 shadow-sm relative group">
+          <div v-else class="relative rounded-2xl border border-slate-200 bg-slate-50 p-3.5 sm:p-4 flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4">
+            <div class="w-28 h-20 sm:w-36 sm:h-24 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 flex-shrink-0 shadow-sm relative">
               <img :src="idCardPreview" alt="ID Preview" class="w-full h-full object-cover" />
             </div>
-            <div class="flex-1 text-left">
+            <div class="flex-1 text-left w-full sm:w-auto">
               <div class="flex items-center gap-2 mb-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                 <p class="text-xs font-bold text-slate-800 truncate max-w-[200px] sm:max-w-xs">{{ idCardFile?.name }}</p>
               </div>
-              <p class="text-[11px] text-slate-500 mb-3">
+              <p class="text-[11px] text-slate-500 mb-2.5">
                 Size: {{ (idCardFile?.size / (1024 * 1024)).toFixed(2) }} MB • Ready for submission
               </p>
               <div class="flex items-center gap-2">
                 <button 
                   type="button" 
                   @click="$refs.fileInputRef?.click()" 
-                  class="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-white border border-slate-200 hover:border-emerald-300 px-3 py-1.5 rounded-lg shadow-sm transition-all"
+                  class="min-h-[38px] text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-white border border-slate-200 hover:border-emerald-300 px-3.5 py-1.5 rounded-lg shadow-2xs transition-all cursor-pointer"
                 >
-                  Change Picture
+                  Change Photo
                 </button>
                 <button 
                   type="button" 
                   @click="removeSelectedFile" 
-                  class="text-xs font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 hover:border-rose-300 px-3 py-1.5 rounded-lg shadow-sm transition-all"
+                  class="min-h-[38px] text-xs font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 hover:border-rose-300 px-3.5 py-1.5 rounded-lg shadow-2xs transition-all cursor-pointer"
                 >
                   Remove
                 </button>
               </div>
             </div>
           </div>
-          <p v-if="fieldErrors.id_card" class="mt-1.5 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+          <p v-if="fieldErrors.id_card" class="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
             <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
             {{ fieldErrors.id_card }}
           </p>
         </div>
 
         <!-- Informative Card Notice -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 leading-relaxed flex items-start gap-2.5">
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 leading-relaxed flex items-start gap-2.5">
           <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
@@ -998,7 +995,7 @@ const handleRegister = async () => {
         <button 
           :disabled="isLoading"
           type="submit"
-          class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full min-h-[48px] py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <span v-if="!isLoading">Complete Registration & Verify ID</span>
           <span v-else>Submitting Verification...</span>

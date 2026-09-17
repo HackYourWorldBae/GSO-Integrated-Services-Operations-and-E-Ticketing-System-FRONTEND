@@ -486,45 +486,45 @@ const handleSubmit = () => {
     </nav>
 
     <!-- ─── MAIN CONTENT ─── -->
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 pt-8 sm:pt-12 pb-44">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 pt-6 sm:pt-12 pb-28 sm:pb-36">
 
       <!-- Page Header -->
-      <div class="mb-8 sm:mb-10">
-        <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest border border-emerald-200 mb-3">Service Request</span>
+      <div class="mb-6 sm:mb-10">
+        <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest border border-emerald-200 mb-2.5">Service Request</span>
         <h2 class="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
           What do you need <span class="text-emerald-600">help</span> with?
         </h2>
-        <p class="text-slate-500 mt-2 sm:mt-3 text-sm sm:text-base font-medium max-w-xl">
+        <p class="text-slate-500 mt-2 sm:mt-3 text-xs sm:text-base font-medium max-w-xl">
           Select the services you need below. You can pick multiple items across different categories.
         </p>
       </div>
 
       <!-- ─── INTAKE WIZARD PROGRESS STEPPER (2 STEPS) ─── -->
-      <div class="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-8 sm:mb-10 shadow-sm">
+      <div class="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 mb-6 sm:mb-10 shadow-sm">
         <div class="max-w-md mx-auto">
-          <div class="flex items-start justify-between">
+          <div class="flex items-center justify-between">
 
             <!-- Step 1: Current -->
-            <div class="flex flex-col items-center text-center w-28 sm:w-32 shrink-0">
-              <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-emerald-600/30 ring-4 ring-emerald-50">
+            <div class="flex flex-col items-center text-center w-24 sm:w-32 shrink-0">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-md shadow-emerald-600/30 ring-4 ring-emerald-50">
                 1
               </div>
-              <span class="text-xs font-black text-slate-900 mt-2">Select Services</span>
-              <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 1</span>
+              <span class="text-[11px] sm:text-xs font-black text-slate-900 mt-1.5 sm:mt-2">Select Services</span>
+              <span class="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 1</span>
             </div>
 
-            <!-- Connector line between steps (never overlaps) -->
-            <div class="flex-1 flex items-center mt-5 -translate-y-1/2 px-2 sm:px-4">
+            <!-- Connector line between steps -->
+            <div class="flex-1 flex items-center px-2 sm:px-4">
               <div class="w-full h-0.5 bg-slate-200 rounded-full"></div>
             </div>
 
             <!-- Step 2: Next -->
-            <div class="flex flex-col items-center text-center w-28 sm:w-32 shrink-0 opacity-60">
-              <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center font-bold text-sm">
+            <div class="flex flex-col items-center text-center w-24 sm:w-32 shrink-0 opacity-60">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center font-bold text-xs sm:text-sm">
                 2
               </div>
-              <span class="text-xs font-bold text-slate-600 mt-2">Fill Out Form</span>
-              <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider hidden sm:block">Step 2</span>
+              <span class="text-[11px] sm:text-xs font-bold text-slate-600 mt-1.5 sm:mt-2">Fill Out Form</span>
+              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium uppercase tracking-wider hidden sm:block">Step 2</span>
             </div>
 
           </div>
@@ -532,32 +532,32 @@ const handleSubmit = () => {
       </div>
 
       <!-- ─── STUDENT REPRESENTATIVE ACCESS NOTICE BANNER ─── -->
-      <div v-if="isStudentUser" class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-fade-in">
-        <div class="flex items-start sm:items-center gap-3.5">
-          <div class="p-2.5 rounded-xl bg-emerald-600 text-white shrink-0 shadow-sm">
+      <div v-if="isStudentUser" class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 animate-fade-in">
+        <div class="flex items-start sm:items-center gap-3">
+          <div class="p-2 rounded-xl bg-emerald-600 text-white shrink-0 shadow-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
           <div>
             <div class="flex items-center gap-2 flex-wrap">
-              <h2 class="text-sm font-black text-emerald-950">Student Organization Representative Mode</h2>
-              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-200/70 text-emerald-800 border border-emerald-300">
+              <h2 class="text-xs sm:text-sm font-black text-emerald-950">Student Organization Representative Mode</h2>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-200/70 text-emerald-800 border border-emerald-300">
                 {{ studentAffiliationText }}
               </span>
             </div>
             <p class="text-xs text-emerald-800/90 font-medium mt-1 leading-relaxed">
-              Your account is authorized to request: <strong>Borrowing of Tools/Equipment</strong>, <strong>Borrowing of Plants</strong>, <strong>Hauling</strong>, <strong>Stage & Hall Decoration</strong>, and <strong>Incident Reports</strong>. Structural and facilities maintenance services are restricted to university faculty and staff.
+              Authorized services: <strong>Borrowing of Tools/Equipment</strong>, <strong>Borrowing of Plants</strong>, <strong>Hauling</strong>, <strong>Stage & Hall Decoration</strong>, and <strong>Incident Reports</strong>. Structural services are reserved for faculty and staff.
             </p>
           </div>
         </div>
       </div>
 
       <!-- ─── PROBLEM SEARCH & INTENT FILTERS ─── -->
-      <div class="space-y-4 mb-8 sm:mb-12">
+      <div class="space-y-3 sm:space-y-4 mb-6 sm:mb-12">
         <!-- Natural Language Problem Search Bar -->
         <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-4 sm:pl-5 flex items-center pointer-events-none text-slate-400">
+          <div class="absolute inset-y-0 left-0 pl-3.5 sm:pl-5 flex items-center pointer-events-none text-slate-400">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -565,14 +565,14 @@ const handleSubmit = () => {
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Describe your issue or search services (e.g. 'pipe leak', 'grass cutting', 'broken outlet', 'aircon')..."
-            class="w-full pl-12 sm:pl-14 pr-10 sm:pr-12 py-3.5 sm:py-4 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm sm:text-base font-semibold placeholder:text-slate-400 placeholder:font-normal shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all"
+            placeholder="Search issue (e.g. 'pipe leak', 'aircon', 'broken door')..."
+            class="w-full pl-11 sm:pl-14 pr-10 sm:pr-12 py-3 sm:py-4 rounded-2xl bg-white border border-slate-200 text-slate-900 text-base sm:text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all min-h-[48px]"
           />
           <button
             v-if="searchQuery"
             type="button"
             @click="searchQuery = ''"
-            class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600"
+            class="absolute inset-y-0 right-0 pr-3.5 sm:pr-4 flex items-center text-slate-400 hover:text-slate-600 min-w-[44px] min-h-[44px] justify-center"
             title="Clear search"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -588,7 +588,7 @@ const handleSubmit = () => {
             :key="tab.id"
             type="button"
             @click="activeCategoryFilter = tab.id"
-            class="w-full sm:w-auto px-3.5 sm:px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center text-center gap-1.5 active:scale-95"
+            class="w-full sm:w-auto px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center text-center gap-1.5 active:scale-95 min-h-[44px]"
             :class="activeCategoryFilter === tab.id
               ? 'bg-slate-900 text-white shadow-sm ring-2 ring-slate-900/10'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'"
@@ -599,19 +599,19 @@ const handleSubmit = () => {
       </div>
 
       <form @submit.prevent="handleSubmit">
-        <div v-if="filteredSubUnits.length > 0" class="space-y-10 sm:space-y-12">
+        <div v-if="filteredSubUnits.length > 0" class="space-y-8 sm:space-y-12">
 
           <!-- ── One section per Sub-Unit ── -->
           <section v-for="unit in filteredSubUnits" :key="unit.id">
 
             <!-- Categories within the Unit -->
-            <div class="space-y-8 sm:space-y-10">
+            <div class="space-y-6 sm:space-y-10">
               <div v-for="(category, catIdx) in unit.categories" :key="catIdx">
 
                 <!-- Category Sub-Header -->
-                <div class="flex items-center gap-3 mb-4 sm:mb-5">
-                  <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', unit.accentBg, unit.accentIcon]" v-html="category.icon"></div>
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ category.title }}</h3>
+                <div class="flex items-center gap-2.5 sm:gap-3 mb-3.5 sm:mb-5">
+                  <div :class="['w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0', unit.accentBg, unit.accentIcon]" v-html="category.icon"></div>
+                  <h3 class="text-sm sm:text-lg font-black text-slate-900 leading-tight">{{ category.title }}</h3>
                   <div class="flex-1 h-px bg-slate-200 ml-2 hidden sm:block"></div>
                 </div>
 
@@ -622,7 +622,7 @@ const handleSubmit = () => {
                     <!-- Service Card (Interactive or Restricted) -->
                     <div
                       @click="toggleService(unit.id, category.title, service)"
-                      class="group relative select-none rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 transition-all duration-300 border-2 flex flex-col items-center justify-center gap-2.5 sm:gap-3 text-center min-h-[130px] sm:min-h-[145px]"
+                      class="group relative select-none rounded-2xl sm:rounded-[1.5rem] p-3.5 sm:p-5 transition-all duration-300 border-2 flex flex-col items-center justify-center gap-2 sm:gap-3 text-center min-h-[120px] sm:min-h-[145px] active:scale-[0.98]"
                       :class="[
                         !isServiceAllowed(unit.id, service)
                           ? 'opacity-50 cursor-not-allowed bg-slate-100/70 border-dashed border-slate-200 text-slate-400 hover:border-slate-300'
@@ -633,7 +633,7 @@ const handleSubmit = () => {
                     >
                       <!-- Icon -->
                       <div
-                        class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all duration-300 shrink-0"
+                        class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all duration-300 shrink-0"
                         :class="selectedServices[`${category.title}-${service}`]
                           ? 'text-white bg-white/15'
                           : [unit.accentBg, unit.accentIcon, isServiceAllowed(unit.id, service) ? 'group-hover:scale-110' : '']"
@@ -645,30 +645,30 @@ const handleSubmit = () => {
                         type="button"
                         v-if="customDescriptions[`${category.title}-${service}`]"
                         @click.stop="removeCustomService(category.title, service)"
-                        class="absolute top-2.5 left-2.5 w-6 h-6 rounded-full bg-red-50 text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white z-10"
+                        class="absolute top-2 left-2 w-6 h-6 rounded-full bg-red-50 text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white z-10"
                         title="Remove custom service"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                       </button>
 
                       <div class="flex flex-col items-center gap-1">
-                        <span class="text-[11px] sm:text-xs font-bold leading-tight">{{ service }}</span>
+                        <span class="text-[11px] sm:text-xs font-bold leading-tight line-clamp-2">{{ service }}</span>
                         <p v-if="customDescriptions[`${category.title}-${service}`]" class="text-[9px] sm:text-[10px] opacity-70 line-clamp-2 max-w-[90%]">{{ customDescriptions[`${category.title}-${service}`] }}</p>
                       </div>
 
                       <!-- Restricted Lock Badge or Check Indicator -->
                       <div
                         v-if="!isServiceAllowed(unit.id, service)"
-                        class="absolute top-2.5 right-2.5 px-1.5 py-0.5 rounded-md bg-slate-200/90 text-slate-600 text-[9px] font-bold flex items-center gap-1 border border-slate-300/60 shadow-xs"
+                        class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-slate-200/90 text-slate-600 text-[9px] font-bold flex items-center gap-1 border border-slate-300/60 shadow-xs"
                       >
                         <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
-                        Faculty Only
+                        <span>Faculty Only</span>
                       </div>
                       <div
                         v-else
-                        class="absolute top-2.5 right-2.5 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300"
+                        class="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300"
                         :class="selectedServices[`${category.title}-${service}`] ? 'bg-white/25 scale-100' : 'scale-0 group-hover:scale-100 bg-slate-100'"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" :class="selectedServices[`${category.title}-${service}`] ? 'text-white' : 'text-slate-400'"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
@@ -680,37 +680,37 @@ const handleSubmit = () => {
 
                 <!-- "Others" custom input panel -->
                 <div v-if="selectedServices[`${category.title}-Others`]" class="animate-fade-in pt-3 sm:pt-4">
-                  <div class="bg-white rounded-2xl sm:rounded-[1.75rem] border-2 border-emerald-500/20 shadow-sm p-5 sm:p-8 space-y-4 max-w-2xl">
+                  <div class="bg-white rounded-2xl sm:rounded-[1.75rem] border-2 border-emerald-500/20 shadow-sm p-4 sm:p-8 space-y-4 max-w-2xl">
                     <div class="flex items-center gap-3">
                       <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                       </div>
                       <div>
-                        <h4 class="text-base font-black text-slate-900 uppercase tracking-tight">Custom Service</h4>
+                        <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-tight">Custom Service</h4>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Create a specific service for {{ category.title }}</p>
                       </div>
                     </div>
                     <div class="space-y-3 sm:space-y-4 pt-1">
                       <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Service Title</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Service Title</label>
                         <input
                           v-model="tempCustom[category.title].title"
                           type="text"
                           placeholder="e.g. Deep Cleaning"
-                          class="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-slate-900 text-sm font-bold outline-none transition-all"
+                          class="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-slate-900 text-base sm:text-sm font-bold outline-none transition-all min-h-[48px]"
                         />
                       </div>
                       <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Specify Requirements</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Specify Requirements</label>
                         <textarea
                           v-model="tempCustom[category.title].description"
                           placeholder="Provide detailed instructions for the GSO team..."
-                          class="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-slate-900 text-sm font-medium outline-none transition-all min-h-[90px] resize-none"
+                          class="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-slate-900 text-base sm:text-sm font-medium outline-none transition-all min-h-[90px] resize-none"
                         ></textarea>
                       </div>
                       <div class="flex justify-end gap-2 sm:gap-3 pt-1">
-                        <button type="button" @click="cancelCustomService(category.title)" class="px-4 sm:px-6 py-2.5 sm:py-3 bg-white hover:bg-slate-50 text-slate-500 font-bold rounded-xl border border-slate-200 text-sm transition-colors">Cancel</button>
-                        <button type="button" @click="confirmCustomService(unit.id, category.title)" class="px-4 sm:px-6 py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow text-sm transition-colors">Confirm Service</button>
+                        <button type="button" @click="cancelCustomService(category.title)" class="min-h-[44px] px-4 sm:px-6 py-2.5 sm:py-3 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-600 font-bold rounded-xl border border-slate-200 text-xs sm:text-sm transition-colors">Cancel</button>
+                        <button type="button" @click="confirmCustomService(unit.id, category.title)" class="min-h-[44px] px-4 sm:px-6 py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold rounded-xl shadow text-xs sm:text-sm transition-colors">Confirm Service</button>
                       </div>
                     </div>
                   </div>
@@ -723,20 +723,20 @@ const handleSubmit = () => {
         </div>
 
         <!-- Empty State if no services match -->
-        <div v-else class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-8 sm:p-12 text-center max-w-lg mx-auto shadow-sm my-6">
-          <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div v-else class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-6 sm:p-12 text-center max-w-lg mx-auto shadow-sm my-6">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-7 sm:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           <h3 class="text-base sm:text-lg font-black text-slate-900 mb-1">No services found</h3>
-          <p class="text-xs sm:text-sm text-slate-500 max-w-xs mx-auto mb-6">
+          <p class="text-xs sm:text-sm text-slate-500 max-w-xs mx-auto mb-5 sm:mb-6 leading-relaxed">
             We couldn't find any services matching "<span class="font-bold text-slate-700">{{ searchQuery }}</span>". Try searching general terms like "leak", "door", or "cleaning".
           </p>
           <button
             type="button"
             @click="searchQuery = ''; activeCategoryFilter = 'all'"
-            class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs sm:text-sm font-bold hover:bg-emerald-700 transition-colors shadow-sm"
+            class="min-h-[44px] px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs sm:text-sm font-bold hover:bg-emerald-700 active:scale-95 transition-all shadow-sm"
           >
             Reset Search & Filters
           </button>
@@ -745,31 +745,32 @@ const handleSubmit = () => {
     </main>
 
     <!-- ─── STICKY BOTTOM BAR ─── -->
-    <div class="fixed bottom-0 left-0 right-0 z-50 px-3 sm:px-6 pb-3 sm:pb-5">
+    <div class="fixed bottom-0 left-0 right-0 z-50 px-3 sm:px-6 pb-3 sm:pb-5 pb-safe">
       <div class="max-w-6xl mx-auto">
-        <div class="bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl sm:rounded-[2rem] shadow-2xl shadow-slate-900/10 p-3.5 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+        <div class="bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl sm:rounded-[2rem] shadow-2xl shadow-slate-900/15 p-3 sm:p-5 flex flex-row items-center justify-between gap-3">
 
-          <div class="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+          <div class="flex items-center gap-2.5 sm:gap-4 min-w-0">
+            <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Your Selection</p>
-              <p class="text-sm sm:text-base font-black text-slate-900">
+            <div class="truncate">
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5 hidden xs:block">Selection</p>
+              <p class="text-xs sm:text-base font-black text-slate-900 truncate">
                 <span :class="totalSelected > 0 ? 'text-emerald-600' : 'text-slate-400'">{{ totalSelected }}</span>
-                {{ totalSelected === 1 ? 'service' : 'services' }} selected
+                <span class="hidden xs:inline"> {{ totalSelected === 1 ? 'service' : 'services' }}</span>
               </p>
             </div>
           </div>
 
-          <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-            <router-link to="/user/dashboard" class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs sm:text-sm text-center transition-all">
-              ← Dashboard
+          <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+            <router-link to="/user/dashboard" class="px-3 sm:px-5 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-600 font-bold text-xs sm:text-sm text-center transition-all min-h-[44px] flex items-center justify-center" title="Back to Dashboard">
+              <span class="hidden sm:inline">← Dashboard</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             </router-link>
             <button
               @click="handleSubmit"
               :disabled="totalSelected === 0"
-              class="flex-1 sm:flex-none px-6 sm:px-8 py-2.5 sm:py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 group active:scale-95"
+              class="px-4 sm:px-8 py-2.5 sm:py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 min-h-[44px] sm:min-h-[48px] cursor-pointer"
             >
               <span>Fill Out Form</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>

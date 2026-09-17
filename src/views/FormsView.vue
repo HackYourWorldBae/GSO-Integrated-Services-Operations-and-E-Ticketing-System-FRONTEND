@@ -217,42 +217,42 @@ const handleFinalSubmit = async () => {
       </button>
     </nav>
 
-    <main class="max-w-5xl mx-auto p-3 sm:p-6 md:p-12 space-y-8 sm:space-y-12">
+    <main class="max-w-5xl mx-auto px-3 sm:px-6 md:px-12 pt-5 sm:pt-10 pb-20 space-y-6 sm:space-y-12">
       
       <!-- HEADER SUMMARY -->
-      <div class="mb-8 sm:mb-12">
-        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tighter">Complete Your <span class="bg-emerald-100 text-emerald-700 px-3 rounded-2xl">Digital</span> Forms</h2>
-        <p class="text-slate-500 mt-2 sm:mt-4 font-bold text-base sm:text-lg">We've generated specialized forms based on your selected services.</p>
+      <div class="mb-5 sm:mb-10">
+        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">Complete Your <span class="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-xl sm:rounded-2xl inline-block">Digital</span> Forms</h2>
+        <p class="text-slate-500 mt-2 sm:mt-3 font-semibold text-xs sm:text-base">We've generated specialized forms based on your selected services.</p>
       </div>
 
       <!-- ─── INTAKE WIZARD PROGRESS STEPPER (2 STEPS) ─── -->
-      <div class="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-8 sm:mb-12 shadow-sm">
+      <div class="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 mb-6 sm:mb-10 shadow-sm">
         <div class="max-w-md mx-auto">
-          <div class="flex items-start justify-between">
+          <div class="flex items-center justify-between">
 
             <!-- Step 1: Completed -->
-            <button type="button" @click="goBack" class="flex flex-col items-center text-center w-28 sm:w-32 shrink-0 group cursor-pointer" title="Go back to services selection">
-              <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-emerald-600/20 group-hover:bg-emerald-700 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <button type="button" @click="goBack" class="flex flex-col items-center text-center w-24 sm:w-32 shrink-0 group cursor-pointer" title="Go back to services selection">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-md shadow-emerald-600/20 group-hover:bg-emerald-700 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <span class="text-xs font-bold text-slate-700 group-hover:text-emerald-700 mt-2 transition-colors">Select Services</span>
-              <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 1</span>
+              <span class="text-[11px] sm:text-xs font-bold text-slate-700 group-hover:text-emerald-700 mt-1.5 sm:mt-2 transition-colors">Select Services</span>
+              <span class="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 1</span>
             </button>
 
-            <!-- Connector line between steps (completed green line, never overlaps) -->
-            <div class="flex-1 flex items-center mt-5 -translate-y-1/2 px-2 sm:px-4">
+            <!-- Connector line between steps (completed green line) -->
+            <div class="flex-1 flex items-center px-2 sm:px-4">
               <div class="w-full h-0.5 bg-emerald-600 rounded-full"></div>
             </div>
 
             <!-- Step 2: Current -->
-            <div class="flex flex-col items-center text-center w-28 sm:w-32 shrink-0">
-              <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-emerald-600/30 ring-4 ring-emerald-50">
+            <div class="flex flex-col items-center text-center w-24 sm:w-32 shrink-0">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-md shadow-emerald-600/30 ring-4 ring-emerald-50">
                 2
               </div>
-              <span class="text-xs font-black text-slate-900 mt-2">Fill Out Form</span>
-              <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 2</span>
+              <span class="text-[11px] sm:text-xs font-black text-slate-900 mt-1.5 sm:mt-2">Fill Out Form</span>
+              <span class="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider hidden sm:block">Step 2</span>
             </div>
 
           </div>
@@ -280,24 +280,24 @@ const handleFinalSubmit = async () => {
       />
 
       <!-- OTHERS PLACEHOLDER -->
-      <div v-if="hasOthers" class="p-12 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 text-center slide-up delay-200 opacity-60">
-        <h4 class="text-xl font-black text-slate-400 tracking-tight">Additional Unit Details Needed</h4>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Pending Additional Forms</p>
-        <div class="mt-6 flex flex-wrap justify-center gap-2">
-           <span v-for="item in otherServices" :key="item.service" class="px-4 py-2 bg-slate-50 rounded-xl text-[9px] font-black text-slate-400 border border-slate-100">{{ item.service }}</span>
+      <div v-if="hasOthers" class="p-6 sm:p-12 bg-white rounded-2xl sm:rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center slide-up delay-200 opacity-70">
+        <h4 class="text-base sm:text-xl font-black text-slate-500 tracking-tight">Additional Unit Details Needed</h4>
+        <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Pending Additional Forms</p>
+        <div class="mt-4 flex flex-wrap justify-center gap-2">
+           <span v-for="item in otherServices" :key="item.service" class="px-3 py-1.5 bg-slate-50 rounded-xl text-[10px] font-black text-slate-500 border border-slate-200">{{ item.service }}</span>
         </div>
       </div>
 
-      <!-- FINAL SUBMISSION -->
-      <div class="flex justify-center pt-6 sm:pt-10 sticky bottom-4 sm:bottom-8 px-2">
+      <!-- FINAL SUBMISSION STICKY BAR -->
+      <div class="flex justify-center pt-4 sm:pt-8 sticky bottom-3 sm:bottom-6 px-1 z-30 pb-safe">
         <button 
           @click="handleFinalSubmit"
           :disabled="isSubmitting"
-          class="w-full sm:w-auto px-6 sm:px-16 py-4 sm:py-6 bg-slate-900 hover:bg-black text-white font-black text-base sm:text-xl justify-center rounded-2xl sm:rounded-[2.5rem] shadow-2xl shadow-slate-900/40 transition-all flex items-center gap-3 sm:gap-4 active:scale-95 disabled:opacity-50"
+          class="w-full sm:w-auto min-h-[48px] px-6 sm:px-14 py-3.5 sm:py-4.5 bg-slate-900 hover:bg-black text-white font-black text-sm sm:text-lg justify-center rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/30 transition-all flex items-center gap-2.5 sm:gap-3 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
         >
           <span v-if="!isSubmitting">Validate & Submit Request</span>
-          <div v-else class="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-          <svg v-if="!isSubmitting" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <div v-else class="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+          <svg v-if="!isSubmitting" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         </button>
       </div>
 

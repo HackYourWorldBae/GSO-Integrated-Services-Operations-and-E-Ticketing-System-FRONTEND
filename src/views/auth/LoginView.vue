@@ -181,27 +181,26 @@ const handleLogin = async () => {
     </router-link>
 
     <!-- Main Login Card -->
-    <div class="relative z-10 w-full max-w-md p-6 sm:p-8 rounded-[2rem] border border-slate-200/60 bg-white/90 backdrop-blur-2xl shadow-2xl transition-all duration-700 hover:shadow-emerald-500/15 flex flex-col justify-center my-auto">
+    <div class="relative z-10 w-full max-w-md p-5 sm:p-8 rounded-3xl sm:rounded-[2rem] border border-slate-200/80 bg-white/95 backdrop-blur-2xl shadow-2xl transition-all duration-300 flex flex-col justify-center my-auto">
       
       <!-- Mobile In-Card University Branding (displayed inline in document flow so it never floats or covers inputs) -->
-      <router-link to="/" class="sm:hidden flex items-center gap-3 mb-6 p-2.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/70 hover:bg-emerald-100/60 transition-colors shadow-xs">
-        <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 bg-white shadow-xs border border-emerald-200/80">
+      <router-link to="/" class="sm:hidden flex items-center gap-3 mb-5 p-2.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/70 hover:bg-emerald-100/60 transition-colors shadow-xs">
+        <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-white shadow-xs border border-emerald-200/80">
           <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-cover" />
         </div>
         <div class="text-left min-w-0">
-          <h2 class="text-emerald-900 font-black tracking-wider text-[11px] uppercase leading-tight truncate">Benguet State University</h2>
+          <h2 class="text-emerald-900 font-extrabold tracking-wider text-[11px] uppercase leading-tight truncate">Benguet State University</h2>
           <p class="text-emerald-700 font-bold text-[10px] truncate">General Services Office</p>
         </div>
       </router-link>
 
       <!-- Header -->
-      <div class="mb-8 shrink-0 text-left">
-        <h2 class="text-emerald-700 font-extrabold text-[10px] sm:text-xs tracking-[0.2em] uppercase mb-2 ml-1">General Services Office</h2>
-        <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-2">
-          GSO <br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">e-Ticketing</span>
+      <div class="mb-6 sm:mb-8 shrink-0 text-left">
+        <h2 class="text-emerald-700 font-extrabold text-xs tracking-wider uppercase mb-1.5 ml-0.5">General Services Office</h2>
+        <h1 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-1.5">
+          GSO <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">e-Ticketing</span>
         </h1>
-        <p class="text-slate-500 text-xs font-medium">Please sign in to access your dashboard.</p>
+        <p class="text-slate-500 text-xs sm:text-sm font-medium">Please sign in to access your dashboard.</p>
       </div>
 
       <!-- Account Temporarily Locked Banner (5 failed attempts -> 15 min lock) -->
@@ -310,49 +309,53 @@ const handleLogin = async () => {
       <!-- Unified Form -->
       <form @submit.prevent="handleLogin" class="space-y-4 shrink-0 pb-1">
         
-        <div class="relative group/input">
-          <label class="block text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 ml-1">
+        <div class="relative group/input text-left">
+          <label class="block text-slate-700 text-xs font-bold mb-1.5 ml-0.5">
             Email or Employee / Student ID
           </label>
-          <div class="absolute inset-y-0 left-0 pl-4 mt-5 flex items-center pointer-events-none z-10">
-            <svg class="h-4 w-4 text-slate-400 group-focus-within/input:text-emerald-600 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
+              <svg class="h-4 w-4 text-slate-400 group-focus-within/input:text-emerald-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <input 
+              v-model="identifier"
+              type="text" 
+              required
+              :disabled="isAccountLocked"
+              class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-200 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed min-h-[48px]"
+              placeholder="e.g. 2024-1234 or name@bsu.edu.ph"
+            />
           </div>
-          <input 
-            v-model="identifier"
-            type="text" 
-            required
-            :disabled="isAccountLocked"
-            class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-300 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed"
-            placeholder="e.g. 2024-1234 or name@bsu.edu.ph"
-          />
         </div>
 
-        <div class="relative group/input">
-          <div class="flex items-center justify-between mb-1 ml-1 pr-1">
-            <label class="block text-slate-500 text-[10px] font-black uppercase tracking-widest">Password</label>
-            <a href="#" class="text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:text-emerald-700 transition-colors">Forgot?</a>
+        <div class="relative group/input text-left">
+          <div class="flex items-center justify-between mb-1.5 ml-0.5 pr-0.5">
+            <label class="block text-slate-700 text-xs font-bold">Password</label>
+            <a href="#" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors p-1 -m-1">Forgot?</a>
           </div>
-          <div class="absolute inset-y-0 left-0 pl-4 mt-5 flex items-center pointer-events-none z-10">
-            <svg class="h-4 w-4 text-slate-400 group-focus-within/input:text-emerald-600 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
+              <svg class="h-4 w-4 text-slate-400 group-focus-within/input:text-emerald-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <input 
+              v-model="password"
+              type="password" 
+              required
+              :disabled="isAccountLocked"
+              class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-200 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed min-h-[48px]"
+              placeholder="••••••••"
+            />
           </div>
-          <input 
-            v-model="password"
-            type="password" 
-            required
-            :disabled="isAccountLocked"
-            class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-300 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed"
-            placeholder="••••••••"
-          />
         </div>
 
         <button 
           :disabled="isLoading || isAccountLocked"
           type="submit"
-          class="w-full py-3.5 mt-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          class="w-full min-h-[48px] py-3.5 mt-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <span v-if="isAccountLocked" class="flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>

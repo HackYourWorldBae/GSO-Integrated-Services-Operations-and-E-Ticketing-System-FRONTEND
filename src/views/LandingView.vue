@@ -599,12 +599,22 @@ const goToRegister = () => router.push({ name: 'register' });
 .hamburger {
   display: none;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
   margin-left: auto;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--r-md);
+  transition: background-color 0.2s ease;
+}
+
+.hamburger:hover {
+  background: rgba(26, 107, 53, 0.08);
 }
 
 .hamburger span {
@@ -625,32 +635,45 @@ const goToRegister = () => router.push({ name: 'register' });
 .mobile-menu {
   display: none;
   flex-direction: column;
-  background: white;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease;
+  transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
 }
 
 .mobile-menu--open {
-  max-height: 400px;
-  padding: var(--sp-4) var(--sp-8) var(--sp-6);
+  max-height: 420px;
+  padding: var(--sp-4) var(--sp-6) var(--sp-6);
 }
 
 .mobile-menu a {
-  display: block;
-  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
   text-decoration: none;
   font-size: 0.95rem;
-  font-weight: 500;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  padding: 0.75rem 0.5rem;
+  min-height: 44px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--r-sm);
+  transition: all 0.15s ease;
+}
+
+.mobile-menu a:hover {
+  background: rgba(26, 107, 53, 0.06);
+  color: var(--bsu-green-dark);
 }
 
 .mobile-menu-actions {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
   margin-top: var(--sp-4);
 }
 
@@ -659,13 +682,21 @@ const goToRegister = () => router.push({ name: 'register' });
   background: white;
   color: var(--bsu-green);
   border: 1.5px solid var(--bsu-green);
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
+  min-height: 48px;
   border-radius: var(--r-md);
   font-family: var(--font-ui);
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-mobile-register:active {
+  transform: scale(0.98);
 }
 
 .btn-mobile-register:hover {
@@ -677,13 +708,23 @@ const goToRegister = () => router.push({ name: 'register' });
   background: var(--bsu-green);
   color: white;
   border: none;
-  padding: 0.85rem;
+  padding: 0.75rem 1rem;
+  min-height: 48px;
   border-radius: var(--r-md);
   font-family: var(--font-ui);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease, transform 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  box-shadow: 0 4px 12px rgba(26, 107, 53, 0.25);
+}
+
+.btn-mobile-login:active {
+  transform: scale(0.98);
 }
 
 .btn-mobile-login:hover { background: var(--bsu-green-dark); }
@@ -1447,14 +1488,14 @@ const goToRegister = () => router.push({ name: 'register' });
 @media (max-width: 1024px) {
   .hero-inner {
     grid-template-columns: 1fr;
-    gap: var(--sp-12);
-    padding: 4rem var(--sp-6) 5rem;
+    gap: var(--sp-8);
+    padding: 3.5rem var(--sp-6) 4.5rem;
   }
 
-  .hero-card { max-width: 480px; }
+  .hero-card { max-width: 520px; }
   .hero-subtext { max-width: 100%; }
 
-  .about-grid { grid-template-columns: 1fr; gap: var(--sp-12); }
+  .about-grid { grid-template-columns: 1fr; gap: var(--sp-10); }
   .about-stats { grid-template-columns: repeat(4, 1fr); }
 
   .cta-inner { flex-direction: column; text-align: center; }
@@ -1471,7 +1512,44 @@ const goToRegister = () => router.push({ name: 'register' });
   .hamburger { display: flex; }
   .mobile-menu { display: flex; }
 
-  .about-stats { grid-template-columns: 1fr 1fr; }
+  .hero-inner {
+    padding: 2.75rem var(--sp-4) 3.5rem;
+    gap: var(--sp-8);
+  }
+
+  .hero-heading {
+    font-size: clamp(2rem, 6.5vw, 2.75rem);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .hero-subtext {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .hero-card {
+    max-width: 100%;
+    margin-top: 0.5rem;
+    border-radius: var(--r-xl);
+  }
+
+  .hero-card-header {
+    padding: 0.85rem 1.25rem;
+  }
+
+  .hero-card-body {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .ticket-item {
+    padding: 0.75rem 0.85rem;
+    border-radius: var(--r-md);
+  }
+
+  .about-stats { grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
 
   .footer-inner { flex-direction: column; gap: var(--sp-8); }
   .footer-links-group { gap: var(--sp-6); }
@@ -1482,13 +1560,72 @@ const goToRegister = () => router.push({ name: 'register' });
 }
 
 /* ============================================================
-   RESPONSIVE — 480px
+   RESPONSIVE — 480px (Narrow Mobile)
    ============================================================ */
 @media (max-width: 480px) {
-  .hero-heading { font-size: 2.5rem; }
-  .hero-actions { flex-direction: column; }
-  .btn-primary, .btn-ghost { justify-content: center; }
-  .services-grid { grid-template-columns: 1fr; }
-  .about-stats { grid-template-columns: 1fr 1fr; }
+  .navbar-inner {
+    padding: 0 var(--sp-4);
+    height: 58px;
+  }
+
+  .navbar-logo-ring {
+    width: 38px;
+    height: 38px;
+  }
+
+  .navbar-title {
+    font-size: 0.7rem;
+  }
+
+  .navbar-subtitle {
+    font-size: 0.55rem;
+  }
+
+  .hero-heading {
+    font-size: clamp(1.75rem, 7.5vw, 2.25rem);
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .btn-primary, .btn-ghost {
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .service-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .about-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+  }
+
+  .cta-section {
+    padding: 3rem 1.25rem;
+  }
+
+  .cta-heading {
+    font-size: 1.4rem;
+  }
 }
 </style>
