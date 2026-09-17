@@ -1466,6 +1466,7 @@ const submitDelayApproval = async () => {
   isSubmittingDelay.value = true;
   try {
     await api.patch(`tickets/${ticketToDelay.value.id}/delay-approval`, {
+      reason: reason,
       delay_reason: reason
     });
     toast.warning(`Ticket #${ticketToDelay.value.ticketId || ticketToDelay.value.id} marked as Approval Delayed.`);

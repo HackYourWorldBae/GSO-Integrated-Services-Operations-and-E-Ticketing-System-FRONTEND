@@ -69,7 +69,7 @@ export const approveTicket = (ticketId) =>
  * @param {string} reason
  */
 export const delayTicketApproval = (ticketId, reason) =>
-  apiClient.patch(`/tickets/${ticketId}/delay-approval`, { reason });
+  apiClient.patch(`/tickets/${ticketId}/delay-approval`, { reason, delay_reason: reason });
 
 /**
  * Resume ticket approval (move back to general pending queue).
