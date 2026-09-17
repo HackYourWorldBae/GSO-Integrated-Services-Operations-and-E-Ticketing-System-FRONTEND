@@ -1185,7 +1185,6 @@ const confirmResolve = async () => {
     toast.success(`Incident ${resolveModal.ticket.ticketId} resolved and archived.`);
     closeResolveModal();
     await fetchQueues();
-    await fetchCompletedCount();
   } catch (error) {
     toast.error(error.response?.data?.message || 'Failed to resolve incident.');
   } finally {
