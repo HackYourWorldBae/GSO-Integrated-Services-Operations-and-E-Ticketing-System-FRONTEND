@@ -108,6 +108,13 @@ const handleInput = () => {
   isOpen.value = true;
 };
 
+const clearValue = () => {
+  searchQuery.value = '';
+  emit('update:modelValue', '');
+  emit('blur');
+  isOpen.value = false;
+};
+
 const handleEnter = () => {
   if (searchQuery.value) {
     selectOption(searchQuery.value);
@@ -175,12 +182,27 @@ const itemHoverClass = computed(() => {
         @keydown.enter.prevent="handleEnter"
         :placeholder="placeholder"
         :disabled="disabled"
-        class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 pr-12 rounded-xl sm:rounded-2xl bg-slate-50 border-2 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        :class="focusBorderClass"
+        class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        :class="[focusBorderClass, searchQuery ? 'pr-20' : 'pr-12']"
       />
-      <div 
-        @click="toggleDropdown" 
-        class="absolute inset-y-0 right-1 w-11 flex items-center justify-center cursor-pointer text-slate-400 hover:text-slate-600 transition-colors"
+
+      <!-- Clear button: visible when there is a value -->
+      <button
+        v-if="searchQuery"
+        type="button"
+        @click.stop="clearValue"
+        class="absolute inset-y-0 right-10 w-9 flex items-center justify-center cursor-pointer text-slate-300 hover:text-rose-500 transition-colors"
+        title="Clear selection"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+      </button>
+
+      <!-- Chevron toggle -->
+      <div
+        @click="toggleDropdown"
+        class="absolute inset-y-0 right-1 w-9 flex items-center justify-center cursor-pointer text-slate-400 hover:text-slate-600 transition-colors"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-200" :class="isOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
