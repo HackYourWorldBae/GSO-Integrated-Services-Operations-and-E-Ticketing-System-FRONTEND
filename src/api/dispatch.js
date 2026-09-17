@@ -3,9 +3,9 @@ import apiClient from './client';
 // ============================================================================
 // Dispatch API Module
 //
-// Wraps dispatcher operations: assigning workers, updating job schedules,
+// Wraps admin dispatch operations: assigning workers, updating job schedules,
 // and managing materials.
-// Consumed by: FGMU/LEAU Dispatcher views
+// Consumed by: FGMU/LEAU Admin views
 // ============================================================================
 
 /**

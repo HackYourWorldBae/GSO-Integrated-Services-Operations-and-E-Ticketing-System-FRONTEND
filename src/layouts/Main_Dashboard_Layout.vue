@@ -279,7 +279,7 @@ const accountSettingsRoute = computed(() => {
   const role = (authStore.role || userRole.value || '').toLowerCase();
   if (role === 'superadmin') return '/superadmin/settings';
   if (role === 'director') return '/director/settings';
-  if (['admin', 'dispatcher'].includes(role)) {
+  if (role === 'admin') {
     const path = route.path.toLowerCase();
     if (path.includes('/leau')) return '/admin/leau/settings';
     if (path.includes('/ssu')) return '/admin/ssu/settings';
@@ -461,7 +461,7 @@ const handleNotificationClick = async (notif) => {
   if (!ticketId) {
     // If no ticket reference, fallback to user's dashboard based on role & unit
     const unit = (authStore.user?.unit_code || '').toLowerCase();
-    if (role === 'admin' || role === 'dispatcher') {
+    if (role === 'admin') {
       router.push(['fgmu', 'leau', 'ssu'].includes(unit) ? `/admin/${unit}` : '/admin/fgmu');
     } else if (role === 'director') {
       router.push('/director/dashboard');
@@ -498,7 +498,7 @@ const handleNotificationClick = async (notif) => {
 
   let targetPath = '';
 
-  if (role === 'admin' || role === 'dispatcher') {
+  if (role === 'admin') {
     if (unitCode === 'ssu') {
       if (isCompleted) targetPath = '/admin/ssu/archives';
       else if (isActive || isDispatched || text.includes('investigat')) targetPath = '/admin/ssu/investigating-tickets';

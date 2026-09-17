@@ -4,18 +4,18 @@ import apiClient from './client';
 // Personnel API Module
 //
 // Wraps all personnel roster management calls.
-// Consumed by: FGMU/LEAU Personnel management views, Dispatcher dropdowns
+// Consumed by: FGMU/LEAU Personnel management views, Admin assignment dropdowns
 // ============================================================================
 
 /**
- * Get the full personnel roster for a unit (admin/dispatcher view).
+ * Get the full personnel roster for a unit (admin view).
  * @param {string} unitCode - 'FGMU' | 'LEAU'
  */
 export const fetchPersonnelByUnit = (unitCode) =>
   apiClient.get(`/personnel/${unitCode}`);
 
 /**
- * Get only available workers for a unit (for dispatcher assignment dropdowns).
+ * Get only available workers for a unit (for admin assignment dropdowns).
  * @param {string} unitCode
  */
 export const fetchAvailablePersonnel = (unitCode) =>

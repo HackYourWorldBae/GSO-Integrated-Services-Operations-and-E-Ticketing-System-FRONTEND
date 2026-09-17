@@ -259,8 +259,6 @@ const unitFullName = computed(() => {
 });
 
 const roleLabel = computed(() => {
-  const role = (authStore.role || '').toLowerCase();
-  if (role === 'dispatcher') return `${unitCode.value} Dispatcher`;
   return `${unitCode.value} Administrator`;
 });
 

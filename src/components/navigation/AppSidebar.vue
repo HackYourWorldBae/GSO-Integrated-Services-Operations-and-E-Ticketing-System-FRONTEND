@@ -11,7 +11,6 @@ const activeRole = computed(() => {
   const userRole = (authStore.role || '').toLowerCase();
   if (userRole === 'superadmin') return 'superadmin';
   if (userRole === 'admin') return 'admin';
-  if (userRole === 'dispatcher') return 'dispatcher';
   if (userRole === 'director') return 'director';
   if (['student', 'employee', 'worker'].includes(userRole)) return 'requestor';
 
@@ -19,18 +18,18 @@ const activeRole = computed(() => {
   const path = route.path.toLowerCase();
   if (path.startsWith('/superadmin')) return 'superadmin';
   if (path.startsWith('/admin')) return 'admin';
-  if (path.startsWith('/dispatcher')) return 'dispatcher';
+  if (path.startsWith('/dispatcher')) return 'admin';
   if (path.startsWith('/director')) return 'director';
   return 'requestor';
 });
 
-// Detect active unit for Admin & Dispatcher
+// Detect active unit for Admin
 const activeUnit = computed(() => {
   const userRole = (authStore.role || '').toLowerCase();
   const unitId = Number(authStore.unitId ?? authStore.user?.unit_id ?? 0);
 
-  // If user belongs to a specific unit and is an operational admin/dispatcher, lock to their unit
-  if (['admin', 'dispatcher'].includes(userRole)) {
+  // If user belongs to a specific unit and is an operational admin, lock to their unit
+  if (userRole === 'admin') {
     if (unitId === 1) return 'fgmu';
     if (unitId === 2) return 'leau';
     if (unitId === 3) return 'ssu';
@@ -131,7 +130,7 @@ const rawNavGroups = computed(() => {
     ];
   }
 
-  if (role === 'admin' || role === 'dispatcher') {
+  if (role === 'admin') {
     return [
       {
         title: `${unitUpper} Operations`,

@@ -85,7 +85,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Role default fallback if permissions list is empty / uninitialized
     if (list.length === 0) {
-      if (role.value === 'admin' || role.value === 'dispatcher') {
+      if (role.value === 'admin') {
         return [
           'tickets.create', 'tickets.approve_decline',
           'tickets.dispatch', 'tickets.assign_worker', 'tickets.complete_work',

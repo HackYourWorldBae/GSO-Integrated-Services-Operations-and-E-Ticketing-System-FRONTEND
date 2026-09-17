@@ -835,7 +835,7 @@
         <div class="text-center">
           <h3 class="text-xl font-black text-slate-900">Approve Service Request?</h3>
           <p class="text-xs text-slate-500 font-medium mt-1">
-            Ticket <strong class="text-slate-800">#{{ ticketToApprove?.ticketId }}</strong> will be approved and queued for dispatcher assignment.
+            Ticket <strong class="text-slate-800">#{{ ticketToApprove?.ticketId }}</strong> will be approved and queued for admin assignment.
           </p>
         </div>
 
@@ -868,7 +868,7 @@
               </span>
             </div>
             <p class="text-[11px] font-medium leading-relaxed mt-1" :class="isEmergencyApproval ? 'text-rose-700' : 'text-slate-500'">
-              Enables priority dispatch and task preemption for unit dispatchers when assigning personnel.
+              Enables priority dispatch and task preemption for unit admins when assigning personnel.
             </p>
           </div>
         </div>
