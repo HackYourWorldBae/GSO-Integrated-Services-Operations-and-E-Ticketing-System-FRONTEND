@@ -297,13 +297,6 @@ const goToRegister = () => router.push({ name: 'register' });
             <span class="service-unit-tag">{{ service.unit }}</span>
             <h3 class="service-title">{{ service.title }}</h3>
             <p class="service-desc-text">{{ service.description }}</p>
-            <button class="service-cta" @click="goToLogin">
-              Submit a Request
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
           </div>
         </div>
       </div>
@@ -1298,33 +1291,8 @@ const goToRegister = () => router.push({ name: 'register' });
   font-size: 0.875rem;
   color: var(--text-muted);
   line-height: 1.75;
-  margin: 0 0 var(--sp-6);
+  margin: 0;
 }
-
-.service-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  background: none;
-  border: none;
-  color: var(--bsu-green);
-  font-family: var(--font-ui);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  transition: gap 0.2s ease, color 0.2s ease;
-}
-
-.service-cta svg { width: 14px; height: 14px; }
-.service-cta:hover { color: var(--bsu-green-dark); gap: var(--sp-3); }
-
-.svc-gold  .service-cta         { color: var(--bsu-gold-dark); }
-.svc-gold  .service-cta:hover   { color: #7a6000; }
-.svc-slate .service-cta         { color: #475569; }
-.svc-slate .service-cta:hover   { color: #334155; }
-.svc-teal  .service-cta         { color: var(--bsu-green-dark); }
-.svc-teal  .service-cta:hover   { color: var(--bsu-green-deep); }
 
 /* ============================================================
    CTA SECTION
