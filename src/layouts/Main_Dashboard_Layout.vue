@@ -119,15 +119,38 @@
                 <span v-if="unreadNotificationCount > 0" class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(245,158,11,0.4)]"></span>
               </button>
 
-              <!-- Notification Dropdown -->
+              <!-- Mobile Backdrop -->
+              <div 
+                v-if="isNotificationOpen" 
+                class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-40 sm:hidden" 
+                @click.stop="isNotificationOpen = false"
+              ></div>
+
+              <!-- Notification Dropdown / Centered Mobile Modal -->
               <Transition name="slide-up">
-                <div v-if="isNotificationOpen" class="absolute top-full right-0 mt-3 w-[min(22rem,calc(100vw-1.5rem))] bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden z-50 origin-top-right flex flex-col max-h-[500px]">
-                  <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">Notifications</h3>
-                    <span v-if="unreadNotificationCount > 0" class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-black rounded-md">{{ unreadNotificationCount }} New</span>
+                <div 
+                  v-if="isNotificationOpen" 
+                  class="fixed inset-x-3 max-w-sm mx-auto top-[calc(5rem+env(safe-area-inset-top,0px)+0.5rem)] sm:absolute sm:top-full sm:right-0 sm:left-auto sm:inset-x-auto sm:mx-0 sm:mt-3 sm:w-[22rem] sm:max-w-none bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden z-50 origin-top sm:origin-top-right flex flex-col max-h-[calc(100dvh-7rem)] sm:max-h-[500px]"
+                >
+                  <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">Notifications</h3>
+                      <span v-if="unreadNotificationCount > 0" class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-black rounded-md">{{ unreadNotificationCount }} New</span>
+                    </div>
+                    <!-- Tactile Close Button on Mobile -->
+                    <button
+                      type="button"
+                      @click="isNotificationOpen = false"
+                      class="sm:hidden p-1.5 -mr-1 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+                      title="Close notifications"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
                   </div>
                   
-                  <div class="overflow-y-auto custom-scrollbar flex-1">
+                  <div class="overflow-y-auto custom-scrollbar flex-1 overscroll-contain">
                     <div v-if="notifications.length === 0" class="p-8 text-center text-slate-400 text-sm font-bold">
                       No notifications yet.
                     </div>

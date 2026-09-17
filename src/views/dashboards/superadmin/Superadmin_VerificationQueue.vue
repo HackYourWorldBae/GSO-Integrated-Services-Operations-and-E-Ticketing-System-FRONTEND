@@ -243,7 +243,22 @@
               </div>
               <div>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact</p>
-                <p class="font-bold text-slate-900 mt-0.5">{{ inspectingUser.contact_number || 'N/A' }}</p>
+                <a
+                  v-if="inspectingUser.contact_number && inspectingUser.contact_number !== 'N/A'"
+                  :href="`tel:${inspectingUser.contact_number}`"
+                  class="inline-flex items-center gap-1.5 mt-1 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors group w-fit"
+                >
+                  <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  <span class="text-sm font-black font-mono tracking-wide text-emerald-800 group-hover:text-emerald-900">{{ inspectingUser.contact_number }}</span>
+                </a>
+                <p v-else class="text-xs font-semibold text-slate-400 mt-1 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-slate-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  <span>N/A</span>
+                </p>
               </div>
               <div class="col-span-2">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</p>
@@ -336,6 +351,7 @@
           :cancel-text="confirmModal.cancelText"
           :type="confirmModal.type"
           :is-loading="confirmModal.isLoading"
+          z-index-class="z-[10000]"
           @confirm="handleConfirmAction"
           @cancel="closeConfirmModal"
         >
@@ -501,7 +517,7 @@ const handleConfirmAction = async () => {
     if (confirmModal.actionType === 'approve') {
       const res = await verifyUser(user.id);
       toast.success(res.data?.message || 'User identity verified and approved!');
-      isInspectModalOpen.value = false;
+      closeInspectModal();
       closeConfirmModal(true);
       await fetchPendingUsers();
     } else if (confirmModal.actionType === 'reject') {
@@ -510,7 +526,7 @@ const handleConfirmAction = async () => {
         confirmModal.reason || 'Identity document could not be verified.'
       );
       toast.info(res.data?.message || 'User verification has been rejected.');
-      isInspectModalOpen.value = false;
+      closeInspectModal();
       closeConfirmModal(true);
       await fetchPendingUsers();
     }

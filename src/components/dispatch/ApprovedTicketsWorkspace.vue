@@ -756,7 +756,7 @@ const fetchApprovedTickets = async () => {
           college_building: t.details?.college_building || t.college_building || t.location,
           office_room: t.details?.office_room || t.office_room,
           source_of_fund: t.details?.source_of_fund || 'N/A',
-          contact_number: t.details?.contact_number || t.requester_contact || t.contact_number || 'N/A',
+          contact_number: t.contact_number || t.requester_contact || t.details?.contact_number || t.details?.contact_no || t.user?.contact_number || 'N/A',
           requester: requesterName || 'End User',
           requestedBy: requesterName || 'End User',
           email: t.email || t.user?.email || '',

@@ -27,6 +27,14 @@ defineProps({
   isLoading: {
     type: Boolean,
     default: false
+  },
+  zIndexClass: {
+    type: String,
+    default: 'z-[10000]'
+  },
+  teleport: {
+    type: Boolean,
+    default: true
   }
 });
 
@@ -34,10 +42,14 @@ defineEmits(['confirm', 'cancel']);
 </script>
 
 <template>
-  <Transition name="fade">
-    <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto">
-      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="!isLoading && $emit('cancel')"></div>
-      <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md p-6 sm:p-8 relative z-10 transform transition-all animate-modal-pop border border-slate-100">
+  <Teleport to="body" :disabled="!teleport">
+    <Transition name="fade">
+      <div 
+        v-if="isOpen" 
+        :class="['fixed inset-0 flex items-center justify-center p-4 pointer-events-auto', zIndexClass || 'z-[10000]']"
+      >
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="!isLoading && $emit('cancel')"></div>
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md p-6 sm:p-8 relative z-10 transform transition-all animate-modal-pop border border-slate-100">
         <div class="flex items-center gap-4 mb-4">
           <div :class="[
             'w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border',
@@ -106,6 +118,7 @@ defineEmits(['confirm', 'cancel']);
       </div>
     </div>
   </Transition>
+  </Teleport>
 </template>
 
 <style scoped>

@@ -74,3 +74,8 @@ a,
 [role="button"] {
   touch-action: manipulation;
 }
+
+/* Ensure toast notifications appear above all modals and overlays */
+.Toastify__toast-container {
+  z-index: 100001 !important;
+}

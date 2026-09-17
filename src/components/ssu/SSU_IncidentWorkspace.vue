@@ -700,7 +700,7 @@
                   <p class="text-xs text-slate-500 font-medium mt-0.5">{{ detailsModal.ticket?.requesterEmail || 'No email on record' }}</p>
                   <!-- Enlarged Contact Number -->
                   <a
-                    v-if="detailsModal.ticket?.requesterContact"
+                    v-if="detailsModal.ticket?.requesterContact && detailsModal.ticket?.requesterContact !== 'N/A'"
                     :href="`tel:${detailsModal.ticket.requesterContact}`"
                     class="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors group"
                   >
@@ -711,6 +711,12 @@
                       {{ detailsModal.ticket.requesterContact }}
                     </span>
                   </a>
+                  <p v-else class="text-xs text-slate-400 font-semibold flex items-center gap-2 mt-2">
+                    <svg class="w-4 h-4 text-slate-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    <span>No contact number on file</span>
+                  </p>
                 </div>
               </div>
               <!-- Student/Employee Details -->
@@ -978,7 +984,7 @@ const mapTicket = (t) => ({
   requestedBy:          t.first_name ? `${t.first_name} ${t.last_name || ''}`.trim() : (t.details?.reporter_name || 'Anonymous Reporter'),
   requesterEmail:       t.email || '',
   requesterRole:        t.requester_role || 'reporter',
-  requesterContact:     t.requester_contact || t.contact_number || '',
+  requesterContact:     t.requester_contact || t.contact_number || t.details?.contact_number || t.details?.contact_no || t.user?.contact_number || '',
   studentId:            t.student_id_number || '',
   studentType:          t.student_type || '',
   college:              t.college || t.organization_name || '',

@@ -1392,7 +1392,7 @@ const mapTicket = (input) => {
     college_building: t.details?.college_building || t.college_building || t.location || 'Campus Facility',
     office_room: t.details?.office_room || t.office_room || 'N/A',
     source_of_fund: t.details?.source_of_fund || t.source_of_fund || 'N/A',
-    contact_number: t.contact_number || t.requester_contact || t.details?.contact_number || t.user?.contact_number || 'N/A',
+    contact_number: t.contact_number || t.requester_contact || t.details?.contact_number || t.details?.contact_no || t.user?.contact_number || 'N/A',
     requester: requesterName,
     requestedBy: requesterName,
     email: t.email || t.user?.email || '',
