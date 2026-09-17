@@ -162,27 +162,52 @@ const handleFinalSubmit = async () => {
     // Backend returns { data: { ticket_ids: [...] } }
     const createdTickets = response.data?.data?.ticket_ids ?? [];
 
-    // Helper to upload attachments for a ticket
+    // Helper to upload attachments for a ticket.
+    // Never throws: returns a result object so one ticket's upload failure
+    // doesn't block the others (the ticket itself is already created).
+    // NOTE: no explicit Content-Type — the api client strips it for FormData
+    // so the browser generates the multipart boundary automatically.
     const uploadFiles = async (ticketId, filesArray) => {
-      if (!filesArray || filesArray.length === 0) return;
+      if (!filesArray || filesArray.length === 0) return { ok: true, skipped: true };
       const formData = new FormData();
       filesArray.forEach(f => formData.append('attachments[]', f));
-      // Set Content-Type to undefined so the browser automatically generates the multipart boundary
-      await api.post(`tickets/${ticketId}/attachments`, formData, {
-        headers: { 'Content-Type': undefined }
-      });
+      try {
+        await api.post(`tickets/${ticketId}/attachments`, formData);
+        return { ok: true };
+      } catch (uploadError) {
+        const payload = uploadError.response?.data ?? {};
+        const details = payload.errors ?? payload.data?.errors ?? payload.data ?? null;
+        console.error(`Attachment upload failed for ${ticketId}:`, details ?? uploadError);
+        return {
+          ok: false,
+          ticketId,
+          message: payload.message || 'attachment upload failed',
+          details: Array.isArray(details) ? details : null
+        };
+      }
     };
 
     // Match attachments to the created tickets by their prefix
+    const uploadFailures = [];
     for (const tId of createdTickets) {
+      let result = { ok: true, skipped: true };
       if (tId.startsWith('FGMU')) {
-        await uploadFiles(tId, formsStore.fgmuState.attachments);
+        result = await uploadFiles(tId, formsStore.fgmuState.attachments);
       } else if (tId.startsWith('LEAU')) {
-        await uploadFiles(tId, formsStore.leauState.attachments);
+        result = await uploadFiles(tId, formsStore.leauState.attachments);
       }
+      if (!result.ok) uploadFailures.push(result);
     }
 
-    toast.success("Requests submitted successfully!");
+    if (uploadFailures.length === 0) {
+      toast.success("Requests submitted successfully!");
+    } else {
+      // Tickets exist — navigate anyway so a retry doesn't create duplicates.
+      const detail = uploadFailures
+        .map(f => `${f.ticketId}: ${f.message}${f.details ? ` (${f.details.join('; ')})` : ''}`)
+        .join(' | ');
+      toast.warning(`Request(s) submitted, but some attachments failed to upload. ${detail}`);
+    }
     formsStore.clearForms();
     localStorage.removeItem('selectedServices');
     localStorage.removeItem('otherSpecifics');

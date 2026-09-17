@@ -39,10 +39,11 @@ export function sanitizeObject(obj) {
 
 // 2. Secure Attachment & File Validation
 export function validateAttachment(file, options = {}) {
-  const maxSizeMB = options.maxSizeMB || 10;
+  // Must stay in sync with TicketAttachmentController (backend enforces 5MB max)
+  const maxSizeMB = options.maxSizeMB || 5;
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   const allowedExtensions = options.allowedExtensions || [
-    'jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx'
+    'jpg', 'jpeg', 'png', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx'
   ];
   
   if (!file || !(file instanceof File)) {
