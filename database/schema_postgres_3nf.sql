@@ -291,7 +291,7 @@ CREATE TABLE IF NOT EXISTS ticket_feedbacks (
     id SERIAL PRIMARY KEY,
     ticket_id VARCHAR(60) NOT NULL UNIQUE REFERENCES tickets(id) ON DELETE CASCADE,
     user_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    completion_status VARCHAR(30) NOT NULL CHECK (completion_status IN ('on-time', 'beyond-time', 'not-completed')),
+    completion_status VARCHAR(30) NOT NULL CHECK (completion_status IN ('early', 'on-time', 'beyond-time', 'not-completed')),
     courtesy_rating SMALLINT NOT NULL DEFAULT 5 CHECK (courtesy_rating BETWEEN 1 AND 5),
     quality_rating SMALLINT NOT NULL DEFAULT 5 CHECK (quality_rating BETWEEN 1 AND 5),
     efficiency_rating SMALLINT NOT NULL DEFAULT 5 CHECK (efficiency_rating BETWEEN 1 AND 5),

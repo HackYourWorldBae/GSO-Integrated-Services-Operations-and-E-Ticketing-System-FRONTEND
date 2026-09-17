@@ -399,8 +399,26 @@
                 </span>
               </div>
 
-              <!-- 3 Metric Cards Breakdown -->
+              <!-- 4 Metric Cards Breakdown -->
               <div class="space-y-3.5">
+                <!-- Early / Ahead of Schedule -->
+                <div class="p-4 rounded-2xl bg-sky-50/70 border border-sky-200/80 flex flex-col gap-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-sky-500 shrink-0"></span>
+                      <span class="text-sm font-black text-slate-800 uppercase tracking-wider">Early / Ahead of Schedule</span>
+                    </div>
+                    <div class="flex items-baseline gap-1.5 shrink-0">
+                      <span class="text-2xl font-black text-sky-700 tabular-nums">{{ completionStats.earlyFinished }}</span>
+                      <span class="text-sm font-bold text-sky-700">({{ completionStats.earlyFinishedPercent }}%)</span>
+                    </div>
+                  </div>
+                  <div class="w-full h-2.5 bg-sky-200/50 rounded-full overflow-hidden">
+                    <div class="h-full bg-sky-500 rounded-full transition-all duration-500" :style="{ width: completionStats.earlyFinishedPercent + '%' }"></div>
+                  </div>
+                  <p class="text-xs sm:text-sm text-slate-600 font-medium">Jobs completed ahead of designated target schedule</p>
+                </div>
+
                 <!-- On-Time -->
                 <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col gap-2">
                   <div class="flex items-center justify-between gap-2">
@@ -473,7 +491,7 @@
               </span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               
               <!-- Delay Reasons List -->
               <div class="space-y-4">
@@ -555,6 +573,46 @@
                 </div>
               </div>
 
+              <!-- Approval Delay Reasons List -->
+              <div class="space-y-4">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0"></span>
+                    Approval Delay Reasons (Pre-Work)
+                  </p>
+                  <span class="text-xs font-bold text-slate-500 shrink-0">{{ approvalDelayList.length }} Reasons</span>
+                </div>
+
+                <div v-if="approvalDelayList.length === 0" class="p-6 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+                  <p class="text-sm font-bold text-slate-600">No Approval Delays Reported</p>
+                  <p class="text-xs text-slate-500 mt-1">All tickets were approved directly without deferred holds.</p>
+                </div>
+
+                <div v-else class="space-y-3">
+                  <div 
+                    v-for="(item, idx) in approvalDelayList" 
+                    :key="item.name"
+                    class="p-4 rounded-2xl bg-blue-50/40 border border-blue-100/80 flex flex-col gap-2 hover:bg-blue-50 transition-colors"
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="w-6 h-6 rounded-full bg-blue-200/80 text-blue-800 text-xs font-black flex items-center justify-center shrink-0">
+                          {{ idx + 1 }}
+                        </span>
+                        <span class="text-xs sm:text-sm font-black text-slate-800 break-words leading-tight">{{ item.name }}</span>
+                      </div>
+                      <div class="flex items-baseline gap-1.5 shrink-0">
+                        <span class="text-base font-black text-blue-700 tabular-nums">{{ item.count }}</span>
+                        <span class="text-xs font-bold text-slate-500">{{ item.count === 1 ? 'ticket' : 'tickets' }}</span>
+                      </div>
+                    </div>
+                    <div class="w-full h-2 bg-blue-100 rounded-full overflow-hidden">
+                      <div class="h-full bg-blue-500 rounded-full" :style="{ width: item.percent + '%' }"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -593,22 +651,35 @@ const formatReason = (code) => {
 
 const completionStats = computed(() => {
   const health = stats.value?.completion_health || [];
+  const earlyFinished = parseInt(health.find(h => h.completion_status === 'early')?.count || 0);
   const onTime = parseInt(health.find(h => h.completion_status === 'on-time')?.count || 0);
   const beyondTime = parseInt(health.find(h => h.completion_status === 'beyond-time')?.count || 0);
   const notCompleted = parseInt(health.find(h => h.completion_status === 'not-completed')?.count || 0);
-  const total = onTime + beyondTime + notCompleted;
+  const total = earlyFinished + onTime + beyondTime + notCompleted;
   
   const getPercent = (count) => total > 0 ? Math.round((count / total) * 100) : 0;
   
   return {
+    earlyFinished,
     onTime,
     beyondTime,
     notCompleted,
     total,
+    earlyFinishedPercent: getPercent(earlyFinished),
     onTimePercent: getPercent(onTime),
     beyondTimePercent: getPercent(beyondTime),
     notCompletedPercent: getPercent(notCompleted)
   };
+});
+
+const approvalDelayList = computed(() => {
+  const items = stats.value?.approval_delay_reasons || [];
+  const total = items.reduce((acc, r) => acc + parseInt(r.count || 0), 0);
+  return items.map(r => ({
+    name: r.reason_text || r.reason || 'General Delay',
+    count: parseInt(r.count || 0),
+    percent: total > 0 ? Math.round((parseInt(r.count || 0) / total) * 100) : 0
+  })).sort((a, b) => b.count - a.count);
 });
 
 const delayReasonsList = computed(() => {

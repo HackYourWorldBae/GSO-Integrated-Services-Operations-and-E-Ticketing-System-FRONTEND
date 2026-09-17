@@ -12,7 +12,7 @@ import apiClient from './client';
  *
  * @param {string} ticketId
  * @param {{
- *   completion_status: 'on-time' | 'beyond-time' | 'not-completed',
+ *   completion_status: 'early' | 'on-time' | 'beyond-time' | 'not-completed',
  *   courtesy_rating: number,
  *   quality_rating: number,
  *   efficiency_rating: number,

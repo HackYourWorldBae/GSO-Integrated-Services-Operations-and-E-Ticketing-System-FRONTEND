@@ -311,7 +311,7 @@ CREATE TABLE IF NOT EXISTS ticket_feedbacks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     ticket_id VARCHAR(60) NOT NULL UNIQUE,
     user_id VARCHAR(36) NOT NULL,
-    completion_status ENUM('on-time', 'beyond-time', 'not-completed') NOT NULL,
+    completion_status ENUM('early', 'on-time', 'beyond-time', 'not-completed') NOT NULL,
     courtesy_rating TINYINT UNSIGNED NOT NULL DEFAULT 5,
     quality_rating TINYINT UNSIGNED NOT NULL DEFAULT 5,
     efficiency_rating TINYINT UNSIGNED NOT NULL DEFAULT 5,

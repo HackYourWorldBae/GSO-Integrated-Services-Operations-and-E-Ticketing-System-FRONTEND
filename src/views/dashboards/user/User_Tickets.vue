@@ -369,7 +369,7 @@
 
                 <!-- 2. Service Quality Rating -->
                 <div
-                  v-if="satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'"
+                  v-if="satisfactionForm.completionStatus === 'early' || satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'"
                   class="bg-white p-5 sm:p-7 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-5 animate-fade-in"
                 >
                   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
@@ -870,7 +870,7 @@
 
                       <!-- 2. Service Quality Rating -->
                       <div
-                        v-if="satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'"
+                        v-if="satisfactionForm.completionStatus === 'early' || satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'"
                         class="bg-white p-5 sm:p-7 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-5 animate-fade-in"
                       >
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
@@ -1837,6 +1837,12 @@ const isSubmittingFeedback = ref(false);
 
 const completionOptions = [
   {
+    value: 'early',
+    label: 'Finished Ahead of Schedule / Early',
+    activeClass: 'bg-sky-50/90 border-sky-500 text-sky-950 shadow-sm ring-1 ring-sky-500',
+    indicatorClass: 'border-sky-600 bg-sky-600'
+  },
+  {
     value: 'on-time',
     label: 'Completed On-Time',
     activeClass: 'bg-emerald-50/90 border-emerald-500 text-emerald-950 shadow-sm ring-1 ring-emerald-500',
@@ -1947,7 +1953,7 @@ const isStepActive = (ticket, index) => {
 const isFormValid = computed(() => {
   const form = satisfactionForm.value;
   if (!form.completionStatus) return false;
-  if (form.completionStatus === 'on-time' || form.completionStatus === 'beyond-time') {
+  if (form.completionStatus === 'early' || form.completionStatus === 'on-time' || form.completionStatus === 'beyond-time') {
     const r = form.ratings;
     return r.quality > 0 && r.efficiency > 0 && r.timeliness > 0;
   }

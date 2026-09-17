@@ -517,8 +517,14 @@
                 <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Service Completion &amp; Quality</h4>
               </div>
 
-              <!-- 3 Health Tiles -->
-              <div class="grid grid-cols-3 gap-2.5">
+              <!-- 4 Health Tiles -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div class="p-3.5 bg-sky-50/70 rounded-xl border border-sky-200/60 text-center">
+                  <svg class="w-5 h-5 text-sky-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.early_finished ?? 0 }}</span>
+                  <span class="text-xs font-black text-sky-700 block">{{ executiveAnalytics?.completion_health?.early_finished_percent ?? 0 }}%</span>
+                  <span class="text-xs font-black text-sky-800 uppercase tracking-wider block mt-0.5">Early</span>
+                </div>
                 <div class="p-3.5 bg-emerald-50/70 rounded-xl border border-emerald-200/60 text-center">
                   <svg class="w-5 h-5 text-emerald-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                   <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.on_time ?? 0 }}</span>

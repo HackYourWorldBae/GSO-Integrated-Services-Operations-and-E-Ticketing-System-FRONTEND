@@ -466,19 +466,24 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
                       { text: 'SHARE / SCORE', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
                     ],
                     [
-                      { text: 'On-Time Completion', fontSize: 7.5, bold: true },
-                      { text: String(compHealth.on_time || 0), fontSize: 7.5, alignment: 'center' },
-                      { text: `${compHealth.on_time_percent || 0}%`, fontSize: 7.5, bold: true, alignment: 'center' },
+                      { text: 'Early / Ahead of Schedule', fontSize: 7.5, bold: true },
+                      { text: String(compHealth.early_finished || 0), fontSize: 7.5, alignment: 'center' },
+                      { text: `${compHealth.early_finished_percent || 0}%`, fontSize: 7.5, bold: true, alignment: 'center' },
                     ],
                     [
-                      { text: 'Completed Beyond Schedule', fontSize: 7.5, fillColor: '#f9fafb' },
-                      { text: String(compHealth.beyond_time || 0), fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
-                      { text: `${compHealth.beyond_time_percent || 0}%`, fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: 'On-Time Completion', fontSize: 7.5, bold: true, fillColor: '#f9fafb' },
+                      { text: String(compHealth.on_time || 0), fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: `${compHealth.on_time_percent || 0}%`, fontSize: 7.5, bold: true, alignment: 'center', fillColor: '#f9fafb' },
                     ],
                     [
-                      { text: 'Incomplete / Suspended', fontSize: 7.5 },
-                      { text: String(compHealth.not_completed || 0), fontSize: 7.5, alignment: 'center' },
-                      { text: `${compHealth.not_completed_percent || 0}%`, fontSize: 7.5, alignment: 'center' },
+                      { text: 'Completed Beyond Schedule', fontSize: 7.5 },
+                      { text: String(compHealth.beyond_time || 0), fontSize: 7.5, alignment: 'center' },
+                      { text: `${compHealth.beyond_time_percent || 0}%`, fontSize: 7.5, alignment: 'center' },
+                    ],
+                    [
+                      { text: 'Incomplete / Suspended', fontSize: 7.5, fillColor: '#f9fafb' },
+                      { text: String(compHealth.not_completed || 0), fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: `${compHealth.not_completed_percent || 0}%`, fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
                     ],
                     [
                       { text: 'Quality Rating (avg)', fontSize: 7.5, fillColor: '#f9fafb' },
