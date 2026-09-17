@@ -41,3 +41,7 @@ __screenshots__/
 backup.env
 #rules
 .agents/rules
+
+# Database schemas & DDL files
+*.sql
+database/
