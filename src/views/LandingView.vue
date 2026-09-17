@@ -370,11 +370,11 @@ const goToRegister = () => router.push({ name: 'register' });
         <div class="govph-col govph-col--seal">
           <div class="govph-seal-card">
             <img
-              src="/govph-seal-mono-footer.jpg"
-              alt="Coat of Arms of the Philippines"
+              src="/philippines-coat-of-arms.svg"
+              alt="Coat of Arms of the Republic of the Philippines"
               class="govph-seal-img"
-              width="90"
-              height="90"
+              width="122"
+              height="122"
               loading="lazy"
             />
           </div>
@@ -1542,10 +1542,10 @@ const goToRegister = () => router.push({ name: 'register' });
 .govph-container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2.5rem var(--sp-8) 1.75rem;
+  padding: 2.75rem var(--sp-8) 2rem;
   display: grid;
-  grid-template-columns: 140px 1.25fr 1fr 1fr 1.2fr;
-  gap: 2.25rem;
+  grid-template-columns: 165px 1.25fr 1fr 1fr 1.2fr;
+  gap: 2.5rem;
   align-items: flex-start;
 }
 
@@ -1563,26 +1563,38 @@ const goToRegister = () => router.push({ name: 'register' });
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 110px;
-  height: 110px;
-  background: rgba(0, 0, 0, 0.025);
-  border-radius: var(--r-sm);
-  margin-bottom: 0.5rem;
+  width: 144px;
+  height: 144px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--r-md);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  margin-bottom: 0.65rem;
+  padding: 0.6rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.govph-seal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.09);
 }
 
 .govph-seal-img {
-  max-width: 90px;
-  max-height: 90px;
+  width: 122px;
+  height: 122px;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-  opacity: 0.88;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
 }
 
 .govph-seal-caption {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #2b2b2b;
-  line-height: 1.25;
+  color: #1a1a1a;
+  line-height: 1.3;
   text-align: center;
+  letter-spacing: 0.01em;
 }
 
 .govph-heading {
@@ -1683,7 +1695,7 @@ const goToRegister = () => router.push({ name: 'register' });
   .btn-primary--large { align-self: center; }
 
   .govph-container {
-    grid-template-columns: 130px 1.2fr 1fr;
+    grid-template-columns: 155px 1.2fr 1fr;
     gap: 1.75rem;
   }
 }
