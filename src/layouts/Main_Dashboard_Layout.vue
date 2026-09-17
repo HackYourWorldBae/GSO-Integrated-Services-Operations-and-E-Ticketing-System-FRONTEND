@@ -12,7 +12,7 @@
     <!-- Sidebar -->
     <aside 
       :class="[
-        'fixed md:relative flex flex-col transition-all duration-500 ease-in-out z-50 h-[100dvh] border-r border-slate-200 shadow-xl bg-white backdrop-blur-xl overflow-hidden', 
+        'fixed md:relative flex flex-col transition-[width,transform] duration-200 ease-out z-50 h-[100dvh] border-r border-slate-200 shadow-xl bg-white overflow-hidden', 
         isSidebarOpen ? 'w-72 border-r' : 'w-0 border-none',
         isMobileSidebarOpen ? 'translate-x-0 w-72 max-w-[85vw] border-r' : '-translate-x-full md:translate-x-0'
       ]"
@@ -84,7 +84,7 @@
       </Transition>
 
       <!-- Top Navbar -->
-      <header class="min-h-20 pt-safe bg-white/85 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0">
+      <header class="min-h-20 pt-safe bg-white border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0">
         <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
           <!-- Sidebar Toggle Button (Desktop & Mobile) -->
           <button 
@@ -228,8 +228,9 @@
 
       <!-- Main Scrollable Area -->
       <main class="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-6 md:p-10 pb-safe relative">
-        <div class="fixed top-20 right-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none -mr-40 -mt-20"></div>
-        <div class="fixed bottom-0 left-0 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none -ml-20 -mb-20"></div>
+        <!-- NOTE: large fixed blur orbs intentionally removed — full-viewport
+             backdrop blurs force expensive repaints on every tab switch/scroll
+             and were a major source of sidebar-switch jank. -->
          
         <div class="relative z-10 w-full max-w-7xl mx-auto">
           <!-- Universal Breadcrumbs -->
@@ -347,17 +348,30 @@ const executeConfirm = () => {
 
 const notifications = ref([]);
 const unreadNotificationCount = ref(0);
+let isFetchingNotifications = false;
+let notificationsAbort = null;
 
 const fetchNotifications = async () => {
   if (isSuperAdmin.value) return;
+  // Guard: never stack overlapping notification polls during fast tab switches
+  if (isFetchingNotifications) return;
+  isFetchingNotifications = true;
   try {
-    const response = await api.get('notifications');
+    notificationsAbort?.abort('Superseded by newer notification fetch');
+  } catch { /* noop */ }
+  notificationsAbort = new AbortController();
+  try {
+    const response = await api.get('notifications', { signal: notificationsAbort.signal });
     if (response.data?.data) {
       notifications.value = response.data.data.notifications || [];
       unreadNotificationCount.value = response.data.data.unread_count || 0;
     }
   } catch (error) {
+    // Silently ignore cancellations from rapid navigation
+    if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError' || error?.name === 'AbortError') return;
     console.error('Failed to fetch notifications:', error);
+  } finally {
+    isFetchingNotifications = false;
   }
 };
 
@@ -626,6 +640,10 @@ onUnmounted(() => {
   if (notificationInterval) clearInterval(notificationInterval);
   if (removeRouterHook) removeRouterHook();
   if (unregisterReconnected) unregisterReconnected();
+  try {
+    notificationsAbort?.abort('Layout unmounted');
+  } catch { /* noop */ }
+  isFetchingNotifications = false;
 });
 
 const handleLogout = () => {

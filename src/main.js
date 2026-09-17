@@ -18,7 +18,8 @@ app.use(Vue3Toastify, {
   autoClose: 3000,
   position: toast.POSITION.TOP_RIGHT,
   theme: 'colored',
-  clearOnUrlChange: false,
+  clearOnUrlChange: true,
+  limit: 3,
 });
 // Auto-recover if a new deployment changed asset chunk hashes while user has app open
 window.addEventListener('vite:preloadError', (event) => {

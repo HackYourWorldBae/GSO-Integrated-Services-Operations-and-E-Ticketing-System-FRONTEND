@@ -1538,8 +1538,17 @@ const syncOpenTicket = async (targetId = null) => {
 };
 
 const fetchTickets = async () => {
+  // Guard: skip overlapping polls during fast tab switches
+  if (isFetchingTickets) return;
+  isFetchingTickets = true;
+  const requestId = ++ticketsRequestSeq;
   try {
-    const activeRes = await api.get('tickets/my-requests');
+    ticketsAbort?.abort('Superseded by newer tickets fetch');
+  } catch { /* noop */ }
+  ticketsAbort = new AbortController();
+  try {
+    const activeRes = await api.get('tickets/my-requests', { signal: ticketsAbort.signal });
+    if (requestId !== ticketsRequestSeq || !isTicketsAlive) return;
     const activeList = activeRes.data?.data?.tickets || [];
 
     tickets.value = activeList.map(mapTicketData);
@@ -1561,12 +1570,19 @@ const fetchTickets = async () => {
     }
     handleRouteTicket();
   } catch (error) {
+    if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError' || error?.name === 'AbortError') return;
     console.error('Failed to fetch tickets:', error);
+  } finally {
+    isFetchingTickets = false;
   }
 };
 
 let pollingInterval = null;
 let handledRouteQueryKey = null;
+let isFetchingTickets = false;
+let ticketsRequestSeq = 0;
+let ticketsAbort = null;
+let isTicketsAlive = true;
 
 const clearRouteQueryTicket = () => {
   if (route.query.ticketId || route.query.highlight || route.query._t) {
@@ -1640,6 +1656,7 @@ const handleFocusOrVisibility = () => {
 };
 
 onMounted(() => {
+  isTicketsAlive = true;
   handleRouteTicket();
 
   userName.value = authStore.user?.first_name || authStore.fullName || 'User';
@@ -1665,6 +1682,12 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  isTicketsAlive = false;
+  ticketsRequestSeq++;
+  try {
+    ticketsAbort?.abort('User tickets unmounted');
+  } catch { /* noop */ }
+  isFetchingTickets = false;
   window.removeEventListener('focus', handleFocusOrVisibility);
   document.removeEventListener('visibilitychange', handleFocusOrVisibility);
   if (unregisterReconnected) unregisterReconnected();

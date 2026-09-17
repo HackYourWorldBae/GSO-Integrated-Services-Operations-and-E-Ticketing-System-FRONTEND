@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { cancelPendingRequests } from '@/api/client';
 
 const showSwal = async (options) => {
   const { default: Swal } = await import('sweetalert2');
@@ -480,6 +481,17 @@ const router = createRouter({
 
 // Global Navigation Guard — enforce authentication, role-based authorization, and unit scoping
 router.beforeEach((to, from, next) => {
+  // Performance: abort stale in-flight GETs from the previous tab so rapid
+  // sidebar switching never piles up overlapping requests/retries.
+  // Skip on the very first load (from.name == null) to avoid cancelling boot fetches.
+  if (from?.name && to.path !== from.path) {
+    try {
+      cancelPendingRequests();
+    } catch {
+      // Non-fatal — navigation must never be blocked by cancellation
+    }
+  }
+
   let user = null;
   let role = null;
   let unit = '';

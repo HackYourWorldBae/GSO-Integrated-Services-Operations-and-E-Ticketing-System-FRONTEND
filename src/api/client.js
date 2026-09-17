@@ -28,10 +28,51 @@ const apiClient = axios.create({
 });
 
 // ----------------------------------------------------------------------------
+// Pending-request registry — prevents pile-ups when switching sidebar tabs fast.
+// Every outgoing request gets its own AbortController (unless caller supplied
+// one). On route change we abort stale in-flight GETs so late responses never
+// mutate an unmounted view or trigger Chart/computed re-renders.
+// ----------------------------------------------------------------------------
+const pendingControllers = new Set();
+
+export const cancelPendingRequests = (reason = 'Route changed — cancelling stale requests') => {
+  if (pendingControllers.size === 0) return;
+  const controllers = Array.from(pendingControllers);
+  pendingControllers.clear();
+  controllers.forEach((controller) => {
+    try {
+      controller.abort(reason);
+    } catch {
+      // Ignore — controller may already be settled
+    }
+  });
+};
+
+export const isCancelError = (error) => {
+  return (
+    error?.code === 'ERR_CANCELED' ||
+    error?.name === 'CanceledError' ||
+    error?.name === 'AbortError' ||
+    axios.isCancel?.(error)
+  );
+};
+
+// ----------------------------------------------------------------------------
 // Request Interceptor
 // ----------------------------------------------------------------------------
 apiClient.interceptors.request.use(
   (config) => {
+    // 0. Attach an AbortController so fast tab switches can cancel this request.
+    //    Callers may still pass their own `signal` — we respect it and track it too.
+    if (!config.signal) {
+      const controller = new AbortController();
+      config.signal = controller.signal;
+      config.__abortController = controller;
+      pendingControllers.add(controller);
+    } else if (config.__abortController) {
+      pendingControllers.add(config.__abortController);
+    }
+
     // 1. Attach security headers
     const securityHeaders = getSecurityHeaders?.() ?? {};
     Object.assign(config.headers, securityHeaders);
@@ -75,10 +116,23 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => {
     recordNetworkActivity(true);
+    if (response.config?.__abortController) {
+      pendingControllers.delete(response.config.__abortController);
+    }
     return response;
   },
   async (error) => {
     const config = error.config;
+    if (config?.__abortController) {
+      pendingControllers.delete(config.__abortController);
+    }
+
+    // Silently swallow cancellations from fast tab switches — callers treat
+    // these as no-ops instead of errors.
+    if (isCancelError(error) || config?.signal?.aborted) {
+      return Promise.reject(error);
+    }
+
     const status = error.response?.status;
     const errorCode = error.response?.data?.code;
 
@@ -95,12 +149,26 @@ apiClient.interceptors.response.use(
       const MAX_RETRIES = 2;
 
       if (isGet && config && retryCount < MAX_RETRIES) {
+        // Never retry a request that was cancelled by a tab switch.
+        if (config.signal?.aborted) {
+          return Promise.reject(error);
+        }
         config.__retryCount = retryCount + 1;
         const delayMs = config.__retryCount === 1 ? 1200 : 2500;
         
         console.warn(`[API Client] Network interruption detected for ${config.url}. Auto-retrying (attempt ${config.__retryCount}/${MAX_RETRIES}) in ${delayMs}ms...`);
         
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        await new Promise((resolve, reject) => {
+          const timer = setTimeout(resolve, delayMs);
+          // Abort the pending retry wait if the user navigated away.
+          config.signal?.addEventListener?.('abort', () => {
+            clearTimeout(timer);
+            reject(error);
+          }, { once: true });
+        });
+        if (config.signal?.aborted) {
+          return Promise.reject(error);
+        }
         return apiClient(config);
       }
     }

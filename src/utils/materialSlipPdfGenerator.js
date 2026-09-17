@@ -8,7 +8,6 @@
  * itemized material table breakdown, pricing, notes, and 3-tier signature block.
  */
 
-import api from '@/api/client';
 import { loadImageAsPngDataUrl } from '@/utils/imageUtils';
 import { getPdfMake } from '@/utils/pdfmakeInit';
 

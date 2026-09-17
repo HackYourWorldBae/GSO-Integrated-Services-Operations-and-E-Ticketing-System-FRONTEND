@@ -626,13 +626,16 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, onUnmounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
 
 const router = useRouter();
 const stats = ref({});
+let isAlive = true;
+let statsRequestSeq = 0;
+let statsAbort = null;
 
 const safeVal = (val) => parseFloat(val) || 0;
 
@@ -775,6 +778,11 @@ const selectBreakdownDay = (dayDate) => {
 };
 
 const fetchStats = async () => {
+  const requestId = ++statsRequestSeq;
+  try {
+    statsAbort?.abort('Superseded by newer LEAU stats fetch');
+  } catch { /* noop */ }
+  statsAbort = new AbortController();
   try {
     const params = {
       period: selectedPeriod.value,
@@ -788,16 +796,27 @@ const fetchStats = async () => {
       params.date = selectedDate.value;
     }
 
-    const response = await api.get('tickets/stats/LEAU', { params });
+    const response = await api.get('tickets/stats/LEAU', { params, signal: statsAbort.signal });
+    if (requestId !== statsRequestSeq || !isAlive) return;
     if (response.data?.data?.stats) {
       stats.value = response.data.data.stats;
     }
   } catch (error) {
+    if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError' || error?.name === 'AbortError') return;
     console.error('Failed to fetch LEAU stats:', error);
   }
 };
 onMounted(() => {
+  isAlive = true;
   fetchStats();
+});
+
+onUnmounted(() => {
+  isAlive = false;
+  statsRequestSeq++;
+  try {
+    statsAbort?.abort('LEAU dashboard unmounted');
+  } catch { /* noop */ }
 });
 </script>
 

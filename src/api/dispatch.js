@@ -4,8 +4,8 @@ import apiClient from './client';
 // Dispatch API Module
 //
 // Wraps dispatcher operations: assigning workers, updating job schedules,
-// managing materials, and worker dashboard queries.
-// Consumed by: FGMU/LEAU Dispatcher views, Worker_Dashboard
+// and managing materials.
+// Consumed by: FGMU/LEAU Dispatcher views
 // ============================================================================
 
 /**
@@ -30,17 +30,3 @@ export const updateAssignment = (assignmentId, data) =>
  */
 export const addMaterials = (assignmentId, materials) =>
   apiClient.post(`/dispatch/assignments/${assignmentId}/materials`, { materials });
-
-/**
- * Get a worker's current active job assignment (for Worker dashboard).
- * @param {string} personnelId
- */
-export const fetchWorkerDashboard = (personnelId) =>
-  apiClient.get(`/dispatch/worker/${personnelId}`);
-
-/**
- * Get a worker's completed job history.
- * @param {string} personnelId
- */
-export const fetchWorkerHistory = (personnelId) =>
-  apiClient.get(`/dispatch/worker/${personnelId}/history`);

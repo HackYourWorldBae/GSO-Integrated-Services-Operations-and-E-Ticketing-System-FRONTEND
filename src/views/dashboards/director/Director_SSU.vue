@@ -211,6 +211,9 @@ import api from '@/api/client';
 
 const stats = ref({});
 let charts = [];
+let isAlive = true;
+let statsRequestSeq = 0;
+let statsAbort = null;
 
 const currentYear = new Date().getFullYear();
 const selectedPeriod = ref('all');
@@ -272,6 +275,7 @@ const changePeriod = (key) => {
 };
 
 const renderCharts = () => {
+  if (!isAlive) return;
   charts.forEach(c => c.destroy());
   charts = [];
 
@@ -290,6 +294,8 @@ const renderCharts = () => {
         }]
       },
       options: {
+        animation: false,
+        animations: { colors: false, numbers: false },
         plugins: { legend: { position: 'bottom' } },
         cutout: '65%', responsive: true, maintainAspectRatio: false
       }
@@ -298,6 +304,11 @@ const renderCharts = () => {
 };
 
 const fetchStats = async () => {
+  const requestId = ++statsRequestSeq;
+  try {
+    statsAbort?.abort('Superseded by newer Director SSU stats fetch');
+  } catch { /* noop */ }
+  statsAbort = new AbortController();
   try {
     const params = {
       period: selectedPeriod.value
@@ -311,13 +322,15 @@ const fetchStats = async () => {
       params.month = selectedMonth.value;
     }
 
-    const response = await api.get('tickets/stats/SSU', { params });
+    const response = await api.get('tickets/stats/SSU', { params, signal: statsAbort.signal });
+    if (requestId !== statsRequestSeq || !isAlive) return;
     if (response.data?.data?.stats) {
       stats.value = response.data.data.stats;
       await nextTick();
-      renderCharts();
+      if (isAlive && requestId === statsRequestSeq) renderCharts();
     }
   } catch (error) {
+    if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError' || error?.name === 'AbortError') return;
     console.error('Failed to fetch SSU stats:', error);
   }
 };
@@ -327,6 +340,11 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  isAlive = false;
+  statsRequestSeq++;
+  try {
+    statsAbort?.abort('Director SSU unmounted');
+  } catch { /* noop */ }
   charts.forEach(c => c.destroy());
   charts = [];
 });

@@ -583,7 +583,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, onUnmounted, ref, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
 import { toast } from 'vue3-toastify';
@@ -592,6 +592,9 @@ import api from '@/api/client';
 // Executive Analytics State
 const executiveAnalytics = ref(null);
 const isGeneratingPdf = ref(false);
+let isAlive = true;
+let analyticsRequestSeq = 0;
+let analyticsAbort = null;
 
 
 
@@ -686,6 +689,11 @@ const changePeriod = (key) => {
 };
 
 const fetchExecutiveAnalytics = async () => {
+  const requestId = ++analyticsRequestSeq;
+  try {
+    analyticsAbort?.abort('Superseded by newer executive analytics fetch');
+  } catch { /* noop */ }
+  analyticsAbort = new AbortController();
   try {
     const params = {
       period: selectedPeriod.value,
@@ -698,11 +706,13 @@ const fetchExecutiveAnalytics = async () => {
       params.quarter = selectedQuarter.value;
     }
 
-    const res = await api.get('director/analytics', { params });
+    const res = await api.get('director/analytics', { params, signal: analyticsAbort.signal });
+    if (requestId !== analyticsRequestSeq || !isAlive) return;
     if (res.data?.data) {
       executiveAnalytics.value = res.data.data;
     }
   } catch (error) {
+    if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError' || error?.name === 'AbortError') return;
     console.error('Failed to load executive analytics:', error);
   }
 };
@@ -728,7 +738,16 @@ const handleDownloadReport = async () => {
 
 
 onMounted(() => {
+  isAlive = true;
   fetchExecutiveAnalytics();
+});
+
+onUnmounted(() => {
+  isAlive = false;
+  analyticsRequestSeq++;
+  try {
+    analyticsAbort?.abort('Director dashboard unmounted');
+  } catch { /* noop */ }
 });
 </script>
 

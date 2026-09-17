@@ -256,6 +256,9 @@ const ssuPeriodFilters = [
 
 
 let charts = [];
+let isAlive = true;
+let statsRequestSeq = 0;
+let statsAbort = null;
 
 function setSsuPeriod(period) {
   ssuActivePeriod.value = period;
@@ -268,6 +271,7 @@ function setSsuPeriod(period) {
 }
 
 const renderCharts = () => {
+  if (!isAlive) return;
   // Destroy existing charts to prevent memory leaks if re-rendered
   charts.forEach(c => c.destroy());
   charts = [];
@@ -302,6 +306,9 @@ const renderCharts = () => {
         }]
       },
       options: {
+        animation: false,
+        animations: { colors: false, numbers: false },
+        transitions: { active: { animation: { duration: 0 } } },
         plugins: { legend: { position: 'bottom' } },
         cutout: '65%', responsive: true, maintainAspectRatio: false
       }
@@ -349,6 +356,12 @@ const changePeriod = (key) => {
 };
 
 const fetchStats = async () => {
+  const requestId = ++statsRequestSeq;
+  // Abort any previous in-flight stats request from rapid period/tab switching
+  try {
+    statsAbort?.abort('Superseded by newer SSU stats fetch');
+  } catch { /* noop */ }
+  statsAbort = new AbortController();
   try {
     const params = {
       period: selectedPeriod.value,
@@ -360,14 +373,17 @@ const fetchStats = async () => {
       params.month = selectedMonth.value;
     }
 
-    const response = await api.get('tickets/stats/SSU', { params });
+    const response = await api.get('tickets/stats/SSU', { params, signal: statsAbort.signal });
+    // Ignore stale responses that resolve after a newer fetch started
+    if (requestId !== statsRequestSeq || !isAlive) return;
     if (response.data?.data?.stats) {
       stats.value = response.data.data.stats;
       nextTick(() => {
-        renderCharts();
+        if (isAlive && requestId === statsRequestSeq) renderCharts();
       });
     }
   } catch (error) {
+    if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError' || error?.name === 'AbortError') return;
     console.error('Failed to fetch SSU stats:', error);
   }
 };
@@ -377,6 +393,11 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  isAlive = false;
+  statsRequestSeq++;
+  try {
+    statsAbort?.abort('SSU dashboard unmounted');
+  } catch { /* noop */ }
   charts.forEach(c => c.destroy());
   charts = [];
 });
