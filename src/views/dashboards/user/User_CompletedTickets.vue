@@ -686,53 +686,58 @@ onMounted(async () => {
       tickets.value = response.data.data.tickets.map(t => {
         const isIncident = isIncidentTicket(t);
 
-        return {
-          id: t.id,
-          ticketId: t.id,
-          ticket_number: t.ticket_number || t.reference_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
-          reference_number: t.reference_number || t.ticket_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
-          title: t.title,
-          service: t.service_type,
-          service_type: t.service_type,
-          unit: t.unit_code,
-          unit_code: t.unit_code,
-          unit_id: t.unit_id,
-          description: t.description,
-          status: t.status,
-          statusLabel: t.status_label,
-          date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          submitted_at: t.submitted_at,
-          completed_at: t.completed_at || null,
-          requestedBy: userName.value,
-          location: t.location || t.details?.college_building || 'N/A',
-          office_room: t.office_room || t.details?.office_room || 'N/A',
-          attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
-          isDeclining: false,
-          declineReason: t.decline_reason || '',
-          currentStep: Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 6),
-          assignedWorker: t.assignment?.personnel_name || t.assigned_worker || 'Unassigned',
-          assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
-          assignment: t.assignment || null,
-          assignments: t.assignments || [],
-          details: t.details || null,
-          materials: t.materials || [],
-          total_material_cost: t.total_material_cost || 0,
-          implementationDate: (!isIncident && (t.assignment?.implementation_date || t.scheduled_date))
-            ? formatDate(t.assignment?.implementation_date || t.scheduled_date)
-            : null,
-          extension_days: isIncident ? 0 : (Number(t.extension_days) || 0),
-          extension_reason: isIncident ? '' : (t.extension_reason || ''),
-          extended_completion_date: isIncident ? null : (t.extended_completion_date || null),
-          is_extended: !isIncident && (Boolean(t.is_extended) || (Number(t.extension_days) > 0) || Boolean(t.extended_completion_date)),
-          target_completion_date: isIncident ? null : (t.target_completion_date || t.extended_completion_date || null),
-          effective_target_date: isIncident ? null : (t.effective_target_date || t.target_completion_date || t.extended_completion_date || null),
-          base_working_days: isIncident ? null : (Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null),
-          total_working_days: isIncident ? null : ((Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0)),
-          workingDays: isIncident ? null : (((Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0)) || (t.working_days || t.project_working_days || t.assignment?.working_days || null)),
-          working_days: isIncident ? null : (t.working_days || t.project_working_days || t.assignment?.working_days || null),
-          isClosed: t.status === 'completed' || t.status === 'closed',
-          feedback: t.feedback || null
-        };
+          const rawWorkingDays = (!isIncident && (t.working_days || t.project_working_days || t.assignment?.working_days))
+            ? Number(t.working_days || t.project_working_days || t.assignment?.working_days)
+            : null;
+          const extensionDays = (!isIncident && rawWorkingDays) ? (Number(t.extension_days) || 0) : 0;
+
+          return {
+            id: t.id,
+            ticketId: t.id,
+            ticket_number: t.ticket_number || t.reference_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
+            reference_number: t.reference_number || t.ticket_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
+            title: t.title,
+            service: t.service_type,
+            service_type: t.service_type,
+            unit: t.unit_code,
+            unit_code: t.unit_code,
+            unit_id: t.unit_id,
+            description: t.description,
+            status: t.status,
+            statusLabel: t.status_label,
+            date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            submitted_at: t.submitted_at,
+            completed_at: t.completed_at || null,
+            requestedBy: userName.value,
+            location: t.location || t.details?.college_building || 'N/A',
+            office_room: t.office_room || t.details?.office_room || 'N/A',
+            attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
+            isDeclining: false,
+            declineReason: t.decline_reason || '',
+            currentStep: Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 6),
+            assignedWorker: t.assignment?.personnel_name || t.assigned_worker || 'Unassigned',
+            assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
+            assignment: t.assignment || null,
+            assignments: t.assignments || [],
+            details: t.details || null,
+            materials: t.materials || [],
+            total_material_cost: t.total_material_cost || 0,
+            implementationDate: (!isIncident && rawWorkingDays && (t.assignment?.implementation_date || t.scheduled_date))
+              ? formatDate(t.assignment?.implementation_date || t.scheduled_date)
+              : null,
+            extension_days: extensionDays,
+            extension_reason: isIncident ? '' : (t.extension_reason || ''),
+            extended_completion_date: isIncident ? null : (t.extended_completion_date || null),
+            is_extended: !isIncident && (Boolean(t.is_extended) || (extensionDays > 0) || Boolean(t.extended_completion_date)),
+            target_completion_date: (!isIncident && rawWorkingDays) ? (t.target_completion_date || t.extended_completion_date || null) : null,
+            effective_target_date: (!isIncident && rawWorkingDays) ? (t.effective_target_date || t.target_completion_date || t.extended_completion_date || null) : null,
+            base_working_days: rawWorkingDays,
+            total_working_days: rawWorkingDays ? (rawWorkingDays + extensionDays) : null,
+            workingDays: rawWorkingDays ? (rawWorkingDays + extensionDays) : null,
+            working_days: rawWorkingDays,
+            isClosed: t.status === 'completed' || t.status === 'closed',
+            feedback: t.feedback || null
+          };
       });
       checkRouteTicket();
     }

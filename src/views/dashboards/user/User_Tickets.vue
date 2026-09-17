@@ -168,13 +168,13 @@
                       </svg>
                       Submitted {{ ticket.date }}
                     </div>
-                    <div v-if="ticket.implementationDate" class="flex items-center gap-1.5 text-xs sm:text-sm text-emerald-700 font-bold">
+                    <div v-if="!isUnscheduledTicket(ticket) && ticket.implementationDate" class="flex items-center gap-1.5 text-xs sm:text-sm text-emerald-700 font-bold">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                       </svg>
                       Scheduled: {{ ticket.implementationDate }}
                     </div>
-                    <div v-if="!isIncidentTicket(ticket) && ticket.workingDays" class="flex items-center gap-1.5 text-xs sm:text-sm text-amber-900 font-black bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+                    <div v-if="!isUnscheduledTicket(ticket) && ticket.workingDays" class="flex items-center gap-1.5 text-xs sm:text-sm text-amber-900 font-black bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -183,7 +183,7 @@
                         +{{ ticket.extension_days }}d Ext
                       </span>
                     </div>
-                    <div v-if="!isIncidentTicket(ticket) && (ticket.effective_target_date || ticket.target_completion_date)" class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-800 font-bold bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+                    <div v-if="!isUnscheduledTicket(ticket) && (ticket.effective_target_date || ticket.target_completion_date)" class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-800 font-bold bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                       </svg>
@@ -215,7 +215,7 @@
                   </div>
 
                   <!-- Official Timeline Extension Notice Card -->
-                  <div v-if="!isIncidentTicket(ticket) && ticket.is_extended && ticket.extension_days > 0" class="mt-3.5 flex items-start gap-3 p-4 bg-amber-50/90 border border-amber-200 rounded-2xl animate-fade-in shadow-xs">
+                  <div v-if="!isUnscheduledTicket(ticket) && ticket.is_extended && ticket.extension_days > 0" class="mt-3.5 flex items-start gap-3 p-4 bg-amber-50/90 border border-amber-200 rounded-2xl animate-fade-in shadow-xs">
                     <div class="p-2.5 bg-amber-100 rounded-xl shrink-0 mt-0.5 text-amber-800">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -700,7 +700,7 @@
                     </div>
 
                     <!-- Official Timeline Extension Notice Banner in Modal -->
-                    <div v-if="!isIncidentTicket(selectedTicket) && selectedTicket.is_extended && selectedTicket.extension_days > 0" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in">
+                    <div v-if="!isUnscheduledTicket(selectedTicket) && selectedTicket.is_extended && selectedTicket.extension_days > 0" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in">
                       <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1288,6 +1288,14 @@ const isIncidentTicket = (t) => {
   );
 };
 
+const isUnscheduledTicket = (t) => {
+  if (!t) return true;
+  if (isIncidentTicket(t)) return true;
+  const status = String(t.status || '').toLowerCase();
+  if (['pending', 'declined', 'cancelled'].includes(status)) return true;
+  return (!t.assignment?.working_days && !t.project_working_days && !t.working_days && !t.workingDays);
+};
+
 const isInternalStaffDocument = (fileName) => {
   if (!fileName) return false;
   const name = String(fileName).toLowerCase().replace(/[-_]/g, ' ');
@@ -1317,9 +1325,9 @@ const DigitalFormCard = defineComponent({
         h(FormRow, { label: 'Service', value: props.ticket.service }),
         h(FormRow, { label: 'Location', value: props.ticket.location || 'Main Campus' }),
         h(FormRow, { label: 'Office / Room', value: props.ticket.office_room || 'N/A' }),
-        ...((!isIncidentTicket(props.ticket) && props.ticket.implementationDate) ? [h(FormRow, { label: 'Implementation Date', value: props.ticket.implementationDate })] : []),
-        ...((!isIncidentTicket(props.ticket) && props.ticket.workingDays) ? [h(FormRow, { label: 'Target Working Days', value: `${props.ticket.workingDays} Day(s)` + (props.ticket.extension_days > 0 ? ` (+${props.ticket.extension_days}d ext)` : '') })] : []),
-        ...((!isIncidentTicket(props.ticket) && (props.ticket.effective_target_date || props.ticket.target_completion_date)) ? [h(FormRow, { label: 'Target Completion Date', value: formatDate(props.ticket.effective_target_date || props.ticket.target_completion_date) })] : []),
+        ...((!isUnscheduledTicket(props.ticket) && props.ticket.implementationDate) ? [h(FormRow, { label: 'Implementation Date', value: props.ticket.implementationDate })] : []),
+        ...((!isUnscheduledTicket(props.ticket) && props.ticket.workingDays) ? [h(FormRow, { label: 'Target Working Days', value: `${props.ticket.workingDays} Day(s)` + (props.ticket.extension_days > 0 ? ` (+${props.ticket.extension_days}d ext)` : '') })] : []),
+        ...((!isUnscheduledTicket(props.ticket) && (props.ticket.effective_target_date || props.ticket.target_completion_date)) ? [h(FormRow, { label: 'Target Completion Date', value: formatDate(props.ticket.effective_target_date || props.ticket.target_completion_date) })] : []),
       ]),
 
       ...(props.ticket.attachments?.length ? [h(AttachmentList, { attachments: props.ticket.attachments, onDownload: (att) => emit('download', att) })] : []),
@@ -1424,6 +1432,9 @@ const tickets  = ref([]);
 
 const mapTicketData = (t) => {
   const isIncident = isIncidentTicket(t);
+  const isUnscheduled = isUnscheduledTicket(t);
+  const rawWorkingDays = !isUnscheduled ? (Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null) : null;
+  const extensionDays = !isUnscheduled ? (Number(t.extension_days) || 0) : 0;
 
   return {
     id: t.id,
@@ -1457,35 +1468,35 @@ const mapTicketData = (t) => {
     })(),
     assignment: t.assignment || null,
     assignments: t.assignments || [],
-    assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
-    assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
-    assignedContact: t.assignment?.personnel_contact || null,
+    assignedWorker: isUnscheduled ? null : (t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null),
+    assignedProfession: isUnscheduled ? null : (t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null),
+    assignedContact: isUnscheduled ? null : (t.assignment?.personnel_contact || null),
     details: t.details || null,
     feedback: t.feedback || null,
     materials: t.materials || [],
     total_material_cost: t.total_material_cost || 0,
     submitted_at: t.submitted_at,
     completed_at: t.completed_at || null,
-    implementationDate: (!isIncident && t.assignment?.implementation_date)
-      ? formatDate(t.assignment.implementation_date)
+    implementationDate: (!isUnscheduled && (t.assignment?.implementation_date || t.implementation_date))
+      ? formatDate(t.assignment?.implementation_date || t.implementation_date)
       : null,
-    extension_days: isIncident ? 0 : (Number(t.extension_days) || 0),
-    extension_reason: isIncident ? '' : (t.extension_reason || ''),
-    extended_completion_date: isIncident ? null : (t.extended_completion_date || null),
-    is_extended: !isIncident && (Boolean(t.is_extended) || (Number(t.extension_days) > 0) || Boolean(t.extended_completion_date)),
-    target_completion_date: isIncident ? null : (t.target_completion_date || t.extended_completion_date || null),
-    effective_target_date: isIncident ? null : (t.effective_target_date || t.target_completion_date || t.extended_completion_date || null),
-    base_working_days: isIncident ? null : (Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null),
-    total_working_days: isIncident ? null : ((Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0)),
-    workingDays: isIncident ? null : (((Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0)) || (t.working_days || t.project_working_days || t.assignment?.working_days || null)),
-    working_days: isIncident ? null : (t.working_days || t.project_working_days || t.assignment?.working_days || null),
+    extension_days: extensionDays,
+    extension_reason: isUnscheduled ? '' : (t.extension_reason || ''),
+    extended_completion_date: isUnscheduled ? null : (t.extended_completion_date || null),
+    is_extended: !isUnscheduled && (Boolean(t.is_extended) || (extensionDays > 0) || Boolean(t.extended_completion_date)),
+    target_completion_date: isUnscheduled ? null : (t.target_completion_date || t.extended_completion_date || null),
+    effective_target_date: isUnscheduled ? null : (t.effective_target_date || t.target_completion_date || t.extended_completion_date || null),
+    base_working_days: rawWorkingDays,
+    total_working_days: rawWorkingDays ? (rawWorkingDays + extensionDays) : null,
+    workingDays: rawWorkingDays ? (rawWorkingDays + extensionDays) : null,
+    working_days: rawWorkingDays,
     isClosed: t.status === 'completed' || t.status === 'closed',
     accomplishment_report_path: t.accomplishment_report_path || null,
     accomplishment_notes: t.accomplishment_notes || '',
     verification_status: t.verification_status || 'pending_report',
     verified_at: t.verified_at || null,
-    eodb_tier: isIncident ? null : (t.eodb_tier || null),
-    eodb_days: isIncident ? null : (t.eodb_days || null),
+    eodb_tier: isUnscheduled ? null : (t.eodb_tier || null),
+    eodb_days: isUnscheduled ? null : (t.eodb_days || null),
     is_emergency: Boolean(t.is_emergency),
     is_vip: Boolean(t.is_vip),
     is_approval_delayed: Boolean(Number(t.is_approval_delayed) === 1 || t.is_approval_delayed === true),
