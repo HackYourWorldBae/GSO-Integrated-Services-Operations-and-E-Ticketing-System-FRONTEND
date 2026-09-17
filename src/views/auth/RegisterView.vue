@@ -414,12 +414,12 @@ const handleRegister = async () => {
       <div class="absolute w-[700px] h-[700px] bg-sky-400/5 rounded-full blur-[120px] mix-blend-multiply"></div>
     </div>
 
-    <!-- Top Left University Branding -->
-    <router-link to="/" class="fixed top-6 left-6 sm:top-8 sm:left-10 z-20 flex items-center gap-4 drop-shadow-sm cursor-pointer hover:opacity-90 transition-opacity">
+    <!-- Desktop Top Left University Branding (hidden on mobile to prevent floating over form while scrolling) -->
+    <router-link to="/" class="hidden sm:flex sm:fixed sm:top-8 sm:left-10 z-20 items-center gap-4 drop-shadow-sm cursor-pointer hover:opacity-90 transition-opacity">
       <div class="w-14 h-14 sm:w-16 sm:h-16 overflow-hidden flex-shrink-0">
         <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-cover rounded-full" />
       </div>
-      <div class="hidden sm:block">
+      <div>
         <h2 class="text-emerald-800 font-extrabold tracking-widest text-xs uppercase mb-0.5 drop-shadow-md">Benguet State University</h2>
         <p class="text-slate-700 font-bold text-[11px] tracking-wide drop-shadow-md">General Services Office</p>
       </div>
@@ -428,6 +428,17 @@ const handleRegister = async () => {
     <!-- Main Registration Card -->
     <div class="relative z-10 w-full max-w-2xl my-8 p-6 sm:p-10 rounded-[2rem] border border-slate-200/80 bg-white/95 backdrop-blur-2xl shadow-2xl transition-all duration-300">
       
+      <!-- Mobile In-Card University Branding (displayed inline in document flow so it never floats or disrupts filling up form) -->
+      <router-link to="/" class="sm:hidden flex items-center gap-3 mb-5 p-2.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/70 hover:bg-emerald-100/60 transition-colors shadow-xs">
+        <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 bg-white shadow-xs border border-emerald-200/80">
+          <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-cover" />
+        </div>
+        <div class="text-left min-w-0">
+          <h2 class="text-emerald-900 font-black tracking-wider text-[11px] uppercase leading-tight truncate">Benguet State University</h2>
+          <p class="text-emerald-700 font-bold text-[10px] truncate">General Services Office</p>
+        </div>
+      </router-link>
+
       <!-- Card Header -->
       <div class="mb-6 text-left">
         <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-[11px] font-bold uppercase tracking-wider mb-2.5">

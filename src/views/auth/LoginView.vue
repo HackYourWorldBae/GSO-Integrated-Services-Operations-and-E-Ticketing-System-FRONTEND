@@ -150,7 +150,7 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="h-[100dvh] max-h-screen w-full relative flex items-center justify-center bg-slate-50 overflow-hidden font-sans">
+  <div class="min-h-[100dvh] w-full relative flex items-center justify-center bg-slate-50 py-8 px-4 sm:p-6 font-sans overflow-y-auto">
     
     <!-- Background Image & Gradient -->
     <div class="absolute inset-0 z-0 overflow-hidden bg-slate-50">
@@ -169,20 +169,31 @@ const handleLogin = async () => {
       <div class="absolute w-[700px] h-[700px] bg-sky-400/5 rounded-full blur-[120px] animate-orb-3 mix-blend-multiply"></div>
     </div>
 
-    <!-- Top Left University Branding -->
-    <router-link to="/" class="absolute top-6 left-6 sm:top-8 sm:left-10 z-20 flex items-center gap-4 animate-fade-in drop-shadow-sm cursor-pointer hover:opacity-90 transition-opacity">
+    <!-- Desktop Top Left University Branding (hidden on mobile to prevent floating over card and form) -->
+    <router-link to="/" class="hidden sm:flex sm:absolute sm:top-8 sm:left-10 z-20 items-center gap-4 animate-fade-in drop-shadow-sm cursor-pointer hover:opacity-90 transition-opacity">
       <div class="w-16 h-16 sm:w-20 sm:h-20 overflow-hidden flex-shrink-0">
         <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-cover rounded-full" />
       </div>
-      <div class="hidden sm:block">
+      <div>
         <h2 class="text-emerald-800 font-extrabold tracking-widest text-sm uppercase mb-0.5 drop-shadow-md">Benguet State University</h2>
         <p class="text-slate-700 font-bold text-xs tracking-wide drop-shadow-md">La Trinidad, Benguet</p>
       </div>
     </router-link>
 
     <!-- Main Login Card -->
-    <div class="relative z-10 w-full max-w-md mx-4 p-6 sm:p-8 rounded-[2rem] border border-slate-200/60 bg-white/90 backdrop-blur-2xl shadow-2xl transition-all duration-700 hover:shadow-emerald-500/15 flex flex-col justify-center max-h-[95vh] overflow-hidden">
+    <div class="relative z-10 w-full max-w-md p-6 sm:p-8 rounded-[2rem] border border-slate-200/60 bg-white/90 backdrop-blur-2xl shadow-2xl transition-all duration-700 hover:shadow-emerald-500/15 flex flex-col justify-center my-auto">
       
+      <!-- Mobile In-Card University Branding (displayed inline in document flow so it never floats or covers inputs) -->
+      <router-link to="/" class="sm:hidden flex items-center gap-3 mb-6 p-2.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/70 hover:bg-emerald-100/60 transition-colors shadow-xs">
+        <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 bg-white shadow-xs border border-emerald-200/80">
+          <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-cover" />
+        </div>
+        <div class="text-left min-w-0">
+          <h2 class="text-emerald-900 font-black tracking-wider text-[11px] uppercase leading-tight truncate">Benguet State University</h2>
+          <p class="text-emerald-700 font-bold text-[10px] truncate">General Services Office</p>
+        </div>
+      </router-link>
+
       <!-- Header -->
       <div class="mb-8 shrink-0 text-left">
         <h2 class="text-emerald-700 font-extrabold text-[10px] sm:text-xs tracking-[0.2em] uppercase mb-2 ml-1">General Services Office</h2>
@@ -368,10 +379,9 @@ const handleLogin = async () => {
 </template>
 
 <style scoped>
-/* Force 100dvh on the root element of this view */
+/* Maintain flexible viewport height */
 :deep(body), :deep(html) {
-  overflow: hidden;
-  height: 100%;
+  min-height: 100%;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
