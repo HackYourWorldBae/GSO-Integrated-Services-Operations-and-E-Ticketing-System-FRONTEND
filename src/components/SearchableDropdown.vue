@@ -182,8 +182,8 @@ const itemHoverClass = computed(() => {
         @keydown.enter.prevent="handleEnter"
         :placeholder="placeholder"
         :disabled="disabled"
-        class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        :class="[focusBorderClass, searchQuery ? 'pr-20' : 'pr-12']"
+        class="w-full min-h-[48px] h-12 sm:h-14 pl-4 sm:pl-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        :class="[focusBorderClass, searchQuery ? 'pr-20 sm:pr-24' : 'pr-12 sm:pr-14']"
       />
 
       <!-- Clear button: visible when there is a value -->
