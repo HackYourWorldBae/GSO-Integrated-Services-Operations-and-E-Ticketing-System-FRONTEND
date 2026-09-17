@@ -639,6 +639,22 @@ const isIncidentTicket = (t) => {
   );
 };
 
+const isInternalStaffDocument = (fileName) => {
+  if (!fileName) return false;
+  const name = String(fileName).toLowerCase().replace(/[-_]/g, ' ');
+  return (
+    name.includes('job order') ||
+    name.includes('job request form') ||
+    name.includes('joborder') ||
+    name.includes('work order') ||
+    name.includes('receipt slip') ||
+    name.includes('material slip') ||
+    name.includes('materials slip') ||
+    name.includes('accomplishment report') ||
+    name.includes('accomplishment')
+  );
+};
+
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
@@ -690,7 +706,7 @@ onMounted(async () => {
           requestedBy: userName.value,
           location: t.location || t.details?.college_building || 'N/A',
           office_room: t.office_room || t.details?.office_room || 'N/A',
-          attachments: t.attachments || [],
+          attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
           isDeclining: false,
           declineReason: t.decline_reason || '',
           currentStep: Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 6),
@@ -820,10 +836,7 @@ const selectedTicket = ref(null);
 
 const userAttachments = computed(() => {
   if (!selectedTicket.value?.attachments) return [];
-  return selectedTicket.value.attachments.filter(att => {
-    const name = (att.file_name || '').toLowerCase();
-    return !name.includes('job request form') && !name.includes('receipt slip');
-  });
+  return selectedTicket.value.attachments.filter(att => !isInternalStaffDocument(att.file_name));
 });
 
 const viewDetails = (ticket) => {

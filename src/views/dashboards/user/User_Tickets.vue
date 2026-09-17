@@ -1288,6 +1288,22 @@ const isIncidentTicket = (t) => {
   );
 };
 
+const isInternalStaffDocument = (fileName) => {
+  if (!fileName) return false;
+  const name = String(fileName).toLowerCase().replace(/[-_]/g, ' ');
+  return (
+    name.includes('job order') ||
+    name.includes('job request form') ||
+    name.includes('joborder') ||
+    name.includes('work order') ||
+    name.includes('receipt slip') ||
+    name.includes('material slip') ||
+    name.includes('materials slip') ||
+    name.includes('accomplishment report') ||
+    name.includes('accomplishment')
+  );
+};
+
 /**
  * Digital ticket card for FGMU/LEAU.
  */
@@ -1423,7 +1439,7 @@ const mapTicketData = (t) => {
     contact_number: t.contact_number || t.requester_contact || t.user?.contact_number || 'N/A',
     location: t.location,
     office_room: t.office_room,
-    attachments: t.attachments || [],
+    attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
     declineReason: t.decline_reason || '',
     currentStep: (() => {
       const rawStep = parseInt(t.current_step, 10);
