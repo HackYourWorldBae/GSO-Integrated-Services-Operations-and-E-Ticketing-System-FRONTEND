@@ -123,7 +123,7 @@
             <tr class="bg-slate-50/80 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-400">
               <th class="px-4 py-3">Ticket Ref</th>
               <th class="px-3 py-3">Reporter</th>
-              <th class="px-3 py-3">Location & Incident Summary</th>
+              <th v-if="activeQueue !== 'submitted'" class="px-3 py-3">Location & Incident Summary</th>
               <th v-if="activeQueue === 'investigating'" class="px-3 py-3">Recommendation / Notation</th>
               <th class="px-4 py-3 text-right">Actions</th>
             </tr>
@@ -131,7 +131,7 @@
           <tbody class="divide-y divide-slate-100 text-xs">
             <!-- Loading Skeletons -->
             <tr v-if="loading && paginatedTickets.length === 0">
-              <td :colspan="activeQueue === 'investigating' ? 5 : 4" class="py-16 text-center">
+              <td :colspan="activeQueue === 'investigating' ? 5 : 3" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold shadow-xs">
                   <svg class="animate-spin h-4 w-4 text-slate-800" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -144,7 +144,7 @@
 
             <!-- Empty State -->
             <tr v-else-if="paginatedTickets.length === 0">
-              <td :colspan="activeQueue === 'investigating' ? 5 : 4" class="py-16 text-center">
+              <td :colspan="activeQueue === 'investigating' ? 5 : 3" class="py-16 text-center">
                 <div class="max-w-md mx-auto space-y-3">
                   <div
                     class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
@@ -192,7 +192,7 @@
                     </span>
                   </div>
 
-                  <div class="flex items-center gap-2">
+                  <div v-if="activeQueue !== 'submitted'" class="flex items-center gap-2">
                     <span
                       :class="[
                         'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border',
@@ -222,8 +222,8 @@
                 </div>
               </td>
 
-              <!-- 3. Location & Summary -->
-              <td class="px-3 py-3.5 align-top max-w-sm">
+              <!-- 3. Location & Summary (hidden in Submitted queue) -->
+              <td v-if="activeQueue !== 'submitted'" class="px-3 py-3.5 align-top max-w-sm">
                 <div class="space-y-1.5">
                   <div class="flex items-center gap-1.5 flex-wrap">
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
@@ -437,17 +437,17 @@
           </span>
         </div>
 
-        <!-- Reporter & Location -->
+        <!-- Reporter (location & summary hidden in Submitted queue) -->
         <div class="space-y-1">
           <p class="text-xs font-bold text-slate-900">{{ ticket.requestedBy }}</p>
-          <p class="text-[11px] text-slate-500 font-medium">
+          <p v-if="activeQueue !== 'submitted'" class="text-[11px] text-slate-500 font-medium">
             Location: <span class="text-slate-800 font-semibold">{{ ticket.location || ticket.college_building || 'Main Campus' }}</span>
             <span v-if="ticket.office_room"> ({{ ticket.office_room }})</span>
           </p>
         </div>
 
-        <!-- Description Snippet -->
-        <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+        <!-- Description Snippet (hidden in Submitted queue) -->
+        <p v-if="activeQueue !== 'submitted'" class="text-xs text-slate-600 line-clamp-2 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
           {{ ticket.description }}
         </p>
 
