@@ -96,6 +96,10 @@ CREATE TABLE IF NOT EXISTS tickets (
     status ENUM('pending', 'approved', 'processing', 'resolved', 'closed', 'declined', 'cancelled') NOT NULL DEFAULT 'pending',
     status_label VARCHAR(100) NOT NULL DEFAULT 'Pending Approval',
     is_emergency TINYINT(1) NOT NULL DEFAULT 0,
+    is_approval_delayed TINYINT(1) NOT NULL DEFAULT 0,
+    approval_delay_reason TEXT NULL,
+    approval_delayed_at DATETIME NULL,
+    approval_delayed_by VARCHAR(36) NULL,
     verification_status ENUM('pending_report', 'pending_verification', 'verified_closed') NOT NULL DEFAULT 'pending_report',
     accomplishment_report_path VARCHAR(255) NULL,
     accomplishment_notes TEXT NULL,
@@ -137,9 +141,11 @@ CREATE TABLE IF NOT EXISTS tickets (
     CONSTRAINT fk_tickets_unit FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE,
     CONSTRAINT fk_tickets_reviewer FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT fk_tickets_verified_by FOREIGN KEY (verified_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_tickets_delayed_by FOREIGN KEY (approval_delayed_by) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_tickets_user (user_id),
     INDEX idx_tickets_unit_status (unit_id, status),
     INDEX idx_tickets_archived (is_archived),
+    INDEX idx_tickets_approval_delayed (is_approval_delayed),
     INDEX idx_tickets_submitted (submitted_at),
     INDEX idx_tickets_investigating (unit_id, is_under_investigation, is_archived)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

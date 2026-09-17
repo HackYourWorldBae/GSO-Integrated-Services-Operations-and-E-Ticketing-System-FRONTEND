@@ -56,7 +56,7 @@
         <!-- ═══ Unified Compact Toolbar: Tabs + Search + Filter ═══ -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
           <!-- Top row: Stage Tabs -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 border-b border-slate-100">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 p-1.5 border-b border-slate-100">
             <!-- Tab 1: Pending Approval -->
             <button
               @click="switchTab('pending')"
@@ -78,6 +78,30 @@
                 ]"
               >
                 {{ queueCounts.pending }}
+              </span>
+            </button>
+
+            <!-- Tab: Approval Delayed -->
+            <button
+              @click="switchTab('delayed')"
+              :class="[
+                'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+                activeTab === 'delayed'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+              ]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="truncate">Approval Delayed</span>
+              <span
+                :class="[
+                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
+                  activeTab === 'delayed' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+                ]"
+              >
+                {{ queueCounts.delayed }}
               </span>
             </button>
 
@@ -189,8 +213,9 @@
                 <tr class="bg-slate-50 border-b border-slate-200">
                   <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
                   <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
-                  <th v-if="activeTab === 'pending' || activeTab === 'approved'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
-                  <th v-if="activeTab === 'pending'" class="px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">Files</th>
+                  <th v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
+                  <th v-if="activeTab === 'delayed'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Delay Reason</th>
+                  <th v-if="activeTab === 'pending' || activeTab === 'delayed'" class="px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">Files</th>
                   <th v-if="activeTab === 'active'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Elapsed Duration</th>
                   <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
                 </tr>
@@ -198,7 +223,7 @@
               <tbody class="divide-y divide-slate-100">
                 <!-- Loading State -->
                 <tr v-if="isLoading && currentTabTickets.length === 0">
-                  <td colspan="6" class="py-16 text-center">
+                  <td colspan="7" class="py-16 text-center">
                     <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                       <svg class="animate-spin h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -211,7 +236,7 @@
 
                 <!-- Empty State -->
                 <tr v-else-if="paginatedTickets.length === 0">
-                  <td colspan="6" class="py-16 text-center">
+                  <td colspan="7" class="py-16 text-center">
                     <div class="max-w-sm mx-auto flex flex-col items-center">
                       <div class="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -261,14 +286,26 @@
                     </div>
                   </td>
 
-                  <!-- Location (Pending & Approved) -->
-                  <td v-if="activeTab === 'pending' || activeTab === 'approved'" class="px-3 py-2.5 whitespace-nowrap">
+                  <!-- Location (Pending, Approved, Delayed) -->
+                  <td v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed'" class="px-3 py-2.5 whitespace-nowrap">
                     <div class="text-xs font-semibold text-slate-700">{{ ticket.location || 'Main Campus' }}</div>
                     <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
                   </td>
 
-                  <!-- Pending: Files -->
-                  <td v-if="activeTab === 'pending'" class="px-2 py-2.5 text-center">
+                  <!-- Delayed: Reason & Author -->
+                  <td v-if="activeTab === 'delayed'" class="px-3 py-2.5">
+                    <div class="max-w-[200px]">
+                      <div class="text-xs font-bold text-amber-900 truncate" :title="ticket.approval_delay_reason">
+                        {{ ticket.approval_delay_reason || 'Awaiting Materials / Procurement' }}
+                      </div>
+                      <div v-if="ticket.delayed_by_first_name" class="text-[10px] text-amber-700 truncate">
+                        by {{ ticket.delayed_by_first_name }} &bull; {{ formatDate(ticket.approval_delayed_at) }}
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Pending & Delayed: Files -->
+                  <td v-if="activeTab === 'pending' || activeTab === 'delayed'" class="px-2 py-2.5 text-center">
                     <span
                       v-if="ticket.attachments && ticket.attachments.length > 0"
                       class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200 hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer"
@@ -313,6 +350,16 @@
                         <span>Full Info</span>
                       </button>
                       <button
+                        @click="openDelayModal(ticket)"
+                        class="px-2.5 py-1.5 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        title="Delay ticket approval (e.g. awaiting procurement/materials)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Delay</span>
+                      </button>
+                      <button
                         @click="openDeclineModal(ticket)"
                         class="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 transition-all cursor-pointer"
                         title="Decline Request"
@@ -324,6 +371,50 @@
                       <button
                         @click="initiateApproval(ticket)"
                         class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Approve</span>
+                      </button>
+                    </div>
+
+                    <!-- Delayed Tab Actions -->
+                    <div v-else-if="activeTab === 'delayed'" class="flex items-center justify-end gap-2">
+                      <button
+                        @click="openDetailsModal(ticket)"
+                        class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        title="View Full Ticket Information"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>Full Info</span>
+                      </button>
+                      <button
+                        @click="handleResumeApproval(ticket)"
+                        class="px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        title="Return to general pending approval queue"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span>Resume</span>
+                      </button>
+                      <button
+                        @click="openDeclineModal(ticket)"
+                        class="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 transition-all cursor-pointer"
+                        title="Decline Request"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                      <button
+                        @click="initiateApproval(ticket)"
+                        class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                        title="Direct Approve"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -444,8 +535,8 @@
               </span>
             </div>
 
-            <!-- Location for Pending and Approved (job/service removed) -->
-            <div v-if="activeTab === 'pending' || activeTab === 'approved'" class="mt-2 flex items-center justify-between text-xs text-slate-600">
+            <!-- Location for Pending, Approved, and Delayed -->
+            <div v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed'" class="mt-2 flex items-center justify-between text-xs text-slate-600">
               <div class="flex items-center gap-1.5 truncate">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -458,6 +549,17 @@
               </span>
             </div>
 
+            <!-- Delayed Notice for Delayed tab -->
+            <div v-if="activeTab === 'delayed'" class="mt-2 p-2 rounded-xl bg-amber-50 border border-amber-200/80 text-xs">
+              <div class="flex items-center gap-1.5 font-bold text-amber-900">
+                <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span class="truncate">{{ ticket.approval_delay_reason || 'Awaiting Procurement' }}</span>
+              </div>
+              <div v-if="ticket.delayed_by_first_name" class="text-[10px] text-amber-700 mt-0.5">
+                by {{ ticket.delayed_by_first_name }} {{ ticket.delayed_by_last_name }} &bull; {{ formatDate(ticket.approval_delayed_at) }}
+              </div>
+            </div>
+
             <!-- Active tab: Elapsed Duration + Target Days (job/service and staff/schedule removed) -->
             <div v-if="activeTab === 'active'" class="mt-2 flex items-center justify-between text-xs">
               <span class="text-slate-600 font-medium">Elapsed: <strong class="text-amber-700 font-bold ml-1">{{ liveWorkingDurations[ticket.id] || ticket.computed_working_duration || 'Counting...' }}</strong></span>
@@ -468,11 +570,22 @@
             </div>
 
             <!-- Actions -->
-            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end gap-2" @click.stop>
-              <button v-if="activeTab === 'pending'" @click="openDeclineModal(ticket)" class="px-3.5 py-2 min-h-[38px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
-              <button v-if="activeTab === 'pending'" @click="initiateApproval(ticket)" class="px-4 py-2 min-h-[38px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
-              <button v-if="activeTab === 'active'" @click="openExtensionModal(ticket)" class="px-3.5 py-2 min-h-[38px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Extend</button>
-              <button @click="openDetailsModal(ticket)" class="px-3.5 py-2 min-h-[38px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Details</button>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end gap-1.5 flex-wrap" @click.stop>
+              <!-- Pending Actions -->
+              <button v-if="activeTab === 'pending'" @click="openDelayModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
+              <button v-if="activeTab === 'pending'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+              <button v-if="activeTab === 'pending'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
+
+              <!-- Delayed Actions -->
+              <button v-if="activeTab === 'delayed'" @click="handleResumeApproval(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Resume</button>
+              <button v-if="activeTab === 'delayed'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+              <button v-if="activeTab === 'delayed'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
+
+              <!-- Active Actions -->
+              <button v-if="activeTab === 'active'" @click="openExtensionModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Extend</button>
+
+              <!-- Details (All Tabs) -->
+              <button @click="openDetailsModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Details</button>
             </div>
           </div>
 
@@ -520,6 +633,13 @@
                 #{{ selectedTicketForModal.ticketId }}
               </span>
               <span
+                v-if="selectedTicketForModal.is_approval_delayed"
+                class="px-2.5 py-0.5 rounded-md bg-amber-100 border border-amber-300 text-amber-800 text-[10px] font-black uppercase tracking-wider flex items-center gap-1"
+              >
+                <svg class="w-3 h-3 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Approval Delayed
+              </span>
+              <span
                 v-if="selectedTicketForModal.is_emergency"
                 class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider animate-pulse"
               >
@@ -541,6 +661,17 @@
 
         <!-- Scrollable Modal Body -->
         <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
+          <!-- Approval Delay Notice Banner -->
+          <div v-if="selectedTicketForModal.is_approval_delayed" class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-1">
+            <div class="flex items-center gap-2 font-black text-xs uppercase tracking-wider text-amber-800">
+              <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Delay Reason: {{ selectedTicketForModal.approval_delay_reason || 'Pending Materials / Procurement' }}</span>
+            </div>
+            <p v-if="selectedTicketForModal.delayed_by_first_name" class="text-[11px] text-amber-700 font-medium">
+              Deferred by {{ selectedTicketForModal.delayed_by_first_name }} {{ selectedTicketForModal.delayed_by_last_name }} on {{ formatDate(selectedTicketForModal.approval_delayed_at) }}. Ticket is held outside general queue until resumed or approved.
+            </p>
+          </div>
+
           <!-- Requester & Location Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
@@ -650,12 +781,32 @@
           <button @click="closeDetailsModal" class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer shadow-2xs">
             Close Full Info
           </button>
-          <div v-if="activeTab === 'pending'" class="flex items-center gap-2.5">
+          <div v-if="activeTab === 'pending'" class="flex items-center gap-2">
+            <button @click="openDelayModal(selectedTicketForModal); closeDetailsModal()" class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Delay</span>
+            </button>
             <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
               Decline Request
             </button>
             <button @click="initiateApproval(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-amber-600/20 transition-all cursor-pointer">
               Approve Request
+            </button>
+          </div>
+          <div v-else-if="activeTab === 'delayed'" class="flex items-center gap-2">
+            <button @click="handleResumeApproval(selectedTicketForModal); closeDetailsModal()" class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Resume to Queue</span>
+            </button>
+            <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
+              Decline
+            </button>
+            <button @click="initiateApproval(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-amber-600/20 transition-all cursor-pointer">
+              Approve
             </button>
           </div>
           <div v-else-if="activeTab === 'active'">
@@ -781,6 +932,103 @@
     </div>
   </Teleport>
 
+  <!-- Delay Approval Modal -->
+  <Teleport to="body">
+    <div v-if="ticketToDelay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in" @click.self="closeDelayModal">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 animate-scale-up space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <div class="p-2.5 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-base font-black text-slate-900">Delay Ticket Approval</h3>
+              <p class="text-[11px] text-slate-500 font-medium">Ticket #{{ ticketToDelay?.ticketId }} will be moved to Delayed Queue</p>
+            </div>
+          </div>
+          <button @click="closeDelayModal" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-3.5">
+          <div>
+            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+              Reason for Delay <span class="text-amber-600">*</span>
+            </label>
+            <div class="space-y-2">
+              <label
+                v-for="preset in delayPresets"
+                :key="preset"
+                class="flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer text-xs transition-all select-none"
+                :class="selectedDelayPreset === preset ? 'bg-amber-50/80 border-amber-300 text-amber-950 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/60'"
+              >
+                <input
+                  type="radio"
+                  name="leau-delay-reason"
+                  :value="preset"
+                  v-model="selectedDelayPreset"
+                  class="text-amber-600 focus:ring-amber-500 border-slate-300"
+                />
+                <span>{{ preset }}</span>
+              </label>
+
+              <label
+                class="flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer text-xs transition-all select-none"
+                :class="selectedDelayPreset === 'Other / Custom Reason' ? 'bg-amber-50/80 border-amber-300 text-amber-950 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/60'"
+              >
+                <input
+                  type="radio"
+                  name="leau-delay-reason"
+                  value="Other / Custom Reason"
+                  v-model="selectedDelayPreset"
+                  class="text-amber-600 focus:ring-amber-500 border-slate-300"
+                />
+                <span>Other / Custom Reason</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              {{ selectedDelayPreset === 'Other / Custom Reason' ? 'Specify Custom Reason' : 'Additional Notes (Optional)' }}
+              <span v-if="selectedDelayPreset === 'Other / Custom Reason'" class="text-rose-500">*</span>
+            </label>
+            <textarea
+              v-model="delayNotesInput"
+              rows="2.5"
+              :placeholder="selectedDelayPreset === 'Other / Custom Reason' ? 'Provide clear reason for delaying approval...' : 'e.g., Awaiting vehicle replacement parts or inspection clearance.'"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 placeholder:text-slate-400"
+            ></textarea>
+          </div>
+
+          <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200/70 text-[11px] text-amber-800 flex items-start gap-2">
+            <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span>This ticket will be excluded from the pending approval queue until resumed or directly approved once ready.</span>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button @click="closeDelayModal" class="w-full px-4 py-2.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 cursor-pointer transition-colors">
+            Cancel
+          </button>
+          <button
+            @click="submitDelayApproval"
+            :disabled="isSubmittingDelay || (!selectedDelayPreset || (selectedDelayPreset === 'Other / Custom Reason' && !delayNotesInput.trim()))"
+            class="w-full px-4 py-2.5 bg-amber-600 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-amber-600/20 hover:bg-amber-500 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-1.5"
+          >
+            <svg v-if="isSubmittingDelay" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+            <span>{{ isSubmittingDelay ? 'Saving...' : 'Confirm Delay' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
   <!-- Ticket Extension Modal (Unforeseen Circumstances & Working Hours) -->
   <TicketExtensionModal
     :is-open="showExtensionModal"
@@ -826,13 +1074,14 @@ const closeDetailsModal = () => {
   clearRouteQueryTicket();
 };
 
-// 3-Stage Tab Lifecycle
-const activeTab = ref('pending'); // 'pending' | 'approved' | 'active'
-const queueCounts = ref({ pending: 0, approved: 0, active: 0 });
+// 4-Stage Tab Lifecycle: Pending -> Delayed (if held) -> Approved -> Active
+const activeTab = ref('pending'); // 'pending' | 'delayed' | 'approved' | 'active'
+const queueCounts = ref({ pending: 0, delayed: 0, approved: 0, active: 0 });
 
 // Queues data cache
 const queuesData = ref({
   pending: [],
+  delayed: [],
   approved: [],
   active: [],
 });
@@ -853,6 +1102,20 @@ const ticketToDecline = ref(null);
 const declineReasonInput = ref('');
 const selectedTicketForModal = ref(null);
 
+// Delay Approval Modal
+const ticketToDelay = ref(null);
+const selectedDelayPreset = ref('');
+const delayNotesInput = ref('');
+const isSubmittingDelay = ref(false);
+
+const delayPresets = [
+  'Awaiting Procurement of Materials / Parts',
+  'Awaiting Budget Clearance',
+  'Pending Vehicle / Equipment Inspection',
+  'Awaiting Additional Specifications from Requester',
+  'Scheduled for Bulk Parts Procurement Cycle',
+];
+
 // Extension Modal
 const showExtensionModal = ref(false);
 const ticketToExtend = ref(null);
@@ -867,6 +1130,7 @@ const activeTabCount = computed(() => queueCounts.value[activeTab.value] || 0);
 const activeTabLabel = computed(() => {
   switch (activeTab.value) {
     case 'pending': return 'Pending Approval';
+    case 'delayed': return 'Approval Delayed';
     case 'approved': return 'Approved (Awaiting Dispatch)';
     case 'active': return 'Dispatched & In Progress';
     default: return 'Tickets';
@@ -980,14 +1244,21 @@ const mapTicket = (t) => {
     extension_days: Number(t.extension_days) || 0,
     overtime_hours: Number(t.overtime_hours) || 0,
     is_emergency: Boolean(Number(t.is_emergency) === 1 || t.is_emergency === true || t.urgency === 'Emergency' || t.urgency === 'High'),
+    is_approval_delayed: Boolean(Number(t.is_approval_delayed) === 1 || t.is_approval_delayed === true),
+    approval_delay_reason: t.approval_delay_reason || '',
+    approval_delayed_at: t.approval_delayed_at || null,
+    approval_delayed_by: t.approval_delayed_by || null,
+    delayed_by_first_name: t.delayed_by_first_name || '',
+    delayed_by_last_name: t.delayed_by_last_name || '',
   };
 };
 
 const fetchAllQueues = async () => {
   isLoading.value = true;
   try {
-    const [pendingRes, dispatchRes, activeRes] = await Promise.allSettled([
+    const [pendingRes, delayedRes, dispatchRes, activeRes] = await Promise.allSettled([
       api.get('tickets/queue/LEAU'),
+      api.get('tickets/delayed-approval/LEAU'),
       api.get('tickets/dispatch/LEAU'),
       api.get('tickets/active/LEAU'),
     ]);
@@ -995,6 +1266,11 @@ const fetchAllQueues = async () => {
     if (pendingRes.status === 'fulfilled' && pendingRes.value.data?.data?.tickets) {
       queuesData.value.pending = pendingRes.value.data.data.tickets.map(mapTicket);
       queueCounts.value.pending = queuesData.value.pending.length;
+    }
+
+    if (delayedRes.status === 'fulfilled' && delayedRes.value.data?.data?.tickets) {
+      queuesData.value.delayed = delayedRes.value.data.data.tickets.map(mapTicket);
+      queueCounts.value.delayed = queuesData.value.delayed.length;
     }
 
     if (dispatchRes.status === 'fulfilled' && dispatchRes.value.data?.data?.tickets) {
@@ -1068,6 +1344,8 @@ const checkRouteQueryTicket = () => {
       activeTab.value = 'active';
     } else if (queuesData.value.approved?.some(t => String(t.id) === String(match.id))) {
       activeTab.value = 'approved';
+    } else if (queuesData.value.delayed?.some(t => String(t.id) === String(match.id))) {
+      activeTab.value = 'delayed';
     } else if (queuesData.value.pending?.some(t => String(t.id) === String(match.id))) {
       activeTab.value = 'pending';
     }
@@ -1166,6 +1444,57 @@ const confirmDecline = async () => {
   }
 };
 
+const openDelayModal = (ticket) => {
+  ticketToDelay.value = ticket;
+  selectedDelayPreset.value = delayPresets[0];
+  delayNotesInput.value = '';
+};
+
+const closeDelayModal = () => {
+  ticketToDelay.value = null;
+  selectedDelayPreset.value = '';
+  delayNotesInput.value = '';
+  isSubmittingDelay.value = false;
+};
+
+const submitDelayApproval = async () => {
+  if (!ticketToDelay.value) return;
+  const reason = selectedDelayPreset.value === 'Other / Custom Reason'
+    ? delayNotesInput.value.trim()
+    : (delayNotesInput.value.trim() ? `${selectedDelayPreset.value}: ${delayNotesInput.value.trim()}` : selectedDelayPreset.value);
+
+  if (!reason) {
+    toast.warning('Please select or specify a reason for the delay.');
+    return;
+  }
+
+  isSubmittingDelay.value = true;
+  try {
+    await api.patch(`tickets/${ticketToDelay.value.id}/delay-approval`, {
+      delay_reason: reason
+    });
+    toast.warning(`Ticket #${ticketToDelay.value.ticketId || ticketToDelay.value.id} marked as Approval Delayed.`);
+    closeDelayModal();
+    fetchAllQueues();
+  } catch (error) {
+    const msg = error.response?.data?.messages?.error || error.response?.data?.message || 'Failed to delay approval';
+    toast.error(msg);
+  } finally {
+    isSubmittingDelay.value = false;
+  }
+};
+
+const handleResumeApproval = async (ticket) => {
+  try {
+    await api.patch(`tickets/${ticket.id}/resume-approval`);
+    toast.success(`Ticket #${ticket.ticketId || ticket.id} returned to General Approval Queue.`);
+    fetchAllQueues();
+  } catch (error) {
+    const msg = error.response?.data?.messages?.error || error.response?.data?.message || 'Failed to resume approval';
+    toast.error(msg);
+  }
+};
+
 const openExtensionModal = (ticket) => {
   ticketToExtend.value = ticket;
   showExtensionModal.value = true;
@@ -1178,7 +1507,7 @@ const handleTicketExtended = () => {
 
 const handleFocusOrVisibility = () => {
   if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || selectedTicketForModal.value || showExtensionModal.value);
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value);
     if (!isInteracting) {
       fetchAllQueues();
     }
@@ -1189,7 +1518,7 @@ onMounted(() => {
   fetchAllQueues();
   pollingInterval = setInterval(() => {
     if (document.hidden) return;
-    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || selectedTicketForModal.value || showExtensionModal.value);
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value);
     if (!isInteracting) {
       fetchAllQueues();
     }

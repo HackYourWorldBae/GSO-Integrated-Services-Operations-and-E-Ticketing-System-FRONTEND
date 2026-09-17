@@ -37,6 +37,10 @@ export const fetchTicketLogs = (ticketId) =>
 export const fetchPendingQueue = (unitCode) =>
   apiClient.get(`/tickets/queue/${unitCode}`);
 
+/** Get tickets delayed for approval for a unit (e.g. awaiting materials). */
+export const fetchDelayedApprovalQueue = (unitCode) =>
+  apiClient.get(`/tickets/delayed-approval/${unitCode}`);
+
 /** Get the approved/queued-for-dispatch tickets for a unit. */
 export const fetchDispatchQueue = (unitCode) =>
   apiClient.get(`/tickets/dispatch/${unitCode}`);
@@ -60,6 +64,21 @@ export const approveTicket = (ticketId) =>
   apiClient.patch(`/tickets/${ticketId}/approve`);
 
 /**
+ * Move a pending ticket to "Approval Delayed" with a reason.
+ * @param {string} ticketId
+ * @param {string} reason
+ */
+export const delayTicketApproval = (ticketId, reason) =>
+  apiClient.patch(`/tickets/${ticketId}/delay-approval`, { reason });
+
+/**
+ * Resume ticket approval (move back to general pending queue).
+ * @param {string} ticketId
+ */
+export const resumeTicketApproval = (ticketId) =>
+  apiClient.patch(`/tickets/${ticketId}/resume-approval`);
+
+/**
  * Decline a pending ticket with a reason.
  * @param {string} ticketId
  * @param {string} declineReason
@@ -70,3 +89,4 @@ export const declineTicket = (ticketId, declineReason) =>
 /** Mark a ticket as completed/resolved. */
 export const completeTicket = (ticketId) =>
   apiClient.patch(`/tickets/${ticketId}/complete`);
+

@@ -142,7 +142,11 @@
                     </div>
                     
                     <!-- Status badge -->
-                    <span :class="['inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border', getStatusBadge(ticket.status)]">
+                    <span v-if="ticket.is_approval_delayed" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border bg-amber-100 text-amber-900 border-amber-300 shadow-2xs">
+                      <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                      Approval Delayed
+                    </span>
+                    <span v-else :class="['inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border', getStatusBadge(ticket.status)]">
                       <span class="w-2 h-2 rounded-full" :class="getStatusDot(ticket.status)"></span>
                       {{ ticket.statusLabel }}
                     </span>
@@ -184,6 +188,29 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                       </svg>
                       Target Completion: {{ formatDate(ticket.effective_target_date || ticket.target_completion_date) }}
+                    </div>
+                  </div>
+
+                  <!-- Official Approval Delay Notice Card -->
+                  <div v-if="ticket.is_approval_delayed" class="mt-3.5 flex items-start gap-3 p-4 bg-amber-50/90 border border-amber-200 rounded-2xl animate-fade-in shadow-xs">
+                    <div class="p-2.5 bg-amber-100 rounded-xl shrink-0 mt-0.5 text-amber-800">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1 flex-wrap">
+                        <span class="text-xs sm:text-sm font-black text-amber-900 uppercase tracking-wide">Approval Deferred / Delayed</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-200 text-amber-900 border border-amber-300 uppercase tracking-wider">
+                          In Queue
+                        </span>
+                      </div>
+                      <p class="text-sm text-amber-950 font-semibold leading-relaxed">
+                        This request is temporarily deferred from immediate approval: <strong>{{ ticket.approval_delay_reason || 'Awaiting materials procurement or clearance' }}</strong>.
+                      </p>
+                      <p class="text-xs text-amber-800 font-medium mt-1">
+                        The department will proceed with review once requirements are satisfied. You do not need to resubmit.
+                      </p>
                     </div>
                   </div>
 
@@ -595,7 +622,11 @@
                         <span class="text-xs font-mono font-bold text-slate-400">#{{ selectedTicket.ticketId }}</span>
                         <span class="text-slate-300">·</span>
                         <span class="text-xs font-bold text-slate-500">{{ selectedTicket.unit }}</span>
-                        <span :class="['inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border', getStatusBadge(selectedTicket.status)]">
+                        <span v-if="selectedTicket.is_approval_delayed" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border bg-amber-100 text-amber-900 border-amber-300 shadow-2xs">
+                          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                          Approval Delayed
+                        </span>
+                        <span v-else :class="['inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border', getStatusBadge(selectedTicket.status)]">
                           <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(selectedTicket.status)"></span>
                           {{ selectedTicket.statusLabel }}
                         </span>
@@ -645,6 +676,29 @@
 
                   <!-- ========== TIMELINE STEPS ========== -->
                   <div>
+                    <!-- Approval Delay Notice Banner in Modal -->
+                    <div v-if="selectedTicket.is_approval_delayed" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in shadow-xs">
+                      <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                          <span class="text-[10px] font-black text-amber-900 uppercase tracking-widest">Approval Deferred / Delayed</span>
+                          <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-200 text-amber-900 border border-amber-300 uppercase tracking-wider">
+                            In Queue
+                          </span>
+                        </div>
+                        <p class="text-xs text-amber-950 font-semibold leading-relaxed">
+                          Approval for this request is temporarily held: <strong>{{ selectedTicket.approval_delay_reason || 'Awaiting materials procurement or clearance' }}</strong>.
+                        </p>
+                        <p class="text-xs text-amber-800 font-medium mt-1">
+                          The department will proceed with review once requirements are satisfied. You do not need to resubmit.
+                        </p>
+                      </div>
+                    </div>
+
                     <!-- Official Timeline Extension Notice Banner in Modal -->
                     <div v-if="selectedTicket.is_extended && selectedTicket.extension_days > 0" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in">
                       <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
@@ -1401,6 +1455,9 @@ const mapTicketData = (t) => ({
   eodb_days: t.eodb_days || null,
   is_emergency: !!t.is_emergency,
   is_vip: !!t.is_vip,
+  is_approval_delayed: Boolean(Number(t.is_approval_delayed) === 1 || t.is_approval_delayed === true),
+  approval_delay_reason: t.approval_delay_reason || '',
+  approval_delayed_at: t.approval_delayed_at || null,
   // SSU Incident Report specific fields
   isUnderInvestigation: Number(t.is_under_investigation) === 1,
   hasNotation:          !!t.ssu_notation,
