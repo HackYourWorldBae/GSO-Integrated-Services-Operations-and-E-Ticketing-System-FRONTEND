@@ -8,7 +8,7 @@
           </router-link>
           <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">LEAU Active Tickets</h2>
           <span class="px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 text-[10px] font-black uppercase tracking-wider border border-amber-200">
-            Work in Progress
+            Active &amp; Awaiting Rating
           </span>
         </div>
         <p class="text-[10px] text-amber-700 font-extrabold tracking-[0.2em] uppercase mt-1">

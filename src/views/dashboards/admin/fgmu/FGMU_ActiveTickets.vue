@@ -8,7 +8,7 @@
           </router-link>
           <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">FGMU Active Tickets</h2>
           <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider border border-emerald-200">
-            Work in Progress
+            Active &amp; Awaiting Rating
           </span>
         </div>
         <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase mt-1">

@@ -4,23 +4,60 @@
     <!-- ═══ Unified Compact Toolbar: Stage Tab + Search + Filters + Refresh ═══ -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
       
-      <!-- Top Row: Stage Indicator & Urgency Filter Pills -->
+      <!-- Top Row: Stage Tabs (In Progress & Awaiting Rating) + Urgency Filter Pills -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
-        <!-- Stage Pill -->
-        <div class="flex items-center gap-1.5">
-          <div
+        <!-- Stage Tabs -->
+        <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+          <!-- Tab 1: In Progress -->
+          <button
+            type="button"
+            @click="switchTab('in_progress')"
             :class="[
-              'flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider text-white shadow-md transition-all duration-200',
-              themeAccentBg,
-              themeAccentShadow
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              activeTab === 'in_progress'
+                ? [themeAccentBg, themeAccentShadow, 'text-white shadow-md']
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
             ]"
           >
-            <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-            <span>Active Dispatches (In Progress)</span>
-            <span class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none bg-white/20 text-white">
-              {{ activeTickets.length }}
+            <span v-if="activeTab === 'in_progress'" class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>In Progress</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                activeTab === 'in_progress' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              ]"
+            >
+              {{ inProgressTickets.length }}
             </span>
-          </div>
+          </button>
+
+          <!-- Tab 2: Awaiting Requestor Rating -->
+          <button
+            type="button"
+            @click="switchTab('awaiting_rating')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              activeTab === 'awaiting_rating'
+                ? [themeRatingTabBg, themeRatingTabShadow, 'text-white shadow-md']
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="activeTab === 'awaiting_rating' ? 'text-white' : 'text-amber-500'" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+            <span>Awaiting Requestor Rating</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                activeTab === 'awaiting_rating' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-900'
+              ]"
+            >
+              {{ awaitingRatingTickets.length }}
+            </span>
+          </button>
         </div>
 
         <!-- Urgency Filters -->
@@ -35,7 +72,7 @@
                 : 'text-slate-500 hover:text-slate-800'
             ]"
           >
-            All ({{ activeTickets.length }})
+            All ({{ activeTabTickets.length }})
           </button>
           <button
             type="button"
@@ -138,22 +175,26 @@
               <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Elapsed Duration</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Target Duration</th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                {{ activeTab === 'in_progress' ? 'Elapsed Duration' : 'Completion & Status' }}
+              </th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                {{ activeTab === 'in_progress' ? 'Target Duration' : 'Liquidation & Cost' }}
+              </th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 text-xs">
             
             <!-- Loading State -->
-            <tr v-if="loading && activeTickets.length === 0">
+            <tr v-if="loading && activeTabTickets.length === 0">
               <td colspan="6" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                   <svg class="animate-spin h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Loading active tickets...
+                  Loading {{ activeTab === 'awaiting_rating' ? 'completed tickets' : 'active tickets' }}...
                 </div>
               </td>
             </tr>
@@ -161,14 +202,26 @@
             <!-- Empty State -->
             <tr v-else-if="paginatedTickets.length === 0">
               <td colspan="6" class="py-16 text-center">
-                <div class="max-w-sm mx-auto flex flex-col items-center">
-                  <div class="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="max-w-md mx-auto flex flex-col items-center">
+                  <div
+                    :class="[
+                      'h-12 w-12 rounded-2xl flex items-center justify-center mb-3',
+                      activeTab === 'awaiting_rating' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
+                    ]"
+                  >
+                    <svg v-if="activeTab === 'awaiting_rating'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <p class="text-sm font-bold text-slate-700">No Active Dispatches Currently In Progress</p>
-                  <p class="text-xs text-slate-400 mt-1">There are no ongoing tickets matching your current filter criteria.</p>
+                  <p class="text-sm font-bold text-slate-800">
+                    {{ activeTab === 'awaiting_rating' ? 'No Tickets Awaiting Requestor Rating' : 'No Active Dispatches Currently In Progress' }}
+                  </p>
+                  <p class="text-xs text-slate-500 mt-1">
+                    {{ activeTab === 'awaiting_rating' ? 'When an admin marks a job completed, it remains here until the requestor rates and closes it from their dashboard.' : 'There are no ongoing tickets matching your current filter criteria.' }}
+                  </p>
                 </div>
               </td>
             </tr>
@@ -245,30 +298,51 @@
                 <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
               </td>
 
-              <!-- Elapsed Duration -->
+              <!-- Elapsed Duration / Completion & Status -->
               <td class="px-3 py-2.5 whitespace-nowrap">
-                <span :class="['text-xs font-bold px-2 py-0.5 rounded-lg border inline-flex items-center gap-1.5 w-fit', themeElapsedBadge]">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>{{ liveDurations[ticket.id] || computeLiveDuration(ticket.assignment, ticket.overtime_hours) || 'Calculating...' }}</span>
-                </span>
-                <span class="block text-[9px] font-black uppercase tracking-wider text-emerald-700 mt-0.5">
-                  ● In Progress
-                </span>
+                <template v-if="activeTab === 'in_progress'">
+                  <span :class="['text-xs font-bold px-2 py-0.5 rounded-lg border inline-flex items-center gap-1.5 w-fit', themeElapsedBadge]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ liveDurations[ticket.id] || computeLiveDuration(ticket.assignment, ticket.overtime_hours) || 'Calculating...' }}</span>
+                  </span>
+                  <span class="block text-[9px] font-black uppercase tracking-wider text-emerald-700 mt-0.5">
+                    ● In Progress
+                  </span>
+                </template>
+                <template v-else>
+                  <div class="text-xs font-bold text-slate-800">
+                    {{ formatCompletedDate(ticket.completed_at || ticket.updated_at) }}
+                  </div>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200/80 text-[9px] font-black uppercase tracking-wider mt-0.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    Awaiting Rating
+                  </span>
+                </template>
               </td>
 
-              <!-- Target Duration -->
+              <!-- Target Duration / Liquidation & Cost -->
               <td class="px-3 py-2.5 whitespace-nowrap">
-                <div class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>{{ ticket.working_days || ticket.assignment?.working_days || 1 }} {{ (ticket.working_days || ticket.assignment?.working_days || 1) === 1 ? 'Day' : 'Days' }}</span>
-                  <span v-if="ticket.extension_days > 0" class="ml-1.5 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-black border border-amber-200" title="Extension Days">
-                    +{{ ticket.extension_days }}d
-                  </span>
-                </div>
+                <template v-if="activeTab === 'in_progress'">
+                  <div class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{{ ticket.working_days || ticket.assignment?.working_days || 1 }} {{ (ticket.working_days || ticket.assignment?.working_days || 1) === 1 ? 'Day' : 'Days' }}</span>
+                    <span v-if="ticket.extension_days > 0" class="ml-1.5 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-black border border-amber-200" title="Extension Days">
+                      +{{ ticket.extension_days }}d
+                    </span>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="text-xs font-bold text-slate-800">
+                    ₱{{ formatNumber(ticket.total_material_cost || ticket.actual_material_cost || 0) }}
+                  </div>
+                  <div class="text-[10px] text-slate-500">
+                    {{ (ticket.materials && ticket.materials.length > 0) ? `${ticket.materials.length} item(s) logged` : (ticket.is_labor_only ? 'Labor Only' : 'No items') }}
+                  </div>
+                </template>
               </td>
 
               <!-- Actions -->
@@ -287,59 +361,90 @@
                     <span>Job Order</span>
                   </button>
 
-                  <!-- Re-generate Document Button -->
-                  <button
-                    type="button"
-                    @click="handleDirectRegenerate(ticket)"
-                    class="p-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-900 border border-amber-200 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center justify-center cursor-pointer"
-                    title="Re-inject ticket data and generate fresh Job Order document"
-                  >
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </button>
+                  <template v-if="activeTab === 'in_progress'">
+                    <!-- Re-generate Document Button -->
+                    <button
+                      type="button"
+                      @click="handleDirectRegenerate(ticket)"
+                      class="p-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-900 border border-amber-200 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center justify-center cursor-pointer"
+                      title="Re-inject ticket data and generate fresh Job Order document"
+                    >
+                      <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
 
-                  <!-- Extend Button -->
-                  <button
-                    type="button"
-                    @click="openExtensionModal(ticket)"
-                    class="px-2.5 py-1.5 rounded-xl border border-amber-200/80 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
-                    title="Grant timeline extension with reason"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>Extend</span>
-                  </button>
+                    <!-- Extend Button -->
+                    <button
+                      type="button"
+                      @click="openExtensionModal(ticket)"
+                      class="px-2.5 py-1.5 rounded-xl border border-amber-200/80 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                      title="Grant timeline extension with reason"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Extend</span>
+                    </button>
 
-                  <!-- Adjust Materials Button -->
-                  <button
-                    type="button"
-                    @click="openAdjustModal(ticket)"
-                    class="px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
-                    title="Adjust ongoing materials and supplies"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    <span>Materials</span>
-                  </button>
+                    <!-- Adjust Materials Button -->
+                    <button
+                      type="button"
+                      @click="openAdjustModal(ticket)"
+                      class="px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                      title="Adjust ongoing materials and supplies"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span>Materials</span>
+                    </button>
 
-                  <!-- Complete Job Button -->
-                  <button
-                    type="button"
-                    @click="openMaterialCompletionModal(ticket)"
-                    :class="[
-                      'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer',
-                      themeAccentBg
-                    ]"
-                    title="Complete Job and log materials used"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Complete</span>
-                  </button>
+                    <!-- Complete Job Button -->
+                    <button
+                      type="button"
+                      @click="openMaterialCompletionModal(ticket)"
+                      :class="[
+                        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer',
+                        themeAccentBg
+                      ]"
+                      title="Complete Job and log materials used"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Complete</span>
+                    </button>
+                  </template>
+
+                  <template v-else>
+                    <!-- Material Receipt Slip Button -->
+                    <button
+                      type="button"
+                      @click="openReceiptModal(ticket)"
+                      class="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1 cursor-pointer"
+                      title="View / Print Official Material Receipt Slip"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Receipt Slip</span>
+                    </button>
+
+                    <!-- Details Button -->
+                    <button
+                      type="button"
+                      @click="openDetailsModal(ticket)"
+                      class="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1 cursor-pointer"
+                      title="View Full Ticket Details"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <span>Details</span>
+                    </button>
+                  </template>
                 </div>
               </td>
             </tr>
@@ -379,25 +484,37 @@
     <!-- ═══ Mobile View (Cards) ═══ -->
     <div class="md:hidden space-y-3">
       <!-- Loading State -->
-      <div v-if="loading && activeTickets.length === 0" class="py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">
+      <div v-if="loading && activeTabTickets.length === 0" class="py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">
         <div class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
           <svg class="animate-spin h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          Loading active tickets...
+          Loading {{ activeTab === 'awaiting_rating' ? 'completed tickets' : 'active tickets' }}...
         </div>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="paginatedTickets.length === 0" class="py-12 text-center bg-white rounded-2xl border border-slate-200 p-6">
-        <div class="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto mb-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div
+          :class="[
+            'h-10 w-10 rounded-xl flex items-center justify-center mx-auto mb-2',
+            activeTab === 'awaiting_rating' ? 'bg-amber-50 text-amber-500' : 'bg-emerald-50 text-emerald-500'
+          ]"
+        >
+          <svg v-if="activeTab === 'awaiting_rating'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <p class="text-xs font-bold text-slate-700">No Active Dispatches Found</p>
-        <p class="text-[10px] text-slate-400 mt-0.5">No ongoing tickets matching current filters.</p>
+        <p class="text-xs font-bold text-slate-700">
+          {{ activeTab === 'awaiting_rating' ? 'No Tickets Awaiting Requestor Rating' : 'No Active Dispatches Found' }}
+        </p>
+        <p class="text-[10px] text-slate-400 mt-0.5">
+          {{ activeTab === 'awaiting_rating' ? 'Completed tickets will appear here until rated by requestors.' : 'No ongoing tickets matching current filters.' }}
+        </p>
       </div>
 
       <!-- Mobile Ticket Cards -->
@@ -411,7 +528,7 @@
         ]"
         @click="openDetailsModal(ticket)"
       >
-        <!-- Top Row: Ref & Elapsed Badge -->
+        <!-- Top Row: Ref & Elapsed / Status Badge -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <span :class="['font-mono text-sm font-bold px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs', themeMonoBadge]">
@@ -421,15 +538,24 @@
               Emergency
             </span>
           </div>
-          <span :class="['text-[11px] font-bold px-2 py-0.5 rounded-lg border inline-flex items-center gap-1', themeElapsedBadge]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {{ liveDurations[ticket.id] || computeLiveDuration(ticket.assignment, ticket.overtime_hours) || 'In Progress' }}
-          </span>
+
+          <template v-if="activeTab === 'in_progress'">
+            <span :class="['text-[11px] font-bold px-2 py-0.5 rounded-lg border inline-flex items-center gap-1', themeElapsedBadge]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {{ liveDurations[ticket.id] || computeLiveDuration(ticket.assignment, ticket.overtime_hours) || 'In Progress' }}
+            </span>
+          </template>
+          <template v-else>
+            <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              Awaiting Rating
+            </span>
+          </template>
         </div>
 
-        <!-- Location & Requester (job/service and personnel removed) -->
+        <!-- Location & Requester -->
         <div class="mt-2 flex items-center justify-between text-xs text-slate-600">
           <div class="flex items-center gap-1.5 truncate">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -441,23 +567,32 @@
           <span class="text-xs font-semibold text-slate-700 truncate max-w-[140px]">{{ ticket.requester }}</span>
         </div>
 
-        <!-- Target Duration Meta -->
-        <div class="flex items-center justify-between text-xs text-slate-500 pt-0.5">
+        <!-- In-Progress: Target Duration Meta -->
+        <div v-if="activeTab === 'in_progress'" class="flex items-center justify-between text-xs text-slate-500 pt-0.5">
           <span class="text-[11px] font-medium text-slate-500">Target Duration:</span>
           <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
             {{ ticket.working_days || ticket.assignment?.working_days || 1 }} Target {{ (ticket.working_days || ticket.assignment?.working_days || 1) === 1 ? 'Day' : 'Days' }}
             <span v-if="ticket.extension_days > 0" class="text-amber-600 ml-0.5 font-black">+{{ ticket.extension_days }}d</span>
           </span>
         </div>
+        <!-- Awaiting-Rating: Completed Date Meta -->
+        <div v-else class="flex items-center justify-between text-xs text-slate-500 pt-0.5">
+          <span class="text-[11px] font-medium text-slate-500">Completed At:</span>
+          <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
+            {{ formatCompletedDate(ticket.completed_at || ticket.updated_at) }}
+          </span>
+        </div>
 
-        <!-- Materials Meta / Labor Only badge -->
+        <!-- Materials Meta / Liquidation total -->
         <div class="flex items-center justify-between text-xs text-slate-500 pt-0.5">
-          <span class="text-[11px] font-medium text-slate-500">Materials:</span>
+          <span class="text-[11px] font-medium text-slate-500">
+            {{ activeTab === 'in_progress' ? 'Materials:' : 'Liquidated Cost:' }}
+          </span>
           <span v-if="ticket.is_labor_only" class="px-2 py-0.5 rounded bg-sky-50 border border-sky-200 text-[10px] font-black text-sky-700">
             Labor Only
           </span>
           <span v-else-if="ticket.materials && ticket.materials.length > 0" class="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800">
-            {{ ticket.materials.length }} part(s) • ₱{{ Number(ticket.total_material_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+            {{ ticket.materials.length }} part(s) • ₱{{ formatNumber(ticket.total_material_cost || ticket.actual_material_cost || 0) }}
           </span>
           <span v-else class="text-[10px] text-slate-400 italic">
             None recorded
@@ -477,42 +612,66 @@
             </svg>
             <span>Job Order</span>
           </button>
-          <button
-            type="button"
-            @click="handleDirectRegenerate(ticket)"
-            class="py-2.5 px-2.5 min-h-[38px] rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold text-center transition-all active:scale-95 cursor-pointer border border-amber-200 flex items-center justify-center gap-1 touch-manipulation"
-            title="Re-inject data and re-generate Job Order"
-          >
-            <svg class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Re-gen</span>
-          </button>
-          <button
-            type="button"
-            @click="openExtensionModal(ticket)"
-            class="flex-1 py-2.5 px-3 min-h-[38px] rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center"
-          >
-            Extend
-          </button>
-          <button
-            type="button"
-            @click="openAdjustModal(ticket)"
-            class="flex-1 py-2.5 px-2.5 min-h-[38px] rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-black text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center gap-1"
-            title="Adjust ongoing materials and supplies"
-          >
-            <span>Materials</span>
-          </button>
-          <button
-            type="button"
-            @click="openMaterialCompletionModal(ticket)"
-            :class="[
-              'flex-1 py-2.5 px-3 min-h-[38px] rounded-xl text-white text-xs font-black text-center transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center',
-              themeAccentBg
-            ]"
-          >
-            Complete Job
-          </button>
+
+          <template v-if="activeTab === 'in_progress'">
+            <button
+              type="button"
+              @click="handleDirectRegenerate(ticket)"
+              class="py-2.5 px-2.5 min-h-[38px] rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold text-center transition-all active:scale-95 cursor-pointer border border-amber-200 flex items-center justify-center gap-1 touch-manipulation"
+              title="Re-inject data and re-generate Job Order"
+            >
+              <svg class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Re-gen</span>
+            </button>
+            <button
+              type="button"
+              @click="openExtensionModal(ticket)"
+              class="flex-1 py-2.5 px-3 min-h-[38px] rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center"
+            >
+              Extend
+            </button>
+            <button
+              type="button"
+              @click="openAdjustModal(ticket)"
+              class="flex-1 py-2.5 px-2.5 min-h-[38px] rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-black text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center gap-1"
+              title="Adjust ongoing materials and supplies"
+            >
+              <span>Materials</span>
+            </button>
+            <button
+              type="button"
+              @click="openMaterialCompletionModal(ticket)"
+              :class="[
+                'flex-1 py-2.5 px-3 min-h-[38px] rounded-xl text-white text-xs font-black text-center transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center',
+                themeAccentBg
+              ]"
+            >
+              Complete Job
+            </button>
+          </template>
+
+          <template v-else>
+            <button
+              type="button"
+              @click="openReceiptModal(ticket)"
+              class="flex-1 py-2.5 px-3 min-h-[38px] rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-black text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center gap-1"
+              title="View Material Receipt Slip"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Receipt Slip</span>
+            </button>
+            <button
+              type="button"
+              @click="openDetailsModal(ticket)"
+              class="py-2.5 px-3 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center"
+            >
+              Details
+            </button>
+          </template>
         </div>
       </div>
 
@@ -562,12 +721,25 @@
                 <span class="text-xs sm:text-sm font-bold text-slate-400">
                   Started on {{ formatDate(getTicketStartTime(selectedTicketForModal)) }}
                 </span>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider border border-emerald-200">
+                <span
+                  v-if="selectedTicketForModal.current_step == 6 || selectedTicketForModal.status === 'resolved'"
+                  class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black uppercase tracking-wider border border-amber-200"
+                >
+                  ★ Awaiting Requestor Rating
+                </span>
+                <span
+                  v-else
+                  class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider border border-emerald-200"
+                >
                   Active Dispatch
                 </span>
               </div>
-              <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Active Work Details</h3>
-              <p class="text-xs text-slate-500 font-medium mt-0.5">Real-time assignment parameters, elapsed work tracking, and requester particulars</p>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                {{ (selectedTicketForModal.current_step == 6 || selectedTicketForModal.status === 'resolved') ? 'Completed Ticket Details' : 'Active Work Details' }}
+              </h3>
+              <p class="text-xs text-slate-500 font-medium mt-0.5">
+                {{ (selectedTicketForModal.current_step == 6 || selectedTicketForModal.status === 'resolved') ? 'Job marked completed by dispatch admin. Awaiting client rating and closure from their dashboard.' : 'Real-time assignment parameters, elapsed work tracking, and requester particulars' }}
+              </p>
             </div>
             <button
               type="button"
@@ -797,30 +969,45 @@
                 <span>Print Job Order</span>
               </button>
 
-              <button
-                type="button"
-                @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openExtensionModal(t); })()"
-                class="px-4 py-2.5 min-h-[40px] rounded-xl bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100 text-xs font-black transition-colors cursor-pointer touch-manipulation flex items-center justify-center"
-              >
-                Grant Extension
-              </button>
-              <button
-                type="button"
-                @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openAdjustModal(t); })()"
-                class="px-4 py-2.5 min-h-[40px] rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 text-xs font-black transition-colors cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
-              >
-                <span>Adjust Materials</span>
-              </button>
-              <button
-                type="button"
-                @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openMaterialCompletionModal(t); })()"
-                :class="[
-                  'px-5 py-2.5 min-h-[40px] rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center',
-                  themeAccentBg
-                ]"
-              >
-                Complete Job
-              </button>
+              <template v-if="selectedTicketForModal.current_step == 6 || selectedTicketForModal.status === 'resolved'">
+                <button
+                  type="button"
+                  @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openReceiptModal(t); })()"
+                  class="px-5 py-2.5 min-h-[40px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>View Material Receipt</span>
+                </button>
+              </template>
+
+              <template v-else>
+                <button
+                  type="button"
+                  @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openExtensionModal(t); })()"
+                  class="px-4 py-2.5 min-h-[40px] rounded-xl bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100 text-xs font-black transition-colors cursor-pointer touch-manipulation flex items-center justify-center"
+                >
+                  Grant Extension
+                </button>
+                <button
+                  type="button"
+                  @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openAdjustModal(t); })()"
+                  class="px-4 py-2.5 min-h-[40px] rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 text-xs font-black transition-colors cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+                >
+                  <span>Adjust Materials</span>
+                </button>
+                <button
+                  type="button"
+                  @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openMaterialCompletionModal(t); })()"
+                  :class="[
+                    'px-5 py-2.5 min-h-[40px] rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center',
+                    themeAccentBg
+                  ]"
+                >
+                  Complete Job
+                </button>
+              </template>
             </div>
           </div>
 
@@ -908,11 +1095,19 @@ const props = defineProps({
 // State
 const rawTickets = ref([]);
 const loading = ref(false);
+const activeTab = ref('in_progress'); // 'in_progress' | 'awaiting_rating'
 const searchQuery = ref('');
 const urgencyFilter = ref('all');
 const selectedServiceFilter = ref('');
 const currentPage = ref(1);
 const pageSize = ref(10);
+
+const switchTab = (tab) => {
+  activeTab.value = tab;
+  currentPage.value = 1;
+  urgencyFilter.value = 'all';
+  selectedServiceFilter.value = '';
+};
 
 // Modal state
 const selectedTicketForModal = ref(null);
@@ -950,6 +1145,14 @@ const themeAccentBg = computed(() => {
 
 const themeAccentShadow = computed(() => {
   return isLEAU.value ? 'shadow-amber-600/25' : 'shadow-emerald-600/25';
+});
+
+const themeRatingTabBg = computed(() => {
+  return isLEAU.value ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-700 hover:bg-emerald-800';
+});
+
+const themeRatingTabShadow = computed(() => {
+  return isLEAU.value ? 'shadow-amber-600/25' : 'shadow-emerald-700/25';
 });
 
 const themeBarColor = computed(() => {
@@ -996,18 +1199,41 @@ const themeAttachmentIconBg = computed(() => {
   return isLEAU.value ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700';
 });
 
-// Active tickets: step 5 (in-progress)
-const activeTickets = computed(() => {
-  return rawTickets.value.filter(t => t.current_step == 5);
+// In Progress tickets: step 5 / processing, not resolved, not closed, not archived
+const inProgressTickets = computed(() => {
+  return rawTickets.value.filter(t => {
+    const isArchived = t.is_archived == 1 || t.is_archived === true || t.is_archived === '1';
+    if (isArchived) return false;
+    const isResolved = t.current_step == 6 || t.status === 'resolved' || t.status === 'closed';
+    if (isResolved) return false;
+    return t.current_step == 5 || t.status === 'processing';
+  });
 });
 
+// Awaiting Requestor Rating tickets: step 6 / status === 'resolved', not archived
+const awaitingRatingTickets = computed(() => {
+  return rawTickets.value.filter(t => {
+    const isArchived = t.is_archived == 1 || t.is_archived === true || t.is_archived === '1';
+    if (isArchived) return false;
+    return t.current_step == 6 || t.status === 'resolved' || (t.status_label || '').toLowerCase().includes('rating');
+  });
+});
+
+// Active tab tickets pointer
+const activeTabTickets = computed(() => {
+  return activeTab.value === 'awaiting_rating' ? awaitingRatingTickets.value : inProgressTickets.value;
+});
+
+// Backward-compatibility alias
+const activeTickets = computed(() => activeTabTickets.value);
+
 const emergencyCount = computed(() => {
-  return activeTickets.value.filter(t => !!t.is_emergency).length;
+  return activeTabTickets.value.filter(t => !!t.is_emergency).length;
 });
 
 const uniqueServices = computed(() => {
   const set = new Set();
-  activeTickets.value.forEach(t => {
+  activeTabTickets.value.forEach(t => {
     const s = t.service || t.type;
     if (s) set.add(s);
   });
@@ -1015,7 +1241,7 @@ const uniqueServices = computed(() => {
 });
 
 const filteredTickets = computed(() => {
-  let list = activeTickets.value;
+  let list = activeTabTickets.value;
 
   // Urgency filter
   if (urgencyFilter.value === 'emergency') {
@@ -1073,6 +1299,20 @@ const changePage = (page) => {
   }
 };
 
+const formatNumber = (val) => {
+  return Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const formatCompletedDate = (dateStr) => {
+  if (!dateStr) return 'Recently';
+  return formatDate(dateStr);
+};
+
+const openReceiptModal = (ticket) => {
+  receiptTicket.value = ticket;
+  showReceiptModal.value = true;
+};
+
 const getInitials = (name) => {
   if (!name || name === '??') return 'U';
   const parts = name.trim().split(' ').filter(Boolean);
@@ -1106,7 +1346,7 @@ const computeLiveDuration = (assignment, overtimeHours = 0) => {
 };
 
 const refreshDurations = () => {
-  for (const ticket of activeTickets.value) {
+  for (const ticket of inProgressTickets.value) {
     const dur = computeLiveDuration(ticket.assignment, ticket.overtime_hours);
     if (dur) {
       liveDurations[ticket.id] = dur;
@@ -1220,8 +1460,12 @@ const handleJobCompleted = (result) => {
     materials: result.materials || [],
     total_material_cost: result.totalCost || 0,
     completed_at: new Date().toISOString(),
+    current_step: 6,
+    status: 'resolved',
   };
 
+  // Switch to Awaiting Requestor Rating tab so completed ticket is immediately visible
+  activeTab.value = 'awaiting_rating';
   fetchActiveTickets();
   showReceiptModal.value = true;
 };
@@ -1403,17 +1647,18 @@ const checkRouteQueryTicket = () => {
   const targetId = route.query.ticketId || route.query.highlight;
   if (!targetId || rawTickets.value.length === 0) return;
   const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
-  const match = activeTickets.value.find(t => {
-    const idStr = String(t.id || '').toLowerCase().trim().replace(/^#/, '');
-    const ticketIdStr = String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '');
-    return idStr === targetStr || ticketIdStr === targetStr;
-  }) || rawTickets.value.find(t => {
+  const match = rawTickets.value.find(t => {
     const idStr = String(t.id || '').toLowerCase().trim().replace(/^#/, '');
     const ticketIdStr = String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '');
     return idStr === targetStr || ticketIdStr === targetStr;
   });
 
   if (match) {
+    if (match.current_step == 6 || match.status === 'resolved' || (match.status_label || '').toLowerCase().includes('rating')) {
+      activeTab.value = 'awaiting_rating';
+    } else {
+      activeTab.value = 'in_progress';
+    }
     selectedTicketForModal.value = match;
     const idx = filteredTickets.value.findIndex(t => String(t.id) === String(match.id));
     if (idx !== -1) {
