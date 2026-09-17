@@ -121,17 +121,16 @@
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-50/80 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-400">
-              <th class="px-4 py-3">Ticket Ref</th>
-              <th class="px-3 py-3">Reporter</th>
-              <th v-if="activeQueue !== 'submitted'" class="px-3 py-3">Location & Incident Summary</th>
-              <th v-if="activeQueue === 'investigating'" class="px-3 py-3">Recommendation / Notation</th>
+              <th class="px-4 py-3 w-44">Ticket Ref</th>
+              <th class="px-3 py-3 min-w-[200px]">Reporter</th>
+              <th v-if="activeQueue === 'investigating'" class="px-3 py-3 w-72">Recommendation / Notation</th>
               <th class="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 text-xs">
             <!-- Loading Skeletons -->
             <tr v-if="loading && paginatedTickets.length === 0">
-              <td :colspan="activeQueue === 'investigating' ? 5 : 3" class="py-16 text-center">
+              <td :colspan="activeQueue === 'investigating' ? 4 : 3" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold shadow-xs">
                   <svg class="animate-spin h-4 w-4 text-slate-800" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -144,7 +143,7 @@
 
             <!-- Empty State -->
             <tr v-else-if="paginatedTickets.length === 0">
-              <td :colspan="activeQueue === 'investigating' ? 5 : 3" class="py-16 text-center">
+              <td :colspan="activeQueue === 'investigating' ? 4 : 3" class="py-16 text-center">
                 <div class="max-w-md mx-auto space-y-3">
                   <div
                     class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
@@ -175,42 +174,26 @@
               ]"
             >
               <!-- 1. Ticket Ref -->
-              <td class="px-4 py-3.5 align-top">
-                <div class="space-y-1.5">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span
-                      class="font-mono text-xs font-black px-2.5 py-1 rounded-lg border bg-slate-50 text-slate-800 border-slate-200 shadow-2xs group-hover:border-slate-300 transition-colors"
-                    >
-                      {{ ticket.ticketId }}
-                    </span>
-                    <span
-                      v-if="ticket.is_emergency"
-                      class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200 flex items-center gap-1"
-                    >
-                      <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                      Emergency
-                    </span>
-                  </div>
-
-                  <div v-if="activeQueue !== 'submitted'" class="flex items-center gap-2">
-                    <span
-                      :class="[
-                        'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border',
-                        activeQueue === 'submitted'
-                          ? 'bg-amber-50 text-amber-700 border-amber-200'
-                          : 'bg-violet-50 text-violet-700 border-violet-200'
-                      ]"
-                    >
-                      {{ ticket.statusLabel }}
-                    </span>
-                    <span class="text-[10px] text-slate-400 font-semibold">{{ ticket.date }}</span>
-                  </div>
+              <td class="px-4 py-3.5 align-middle w-44">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span
+                    class="font-mono text-xs font-black px-2.5 py-1 rounded-lg border bg-slate-50 text-slate-800 border-slate-200 shadow-2xs group-hover:border-slate-300 transition-colors whitespace-nowrap"
+                  >
+                    {{ ticket.ticketId }}
+                  </span>
+                  <span
+                    v-if="ticket.is_emergency"
+                    class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200 flex items-center gap-1"
+                  >
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                    Emergency
+                  </span>
                 </div>
               </td>
 
-              <!-- 2. Reporter -->
-              <td class="px-3 py-3.5 align-top">
-                <div class="flex items-start gap-2.5">
+              <!-- 2. Reporter (fluid column — absorbs freed width) -->
+              <td class="px-3 py-3.5 align-middle min-w-[200px]">
+                <div class="flex items-center gap-2.5">
                   <div class="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 uppercase">
                     {{ getInitials(ticket.requestedBy) }}
                   </div>
@@ -222,45 +205,8 @@
                 </div>
               </td>
 
-              <!-- 3. Location & Summary (hidden in Submitted queue) -->
-              <td v-if="activeQueue !== 'submitted'" class="px-3 py-3.5 align-top max-w-sm">
-                <div class="space-y-1.5">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span>{{ ticket.location || ticket.college_building || 'Campus Grounds' }}</span>
-                      <span v-if="ticket.office_room">({{ ticket.office_room }})</span>
-                    </span>
-                  </div>
-
-                  <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                    {{ ticket.description }}
-                  </p>
-
-                  <!-- Attachments preview pills -->
-                  <div v-if="ticket.attachments?.length > 0" class="flex items-center gap-1.5 flex-wrap pt-1">
-                    <button
-                      v-for="(att, idx) in ticket.attachments"
-                      :key="idx"
-                      type="button"
-                      @click="openAttachment(att)"
-                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 hover:bg-rose-50 text-[10px] font-semibold text-slate-600 hover:text-rose-700 border border-slate-200 transition-colors cursor-pointer"
-                      title="View / Download Evidence Attachment"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                      </svg>
-                      <span class="truncate max-w-[120px]">{{ att.file_name || 'Evidence' }}</span>
-                    </button>
-                  </div>
-                </div>
-              </td>
-
-              <!-- 4. Recommendation / Notation Column (Under Investigation Only) -->
-              <td v-if="activeQueue === 'investigating'" class="px-3 py-3.5 align-top max-w-xs">
+              <!-- 3. Recommendation / Notation Column (Under Investigation Only) -->
+              <td v-if="activeQueue === 'investigating'" class="px-3 py-3.5 align-middle w-72">
                 <div v-if="ticket.hasNotation" class="p-2.5 rounded-xl bg-blue-50/80 border border-blue-200 space-y-1">
                   <div class="flex items-center gap-1 text-[10px] font-black text-blue-700 uppercase tracking-wider">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -278,8 +224,8 @@
                 </div>
               </td>
 
-              <!-- 5. Actions Column -->
-              <td class="px-4 py-3.5 align-top text-right whitespace-nowrap">
+              <!-- 4. Actions Column (shrink-to-fit, right-packed) -->
+              <td class="px-4 py-3.5 align-middle text-right whitespace-nowrap w-[1%]">
                 <div class="flex items-center justify-end gap-1.5">
 
                   <!-- Action Set A: Submitted Tickets Queue -->
@@ -437,19 +383,10 @@
           </span>
         </div>
 
-        <!-- Reporter (location & summary hidden in Submitted queue) -->
+        <!-- Reporter -->
         <div class="space-y-1">
           <p class="text-xs font-bold text-slate-900">{{ ticket.requestedBy }}</p>
-          <p v-if="activeQueue !== 'submitted'" class="text-[11px] text-slate-500 font-medium">
-            Location: <span class="text-slate-800 font-semibold">{{ ticket.location || ticket.college_building || 'Main Campus' }}</span>
-            <span v-if="ticket.office_room"> ({{ ticket.office_room }})</span>
-          </p>
         </div>
-
-        <!-- Description Snippet (hidden in Submitted queue) -->
-        <p v-if="activeQueue !== 'submitted'" class="text-xs text-slate-600 line-clamp-2 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-          {{ ticket.description }}
-        </p>
 
         <!-- Current Notation Card (If Investigating) -->
         <div v-if="activeQueue === 'investigating'" class="p-2.5 rounded-xl bg-blue-50/90 border border-blue-200 space-y-1">
