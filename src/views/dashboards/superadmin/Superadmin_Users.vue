@@ -1068,6 +1068,7 @@ import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import StrictDeleteModal from '@/components/StrictDeleteModal.vue';
+import { useAuthStore } from '@/stores/auth';
 import {
   fetchUsers as apiFetchUsers,
   createUser as apiCreateUser,

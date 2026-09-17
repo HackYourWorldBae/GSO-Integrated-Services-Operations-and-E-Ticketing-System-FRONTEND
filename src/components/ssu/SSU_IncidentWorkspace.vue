@@ -287,7 +287,7 @@
                     <!-- Set to Under Investigation -->
                     <button
                       type="button"
-                      @click="setUnderInvestigation(ticket)"
+                      @click="openInvestigateModal(ticket)"
                       class="px-3 py-2 min-h-[38px] rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
                       title="Flag as Under Investigation"
                     >
@@ -295,6 +295,19 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
                       <span>Investigate</span>
+                    </button>
+
+                    <!-- Add Notation (on submitted tickets) -->
+                    <button
+                      type="button"
+                      @click="openNotationModal(ticket)"
+                      class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                      :title="ticket.hasNotation ? 'Update Notation' : 'Add Recommendation / Notation'"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span>{{ ticket.hasNotation ? 'Edit Note' : 'Add Note' }}</span>
                     </button>
 
                     <!-- Dismiss / Decline -->
@@ -452,13 +465,20 @@
           <template v-if="activeQueue === 'submitted'">
             <button
               type="button"
-              @click="setUnderInvestigation(ticket)"
+              @click="openInvestigateModal(ticket)"
               class="flex-1 px-3 py-2.5 min-h-[44px] rounded-xl bg-violet-600 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <span>Investigate</span>
+            </button>
+            <button
+              type="button"
+              @click="openNotationModal(ticket)"
+              class="px-3 py-2.5 min-h-[44px] rounded-xl bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
+            >
+              <span>{{ ticket.hasNotation ? 'Edit Note' : 'Add Note' }}</span>
             </button>
             <button
               type="button"
@@ -680,25 +700,47 @@
       </div>
     </Teleport>
 
-    <!-- ═══ MODAL 4: FULL REPORT & EVIDENCE DETAILS MODAL ═══ -->
+    <!-- ═══ MODAL 4: FULL INCIDENT REPORT DETAILS MODAL ═══ -->
     <Teleport to="body">
       <div
         v-if="detailsModal.isOpen"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto"
+        class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/70 backdrop-blur-sm animate-fade-in overflow-y-auto"
         @click.self="closeDetailsModal"
       >
-        <div class="pointer-events-auto bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-100 my-auto animate-scale-up max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <div class="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 mb-5">
-            <div>
-              <span class="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200">
-                {{ detailsModal.ticket?.ticketId }}
-              </span>
-              <h3 class="text-lg font-black text-slate-900 mt-1.5">{{ detailsModal.ticket?.title || 'Security Incident Report' }}</h3>
+        <div class="pointer-events-auto bg-white w-full sm:rounded-3xl sm:max-w-2xl shadow-2xl border border-slate-100 animate-scale-up max-h-screen sm:max-h-[92vh] flex flex-col">
+
+          <!-- Modal Header -->
+          <div class="flex items-start justify-between gap-4 p-5 sm:p-6 pb-4 border-b border-slate-100 shrink-0">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-1.5">
+                <span class="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200">
+                  {{ detailsModal.ticket?.ticketId }}
+                </span>
+                <span
+                  v-if="detailsModal.ticket?.is_emergency"
+                  class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200 flex items-center gap-1"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                  Emergency
+                </span>
+                <span
+                  :class="[
+                    'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border',
+                    detailsModal.ticket?.isUnderInvestigation
+                      ? 'bg-violet-50 text-violet-700 border-violet-200'
+                      : 'bg-amber-50 text-amber-700 border-amber-200'
+                  ]"
+                >
+                  {{ detailsModal.ticket?.statusLabel }}
+                </span>
+              </div>
+              <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight">Security Incident Report</h3>
+              <p class="text-[11px] text-slate-400 font-semibold mt-0.5">Submitted {{ detailsModal.ticket?.date }}</p>
             </div>
             <button
               type="button"
               @click="closeDetailsModal"
-              class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 cursor-pointer"
+              class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 cursor-pointer shrink-0 transition-all"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -706,49 +748,155 @@
             </button>
           </div>
 
-          <div class="space-y-4 text-xs">
-            <!-- Grid 1: Particulars -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100">
-              <div>
-                <span class="text-[10px] font-black uppercase text-slate-400">Reporter</span>
-                <p class="font-bold text-slate-900 mt-0.5">{{ detailsModal.ticket?.requestedBy }}</p>
-                <p class="text-slate-500 font-mono text-[11px]">{{ detailsModal.ticket?.requesterContact || detailsModal.ticket?.requesterEmail }}</p>
+          <!-- Modal Body (Scrollable) -->
+          <div class="overflow-y-auto flex-1 p-5 sm:p-6 space-y-4">
+
+            <!-- A. Reporter / Requester Card -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <p class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3">Reporter Information</p>
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-200 text-slate-700 text-sm font-bold flex items-center justify-center shrink-0 uppercase">
+                  {{ getInitials(detailsModal.ticket?.requestedBy) }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-black text-slate-900">{{ detailsModal.ticket?.requestedBy }}</p>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">{{ detailsModal.ticket?.requesterEmail || 'No email on record' }}</p>
+                  <!-- Enlarged Contact Number -->
+                  <a
+                    v-if="detailsModal.ticket?.requesterContact"
+                    :href="`tel:${detailsModal.ticket.requesterContact}`"
+                    class="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors group"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <span class="text-base sm:text-lg font-black font-mono tracking-wide text-emerald-800 group-hover:text-emerald-900">
+                      {{ detailsModal.ticket.requesterContact }}
+                    </span>
+                  </a>
+                </div>
               </div>
-              <div>
-                <span class="text-[10px] font-black uppercase text-slate-400">Location Context</span>
-                <p class="font-bold text-slate-900 mt-0.5">{{ detailsModal.ticket?.location || detailsModal.ticket?.college_building }}</p>
-                <p class="text-slate-500 text-[11px]">{{ detailsModal.ticket?.office_room ? `Room ${detailsModal.ticket?.office_room}` : 'Campus area' }}</p>
-              </div>
-              <div>
-                <span class="text-[10px] font-black uppercase text-slate-400">Submitted Timestamp</span>
-                <p class="font-bold text-slate-800 mt-0.5">{{ detailsModal.ticket?.date }}</p>
-              </div>
-              <div>
-                <span class="text-[10px] font-black uppercase text-slate-400">Status</span>
-                <p class="font-bold text-slate-800 mt-0.5">{{ detailsModal.ticket?.statusLabel }}</p>
+              <!-- Student/Employee Details -->
+              <div v-if="detailsModal.ticket?.studentId || detailsModal.ticket?.college" class="mt-3 pt-3 border-t border-slate-200 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div v-if="detailsModal.ticket?.studentId">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">ID Number</span>
+                  <p class="text-xs font-bold text-slate-900 mt-0.5 font-mono">{{ detailsModal.ticket.studentId }}</p>
+                </div>
+                <div v-if="detailsModal.ticket?.studentType">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Type</span>
+                  <p class="text-xs font-bold text-slate-900 mt-0.5">{{ detailsModal.ticket.studentType }}</p>
+                </div>
+                <div v-if="detailsModal.ticket?.college">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">College / Org</span>
+                  <p class="text-xs font-bold text-slate-900 mt-0.5">{{ detailsModal.ticket.college }}</p>
+                </div>
               </div>
             </div>
 
-            <!-- Incident Narrative -->
+            <!-- B. Incident Classification -->
+            <div class="p-4 rounded-2xl bg-rose-50/60 border border-rose-200">
+              <p class="text-[10px] font-black uppercase text-rose-700 tracking-wider mb-3">Incident Classification</p>
+              <div class="space-y-2.5">
+                <!-- Incident Types -->
+                <div v-if="detailsModal.ticket?.incidentTypes?.length">
+                  <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Type(s) of Incident</span>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span
+                      v-for="inc in detailsModal.ticket.incidentTypes"
+                      :key="inc"
+                      class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold border border-rose-200"
+                    >
+                      {{ inc }}
+                    </span>
+                  </div>
+                </div>
+                <!-- Issues / Information -->
+                <div v-if="detailsModal.ticket?.incidentIssues?.length">
+                  <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Related Issues</span>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span
+                      v-for="issue in detailsModal.ticket.incidentIssues"
+                      :key="issue"
+                      class="px-2.5 py-1 rounded-lg bg-orange-100 text-orange-800 text-xs font-bold border border-orange-200"
+                    >
+                      {{ issue }}
+                    </span>
+                  </div>
+                </div>
+                <!-- Reporter Roles -->
+                <div v-if="detailsModal.ticket?.incidentRoles?.length">
+                  <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Reporter Role(s)</span>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span
+                      v-for="role in detailsModal.ticket.incidentRoles"
+                      :key="role"
+                      class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200"
+                    >
+                      {{ role }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- C. Incident Particulars (Who / Where / When) -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <p class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3">Incident Particulars</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div v-if="detailsModal.ticket?.who">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Person(s) Involved</span>
+                  <p class="text-xs font-semibold text-slate-800 mt-1 leading-relaxed">{{ detailsModal.ticket.who }}</p>
+                </div>
+                <div v-if="detailsModal.ticket?.when">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Date &amp; Time of Incident</span>
+                  <p class="text-xs font-semibold text-slate-800 mt-1 leading-relaxed">{{ detailsModal.ticket.when }}</p>
+                </div>
+                <div class="sm:col-span-2" v-if="detailsModal.ticket?.location || detailsModal.ticket?.college_building">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Location</span>
+                  <p class="text-xs font-semibold text-slate-800 mt-1">
+                    {{ detailsModal.ticket.location || detailsModal.ticket.college_building }}
+                    <span v-if="detailsModal.ticket?.office_room" class="text-slate-500">&nbsp;— Room {{ detailsModal.ticket.office_room }}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- D. Narrative Statement -->
             <div>
-              <span class="text-[10px] font-black uppercase text-slate-400 block mb-1.5">Incident Particulars & Narrative</span>
-              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 leading-relaxed font-medium whitespace-pre-line">
-                {{ detailsModal.ticket?.description }}
+              <p class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2">Narrative Statement (How)</p>
+              <div class="p-4 rounded-2xl bg-white border border-slate-200 text-sm text-slate-700 font-medium leading-relaxed whitespace-pre-line min-h-[80px]">
+                {{ detailsModal.ticket?.how || detailsModal.ticket?.description || 'No narrative provided.' }}
               </div>
             </div>
 
-            <!-- Existing Recommendation (If Any) -->
+            <!-- E. Staff Notation / Recommendation -->
             <div v-if="detailsModal.ticket?.hasNotation" class="p-4 rounded-2xl bg-blue-50 border border-blue-200">
-              <span class="text-[10px] font-black uppercase text-blue-700 block mb-1">Active Recommendation / Notation</span>
-              <p class="text-xs text-blue-950 font-medium italic leading-relaxed">
-                "{{ detailsModal.ticket?.notation }}"
-              </p>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <p class="text-[10px] font-black uppercase text-blue-700 tracking-wider">Staff Recommendation / Notation</p>
+                <button
+                  type="button"
+                  @click="openNotationModal(detailsModal.ticket); closeDetailsModal()"
+                  class="text-[10px] font-black text-blue-600 hover:text-blue-800 uppercase tracking-wider px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer"
+                >
+                  Edit
+                </button>
+              </div>
+              <p class="text-xs text-blue-950 font-medium italic leading-relaxed">"{{ detailsModal.ticket?.notation }}"</p>
+            </div>
+            <div v-else class="p-3.5 rounded-2xl bg-amber-50/80 border border-dashed border-amber-300 flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <p class="text-xs font-bold text-amber-800">No recommendation recorded yet</p>
+                <p class="text-[11px] text-amber-700 mt-0.5">A notation is required before this incident can be resolved.</p>
+              </div>
             </div>
 
-            <!-- Evidence Attachments -->
+            <!-- F. Evidence Attachments -->
             <div v-if="detailsModal.ticket?.attachments?.length > 0">
-              <span class="text-[10px] font-black uppercase text-slate-400 block mb-2">Evidence & Photographic Documentation</span>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <p class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2">Evidence &amp; Attachments</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div
                   v-for="(att, idx) in detailsModal.ticket.attachments"
                   :key="idx"
@@ -759,7 +907,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                     </svg>
-                    <span class="truncate font-semibold text-slate-700 group-hover:text-rose-700">{{ att.file_name || 'Evidence Attachment' }}</span>
+                    <span class="truncate font-semibold text-slate-700 group-hover:text-rose-700 text-xs">{{ att.file_name || 'Evidence Attachment' }}</span>
                   </div>
                   <span class="text-[10px] font-bold text-slate-400 group-hover:text-rose-600 shrink-0">Open</span>
                 </div>
@@ -767,13 +915,74 @@
             </div>
           </div>
 
-          <div class="pt-5 border-t border-slate-100 flex justify-end mt-5">
+          <!-- Modal Footer -->
+          <div class="p-5 sm:p-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
+            <button
+              v-if="!detailsModal.ticket?.hasNotation"
+              type="button"
+              @click="openNotationModal(detailsModal.ticket); closeDetailsModal()"
+              class="px-4 py-2.5 min-h-[44px] rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer touch-manipulation flex items-center gap-1.5"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Add Notation
+            </button>
+            <div v-else></div>
             <button
               type="button"
               @click="closeDetailsModal"
               class="px-5 py-2.5 min-h-[44px] rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer touch-manipulation"
             >
-              Close Details
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- ═══ MODAL 5: INITIATE INVESTIGATION CONFIRMATION ═══ -->
+    <Teleport to="body">
+      <div
+        v-if="confirmInvestigateModal.isOpen"
+        class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-fade-in"
+        @click.self="closeInvestigateModal"
+      >
+        <div class="pointer-events-auto bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 animate-scale-up text-center">
+          <div class="w-14 h-14 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          <h3 class="text-lg font-black text-slate-900 mb-1">Initiate Investigation?</h3>
+          <p class="text-xs text-slate-500 mb-2">
+            Ticket <strong class="text-slate-800 font-mono">{{ confirmInvestigateModal.ticket?.ticketId }}</strong>
+          </p>
+          <p class="text-xs text-slate-500 mb-6">
+            This will move the incident report to the <strong class="text-violet-700">Under Investigation</strong> queue and notify the reporter that their case is actively being handled by SSU.
+          </p>
+
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              :disabled="confirmInvestigateModal.isLoading"
+              @click="closeInvestigateModal"
+              class="flex-1 px-5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer touch-manipulation disabled:opacity-50 transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              :disabled="confirmInvestigateModal.isLoading"
+              @click="confirmInvestigate"
+              class="flex-1 px-5 py-2.5 min-h-[44px] rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-60 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+            >
+              <svg v-if="confirmInvestigateModal.isLoading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ confirmInvestigateModal.isLoading ? 'Processing…' : 'Start Investigation' }}</span>
             </button>
           </div>
         </div>
@@ -828,10 +1037,14 @@ const mapTicket = (t) => ({
   service:              t.service_type || 'Incident Report',
   description:          t.description || '',
   date:                 new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+  submittedAt:          t.submitted_at || '',
   requestedBy:          t.first_name ? `${t.first_name} ${t.last_name || ''}`.trim() : (t.details?.reporter_name || 'Anonymous Reporter'),
   requesterEmail:       t.email || '',
   requesterRole:        t.requester_role || 'reporter',
   requesterContact:     t.requester_contact || t.contact_number || '',
+  studentId:            t.student_id_number || '',
+  studentType:          t.student_type || '',
+  college:              t.college || t.organization_name || '',
   location:             t.location || '',
   college_building:     t.college_building || '',
   office_room:          t.office_room || '',
@@ -841,6 +1054,14 @@ const mapTicket = (t) => ({
   hasNotation:          Boolean(t.ssu_notation && t.ssu_notation.trim().length > 0),
   notation:             t.ssu_notation || '',
   statusLabel:          t.status_label || (Number(t.is_under_investigation) === 1 ? 'Under Investigation' : 'Pending Review'),
+  // ── SSU Incident Report Detail Fields ────────────────────────────────────
+  incidentTypes:        t.details?.incidents    || [],
+  incidentIssues:       t.details?.information  || [],
+  incidentRoles:        t.details?.roles        || [],
+  who:                  t.details?.who_involved || '',
+  when:                 t.details?.when_occurred || '',
+  how:                  t.details?.how_narrative || t.description || '',
+  reportedBy:           t.details?.reportedBy   || { printedName: '', signature: '', roles: [] },
 });
 
 // ── Computed Lists ─────────────────────────────────────────────────────────
@@ -943,14 +1164,37 @@ const detailsModal = reactive({
   ticket: null,
 });
 
+const confirmInvestigateModal = reactive({
+  isOpen:    false,
+  ticket:    null,
+  isLoading: false,
+});
+
 // ── Actions ────────────────────────────────────────────────────────────────
-const setUnderInvestigation = async (ticket) => {
+const openInvestigateModal = (ticket) => {
+  confirmInvestigateModal.ticket    = ticket;
+  confirmInvestigateModal.isLoading = false;
+  confirmInvestigateModal.isOpen    = true;
+};
+
+const closeInvestigateModal = () => {
+  confirmInvestigateModal.isOpen    = false;
+  confirmInvestigateModal.ticket    = null;
+  confirmInvestigateModal.isLoading = false;
+};
+
+const confirmInvestigate = async () => {
+  if (!confirmInvestigateModal.ticket) return;
+  confirmInvestigateModal.isLoading = true;
   try {
-    await api.patch(`tickets/${ticket.id}/investigate`);
-    toast.success(`Incident ${ticket.ticketId} is now Under Investigation.`);
+    await api.patch(`tickets/${confirmInvestigateModal.ticket.id}/investigate`);
+    toast.success(`Incident ${confirmInvestigateModal.ticket.ticketId} is now Under Investigation.`);
+    closeInvestigateModal();
     await fetchQueues();
   } catch (error) {
     toast.error(error.response?.data?.message || 'Failed to update investigation status.');
+  } finally {
+    confirmInvestigateModal.isLoading = false;
   }
 };
 
@@ -1123,7 +1367,7 @@ let pollingTimer = null;
 
 const handleFocus = () => {
   if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-    const isInteracting = notationModal.isOpen || resolveModal.isOpen || dismissModal.isOpen || detailsModal.isOpen;
+    const isInteracting = notationModal.isOpen || resolveModal.isOpen || dismissModal.isOpen || detailsModal.isOpen || confirmInvestigateModal.isOpen;
     if (!isInteracting) {
       fetchQueues();
     }
@@ -1135,7 +1379,7 @@ onMounted(() => {
 
   pollingTimer = setInterval(() => {
     if (document.hidden) return;
-    const isInteracting = notationModal.isOpen || resolveModal.isOpen || dismissModal.isOpen || detailsModal.isOpen;
+    const isInteracting = notationModal.isOpen || resolveModal.isOpen || dismissModal.isOpen || detailsModal.isOpen || confirmInvestigateModal.isOpen;
     if (!isInteracting) {
       fetchQueues();
     }

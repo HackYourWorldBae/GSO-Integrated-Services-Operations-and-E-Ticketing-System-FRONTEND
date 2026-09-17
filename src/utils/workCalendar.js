@@ -218,7 +218,10 @@ export function calculateWorkingHoursElapsed(startDateInput, endDateInput = new 
   const finalDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
 
   while (current <= finalDay) {
-    if (isWorkingDay(current)) {
+    const isStartDay = current.getTime() === new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime();
+    const isEndDay = current.getTime() === finalDay.getTime();
+
+    if (isWorkingDay(current) || isStartDay) {
       const year = current.getFullYear();
       const month = current.getMonth();
       const date = current.getDate();
@@ -226,10 +229,8 @@ export function calculateWorkingHoursElapsed(startDateInput, endDateInput = new 
       const dayWorkStart = new Date(year, month, date, WORK_START_HOUR, 0, 0);
       const dayWorkEnd = new Date(year, month, date, WORK_END_HOUR, 0, 0);
 
-      const isStartDay = current.getTime() === new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime();
-      const isEndDay = current.getTime() === finalDay.getTime();
-
-      const windowStart = isStartDay && start > dayWorkStart ? start : dayWorkStart;
+      // On start day, count from actual start timestamp so early starts (e.g. before 8am) are preserved
+      const windowStart = isStartDay ? start : dayWorkStart;
       const windowEnd = isEndDay && end < dayWorkEnd ? end : dayWorkEnd;
 
       if (windowStart < windowEnd) {

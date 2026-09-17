@@ -303,7 +303,7 @@
               <tbody class="divide-y divide-slate-100 text-sm">
                 <tr v-for="log in recentLogs" :key="log.id" class="hover:bg-slate-50/60 transition-colors">
                   <td class="py-3 px-3 text-slate-600 font-medium whitespace-nowrap">
-                    {{ new Date(log.created_at).toLocaleString() }}
+                    {{ formatLogDateTime(log.created_at) }}
                   </td>
                   <td class="py-3 px-3">
                     <div class="flex flex-col">
@@ -342,7 +342,7 @@
                   {{ log.action }}
                 </span>
                 <span class="text-xs text-slate-500 font-medium">
-                  {{ new Date(log.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) }} • {{ new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+                  {{ formatLogShortDateTime(log.created_at) }}
                 </span>
               </div>
               <div class="flex items-center justify-between gap-2">
@@ -375,6 +375,7 @@
 import { ref, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { fetchSuperadminStats, fetchAuditLogs } from '@/api/superadmin';
+import { parseDateLocal } from '@/utils/workCalendar';
 
 const stats = ref({
   users: {
@@ -438,6 +439,29 @@ const fetchDashboardData = async () => {
   } catch (err) {
     console.error('Failed to load superadmin recent logs:', err);
   }
+};
+
+const formatLogDateTime = (dateStr) => {
+  if (!dateStr) return '—';
+  const d = parseDateLocal(dateStr);
+  if (!d || isNaN(d.getTime())) return String(dateStr);
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
+const formatLogShortDateTime = (dateStr) => {
+  if (!dateStr) return '—';
+  const d = parseDateLocal(dateStr);
+  if (!d || isNaN(d.getTime())) return String(dateStr);
+  const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const timePart = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  return `${datePart} • ${timePart}`;
 };
 
 onMounted(() => {

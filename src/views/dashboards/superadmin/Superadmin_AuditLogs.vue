@@ -405,6 +405,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { fetchAuditLogs } from '@/api/superadmin';
+import { parseDateLocal } from '@/utils/workCalendar';
 
 const loading = ref(false);
 const logs = ref([]);
@@ -486,19 +487,22 @@ const fetchLogs = async () => {
 
 const formatDate = (dateStr) => {
   if (!dateStr) return 'N/A';
-  const d = new Date(dateStr);
+  const d = parseDateLocal(dateStr);
+  if (!d || isNaN(d.getTime())) return String(dateStr);
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 const formatTime = (dateStr) => {
   if (!dateStr) return '';
-  const d = new Date(dateStr);
+  const d = parseDateLocal(dateStr);
+  if (!d || isNaN(d.getTime())) return '';
   return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 };
 
 const formatFullDateTime = (dateStr) => {
   if (!dateStr) return 'N/A';
-  const d = new Date(dateStr);
+  const d = parseDateLocal(dateStr);
+  if (!d || isNaN(d.getTime())) return String(dateStr);
   return d.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
