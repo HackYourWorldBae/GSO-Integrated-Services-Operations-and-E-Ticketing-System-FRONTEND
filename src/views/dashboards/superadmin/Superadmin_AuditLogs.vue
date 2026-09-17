@@ -404,7 +404,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import api from '@/api/client';
+import { fetchAuditLogs } from '@/api/superadmin';
 
 const loading = ref(false);
 const logs = ref([]);
@@ -471,7 +471,7 @@ const fetchLogs = async () => {
       params.search = filters.value.search;
     }
 
-    const response = await api.get('/superadmin/audit-logs', { params });
+    const response = await fetchAuditLogs(params);
     const payload = response.data?.data || response.data;
     if (payload && (payload.logs !== undefined || response.data?.status === true || response.data?.status === 'success')) {
       logs.value = payload.logs || response.data?.logs || [];

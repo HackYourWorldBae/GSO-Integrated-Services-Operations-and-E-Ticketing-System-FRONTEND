@@ -362,7 +362,7 @@ import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { debounce } from '@/utils/debounce';
-import api from '@/api/client';
+import { fetchUsers, verifyUser, rejectVerification } from '@/api/superadmin';
 
 const loading = ref(false);
 const isActionLoading = ref(false);
@@ -401,9 +401,7 @@ const isUserVerified = (u) => {
 const fetchPendingUsers = async () => {
   loading.value = true;
   try {
-    const res = await api.get('/superadmin/users', {
-      params: { per_page: 100 }
-    });
+    const res = await fetchUsers({ per_page: 100 });
     const payload = res.data?.data || res.data;
     users.value = payload?.users || [];
   } catch (err) {
@@ -501,15 +499,16 @@ const handleConfirmAction = async () => {
   const user = confirmModal.targetUser;
   try {
     if (confirmModal.actionType === 'approve') {
-      const res = await api.patch(`/superadmin/users/${user.id}/verify`, {});
+      const res = await verifyUser(user.id);
       toast.success(res.data?.message || 'User identity verified and approved!');
       isInspectModalOpen.value = false;
       closeConfirmModal(true);
       await fetchPendingUsers();
     } else if (confirmModal.actionType === 'reject') {
-      const res = await api.patch(`/superadmin/users/${user.id}/reject`, {
-        reason: confirmModal.reason || 'Identity document could not be verified.'
-      });
+      const res = await rejectVerification(
+        user.id,
+        confirmModal.reason || 'Identity document could not be verified.'
+      );
       toast.info(res.data?.message || 'User verification has been rejected.');
       isInspectModalOpen.value = false;
       closeConfirmModal(true);

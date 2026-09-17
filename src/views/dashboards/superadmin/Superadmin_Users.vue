@@ -1068,8 +1068,16 @@ import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import StrictDeleteModal from '@/components/StrictDeleteModal.vue';
-import { useAuthStore } from '@/stores/auth';
-import api from '@/api/client';
+import {
+  fetchUsers as apiFetchUsers,
+  createUser as apiCreateUser,
+  updateUser as apiUpdateUser,
+  deleteUser as apiDeleteUser,
+  verifyUser as apiVerifyUser,
+  rejectVerification as apiRejectVerification,
+  updateUserStatus as apiUpdateUserStatus,
+  unlockUser as apiUnlockUser
+} from '@/api/superadmin';
 
 const authStore = useAuthStore();
 const isCurrentUser = (u) => Boolean(u && authStore.user?.id && authStore.user.id === u.id);
@@ -1236,28 +1244,27 @@ const handleConfirmAction = async () => {
   const user = confirmModal.targetUser;
   try {
     if (confirmModal.actionType === 'approve') {
-      const res = await api.patch(`/superadmin/users/${user.id}/verify`, {});
+      const res = await apiVerifyUser(user.id);
       toast.success(res.data?.message || 'User identity verified and approved!');
       isInspectModalOpen.value = false;
       closeConfirmModal(true);
       await fetchUsers();
     } else if (confirmModal.actionType === 'reject') {
-      const res = await api.patch(`/superadmin/users/${user.id}/reject`, {
-        reason: confirmModal.reason || 'Identity document could not be verified.'
-      });
+      const res = await apiRejectVerification(
+        user.id,
+        confirmModal.reason || 'Identity document could not be verified.'
+      );
       toast.info(res.data?.message || 'User verification has been rejected.');
       isInspectModalOpen.value = false;
       closeConfirmModal(true);
       await fetchUsers();
     } else if (confirmModal.actionType === 'status_change') {
-      const res = await api.patch(`/superadmin/users/${user.id}/status`, {
-        status: confirmModal.newStatus
-      });
+      const res = await apiUpdateUserStatus(user.id, confirmModal.newStatus);
       toast.success(res.data?.message || `Account status updated to ${confirmModal.newStatus}.`);
       closeConfirmModal(true);
       await fetchUsers();
     } else if (confirmModal.actionType === 'unlock') {
-      const res = await api.post(`/superadmin/users/${user.id}/unlock`, {});
+      const res = await apiUnlockUser(user.id);
       toast.success(res.data?.message || 'User account unlocked successfully!');
       closeConfirmModal(true);
       await fetchUsers();
@@ -1301,9 +1308,7 @@ const handleStrictDeleteConfirm = async ({ user, reason }) => {
   strictDeleteModal.isLoading = true;
   strictDeleteModal.errorMessage = '';
   try {
-    const res = await api.delete(`/superadmin/users/${user.id}`, {
-      data: { reason }
-    });
+    const res = await apiDeleteUser(user.id, reason);
     toast.success(res.data?.message || 'User account permanently deleted.');
     closeStrictDeleteModal(true);
     await fetchUsers();
@@ -1481,16 +1486,16 @@ const fetchUsers = async () => {
   isLoading.value = true;
   fetchError.value = '';
   try {
-    const params = new URLSearchParams({
+    const params = {
       page: pagination.page,
       per_page: pagination.per_page,
       search: filters.search || '',
       role: filters.role || 'all',
       unit_id: filters.unit_id || 'all',
       status: filters.status || 'all'
-    });
+    };
 
-    const res = await api.get(`/superadmin/users?${params.toString()}`);
+    const res = await apiFetchUsers(params);
     const payload = res.data?.data || res.data;
     if (payload) {
       users.value = payload.users || res.data?.users || [];
@@ -1570,7 +1575,7 @@ const submitCreateUser = async () => {
       student_id_number: createForm.role === 'student' && createForm.student_id_number ? createForm.student_id_number.trim() : null,
     };
 
-    const res = await api.post('/superadmin/users', payload);
+    const res = await apiCreateUser(payload);
     if (res.data?.status === true || res.data?.success || res.status === 201) {
       toast.success(res.data?.message || 'User account provisioned successfully!');
       isCreateModalOpen.value = false;
@@ -1631,7 +1636,7 @@ const submitEditUser = async () => {
       payload.confirm_password = editForm.confirm_password.trim();
     }
 
-    const res = await api.put(`/superadmin/users/${editForm.id}`, payload);
+    const res = await apiUpdateUser(editForm.id, payload);
     if (res.data?.status === true || res.data?.success || res.status === 200) {
       toast.success(res.data?.message || 'User account updated successfully!');
       isEditModalOpen.value = false;

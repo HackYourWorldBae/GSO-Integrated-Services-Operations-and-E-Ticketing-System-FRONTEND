@@ -515,7 +515,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import api from '@/api/client';
+import { fetchAccountActivityLogs } from '@/api/superadmin';
 
 const loading = ref(false);
 const logs = ref([]);
@@ -594,7 +594,7 @@ const fetchLogs = async () => {
     if (filters.value.severity) params.severity = filters.value.severity;
     if (filters.value.category) params.category = filters.value.category;
 
-    const response = await api.get('/superadmin/account-activity-logs', { params });
+    const response = await fetchAccountActivityLogs(params);
     const payload = response.data?.data || response.data;
     if (payload) {
       logs.value = payload.logs || [];

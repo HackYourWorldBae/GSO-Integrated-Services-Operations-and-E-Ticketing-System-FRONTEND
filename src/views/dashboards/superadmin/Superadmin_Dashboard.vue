@@ -374,7 +374,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import api from '@/api/client';
+import { fetchSuperadminStats, fetchAuditLogs } from '@/api/superadmin';
 
 const stats = ref({
   users: {
@@ -421,7 +421,7 @@ const getRoleDescription = (role) => {
 
 const fetchDashboardData = async () => {
   try {
-    const statsRes = await api.get('/superadmin/stats');
+    const statsRes = await fetchSuperadminStats();
     if (statsRes.data?.data) {
       stats.value = statsRes.data.data;
     }
@@ -430,7 +430,7 @@ const fetchDashboardData = async () => {
   }
 
   try {
-    const logsRes = await api.get('/superadmin/audit-logs?limit=6');
+    const logsRes = await fetchAuditLogs({ limit: 6 });
     const logsPayload = logsRes.data?.data || logsRes.data;
     if (logsPayload?.logs) {
       recentLogs.value = logsPayload.logs;
