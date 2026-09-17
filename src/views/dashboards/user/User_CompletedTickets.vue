@@ -315,7 +315,7 @@
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.service_type || selectedTicket.service || selectedTicket.title }}</p>
               </div>
-              <div v-if="selectedTicket.workingDays">
+              <div v-if="!isIncidentTicket(selectedTicket) && selectedTicket.workingDays">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Duration</p>
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <p class="text-base font-semibold text-emerald-800">{{ selectedTicket.workingDays }} Working Day(s)</p>
@@ -324,7 +324,7 @@
                   </span>
                 </div>
               </div>
-              <div v-if="selectedTicket.effective_target_date || selectedTicket.target_completion_date">
+              <div v-if="!isIncidentTicket(selectedTicket) && (selectedTicket.effective_target_date || selectedTicket.target_completion_date)">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Completion Date</p>
                 <p class="text-base font-semibold text-slate-800">{{ formatDate(selectedTicket.effective_target_date || selectedTicket.target_completion_date) }}</p>
               </div>
@@ -338,7 +338,7 @@
               </div>
 
               <!-- Dedicated Extension Notice Section (If Applicable) -->
-              <div v-if="selectedTicket.is_extended && selectedTicket.extension_days > 0" class="col-span-2">
+              <div v-if="!isIncidentTicket(selectedTicket) && selectedTicket.is_extended && selectedTicket.extension_days > 0" class="col-span-2">
                 <p class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2 flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -528,7 +528,7 @@
           <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
             <div>
               <!-- Official Timeline Extension Notice Banner in Modal -->
-              <div v-if="selectedTimelineTicket.is_extended && selectedTimelineTicket.extension_days > 0" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in">
+              <div v-if="!isIncidentTicket(selectedTimelineTicket) && selectedTimelineTicket.is_extended && selectedTimelineTicket.extension_days > 0" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in">
                 <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -624,6 +624,18 @@ const formatDate = (dateStr) => {
   return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
+const isIncidentTicket = (t) => {
+  if (!t) return false;
+  return Boolean(
+    t.service === 'Incident Report' ||
+    t.service_type === 'Incident Report' ||
+    t.title === 'Incident Report' ||
+    t.unit === 'SSU' ||
+    t.unit_code === 'SSU' ||
+    Number(t.unit_id) === 3
+  );
+};
+
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
@@ -652,53 +664,57 @@ onMounted(async () => {
   try {
     const response = await api.get('tickets/completed');
     if (response.data?.data?.tickets) {
-      tickets.value = response.data.data.tickets.map(t => ({
-        id: t.id,
-        ticketId: t.id,
-        ticket_number: t.ticket_number || t.reference_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
-        reference_number: t.reference_number || t.ticket_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
-        title: t.title,
-        service: t.service_type,
-        service_type: t.service_type,
-        unit: t.unit_code,
-        unit_code: t.unit_code,
-        unit_id: t.unit_id,
-        description: t.description,
-        status: t.status,
-        statusLabel: t.status_label,
-        date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        submitted_at: t.submitted_at,
-        completed_at: t.completed_at || null,
-        requestedBy: userName.value,
-        location: t.location || t.details?.college_building || 'N/A',
-        office_room: t.office_room || t.details?.office_room || 'N/A',
-        attachments: t.attachments || [],
-        isDeclining: false,
-        declineReason: t.decline_reason || '',
-        currentStep: Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 6),
-        assignedWorker: t.assignment?.personnel_name || t.assigned_worker || 'Unassigned',
-        assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
-        assignment: t.assignment || null,
-        assignments: t.assignments || [],
-        details: t.details || null,
-        materials: t.materials || [],
-        total_material_cost: t.total_material_cost || 0,
-        implementationDate: t.assignment?.implementation_date
-          ? formatDate(t.assignment.implementation_date)
-          : (t.scheduled_date ? formatDate(t.scheduled_date) : null),
-        extension_days: Number(t.extension_days) || 0,
-        extension_reason: t.extension_reason || '',
-        extended_completion_date: t.extended_completion_date || null,
-        is_extended: !!t.is_extended || (Number(t.extension_days) > 0) || !!t.extended_completion_date,
-        target_completion_date: t.target_completion_date || t.extended_completion_date || null,
-        effective_target_date: t.effective_target_date || t.target_completion_date || t.extended_completion_date || null,
-        base_working_days: Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null,
-        total_working_days: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0),
-        workingDays: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0) || (t.working_days || t.project_working_days || t.assignment?.working_days || null),
-        working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
-        isClosed: t.status === 'completed' || t.status === 'closed',
-        feedback: t.feedback || null
-      }));
+      tickets.value = response.data.data.tickets.map(t => {
+        const isIncident = isIncidentTicket(t);
+
+        return {
+          id: t.id,
+          ticketId: t.id,
+          ticket_number: t.ticket_number || t.reference_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
+          reference_number: t.reference_number || t.ticket_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
+          title: t.title,
+          service: t.service_type,
+          service_type: t.service_type,
+          unit: t.unit_code,
+          unit_code: t.unit_code,
+          unit_id: t.unit_id,
+          description: t.description,
+          status: t.status,
+          statusLabel: t.status_label,
+          date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          submitted_at: t.submitted_at,
+          completed_at: t.completed_at || null,
+          requestedBy: userName.value,
+          location: t.location || t.details?.college_building || 'N/A',
+          office_room: t.office_room || t.details?.office_room || 'N/A',
+          attachments: t.attachments || [],
+          isDeclining: false,
+          declineReason: t.decline_reason || '',
+          currentStep: Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 6),
+          assignedWorker: t.assignment?.personnel_name || t.assigned_worker || 'Unassigned',
+          assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
+          assignment: t.assignment || null,
+          assignments: t.assignments || [],
+          details: t.details || null,
+          materials: t.materials || [],
+          total_material_cost: t.total_material_cost || 0,
+          implementationDate: (!isIncident && (t.assignment?.implementation_date || t.scheduled_date))
+            ? formatDate(t.assignment?.implementation_date || t.scheduled_date)
+            : null,
+          extension_days: isIncident ? 0 : (Number(t.extension_days) || 0),
+          extension_reason: isIncident ? '' : (t.extension_reason || ''),
+          extended_completion_date: isIncident ? null : (t.extended_completion_date || null),
+          is_extended: !isIncident && (Boolean(t.is_extended) || (Number(t.extension_days) > 0) || Boolean(t.extended_completion_date)),
+          target_completion_date: isIncident ? null : (t.target_completion_date || t.extended_completion_date || null),
+          effective_target_date: isIncident ? null : (t.effective_target_date || t.target_completion_date || t.extended_completion_date || null),
+          base_working_days: isIncident ? null : (Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null),
+          total_working_days: isIncident ? null : ((Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0)),
+          workingDays: isIncident ? null : (((Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0)) || (t.working_days || t.project_working_days || t.assignment?.working_days || null)),
+          working_days: isIncident ? null : (t.working_days || t.project_working_days || t.assignment?.working_days || null),
+          isClosed: t.status === 'completed' || t.status === 'closed',
+          feedback: t.feedback || null
+        };
+      });
       checkRouteTicket();
     }
   } catch (error) {

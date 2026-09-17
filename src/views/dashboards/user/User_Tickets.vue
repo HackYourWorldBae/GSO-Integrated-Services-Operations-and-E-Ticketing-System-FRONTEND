@@ -174,7 +174,7 @@
                       </svg>
                       Scheduled: {{ ticket.implementationDate }}
                     </div>
-                    <div v-if="ticket.workingDays" class="flex items-center gap-1.5 text-xs sm:text-sm text-amber-900 font-black bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+                    <div v-if="!isIncidentTicket(ticket) && ticket.workingDays" class="flex items-center gap-1.5 text-xs sm:text-sm text-amber-900 font-black bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -183,7 +183,7 @@
                         +{{ ticket.extension_days }}d Ext
                       </span>
                     </div>
-                    <div v-if="ticket.effective_target_date || ticket.target_completion_date" class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-800 font-bold bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+                    <div v-if="!isIncidentTicket(ticket) && (ticket.effective_target_date || ticket.target_completion_date)" class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-800 font-bold bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                       </svg>
@@ -215,7 +215,7 @@
                   </div>
 
                   <!-- Official Timeline Extension Notice Card -->
-                  <div v-if="ticket.is_extended && ticket.extension_days > 0" class="mt-3.5 flex items-start gap-3 p-4 bg-amber-50/90 border border-amber-200 rounded-2xl animate-fade-in shadow-xs">
+                  <div v-if="!isIncidentTicket(ticket) && ticket.is_extended && ticket.extension_days > 0" class="mt-3.5 flex items-start gap-3 p-4 bg-amber-50/90 border border-amber-200 rounded-2xl animate-fade-in shadow-xs">
                     <div class="p-2.5 bg-amber-100 rounded-xl shrink-0 mt-0.5 text-amber-800">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -700,7 +700,7 @@
                     </div>
 
                     <!-- Official Timeline Extension Notice Banner in Modal -->
-                    <div v-if="selectedTicket.is_extended && selectedTicket.extension_days > 0" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in">
+                    <div v-if="!isIncidentTicket(selectedTicket) && selectedTicket.is_extended && selectedTicket.extension_days > 0" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in">
                       <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1273,6 +1273,18 @@ const AttachmentList = defineComponent({
   },
 });
 
+const isIncidentTicket = (t) => {
+  if (!t) return false;
+  return Boolean(
+    t.service === 'Incident Report' ||
+    t.service_type === 'Incident Report' ||
+    t.title === 'Incident Report' ||
+    t.unit === 'SSU' ||
+    t.unit_name === 'SSU' ||
+    Number(t.unit_id) === 3
+  );
+};
+
 /**
  * Digital ticket card for FGMU/LEAU.
  */
@@ -1286,9 +1298,9 @@ const DigitalFormCard = defineComponent({
         h(FormRow, { label: 'Service', value: props.ticket.service }),
         h(FormRow, { label: 'Location', value: props.ticket.location || 'Main Campus' }),
         h(FormRow, { label: 'Office / Room', value: props.ticket.office_room || 'N/A' }),
-        ...(props.ticket.implementationDate ? [h(FormRow, { label: 'Implementation Date', value: props.ticket.implementationDate })] : []),
-        ...(props.ticket.workingDays ? [h(FormRow, { label: 'Target Working Days', value: `${props.ticket.workingDays} Day(s)` + (props.ticket.extension_days > 0 ? ` (+${props.ticket.extension_days}d ext)` : '') })] : []),
-        ...((props.ticket.effective_target_date || props.ticket.target_completion_date) ? [h(FormRow, { label: 'Target Completion Date', value: formatDate(props.ticket.effective_target_date || props.ticket.target_completion_date) })] : []),
+        ...((!isIncidentTicket(props.ticket) && props.ticket.implementationDate) ? [h(FormRow, { label: 'Implementation Date', value: props.ticket.implementationDate })] : []),
+        ...((!isIncidentTicket(props.ticket) && props.ticket.workingDays) ? [h(FormRow, { label: 'Target Working Days', value: `${props.ticket.workingDays} Day(s)` + (props.ticket.extension_days > 0 ? ` (+${props.ticket.extension_days}d ext)` : '') })] : []),
+        ...((!isIncidentTicket(props.ticket) && (props.ticket.effective_target_date || props.ticket.target_completion_date)) ? [h(FormRow, { label: 'Target Completion Date', value: formatDate(props.ticket.effective_target_date || props.ticket.target_completion_date) })] : []),
       ]),
 
       ...(props.ticket.attachments?.length ? [h(AttachmentList, { attachments: props.ticket.attachments, onDownload: (att) => emit('download', att) })] : []),
@@ -1391,79 +1403,82 @@ const highlightedTicket = ref(null);
 const userName = ref('');
 const tickets  = ref([]);
 
-// ---- Data Mapping Helper ----
-const mapTicketData = (t) => ({
-  id: t.id,
-  ticketId: t.id,
-  title: t.title,
-  service: t.service_type,
-  unit: t.unit_code,
-  description: t.description,
-  status: t.status,
-  statusLabel: t.status_label,
-  date: new Date(t.completed_at || t.submitted_at || t.updated_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-  requestedBy: userName.value || t.requester || t.requestedBy || (t.user ? `${t.user.first_name || ''} ${t.user.last_name || ''}`.trim() : '') || (t.first_name || t.last_name ? `${t.first_name || ''} ${t.last_name || ''}`.trim() : '') || 'User',
-  contact_number: t.contact_number || t.requester_contact || t.user?.contact_number || 'N/A',
-  location: t.location,
-  office_room: t.office_room,
-  attachments: t.attachments || [],
-  declineReason: t.decline_reason || '',
-  currentStep: (() => {
-    const rawStep = parseInt(t.current_step, 10);
-    const isClosedOrResolved = ['closed', 'completed', 'resolved'].includes(t.status);
-    if (isClosedOrResolved) {
-      const isSsu = t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3;
-      return Math.max(rawStep || 0, isSsu ? (['closed', 'completed'].includes(t.status) ? 5 : 4) : 6);
-    }
-    if (!rawStep || isNaN(rawStep)) {
-      if (t.status === 'approved') return 3;
-      if (t.status === 'processing') return 4;
-      return 2;
-    }
-    return Math.min(rawStep, 5);
-  })(),
-  assignment: t.assignment || null,
-  assignments: t.assignments || [],
-  assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
-  assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
-  assignedContact: t.assignment?.personnel_contact || null,
-  details: t.details || null,
-  feedback: t.feedback || null,
-  materials: t.materials || [],
-  total_material_cost: t.total_material_cost || 0,
-  submitted_at: t.submitted_at,
-  completed_at: t.completed_at || null,
-  implementationDate: t.assignment?.implementation_date
-    ? formatDate(t.assignment.implementation_date)
-    : null,
-  extension_days: Number(t.extension_days) || 0,
-  extension_reason: t.extension_reason || '',
-  extended_completion_date: t.extended_completion_date || null,
-  is_extended: !!t.is_extended || (Number(t.extension_days) > 0) || !!t.extended_completion_date,
-  target_completion_date: t.target_completion_date || t.extended_completion_date || null,
-  effective_target_date: t.effective_target_date || t.target_completion_date || t.extended_completion_date || null,
-  base_working_days: Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null,
-  total_working_days: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0),
-  workingDays: (Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0) || (t.working_days || t.project_working_days || t.assignment?.working_days || null),
-  working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
-  isClosed: t.status === 'completed' || t.status === 'closed',
-  accomplishment_report_path: t.accomplishment_report_path || null,
-  accomplishment_notes: t.accomplishment_notes || '',
-  verification_status: t.verification_status || 'pending_report',
-  verified_at: t.verified_at || null,
-  eodb_tier: t.eodb_tier || null,
-  eodb_days: t.eodb_days || null,
-  is_emergency: !!t.is_emergency,
-  is_vip: !!t.is_vip,
-  is_approval_delayed: Boolean(Number(t.is_approval_delayed) === 1 || t.is_approval_delayed === true),
-  approval_delay_reason: t.approval_delay_reason || '',
-  approval_delayed_at: t.approval_delayed_at || null,
-  // SSU Incident Report specific fields
-  isUnderInvestigation: Number(t.is_under_investigation) === 1,
-  hasNotation:          !!t.ssu_notation,
-  notation:             t.ssu_notation || '',
-  actionsTaken:         t.ssu_notation || '',
-});
+const mapTicketData = (t) => {
+  const isIncident = isIncidentTicket(t);
+
+  return {
+    id: t.id,
+    ticketId: t.id,
+    title: t.title,
+    service: t.service_type,
+    unit: t.unit_code,
+    description: t.description,
+    status: t.status,
+    statusLabel: t.status_label,
+    date: new Date(t.completed_at || t.submitted_at || t.updated_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    requestedBy: userName.value || t.requester || t.requestedBy || (t.user ? `${t.user.first_name || ''} ${t.user.last_name || ''}`.trim() : '') || (t.first_name || t.last_name ? `${t.first_name || ''} ${t.last_name || ''}`.trim() : '') || 'User',
+    contact_number: t.contact_number || t.requester_contact || t.user?.contact_number || 'N/A',
+    location: t.location,
+    office_room: t.office_room,
+    attachments: t.attachments || [],
+    declineReason: t.decline_reason || '',
+    currentStep: (() => {
+      const rawStep = parseInt(t.current_step, 10);
+      const isClosedOrResolved = ['closed', 'completed', 'resolved'].includes(t.status);
+      if (isClosedOrResolved) {
+        const isSsu = t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3;
+        return Math.max(rawStep || 0, isSsu ? (['closed', 'completed'].includes(t.status) ? 5 : 4) : 6);
+      }
+      if (!rawStep || isNaN(rawStep)) {
+        if (t.status === 'approved') return 3;
+        if (t.status === 'processing') return 4;
+        return 2;
+      }
+      return Math.min(rawStep, 5);
+    })(),
+    assignment: t.assignment || null,
+    assignments: t.assignments || [],
+    assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
+    assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
+    assignedContact: t.assignment?.personnel_contact || null,
+    details: t.details || null,
+    feedback: t.feedback || null,
+    materials: t.materials || [],
+    total_material_cost: t.total_material_cost || 0,
+    submitted_at: t.submitted_at,
+    completed_at: t.completed_at || null,
+    implementationDate: (!isIncident && t.assignment?.implementation_date)
+      ? formatDate(t.assignment.implementation_date)
+      : null,
+    extension_days: isIncident ? 0 : (Number(t.extension_days) || 0),
+    extension_reason: isIncident ? '' : (t.extension_reason || ''),
+    extended_completion_date: isIncident ? null : (t.extended_completion_date || null),
+    is_extended: !isIncident && (Boolean(t.is_extended) || (Number(t.extension_days) > 0) || Boolean(t.extended_completion_date)),
+    target_completion_date: isIncident ? null : (t.target_completion_date || t.extended_completion_date || null),
+    effective_target_date: isIncident ? null : (t.effective_target_date || t.target_completion_date || t.extended_completion_date || null),
+    base_working_days: isIncident ? null : (Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null),
+    total_working_days: isIncident ? null : ((Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0)),
+    workingDays: isIncident ? null : (((Number(t.working_days || t.project_working_days || t.assignment?.working_days || 0)) + (Number(t.extension_days) || 0)) || (t.working_days || t.project_working_days || t.assignment?.working_days || null)),
+    working_days: isIncident ? null : (t.working_days || t.project_working_days || t.assignment?.working_days || null),
+    isClosed: t.status === 'completed' || t.status === 'closed',
+    accomplishment_report_path: t.accomplishment_report_path || null,
+    accomplishment_notes: t.accomplishment_notes || '',
+    verification_status: t.verification_status || 'pending_report',
+    verified_at: t.verified_at || null,
+    eodb_tier: isIncident ? null : (t.eodb_tier || null),
+    eodb_days: isIncident ? null : (t.eodb_days || null),
+    is_emergency: Boolean(t.is_emergency),
+    is_vip: Boolean(t.is_vip),
+    is_approval_delayed: Boolean(Number(t.is_approval_delayed) === 1 || t.is_approval_delayed === true),
+    approval_delay_reason: t.approval_delay_reason || '',
+    approval_delayed_at: t.approval_delayed_at || null,
+    // SSU Incident Report specific fields
+    isUnderInvestigation: Number(t.is_under_investigation) === 1,
+    hasNotation:          Boolean(t.ssu_notation),
+    notation:             t.ssu_notation || '',
+    actionsTaken:         t.ssu_notation || '',
+  };
+};
 
 // Dedicated Single-Ticket Live Synchronization
 const syncOpenTicket = async (targetId = null) => {
