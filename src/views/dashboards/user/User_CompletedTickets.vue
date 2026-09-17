@@ -551,17 +551,20 @@
               </div>
 
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Request Progress</p>
-              <div class="relative pl-8 space-y-6 before:absolute before:inset-y-2 before:left-[15px] before:w-0.5 before:bg-slate-200">
-                <div v-for="(step, index) in getSteps(selectedTimelineTicket)" :key="index" class="relative">
+              <div class="relative space-y-6">
+                <!-- Vertical connecting line behind all dots -->
+                <div class="absolute top-4 bottom-4 left-4 -translate-x-1/2 w-0.5 bg-slate-200 pointer-events-none"></div>
+
+                <div v-for="(step, index) in getSteps(selectedTimelineTicket)" :key="index" class="relative flex items-start gap-4">
                   <!-- Step dot -->
-                  <div class="absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white text-xs font-black transition-all duration-500 bg-emerald-500 text-white shadow-emerald-500/30 shadow-md">
+                  <div class="relative z-10 shrink-0 w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white text-xs font-black transition-all duration-500 bg-emerald-500 text-white shadow-emerald-500/30 shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
 
                   <!-- Step Content -->
-                  <div class="pt-0.5">
+                  <div class="flex-1 min-w-0 pt-0.5">
                     <div class="flex items-center gap-2 mb-0.5">
                       <h4 :class="['font-bold text-sm leading-tight', selectedTimelineTicket.currentStep >= (index + 1) ? 'text-slate-900' : 'text-slate-400']">
                         {{ step.label }}

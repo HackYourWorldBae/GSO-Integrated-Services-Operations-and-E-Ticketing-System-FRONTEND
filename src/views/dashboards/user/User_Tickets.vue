@@ -723,11 +723,14 @@
                     </div>
 
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Request Progress</p>
-                    <div class="relative pl-8 space-y-6 before:absolute before:inset-y-2 before:left-[15px] before:w-0.5 before:bg-slate-200">
-                      <div v-for="(step, index) in getSteps(selectedTicket)" :key="index" class="relative">
+                    <div class="relative space-y-6">
+                      <!-- Continuous vertical connecting line behind all dots -->
+                      <div class="absolute top-4 bottom-4 left-4 -translate-x-1/2 w-0.5 bg-slate-200 pointer-events-none"></div>
+
+                      <div v-for="(step, index) in getSteps(selectedTicket)" :key="index" class="relative flex items-start gap-4">
                         <!-- Step dot -->
                         <div :class="[
-                          'absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white text-xs font-black transition-all duration-500',
+                          'relative z-10 shrink-0 w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white text-xs font-black transition-all duration-500',
                           isStepCompleted(selectedTicket, index)
                             ? 'bg-emerald-500 text-white shadow-emerald-500/30 shadow-md'
                             : isStepActive(selectedTicket, index)
@@ -741,7 +744,7 @@
                         </div>
 
                         <!-- Step content -->
-                        <div :class="['ml-2 pb-1', !isStepCompleted(selectedTicket, index) && !isStepActive(selectedTicket, index) ? 'opacity-40' : '']">
+                        <div :class="['flex-1 min-w-0 pt-0.5 pb-1', !isStepCompleted(selectedTicket, index) && !isStepActive(selectedTicket, index) ? 'opacity-40' : '']">
                           <div class="flex items-center gap-2 mb-0.5">
                             <h4 :class="['font-bold text-sm leading-tight', isStepCompleted(selectedTicket, index) || isStepActive(selectedTicket, index) ? 'text-slate-900' : 'text-slate-400']">
                               {{ step.label }}
