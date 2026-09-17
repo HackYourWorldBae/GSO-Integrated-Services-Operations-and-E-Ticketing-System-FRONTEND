@@ -149,8 +149,11 @@
                 <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
                   <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                 </div>
-                <span class="px-3 py-1 rounded-full bg-slate-800 text-emerald-400 border border-slate-700/60 text-xs font-black tracking-wider shrink-0">
-                  {{ executiveAnalytics?.filter?.label || 'All-Time' }}
+                <span
+                  class="px-3 py-1 rounded-full bg-slate-800 text-emerald-400 border border-slate-700/60 text-xs font-black tracking-wider shrink-0 max-w-[150px] truncate text-center"
+                  :title="executiveAnalytics?.filter?.label || 'All-Time'"
+                >
+                  {{ kpiPeriodLabel }}
                 </span>
               </div>
               <div>
@@ -682,6 +685,24 @@ const monthOptions = [
   { value: 11, label: 'November' },
   { value: 12, label: 'December' },
 ];
+
+const kpiPeriodLabel = computed(() => {
+  const rawLabel = executiveAnalytics.value?.filter?.label;
+  if (!rawLabel || selectedPeriod.value === 'all' || /all[- ]?time/i.test(rawLabel)) {
+    return 'All-Time';
+  }
+  if (selectedPeriod.value === 'quarter' && selectedQuarter.value) {
+    return `Q${selectedQuarter.value} ${selectedYear.value}`;
+  }
+  if (selectedPeriod.value === 'year') {
+    return `Year ${selectedYear.value}`;
+  }
+  if (selectedPeriod.value === 'month') {
+    const m = monthOptions.find((opt) => opt.value === Number(selectedMonth.value));
+    return m ? `${m.label.slice(0, 3)} ${selectedYear.value}` : rawLabel;
+  }
+  return rawLabel;
+});
 
 const changePeriod = (key) => {
   selectedPeriod.value = key;
