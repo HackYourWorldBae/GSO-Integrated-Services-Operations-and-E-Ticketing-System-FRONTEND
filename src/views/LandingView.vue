@@ -363,6 +363,108 @@ const goToRegister = () => router.push({ name: 'register' });
       </div>
     </footer>
 
+    <!-- ===================== OFFICIAL GOVPH FOOTER ===================== -->
+    <section class="govph-footer" aria-label="Official Philippine Government Standard Footer">
+      <div class="govph-container">
+        <!-- Col 1: Coat of Arms -->
+        <div class="govph-col govph-col--seal">
+          <div class="govph-seal-card">
+            <img
+              src="/govph-seal-mono-footer.jpg"
+              alt="Coat of Arms of the Philippines"
+              class="govph-seal-img"
+              width="90"
+              height="90"
+              loading="lazy"
+            />
+          </div>
+          <span class="govph-seal-caption">Republic of the Philippines</span>
+        </div>
+
+        <!-- Col 2: Office of the President (BSU) -->
+        <div class="govph-col">
+          <h4 class="govph-heading">Office of the President</h4>
+          <p class="govph-text">Benguet State University</p>
+          <p class="govph-text">2nd Floor-Admin Building, Km. 5,</p>
+          <p class="govph-text">La Trinidad, Benguet 2601, Philippines</p>
+          <p class="govph-text">
+            <a href="mailto:our@bsu.edu.ph" class="govph-link">our@bsu.edu.ph</a>
+          </p>
+        </div>
+
+        <!-- Col 3: Quick Links -->
+        <div class="govph-col">
+          <h4 class="govph-heading">QUICK LINKS</h4>
+          <ul class="govph-list">
+            <li>
+              <a href="https://bsu.edu.ph" target="_blank" rel="noopener noreferrer" class="govph-link">BSU Website</a>
+            </li>
+            <li>
+              <a href="https://bsu.edu.ph/transparency-seal/" target="_blank" rel="noopener noreferrer" class="govph-link">Transparency Seal</a>
+            </li>
+            <li>
+              <a href="https://bsu.edu.ph/citizens-charter/" target="_blank" rel="noopener noreferrer" class="govph-link">Citizen's Charter</a>
+            </li>
+            <li>
+              <a href="https://bsu.edu.ph/job-opportunities/" target="_blank" rel="noopener noreferrer" class="govph-link">Job Opportunities</a>
+            </li>
+            <li>
+              <a href="https://bsu.edu.ph/contact-information/" target="_blank" rel="noopener noreferrer" class="govph-link">Contact Us</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 4: About GOV.PH -->
+        <div class="govph-col">
+          <h4 class="govph-heading">ABOUT GOV.PH</h4>
+          <ul class="govph-list">
+            <li>
+              <a href="https://www.gov.ph" target="_blank" rel="noopener noreferrer" class="govph-link">GOV.PH</a>
+            </li>
+            <li>
+              <a href="https://data.gov.ph" target="_blank" rel="noopener noreferrer" class="govph-link">Open Data Portal</a>
+            </li>
+            <li>
+              <a href="https://www.officialgazette.gov.ph" target="_blank" rel="noopener noreferrer" class="govph-link">Official Gazette</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 5: Government Links -->
+        <div class="govph-col">
+          <h4 class="govph-heading">GOVERNMENT</h4>
+          <ul class="govph-list">
+            <li>
+              <a href="https://op-proper.gov.ph" target="_blank" rel="noopener noreferrer" class="govph-link">Office of the President</a>
+            </li>
+            <li>
+              <a href="https://www.ovp.gov.ph" target="_blank" rel="noopener noreferrer" class="govph-link">Office of the Vice President</a>
+            </li>
+            <li>
+              <a href="https://legacy.senate.gov.ph" target="_blank" rel="noopener noreferrer" class="govph-link">Senate of the Philippines</a>
+            </li>
+            <li>
+              <a href="https://www.congress.gov.ph" target="_blank" rel="noopener noreferrer" class="govph-link">House of Representatives</a>
+            </li>
+            <li>
+              <a href="https://sc.judiciary.gov.ph" target="_blank" rel="noopener noreferrer" class="govph-link">Supreme Court</a>
+            </li>
+            <li>
+              <a href="https://ca.judiciary.gov.ph" target="_blank" rel="noopener noreferrer" class="govph-link">Court of Appeals</a>
+            </li>
+            <li>
+              <a href="https://sb.judiciary.gov.ph" target="_blank" rel="noopener noreferrer" class="govph-link">Sandiganbayan</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Public domain disclaimer note -->
+      <div class="govph-bottom">
+        <p class="govph-disclaimer">All content is in the public domain unless otherwise stated.</p>
+      </div>
+    </section>
+
   </div>
 </template>
 
@@ -1427,6 +1529,117 @@ const goToRegister = () => router.push({ name: 'register' });
 }
 
 /* ============================================================
+   OFFICIAL GOVPH STANDARD FOOTER
+   ============================================================ */
+.govph-footer {
+  background-color: #efefef;
+  color: #333333;
+  border-top: 1px solid #e2e4e8;
+  font-family: var(--font-ui);
+  width: 100%;
+}
+
+.govph-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.5rem var(--sp-8) 1.75rem;
+  display: grid;
+  grid-template-columns: 140px 1.25fr 1fr 1fr 1.2fr;
+  gap: 2.25rem;
+  align-items: flex-start;
+}
+
+.govph-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.govph-col--seal {
+  align-items: center;
+  text-align: center;
+}
+
+.govph-seal-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 110px;
+  height: 110px;
+  background: rgba(0, 0, 0, 0.025);
+  border-radius: var(--r-sm);
+  margin-bottom: 0.5rem;
+}
+
+.govph-seal-img {
+  max-width: 90px;
+  max-height: 90px;
+  object-fit: contain;
+  opacity: 0.88;
+}
+
+.govph-seal-caption {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2b2b2b;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.govph-heading {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.75rem;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+}
+
+.govph-text {
+  font-size: 0.775rem;
+  color: #555555;
+  margin: 0 0 0.25rem;
+  line-height: 1.55;
+}
+
+.govph-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.govph-link {
+  font-size: 0.775rem;
+  color: #555555;
+  text-decoration: none;
+  line-height: 1.55;
+  transition: color 0.18s ease;
+  word-break: break-word;
+}
+
+.govph-link:hover {
+  color: var(--bsu-green-dark);
+  text-decoration: underline;
+}
+
+.govph-bottom {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.2rem var(--sp-8) 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.govph-disclaimer {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #666666;
+  line-height: 1.5;
+}
+
+/* ============================================================
    KEYFRAMES
    ============================================================ */
 @keyframes fadeSlideUp {
@@ -1468,6 +1681,11 @@ const goToRegister = () => router.push({ name: 'register' });
 
   .cta-inner { flex-direction: column; text-align: center; }
   .btn-primary--large { align-self: center; }
+
+  .govph-container {
+    grid-template-columns: 130px 1.2fr 1fr;
+    gap: 1.75rem;
+  }
 }
 
 /* ============================================================
@@ -1522,6 +1740,23 @@ const goToRegister = () => router.push({ name: 'register' });
   .footer-inner { flex-direction: column; gap: var(--sp-8); }
   .footer-links-group { gap: var(--sp-6); }
   .footer-bottom { flex-direction: column; text-align: center; }
+
+  .govph-container {
+    grid-template-columns: 1fr 1fr;
+    padding: 2rem var(--sp-4) 1.25rem;
+    gap: 1.5rem;
+  }
+
+  .govph-col--seal {
+    grid-column: span 2;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 0.25rem;
+  }
+
+  .govph-bottom {
+    padding: 1rem var(--sp-4) 1.25rem;
+  }
 
   .projects-header { flex-direction: column; gap: var(--sp-4); }
   .project-date-text { margin-left: 0; }
@@ -1594,6 +1829,15 @@ const goToRegister = () => router.push({ name: 'register' });
 
   .cta-heading {
     font-size: 1.4rem;
+  }
+
+  .govph-container {
+    grid-template-columns: 1fr;
+    gap: 1.35rem;
+  }
+
+  .govph-col--seal {
+    grid-column: span 1;
   }
 }
 </style>
