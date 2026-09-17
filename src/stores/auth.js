@@ -40,8 +40,17 @@ export const useAuthStore = defineStore('auth', () => {
 
   const capitalizedRole = computed(() => {
     if (!role.value) return 'User';
+    const r = role.value.toLowerCase();
+    if (r === 'student') {
+      const type = (user.value?.student_type || '').toLowerCase().trim();
+      if (type === 'ssg') return 'SSG Member';
+      return 'RSO Member';
+    }
     return role.value.charAt(0).toUpperCase() + role.value.slice(1);
   });
+
+  const studentType = computed(() => (user.value?.student_type || '').toLowerCase().trim());
+  const organizationName = computed(() => user.value?.organization_name || '');
 
   const unitId = computed(() => user.value?.unit_id ?? null);
   const isDeactivated = computed(() => user.value?.status === 'Deactivated');
@@ -363,6 +372,8 @@ export const useAuthStore = defineStore('auth', () => {
     fullName,
     contactNumber,
     capitalizedRole,
+    studentType,
+    organizationName,
     unitId,
     isDeactivated,
     hasPermission,

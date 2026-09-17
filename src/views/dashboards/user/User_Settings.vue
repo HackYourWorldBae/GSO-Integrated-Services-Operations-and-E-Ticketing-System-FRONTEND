@@ -123,7 +123,7 @@
                     Student Organization Affiliation
                   </label>
                   <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-purple-200/60 text-purple-800">
-                    {{ (authStore.user?.student_type || 'rso').toUpperCase() }}
+                    {{ (authStore.user?.student_type || '').toLowerCase().trim() === 'ssg' ? 'SSG' : 'RSO' }}
                   </span>
                 </div>
                 <p class="text-sm font-bold text-slate-900">

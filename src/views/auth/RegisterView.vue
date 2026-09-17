@@ -346,7 +346,7 @@ const handleRegister = async () => {
     formData.append('last_name', form.value.last_name.trim());
     formData.append('role', form.value.role);
     if (form.value.role === 'student') {
-      formData.append('student_type', form.value.student_type);
+      formData.append('student_type', (form.value.student_type || 'rso').toLowerCase().trim());
       formData.append('organization_name', form.value.organization_name.trim());
     }
     formData.append('student_id_number', form.value.student_id_number.trim());

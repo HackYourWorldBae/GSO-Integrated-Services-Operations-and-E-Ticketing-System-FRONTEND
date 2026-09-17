@@ -93,8 +93,8 @@
                   <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
                     {{ user.role }}
                   </span>
-                  <span v-if="user.role === 'student' && user.student_type" class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
-                    {{ user.student_type === 'rso' ? 'RSO' : 'SSG' }}
+                  <span v-if="user.role === 'student' && getStudentTypeLabel(user.student_type)" class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
+                    {{ getStudentTypeLabel(user.student_type) }}
                   </span>
                 </div>
                 <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
@@ -255,10 +255,10 @@
               <div v-if="inspectingUser.role === 'student'" class="col-span-2 sm:col-span-4 p-3 rounded-xl bg-purple-50/80 border border-purple-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">Student Affiliation</p>
-                  <p class="font-bold text-slate-900 mt-0.5">{{ inspectingUser.student_type === 'rso' ? 'Recognized Student Organization (RSO)' : 'Supreme Student Government (SSG)' }}</p>
+                  <p class="font-bold text-slate-900 mt-0.5">{{ getStudentAffiliationFullLabel(inspectingUser.student_type) }}</p>
                 </div>
                 <div v-if="inspectingUser.organization_name" class="sm:text-right">
-                  <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">{{ inspectingUser.student_type === 'rso' ? 'Organization / Club' : 'Officer Position / Committee' }}</p>
+                  <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">{{ (inspectingUser.student_type || '').toLowerCase().trim() === 'ssg' ? 'Officer Position / Committee' : 'Organization / Club' }}</p>
                   <p class="font-bold text-purple-900 mt-0.5">{{ inspectingUser.organization_name }}</p>
                 </div>
               </div>
@@ -529,6 +529,20 @@ const getRoleBadgeClass = (role) => {
     default:
       return 'bg-emerald-100 text-emerald-800 border-emerald-300';
   }
+};
+
+const getStudentTypeLabel = (studentType) => {
+  const clean = (studentType || '').toLowerCase().trim();
+  if (clean === 'rso') return 'RSO';
+  if (clean === 'ssg') return 'SSG';
+  return '';
+};
+
+const getStudentAffiliationFullLabel = (studentType) => {
+  const clean = (studentType || '').toLowerCase().trim();
+  if (clean === 'rso') return 'Recognized Student Organization (RSO)';
+  if (clean === 'ssg') return 'Supreme Student Government (SSG)';
+  return 'Student Representative';
 };
 
 onMounted(() => {

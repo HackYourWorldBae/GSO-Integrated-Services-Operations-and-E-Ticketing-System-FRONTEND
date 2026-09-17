@@ -9,9 +9,8 @@ import { debounce } from '@/utils/debounce';
 const router = useRouter();
 const authStore = useAuthStore();
 
-// --- STATE ---
-const userName = ref('');
-const userRole = ref('');
+const userName = computed(() => authStore.fullName || 'User');
+const userRole = computed(() => authStore.capitalizedRole);
 const isDropdownOpen = ref(false);
 const selectedServices = reactive({});
 const otherSpecifics = reactive({});
@@ -290,8 +289,6 @@ onMounted(() => {
     return;
   }
 
-  userName.value = authStore.fullName || 'User';
-  userRole.value = authStore.capitalizedRole;
 
   serviceCategories.value.forEach(cat => {
     cat.services.forEach(s => {
@@ -328,7 +325,8 @@ const isStudentUser = computed(() => {
 
 const studentAffiliationText = computed(() => {
   if (!isStudentUser.value) return '';
-  const type = (authStore.user?.student_type || 'rso').toUpperCase();
+  const cleanType = (authStore.user?.student_type || 'rso').toLowerCase().trim();
+  const type = cleanType === 'ssg' ? 'SSG' : 'RSO';
   const org = authStore.user?.organization_name;
   return org ? `${type} — ${org}` : type;
 });

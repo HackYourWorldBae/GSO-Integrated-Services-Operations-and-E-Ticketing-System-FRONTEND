@@ -168,8 +168,8 @@
                       <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
                         {{ user.role }}
                       </span>
-                      <span v-if="user.role === 'student' && user.student_type" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-purple-50 text-purple-700 border border-purple-200">
-                        {{ user.student_type === 'rso' ? 'RSO' : 'SSG' }}
+                      <span v-if="user.role === 'student' && getStudentTypeLabel(user.student_type)" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-purple-50 text-purple-700 border border-purple-200">
+                        {{ getStudentTypeLabel(user.student_type) }}
                       </span>
                     </div>
                   </td>
@@ -397,8 +397,8 @@
                   <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
                     {{ user.role }}
                   </span>
-                  <span v-if="user.role === 'student' && user.student_type" class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
-                    {{ user.student_type === 'rso' ? 'RSO' : 'SSG' }}
+                  <span v-if="user.role === 'student' && getStudentTypeLabel(user.student_type)" class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
+                    {{ getStudentTypeLabel(user.student_type) }}
                   </span>
                   <span 
                     v-if="user.status === 'Rejected'" 
@@ -1414,6 +1414,13 @@ const getStatusBadgeClass = (status) => {
     Rejected: 'bg-rose-50 text-rose-700 border-rose-200'
   };
   return map[status] || 'bg-slate-100 text-slate-600 border-slate-200';
+};
+
+const getStudentTypeLabel = (studentType) => {
+  const clean = (studentType || '').toLowerCase().trim();
+  if (clean === 'rso') return 'RSO';
+  if (clean === 'ssg') return 'SSG';
+  return '';
 };
 
 let searchTimer = null;

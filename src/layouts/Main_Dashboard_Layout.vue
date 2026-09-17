@@ -271,8 +271,8 @@ import { useNetworkStatus } from '@/utils/networkMonitor';
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
-const userName = ref('');
-const userRole = ref('');
+const userName = computed(() => authStore.fullName || 'User');
+const userRole = computed(() => authStore.capitalizedRole);
 
 const accountSettingsRoute = computed(() => {
   const role = (authStore.role || userRole.value || '').toLowerCase();
@@ -592,9 +592,6 @@ onMounted(() => {
     const currentToken = sessionStorage.getItem('token');
     authStore._setAuth(currentUser, currentUser.role, currentToken);
   }
-
-  userName.value = authStore.fullName || 'User';
-  userRole.value = authStore.capitalizedRole;
 
   if (!isSuperAdmin.value) {
     fetchNotifications();
