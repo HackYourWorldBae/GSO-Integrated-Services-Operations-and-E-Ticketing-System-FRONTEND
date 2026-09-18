@@ -17,6 +17,44 @@ const otherSpecifics = reactive({});
 const tempCustom = reactive({});
 const customDescriptions = reactive({});
 
+// --- STUDENT ROLE SERVICE RESTRICTION RULES & STATE ---
+const isStudentUser = computed(() => {
+  const r = (authStore.user?.role || authStore.role || '').toLowerCase();
+  return r === 'student';
+});
+
+const studentAffiliationText = computed(() => {
+  if (!isStudentUser.value) return '';
+  const cleanType = (authStore.user?.student_type || 'rso').toLowerCase().trim();
+  const type = cleanType === 'ssg' ? 'SSG' : 'RSO';
+  const org = authStore.user?.organization_name;
+  return org ? `${type} — ${org}` : type;
+});
+
+// Authorized 5 services for students (RSO and SSG)
+const ALLOWED_STUDENT_SERVICES = [
+  'Incident Report',
+  'Borrowing of tools/ equipment',
+  'Borrowing of plants',
+  'Hauling',
+  'Stage & Hall Decoration',
+];
+
+const isServiceAllowed = (unitId, serviceName) => {
+  if (!isStudentUser.value) return true; // Faculty, staff, and employees have full access
+  // Students are blocked from all FGMU facilities services
+  if (unitId === 'fgmu') return false;
+  // Students are restricted to the 5 authorized services
+  return ALLOWED_STUDENT_SERVICES.includes(serviceName);
+};
+
+const categoryHasAllowed = (unitId, category) => {
+  return category.services.some(s => isServiceAllowed(unitId, s));
+};
+
+// Toggle to show all services (for student users to reveal restricted services)
+const showAllServices = ref(false);
+
 // Problem-based Natural Language Search & Category Filters
 const searchQuery = ref('');
 const debouncedSearchQuery = ref('');
@@ -30,12 +68,23 @@ watch(searchQuery, (val) => {
   updateDebouncedSearch(val);
 });
 
-const categoryTabs = [
-  { id: 'all', label: 'All Services' },
-  { id: 'fgmu', label: 'Facilities & Repairs' },
-  { id: 'leau', label: 'Grounds & Landscaping' },
-  { id: 'ssu', label: 'Security & Incident' }
-];
+const categoryTabs = computed(() => {
+  if (!isStudentUser.value) {
+    return [
+      { id: 'all', label: 'All Services' },
+      { id: 'fgmu', label: 'Facilities & Repairs' },
+      { id: 'leau', label: 'Grounds & Landscaping' },
+      { id: 'ssu', label: 'Security & Incident' }
+    ];
+  }
+
+  return [
+    { id: 'all', label: showAllServices.value ? 'All Services' : 'Authorized Services' },
+    { id: 'leau', label: 'Grounds & Landscaping' },
+    { id: 'ssu', label: 'Security & Incident' },
+    { id: 'fgmu', label: showAllServices.value ? 'Facilities & Repairs' : 'Facilities & Repairs' }
+  ];
+});
 
 // Keyword alias map for natural language problem matching
 const serviceKeywords = {
@@ -238,16 +287,40 @@ const totalSelected = computed(() =>
   Object.values(selectedServices).filter(v => v === true).length
 );
 
-// Filtered sub-units based on search query and category tabs
+// Filtered sub-units based on search query, category tabs, and student restriction visibility
 const filteredSubUnits = computed(() => {
   const query = debouncedSearchQuery.value.trim().toLowerCase();
   const filter = activeCategoryFilter.value;
 
-  return subUnits.value
-    .filter(unit => filter === 'all' || unit.id === filter)
+  // Base list filtered by category tab
+  let units = subUnits.value.filter(unit => filter === 'all' || unit.id === filter);
+
+  // If student user: sort sub-units so units with enabled services are on top
+  if (isStudentUser.value) {
+    units = [...units].sort((unitA, unitB) => {
+      const aAllowedCount = unitA.categories.reduce((acc, cat) =>
+        acc + cat.services.filter(s => isServiceAllowed(unitA.id, s)).length, 0
+      );
+      const bAllowedCount = unitB.categories.reduce((acc, cat) =>
+        acc + cat.services.filter(s => isServiceAllowed(unitB.id, s)).length, 0
+      );
+      if (aAllowedCount > 0 && bAllowedCount === 0) return -1;
+      if (aAllowedCount === 0 && bAllowedCount > 0) return 1;
+      return bAllowedCount - aAllowedCount;
+    });
+  }
+
+  return units
     .map(unit => {
       const filteredCategories = unit.categories.map(cat => {
-        const matchingServices = cat.services.filter(service => {
+        // For student users: if showAllServices is false, hide services that are not for students
+        let availableServices = cat.services;
+        if (isStudentUser.value && !showAllServices.value) {
+          availableServices = availableServices.filter(service => isServiceAllowed(unit.id, service));
+        }
+
+        // Search matching based on query and keywords
+        const matchingServices = availableServices.filter(service => {
           if (!query) return true;
           if (service.toLowerCase().includes(query)) return true;
           if (cat.title.toLowerCase().includes(query)) return true;
@@ -256,9 +329,21 @@ const filteredSubUnits = computed(() => {
           return keywords.some(kw => kw.includes(query) || query.includes(kw));
         });
 
+        // For student users: sort services in each category so enabled ones are always on top
+        let sortedServices = matchingServices;
+        if (isStudentUser.value) {
+          sortedServices = [...matchingServices].sort((a, b) => {
+            const aAllowed = isServiceAllowed(unit.id, a);
+            const bAllowed = isServiceAllowed(unit.id, b);
+            if (aAllowed && !bAllowed) return -1;
+            if (!aAllowed && bAllowed) return 1;
+            return 0; // preserve relative order within same allowed state
+          });
+        }
+
         return {
           ...cat,
-          services: matchingServices
+          services: sortedServices
         };
       }).filter(cat => cat.services.length > 0);
 
@@ -315,37 +400,6 @@ const handleLogout = () => {
       router.push({ name: 'login' });
     }
   });
-};
-
-// --- STUDENT ROLE SERVICE RESTRICTION RULES ---
-const isStudentUser = computed(() => {
-  const r = (authStore.user?.role || authStore.role || '').toLowerCase();
-  return r === 'student';
-});
-
-const studentAffiliationText = computed(() => {
-  if (!isStudentUser.value) return '';
-  const cleanType = (authStore.user?.student_type || 'rso').toLowerCase().trim();
-  const type = cleanType === 'ssg' ? 'SSG' : 'RSO';
-  const org = authStore.user?.organization_name;
-  return org ? `${type} — ${org}` : type;
-});
-
-// Authorized 5 services for students (RSO and SSG)
-const ALLOWED_STUDENT_SERVICES = [
-  'Incident Report',
-  'Borrowing of tools/ equipment',
-  'Borrowing of plants',
-  'Hauling',
-  'Stage & Hall Decoration',
-];
-
-const isServiceAllowed = (unitId, serviceName) => {
-  if (!isStudentUser.value) return true; // Faculty, staff, and employees have full access
-  // Students are blocked from all FGMU facilities services
-  if (unitId === 'fgmu') return false;
-  // Students are restricted to the 5 authorized services
-  return ALLOWED_STUDENT_SERVICES.includes(serviceName);
 };
 
 const handleRestrictedClick = (service) => {
@@ -530,7 +584,7 @@ const handleSubmit = () => {
       </div>
 
       <!-- ─── STUDENT REPRESENTATIVE ACCESS NOTICE BANNER ─── -->
-      <div v-if="isStudentUser" class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 animate-fade-in">
+      <div v-if="isStudentUser" class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-fade-in">
         <div class="flex items-start sm:items-center gap-3">
           <div class="p-2 rounded-xl bg-emerald-600 text-white shrink-0 shadow-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -548,6 +602,24 @@ const handleSubmit = () => {
               Authorized services: <strong>Borrowing of Tools/Equipment</strong>, <strong>Borrowing of Plants</strong>, <strong>Hauling</strong>, <strong>Stage & Hall Decoration</strong>, and <strong>Incident Reports</strong>. Structural services are reserved for faculty and staff.
             </p>
           </div>
+        </div>
+
+        <!-- Toggle: Show all services -->
+        <div class="shrink-0 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-emerald-200/60 flex items-center justify-between sm:justify-end gap-3">
+          <label class="relative inline-flex items-center cursor-pointer select-none bg-white/90 hover:bg-white px-3.5 py-2 rounded-xl border border-emerald-300 shadow-xs transition-all gap-2.5 min-h-[44px]">
+            <input
+              type="checkbox"
+              v-model="showAllServices"
+              class="sr-only peer"
+            />
+            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 relative"></div>
+            <div class="flex flex-col text-left">
+              <span class="text-xs font-bold text-slate-900 leading-tight">Show all services</span>
+              <span class="text-[10px] text-slate-500 font-medium leading-none">
+                {{ showAllServices ? 'Restricted locked' : 'Authorized only' }}
+              </span>
+            </div>
+          </label>
         </div>
       </div>
 
@@ -579,20 +651,47 @@ const handleSubmit = () => {
           </button>
         </div>
 
-        <!-- Category Intent Filter Tabs -->
-        <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
-          <button
-            v-for="tab in categoryTabs"
-            :key="tab.id"
-            type="button"
-            @click="activeCategoryFilter = tab.id"
-            class="w-full sm:w-auto px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center text-center gap-1.5 active:scale-95 min-h-[44px]"
-            :class="activeCategoryFilter === tab.id
-              ? 'bg-slate-900 text-white shadow-sm ring-2 ring-slate-900/10'
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'"
-          >
-            <span>{{ tab.label }}</span>
-          </button>
+        <!-- Category Intent Filter Tabs + Quick Student Filter -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
+            <button
+              v-for="tab in categoryTabs"
+              :key="tab.id"
+              type="button"
+              @click="activeCategoryFilter = tab.id"
+              class="w-full sm:w-auto px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center text-center gap-1.5 active:scale-95 min-h-[44px]"
+              :class="activeCategoryFilter === tab.id
+                ? 'bg-slate-900 text-white shadow-sm ring-2 ring-slate-900/10'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'"
+            >
+              <span>{{ tab.label }}</span>
+            </button>
+          </div>
+
+          <!-- Quick Toggle Button for Students in Filter Row -->
+          <div v-if="isStudentUser" class="flex items-center gap-2 self-start sm:self-center">
+            <button
+              type="button"
+              @click="showAllServices = !showAllServices"
+              class="px-3 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 min-h-[44px] select-none active:scale-95"
+              :class="showAllServices
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs'
+                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+              title="Toggle between authorized student services and all campus services"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <span>{{ showAllServices ? 'Viewing All Services' : 'Viewing Authorized' }}</span>
+              <span
+                class="text-[10px] px-1.5 py-0.5 rounded font-bold"
+                :class="showAllServices ? 'bg-emerald-200/80 text-emerald-900' : 'bg-slate-100 text-slate-500'"
+              >
+                {{ showAllServices ? 'All' : '5 Allowed' }}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -607,10 +706,15 @@ const handleSubmit = () => {
               <div v-for="(category, catIdx) in unit.categories" :key="catIdx">
 
                 <!-- Category Sub-Header -->
-                <div class="flex items-center gap-2.5 sm:gap-3 mb-3.5 sm:mb-5">
-                  <div :class="['w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0', unit.accentBg, unit.accentIcon]" v-html="category.icon"></div>
-                  <h3 class="text-sm sm:text-lg font-black text-slate-900 leading-tight">{{ category.title }}</h3>
-                  <div class="flex-1 h-px bg-slate-200 ml-2 hidden sm:block"></div>
+                <div class="flex items-center justify-between mb-3.5 sm:mb-5">
+                  <div class="flex items-center gap-2.5 sm:gap-3">
+                    <div :class="['w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0', unit.accentBg, unit.accentIcon]" v-html="category.icon"></div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-sm sm:text-lg font-black text-slate-900 leading-tight">{{ category.title }}</h3>
+                      <span v-if="isStudentUser && showAllServices && !categoryHasAllowed(unit.id, category)" class="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-wider">Faculty Only</span>
+                    </div>
+                  </div>
+                  <div class="flex-1 h-px bg-slate-200 ml-4 hidden sm:block"></div>
                 </div>
 
                 <!-- Service Cards Grid — 2 cols on mobile, 3 on sm, 4 on lg -->
@@ -721,23 +825,68 @@ const handleSubmit = () => {
         </div>
 
         <!-- Empty State if no services match -->
-        <div v-else class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-6 sm:p-12 text-center max-w-lg mx-auto shadow-sm my-6">
+        <div v-else class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-6 sm:p-12 text-center max-w-lg mx-auto shadow-sm my-6 animate-fade-in">
           <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 sm:mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-7 sm:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <h3 class="text-base sm:text-lg font-black text-slate-900 mb-1">No services found</h3>
-          <p class="text-xs sm:text-sm text-slate-500 max-w-xs mx-auto mb-5 sm:mb-6 leading-relaxed">
-            We couldn't find any services matching "<span class="font-bold text-slate-700">{{ searchQuery }}</span>". Try searching general terms like "leak", "door", or "cleaning".
-          </p>
-          <button
-            type="button"
-            @click="searchQuery = ''; activeCategoryFilter = 'all'"
-            class="min-h-[44px] px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs sm:text-sm font-bold hover:bg-emerald-700 active:scale-95 transition-all shadow-sm"
-          >
-            Reset Search & Filters
-          </button>
+
+          <!-- Student Filtered to FGMU when showAllServices is false -->
+          <template v-if="isStudentUser && !showAllServices && activeCategoryFilter === 'fgmu'">
+            <h3 class="text-base sm:text-lg font-black text-slate-900 mb-1">Facilities & Repairs (Faculty & Staff Only)</h3>
+            <p class="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto mb-5 sm:mb-6 leading-relaxed">
+              Structural and utility repairs in this unit are restricted to university faculty and staff. You can enable <strong>"Show all services"</strong> to view them.
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                @click="showAllServices = true"
+                class="min-h-[44px] px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs sm:text-sm font-bold hover:bg-emerald-700 active:scale-95 transition-all shadow-sm flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span>Show All Facilities Services</span>
+              </button>
+              <button
+                type="button"
+                @click="activeCategoryFilter = 'all'"
+                class="min-h-[44px] px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-200 active:scale-95 transition-all"
+              >
+                Back to Authorized Services
+              </button>
+            </div>
+          </template>
+
+          <!-- Standard Empty Search / Filter -->
+          <template v-else>
+            <h3 class="text-base sm:text-lg font-black text-slate-900 mb-1">No services found</h3>
+            <p class="text-xs sm:text-sm text-slate-500 max-w-xs mx-auto mb-5 sm:mb-6 leading-relaxed">
+              We couldn't find any services matching "<span class="font-bold text-slate-700">{{ searchQuery }}</span>".
+              <span v-if="isStudentUser && !showAllServices" class="block mt-1">
+                The service you're looking for may be reserved for faculty & staff.
+              </span>
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <button
+                v-if="isStudentUser && !showAllServices"
+                type="button"
+                @click="showAllServices = true"
+                class="min-h-[44px] px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs sm:text-sm font-bold hover:bg-emerald-700 active:scale-95 transition-all shadow-sm flex items-center gap-1.5"
+              >
+                <span>Search in All Services</span>
+              </button>
+              <button
+                type="button"
+                @click="searchQuery = ''; activeCategoryFilter = 'all'"
+                class="min-h-[44px] px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-200 active:scale-95 transition-all shadow-sm"
+              >
+                Reset Search & Filters
+              </button>
+            </div>
+          </template>
         </div>
       </form>
     </main>
