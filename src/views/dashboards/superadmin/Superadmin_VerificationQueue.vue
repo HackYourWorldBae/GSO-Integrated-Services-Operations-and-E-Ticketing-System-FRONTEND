@@ -288,10 +288,29 @@
 
             <!-- Uploaded Document View -->
             <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <label class="text-[10px] font-black uppercase tracking-wider text-slate-500">Submitted Institutional ID Card</label>
+              <div class="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 mb-2">
+                <!-- Dual Document Tabs -->
+                <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+                  <button
+                    type="button"
+                    @click="activeInspectTab = 'front'"
+                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    :class="activeInspectTab === 'front' ? 'bg-white text-purple-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                  >
+                    <span>1. Front ID Card</span>
+                  </button>
+                  <button
+                    type="button"
+                    @click="activeInspectTab = 'selfie'"
+                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    :class="activeInspectTab === 'selfie' ? 'bg-white text-purple-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                  >
+                    <span>2. Selfie with ID</span>
+                  </button>
+                </div>
+
                 <a 
-                  :href="getIdCardUrl(inspectingUser.id)" 
+                  :href="getIdCardUrl(inspectingUser.id, activeInspectTab)" 
                   target="_blank" 
                   class="text-xs font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1"
                 >
@@ -301,10 +320,14 @@
                   </svg>
                 </a>
               </div>
-              <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-900/5 p-2 flex items-center justify-center min-h-[200px] max-h-[380px] overflow-hidden">
+
+              <!-- Document Preview Container -->
+              <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-900/5 p-2 flex items-center justify-center min-h-[220px] max-h-[380px] overflow-hidden">
                 <img 
-                  :src="getIdCardUrl(inspectingUser.id)" 
-                  alt="Institutional ID Preview" 
+                  :key="inspectingUser.id + '-' + activeInspectTab"
+                  :src="getIdCardUrl(inspectingUser.id, activeInspectTab)" 
+                  :alt="activeInspectTab === 'selfie' ? 'Selfie Holding ID' : 'Front Institutional ID'" 
+                  @error="onImageError"
                   class="max-h-[360px] w-auto max-w-full rounded-xl object-contain shadow-sm"
                 />
               </div>
@@ -400,9 +423,11 @@ const isInspectModalOpen = ref(false);
 
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '');
 
-const getIdCardUrl = (userId) => {
+const activeInspectTab = ref('front'); // 'front' | 'selfie'
+
+const getIdCardUrl = (userId, type = 'front') => {
   if (!userId) return '';
-  return `${apiBase}/auth/id-card/${userId}`;
+  return `${apiBase}/auth/id-card/${userId}${type === 'selfie' ? '?type=selfie' : ''}`;
 };
 
 const onImageError = (e) => {

@@ -21,10 +21,6 @@ const form = ref({
   password_confirm: '',
 });
 
-const idCardFile = ref(null);
-const idCardPreview = ref(null);
-const fileInputRef = ref(null);
-
 // UI State
 const isLoading = ref(false);
 const errorMessage = ref('');
@@ -177,21 +173,17 @@ const handleEmailBlur = () => {
   }
 };
 
-// File Upload Handlers
-const handleFileSelect = (event) => {
-  const file = event.target.files?.[0];
-  processSelectedFile(file);
-};
+// File Upload Handlers (Front ID + Selfie with ID - limited to 2 files)
+const idCardFile = ref(null);
+const idCardPreview = ref(null);
+const fileInputRef = ref(null);
 
-const handleDrop = (event) => {
-  event.preventDefault();
-  const file = event.dataTransfer.files?.[0];
-  processSelectedFile(file);
-};
+const idSelfieFile = ref(null);
+const idSelfiePreview = ref(null);
+const selfieInputRef = ref(null);
 
-const processSelectedFile = (file) => {
-  if (!file) return;
-
+const validateImageFile = (file, label) => {
+  if (!file) return null;
   const fileName = file.name || '';
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   const validExts = ['jpg', 'jpeg', 'png', 'webp'];
@@ -201,45 +193,113 @@ const processSelectedFile = (file) => {
   const isMimeValid = !file.type || validMimes.includes(file.type.toLowerCase()) || file.type.startsWith('image/');
 
   if (!isExtValid || !isMimeValid) {
-    errorMessage.value = 'Please upload a valid image file (JPG, JPEG, PNG, or WebP only).';
-    return;
+    return `Please upload a valid image file for ${label} (JPG, JPEG, PNG, or WebP only).`;
   }
 
   // 5MB limit
   if (file.size > 5 * 1024 * 1024) {
-    errorMessage.value = 'ID image size must not exceed 5MB.';
+    return `${label} image size must not exceed 5MB.`;
+  }
+
+  return null;
+};
+
+const handleFileSelect = (event, slot = 'front') => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  processSelectedFile(file, slot);
+};
+
+const handleSectionDrop = (event) => {
+  event.preventDefault();
+  const rawFiles = Array.from(event.dataTransfer.files || []);
+  if (rawFiles.length === 0) return;
+
+  if (rawFiles.length > 2) {
+    errorMessage.value = 'Upload limited to 2 files only: (1) Front ID and (2) Selfie holding ID.';
+    return;
+  }
+
+  if (rawFiles.length === 2) {
+    processSelectedFile(rawFiles[0], 'front');
+    processSelectedFile(rawFiles[1], 'selfie');
+  } else if (rawFiles.length === 1) {
+    if (!idCardFile.value) {
+      processSelectedFile(rawFiles[0], 'front');
+    } else {
+      processSelectedFile(rawFiles[0], 'selfie');
+    }
+  }
+};
+
+const processSelectedFile = (file, slot = 'front') => {
+  if (!file) return;
+
+  const label = slot === 'front' ? 'Front ID' : 'Selfie with ID';
+  const validationError = validateImageFile(file, label);
+  if (validationError) {
+    errorMessage.value = validationError;
     return;
   }
 
   errorMessage.value = '';
-  if (fieldErrors.value) {
-    delete fieldErrors.value.id_card;
-  }
-  idCardFile.value = file;
 
-  if (idCardPreview.value && idCardPreview.value.startsWith('blob:')) {
-    URL.revokeObjectURL(idCardPreview.value);
-  }
-
-  try {
-    idCardPreview.value = URL.createObjectURL(file);
-  } catch {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      idCardPreview.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
+  if (slot === 'front') {
+    if (fieldErrors.value) {
+      delete fieldErrors.value.id_card;
+    }
+    if (idCardPreview.value && idCardPreview.value.startsWith('blob:')) {
+      URL.revokeObjectURL(idCardPreview.value);
+    }
+    idCardFile.value = file;
+    try {
+      idCardPreview.value = URL.createObjectURL(file);
+    } catch {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        idCardPreview.value = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  } else {
+    if (fieldErrors.value) {
+      delete fieldErrors.value.id_selfie;
+    }
+    if (idSelfiePreview.value && idSelfiePreview.value.startsWith('blob:')) {
+      URL.revokeObjectURL(idSelfiePreview.value);
+    }
+    idSelfieFile.value = file;
+    try {
+      idSelfiePreview.value = URL.createObjectURL(file);
+    } catch {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        idSelfiePreview.value = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 };
 
-const removeSelectedFile = () => {
-  if (idCardPreview.value && idCardPreview.value.startsWith('blob:')) {
-    URL.revokeObjectURL(idCardPreview.value);
-  }
-  idCardFile.value = null;
-  idCardPreview.value = null;
-  if (fileInputRef.value) {
-    fileInputRef.value.value = '';
+const removeSelectedFile = (slot = 'front') => {
+  if (slot === 'front') {
+    if (idCardPreview.value && idCardPreview.value.startsWith('blob:')) {
+      URL.revokeObjectURL(idCardPreview.value);
+    }
+    idCardFile.value = null;
+    idCardPreview.value = null;
+    if (fileInputRef.value) {
+      fileInputRef.value.value = '';
+    }
+  } else {
+    if (idSelfiePreview.value && idSelfiePreview.value.startsWith('blob:')) {
+      URL.revokeObjectURL(idSelfiePreview.value);
+    }
+    idSelfieFile.value = null;
+    idSelfiePreview.value = null;
+    if (selfieInputRef.value) {
+      selfieInputRef.value.value = '';
+    }
   }
 };
 
@@ -340,9 +400,12 @@ const validateClient = () => {
     fieldErrors.value.password_confirm = 'Passwords do not match.';
   }
 
-  // 8. ID Card Photo
+  // 8. ID Card Photo & Selfie with ID (Both Mandatory - 2 Files Required)
   if (!idCardFile.value) {
-    fieldErrors.value.id_card = 'Please upload a clear photo of your Student or Employee ID card for identity verification.';
+    fieldErrors.value.id_card = 'Please upload a clear picture of the front of your ID card.';
+  }
+  if (!idSelfieFile.value) {
+    fieldErrors.value.id_selfie = 'Please upload a clear selfie while holding your ID card.';
   }
 
   return Object.keys(fieldErrors.value).length === 0;
@@ -377,6 +440,7 @@ const handleRegister = async () => {
     formData.append('password', form.value.password);
     formData.append('password_confirm', form.value.password_confirm);
     formData.append('id_card_image', idCardFile.value);
+    formData.append('id_selfie_image', idSelfieFile.value);
 
     const response = await apiRegister(formData);
 
@@ -955,84 +1019,190 @@ const handleRegister = async () => {
           </div>
         </div>
 
-        <!-- Mandatory ID Card Upload Section -->
-        <div class="pt-2 border-t border-slate-200/80">
-          <div class="flex items-center justify-between mb-1.5 ml-0.5">
-            <label class="block text-slate-700 text-xs font-bold">
-              Identity Verification: {{ form.role === 'student' ? 'Student ID Card' : 'Employee ID Card' }} Photo <span class="text-rose-500">*</span>
-            </label>
-            <span class="text-[11px] text-slate-500 font-medium">Max 5MB</span>
+        <!-- Mandatory ID Card & Selfie Upload Section (2 Files Required) -->
+        <div 
+          class="pt-3 border-t border-slate-200/80 space-y-3"
+          @dragover.prevent 
+          @drop="handleSectionDrop"
+        >
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 ml-0.5">
+            <div class="flex items-center gap-2 flex-wrap">
+              <label class="block text-slate-800 text-xs sm:text-sm font-black">
+                Identity Verification Documents <span class="text-rose-500">*</span>
+              </label>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black tracking-wider uppercase border border-emerald-200">
+                2 Files Required
+              </span>
+            </div>
+            <span class="text-[11px] text-slate-500 font-medium">Max 5MB per file • JPG, PNG, WebP</span>
           </div>
-          <p class="text-xs text-slate-500 mb-3 ml-0.5">
-            Please provide a clear snapshot or scan of your institutional ID card for Super Administrator verification.
-          </p>
 
-          <!-- Single Hidden File Input -->
+          <!-- Instruction Callout Card -->
+          <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/90 border border-emerald-200/90 text-xs text-emerald-950 flex items-start gap-3 shadow-2xs">
+            <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <p class="font-black text-emerald-950 text-xs sm:text-sm leading-tight">Verification Instructions:</p>
+              <p class="text-emerald-900 font-medium text-xs leading-relaxed">
+                Please upload a <strong>clear picture of the front ID</strong> and another <strong>picture for selfie while holding the ID</strong>. Make sure all ID text and your face are sharp and clearly legible.
+              </p>
+            </div>
+          </div>
+
+          <!-- Hidden File Inputs for Individual or Multi-Select -->
           <input 
             ref="fileInputRef"
             type="file" 
             accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" 
             class="hidden" 
-            @change="handleFileSelect"
+            @change="(e) => handleFileSelect(e, 'front')"
+          />
+          <input 
+            ref="selfieInputRef"
+            type="file" 
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" 
+            class="hidden" 
+            @change="(e) => handleFileSelect(e, 'selfie')"
           />
 
-          <!-- Mobile-Friendly Upload Tap Box -->
-          <div 
-            v-if="!idCardPreview"
-            @dragover.prevent 
-            @drop="handleDrop"
-            @click="$refs.fileInputRef?.click()"
-            class="min-h-[110px] border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/80 hover:bg-emerald-50/30 rounded-2xl p-5 text-center cursor-pointer transition-all duration-200 group active:scale-[0.99]"
-          >
-            <div class="w-11 h-11 bg-white rounded-full shadow-xs flex items-center justify-center mx-auto mb-2.5 group-hover:scale-105 transition-transform border border-slate-100">
-              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
-            <p class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-emerald-700">
-              Tap to take photo or choose from library
-            </p>
-            <p class="text-[11px] text-slate-500 mt-1">
-              Supports JPG, PNG, WebP up to 5MB
-            </p>
-          </div>
+          <!-- 2-Slot Grid: Front ID Card & Selfie Holding ID -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-1">
 
-          <!-- Preview Card -->
-          <div v-else class="relative rounded-2xl border border-slate-200 bg-slate-50 p-3.5 sm:p-4 flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4">
-            <div class="w-28 h-20 sm:w-36 sm:h-24 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 flex-shrink-0 shadow-sm relative">
-              <img :src="idCardPreview" alt="ID Preview" class="w-full h-full object-cover" />
-            </div>
-            <div class="flex-1 text-left w-full sm:w-auto">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-                <p class="text-xs font-bold text-slate-800 truncate max-w-[200px] sm:max-w-xs">{{ idCardFile?.name }}</p>
+            <!-- Slot 1: Front ID Card -->
+            <div class="flex flex-col">
+              <div class="flex items-center justify-between mb-1.5 ml-0.5">
+                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                  </svg>
+                  <span>1. Front ID Card</span> <span class="text-rose-500">*</span>
+                </span>
+                <span v-if="idCardFile" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  Ready
+                </span>
               </div>
-              <p class="text-[11px] text-slate-500 mb-2.5">
-                Size: {{ (idCardFile?.size / (1024 * 1024)).toFixed(2) }} MB • Ready for submission
+
+              <!-- Empty upload box for Front ID -->
+              <div 
+                v-if="!idCardPreview"
+                @click="$refs.fileInputRef?.click()"
+                class="min-h-[140px] border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/80 hover:bg-emerald-50/30 rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 group flex flex-col items-center justify-center active:scale-[0.99]"
+              >
+                <div class="w-10 h-10 bg-white rounded-xl shadow-xs flex items-center justify-center mb-2 group-hover:scale-105 transition-transform border border-slate-100 text-emerald-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <p class="text-xs font-bold text-slate-800 group-hover:text-emerald-700">Upload Front ID</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Clear picture of front ID card</p>
+              </div>
+
+              <!-- Preview card for Front ID -->
+              <div v-else class="rounded-2xl border border-slate-200 bg-slate-50 p-3 flex flex-col gap-2.5 shadow-2xs">
+                <div class="w-full h-28 sm:h-32 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-2xs relative">
+                  <img :src="idCardPreview" alt="Front ID Preview" class="w-full h-full object-cover" />
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="truncate">
+                    <p class="text-xs font-bold text-slate-800 truncate" :title="idCardFile?.name">{{ idCardFile?.name }}</p>
+                    <p class="text-[10px] text-slate-500">{{ (idCardFile?.size / (1024 * 1024)).toFixed(2) }} MB • Front ID</p>
+                  </div>
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                </div>
+                <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60">
+                  <button 
+                    type="button" 
+                    @click="$refs.fileInputRef?.click()" 
+                    class="flex-1 min-h-[36px] text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-white border border-slate-200 hover:border-emerald-300 py-1.5 px-3 rounded-lg shadow-2xs transition-all cursor-pointer text-center"
+                  >
+                    Change
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="removeSelectedFile('front')" 
+                    class="min-h-[36px] text-xs font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 hover:border-rose-300 py-1.5 px-3 rounded-lg shadow-2xs transition-all cursor-pointer text-center"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              <p v-if="fieldErrors.id_card" class="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                {{ fieldErrors.id_card }}
               </p>
-              <div class="flex items-center gap-2">
-                <button 
-                  type="button" 
-                  @click="$refs.fileInputRef?.click()" 
-                  class="min-h-[38px] text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-white border border-slate-200 hover:border-emerald-300 px-3.5 py-1.5 rounded-lg shadow-2xs transition-all cursor-pointer"
-                >
-                  Change Photo
-                </button>
-                <button 
-                  type="button" 
-                  @click="removeSelectedFile" 
-                  class="min-h-[38px] text-xs font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 hover:border-rose-300 px-3.5 py-1.5 rounded-lg shadow-2xs transition-all cursor-pointer"
-                >
-                  Remove
-                </button>
-              </div>
             </div>
+
+            <!-- Slot 2: Selfie Holding ID -->
+            <div class="flex flex-col">
+              <div class="flex items-center justify-between mb-1.5 ml-0.5">
+                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <span>2. Selfie with ID</span> <span class="text-rose-500">*</span>
+                </span>
+                <span v-if="idSelfieFile" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  Ready
+                </span>
+              </div>
+
+              <!-- Empty upload box for Selfie with ID -->
+              <div 
+                v-if="!idSelfiePreview"
+                @click="$refs.selfieInputRef?.click()"
+                class="min-h-[140px] border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/80 hover:bg-emerald-50/30 rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 group flex flex-col items-center justify-center active:scale-[0.99]"
+              >
+                <div class="w-10 h-10 bg-white rounded-xl shadow-xs flex items-center justify-center mb-2 group-hover:scale-105 transition-transform border border-slate-100 text-emerald-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <p class="text-xs font-bold text-slate-800 group-hover:text-emerald-700">Upload Selfie with ID</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Selfie holding your ID card</p>
+              </div>
+
+              <!-- Preview card for Selfie with ID -->
+              <div v-else class="rounded-2xl border border-slate-200 bg-slate-50 p-3 flex flex-col gap-2.5 shadow-2xs">
+                <div class="w-full h-28 sm:h-32 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-2xs relative">
+                  <img :src="idSelfiePreview" alt="Selfie with ID Preview" class="w-full h-full object-cover" />
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="truncate">
+                    <p class="text-xs font-bold text-slate-800 truncate" :title="idSelfieFile?.name">{{ idSelfieFile?.name }}</p>
+                    <p class="text-[10px] text-slate-500">{{ (idSelfieFile?.size / (1024 * 1024)).toFixed(2) }} MB • Selfie with ID</p>
+                  </div>
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                </div>
+                <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60">
+                  <button 
+                    type="button" 
+                    @click="$refs.selfieInputRef?.click()" 
+                    class="flex-1 min-h-[36px] text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-white border border-slate-200 hover:border-emerald-300 py-1.5 px-3 rounded-lg shadow-2xs transition-all cursor-pointer text-center"
+                  >
+                    Change
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="removeSelectedFile('selfie')" 
+                    class="min-h-[36px] text-xs font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 hover:border-rose-300 py-1.5 px-3 rounded-lg shadow-2xs transition-all cursor-pointer text-center"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              <p v-if="fieldErrors.id_selfie" class="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                {{ fieldErrors.id_selfie }}
+              </p>
+            </div>
+
           </div>
-          <p v-if="fieldErrors.id_card" class="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-            {{ fieldErrors.id_card }}
-          </p>
         </div>
 
         <!-- Informative Card Notice -->

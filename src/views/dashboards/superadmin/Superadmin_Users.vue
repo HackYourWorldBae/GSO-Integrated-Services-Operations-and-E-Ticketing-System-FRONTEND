@@ -968,18 +968,35 @@
             </div>
           </div>
 
-          <!-- Uploaded ID Card High-Res Image Display -->
+          <!-- Uploaded ID Card & Selfie High-Res Image Display -->
           <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <label class="block text-[11px] font-black text-slate-700 uppercase tracking-wider">
-                Uploaded Institutional ID Card
-              </label>
+            <div class="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2">
+              <!-- Dual Document Tabs -->
+              <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+                <button
+                  type="button"
+                  @click="activeInspectDocTab = 'front'"
+                  class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  :class="activeInspectDocTab === 'front' ? 'bg-white text-purple-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                >
+                  <span>1. Front ID Card</span>
+                </button>
+                <button
+                  type="button"
+                  @click="activeInspectDocTab = 'selfie'"
+                  class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  :class="activeInspectDocTab === 'selfie' ? 'bg-white text-purple-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                >
+                  <span>2. Selfie with ID</span>
+                </button>
+              </div>
+
               <a 
-                :href="getIdCardUrl(inspectingUser.id)" 
+                :href="getIdCardUrl(inspectingUser.id, activeInspectDocTab)" 
                 target="_blank" 
                 class="text-[11px] font-bold text-purple-700 hover:text-purple-900 hover:underline inline-flex items-center gap-1"
               >
-                Open High-Res In New Tab
+                Open In New Tab
                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
@@ -988,8 +1005,9 @@
 
             <div class="rounded-2xl border border-slate-200 bg-slate-900 overflow-hidden flex items-center justify-center p-2 min-h-[220px]">
               <img 
-                :src="getIdCardUrl(inspectingUser.id)" 
-                alt="Institutional ID Card" 
+                :key="inspectingUser.id + '-' + activeInspectDocTab"
+                :src="getIdCardUrl(inspectingUser.id, activeInspectDocTab)" 
+                :alt="activeInspectDocTab === 'selfie' ? 'Selfie Holding ID' : 'Institutional ID Card'" 
                 class="max-h-[380px] w-full object-contain rounded-xl"
                 @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='block'"
               />
@@ -997,11 +1015,11 @@
                 <svg class="h-10 w-10 text-slate-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                No ID card snapshot found or image could not be loaded.
+                Document image not found or could not be loaded.
               </div>
             </div>
             <p class="text-[11px] text-slate-500 italic">
-              Verification check: ensure the photo, full name, and ID number on the card match the institutional records.
+              Verification check: ensure the photo, full name, and ID number match, and verify that the person in the selfie matches the ID card photo.
             </p>
           </div>
 
@@ -1110,9 +1128,11 @@ const extractErrorMessage = (err, fallback) => {
 
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '');
 
-const getIdCardUrl = (userId) => {
+const activeInspectDocTab = ref('front'); // 'front' | 'selfie'
+
+const getIdCardUrl = (userId, type = 'front') => {
   if (!userId) return '';
-  return `${apiBase}/auth/id-card/${userId}`;
+  return `${apiBase}/auth/id-card/${userId}${type === 'selfie' ? '?type=selfie' : ''}`;
 };
 
 const getAvatarUrl = (userId) => {
