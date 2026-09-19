@@ -9,6 +9,8 @@ const showSwal = async (options) => {
 const LandingView = () => import('../views/LandingView.vue');
 const LoginView = () => import('../views/auth/LoginView.vue');
 const RegisterView = () => import('../views/auth/RegisterView.vue');
+const ForgotPasswordView = () => import('../views/auth/ForgotPasswordView.vue');
+const ResetPasswordView = () => import('../views/auth/ResetPasswordView.vue');
 
 // Lazy-loaded route components for performance optimization & code splitting
 const ServicesListView = () => import('../views/ServicesListView.vue');
@@ -71,6 +73,16 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: ForgotPasswordView
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: ResetPasswordView
     },
     {
       path: '/projects',
@@ -524,8 +536,8 @@ router.beforeEach((to, from, next) => {
     return '/user/dashboard';
   };
 
-  // 1. Prevent already-authenticated users from re-visiting login or register
-  if ((to.name === 'login' || to.name === 'register') && user && role) {
+  // 1. Prevent already-authenticated users from re-visiting login, register, or recovery pages
+  if ((to.name === 'login' || to.name === 'register' || to.name === 'forgot-password' || to.name === 'reset-password') && user && role) {
     return next(getHomeRoute(role, unit));
   }
 

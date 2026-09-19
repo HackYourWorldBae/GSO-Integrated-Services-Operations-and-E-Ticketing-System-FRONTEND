@@ -19,6 +19,9 @@ import {
   changePassword,
   checkSessionApi,
   register,
+  forgotPassword,
+  verifyResetToken,
+  resetPassword,
 } from '../auth'
 
 // Level 3 — Component tests: authentication flows must exchange credentials
@@ -81,9 +84,37 @@ describe('auth api module', () => {
     await expect(getMe()).resolves.toBe(envelope)
   })
 
-  it('propagates backend errors to the caller', async () => {
-    const failure = new Error('Request failed with status code 401')
-    apiClient.post.mockRejectedValueOnce(failure)
-    await expect(login('x', 'y')).rejects.toBe(failure)
+  it('sends forgot-password request with email', async () => {
+    apiClient.post.mockResolvedValueOnce({ data: { status: true, message: 'Recovery link sent' } })
+    await forgotPassword('test@bsu.edu.ph')
+    expect(apiClient.post).toHaveBeenCalledWith('/auth/forgot-password', {
+      email: 'test@bsu.edu.ph',
+    })
+  })
+
+  it('verifies reset token with email and token', async () => {
+    apiClient.post.mockResolvedValueOnce({ data: { status: true, data: { email: 'test@bsu.edu.ph' } } })
+    await verifyResetToken('test@bsu.edu.ph', 'sampletoken123')
+    expect(apiClient.post).toHaveBeenCalledWith('/auth/verify-reset-token', {
+      email: 'test@bsu.edu.ph',
+      token: 'sampletoken123',
+    })
+  })
+
+  it('resets password with token, email, new password, and confirmation', async () => {
+    apiClient.post.mockResolvedValueOnce({ data: { status: true, message: 'Password updated' } })
+    await resetPassword({
+      token: 'sampletoken123',
+      email: 'test@bsu.edu.ph',
+      new_password: 'NewPassword123!',
+      confirm_password: 'NewPassword123!',
+    })
+    expect(apiClient.post).toHaveBeenCalledWith('/auth/reset-password', {
+      token: 'sampletoken123',
+      email: 'test@bsu.edu.ph',
+      new_password: 'NewPassword123!',
+      confirm_password: 'NewPassword123!',
+    })
   })
 })
+

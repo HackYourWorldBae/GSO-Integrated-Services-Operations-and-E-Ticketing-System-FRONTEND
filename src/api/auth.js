@@ -58,3 +58,26 @@ export const register = (formData) =>
     headers: { 'Content-Type': 'multipart/form-data' }
   });
 
+/**
+ * Request a password reset link to be sent to user's registered email.
+ * @param {string} email
+ */
+export const forgotPassword = (email) =>
+  apiClient.post('/auth/forgot-password', { email });
+
+/**
+ * Verify validity of a password reset token from email link.
+ * @param {string} email
+ * @param {string} token
+ */
+export const verifyResetToken = (email, token) =>
+  apiClient.post('/auth/verify-reset-token', { email, token });
+
+/**
+ * Reset account password using token link.
+ * @param {{ email: string, token: string, password: string, password_confirm: string }} payload
+ */
+export const resetPassword = (payload) =>
+  apiClient.post('/auth/reset-password', payload);
+
+

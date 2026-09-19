@@ -328,7 +328,7 @@ const handleLogin = async () => {
         <div class="relative group/input text-left">
           <div class="flex items-center justify-between mb-1.5 ml-0.5 pr-0.5">
             <label class="block text-slate-700 text-xs font-bold">Password</label>
-            <a href="#" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors p-1 -m-1">Forgot?</a>
+            <router-link to="/forgot-password" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors p-1 -m-1">Forgot?</router-link>
           </div>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
