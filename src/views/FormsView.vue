@@ -16,7 +16,7 @@ const router = useRouter();
 const formsStore = useFormsStore();
 const authStore = useAuthStore();
 
-import { LOCATIONS } from '@/constants/locations';
+import { LOCATIONS, resolveLocationForUser } from '@/constants/locations';
 
 // --- STATE ---
 const user = ref(null);
@@ -41,6 +41,16 @@ onMounted(async () => {
   formsStore.fgmuState.sectionA.contact_number  = contact;
   formsStore.leauState.sectionA.end_user        = fullName;
   formsStore.leauState.sectionA.contact_number  = contact;
+
+  // Auto-fill College / Building from user account profile
+  const userCollege = user.value?.college || '';
+  if (userCollege) {
+    const resolvedBuilding = resolveLocationForUser(userCollege);
+    if (resolvedBuilding) {
+      formsStore.fgmuState.sectionA.college_building = resolvedBuilding;
+      formsStore.leauState.sectionA.college_building = resolvedBuilding;
+    }
+  }
 
   // SSU Auto-fill
   formsStore.ssuIncidentState.reportedBy.printedName = fullName;

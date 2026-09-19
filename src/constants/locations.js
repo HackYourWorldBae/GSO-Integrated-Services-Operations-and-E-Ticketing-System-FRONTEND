@@ -256,9 +256,65 @@ export function getRoomsForBuilding(buildingName) {
   return [...DEFAULT_ROOMS];
 }
 
+/**
+ * Resolves an authenticated user's associated college or administrative building
+ * to its canonical matching building name in the LOCATIONS catalog.
+ * Supports exact matching, acronym code matching (e.g. '(CIS)' -> 'College of Information Sciences Building (CIS)'),
+ * base name matching, and graceful fallback to the raw building name.
+ *
+ * @param {string} userCollege - Building or College string from user account
+ * @returns {string} Matched building name in LOCATIONS or raw string
+ */
+export function resolveLocationForUser(userCollege) {
+  if (!userCollege || typeof userCollege !== 'string') return '';
+  const trimmed = userCollege.trim();
+  if (!trimmed) return '';
+
+  // 1. Direct case-insensitive match in LOCATIONS
+  for (const group of LOCATIONS) {
+    for (const item of group.items) {
+      if (item.toLowerCase() === trimmed.toLowerCase()) {
+        return item;
+      }
+    }
+  }
+
+  // 2. Acronym Code match inside parentheses, e.g. "(CIS)", "(CE)", "(CTE)", "(CVM)"
+  const codeMatch = trimmed.match(/\(([A-Za-z0-9&]+)\)/);
+  if (codeMatch && codeMatch[1]) {
+    const code = codeMatch[1].toLowerCase();
+    for (const group of LOCATIONS) {
+      for (const item of group.items) {
+        const itemCodeMatch = item.match(/\(([A-Za-z0-9&]+)\)/);
+        if (itemCodeMatch && itemCodeMatch[1]?.toLowerCase() === code) {
+          return item;
+        }
+      }
+    }
+  }
+
+  // 3. Base Name prefix/substring match (e.g., "College of Home Economics & Technology")
+  const baseName = trimmed.replace(/\s*\([^)]*\)\s*/, '').trim().toLowerCase();
+  if (baseName.length > 5) {
+    for (const group of LOCATIONS) {
+      for (const item of group.items) {
+        const itemBaseName = item.replace(/\s*\([^)]*\)\s*/, '').trim().toLowerCase();
+        if (itemBaseName === baseName || itemBaseName.includes(baseName) || baseName.includes(itemBaseName)) {
+          return item;
+        }
+      }
+    }
+  }
+
+  // 4. Fallback to raw trimmed string
+  return trimmed;
+}
+
 export default {
   LOCATIONS,
+  ADMIN_SUPPORT_BUILDINGS,
   BUILDING_ROOMS,
   DEFAULT_ROOMS,
-  getRoomsForBuilding
+  getRoomsForBuilding,
+  resolveLocationForUser
 };
