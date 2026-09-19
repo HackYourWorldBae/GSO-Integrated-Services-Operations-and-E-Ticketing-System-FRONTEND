@@ -31,8 +31,7 @@ const createSsuIncidentState = () => ({
   how: '',
   reportedBy: {
     signature: '',
-    printedName: '',
-    roles: []
+    printedName: ''
   }
 });
 
@@ -68,10 +67,7 @@ export const useFormsStore = defineStore('forms', () => {
       who: { required },
       where: { required },
       when: { required },
-      how: { required, minLength: minLength(10) },
-      reportedBy: {
-        roles: { required }
-      }
+      how: { required, minLength: minLength(10) }
     }
   }));
 

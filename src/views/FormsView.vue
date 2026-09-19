@@ -34,7 +34,6 @@ onMounted(async () => {
   user.value = authStore.user;
   const fullName = user.value?.full_name || `${user.value?.first_name || ''} ${user.value?.last_name || ''}`.trim() || 'John Requestor';
   const contact  = user.value?.contact_no || user.value?.contact_number || user.value?.phone || '';
-  const role     = user.value?.role || 'Staff / Faculty';
 
   // FGMU & LEAU Auto-fill
   formsStore.fgmuState.sectionA.end_user        = fullName;
@@ -54,7 +53,6 @@ onMounted(async () => {
 
   // SSU Auto-fill
   formsStore.ssuIncidentState.reportedBy.printedName = fullName;
-  formsStore.ssuIncidentState.reportedBy.roles       = [role];
 
   const storedServices = localStorage.getItem('selectedServices');
   const storedOthers = localStorage.getItem('otherSpecifics');

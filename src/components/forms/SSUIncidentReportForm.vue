@@ -1,13 +1,61 @@
 <script setup>
+import { computed } from 'vue';
 import { useFormsStore } from '@/stores/forms';
+import { useAuthStore } from '@/stores/auth';
 
 const formsStore = useFormsStore();
+const authStore  = useAuthStore();
 
 const props = defineProps({
   services: {
     type: Array,
     required: true
   }
+});
+
+/**
+ * Derives a human-readable account identity line from the auth user's profile.
+ * - Student (SSG / RSO): "<org_type> • <college>"
+ * - Employee: "<employee_type> • <college/building>"
+ * Returns { label, sublabel } so the template can style them separately.
+ */
+const accountIdentity = computed(() => {
+  const u = authStore.user;
+  if (!u) return null;
+
+  const userRole = (u.role || '').toLowerCase();
+
+  if (userRole === 'student') {
+    // SSG / RSO students
+    const orgType = u.organization_type || u.org_type || 'Student';
+    const college = u.college || u.university || '';
+    return {
+      label: orgType,
+      sublabel: college || null,
+      colorClass: 'bg-sky-50 border-sky-200 text-sky-700',
+      dotClass: 'bg-sky-500'
+    };
+  }
+
+  if (userRole === 'employee') {
+    const empType = u.employee_type || 'Employee';
+    const location = u.college || u.building || '';
+    return {
+      label: empType,
+      sublabel: location || null,
+      colorClass: 'bg-violet-50 border-violet-200 text-violet-700',
+      dotClass: 'bg-violet-500'
+    };
+  }
+
+  // Fallback for any other role
+  const label = u.role ? (u.role.charAt(0).toUpperCase() + u.role.slice(1)) : 'User';
+  return {
+    label,
+    sublabel: u.college || null,
+    colorClass: 'bg-slate-50 border-slate-200 text-slate-600',
+    dotClass: 'bg-slate-400'
+  };
 });
 </script>
 
@@ -104,21 +152,21 @@ const props = defineProps({
       </div>
 
       <!-- Reporter Information -->
-      <div class="space-y-5 pt-3 border-t border-slate-100">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 items-start">
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Reported by</label>
-            <input v-model="formsStore.ssuIncidentState.reportedBy.printedName" type="text" readonly class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-100 border-2 border-slate-100 text-slate-500 text-base sm:text-sm font-bold outline-none cursor-not-allowed" />
-          </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Role / Designation</label>
-            <div class="flex flex-wrap gap-2 relative pb-4" @click="formsStore.v$.ssuIncidentState.reportedBy.roles.$touch()">
-              <label v-for="role in ['Agency Guard', 'Watchman', 'Plantilla Guard', 'Employee', 'Student', 'Visitor/Clients']" :key="role" class="min-h-[40px] px-3.5 py-2 rounded-xl border-2 text-xs font-bold uppercase tracking-wide cursor-pointer transition-all flex items-center justify-center active:scale-95" :class="formsStore.ssuIncidentState.reportedBy.roles.includes(role) ? 'bg-red-500 border-red-500 text-white' : 'bg-slate-50 border-slate-100 text-slate-600 hover:border-red-200'">
-                <input type="checkbox" :value="role" v-model="formsStore.ssuIncidentState.reportedBy.roles" class="hidden" />
-                {{ role }}
-              </label>
-              <p v-if="formsStore.v$.ssuIncidentState.reportedBy.roles.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Role is required</p>
-            </div>
+      <div class="space-y-4 pt-3 border-t border-slate-100">
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Reported by</label>
+          <input v-model="formsStore.ssuIncidentState.reportedBy.printedName" type="text" readonly class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-100 border-2 border-slate-100 text-slate-500 text-base sm:text-sm font-bold outline-none cursor-not-allowed" />
+        </div>
+
+        <!-- Account Identity Badge (derived from user profile, read-only) -->
+        <div v-if="accountIdentity" :class="['flex items-center gap-3 px-4 py-3 rounded-xl border-2 w-full sm:w-auto sm:inline-flex', accountIdentity.colorClass]">
+          <div :class="['w-2 h-2 rounded-full shrink-0', accountIdentity.dotClass]"></div>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:gap-2 min-w-0">
+            <span class="text-xs font-black uppercase tracking-wider leading-none">{{ accountIdentity.label }}</span>
+            <template v-if="accountIdentity.sublabel">
+              <span class="hidden sm:inline text-xs font-bold opacity-40">•</span>
+              <span class="text-xs font-semibold opacity-80 mt-0.5 sm:mt-0 truncate">{{ accountIdentity.sublabel }}</span>
+            </template>
           </div>
         </div>
       </div>
