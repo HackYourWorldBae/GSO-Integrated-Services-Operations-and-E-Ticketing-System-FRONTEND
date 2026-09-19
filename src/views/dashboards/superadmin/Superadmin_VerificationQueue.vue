@@ -284,6 +284,18 @@
                   <p class="font-bold text-purple-900 mt-0.5 text-xs sm:text-sm">{{ inspectingUser.college }}</p>
                 </div>
               </div>
+
+              <!-- Faculty / Staff Details -->
+              <div v-if="inspectingUser.role === 'employee'" class="col-span-2 sm:col-span-4 p-3.5 rounded-xl bg-teal-50/80 border border-teal-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider">Faculty / Staff Classification</p>
+                  <p class="font-bold text-slate-900 mt-0.5 text-xs sm:text-sm">{{ inspectingUser.employee_type || 'BSU Employee' }}</p>
+                </div>
+                <div v-if="inspectingUser.college">
+                  <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider">College / Academic Unit</p>
+                  <p class="font-bold text-teal-900 mt-0.5 text-xs sm:text-sm">{{ inspectingUser.college }}</p>
+                </div>
+              </div>
             </div>
 
             <!-- Uploaded Document View -->

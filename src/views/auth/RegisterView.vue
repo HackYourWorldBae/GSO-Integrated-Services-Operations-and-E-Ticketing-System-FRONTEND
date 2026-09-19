@@ -13,6 +13,7 @@ const form = ref({
   role: 'student', // 'student' or 'employee'
   student_type: 'rso', // 'rso' or 'ssg'
   organization_name: '',
+  employee_type: '', // 'Teaching Staff', 'Research and Extension Staff', 'Support / Administrative Staff'
   college: '',
   student_id_number: '',
   contact_number: '',
@@ -65,14 +66,33 @@ const handleRoleSelect = (selectedRole) => {
   if (form.value.role === selectedRole) return;
   form.value.role = selectedRole;
   form.value.student_id_number = '';
-  if (selectedRole !== 'student') {
+  form.value.college = '';
+  if (selectedRole === 'student') {
+    form.value.employee_type = '';
+  }
+  if (fieldErrors.value.college) {
+    delete fieldErrors.value.college;
+  }
+  if (fieldErrors.value.employee_type) {
+    delete fieldErrors.value.employee_type;
+  }
+  if (fieldErrors.value.student_id_number) {
+    delete fieldErrors.value.student_id_number;
+  }
+};
+
+// Employee / Staff Type Switcher Handler
+const handleEmployeeTypeSelect = (selectedType) => {
+  if (form.value.employee_type === selectedType) return;
+  form.value.employee_type = selectedType;
+  if (selectedType !== 'Teaching Staff') {
     form.value.college = '';
     if (fieldErrors.value.college) {
       delete fieldErrors.value.college;
     }
   }
-  if (fieldErrors.value.student_id_number) {
-    delete fieldErrors.value.student_id_number;
+  if (fieldErrors.value.employee_type) {
+    delete fieldErrors.value.employee_type;
   }
 };
 
@@ -365,6 +385,17 @@ const validateClient = () => {
     }
   }
 
+  // 3.2 BSU Faculty / Staff Validation
+  if (form.value.role === 'employee') {
+    if (!form.value.employee_type) {
+      fieldErrors.value.employee_type = 'Please select your faculty or staff classification.';
+    } else if (form.value.employee_type === 'Teaching Staff') {
+      if (!form.value.college) {
+        fieldErrors.value.college = 'Please select your assigned College / Academic Unit.';
+      }
+    }
+  }
+
   // 4. Contact Number (Strict 11 digits starting with 09)
   const contact = form.value.contact_number.trim();
   if (!contact) {
@@ -434,6 +465,11 @@ const handleRegister = async () => {
       formData.append('student_type', (form.value.student_type || 'rso').toLowerCase().trim());
       formData.append('organization_name', form.value.organization_name.trim());
       formData.append('college', form.value.college);
+    } else if (form.value.role === 'employee') {
+      formData.append('employee_type', form.value.employee_type);
+      if (form.value.employee_type === 'Teaching Staff' && form.value.college) {
+        formData.append('college', form.value.college);
+      }
     }
     formData.append('student_id_number', form.value.student_id_number.trim());
     formData.append('contact_number', form.value.contact_number.trim());
@@ -714,6 +750,154 @@ const handleRegister = async () => {
                 class="w-full px-4 py-3 pr-10 rounded-xl border text-base sm:text-sm font-medium focus:outline-none transition-all min-h-[48px] appearance-none cursor-pointer"
               >
                 <option value="" disabled>Select your college or academic unit...</option>
+                <option 
+                  v-for="c in BSU_COLLEGES" 
+                  :key="c.code" 
+                  :value="c.name"
+                >
+                  {{ c.name }}
+                </option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+              {{ fieldErrors.college }}
+            </p>
+          </div>
+        </div>
+
+        <!-- BSU Faculty / Staff Classification (Employee only) -->
+        <div v-if="form.role === 'employee'" class="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 space-y-3.5 transition-all">
+          <div class="flex items-start gap-2.5">
+            <div class="p-1.5 rounded-lg bg-emerald-600 text-white shrink-0 mt-0.5 shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-emerald-950 leading-snug">
+                BSU Faculty &amp; Staff Classification
+              </h3>
+              <p class="text-xs text-emerald-800/90 font-medium leading-relaxed mt-0.5">
+                Select your personnel appointment type. Teaching personnel must specify their designated college or academic unit.
+              </p>
+            </div>
+          </div>
+
+          <!-- 3 Faculty / Staff Options -->
+          <div>
+            <label class="block text-slate-700 text-xs font-bold mb-1.5 ml-0.5">
+              Select Faculty / Staff Type <span class="text-rose-500">*</span>
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              
+              <!-- 1. Teaching Staff -->
+              <button
+                type="button"
+                @click="handleEmployeeTypeSelect('Teaching Staff')"
+                :class="form.employee_type === 'Teaching Staff' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700'"
+                class="min-h-[56px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5 cursor-pointer"
+              >
+                <div 
+                  :class="form.employee_type === 'Teaching Staff' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
+                  class="p-1.5 rounded-lg shrink-0 mt-0.5 transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
+                    Teaching Staff
+                    <span v-if="form.employee_type === 'Teaching Staff'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">Selected</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                    Faculty, Professors &amp; Instructors
+                  </p>
+                </div>
+              </button>
+
+              <!-- 2. Research and Extension Staff -->
+              <button
+                type="button"
+                @click="handleEmployeeTypeSelect('Research and Extension Staff')"
+                :class="form.employee_type === 'Research and Extension Staff' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700'"
+                class="min-h-[56px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5 cursor-pointer"
+              >
+                <div 
+                  :class="form.employee_type === 'Research and Extension Staff' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
+                  class="p-1.5 rounded-lg shrink-0 mt-0.5 transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
+                    Research &amp; Extension
+                    <span v-if="form.employee_type === 'Research and Extension Staff'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">Selected</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                    Research Centers &amp; Extension Units
+                  </p>
+                </div>
+              </button>
+
+              <!-- 3. Support / Administrative Staff -->
+              <button
+                type="button"
+                @click="handleEmployeeTypeSelect('Support / Administrative Staff')"
+                :class="form.employee_type === 'Support / Administrative Staff' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700'"
+                class="min-h-[56px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5 cursor-pointer"
+              >
+                <div 
+                  :class="form.employee_type === 'Support / Administrative Staff' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
+                  class="p-1.5 rounded-lg shrink-0 mt-0.5 transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
+                    Support / Admin Staff
+                    <span v-if="form.employee_type === 'Support / Administrative Staff'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">Selected</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                    Administrative &amp; Support Personnel
+                  </p>
+                </div>
+              </button>
+            </div>
+            <p v-if="fieldErrors.employee_type" class="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+              {{ fieldErrors.employee_type }}
+            </p>
+          </div>
+
+          <!-- College / Academic Unit Selection (Visible ONLY if Teaching Staff) -->
+          <div v-if="form.employee_type === 'Teaching Staff'" class="pt-1">
+            <div class="flex items-center justify-between mb-1.5 ml-0.5">
+              <label class="block text-slate-700 text-xs font-bold">
+                Assigned College / Academic Unit <span class="text-rose-500">*</span>
+              </label>
+              <span class="text-[11px] text-slate-400 font-medium">BSU Faculty Assignment</span>
+            </div>
+            <div class="relative">
+              <select
+                v-model="form.college"
+                @change="handleCollegeChange"
+                required
+                :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20 text-rose-900' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white text-slate-900'"
+                class="w-full px-4 py-3 pr-10 rounded-xl border text-base sm:text-sm font-medium focus:outline-none transition-all min-h-[48px] appearance-none cursor-pointer"
+              >
+                <option value="" disabled>Select your assigned college or academic unit...</option>
                 <option 
                   v-for="c in BSU_COLLEGES" 
                   :key="c.code" 

@@ -138,6 +138,25 @@
                 </p>
               </div>
 
+              <!-- Employee Classification Info -->
+              <div v-if="authStore.user?.role === 'employee'" class="space-y-2 md:col-span-2 p-4 rounded-2xl bg-teal-50/60 border border-teal-200/80">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-black text-teal-900 uppercase tracking-widest">
+                    Faculty / Staff Classification
+                  </label>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-teal-200/60 text-teal-800">
+                    {{ authStore.user?.employee_type || 'Faculty / Staff' }}
+                  </span>
+                </div>
+                <p v-if="authStore.user?.college" class="text-xs font-semibold text-teal-700 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                  <span>{{ authStore.user.college }}</span>
+                </p>
+                <p class="text-[11px] text-slate-500 font-medium">
+                  Your employee account is authorized to request all general campus services and track work orders across university facilities.
+                </p>
+              </div>
+
               <!-- Password -->
               <div class="space-y-3">
                 <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">New Password</label>
