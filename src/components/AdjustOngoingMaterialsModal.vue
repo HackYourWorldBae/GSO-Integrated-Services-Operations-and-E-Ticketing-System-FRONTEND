@@ -150,9 +150,13 @@
                         <input
                           v-model="item.material_name"
                           type="text"
+                          list="material-suggestions"
                           placeholder="e.g., 1/2-inch PVC Pipe, LED 18W Bulb"
                           class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-amber-500 focus:bg-white transition-all"
                         />
+                        <datalist id="material-suggestions">
+                          <option v-for="name in ALL_MATERIAL_NAMES" :key="name" :value="name" />
+                        </datalist>
                       </td>
                       <td class="py-2.5 px-3">
                         <input
@@ -289,6 +293,7 @@
 import { ref, computed, watch } from 'vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+import { ALL_MATERIAL_NAMES, getDefaultUnit } from '@/constants/materials';
 
 const props = defineProps({
   isOpen: {
@@ -345,11 +350,33 @@ const addMaterialRow = () => {
   });
 };
 
+// Auto-fill unit_measurement when material name matches common materials
+const updateUnitForMaterial = (item) => {
+  if (item.material_name) {
+    const defaultUnit = getDefaultUnit(item.material_name);
+    if (defaultUnit && item.unit_measurement === 'pcs') {
+      item.unit_measurement = defaultUnit;
+    }
+  }
+};
+
 const removeMaterialRow = (index) => {
   if (materials.value.length > 1) {
     materials.value.splice(index, 1);
   }
 };
+
+// Watch for material name changes to auto-set unit
+watch(() => materials.value, (newMaterials) => {
+  newMaterials.forEach(item => {
+    if (item.material_name && item.unit_measurement === 'pcs') {
+      const defaultUnit = getDefaultUnit(item.material_name);
+      if (defaultUnit) {
+        item.unit_measurement = defaultUnit;
+      }
+    }
+  });
+}, { deep: true });
 
 const grandTotal = computed(() => {
   if (isLaborOnly.value) return 0;

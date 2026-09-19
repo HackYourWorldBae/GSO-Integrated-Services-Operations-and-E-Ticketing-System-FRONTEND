@@ -248,9 +248,13 @@
                       <input
                         v-model="item.material_name"
                         type="text"
+                        list="assessment-material-suggestions"
                         placeholder="e.g., PVC Pipe, 18W Bulb, Cement"
                         class="w-full px-2.5 py-1.5 bg-white/10 border border-white/15 rounded-lg text-xs font-semibold text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
                       />
+                      <datalist id="assessment-material-suggestions">
+                        <option v-for="name in ALL_MATERIAL_NAMES" :key="name" :value="name" />
+                      </datalist>
                     </td>
                     <td class="py-2 px-3">
                       <input
@@ -901,6 +905,7 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import 'flatpickr/dist/themes/dark.css';
 import CrossUnitCollaborationModal from './CrossUnitCollaborationModal.vue';
+import { ALL_MATERIAL_NAMES, getDefaultUnit } from '@/constants/materials';
 
 const isCollaborationModalOpen = ref(false);
 const openCollaborationModal = () => {
@@ -969,6 +974,18 @@ const removeAssessmentMaterialRow = (idx) => {
     assessmentMaterials.value.splice(idx, 1);
   }
 };
+
+// Watch for material name changes to auto-set unit
+watch(() => assessmentMaterials.value, (newMaterials) => {
+  newMaterials.forEach(item => {
+    if (item.material_name && item.unit_measurement === 'pcs') {
+      const defaultUnit = getDefaultUnit(item.material_name);
+      if (defaultUnit) {
+        item.unit_measurement = defaultUnit;
+      }
+    }
+  });
+}, { deep: true });
 
 const totalAssessmentCost = computed(() => {
   if (assessmentLaborOnly.value) return 0;
