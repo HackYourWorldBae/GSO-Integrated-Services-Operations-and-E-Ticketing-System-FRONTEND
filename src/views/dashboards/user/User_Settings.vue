@@ -120,7 +120,7 @@
               <div v-if="authStore.user?.role === 'student'" class="space-y-2 md:col-span-2 p-4 rounded-2xl bg-purple-50/60 border border-purple-200/80">
                 <div class="flex items-center justify-between">
                   <label class="block text-xs font-black text-purple-900 uppercase tracking-widest">
-                    Student Organization Affiliation
+                    {{ (authStore.user?.student_type || '').toLowerCase().trim() === 'ssg' ? 'Officer Position' : 'Student Organization Affiliation' }}
                   </label>
                   <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-purple-200/60 text-purple-800">
                     {{ (authStore.user?.student_type || '').toLowerCase().trim() === 'ssg' ? 'SSG' : 'RSO' }}

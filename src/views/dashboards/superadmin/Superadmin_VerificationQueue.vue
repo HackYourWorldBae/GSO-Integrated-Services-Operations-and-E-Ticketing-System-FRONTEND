@@ -276,7 +276,7 @@
                   <p class="font-bold text-slate-900 mt-0.5 text-xs sm:text-sm">{{ getStudentAffiliationFullLabel(inspectingUser.student_type) }}</p>
                 </div>
                 <div v-if="inspectingUser.organization_name">
-                  <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">{{ (inspectingUser.student_type || '').toLowerCase().trim() === 'ssg' ? 'Officer Position / Committee' : 'Organization / Club' }}</p>
+                  <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">{{ (inspectingUser.student_type || '').toLowerCase().trim() === 'ssg' ? 'Officer Position' : 'Organization / Club' }}</p>
                   <p class="font-bold text-purple-900 mt-0.5 text-xs sm:text-sm">{{ inspectingUser.organization_name }}</p>
                 </div>
                 <div v-if="inspectingUser.college">

@@ -354,9 +354,11 @@ const validateClient = () => {
     if (!org) {
       fieldErrors.value.organization_name = form.value.student_type === 'rso'
         ? 'Recognized Student Organization (RSO) name is required.'
-        : 'SSG Committee or Officer Position is required.';
+        : 'Officer position is required.';
     } else if (org.length < 2) {
-      fieldErrors.value.organization_name = 'Organization/Position must be at least 2 characters long.';
+      fieldErrors.value.organization_name = form.value.student_type === 'rso'
+        ? 'Organization name must be at least 2 characters long.'
+        : 'Officer position must be at least 2 characters long.';
     }
     if (!form.value.college) {
       fieldErrors.value.college = 'Please select your College / Academic Unit.';
@@ -666,9 +668,18 @@ const handleRegister = async () => {
           <div>
             <div class="flex items-center justify-between mb-1.5 ml-0.5">
               <label class="block text-slate-700 text-xs font-bold">
-                {{ form.student_type === 'rso' ? 'Recognized Student Organization (RSO) Name' : 'SSG Committee / Officer Position' }} <span class="text-rose-500">*</span>
+                {{ form.student_type === 'rso' ? 'Recognized Student Organization (RSO) Name' : 'Officer Position' }} <span class="text-rose-500">*</span>
               </label>
             </div>
+
+            <!-- Instruction for RSO: Put the full name of the organization -->
+            <p v-if="form.student_type === 'rso'" class="text-[11px] text-slate-500 font-medium mb-1.5 ml-0.5 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Please enter the full name of the organization followed by its acronym in parentheses.</span>
+            </p>
+
             <input
               v-model="form.organization_name"
               type="text"
@@ -678,7 +689,7 @@ const handleRegister = async () => {
               @input="handleOrganizationNameInput"
               :class="fieldErrors.organization_name ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white'"
               class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
-              :placeholder="form.student_type === 'rso' ? 'e.g. Computer Society (CS), Junior Marketing Association' : 'e.g. Committee on Logistics, Senator, Executive Board'"
+              :placeholder="form.student_type === 'rso' ? 'Body of Young Information Technologist (BYTE)' : 'President, Vice President, etc.'"
             />
             <p v-if="fieldErrors.organization_name" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
