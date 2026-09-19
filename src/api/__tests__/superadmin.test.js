@@ -91,8 +91,8 @@ describe('superadmin api module', () => {
 
   it('updates user status', async () => {
     apiClient.patch.mockResolvedValueOnce({ data: { status: true } })
-    await updateUserStatus('usr-1', 'Deactivated')
-    expect(apiClient.patch).toHaveBeenCalledWith('/superadmin/users/usr-1/status', { status: 'Deactivated' })
+    await updateUserStatus('usr-1', 'Suspended')
+    expect(apiClient.patch).toHaveBeenCalledWith('/superadmin/users/usr-1/status', { status: 'Suspended' })
   })
 
   it('unlocks a locked user account', async () => {

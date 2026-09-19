@@ -20,7 +20,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close', 'deactivate-instead', 'confirm-delete']);
+const emit = defineEmits(['close', 'deactivate-instead', 'suspend-instead', 'confirm-delete']);
 
 const currentStep = ref(1);
 const verificationInput = ref('');
@@ -78,6 +78,7 @@ watch(
 );
 
 const handleDeactivateInstead = () => {
+  emit('suspend-instead', props.user);
   emit('deactivate-instead', props.user);
 };
 
@@ -187,10 +188,10 @@ const handleFinalDelete = () => {
               <svg class="h-4 w-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <span>Recommended: Deactivate Instead of Deleting</span>
+              <span>Recommended: Suspend Instead of Deleting</span>
             </div>
             <p>
-              Deleting a user permanently destroys their authentication record and personal profile. In institutional administration, <strong>Deactivating</strong> is strongly recommended because it blocks the user from requesting services while safely maintaining historic tickets, dispatch audits, and accountability records.
+              Deleting a user permanently destroys their authentication record and personal profile. In institutional administration, <strong>Suspending</strong> is strongly recommended because it blocks the user from requesting services while safely maintaining historic tickets, dispatch audits, and accountability records.
             </p>
           </div>
 
@@ -213,7 +214,7 @@ const handleFinalDelete = () => {
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
               </svg>
-              <span>Deactivate Instead (Safer)</span>
+              <span>Suspend Instead (Safer)</span>
             </button>
 
             <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
@@ -334,7 +335,7 @@ const handleFinalDelete = () => {
                 @click="handleDeactivateInstead"
                 class="px-3 py-1.5 rounded-lg bg-white border border-rose-300 text-rose-700 text-[11px] font-bold hover:bg-rose-50 transition-colors"
               >
-                Deactivate Account Instead
+                Suspend Account Instead
               </button>
             </div>
           </div>

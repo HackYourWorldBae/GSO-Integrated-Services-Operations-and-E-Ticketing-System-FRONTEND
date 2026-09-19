@@ -107,11 +107,30 @@
 
         <div class="flex items-center gap-2 sm:gap-4 shrink-0">
           <slot name="header-actions">
+            <!-- Sound Alert Toggle (Dashboard Audio Notification Chimes) -->
+            <button
+              v-if="!isSuperAdmin"
+              type="button"
+              @click="toggleSound"
+              :title="soundActive ? 'Notification sound enabled (Click to mute)' : 'Notification sound muted (Click to unmute)'"
+              class="relative p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none border border-slate-200 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
+            >
+              <!-- Sound On -->
+              <svg v-if="soundActive" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z" />
+              </svg>
+              <!-- Sound Off -->
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              </svg>
+            </button>
+
             <!-- Notifications (hidden for superadmin) -->
             <div v-if="!isSuperAdmin" class="relative" id="layout-notification-menu">
               <button 
                 @click="toggleNotification" 
-                class="relative p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                class="relative p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-200 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:animate-swing" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -291,6 +310,7 @@ import AppSidebar from '@/components/navigation/AppSidebar.vue';
 import AppBreadcrumbs from '@/components/navigation/AppBreadcrumbs.vue';
 import api from '@/api/client';
 import { useNetworkStatus } from '@/utils/networkMonitor';
+import { playNotificationSound, isSoundEnabled, toggleSoundEnabled } from '@/utils/sound';
 
 const router = useRouter();
 const route = useRoute();
@@ -369,10 +389,16 @@ const executeConfirm = () => {
   closeConfirmModal();
 };
 
+const soundActive = ref(isSoundEnabled());
+const toggleSound = () => {
+  soundActive.value = toggleSoundEnabled();
+};
+
 const notifications = ref([]);
 const unreadNotificationCount = ref(0);
 let isFetchingNotifications = false;
 let notificationsAbort = null;
+let hasInitialNotifsLoaded = false;
 
 const fetchNotifications = async () => {
   if (isSuperAdmin.value) return;
@@ -384,10 +410,18 @@ const fetchNotifications = async () => {
   } catch { /* noop */ }
   notificationsAbort = new AbortController();
   try {
+    const prevCount = unreadNotificationCount.value;
     const response = await api.get('notifications', { signal: notificationsAbort.signal });
     if (response.data?.data) {
       notifications.value = response.data.data.notifications || [];
-      unreadNotificationCount.value = response.data.data.unread_count || 0;
+      const newCount = response.data.data.unread_count || 0;
+      unreadNotificationCount.value = newCount;
+
+      // Play chime when new unread notifications arrive after initial layout mount
+      if (hasInitialNotifsLoaded && newCount > prevCount) {
+        playNotificationSound();
+      }
+      hasInitialNotifsLoaded = true;
     }
   } catch (error) {
     // Silently ignore cancellations from rapid navigation

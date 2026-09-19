@@ -212,7 +212,17 @@ const handleFinalSubmit = async () => {
     localStorage.removeItem('selectedServices');
     localStorage.removeItem('otherSpecifics');
     localStorage.removeItem('customDescriptions');
-    router.push('/user/dashboard');
+
+    const role = (authStore.user?.role || authStore.role || '').toLowerCase();
+    if (role === 'admin') {
+      const unitMap = { 1: 'fgmu', 2: 'leau', 3: 'ssu' };
+      const u = (authStore.user?.unit_code || unitMap[authStore.user?.unit_id] || 'fgmu').toLowerCase();
+      router.push(`/admin/${u}`);
+    } else if (role === 'director') {
+      router.push('/director/dashboard');
+    } else {
+      router.push('/user/dashboard');
+    }
   } catch (error) {
     console.error('Submission error:', error);
     toast.error(error.response?.data?.message || "An error occurred while submitting. Please try again.");

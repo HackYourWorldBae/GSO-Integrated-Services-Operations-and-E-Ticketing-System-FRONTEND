@@ -160,14 +160,15 @@ const handleContactNumberInput = (event) => {
 };
 
 const handleEmailBlur = () => {
-  if (form.value.email.trim()) {
-    form.value.email = form.value.email.trim().toLowerCase();
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailPattern.test(form.value.email)) {
-      fieldErrors.value.email = 'Please enter a valid email format (e.g. name@bsu.edu.ph).';
-    } else if (fieldErrors.value.email) {
-      delete fieldErrors.value.email;
-    }
+  const trimmed = form.value.email.trim().toLowerCase();
+  form.value.email = trimmed;
+  if (!trimmed) {
+    fieldErrors.value.email = 'Email address is required for password recovery and notifications.';
+    return;
+  }
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailPattern.test(trimmed)) {
+    fieldErrors.value.email = 'Please enter a valid email format (e.g. name@bsu.edu.ph).';
   } else if (fieldErrors.value.email) {
     delete fieldErrors.value.email;
   }
@@ -372,12 +373,14 @@ const validateClient = () => {
     fieldErrors.value.contact_number = 'Contact number must be exactly 11 digits (e.g. 09171234567).';
   }
 
-  // 5. Email (Optional, but if provided, must be valid RFC format)
+  // 5. Email (Mandatory for forgot password recovery and ticket notifications)
   const em = form.value.email.trim();
-  if (em) {
+  if (!em) {
+    fieldErrors.value.email = 'Email address is required for password recovery and notifications.';
+  } else {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailPattern.test(em)) {
-      fieldErrors.value.email = 'Please enter a valid email address (e.g. name@bsu.edu.ph) or leave blank.';
+      fieldErrors.value.email = 'Please enter a valid email address (e.g. name@bsu.edu.ph).';
     }
   }
 
@@ -851,14 +854,14 @@ const handleRegister = async () => {
           </div>
         </div>
 
-        <!-- Email Address (Optional) -->
+        <!-- Email Address (Required) -->
         <div>
           <div class="flex items-center justify-between mb-1.5 ml-0.5">
             <label class="block text-slate-700 text-xs font-bold">
-              Email Address
+              Email Address <span class="text-rose-500">*</span>
             </label>
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-              Optional
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Required
             </span>
           </div>
           <input 
@@ -867,6 +870,7 @@ const handleRegister = async () => {
             autocomplete="email"
             spellcheck="false"
             maxlength="100"
+            required
             @blur="handleEmailBlur"
             :class="fieldErrors.email ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
             class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
@@ -877,7 +881,7 @@ const handleRegister = async () => {
             {{ fieldErrors.email }}
           </p>
           <p v-else class="mt-1 text-[11px] text-slate-500 font-normal">
-            You can leave this blank if you do not have an active email. You can log in using your ID Number or Contact Number.
+            Required for password recovery and automated service ticket notifications.
           </p>
         </div>
 

@@ -92,7 +92,6 @@
             >
               <option value="all">All Statuses</option>
               <option value="Active">Active</option>
-              <option value="Deactivated">Deactivated</option>
               <option value="Pending">Pending</option>
               <option value="Suspended">Suspended</option>
               <option value="Rejected">Rejected</option>
@@ -131,6 +130,7 @@
                   <th class="pb-3 px-3">Unit Affiliation</th>
                   <th class="pb-3 px-3">Verification</th>
                   <th class="pb-3 px-3">Status</th>
+                  <th class="pb-3 px-3 text-center">Requests</th>
                   <th class="pb-3 px-3">Joined</th>
                   <th class="pb-3 px-3 text-right">Actions</th>
                 </tr>
@@ -231,6 +231,20 @@
                     </div>
                   </td>
 
+                  <!-- Request Tracking Count -->
+                  <td class="py-3.5 px-3 text-center">
+                    <span 
+                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-black transition-all"
+                      :class="(user.request_count || 0) > 0 ? 'bg-purple-50 text-purple-700 border border-purple-200/60' : 'bg-slate-50 text-slate-400 border border-slate-200/40'"
+                      :title="`${user.first_name || 'User'} has filed ${user.request_count || 0} service requests`"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      {{ user.request_count || 0 }}
+                    </span>
+                  </td>
+
                   <!-- Joined Date -->
                   <td class="py-3.5 px-3 text-slate-500 whitespace-nowrap">
                     {{ user.created_at ? new Date(user.created_at).toLocaleDateString() : '—' }}
@@ -301,13 +315,6 @@
                         <!-- If Active -->
                         <template v-if="user.status === 'Active'">
                           <button
-                            @click="openStatusModal(user, 'Deactivated')"
-                            class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors cursor-pointer border border-amber-200/60"
-                            title="Deactivate Account (User can log in, but cannot request services)"
-                          >
-                            Deactivate
-                          </button>
-                          <button
                             @click="openStatusModal(user, 'Suspended')"
                             class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer border border-rose-200/60"
                             title="Suspend Account (Cannot log in, shows Account Suspended)"
@@ -316,25 +323,7 @@
                           </button>
                         </template>
 
-                        <!-- If Deactivated -->
-                        <template v-else-if="user.status === 'Deactivated'">
-                          <button
-                            @click="openStatusModal(user, 'Active')"
-                            class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition-colors cursor-pointer border border-emerald-200/60"
-                            title="Reactivate Account (Restore request capability)"
-                          >
-                            Reactivate
-                          </button>
-                          <button
-                            @click="openStatusModal(user, 'Suspended')"
-                            class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer border border-rose-200/60"
-                            title="Suspend Account (Revoke login access)"
-                          >
-                            Suspend
-                          </button>
-                        </template>
-
-                        <!-- If Suspended -->
+                        <!-- If Suspended / Inactive -->
                         <template v-else-if="user.status === 'Suspended'">
                           <button
                             @click="openStatusModal(user, 'Active')"
@@ -342,13 +331,6 @@
                             title="Reactivate Account (Restore portal access)"
                           >
                             Reactivate
-                          </button>
-                          <button
-                            @click="openStatusModal(user, 'Deactivated')"
-                            class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors cursor-pointer border border-amber-200/60"
-                            title="Deactivate Account (Allow login, block requests)"
-                          >
-                            Deactivate
                           </button>
                         </template>
 
@@ -458,6 +440,7 @@
                     <span v-if="user.unit_code">Unit: <strong class="text-slate-800">{{ user.unit_code }}</strong></span>
                     <span v-else class="italic text-slate-400">Global</span>
                     <span v-if="user.contact_number">• {{ user.contact_number }}</span>
+                    <span>• <strong class="text-indigo-600">{{ user.request_count || 0 }} reqs</strong></span>
                   </div>
                 </div>
               </div>
@@ -469,11 +452,11 @@
                   <button
                     type="button"
                     @click="openInspectModal(user)"
-                    class="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-xs min-h-[40px] touch-manipulation cursor-pointer"
+                    class="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 min-h-[40px] touch-manipulation cursor-pointer"
                   >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                     </svg>
                     <span>Inspect ID</span>
                   </button>
@@ -530,26 +513,18 @@
                     <button
                       v-if="user.status === 'Active'"
                       type="button"
-                      @click="openStatusModal(user, 'Deactivated')"
-                      class="py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
+                      @click="openStatusModal(user, 'Suspended')"
+                      class="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
                     >
-                      Deactivate
+                      Suspend
                     </button>
                     <button
-                      v-else-if="user.status === 'Deactivated' || user.status === 'Suspended'"
+                      v-else-if="user.status === 'Suspended'"
                       type="button"
                       @click="openStatusModal(user, 'Active')"
                       class="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
                     >
                       Reactivate
-                    </button>
-                    <button
-                      v-if="user.status !== 'Suspended'"
-                      type="button"
-                      @click="openStatusModal(user, 'Suspended')"
-                      class="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
-                    >
-                      Suspend
                     </button>
 
                     <button
@@ -859,7 +834,6 @@
               <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Account Status</label>
               <select v-model="editForm.status" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer">
                 <option value="Active">Active</option>
-                <option value="Deactivated">Deactivated</option>
                 <option value="Pending">Pending</option>
                 <option value="Suspended">Suspended</option>
                 <option value="Rejected">Rejected</option>
@@ -957,7 +931,7 @@
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</p>
               <p class="font-medium text-slate-700 mt-0.5">{{ inspectingUser.email || 'None (Elderly / Offline User)' }}</p>
             </div>
-            <div class="col-span-2">
+            <div>
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Verification Status</p>
               <p 
                 class="font-bold mt-0.5" 
@@ -965,6 +939,14 @@
               >
                 {{ inspectingUser.status === 'Rejected' ? 'Rejected' : (isUserVerified(inspectingUser) ? 'Verified' : 'Pending Verification') }}
               </p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Requests Submitted</p>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  {{ inspectingUser.request_count || 0 }} Requests
+                </span>
+              </div>
             </div>
           </div>
 
@@ -1087,7 +1069,8 @@
         :is-loading="strictDeleteModal.isLoading"
         :error-message="strictDeleteModal.errorMessage"
         @close="closeStrictDeleteModal"
-        @deactivate-instead="handleDeactivateFromDeleteModal"
+        @suspend-instead="handleSuspendFromDeleteModal"
+        @deactivate-instead="handleSuspendFromDeleteModal"
         @confirm-delete="handleStrictDeleteConfirm"
       />
       </Teleport>
@@ -1238,13 +1221,7 @@ const openStatusModal = (user, newStatus) => {
   const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'User';
   const roleName = (user.role || 'user').toUpperCase();
 
-  if (newStatus === 'Deactivated') {
-    confirmModal.title = 'Deactivate User Account';
-    confirmModal.message = `Are you sure you want to deactivate ${fullName} (${roleName})?\n\n• The user can still log in and view their historical tickets.\n• The user will be BLOCKED from submitting new service requests.\n• This is the recommended action for inactive or suspended requesters.`;
-    confirmModal.confirmText = 'Deactivate Account';
-    confirmModal.cancelText = 'Cancel';
-    confirmModal.type = 'warning';
-  } else if (newStatus === 'Suspended') {
+  if (newStatus === 'Suspended') {
     confirmModal.title = 'Suspend User Account';
     confirmModal.message = `Are you sure you want to suspend ${fullName} (${roleName})?\n\n• All active sessions will be terminated immediately.\n• The user will be BLOCKED from logging into the portal.\n• An "Account Suspended" notice will be displayed upon login attempt.`;
     confirmModal.confirmText = 'Suspend Account';
@@ -1259,10 +1236,6 @@ const openStatusModal = (user, newStatus) => {
   }
 
   confirmModal.isOpen = true;
-};
-
-const openDeactivateModal = (user) => {
-  openStatusModal(user, 'Deactivated');
 };
 
 const closeConfirmModal = (force = false) => {
@@ -1357,10 +1330,11 @@ const handleStrictDeleteConfirm = async ({ user, reason }) => {
   }
 };
 
-const handleDeactivateFromDeleteModal = (user) => {
+const handleSuspendFromDeleteModal = (user) => {
   closeStrictDeleteModal();
-  openStatusModal(user, 'Deactivated');
+  openStatusModal(user, 'Suspended');
 };
+const handleDeactivateFromDeleteModal = handleSuspendFromDeleteModal;
 
 const pagination = reactive({
   total: 0,
@@ -1628,7 +1602,7 @@ const submitCreateUser = async () => {
 
 const openEditModal = (user) => {
   if (isRegisteredUser(user)) {
-    toast.warning('Registered user accounts (Student / Employee) are self-managed and cannot be edited by Superadmin. You can Deactivate or Suspend their access instead.');
+    toast.warning('Registered user accounts (Student / Employee) are self-managed and cannot be edited by Superadmin. You can Suspend their access instead.');
     return;
   }
   modalError.value = '';

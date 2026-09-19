@@ -31,9 +31,22 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">LEAU Dashboard</h2>
-        <p class="text-xs text-emerald-600 font-extrabold tracking-wider uppercase">Landscaping &amp; Environmental Aesthetics Unit</p>
+      <div class="flex items-center gap-3 sm:gap-4">
+        <div class="flex flex-col">
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">LEAU Dashboard</h2>
+          <p class="text-xs text-emerald-600 font-extrabold tracking-wider uppercase">Landscaping &amp; Environmental Aesthetics Unit</p>
+        </div>
+        <router-link
+          to="/services"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer min-h-[36px]"
+          title="Submit a service request for LEAU or other campus units"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+          </svg>
+          <span class="hidden xs:inline">Request Service</span>
+          <span class="xs:hidden">Request</span>
+        </router-link>
       </div>
     </template>
 

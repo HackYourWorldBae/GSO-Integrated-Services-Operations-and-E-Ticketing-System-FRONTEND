@@ -400,6 +400,19 @@
                       <span>Materials</span>
                     </button>
 
+                    <!-- Cross-Unit Collaboration Button -->
+                    <button
+                      type="button"
+                      @click="openCollabModal(ticket)"
+                      class="px-2.5 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                      title="Cross-Unit Collaboration (Invite other units or manage shared personnel)"
+                    >
+                      <svg class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      <span>Collab</span>
+                    </button>
+
                     <!-- Complete Job Button -->
                     <button
                       type="button"
@@ -639,6 +652,14 @@
               title="Adjust ongoing materials and supplies"
             >
               <span>Materials</span>
+            </button>
+            <button
+              type="button"
+              @click.stop="openCollabModal(ticket)"
+              class="py-2.5 px-2.5 min-h-[38px] rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-black text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center gap-1"
+              title="Cross-Unit Collaboration"
+            >
+              <span>Collab</span>
             </button>
             <button
               type="button"
@@ -1002,6 +1023,16 @@
                 </button>
                 <button
                   type="button"
+                  @click="(() => { const t = selectedTicketForModal; openCollabModal(t); })()"
+                  class="px-4 py-2.5 min-h-[40px] rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs font-black transition-colors cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+                >
+                  <svg class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span>Unit Collaboration</span>
+                </button>
+                <button
+                  type="button"
                   @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openAdjustModal(t); })()"
                   class="px-4 py-2.5 min-h-[40px] rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 text-xs font-black transition-colors cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
                 >
@@ -1072,6 +1103,14 @@
       @close="viewerModal.isOpen = false"
     />
 
+    <!-- Cross-Unit Collaboration Modal -->
+    <CrossUnitCollaborationModal
+      :is-open="showCollabModal"
+      :ticket="selectedTicketForCollab"
+      @close="showCollabModal = false"
+      @updated="handleCollabUpdated"
+    />
+
   </div>
 </template>
 
@@ -1085,6 +1124,7 @@ import AdjustOngoingMaterialsModal from '@/components/AdjustOngoingMaterialsModa
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
+import CrossUnitCollaborationModal from './CrossUnitCollaborationModal.vue';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
 import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
@@ -1129,6 +1169,17 @@ const showAdjustModal = ref(false);
 const selectedTicketForAdjust = ref(null);
 const showReceiptModal = ref(false);
 const receiptTicket = ref(null);
+const showCollabModal = ref(false);
+const selectedTicketForCollab = ref(null);
+
+const openCollabModal = (ticket) => {
+  selectedTicketForCollab.value = ticket;
+  showCollabModal.value = true;
+};
+
+const handleCollabUpdated = () => {
+  fetchTickets();
+};
 
 // Document Viewer state
 const viewerModal = reactive({

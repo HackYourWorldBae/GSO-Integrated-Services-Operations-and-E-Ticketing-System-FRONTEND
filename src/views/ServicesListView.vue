@@ -17,6 +17,18 @@ const otherSpecifics = reactive({});
 const tempCustom = reactive({});
 const customDescriptions = reactive({});
 
+const dashboardHomeRoute = computed(() => {
+  const r = (authStore.user?.role || authStore.role || '').toLowerCase();
+  if (r === 'admin') {
+    const unitMap = { 1: 'fgmu', 2: 'leau', 3: 'ssu' };
+    const u = (authStore.user?.unit_code || unitMap[authStore.user?.unit_id] || 'fgmu').toLowerCase();
+    return `/admin/${u}`;
+  }
+  if (r === 'director') return '/director/dashboard';
+  if (r === 'superadmin') return '/superadmin/dashboard';
+  return '/user/dashboard';
+});
+
 // --- STUDENT ROLE SERVICE RESTRICTION RULES & STATE ---
 const isStudentUser = computed(() => {
   const r = (authStore.user?.role || authStore.role || '').toLowerCase();
@@ -524,7 +536,7 @@ const handleSubmit = () => {
             <p class="text-sm font-bold text-slate-900 truncate">{{ userName }}</p>
           </div>
           <div class="p-2">
-            <router-link to="/user/dashboard" class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all">
+            <router-link :to="dashboardHomeRoute" class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
               Dashboard Overview
             </router-link>

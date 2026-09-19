@@ -82,10 +82,10 @@ export const rejectVerification = (userId, reason = '') =>
   apiClient.patch(`/superadmin/users/${userId}/reject`, { reason });
 
 /**
- * Change a user's operational status (Active, Deactivated, Suspended).
+ * Change a user's operational status (Active, Suspended, Rejected).
  * Route: PATCH /api/v1/superadmin/users/{id}/status
  * @param {string} userId - UUID of the user
- * @param {'Active'|'Deactivated'|'Suspended'|'Rejected'} status
+ * @param {'Active'|'Suspended'|'Rejected'} status
  * @returns {Promise<import('axios').AxiosResponse>}
  */
 export const updateUserStatus = (userId, status) =>
