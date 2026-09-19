@@ -292,7 +292,7 @@
                   <p class="font-bold text-slate-900 mt-0.5 text-xs sm:text-sm">{{ inspectingUser.employee_type || 'BSU Employee' }}</p>
                 </div>
                 <div v-if="inspectingUser.college">
-                  <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider">College / Academic Unit</p>
+                  <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider">{{ inspectingUser.employee_type === 'Support / Administrative Staff' ? 'Assigned Building / Facility' : 'College / Academic Unit' }}</p>
                   <p class="font-bold text-teal-900 mt-0.5 text-xs sm:text-sm">{{ inspectingUser.college }}</p>
                 </div>
               </div>

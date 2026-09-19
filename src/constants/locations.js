@@ -52,6 +52,21 @@ export const LOCATIONS = [
   }
 ];
 
+export const ADMIN_SUPPORT_BUILDINGS = [
+  'General Services Office (GSO)',
+  'Administration Building (Admin)',
+  'Student Center / OSA',
+  'University Library',
+  'BSU Gymnasium',
+  'BSU Clinic / Health Services',
+  'BSU Security Headquarters',
+  'Motorpool Depot',
+  'Research & Extension Complex',
+  'Northern Philippines Root Crop Center (NPRCRTC)',
+  'Institute of Highland Farming Systems (IHFSA)',
+  'Cordillera Organic Agriculture R&D Center (COARDC)'
+];
+
 export const DEFAULT_ROOMS = [
   "Dean's Office / Main Office",
   'Faculty / Staff Room',

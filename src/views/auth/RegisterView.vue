@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { register as apiRegister } from '@/api/auth';
 import { BSU_COLLEGES } from '@/constants/colleges';
+import { ADMIN_SUPPORT_BUILDINGS } from '@/constants/locations';
 
 const router = useRouter();
 
@@ -85,11 +86,9 @@ const handleRoleSelect = (selectedRole) => {
 const handleEmployeeTypeSelect = (selectedType) => {
   if (form.value.employee_type === selectedType) return;
   form.value.employee_type = selectedType;
-  if (selectedType !== 'Teaching Staff') {
-    form.value.college = '';
-    if (fieldErrors.value.college) {
-      delete fieldErrors.value.college;
-    }
+  form.value.college = '';
+  if (fieldErrors.value.college) {
+    delete fieldErrors.value.college;
   }
   if (fieldErrors.value.employee_type) {
     delete fieldErrors.value.employee_type;
@@ -392,6 +391,10 @@ const validateClient = () => {
     } else if (form.value.employee_type === 'Teaching Staff') {
       if (!form.value.college) {
         fieldErrors.value.college = 'Please select your assigned College / Academic Unit.';
+      }
+    } else if (form.value.employee_type === 'Support / Administrative Staff') {
+      if (!form.value.college) {
+        fieldErrors.value.college = 'Please select your assigned administrative or support building.';
       }
     }
   }
@@ -904,6 +907,43 @@ const handleRegister = async () => {
                   :value="c.name"
                 >
                   {{ c.name }}
+                </option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+              {{ fieldErrors.college }}
+            </p>
+          </div>
+
+          <!-- Administrative & Support Buildings Selection (Visible ONLY if Support / Administrative Staff) -->
+          <div v-if="form.employee_type === 'Support / Administrative Staff'" class="pt-1">
+            <div class="flex items-center justify-between mb-1.5 ml-0.5">
+              <label class="block text-slate-700 text-xs font-bold">
+                Assigned Administrative / Support Building <span class="text-rose-500">*</span>
+              </label>
+              <span class="text-[11px] text-slate-400 font-medium">BSU Administrative Facility</span>
+            </div>
+            <div class="relative">
+              <select
+                v-model="form.college"
+                @change="handleCollegeChange"
+                required
+                :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20 text-rose-900' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white text-slate-900'"
+                class="w-full px-4 py-3 pr-10 rounded-xl border text-base sm:text-sm font-medium focus:outline-none transition-all min-h-[48px] appearance-none cursor-pointer"
+              >
+                <option value="" disabled>Select your administrative or support building...</option>
+                <option 
+                  v-for="b in ADMIN_SUPPORT_BUILDINGS" 
+                  :key="b" 
+                  :value="b"
+                >
+                  {{ b }}
                 </option>
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
