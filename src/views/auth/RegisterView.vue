@@ -29,6 +29,9 @@ const errorMessage = ref('');
 const fieldErrors = ref({});
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
+const showDisclaimerModal = ref(false);
+const hasAgreedToDisclaimer = ref(false);
+const isDisclaimerTouched = ref(false);
 
 // Password criteria checks (Elder-friendly: minimum 8 chars, letters and numbers, no special symbols required)
 const passwordCriteria = computed(() => {
@@ -515,10 +518,21 @@ const handleRegister = async () => {
     } else {
       errorMessage.value = 'Failed to submit registration. Please check your connection and try again.';
     }
-  } finally {
-    isLoading.value = false;
-  }
-};
+} finally {
+      isLoading.value = false;
+    }
+  };
+
+  // Disclaimer Modal Methods
+  const closeDisclaimerModal = () => {
+    showDisclaimerModal.value = false;
+  };
+
+  const acceptDisclaimer = () => {
+    hasAgreedToDisclaimer.value = true;
+    showDisclaimerModal.value = false;
+    isDisclaimerTouched.value = true;
+  };
 </script>
 
 <template>
@@ -1455,9 +1469,42 @@ const handleRegister = async () => {
           </div>
         </div>
 
+        <!-- Disclaimer Checkbox (Required) -->
+        <div class="pt-2">
+          <div v-if="!hasAgreedToDisclaimer" class="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
+            <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-amber-900">Required: Privacy & Terms Acceptance</p>
+              <p class="text-xs text-amber-800 mt-0.5 leading-relaxed">
+                You must review and accept the <strong>Data Privacy Notice & Terms of Use</strong> before completing registration.
+              </p>
+              <button 
+                type="button"
+                @click="showDisclaimerModal = true; isDisclaimerTouched = true"
+                class="mt-2 px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Review Disclaimer & Accept
+              </button>
+            </div>
+          </div>
+          <div v-else class="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span class="text-xs font-semibold text-emerald-800">Disclaimer accepted — You may proceed with registration.</span>
+          </div>
+        </div>
+
         <!-- Submit Button -->
         <button 
-          :disabled="isLoading"
+          :disabled="isLoading || !hasAgreedToDisclaimer"
           type="submit"
           class="w-full min-h-[48px] py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
@@ -1483,8 +1530,187 @@ const handleRegister = async () => {
         </div>
 
       </form>
-    </div>
+
+    <!-- Data Privacy Act Disclaimer Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showDisclaimerModal" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm" @click.self="closeDisclaimerModal">
+          <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden border border-slate-200 animate-scale-up flex flex-col">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-900 text-white flex items-center justify-between shrink-0 border-b border-slate-800">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-black text-white leading-tight">Data Privacy Notice & Terms of Use</h3>
+                  <p class="text-xs text-slate-300 font-medium mt-0.5">Republic Act No. 10173 Compliance — Benguet State University GSO</p>
+                </div>
+              </div>
+              <button
+                @click="closeDisclaimerModal"
+                class="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 text-slate-300 transition-colors flex items-center justify-center"
+                title="Close"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar text-sm text-slate-700 leading-relaxed">
+              
+              <!-- Data Privacy Act Notice -->
+              <div class="space-y-3 border-l-4 border-emerald-500 pl-4 py-2 bg-emerald-50/50 rounded-r-xl">
+                <h4 class="text-xs font-black text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Republic Act No. 10173 — Data Privacy Act of 2012
+                </h4>
+                <p class="text-xs text-slate-700">
+                  Benguet State University (BSU), through the General Services Office (GSO), respects your privacy and is committed to protecting your personal information in accordance with the <strong>Data Privacy Act of 2012 (Republic Act No. 10173)</strong>, its Implementing Rules and Regulations, and other relevant issuances by the National Privacy Commission (NPC).
+                </p>
+              </div>
+
+              <!-- Purpose of Collection -->
+              <div class="space-y-2">
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                  Purpose of Data Collection
+                </h4>
+                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
+                  <li>Identity verification for GSO E-Ticketing System access</li>
+                  <li>Processing and tracking of service requests and work orders</li>
+                  <li>Communication regarding ticket status, updates, and notifications</li>
+                  <li>Generation of official reports and documentation for university operations</li>
+                  <li>Compliance with university policies, audit requirements, and legal obligations</li>
+                </ul>
+              </div>
+
+              <!-- Types of Data Collected -->
+              <div class="space-y-2">
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                  Types of Personal Data Collected
+                </h4>
+                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
+                  <li>Full name, student/employee ID number, contact number, email address</li>
+                  <li>College/unit affiliation, role classification (student RSO/SSG, faculty, staff)</li>
+                  <li>Government-issued ID image (front) and selfie with ID for identity verification</li>
+                  <li>Account credentials (hashed password), login timestamps, and activity logs</li>
+                  <li>Ticket submission history, attachments, and communication records</li>
+                </ul>
+              </div>
+
+              <!-- Data Processing & Retention -->
+              <div class="space-y-2">
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  Data Processing, Retention & Security
+                </h4>
+                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
+                  <li>Data is processed only for the stated purposes with appropriate technical and organizational security measures</li>
+                  <li>ID images are used solely for verification and are not shared with unauthorized parties</li>
+                  <li>Personal data is retained only as long as necessary for the purposes stated or as required by law</li>
+                  <li>You have rights under RA 10173: access, rectification, erasure, restriction, portability, and objection</li>
+                  <li>Contact the BSU Data Protection Officer at <span class="font-semibold">dpo@bsu.edu.ph</span> for privacy concerns</li>
+                </ul>
+              </div>
+
+              <!-- Data Sharing -->
+              <div class="space-y-2">
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                  Data Sharing & Disclosure
+                </h4>
+                <p class="text-xs text-slate-700">
+                  Your personal data will not be sold, rented, or leased to third parties. Disclosure may occur only:
+                </p>
+                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
+                  <li>To authorized BSU/GSO personnel for official duties</li>
+                  <li>When required by law, court order, or government agency with valid authority</li>
+                  <li>With your explicit consent for specific purposes</li>
+                  <li>In anonymized/aggregated form for statistical reporting</li>
+                </ul>
+              </div>
+
+              <!-- User Rights -->
+              <div class="space-y-2 border-l-4 border-amber-500 pl-4 py-2 bg-amber-50/50 rounded-r-xl">
+                <h4 class="text-xs font-black text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  Your Rights as a Data Subject (RA 10173, Chapter IV)
+                </h4>
+                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
+                  <li><strong>Right to be Informed</strong> — Know what data is collected and why</li>
+                  <li><strong>Right to Access</strong> — Request a copy of your personal data</li>
+                  <li><strong>Right to Rectification</strong> — Correct inaccurate or incomplete data</li>
+                  <li><strong>Right to Erasure/Blocking</strong> — Request deletion when data is no longer necessary</li>
+                  <li><strong>Right to Data Portability</strong> — Obtain your data in a structured, commonly used format</li>
+                  <li><strong>Right to Object</strong> — Object to processing for direct marketing or profiling</li>
+                  <li><strong>Right to Damages</strong> — Seek compensation for damages due to violations</li>
+                </ul>
+              </div>
+
+              <!-- Terms of Use Summary -->
+              <div class="space-y-2 pt-2 border-t border-slate-200">
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  Terms of Use — Summary
+                </h4>
+                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
+                  <li>This account is for official BSU GSO E-Ticketing System use only</li>
+                  <li>You are responsible for maintaining the confidentiality of your login credentials</li>
+                  <li>You must provide accurate, current, and complete information</li>
+                  <li>Misuse, impersonation, or unauthorized access attempts will result in account suspension</li>
+                  <li>BSU reserves the right to suspend/terminate accounts violating these terms</li>
+                  <li>Service availability is subject to university IT policies and maintenance schedules</li>
+                </ul>
+              </div>
+
+              <!-- Consent Statement -->
+              <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                <p class="text-xs font-semibold text-slate-800">By clicking <strong>"I Agree"</strong>, you acknowledge that:</p>
+                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
+                  <li>You have read and understood this Data Privacy Notice and Terms of Use</li>
+                  <li>You voluntarily consent to the collection, use, and processing of your personal data as described</li>
+                  <li>You confirm that all information provided is true, accurate, and complete</li>
+                  <li>You understand your rights under RA 10173 and how to exercise them</li>
+                  <li>You agree to comply with BSU GSO E-Ticketing System policies and guidelines</li>
+                </ul>
+              </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-end gap-3 shrink-0">
+              <button
+                type="button"
+                @click="closeDisclaimerModal"
+                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors cursor-pointer"
+              >
+                Decline / Cancel
+              </button>
+              <button
+                type="button"
+                @click="acceptDisclaimer"
+                class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-emerald-600/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>I Agree — Accept Terms</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
+</div>
 </template>
 
 <style scoped>
