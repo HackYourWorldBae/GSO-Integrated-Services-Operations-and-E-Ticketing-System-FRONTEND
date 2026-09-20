@@ -1,7 +1,9 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useFormsStore } from '@/stores/forms';
 import { useAuthStore } from '@/stores/auth';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.css';
 
 const formsStore = useFormsStore();
 const authStore  = useAuthStore();
@@ -10,6 +12,34 @@ const props = defineProps({
   services: {
     type: Array,
     required: true
+  }
+});
+
+// Calendar + time picker for WHEN (date & time of incident).
+// Writes the same human-readable format the field already used
+// (e.g. "April 13, 2026 @ 10:30 PM") so storage/display stay unchanged.
+const whenPickerInput = ref(null);
+let whenPicker = null;
+
+onMounted(() => {
+  if (whenPickerInput.value) {
+    whenPicker = flatpickr(whenPickerInput.value, {
+      enableTime: true,
+      dateFormat: 'F j, Y @ h:i K',
+      disableMobile: true,
+      maxDate: new Date(),
+      onChange: (selectedDates, dateStr) => {
+        formsStore.ssuIncidentState.when = dateStr;
+        formsStore.v$.ssuIncidentState.when.$touch();
+      }
+    });
+  }
+});
+
+onUnmounted(() => {
+  if (whenPicker) {
+    whenPicker.destroy();
+    whenPicker = null;
   }
 });
 
@@ -92,10 +122,12 @@ const accountIdentity = computed(() => {
           </label>
           <div class="col-span-1 sm:col-span-2 lg:col-span-4 space-y-1.5 mt-1">
             <label class="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Others (Please specify)</label>
-            <input v-model="formsStore.ssuIncidentState.otherIncident" type="text" placeholder="e.g. Lost ID, noise disturbance" class="w-full min-h-[48px] h-12 px-4 rounded-xl bg-slate-50 border-2 border-slate-100 focus:border-red-500 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs" />
+            <input v-model="formsStore.ssuIncidentState.otherIncident" @input="formsStore.v$.ssuIncidentState.incidents.$touch()" @blur="formsStore.v$.ssuIncidentState.incidents.$touch()" type="text" placeholder="e.g. Lost ID, noise disturbance" class="w-full min-h-[48px] h-12 px-4 rounded-xl bg-slate-50 border-2 border-slate-100 focus:border-red-500 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs" />
+            <p class="text-[11px] text-slate-400 font-medium ml-1">Typing here counts as selecting an incident type — no need to tick a box above.</p>
+            <p v-if="(formsStore.ssuIncidentState.otherIncident || '').trim()" class="text-xs font-bold text-emerald-600 ml-1 animate-fade-in">Will be filed as a custom incident type.</p>
           </div>
         </div>
-        <p v-if="formsStore.v$.ssuIncidentState.incidents.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-0 animate-fade-in">Please select at least one incident type</p>
+        <p v-if="formsStore.v$.ssuIncidentState.incidents.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-0 animate-fade-in">Please select at least one incident type or specify it in Others</p>
       </div>
 
       <!-- Incident Details (Who, Where, When, How) -->
@@ -125,18 +157,20 @@ const accountIdentity = computed(() => {
               />
               <p v-if="formsStore.v$.ssuIncidentState.where.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">Required</p>
            </div>
-           <div class="space-y-2 relative">
+            <div class="space-y-2 relative">
               <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="formsStore.v$.ssuIncidentState.when.$error ? 'text-red-500' : 'text-slate-700'">WHEN (Date & Time)</label>
-              <input 
-                v-model="formsStore.ssuIncidentState.when" 
+              <input
+                ref="whenPickerInput"
+                v-model="formsStore.ssuIncidentState.when"
                 @blur="formsStore.v$.ssuIncidentState.when.$touch()"
-                type="text" 
-                placeholder="April 13, 2026 @ 10:30 PM" 
-                class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-white border-2 text-base sm:text-sm font-bold outline-none shadow-xs transition-all"
-                :class="formsStore.v$.ssuIncidentState.when.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-100 focus:border-red-500'" 
+                type="text"
+                readonly
+                placeholder="Tap to pick date & time"
+                class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-white border-2 text-base sm:text-sm font-bold outline-none shadow-xs transition-all cursor-pointer"
+                :class="formsStore.v$.ssuIncidentState.when.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-100 focus:border-red-500'"
               />
               <p v-if="formsStore.v$.ssuIncidentState.when.$error" class="text-xs font-bold text-red-500 absolute -bottom-5 left-1 animate-fade-in">Required</p>
-           </div>
+            </div>
          </div>
          <div class="space-y-2 relative pb-4">
             <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="formsStore.v$.ssuIncidentState.how.$error ? 'text-red-500' : 'text-slate-700'">HOW (Narrate the incident)</label>

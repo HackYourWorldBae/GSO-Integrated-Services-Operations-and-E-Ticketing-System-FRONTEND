@@ -166,6 +166,15 @@ const handleFinalSubmit = async () => {
   }
 
   isSubmitting.value = true;
+  // Accept a typed Others value as another incident type: merge it into the
+  // incidents list so it is bridged/stored like a chosen type downstream.
+  if (hasIncidentReport.value) {
+    const ssu = formsStore.ssuIncidentState;
+    const customType = (ssu.otherIncident || '').trim();
+    if (customType && Array.isArray(ssu.incidents) && !ssu.incidents.includes(customType)) {
+      ssu.incidents = [...ssu.incidents, customType];
+    }
+  }
   // Build the payload (don't send File objects in JSON)
   const fgmuDetails = hasFGMU.value ? { ...formsStore.fgmuState.sectionA, ticket_title: formsStore.fgmuState.sectionA.job_description } : null;
   const leauDetails = hasRegularLEAU.value ? { ...formsStore.leauState.sectionA, ticket_title: formsStore.leauState.sectionA.job_description } : null;

@@ -69,6 +69,13 @@ export const useFormsStore = defineStore('forms', () => {
     v$.value.$reset();
   };
 
+  // Incident type is satisfied by a checked box OR a typed custom type
+  // in the Others field (accepted as another incident type).
+  const incidentTypeRequired = (value) => {
+    if (Array.isArray(value) && value.length > 0) return true;
+    return ((ssuIncidentState.value && ssuIncidentState.value.otherIncident) || '').trim() !== '';
+  };
+
   const rules = computed(() => ({
     fgmuState: {
       sectionA: {
@@ -93,7 +100,7 @@ export const useFormsStore = defineStore('forms', () => {
       terms_agreed: { required }
     },
     ssuIncidentState: {
-      incidents: { required },
+      incidents: { incidentTypeRequired },
       who: { required },
       where: { required },
       when: { required },
