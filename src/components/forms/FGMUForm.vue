@@ -168,58 +168,6 @@ const removeFile = (idx) => {
                   Optional
                 </span>
               </div>
-              <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-                You may attach photos or documents to help maintenance personnel inspect the issue faster.
-              </p>
-            </div>
-          </div>
-
-          <!-- Instruction Guidance Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3">
-            <!-- 1. What to repair -->
-            <div class="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-emerald-50/70 border border-emerald-200/70 flex items-start gap-3 shadow-2xs">
-              <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-              </div>
-              <div>
-                <div class="text-xs font-black text-slate-900">What to Repair</div>
-                <div class="text-[11px] text-slate-600 font-medium mt-0.5 leading-snug">
-                  Photos showing defective items, fixtures, water leaks, or facilities to repair.
-                </div>
-              </div>
-            </div>
-
-            <!-- 2. Proof of damages -->
-            <div class="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-amber-50/70 border border-amber-200/70 flex items-start gap-3 shadow-2xs">
-              <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-              </div>
-              <div>
-                <div class="text-xs font-black text-slate-900">Proof of Damages</div>
-                <div class="text-[11px] text-slate-600 font-medium mt-0.5 leading-snug">
-                  Close-up evidence showing cracks, water stains, wear-and-tear, or hazards.
-                </div>
-              </div>
-            </div>
-
-            <!-- 3. Complaint documents -->
-            <div class="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-blue-50/70 border border-blue-200/70 flex items-start gap-3 shadow-2xs">
-              <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-              </div>
-              <div>
-                <div class="text-xs font-black text-slate-900">Complaint Documents</div>
-                <div class="text-[11px] text-slate-600 font-medium mt-0.5 leading-snug">
-                  Signed incident notices, endorsement letters, or formal department requests.
-                </div>
-              </div>
             </div>
           </div>
 
