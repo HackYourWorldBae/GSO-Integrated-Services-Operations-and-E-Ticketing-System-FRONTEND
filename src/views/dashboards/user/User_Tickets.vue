@@ -327,7 +327,6 @@
                   <div>
                     <div class="flex items-center gap-2">
                       <h4 class="font-black text-slate-900 text-lg sm:text-xl tracking-tight">Service Performance Evaluation</h4>
-                      <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[11px] font-black rounded-lg uppercase tracking-wider border border-emerald-300">Section F</span>
                     </div>
                     <p class="text-xs sm:text-sm text-slate-600 font-medium mt-1">Please complete this evaluation to close and archive Ticket #{{ ticket.ticketId || ticket.id }}.</p>
                   </div>
@@ -344,7 +343,7 @@
                     <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Required</span>
                   </div>
 
-                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <label
                       v-for="option in completionOptions"
                       :key="option.value"
@@ -362,7 +361,7 @@
                       >
                         <div v-if="satisfactionForm.completionStatus === option.value" class="w-2.5 h-2.5 rounded-full bg-white"></div>
                       </div>
-                      <span class="text-sm sm:text-base font-bold leading-snug">{{ option.label }}</span>
+                      <span class="text-sm sm:text-base font-bold leading-snug min-w-0 break-words">{{ option.label }}</span>
                     </label>
                   </div>
                 </div>
@@ -422,7 +421,7 @@
                       </div>
 
                       <!-- Big, tactile, unmistakably clickable buttons -->
-                      <div class="grid grid-cols-5 gap-2 sm:gap-3 pt-1">
+                      <div class="grid grid-cols-5 gap-1.5 sm:gap-3 pt-1">
                         <button
                           v-for="star in 5"
                           :key="star"
@@ -430,20 +429,20 @@
                           @click="satisfactionForm.ratings[key] = star"
                           :title="`${star} - ${getRatingLabel(star)}`"
                           :class="[
-                            'min-h-[58px] sm:min-h-[68px] p-2 rounded-2xl flex flex-col items-center justify-center transition-all duration-150 cursor-pointer select-none group border-2',
+                            'min-h-[58px] sm:min-h-[68px] p-1 sm:p-2 rounded-2xl flex flex-col items-center justify-center transition-all duration-150 cursor-pointer select-none group border-2',
                             satisfactionForm.ratings[key] === star
                               ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-white font-black border-amber-500 shadow-md shadow-amber-500/35 scale-[1.02] ring-2 ring-amber-400 ring-offset-2'
                               : 'bg-white hover:bg-amber-50 text-slate-800 hover:text-amber-900 font-black border-slate-300 hover:border-amber-400 shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
                           ]"
                         >
                           <div class="flex items-center gap-1">
-                            <span class="text-xl sm:text-2xl font-black leading-none group-hover:scale-110 transition-transform">
+                            <span class="text-lg sm:text-2xl font-black leading-none group-hover:scale-110 transition-transform">
                               {{ star }}
                             </span>
                             <span class="text-amber-400 text-sm sm:text-base leading-none" :class="satisfactionForm.ratings[key] === star ? 'text-white' : 'group-hover:text-amber-500'">★</span>
                           </div>
                           <span
-                            class="text-[10px] sm:text-xs font-bold mt-1 leading-none text-center truncate max-w-full px-0.5"
+                            class="hidden sm:block text-[10px] sm:text-xs font-bold mt-1 leading-none text-center truncate max-w-full px-0.5"
                             :class="satisfactionForm.ratings[key] === star ? 'text-amber-100 font-black' : 'text-slate-500 group-hover:text-amber-800'"
                           >
                             {{ getRatingLabel(star, true) }}
@@ -830,7 +829,6 @@
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
                           <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200/80 text-amber-900 border border-amber-300">Action Required</span>
-                          <span class="text-xs font-bold text-amber-800">Section F</span>
                         </div>
                         <h4 class="font-black text-slate-900 text-lg sm:text-xl tracking-tight">Service Complete — Evaluation Required</h4>
                         <p class="text-xs sm:text-sm text-slate-600 mt-1">The service has been completed by the assigned team. Please rate the service quality below to finalize and close this ticket.</p>
@@ -848,7 +846,7 @@
                           <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Required</span>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <label
                             v-for="option in completionOptions"
                             :key="option.value"
@@ -866,7 +864,7 @@
                             >
                               <div v-if="satisfactionForm.completionStatus === option.value" class="w-2.5 h-2.5 rounded-full bg-white"></div>
                             </div>
-                            <span class="text-sm sm:text-base font-bold leading-snug">{{ option.label }}</span>
+                            <span class="text-sm sm:text-base font-bold leading-snug min-w-0 break-words">{{ option.label }}</span>
                           </label>
                         </div>
                       </div>
@@ -926,7 +924,7 @@
                             </div>
 
                             <!-- Big, tactile, unmistakably clickable buttons -->
-                            <div class="grid grid-cols-5 gap-2 sm:gap-3 pt-1">
+                            <div class="grid grid-cols-5 gap-1.5 sm:gap-3 pt-1">
                               <button
                                 v-for="star in 5"
                                 :key="star"
@@ -934,20 +932,20 @@
                                 @click="satisfactionForm.ratings[key] = star"
                                 :title="`${star} - ${getRatingLabel(star)}`"
                                 :class="[
-                                  'min-h-[58px] sm:min-h-[68px] p-2 rounded-2xl flex flex-col items-center justify-center transition-all duration-150 cursor-pointer select-none group border-2',
+                                  'min-h-[58px] sm:min-h-[68px] p-1 sm:p-2 rounded-2xl flex flex-col items-center justify-center transition-all duration-150 cursor-pointer select-none group border-2',
                                   satisfactionForm.ratings[key] === star
                                     ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-white font-black border-amber-500 shadow-md shadow-amber-500/35 scale-[1.02] ring-2 ring-amber-400 ring-offset-2'
                                     : 'bg-white hover:bg-amber-50 text-slate-800 hover:text-amber-900 font-black border-slate-300 hover:border-amber-400 shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
                                 ]"
                               >
                                 <div class="flex items-center gap-1">
-                                  <span class="text-xl sm:text-2xl font-black leading-none group-hover:scale-110 transition-transform">
+                                  <span class="text-lg sm:text-2xl font-black leading-none group-hover:scale-110 transition-transform">
                                     {{ star }}
                                   </span>
                                   <span class="text-amber-400 text-sm sm:text-base leading-none" :class="satisfactionForm.ratings[key] === star ? 'text-white' : 'group-hover:text-amber-500'">★</span>
                                 </div>
                                 <span
-                                  class="text-[10px] sm:text-xs font-bold mt-1 leading-none text-center truncate max-w-full px-0.5"
+                                  class="hidden sm:block text-[10px] sm:text-xs font-bold mt-1 leading-none text-center truncate max-w-full px-0.5"
                                   :class="satisfactionForm.ratings[key] === star ? 'text-amber-100 font-black' : 'text-slate-500 group-hover:text-amber-800'"
                                 >
                                   {{ getRatingLabel(star, true) }}
