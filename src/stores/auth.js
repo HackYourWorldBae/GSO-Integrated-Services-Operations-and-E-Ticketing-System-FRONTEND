@@ -57,6 +57,15 @@ export const useAuthStore = defineStore('auth', () => {
   const isDeactivated = computed(() => user.value?.status === 'Deactivated');
 
   /**
+   * Personnel bulletin-board account — one shared login per field unit
+   * (fgmu-personnels@email.com / leau-personnels@email.com). Workers sign
+   * in with it, then pick their own name from the roster to view works.
+   */
+  const isBulletinAccount = computed(() =>
+    String(user.value?.email || '').toLowerCase().endsWith('-personnels@email.com')
+  );
+
+  /**
    * Check whether current user has permission for a specific feature key.
    * Superadmin always returns true.
    * Uses real-time synchronized permissions list with role-based fallbacks.
@@ -378,6 +387,7 @@ export const useAuthStore = defineStore('auth', () => {
     college,
     unitId,
     isDeactivated,
+    isBulletinAccount,
     hasPermission,
     login,
     logout,

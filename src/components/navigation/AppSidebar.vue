@@ -8,6 +8,8 @@ const authStore = useAuthStore();
 
 // Detect active role — prioritizing authenticated user's assigned role
 const activeRole = computed(() => {
+  // Personnel bulletin-board accounts get their own works-board menu
+  if (authStore.isBulletinAccount) return 'personnel';
   const userRole = (authStore.role || '').toLowerCase();
   if (userRole === 'superadmin') return 'superadmin';
   if (userRole === 'admin') return 'admin';
@@ -92,6 +94,22 @@ const rawNavGroups = computed(() => {
   const unit = activeUnit.value;
   const isSSU = unit === 'ssu';
   const unitUpper = unitLabel.value;
+
+  if (role === 'personnel') {
+    return [
+      {
+        title: `${unitUpper} Works Board`,
+        items: [
+          {
+            label: 'My Assigned Works',
+            to: '/personnel',
+            exact: true,
+            icon: 'tools'
+          }
+        ]
+      }
+    ];
+  }
 
   if (role === 'superadmin') {
     return [

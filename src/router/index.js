@@ -40,6 +40,7 @@ const FGMU_ApprovedTickets = () => import('../views/dashboards/admin/fgmu/FGMU_A
 const LEAU_ApprovedTickets = () => import('../views/dashboards/admin/leau/LEAU_ApprovedTickets.vue');
 const FGMU_ActiveTickets = () => import('../views/dashboards/admin/fgmu/FGMU_ActiveTickets.vue');
 const LEAU_ActiveTickets = () => import('../views/dashboards/admin/leau/LEAU_ActiveTickets.vue');
+const Personnel_Dashboard = () => import('../views/dashboards/personnel/Personnel_Dashboard.vue');
 const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
@@ -125,6 +126,15 @@ const router = createRouter({
       name: 'user-completed-tickets',
       component: User_CompletedTickets,
       meta: { requiresAuth: true, roles: ['student', 'employee', 'worker'] }
+    },
+    {
+      // Personnel bulletin board — shared unit logins pick a name,
+      // then view assigned works + teammates per ticket.
+      path: '/personnel',
+      alias: ['/personnel/board', '/personnel/works'],
+      name: 'personnel-dashboard',
+      component: Personnel_Dashboard,
+      meta: { requiresAuth: true, roles: ['student', 'employee', 'worker', 'admin', 'director', 'superadmin'] }
     },
 
     // Sub-unit Dashboards — FGMU Admin
@@ -560,6 +570,17 @@ router.beforeEach((to, from, next) => {
 
   // Helper: map a role and unit to its canonical landing view
   const getHomeRoute = (userRole, userUnit) => {
+    // Personnel bulletin-board accounts always land on the works board
+    try {
+      const rawHome = sessionStorage.getItem('auth');
+      if (rawHome) {
+        const parsedHome = JSON.parse(rawHome);
+        const homeUser = parsedHome.user || parsedHome.state?.user || null;
+        if (String(homeUser?.email || '').toLowerCase().endsWith('-personnels@email.com')) {
+          return '/personnel';
+        }
+      }
+    } catch {}
     if (userRole === 'superadmin') {
       return '/superadmin/users';
     }
