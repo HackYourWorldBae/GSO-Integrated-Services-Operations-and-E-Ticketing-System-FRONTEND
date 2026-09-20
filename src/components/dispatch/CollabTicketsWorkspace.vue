@@ -2,7 +2,9 @@
   <div class="space-y-4 animate-fade-in relative pb-12">
 
     <!-- ═══ Compact Toolbar: Stage Pill + Search + Refresh ═══ -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
+    <!-- Hidden when embedded under a parent tabbed toolbar (director-style): -->
+    <!-- the parent toolbar owns the tabs + shared search input instead. -->
+    <div v-if="!hideToolbar" class="bg-white rounded-2xl border border-slate-200 shadow-xs">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
         <div class="flex items-center gap-1.5">
           <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider text-white shadow-md bg-indigo-600">
@@ -360,6 +362,10 @@ const props = defineProps({
   direction: { type: String, default: '' },
   assignRoute: { type: String, default: '' },
   showDispatchAction: { type: Boolean, default: true },
+  // When embedded under a parent tabbed toolbar (director queue style),
+  // hide this component's own toolbar and filter via the parent's search input.
+  hideToolbar: { type: Boolean, default: false },
+  searchText: { type: String, default: '' },
 });
 
 const emit = defineEmits(['updated']);
@@ -393,10 +399,14 @@ const stageLabel = computed(() => {
   return 'Collab Tickets';
 });
 
+// Effective search: parent-owned input when embedded (hideToolbar),
+// otherwise this component's own toolbar input.
+const effectiveSearch = computed(() => (props.hideToolbar ? (props.searchText || '') : searchQuery.value));
+
 const filteredTickets = computed(() => {
   let list = tickets.value;
-  if (searchQuery.value.trim()) {
-    const q = searchQuery.value.toLowerCase().trim();
+  if (effectiveSearch.value.trim()) {
+    const q = effectiveSearch.value.toLowerCase().trim();
     list = list.filter(t =>
       String(t.id).toLowerCase().includes(q) ||
       (t.title && t.title.toLowerCase().includes(q)) ||
@@ -506,6 +516,11 @@ const startEarly = async (ticket) => {
 watch(() => [props.mode, props.direction, props.unitCode], () => {
   currentPage.value = 1;
   fetchTickets();
+});
+
+// Parent-owned search (embedded mode): reset to first page as the user types.
+watch(() => props.searchText, () => {
+  currentPage.value = 1;
 });
 
 onMounted(fetchTickets);

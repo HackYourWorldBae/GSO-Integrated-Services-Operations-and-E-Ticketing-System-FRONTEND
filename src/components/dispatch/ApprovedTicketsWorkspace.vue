@@ -1,75 +1,42 @@
 <template>
   <div class="space-y-4 animate-fade-in relative pb-12">
 
-    <!-- ═══ Unit / Collab Stage Tabs ═══ -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 bg-white rounded-2xl border border-slate-200 shadow-xs">
-      <button
-        type="button"
-        @click="approvedTab = 'unit'"
-        :class="[
-          'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
-          approvedTab === 'unit' ? [themeAccentBg, 'text-white shadow-md', themeAccentShadow] : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-        ]"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-        <span class="truncate">Unit Tickets</span>
-        <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0', approvedTab === 'unit' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700']">{{ tickets.length }}</span>
-      </button>
-      <button
-        type="button"
-        @click="approvedTab = 'collab'"
-        :class="[
-          'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
-          approvedTab === 'collab' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-        ]"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-        <span class="truncate">Collab Requests</span>
-        <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0', approvedTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800']">{{ collabCount }}</span>
-      </button>
-    </div>
-
-    <CollabTicketsWorkspace
-      v-if="approvedTab === 'collab'"
-      :unit-code="props.unitCode"
-      mode="approved"
-      direction="incoming"
-      :assign-route="props.assignRoute"
-      :show-dispatch-action="true"
-      :key="'approved-collab-' + collabRefreshKey"
-      @updated="onCollabUpdated"
-    />
-
-    <template v-if="approvedTab === 'unit'">
-
-    <!-- ═══ Unified Compact Toolbar: Stage Tab + Search + Filters + Refresh ═══ -->
+    <!-- ═══ Unified Compact Toolbar: Tabs + Search + Filter (director-style) ═══ -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
-      
-      <!-- Top Row: Stage Indicator & Urgency Filter Pills -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
-        <!-- Stage Pill -->
-        <div class="flex items-center gap-1.5">
-          <div
-            :class="[
-              'flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider text-white shadow-md transition-all duration-200',
-              themeAccentBg,
-              themeAccentShadow
-            ]"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Approved (Awaiting Dispatch)</span>
-            <span class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none bg-white/20 text-white">
-              {{ tickets.length }}
-            </span>
-          </div>
-        </div>
+      <!-- Top row: Stage Tabs -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 border-b border-slate-100">
+        <button
+          type="button"
+          @click="switchApprovedTab('unit')"
+          :class="[
+            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+            approvedTab === 'unit' ? [themeAccentBg, 'text-white shadow-md', themeAccentShadow] : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+          ]"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <span class="truncate">Unit Tickets</span>
+          <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0', approvedTab === 'unit' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700']">{{ tickets.length }}</span>
+        </button>
+        <button
+          type="button"
+          @click="switchApprovedTab('collab')"
+          :class="[
+            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+            approvedTab === 'collab' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+          ]"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span class="truncate">Collab Requests</span>
+          <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0', approvedTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800']">{{ collabCount }}</span>
+        </button>
+      </div>
 
+      <!-- Urgency Filter Pills (unit tickets only) -->
+      <div v-if="approvedTab === 'unit'" class="flex items-center justify-start sm:justify-end gap-2 p-1.5 border-b border-slate-100">
         <!-- Urgency Filters -->
         <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
@@ -141,8 +108,9 @@
           </button>
         </div>
 
-        <!-- Service Filter Dropdown -->
+        <!-- Service Filter Dropdown (unit tickets only) -->
         <select
+          v-if="approvedTab === 'unit'"
           v-model="selectedServiceFilter"
           @change="currentPage = 1"
           :class="[
@@ -157,7 +125,7 @@
         <!-- Refresh Button -->
         <button
           type="button"
-          @click="fetchApprovedTickets"
+          @click="refreshAll"
           :disabled="loading"
           class="p-2.5 min-h-[44px] min-w-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
           title="Refresh approved ticket list"
@@ -170,11 +138,27 @@
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
         </button>
       </div>
     </div>
+
+    <!-- ═══ Collab Requests Pane (shares the toolbar search above) ═══ -->
+    <CollabTicketsWorkspace
+      v-if="approvedTab === 'collab'"
+      :unit-code="props.unitCode"
+      mode="approved"
+      direction="incoming"
+      :assign-route="props.assignRoute"
+      :show-dispatch-action="true"
+      :hide-toolbar="true"
+      :search-text="searchQuery"
+      :key="'approved-collab-' + collabRefreshKey"
+      @updated="onCollabUpdated"
+    />
+
+    <template v-if="approvedTab === 'unit'">
 
     <!-- ═══ Desktop Tabular View (Matching Director Ticket Queues) ═══ -->
     <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
@@ -718,9 +702,20 @@ const themeAttachmentHover = computed(() => isLeau.value ? 'hover:border-amber-5
 const themeAttachmentIconBg = computed(() => isLeau.value ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700');
 
 // Unit / Collab tab state — receiving unit dispatches joint tickets here.
+// Tabs + shared search live in one toolbar card (director queue style).
 const approvedTab = ref('unit');
 const collabCount = ref(0);
 const collabRefreshKey = ref(0);
+
+const switchApprovedTab = (tab) => {
+  approvedTab.value = tab === 'collab' ? 'collab' : 'unit';
+  currentPage.value = 1;
+};
+
+const refreshAll = async () => {
+  collabRefreshKey.value += 1;
+  await Promise.all([fetchApprovedTickets(), fetchCollabCount()]);
+};
 
 const fetchCollabCount = async () => {
   try {

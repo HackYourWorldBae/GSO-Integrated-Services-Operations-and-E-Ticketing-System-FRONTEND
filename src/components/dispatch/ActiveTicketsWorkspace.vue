@@ -201,7 +201,55 @@
         <!-- Refresh Button -->
         <button
           type="button"
-          @click="fetchActiveTickets"
+          @click="refreshActiveAll"
+          :disabled="loading"
+          class="p-2.5 min-h-[44px] min-w-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
+          title="Refresh active tickets list"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            :class="{ 'animate-spin': loading }"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Bottom Row: Shared Search + Refresh (collab tab; toolbar owns it director-style) -->
+      <div v-if="isCollabActiveTab" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            v-model="searchQuery"
+            @input="currentPage = 1"
+            type="text"
+            placeholder="Search collab ticket #, title, service, requester, unit..."
+            :class="[
+              'w-full pl-9 pr-9 py-2.5 min-h-[44px] rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:bg-white transition-all',
+              themeFocusRing
+            ]"
+          />
+          <button
+            v-if="searchQuery"
+            @click="searchQuery = ''; currentPage = 1"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer min-h-[44px] min-w-[44px] justify-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <button
+          type="button"
+          @click="refreshActiveAll"
           :disabled="loading"
           class="p-2.5 min-h-[44px] min-w-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
           title="Refresh active tickets list"
@@ -225,13 +273,15 @@
       <BorrowingWorkspace initial-tab="borrowed" :show-tabs="false" :status-filter="['picked_up', 'overdue']" :key="'active-borrowed-' + borrowedRefreshKey" />
     </div>
 
-    <!-- ═══ Collab Active Pane (joint execution; only requesting unit completes) ═══ -->
+    <!-- ═══ Collab Active Pane (shares the toolbar search above) ═══ -->
     <div v-if="isCollabActiveTab">
       <CollabTicketsWorkspace
         :unit-code="props.unitCode"
         mode="active"
         direction="all"
         :show-dispatch-action="false"
+        :hide-toolbar="true"
+        :search-text="searchQuery"
         :key="'active-collab-' + collabActiveRefreshKey"
         @updated="onCollabActiveUpdated"
       />
@@ -1277,6 +1327,11 @@ const onCollabActiveUpdated = async () => {
   collabActiveRefreshKey.value += 1;
   await fetchCollabActiveCount();
   await fetchActiveTickets();
+};
+
+const refreshActiveAll = async () => {
+  collabActiveRefreshKey.value += 1;
+  await Promise.all([fetchActiveTickets(), fetchCollabActiveCount()]);
 };
 
 const fetchBorrowingCount = async () => {

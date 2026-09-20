@@ -78,27 +78,8 @@
         </button>
       </div>
 
-      <!-- Top Row: Stage Indicator & Urgency Filter Pills (job list only) -->
-      <div v-if="!isLeauBorrowing && !isScheduledCollab" class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
-        <!-- Stage Pill -->
-        <div class="flex items-center gap-1.5">
-          <div
-            :class="[
-              'flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider text-white shadow-md transition-all duration-200',
-              themeAccentBg,
-              themeAccentShadow
-            ]"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Scheduled &amp; Dispatched Tickets</span>
-            <span class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none bg-white/20 text-white">
-              {{ scheduledTickets.length }}
-            </span>
-          </div>
-        </div>
-
+      <!-- Urgency Filter Pills (job schedules only) -->
+      <div v-if="scheduledTab === 'jobs'" class="flex items-center justify-start sm:justify-end gap-2 p-1.5 border-b border-slate-100">
         <!-- Urgency Filters -->
         <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
@@ -140,8 +121,8 @@
         </div>
       </div>
 
-      <!-- Bottom Row: Search + Service Category Filter + Refresh (job list only; borrowing has its own search) -->
-      <div v-if="!isLeauBorrowing && !isScheduledCollab" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
+      <!-- Bottom Row: Search + Service Category Filter + Refresh (shared by jobs + collab; borrowing has its own search) -->
+      <div v-if="!isLeauBorrowing" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
         <!-- Search Input -->
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -170,8 +151,9 @@
           </button>
         </div>
 
-        <!-- Service Filter Dropdown -->
+        <!-- Service Filter Dropdown (job schedules only) -->
         <select
+          v-if="scheduledTab === 'jobs'"
           v-model="selectedServiceFilter"
           @change="currentPage = 1"
           :class="[
@@ -186,7 +168,7 @@
         <!-- Refresh Button -->
         <button
           type="button"
-          @click="fetchScheduledTickets"
+          @click="refreshScheduledAll"
           :disabled="loading"
           class="p-2.5 min-h-[44px] min-w-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
           title="Refresh scheduled tickets list"
@@ -210,7 +192,7 @@
       <BorrowingWorkspace initial-tab="awaiting" :show-tabs="false" :status-filter="['ready_for_pickup']" :key="'scheduled-borrowing-' + scheduledTabRefreshKey" />
     </div>
 
-    <!-- ═══ Collab Tickets Pane (joint scheduled tickets awaiting counterpart dispatch) ═══ -->
+    <!-- ═══ Collab Tickets Pane (shares the toolbar search above) ═══ -->
     <div v-if="isScheduledCollab">
       <CollabTicketsWorkspace
         :unit-code="props.unitCode"
@@ -218,6 +200,8 @@
         direction="all"
         :assign-route="`/admin/${props.unitCode.toLowerCase()}/assign-workers`"
         :show-dispatch-action="true"
+        :hide-toolbar="true"
+        :search-text="searchQuery"
         :key="'scheduled-collab-' + scheduledTabRefreshKey"
         @updated="onCollabUpdated"
       />
@@ -944,6 +928,11 @@ const onCollabUpdated = async () => {
   scheduledTabRefreshKey.value += 1;
   await fetchCollabScheduledCount();
   await fetchScheduledTickets();
+};
+
+const refreshScheduledAll = async () => {
+  scheduledTabRefreshKey.value += 1;
+  await Promise.all([fetchScheduledTickets(), fetchCollabScheduledCount()]);
 };
 
 const fetchBorrowingCount = async () => {
