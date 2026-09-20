@@ -33,10 +33,10 @@ export const LOCATIONS = [
       'BSU Clinic / Health Services',
       'BSU Security Headquarters',
       'Motorpool Depot',
-      'Research & Extension Complex',
-      'Northern Philippines Root Crop Center (NPRCRTC)',
-      'Institute of Highland Farming Systems (IHFSA)',
-      'Cordillera Organic Agriculture R&D Center (COARDC)'
+      'Research and Extension Building (Everlasting Hall)',
+      'Northern Philippines Root Crops Research and Training Center (NPRCRTC)',
+      'Institute of Highland Farming Systems and Agroforestry (IHFSA)',
+      'Cordillera Organic Agriculture Research and Development Center (COARDC)'
     ]
   },
   {
@@ -61,10 +61,31 @@ export const ADMIN_SUPPORT_BUILDINGS = [
   'BSU Clinic / Health Services',
   'BSU Security Headquarters',
   'Motorpool Depot',
-  'Research & Extension Complex',
-  'Northern Philippines Root Crop Center (NPRCRTC)',
-  'Institute of Highland Farming Systems (IHFSA)',
-  'Cordillera Organic Agriculture R&D Center (COARDC)'
+  'Research and Extension Building (Everlasting Hall)',
+  'Northern Philippines Root Crops Research and Training Center (NPRCRTC)',
+  'Institute of Highland Farming Systems and Agroforestry (IHFSA)',
+  'Cordillera Organic Agriculture Research and Development Center (COARDC)'
+];
+
+/**
+ * Official Research & Extension Centers of Benguet State University
+ * (La Trinidad Campus), per the university's Research and Extension
+ * Centers directory (bsu.edu.ph/research-centers).
+ * Used for the Research and Extension Staff sign-up classification.
+ */
+export const RESEARCH_EXTENSION_BUILDINGS = [
+  'Agri-Based Technology Business Incubator / Innovation Center (ATBI)',
+  'Cordillera Center for Animal Research and Development (CCARD)',
+  'Cordillera Organic Agriculture Research and Development Center (COARDC)',
+  'Cordillera Regional Apiculture Center (CRAC)',
+  'Climate-Smart Agriculture Center (CSAC)',
+  'Food Science Research and Innovation Center (FSRIC)',
+  'Center for Geoinformatics (CfG)',
+  'Center for Educational Research and Innovation (CERI)',
+  'Horticultural Research and Training Institute (HORTI)',
+  'Institute of Social Research and Development (ISRD)',
+  'Institute of Highland Farming Systems and Agroforestry (IHFSA)',
+  'Northern Philippines Root Crops Research and Training Center (NPRCRTC)'
 ];
 
 export const DEFAULT_ROOMS = [
@@ -177,22 +198,22 @@ export const BUILDING_ROOMS = {
     'Dispatch & Drivers Lounge',
     'Parts & Tool Storage Room'
   ],
-  'Research & Extension Complex': [
+  'Research and Extension Building (Everlasting Hall)': [
     "Director's Office",
-    'Project Planning Room',
-    'Research Library Room'
+    'Everlasting Hall',
+    'Conference Room'
   ],
-  'Northern Philippines Root Crop Center (NPRCRTC)': [
+  'Northern Philippines Root Crops Research and Training Center (NPRCRTC)': [
     "Center Director's Office",
     'Tissue Culture Laboratory',
     'Post-Harvest Processing Room'
   ],
-  'Institute of Highland Farming Systems (IHFSA)': [
+  'Institute of Highland Farming Systems and Agroforestry (IHFSA)': [
     "Director's Office",
     'Training Hall',
     'Soil & Plant Testing Lab'
   ],
-  'Cordillera Organic Agriculture R&D Center (COARDC)': [
+  'Cordillera Organic Agriculture Research and Development Center (COARDC)': [
     "Director's Office",
     'Organic Certification Room',
     'Conference Room'
@@ -313,6 +334,7 @@ export function resolveLocationForUser(userCollege) {
 export default {
   LOCATIONS,
   ADMIN_SUPPORT_BUILDINGS,
+  RESEARCH_EXTENSION_BUILDINGS,
   BUILDING_ROOMS,
   DEFAULT_ROOMS,
   getRoomsForBuilding,
