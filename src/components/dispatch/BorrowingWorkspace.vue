@@ -3,21 +3,23 @@
     <!-- Tabs -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-1.5">
       <div class="flex items-center gap-1.5 flex-wrap">
-        <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          type="button"
-          @click="activeTab = tab.key; currentPage = 1"
-          :class="[
-            'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-95',
-            activeTab === tab.key ? 'bg-amber-600 text-white shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/70'
-          ]"
-        >
-          <span>{{ tab.label }}</span>
-          <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none', activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700']">
-            {{ tabCounts[tab.key] ?? 0 }}
-          </span>
-        </button>
+        <template v-if="showTabs">
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            type="button"
+            @click="activeTab = tab.key; currentPage = 1"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-95',
+              activeTab === tab.key ? 'bg-amber-600 text-white shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/70'
+            ]"
+          >
+            <span>{{ tab.label }}</span>
+            <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none', activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700']">
+              {{ tabCounts[tab.key] ?? 0 }}
+            </span>
+          </button>
+        </template>
         <div class="flex-1"></div>
         <button
           type="button"
@@ -169,7 +171,10 @@ import { borrowingStatusLabel, isOverdueBorrowing } from '@/utils/borrowing';
 import { toast } from 'vue3-toastify';
 
 const props = defineProps({
-  initialTab: { type: String, default: 'awaiting' }
+  initialTab: { type: String, default: 'awaiting' },
+  // When embedded inside another ticket-list layout (e.g. LEAU Scheduled Tickets),
+  // the host provides the tab switcher — hide this component's own tab row.
+  showTabs: { type: Boolean, default: true }
 });
 
 const tabs = [

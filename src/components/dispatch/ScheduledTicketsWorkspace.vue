@@ -1,11 +1,61 @@
 <template>
   <div class="space-y-4 animate-fade-in relative pb-12">
 
-    <!-- ═══ Unified Compact Toolbar: Stage Tab + Search + Filters + Refresh ═══ -->
+    <!-- ═══ Unified Compact Toolbar: Stage Tabs + Search + Filters + Refresh ═══ -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
-      
-      <!-- Top Row: Stage Indicator & Urgency Filter Pills -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
+
+      <!-- LEAU Stage Tabs (director-style): Job Schedules + Borrowing Requests -->
+      <div v-if="isLEAU" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 border-b border-slate-100">
+        <button
+          type="button"
+          @click="switchScheduledTab('jobs')"
+          :class="[
+            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+            scheduledTab === 'jobs'
+              ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+          ]"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span class="truncate">Job Schedules</span>
+          <span
+            :class="[
+              'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
+              scheduledTab === 'jobs' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+            ]"
+          >
+            {{ scheduledTickets.length }}
+          </span>
+        </button>
+        <button
+          type="button"
+          @click="switchScheduledTab('borrowing')"
+          :class="[
+            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+            scheduledTab === 'borrowing'
+              ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+          ]"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <span class="truncate">Borrowing Requests</span>
+          <span
+            :class="[
+              'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
+              scheduledTab === 'borrowing' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+            ]"
+          >
+            {{ borrowingAwaitingCount }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Top Row: Stage Indicator & Urgency Filter Pills (job list only) -->
+      <div v-if="!isLeauBorrowing" class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
         <!-- Stage Pill -->
         <div class="flex items-center gap-1.5">
           <div
@@ -66,8 +116,8 @@
         </div>
       </div>
 
-      <!-- Bottom Row: Search + Service Category Filter + Refresh -->
-      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
+      <!-- Bottom Row: Search + Service Category Filter + Refresh (job list only; borrowing has its own search) -->
+      <div v-if="!isLeauBorrowing" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
         <!-- Search Input -->
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -131,8 +181,13 @@
       </div>
     </div>
 
+    <!-- ═══ Borrowing Requests Pane (LEAU only, awaiting pickup) ═══ -->
+    <div v-if="isLeauBorrowing">
+      <BorrowingWorkspace initial-tab="awaiting" :show-tabs="false" :key="'scheduled-borrowing-' + scheduledTabRefreshKey" />
+    </div>
+
     <!-- ═══ Desktop Tabular View (Matching Approved Tickets Layout) ═══ -->
-    <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+    <div v-if="!isLeauBorrowing" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
@@ -322,7 +377,7 @@
     </div>
 
     <!-- ═══ Mobile View (Cards) ═══ -->
-    <div class="md:hidden space-y-3">
+    <div v-if="!isLeauBorrowing" class="md:hidden space-y-3">
       <!-- Loading State -->
       <div v-if="loading && scheduledTickets.length === 0" class="py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">
         <div class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -760,6 +815,8 @@ import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
+import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
+import { getBorrowingQueue } from '@/api/borrowing';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { parseDateLocal } from '@/utils/workCalendar';
 import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
@@ -806,6 +863,42 @@ const activeJobOrderTicket = ref(null);
 
 // Unit Theme Computeds
 const isLEAU = computed(() => props.unitCode?.toUpperCase() === 'LEAU');
+
+// LEAU inner stage tabs (director-style): job schedules vs borrowing requests.
+// FGMU has no borrowing workflow — it always shows the job list.
+const scheduledTab = ref('jobs');
+const borrowingAwaitingCount = ref(0);
+const scheduledTabRefreshKey = ref(0);
+const isLeauBorrowing = computed(() => isLEAU.value && scheduledTab.value === 'borrowing');
+
+const switchScheduledTab = (tab) => {
+  scheduledTab.value = tab === 'borrowing' ? 'borrowing' : 'jobs';
+  currentPage.value = 1;
+  if (isLEAU.value) {
+    const nextQuery = { ...route.query };
+    if (scheduledTab.value === 'borrowing') {
+      nextQuery.tab = 'borrowing';
+    } else {
+      delete nextQuery.tab;
+    }
+    router.replace({ path: route.path, query: nextQuery }).catch(() => {});
+    if (scheduledTab.value === 'borrowing') {
+      scheduledTabRefreshKey.value += 1;
+      fetchBorrowingCount();
+    }
+  }
+};
+
+const fetchBorrowingCount = async () => {
+  if (!isLEAU.value) return;
+  try {
+    const res = await getBorrowingQueue({ per_page: 500 });
+    const list = res.data?.data?.borrowing_requests || [];
+    borrowingAwaitingCount.value = list.filter(r => r.status === 'ready_for_pickup').length;
+  } catch {
+    borrowingAwaitingCount.value = 0;
+  }
+};
 
 const themeAccentBg = computed(() => {
   return isLEAU.value ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-600 hover:bg-amber-700';
@@ -1261,8 +1354,24 @@ watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () =>
   checkRouteQueryTicket();
 });
 
+watch(() => route.query.tab, (v) => {
+  if (!isLEAU.value) return;
+  const next = v === 'borrowing' ? 'borrowing' : 'jobs';
+  if (next !== scheduledTab.value) {
+    scheduledTab.value = next;
+    currentPage.value = 1;
+    if (next === 'borrowing') {
+      scheduledTabRefreshKey.value += 1;
+      fetchBorrowingCount();
+    }
+  }
+});
+
 onMounted(async () => {
-  await fetchScheduledTickets();
+  if (isLEAU.value && route.query.tab === 'borrowing') {
+    scheduledTab.value = 'borrowing';
+  }
+  await Promise.all([fetchScheduledTickets(), fetchBorrowingCount()]);
   checkRouteQueryTicket();
 });
 </script>

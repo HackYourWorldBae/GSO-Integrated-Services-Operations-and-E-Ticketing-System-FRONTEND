@@ -193,11 +193,6 @@ const rawNavGroups = computed(() => {
                 label: 'Inventory Management',
                 to: '/admin/leau/inventory',
                 icon: 'box'
-              },
-              {
-                label: 'Borrowing Queue',
-                to: '/admin/leau/borrowing',
-                icon: 'calendar'
               }
             ] : [])
           ])

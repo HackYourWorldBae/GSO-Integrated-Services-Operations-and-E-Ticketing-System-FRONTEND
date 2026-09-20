@@ -44,7 +44,6 @@ const User_Settings = () => import('../views/dashboards/user/User_Settings.vue')
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
 const LEAU_Personnel = () => import('../views/dashboards/admin/leau/LEAU_Personnel.vue');
 const LEAU_InventoryManagement = () => import('../views/dashboards/admin/leau/LEAU_InventoryManagement.vue');
-const LEAU_Borrowing = () => import('../views/dashboards/admin/leau/LEAU_Borrowing.vue');
 const FGMU_Archives = () => import('../views/dashboards/admin/fgmu/FGMU_Archives.vue');
 const LEAU_Archives = () => import('../views/dashboards/admin/leau/LEAU_Archives.vue');
 const SSU_Archives = () => import('../views/dashboards/admin/ssu/SSU_Archives.vue');
@@ -243,9 +242,17 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
     {
+      // Legacy URL — the Borrowing Queue page was folded into Scheduled Tickets
+      // (awaiting pickup) and Active Tickets (borrowed / overdue).
       path: '/admin/leau/borrowing',
       name: 'leau-borrowing-queue',
-      component: LEAU_Borrowing,
+      redirect: to => {
+        const tab = String(to.query?.tab || '').toLowerCase();
+        if (tab === 'borrowed' || tab === 'overdue') {
+          return { path: '/admin/leau/active-tickets', query: { tab } };
+        }
+        return { path: '/admin/leau/dispatched', query: { tab: 'borrowing' } };
+      },
       meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
     {
