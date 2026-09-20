@@ -98,28 +98,46 @@ const categoryTabs = computed(() => {
   ];
 });
 
-// Keyword alias map for natural language problem matching
+// Keyword alias map for natural language problem matching.
+// Each service lists GENERIC terms (broad intent: repair, maintenance, unit,
+// category) plus SPECIFIC terms (exact problem objects, symptoms, synonyms).
 const serviceKeywords = {
-  "Plumbing & Sanitary Works": ["leak", "faucet", "pipe", "drain", "toilet", "sink", "water", "clog", "flush", "plumbing", "sewer"],
-  "Electrical Work": ["outlet", "light", "power", "switch", "wire", "electricity", "bulb", "breaker", "blackout", "socket", "short"],
-  "Concrete Works": ["concrete", "cement", "foundation", "slab", "pavement", "crack"],
-  "Masonry Works": ["masonry", "brick", "hollow block", "mortar", "tile", "wall", "plaster"],
-  "Welding & Tinsmith Works": ["welding", "weld", "gate", "metal", "iron", "roof", "gutter", "tinsmith", "steel"],
-  "Carpentry & Joinery": ["carpentry", "wood", "door", "window", "table", "chair", "cabinet", "lock", "hinge", "furniture", "desk"],
-  "Glass & Glazing Works": ["glass", "glazing", "mirror", "window pane", "broken window"],
-  "Painting Works": ["paint", "repainting", "coating", "wall paint", "primer", "stain", "varnish"],
-  "Electronics & Communication Works": ["electronics", "wifi", "internet", "telephone", "cable", "lan", "intercom", "network", "cctv", "audio", "mic"],
-  "Mechanical Works": ["mechanical", "aircon", "ac", "air conditioning", "fan", "motor", "generator", "engine", "ventilation", "hvac"],
-  "Disinfection": ["disinfection", "sanitize", "sanitation", "spray", "virus", "bacteria", "pest", "chemical"],
-  "Cleaning/ Grubbing": ["cleaning", "grubbing", "deep clean", "sweep", "mop", "trash", "debris", "janitorial"],
-  "Hauling": ["hauling", "haul", "move", "transport", "carry", "heavy", "truck", "relocate", "furniture transfer"],
-  "Mowing/ Weeding": ["mowing", "weeding", "grass", "lawn", "weed", "trim", "brush", "mower"],
-  "Planting/ Landscaping": ["planting", "landscaping", "garden", "flower", "beautification", "seedling", "soil"],
-  "Pruning/ Cutting": ["pruning", "cutting", "tree", "branch", "trim tree", "falling branch", "chainsaw"],
-  "Borrowing of plants": ["borrow plants", "plant rental", "potted plants", "decoration plants"],
-  "Stage & Hall Decoration": ["stage decoration", "hall decoration", "event setup", "backdrop", "program", "ceremony"],
-  "Borrowing of tools/ equipment": ["borrow tools", "equipment", "ladder", "wheelbarrow", "shovel", "rake"],
-  "Incident Report": ["incident", "security", "theft", "stolen", "lost", "accident", "trespass", "damage", "blotter", "guard", "safety"]
+  "Plumbing & Sanitary Works": ["plumbing", "sanitary", "leak", "leaking", "faucet", "gripo", "pipe", "pipes", "piping", "tubo", "drain", "drainage", "toilet", "cr", "comfort room", "sink", "lavatory", "water", "tubig", "water supply", "no water", "low pressure", "clog", "clogged", "barado", "flush", "sewer", "septic", "septic tank", "bidet", "shower", "water closet", "tank", "valve", "grip", "repair pipe", "maintenance", "facilities", "fgmu", "utilities"],
+  "Electrical Work": ["electrical", "electricity", "electrician", "outlet", "saksakan", "light", "lights", "lighting", "ilaw", "bulb", "fluorescent", "led", "power", "no power", "power outage", "switch", "wire", "wiring", "breaker", "circuit breaker", "blackout", "brownout", "socket", "short circuit", "grounded", "kuryente", "panel board", "extension", "repair", "maintenance", "facilities", "fgmu", "utilities"],
+  "Concrete Works": ["concrete", "semento", "cement", "foundation", "slab", "pavement", "sidewalk", "driveway", "flooring", "crack", "cracked", "spalling", "structural", "structure", "repair", "maintenance", "facilities", "fgmu", "finishes"],
+  "Masonry Works": ["masonry", "mason", "brick", "bricks", "hollow block", "chb", "mortar", "tile", "tiles", "tiling", "wall", "walls", "plaster", "plastering", "grout", "partition", "stone", "riprap", "backsplash", "floor tiles", "wall tiles", "repair wall", "structural", "finishes", "facilities", "fgmu"],
+  "Welding & Tinsmith Works": ["welding", "weld", "welder", "gate", "metal", "metal works", "iron", "steel", "stainless", "fabrication", "grills", "window grills", "door grills", "roof", "roofing", "yero", "bubong", "gutter", "downspout", "flashing", "sheet metal", "tinsmith", "latero", "trusses", "railing", "repair gate", "facilities", "fgmu", "structure", "finishes"],
+  "Carpentry & Joinery": ["carpentry", "karpintero", "wood", "kahoy", "door", "doors", "broken door", "window", "windows", "table", "tables", "chair", "chairs", "broken chair", "cabinet", "cabinets", "lock", "doorknob", "hinge", "furniture", "desk", "shelf", "shelves", "drawer", "plywood", "ceiling", "partition", "jalousie", "podium", "repair", "maintenance", "facilities", "fgmu", "finishes", "structure"],
+  "Glass & Glazing Works": ["glass", "salamin", "glazing", "mirror", "salamin", "window pane", "window glass", "glass door", "sliding window", "broken window", "cracked glass", "basag", "jalousie glass", "replace glass", "repair window", "facilities", "fgmu", "finishes", "structure"],
+  "Painting Works": ["paint", "painting", "pintura", "repaint", "repainting", "repaint wall", "coating", "wall paint", "primer", "stain", "varnish", "barnis", "peeling paint", "faded paint", "cracked paint", "enamel", "latex", "color", "finishing", "facilities", "fgmu", "finishes"],
+  "Electronics & Communication Works": ["electronics", "electronic", "wifi", "internet", "no internet", "telephone", "phone", "cable", "cabling", "lan", "intercom", "network", "networking", "cctv", "camera", "audio", "speaker", "sound system", "mic", "microphone", "projector", "pabx", "speaker system", "communication", "it support", "facilities", "fgmu", "utilities"],
+  "Mechanical Works": ["mechanical", "aircon", "air con", "air conditioning", "air conditioner", "air-conditioning", "no cooling", "not cold", "fan", "exhaust fan", "ceiling fan", "motor", "generator", "genset", "engine", "ventilation", "hvac", "refrigerator", "ref", "freezer", "water pump", "pump", "compressor", "chiller", "preventive maintenance", "facilities", "fgmu", "utilities"],
+  "Disinfection": ["disinfection", "disinfect", "disinfectant", "sanitize", "sanitation", "sanitizing", "spray", "spraying", "misting", "fogging", "fumigation", "fumigate", "virus", "bacteria", "pest", "pest control", "chemical", "clean", "grounds", "leau", "landscaping", "janitorial", "environmental", "sanitary"],
+  "Cleaning/ Grubbing": ["cleaning", "clean", "linis", "grubbing", "grub", "deep clean", "general cleaning", "sweep", "walis", "mop", "trash", "basura", "garbage", "waste", "debris", "clearing", "ligpit", "janitorial", "janitor", "housekeeping", "grounds", "leau", "landscaping", "environmental"],
+  "Hauling": ["hauling", "haul", "hakot", "hakutin", "move", "lipat", "transport", "carry", "buhat", "heavy", "mabigat", "truck", "relocate", "transfer", "deliver", "furniture transfer", "debris hauling", "garbage hauling", "waste hauling", "grounds", "leau", "logistics", "support"],
+  "Mowing/ Weeding": ["mowing", "mow", "weeding", "weed", "weeds", "damo", "grass", "lawn", "damuhan", "trim grass", "cut grass", "brush", "brush cutter", "mower", "grass cutter", "overgrown grass", "grounds", "leau", "landscaping", "maintenance"],
+  "Planting/ Landscaping": ["planting", "tanim", "landscaping", "landscape", "garden", "hardin", "halaman", "flower", "flowers", "bulaklak", "beautification", "pagandahin", "seedling", "seedlings", "punla", "soil", "lupa", "ornamental", "hedge", "nursery", "lawn", "turf", "grounds", "leau", "environmental", "aesthetics"],
+  "Pruning/ Cutting": ["pruning", "prune", "cutting", "cut", "putol", "tree", "trees", "puno", "branch", "branches", "sanga", "trim tree", "trimming", "falling branch", "fallen tree", "dangerous tree", "chainsaw", "lagari", "overgrown", "clearing", "grounds", "leau", "landscaping"],
+  "Borrowing of plants": ["borrow plants", "hiram halaman", "borrow", "hiram", "pahiram", "plant rental", "rent plants", "potted plants", "paso", "decoration plants", "ornamental plants", "event plants", "plant display", "plants for event", "grounds", "leau", "borrowing", "rental"],
+  "Stage & Hall Decoration": ["stage", "entablado", "stage decoration", "hall", "hall decoration", "decorate", "decoration", "decor", "event setup", "venue setup", "backdrop", "skirting", "drapes", "program", "ceremony", "graduation", "event", "events", "fiesta", "pageant", "seminar setup", "grounds", "leau", "aesthetics"],
+  "Borrowing of tools/ equipment": ["borrow tools", "hiram gamit", "borrow", "hiram", "pahiram", "borrowing", "rental", "equipment", "equipments", "tools", "gamit", "ladder", "hagdan", "wheelbarrow", "kariton", "karitilya", "shovel", "pala", "rake", "kalaykay", "hoe", "spade", "grass cutter borrow", "equipment rental", "grounds", "leau", "support"],
+  "Incident Report": ["incident", "incidente", "security", "sekyu", "theft", "nakaw", "nanakaw", "stolen", "lost", "nawawala", "missing", "accident", "aksidente", "trespass", "trespassing", "intruder", "unauthorized", "damage", "sira", "vandalism", "blotter", "guard", "gwardya", "safety", "kaligtasan", "complaint", "reklamo", "harassment", "emergency", "report", "ssu"],
+  "Others": ["others", "other", "custom", "miscellaneous", "general", "general repair", "maintenance", "not listed", "not sure", "assistance", "request", "facilities", "grounds", "security", "fgmu", "leau", "ssu"]
+};
+
+// Generic unit-level aliases: searching these surfaces every service of that unit.
+const unitKeywords = {
+  fgmu: ["fgmu", "facilities", "facility", "building", "buildings", "infrastructure", "repair", "repairs", "maintenance", "fix", "fixing", "broken", "damaged", "sira", "pagawa", "structure", "finishes", "utilities", "mechanical"],
+  leau: ["leau", "grounds", "landscaping", "landscape", "environmental", "aesthetics", "beautification", "cleaning", "clean", "outdoor", "garden", "event support", "hauling", "borrowing"],
+  ssu: ["ssu", "security", "safety", "guard", "incident", "report", "emergency"]
+};
+
+// Generic category-level aliases: searching these surfaces every service in that category.
+const categoryKeywords = {
+  "Structure & Finishes": ["structure", "structural", "finishes", "finish", "building", "construction", "renovation", "repair"],
+  "Utilities & Mechanical": ["utilities", "utility", "mechanical", "electrical", "plumbing", "systems", "installation"],
+  "Janitorial & Landscaping": ["janitorial", "janitor", "landscaping", "grounds", "cleaning", "outdoor", "environmental", "maintenance"],
+  "Security Services": ["security", "safety", "incident", "guard", "protection", "report"]
 };
 
 const confirmModalState = reactive({
@@ -299,9 +317,76 @@ const totalSelected = computed(() =>
   Object.values(selectedServices).filter(v => v === true).length
 );
 
+// Normalize for search: lowercase, strip punctuation, collapse whitespace.
+const normalizeSearchText = (s) => (s || '').toLowerCase().replace(/[^a-z0-9&/ ]/g, ' ').replace(/\s+/g, ' ').trim();
+const tokenizeSearch = (s) => normalizeSearchText(s).split(' ').filter(t => t.length >= 2);
+
+// True when a query token and a keyword token reference the same word
+// (substring either way + naive singular/plural tolerance: pipe/pipes).
+const tokensMatch = (a, b) => {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.includes(b) || b.includes(a)) return true;
+  const singularA = a.endsWith('s') ? a.slice(0, -1) : a;
+  const singularB = b.endsWith('s') ? b.slice(0, -1) : b;
+  return singularA === singularB || singularA.includes(singularB) || singularB.includes(singularA);
+};
+
+// Generic + specific matcher for one service:
+// - direct service-name hit (generic: "plumbing", specific: "faucet")
+// - category / unit hit surfaces the whole group (generic: "facilities", "grounds", "security")
+// - keyword alias hit, full-phrase first then per-token (generic: "repair", specific: "pipe leak")
+const serviceMatchesQuery = (service, cat, unit, query, queryTokens) => {
+  if (!query) return true;
+  const serviceNorm = normalizeSearchText(service);
+  const catNorm = normalizeSearchText(cat.title);
+  const catDescNorm = normalizeSearchText(cat.description);
+  const unitNorm = `${normalizeSearchText(unit.name)} ${normalizeSearchText(unit.fullName)} ${normalizeSearchText(unit.id)}`;
+
+  // 1. Direct full-phrase hits (service, category, unit)
+  if (serviceNorm.includes(query) || query.includes(serviceNorm)) return true;
+  if (catNorm.includes(query) || query.includes(catNorm)) return true;
+  if (catDescNorm && (catDescNorm.includes(query) || query.includes(catDescNorm))) return true;
+  if (unitNorm.includes(query) || query.includes(unitNorm)) return true;
+
+  // 2. Generic unit-level aliases (e.g. "facilities" -> all FGMU services).
+  // Short aliases (<=2 chars like "ac", "cr") require an exact token hit
+  // to avoid substring false positives ("crack" should not hit "cr").
+  const uAliases = unitKeywords[unit.id] || [];
+  if (uAliases.some(al => {
+    const alNorm = normalizeSearchText(al);
+    if (alNorm.length <= 2) return queryTokens.includes(alNorm);
+    return alNorm.includes(query) || query.includes(alNorm);
+  })) return true;
+
+  // 3. Generic category-level aliases (e.g. "utilities" -> whole Utilities & Mechanical group)
+  const cAliases = categoryKeywords[cat.title] || [];
+  if (cAliases.some(al => {
+    const alNorm = normalizeSearchText(al);
+    if (alNorm.length <= 2) return queryTokens.includes(alNorm);
+    return alNorm.includes(query) || query.includes(alNorm);
+  })) return true;
+
+  // 4. Service keyword aliases: full-phrase first (e.g. "pipe leak", "broken door", "aircon")
+  const keywords = serviceKeywords[service] || [];
+  if (keywords.some(kw => {
+    const kwNorm = normalizeSearchText(kw);
+    if (kwNorm.length <= 2) return queryTokens.includes(kwNorm);
+    return kwNorm.includes(query) || query.includes(kwNorm);
+  })) return true;
+
+  // 5. Token-level fallback so multi-word problems still hit
+  // (e.g. "leaking pipe" -> leak + pipe; "no power" -> power).
+  const serviceTokens = serviceNorm.split(' ').filter(t => t.length >= 2);
+  const keywordTokens = keywords.flatMap(kw => normalizeSearchText(kw).split(' ').filter(t => t.length >= 2));
+  const haystack = [...serviceTokens, ...keywordTokens];
+  return queryTokens.some(qt => qt.length >= 3 && haystack.some(ht => ht.length <= 2 ? qt === ht : tokensMatch(qt, ht)));
+};
+
 // Filtered sub-units based on search query, category tabs, and student restriction visibility
 const filteredSubUnits = computed(() => {
-  const query = debouncedSearchQuery.value.trim().toLowerCase();
+  const query = normalizeSearchText(debouncedSearchQuery.value);
+  const queryTokens = tokenizeSearch(debouncedSearchQuery.value);
   const filter = activeCategoryFilter.value;
 
   // Base list filtered by category tab
@@ -331,15 +416,10 @@ const filteredSubUnits = computed(() => {
           availableServices = availableServices.filter(service => isServiceAllowed(unit.id, service));
         }
 
-        // Search matching based on query and keywords
-        const matchingServices = availableServices.filter(service => {
-          if (!query) return true;
-          if (service.toLowerCase().includes(query)) return true;
-          if (cat.title.toLowerCase().includes(query)) return true;
-          
-          const keywords = serviceKeywords[service] || [];
-          return keywords.some(kw => kw.includes(query) || query.includes(kw));
-        });
+        // Search matching: generic (unit/category/service family) + specific (problem keywords)
+        const matchingServices = availableServices.filter(service =>
+          serviceMatchesQuery(service, cat, unit, query, queryTokens)
+        );
 
         // For student users: sort services in each category so enabled ones are always on top
         let sortedServices = matchingServices;
