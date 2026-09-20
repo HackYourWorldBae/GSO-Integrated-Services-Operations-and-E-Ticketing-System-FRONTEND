@@ -1,6 +1,51 @@
 <template>
   <div class="space-y-4 animate-fade-in relative pb-12">
 
+    <!-- ═══ Unit / Collab Stage Tabs ═══ -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 bg-white rounded-2xl border border-slate-200 shadow-xs">
+      <button
+        type="button"
+        @click="approvedTab = 'unit'"
+        :class="[
+          'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+          approvedTab === 'unit' ? [themeAccentBg, 'text-white shadow-md', themeAccentShadow] : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+        ]"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <span class="truncate">Unit Tickets</span>
+        <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0', approvedTab === 'unit' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700']">{{ tickets.length }}</span>
+      </button>
+      <button
+        type="button"
+        @click="approvedTab = 'collab'"
+        :class="[
+          'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+          approvedTab === 'collab' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+        ]"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <span class="truncate">Collab Requests</span>
+        <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0', approvedTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800']">{{ collabCount }}</span>
+      </button>
+    </div>
+
+    <CollabTicketsWorkspace
+      v-if="approvedTab === 'collab'"
+      :unit-code="props.unitCode"
+      mode="approved"
+      direction="incoming"
+      :assign-route="props.assignRoute"
+      :show-dispatch-action="true"
+      :key="'approved-collab-' + collabRefreshKey"
+      @updated="onCollabUpdated"
+    />
+
+    <template v-if="approvedTab === 'unit'">
+
     <!-- ═══ Unified Compact Toolbar: Stage Tab + Search + Filters + Refresh ═══ -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
       
@@ -617,6 +662,8 @@
       </div>
     </Teleport>
 
+    </template>
+
   </div>
 </template>
 
@@ -625,6 +672,8 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '@/api/client';
 import { isBorrowingService, borrowingDispatchLink } from '@/utils/borrowing';
+import { fetchCollabTickets } from '@/api/collaborations';
+import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
 import { toast } from 'vue3-toastify';
 
 const route = useRoute();
@@ -667,6 +716,26 @@ const themeInfoButtonHover = computed(() => isLeau.value ? 'hover:border-amber-3
 const themeMobileBorderHover = computed(() => isLeau.value ? 'hover:border-amber-400' : 'hover:border-emerald-400');
 const themeAttachmentHover = computed(() => isLeau.value ? 'hover:border-amber-500 hover:bg-amber-50/40' : 'hover:border-emerald-500 hover:bg-emerald-50/40');
 const themeAttachmentIconBg = computed(() => isLeau.value ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700');
+
+// Unit / Collab tab state — receiving unit dispatches joint tickets here.
+const approvedTab = ref('unit');
+const collabCount = ref(0);
+const collabRefreshKey = ref(0);
+
+const fetchCollabCount = async () => {
+  try {
+    const res = await fetchCollabTickets({ direction: 'incoming', stage: 'approved' });
+    collabCount.value = res.data?.data?.count ?? (res.data?.data?.tickets || []).length;
+  } catch {
+    collabCount.value = 0;
+  }
+};
+
+const onCollabUpdated = async () => {
+  collabRefreshKey.value += 1;
+  await fetchCollabCount();
+  await fetchApprovedTickets();
+};
 
 // State
 const loading = ref(false);
@@ -886,6 +955,11 @@ onMounted(async () => {
     await props.store.fetchPersonnel();
   }
   await fetchApprovedTickets();
+  await fetchCollabCount();
+  // Deep-link ?tab=collab opens the incoming collab requests tab directly.
+  if (String(route.query.tab || '').toLowerCase() === 'collab') {
+    approvedTab.value = 'collab';
+  }
   checkRouteQueryTicket();
 });
 </script>

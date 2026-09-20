@@ -86,5 +86,12 @@ export const completeCollaboration = (collaborationId, data = {}) => {
 /**
  * Fetch all incoming and outgoing collaborations for the current user's unit.
  */
-export const fetchMyUnitCollaborations = () =>
-  apiClient.get('/collaborations/my-unit');
+export const fetchMyUnitCollaborations = (params = {}) =>
+  apiClient.get('/collaborations/my-unit', { params });
+
+/**
+ * Fetch collab tickets for the current unit filtered by workflow stage.
+ * @param {{ direction?: 'incoming'|'outgoing'|'all', stage?: 'approved'|'scheduled'|'active'|'all', unit_id?: number }} params
+ */
+export const fetchCollabTickets = (params = {}) =>
+  apiClient.get('/collaborations/tickets', { params });

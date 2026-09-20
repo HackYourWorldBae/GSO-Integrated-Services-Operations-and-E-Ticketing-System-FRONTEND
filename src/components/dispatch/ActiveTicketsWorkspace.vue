@@ -63,6 +63,31 @@
             </span>
           </button>
 
+          <!-- Tab: Collab Active (joint execution, requesting unit completes) -->
+          <button
+            type="button"
+            @click="switchTab('collab')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              activeTab === 'collab'
+                ? 'bg-indigo-600 shadow-indigo-600/20 text-white shadow-md'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="activeTab === 'collab' ? 'text-white' : 'text-indigo-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Collab Active</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                activeTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-900'
+              ]"
+            >
+              {{ collabActiveCount }}
+            </span>
+          </button>
+
           <!-- Tab 3: Awaiting Requestor Rating -->
           <button
             type="button"
@@ -89,8 +114,8 @@
           </button>
         </div>
 
-        <!-- Urgency Filters (job tabs only; borrowing has its own search) -->
-        <div v-if="!isLeauBorrowed" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
+        <!-- Urgency Filters (job tabs only; borrowing/collab have their own search) -->
+        <div v-if="!isLeauBorrowed && !isCollabActiveTab" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
             type="button"
             @click="setUrgencyFilter('all')"
@@ -131,7 +156,7 @@
       </div>
 
       <!-- Bottom Row: Search + Service Category Filter + Refresh (job tabs only) -->
-      <div v-if="!isLeauBorrowed" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
+      <div v-if="!isLeauBorrowed && !isCollabActiveTab" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
         <!-- Search Input -->
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -200,8 +225,20 @@
       <BorrowingWorkspace initial-tab="borrowed" :show-tabs="false" :status-filter="['picked_up', 'overdue']" :key="'active-borrowed-' + borrowedRefreshKey" />
     </div>
 
+    <!-- ═══ Collab Active Pane (joint execution; only requesting unit completes) ═══ -->
+    <div v-if="isCollabActiveTab">
+      <CollabTicketsWorkspace
+        :unit-code="props.unitCode"
+        mode="active"
+        direction="all"
+        :show-dispatch-action="false"
+        :key="'active-collab-' + collabActiveRefreshKey"
+        @updated="onCollabActiveUpdated"
+      />
+    </div>
+
     <!-- ═══ Desktop Tabular View (Matching Approved Tickets Layout) ═══ -->
-    <div v-if="!isLeauBorrowed" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+    <div v-if="!isLeauBorrowed && !isCollabActiveTab" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
@@ -529,7 +566,7 @@
     </div>
 
     <!-- ═══ Mobile View (Cards) ═══ -->
-    <div v-if="!isLeauBorrowed" class="md:hidden space-y-3">
+    <div v-if="!isLeauBorrowed && !isCollabActiveTab" class="md:hidden space-y-3">
       <!-- Loading State -->
       <div v-if="loading && activeTabTickets.length === 0" class="py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">
         <div class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -1160,6 +1197,8 @@ import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import CrossUnitCollaborationModal from './CrossUnitCollaborationModal.vue';
 import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
+import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
+import { fetchCollabTickets } from '@/api/collaborations';
 import { getBorrowingQueue } from '@/api/borrowing';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
@@ -1195,26 +1234,49 @@ const borrowedCount = ref(0);
 const borrowedRefreshKey = ref(0);
 const isLeauBorrowed = computed(() => String(props.unitCode || '').toUpperCase() === 'LEAU' && activeTab.value === 'borrowed');
 
+// Collab Active tab — joint execution between FGMU and LEAU.
+// Only the requesting unit can complete; counterpart dispatch is read-only here.
+const collabActiveCount = ref(0);
+const collabActiveRefreshKey = ref(0);
+const isCollabActiveTab = computed(() => activeTab.value === 'collab');
+
 const switchTab = (tab) => {
   const next = String(tab || '');
   if (next === 'borrowed' && String(props.unitCode || '').toUpperCase() !== 'LEAU') return;
-  activeTab.value = next === 'borrowed' ? 'borrowed' : (next === 'awaiting_rating' ? 'awaiting_rating' : 'in_progress');
+  activeTab.value = next === 'borrowed' ? 'borrowed' : next === 'collab' ? 'collab' : (next === 'awaiting_rating' ? 'awaiting_rating' : 'in_progress');
   currentPage.value = 1;
   urgencyFilter.value = 'all';
   selectedServiceFilter.value = '';
-  if (String(props.unitCode || '').toUpperCase() === 'LEAU') {
-    const nextQuery = { ...route.query };
-    if (activeTab.value === 'borrowed') {
-      nextQuery.tab = 'borrowed';
-    } else if (nextQuery.tab === 'borrowed' || nextQuery.tab === 'overdue') {
-      delete nextQuery.tab;
-    }
-    router.replace({ path: route.path, query: nextQuery }).catch(() => {});
-    if (activeTab.value === 'borrowed') {
-      borrowedRefreshKey.value += 1;
-      fetchBorrowingCount();
-    }
+  const nextQuery = { ...route.query };
+  if (activeTab.value === 'borrowed' || activeTab.value === 'collab') {
+    nextQuery.tab = activeTab.value;
+  } else if (['borrowed', 'overdue', 'collab'].includes(String(nextQuery.tab || ''))) {
+    delete nextQuery.tab;
   }
+  router.replace({ path: route.path, query: nextQuery }).catch(() => {});
+  if (activeTab.value === 'borrowed') {
+    borrowedRefreshKey.value += 1;
+    fetchBorrowingCount();
+  }
+  if (activeTab.value === 'collab') {
+    collabActiveRefreshKey.value += 1;
+    fetchCollabActiveCount();
+  }
+};
+
+const fetchCollabActiveCount = async () => {
+  try {
+    const res = await fetchCollabTickets({ direction: 'all', stage: 'active' });
+    collabActiveCount.value = res.data?.data?.count ?? (res.data?.data?.tickets || []).length;
+  } catch {
+    collabActiveCount.value = 0;
+  }
+};
+
+const onCollabActiveUpdated = async () => {
+  collabActiveRefreshKey.value += 1;
+  await fetchCollabActiveCount();
+  await fetchActiveTickets();
 };
 
 const fetchBorrowingCount = async () => {
@@ -1806,15 +1868,21 @@ watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () =>
 });
 
 watch(() => route.query.tab, (v) => {
-  if (String(props.unitCode || '').toUpperCase() !== 'LEAU') return;
   const t = String(v || '').toLowerCase();
-  const next = (t === 'borrowed' || t === 'overdue') ? 'borrowed' : null;
+  const isLeau = String(props.unitCode || '').toUpperCase() === 'LEAU';
+  const next = ((t === 'borrowed' || t === 'overdue') && isLeau) ? 'borrowed' : t === 'collab' ? 'collab' : null;
   if (next && next !== activeTab.value) {
     activeTab.value = next;
     currentPage.value = 1;
-    borrowedRefreshKey.value += 1;
-    fetchBorrowingCount();
-  } else if (!next && activeTab.value === 'borrowed') {
+    if (next === 'borrowed') {
+      borrowedRefreshKey.value += 1;
+      fetchBorrowingCount();
+    }
+    if (next === 'collab') {
+      collabActiveRefreshKey.value += 1;
+      fetchCollabActiveCount();
+    }
+  } else if (!next && (activeTab.value === 'borrowed' || activeTab.value === 'collab')) {
     activeTab.value = 'in_progress';
     currentPage.value = 1;
   }
@@ -1824,8 +1892,10 @@ onMounted(async () => {
   const q = String(route.query.tab || '').toLowerCase();
   if (String(props.unitCode || '').toUpperCase() === 'LEAU' && (q === 'borrowed' || q === 'overdue')) {
     activeTab.value = 'borrowed';
+  } else if (q === 'collab') {
+    activeTab.value = 'collab';
   }
-  await Promise.all([fetchActiveTickets(), fetchBorrowingCount()]);
+  await Promise.all([fetchActiveTickets(), fetchBorrowingCount(), fetchCollabActiveCount()]);
   checkRouteQueryTicket();
   durationRefreshTimer = setInterval(refreshDurations, 60 * 1000);
 });

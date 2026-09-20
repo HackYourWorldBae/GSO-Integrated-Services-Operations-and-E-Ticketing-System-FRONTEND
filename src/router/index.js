@@ -22,6 +22,7 @@ const SSU_Dashboard = () => import('../views/dashboards/admin/ssu/SSU_Dashboard.
 const SSU_SubmittedTickets = () => import('../views/dashboards/admin/ssu/SSU_SubmittedTickets.vue');
 const SSU_InvestigatingTickets = () => import('../views/dashboards/admin/ssu/SSU_InvestigatingTickets.vue');
 const SSU_IncidentTicketQueues = () => import('../views/dashboards/admin/ssu/SSU_IncidentTicketQueues.vue');
+const SSU_CollabTickets = () => import('../views/dashboards/admin/ssu/SSU_CollabTickets.vue');
 const Director_Dashboard = () => import('../views/dashboards/director/Director_Dashboard.vue');
 const Director_Materials = () => import('../views/dashboards/director/Director_Materials.vue');
 const Director_FGMU_TicketQueues = () => import('../views/dashboards/director/Director_FGMU_TicketQueues.vue');
@@ -295,6 +296,13 @@ const router = createRouter({
       alias: ['/admin/ssu/queues/investigating'],
       name: 'ssu-investigating-tickets',
       component: SSU_InvestigatingTickets,
+      meta: { requiresAuth: true, roles: ['admin', 'director', 'superadmin'], unit: 'SSU', permission: 'tickets.view_all' }
+    },
+    {
+      path: '/admin/ssu/collab-tickets',
+      alias: ['/admin/ssu/collaborations', '/admin/ssu/collab'],
+      name: 'ssu-collab-tickets',
+      component: SSU_CollabTickets,
       meta: { requiresAuth: true, roles: ['admin', 'director', 'superadmin'], unit: 'SSU', permission: 'tickets.view_all' }
     },
     {

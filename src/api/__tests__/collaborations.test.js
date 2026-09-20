@@ -18,6 +18,7 @@ import {
   assignCollaboratingPersonnel,
   completeCollaboration,
   fetchMyUnitCollaborations,
+  fetchCollabTickets,
 } from '../collaborations';
 
 describe('collaborations api module', () => {
@@ -90,6 +91,15 @@ describe('collaborations api module', () => {
   it('fetches unit collaborations', async () => {
     apiClient.get.mockResolvedValueOnce({ data: { status: true, data: { incoming: [], outgoing: [] } } });
     await fetchMyUnitCollaborations();
-    expect(apiClient.get).toHaveBeenCalledWith('/collaborations/my-unit');
+    expect(apiClient.get).toHaveBeenCalledWith('/collaborations/my-unit', { params: {} });
+  });
+
+  it('fetches collab tickets filtered by direction and stage', async () => {
+    apiClient.get.mockResolvedValueOnce({ data: { status: true, data: { tickets: [] } } });
+    await fetchCollabTickets({ direction: 'incoming', stage: 'approved' });
+    expect(apiClient.get).toHaveBeenCalledWith(
+      '/collaborations/tickets',
+      { params: { direction: 'incoming', stage: 'approved' } }
+    );
   });
 });

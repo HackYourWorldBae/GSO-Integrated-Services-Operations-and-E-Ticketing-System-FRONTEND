@@ -161,6 +161,11 @@ const rawNavGroups = computed(() => {
               label: 'Under Investigation',
               to: '/admin/ssu/investigating-tickets',
               icon: 'shield'
+            },
+            {
+              label: 'Collab Tickets',
+              to: '/admin/ssu/collab-tickets',
+              icon: 'users'
             }
           ] : [
             {

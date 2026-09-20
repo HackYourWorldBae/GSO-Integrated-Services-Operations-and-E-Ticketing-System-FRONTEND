@@ -4,8 +4,8 @@
     <!-- ═══ Unified Compact Toolbar: Stage Tabs + Search + Filters + Refresh ═══ -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
 
-      <!-- LEAU Stage Tabs (director-style): Job Schedules + Borrowing Requests -->
-      <div v-if="isLEAU" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 border-b border-slate-100">
+      <!-- Stage Tabs (director-style): Job Schedules + Borrowing (LEAU) + Collab -->
+      <div :class="['grid grid-cols-1 gap-1.5 p-1.5 border-b border-slate-100', isLEAU ? 'sm:grid-cols-3' : 'sm:grid-cols-2']">
         <button
           type="button"
           @click="switchScheduledTab('jobs')"
@@ -30,6 +30,7 @@
           </span>
         </button>
         <button
+          v-if="isLEAU"
           type="button"
           @click="switchScheduledTab('borrowing')"
           :class="[
@@ -52,10 +53,33 @@
             {{ borrowingAwaitingCount }}
           </span>
         </button>
+        <button
+          type="button"
+          @click="switchScheduledTab('collab')"
+          :class="[
+            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+            scheduledTab === 'collab'
+              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+          ]"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span class="truncate">Collab Tickets</span>
+          <span
+            :class="[
+              'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
+              scheduledTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800'
+            ]"
+          >
+            {{ collabScheduledCount }}
+          </span>
+        </button>
       </div>
 
       <!-- Top Row: Stage Indicator & Urgency Filter Pills (job list only) -->
-      <div v-if="!isLeauBorrowing" class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
+      <div v-if="!isLeauBorrowing && !isScheduledCollab" class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
         <!-- Stage Pill -->
         <div class="flex items-center gap-1.5">
           <div
@@ -117,7 +141,7 @@
       </div>
 
       <!-- Bottom Row: Search + Service Category Filter + Refresh (job list only; borrowing has its own search) -->
-      <div v-if="!isLeauBorrowing" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
+      <div v-if="!isLeauBorrowing && !isScheduledCollab" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
         <!-- Search Input -->
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -186,8 +210,21 @@
       <BorrowingWorkspace initial-tab="awaiting" :show-tabs="false" :status-filter="['ready_for_pickup']" :key="'scheduled-borrowing-' + scheduledTabRefreshKey" />
     </div>
 
+    <!-- ═══ Collab Tickets Pane (joint scheduled tickets awaiting counterpart dispatch) ═══ -->
+    <div v-if="isScheduledCollab">
+      <CollabTicketsWorkspace
+        :unit-code="props.unitCode"
+        mode="scheduled"
+        direction="all"
+        :assign-route="`/admin/${props.unitCode.toLowerCase()}/assign-workers`"
+        :show-dispatch-action="true"
+        :key="'scheduled-collab-' + scheduledTabRefreshKey"
+        @updated="onCollabUpdated"
+      />
+    </div>
+
     <!-- ═══ Desktop Tabular View (Matching Approved Tickets Layout) ═══ -->
-    <div v-if="!isLeauBorrowing" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+    <div v-if="!isLeauBorrowing && !isScheduledCollab" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
@@ -377,7 +414,7 @@
     </div>
 
     <!-- ═══ Mobile View (Cards) ═══ -->
-    <div v-if="!isLeauBorrowing" class="md:hidden space-y-3">
+    <div v-if="!isLeauBorrowing && !isScheduledCollab" class="md:hidden space-y-3">
       <!-- Loading State -->
       <div v-if="loading && scheduledTickets.length === 0" class="py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">
         <div class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -816,6 +853,8 @@ import { toast } from 'vue3-toastify';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
+import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
+import { fetchCollabTickets } from '@/api/collaborations';
 import { getBorrowingQueue } from '@/api/borrowing';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { parseDateLocal } from '@/utils/workCalendar';
@@ -864,29 +903,47 @@ const activeJobOrderTicket = ref(null);
 // Unit Theme Computeds
 const isLEAU = computed(() => props.unitCode?.toUpperCase() === 'LEAU');
 
-// LEAU inner stage tabs (director-style): job schedules vs borrowing requests.
-// FGMU has no borrowing workflow — it always shows the job list.
+// Inner stage tabs (director-style): job schedules vs borrowing (LEAU) vs collab.
 const scheduledTab = ref('jobs');
 const borrowingAwaitingCount = ref(0);
+const collabScheduledCount = ref(0);
 const scheduledTabRefreshKey = ref(0);
 const isLeauBorrowing = computed(() => isLEAU.value && scheduledTab.value === 'borrowing');
+const isScheduledCollab = computed(() => scheduledTab.value === 'collab');
 
 const switchScheduledTab = (tab) => {
-  scheduledTab.value = tab === 'borrowing' ? 'borrowing' : 'jobs';
+  scheduledTab.value = tab === 'borrowing' ? 'borrowing' : tab === 'collab' ? 'collab' : 'jobs';
   currentPage.value = 1;
-  if (isLEAU.value) {
-    const nextQuery = { ...route.query };
-    if (scheduledTab.value === 'borrowing') {
-      nextQuery.tab = 'borrowing';
-    } else {
-      delete nextQuery.tab;
-    }
-    router.replace({ path: route.path, query: nextQuery }).catch(() => {});
-    if (scheduledTab.value === 'borrowing') {
-      scheduledTabRefreshKey.value += 1;
-      fetchBorrowingCount();
-    }
+  const nextQuery = { ...route.query };
+  if (scheduledTab.value === 'borrowing' || scheduledTab.value === 'collab') {
+    nextQuery.tab = scheduledTab.value;
+  } else {
+    delete nextQuery.tab;
   }
+  router.replace({ path: route.path, query: nextQuery }).catch(() => {});
+  if (scheduledTab.value === 'borrowing') {
+    scheduledTabRefreshKey.value += 1;
+    fetchBorrowingCount();
+  }
+  if (scheduledTab.value === 'collab') {
+    scheduledTabRefreshKey.value += 1;
+    fetchCollabScheduledCount();
+  }
+};
+
+const fetchCollabScheduledCount = async () => {
+  try {
+    const res = await fetchCollabTickets({ direction: 'all', stage: 'scheduled' });
+    collabScheduledCount.value = res.data?.data?.count ?? (res.data?.data?.tickets || []).length;
+  } catch {
+    collabScheduledCount.value = 0;
+  }
+};
+
+const onCollabUpdated = async () => {
+  scheduledTabRefreshKey.value += 1;
+  await fetchCollabScheduledCount();
+  await fetchScheduledTickets();
 };
 
 const fetchBorrowingCount = async () => {
@@ -1355,8 +1412,8 @@ watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () =>
 });
 
 watch(() => route.query.tab, (v) => {
-  if (!isLEAU.value) return;
-  const next = v === 'borrowing' ? 'borrowing' : 'jobs';
+  const next = v === 'borrowing' ? 'borrowing' : v === 'collab' ? 'collab' : 'jobs';
+  if (next === 'borrowing' && !isLEAU.value) return;
   if (next !== scheduledTab.value) {
     scheduledTab.value = next;
     currentPage.value = 1;
@@ -1364,14 +1421,20 @@ watch(() => route.query.tab, (v) => {
       scheduledTabRefreshKey.value += 1;
       fetchBorrowingCount();
     }
+    if (next === 'collab') {
+      scheduledTabRefreshKey.value += 1;
+      fetchCollabScheduledCount();
+    }
   }
 });
 
 onMounted(async () => {
-  if (isLEAU.value && route.query.tab === 'borrowing') {
+  if (route.query.tab === 'borrowing' && isLEAU.value) {
     scheduledTab.value = 'borrowing';
+  } else if (route.query.tab === 'collab') {
+    scheduledTab.value = 'collab';
   }
-  await Promise.all([fetchScheduledTickets(), fetchBorrowingCount()]);
+  await Promise.all([fetchScheduledTickets(), fetchBorrowingCount(), fetchCollabScheduledCount()]);
   checkRouteQueryTicket();
 });
 </script>
