@@ -4,83 +4,88 @@
     <!-- ═══ Unified Compact Toolbar: Stage Tabs + Search + Filters + Refresh ═══ -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
 
-      <!-- Stage Tabs (director-style): Job Schedules + Borrowing (LEAU) + Collab -->
-      <div :class="['grid grid-cols-1 gap-1.5 p-1.5 border-b border-slate-100', isLEAU ? 'sm:grid-cols-3' : 'sm:grid-cols-2']">
-        <button
-          type="button"
-          @click="switchScheduledTab('jobs')"
-          :class="[
-            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
-            scheduledTab === 'jobs'
-              ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-          ]"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span class="truncate">Job Schedules</span>
-          <span
+      <!-- Top Row: Stage Tabs (Jobs, Borrowing & Collab) + Urgency Filter Pills -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
+        <!-- Stage Tabs -->
+        <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+          <!-- Tab: Job Schedules -->
+          <button
+            type="button"
+            @click="switchScheduledTab('jobs')"
             :class="[
-              'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
-              scheduledTab === 'jobs' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              scheduledTab === 'jobs'
+                ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
             ]"
           >
-            {{ scheduledTickets.length }}
-          </span>
-        </button>
-        <button
-          v-if="isLEAU"
-          type="button"
-          @click="switchScheduledTab('borrowing')"
-          :class="[
-            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
-            scheduledTab === 'borrowing'
-              ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-          ]"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-          </svg>
-          <span class="truncate">Borrowing Requests</span>
-          <span
-            :class="[
-              'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
-              scheduledTab === 'borrowing' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
-            ]"
-          >
-            {{ borrowingAwaitingCount }}
-          </span>
-        </button>
-        <button
-          type="button"
-          @click="switchScheduledTab('collab')"
-          :class="[
-            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
-            scheduledTab === 'collab'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-          ]"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <span class="truncate">Collab Tickets</span>
-          <span
-            :class="[
-              'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
-              scheduledTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800'
-            ]"
-          >
-            {{ collabScheduledCount }}
-          </span>
-        </button>
-      </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="scheduledTab === 'jobs' ? 'text-white' : 'text-slate-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Job Schedules</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                scheduledTab === 'jobs' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+              ]"
+            >
+              {{ scheduledTickets.length }}
+            </span>
+          </button>
 
-      <!-- Urgency Filter Pills (job schedules only) -->
-      <div v-if="scheduledTab === 'jobs'" class="flex items-center justify-start sm:justify-end gap-2 p-1.5 border-b border-slate-100">
-        <!-- Urgency Filters -->
+          <!-- Tab (LEAU only): Borrowing Requests -->
+          <button
+            v-if="isLEAU"
+            type="button"
+            @click="switchScheduledTab('borrowing')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              scheduledTab === 'borrowing'
+                ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="scheduledTab === 'borrowing' ? 'text-white' : 'text-slate-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Borrowing Requests</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                scheduledTab === 'borrowing' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+              ]"
+            >
+              {{ borrowingAwaitingCount }}
+            </span>
+          </button>
+
+          <!-- Tab: Collab Tickets -->
+          <button
+            type="button"
+            @click="switchScheduledTab('collab')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              scheduledTab === 'collab'
+                ? 'bg-indigo-600 shadow-indigo-600/20 text-white shadow-md'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="scheduledTab === 'collab' ? 'text-white' : 'text-indigo-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Collab Tickets</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                scheduledTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-900'
+              ]"
+            >
+              {{ collabScheduledCount }}
+            </span>
+          </button>
+        </div>
+
+        <!-- Urgency Filters (job schedules only) -->
         <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
             type="button"

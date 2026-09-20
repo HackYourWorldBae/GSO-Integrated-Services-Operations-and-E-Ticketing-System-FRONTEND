@@ -3,41 +3,62 @@
 
     <!-- ═══ Unified Compact Toolbar: Tabs + Search + Filter (director-style) ═══ -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
-      <!-- Top row: Stage Tabs -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 border-b border-slate-100">
-        <button
-          type="button"
-          @click="switchApprovedTab('unit')"
-          :class="[
-            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
-            approvedTab === 'unit' ? [themeAccentBg, 'text-white shadow-md', themeAccentShadow] : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-          ]"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-          <span class="truncate">Unit Tickets</span>
-          <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0', approvedTab === 'unit' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700']">{{ tickets.length }}</span>
-        </button>
-        <button
-          type="button"
-          @click="switchApprovedTab('collab')"
-          :class="[
-            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
-            approvedTab === 'collab' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-          ]"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <span class="truncate">Collab Requests</span>
-          <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0', approvedTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800']">{{ collabCount }}</span>
-        </button>
-      </div>
+      <!-- Top Row: Stage Tabs (Unit & Collab) + Urgency Filter Pills -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
+        <!-- Stage Tabs -->
+        <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+          <!-- Tab: Unit Tickets -->
+          <button
+            type="button"
+            @click="switchApprovedTab('unit')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              approvedTab === 'unit'
+                ? [themeAccentBg, themeAccentShadow, 'text-white shadow-md']
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="approvedTab === 'unit' ? 'text-white' : 'text-slate-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <span>Unit Tickets</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                approvedTab === 'unit' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              ]"
+            >
+              {{ tickets.length }}
+            </span>
+          </button>
 
-      <!-- Urgency Filter Pills (unit tickets only) -->
-      <div v-if="approvedTab === 'unit'" class="flex items-center justify-start sm:justify-end gap-2 p-1.5 border-b border-slate-100">
-        <!-- Urgency Filters -->
+          <!-- Tab: Collab Requests -->
+          <button
+            type="button"
+            @click="switchApprovedTab('collab')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              approvedTab === 'collab'
+                ? 'bg-indigo-600 shadow-indigo-600/20 text-white shadow-md'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="approvedTab === 'collab' ? 'text-white' : 'text-indigo-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Collab Requests</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                approvedTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-900'
+              ]"
+            >
+              {{ collabCount }}
+            </span>
+          </button>
+        </div>
+
+        <!-- Urgency Filters (unit tickets only) -->
         <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
             type="button"
