@@ -45,6 +45,16 @@ before suites 01/03 go fully green:
 4. `app/Controllers/API/TicketController.php` — borrowing intake validates
    upfront (422, explicit rollback) and guards the borrowing insert so a
    failed insert can never commit an orphan ticket with no borrowing record.
+5. `app/Models/TicketLogModel.php` — `logAction()` never throws (audit
+   logging must not break primary ops); fixes HTTP 500 on inventory
+   create/update/delete/adjust, which log with non-ticket ids against the
+   `ticket_logs` FK. Root cause proven live: item rows persisted while the
+   endpoint 500'd.
+6. `app/Config/Routes.php` — `borrowing/(:segment)` and
+   `tickets/(:segment)/verify-close` now allow `student,employee` instead
+   of the non-existent `user` role, so requesters can read their own
+   borrowing record and verify-close (controller already enforces
+   owner-or-staff).
 
 ## Helpers
 
