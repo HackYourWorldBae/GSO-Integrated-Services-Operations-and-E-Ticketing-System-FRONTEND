@@ -4,6 +4,8 @@ Runs the full service-requesting process and borrowing chain against the
 **online backend** (`backend.hywb.online`) and verifies data consistency
 at every step, so UI/UX review can focus on look and feel.
 
+**Status: 47/47 green** (run `E2E-20260920-2337`, post-deploy).
+
 ## Run
 
 ```bash
