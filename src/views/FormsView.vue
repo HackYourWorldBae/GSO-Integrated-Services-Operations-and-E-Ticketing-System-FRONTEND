@@ -8,6 +8,7 @@ import SearchableDropdown from '@/components/SearchableDropdown.vue';
 import api from '@/api/client';
 import FGMUForm from '@/components/forms/FGMUForm.vue';
 import LEAUForm from '@/components/forms/LEAUForm.vue';
+import LEAUBorrowingForm from '@/components/forms/LEAUBorrowingForm.vue';
 import SSUIncidentReportForm from '@/components/forms/SSUIncidentReportForm.vue';
 
 import { useAuthStore } from '@/stores/auth';
@@ -121,8 +122,21 @@ const otherServices = computed(() => selectedList.value.filter(s =>
   !SSU_CATEGORIES.includes(s.category)
 ));
 
+// Borrowing services detection
+const borrowingServices = computed(() => leauServices.value.filter(s => 
+  s.service.toLowerCase().includes('borrowing of plants') ||
+  s.service.toLowerCase().includes('borrowing of tools')
+));
+
+const regularLeauServices = computed(() => leauServices.value.filter(s => 
+  !s.service.toLowerCase().includes('borrowing of plants') &&
+  !s.service.toLowerCase().includes('borrowing of tools')
+));
+
 const hasFGMU = computed(() => fgmuServices.value.length > 0);
 const hasLEAU = computed(() => leauServices.value.length > 0);
+const hasRegularLEAU = computed(() => regularLeauServices.value.length > 0);
+const hasBorrowing = computed(() => borrowingServices.value.length > 0);
 const hasSSU = computed(() => ssuServices.value.length > 0);
 const hasIncidentReport = computed(() => ssuServices.value.length > 0);
 const hasOthers = computed(() => otherServices.value.length > 0);
@@ -142,7 +156,8 @@ const handleFinalSubmit = async () => {
   let isValid = true;
   
   if (hasFGMU.value && formsStore.v$.fgmuState.$error) isValid = false;
-  if (hasLEAU.value && formsStore.v$.leauState.$error) isValid = false;
+  if (hasRegularLEAU.value && formsStore.v$.leauState.$error) isValid = false;
+  if (hasBorrowing.value && formsStore.v$.leauBorrowingState.$error) isValid = false;
   if (hasIncidentReport.value && formsStore.v$.ssuIncidentState.$error) isValid = false;
 
   if (!isValid) {
@@ -153,11 +168,13 @@ const handleFinalSubmit = async () => {
   isSubmitting.value = true;
   // Build the payload (don't send File objects in JSON)
   const fgmuDetails = hasFGMU.value ? { ...formsStore.fgmuState.sectionA, ticket_title: formsStore.fgmuState.sectionA.job_description } : null;
-  const leauDetails = hasLEAU.value ? { ...formsStore.leauState.sectionA, ticket_title: formsStore.leauState.sectionA.job_description } : null;
+  const leauDetails = hasRegularLEAU.value ? { ...formsStore.leauState.sectionA, ticket_title: formsStore.leauState.sectionA.job_description } : null;
+  const leauBorrowingDetails = hasBorrowing.value ? { ...formsStore.leauBorrowingState } : null;
 
   const finalRequest = {
     fgmu: hasFGMU.value ? { details: fgmuDetails, services: fgmuServices.value } : null,
-    leau: hasLEAU.value ? { details: leauDetails, services: leauServices.value } : null,
+    leau: hasRegularLEAU.value ? { details: leauDetails, services: regularLeauServices.value } : null,
+    leauBorrowing: hasBorrowing.value ? { details: leauBorrowingDetails, services: borrowingServices.value } : null,
     ssu: hasSSU.value ? { 
       incidentReport: hasIncidentReport.value ? formsStore.ssuIncidentState : null
     } : null,
@@ -202,7 +219,22 @@ const handleFinalSubmit = async () => {
       if (tId.startsWith('FGMU')) {
         result = await uploadFiles(tId, formsStore.fgmuState.attachments);
       } else if (tId.startsWith('LEAU')) {
-        result = await uploadFiles(tId, formsStore.leauState.attachments);
+        // Check if this is a borrowing ticket (need to match by service type)
+        // For simplicity, upload both regular and borrowing attachments
+        // The backend will handle which attachments belong to which ticket
+        if (hasRegularLEAU.value && hasBorrowing.value) {
+          // Both types exist, need to match by ticket service type
+          // For now, upload all LEAU attachments to all LEAU tickets
+          const allLeauAttachments = [
+            ...formsStore.leauState.attachments,
+            ...formsStore.leauBorrowingState.attachments
+          ];
+          result = await uploadFiles(tId, allLeauAttachments);
+        } else if (hasRegularLEAU.value) {
+          result = await uploadFiles(tId, formsStore.leauState.attachments);
+        } else if (hasBorrowing.value) {
+          result = await uploadFiles(tId, formsStore.leauBorrowingState.attachments);
+        }
       }
       if (!result.ok) uploadFailures.push(result);
     }
@@ -309,10 +341,17 @@ const handleFinalSubmit = async () => {
         :locations="locations" 
       />
 
-      <!-- LEAU FORM SECTION -->
+      <!-- LEAU BORROWING FORM SECTION (for Borrowing of Plants / Tools & Equipment) -->
+      <LEAUBorrowingForm 
+        v-if="hasBorrowing" 
+        :services="borrowingServices" 
+        :locations="locations" 
+      />
+
+      <!-- LEAU REGULAR FORM SECTION (for other LEAU services) -->
       <LEAUForm 
-        v-if="hasLEAU" 
-        :services="leauServices" 
+        v-if="hasRegularLEAU" 
+        :services="regularLeauServices" 
         :locations="locations" 
       />
 

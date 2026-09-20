@@ -18,6 +18,24 @@ const createUnitFormState = () => ({
   attachments: []
 });
 
+const createBorrowingFormState = () => ({
+  // Item Details
+  item_name: '',
+  item_model: '',
+  quantity_needed: 1,
+  purpose_project: '',
+
+  // Schedule
+  date_needed: '',
+  expected_return_date: '',
+
+  // Acknowledgement
+  terms_agreed: false,
+
+  // Attachments
+  attachments: []
+});
+
 const createSsuIncidentState = () => ({
   date: getFormattedToday(),
   incidents: [],
@@ -38,11 +56,13 @@ const createSsuIncidentState = () => ({
 export const useFormsStore = defineStore('forms', () => {
   const fgmuState = ref(createUnitFormState());
   const leauState = ref(createUnitFormState());
+  const leauBorrowingState = ref(createBorrowingFormState());
   const ssuIncidentState = ref(createSsuIncidentState());
 
   const clearForms = () => {
     fgmuState.value = createUnitFormState();
     leauState.value = createUnitFormState();
+    leauBorrowingState.value = createBorrowingFormState();
     ssuIncidentState.value = createSsuIncidentState();
     v$.value.$reset();
   };
@@ -62,6 +82,15 @@ export const useFormsStore = defineStore('forms', () => {
         job_description: { required, minLength: minLength(10) }
       }
     },
+    leauBorrowingState: {
+      item_name: { required },
+      item_model: { required },
+      quantity_needed: { required },
+      purpose_project: { required, minLength: minLength(10) },
+      date_needed: { required },
+      expected_return_date: { required },
+      terms_agreed: { required }
+    },
     ssuIncidentState: {
       incidents: { required },
       who: { required },
@@ -73,13 +102,15 @@ export const useFormsStore = defineStore('forms', () => {
 
   const v$ = useVuelidate(rules, { 
     fgmuState, 
-    leauState, 
+    leauState,
+    leauBorrowingState,
     ssuIncidentState 
   });
 
   return {
     fgmuState,
     leauState,
+    leauBorrowingState,
     ssuIncidentState,
     clearForms,
     v$

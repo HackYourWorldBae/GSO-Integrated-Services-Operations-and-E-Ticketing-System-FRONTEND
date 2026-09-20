@@ -69,11 +69,15 @@ const isPasswordMatch = computed(() => {
 const handleRoleSelect = (selectedRole) => {
   if (form.value.role === selectedRole) return;
   form.value.role = selectedRole;
+  
+  // Clear role-specific fields
   form.value.student_id_number = '';
   form.value.college = '';
-  if (selectedRole === 'student') {
-    form.value.employee_type = '';
-  }
+  form.value.organization_name = '';
+  form.value.student_type = 'rso'; // Reset to default
+  form.value.employee_type = '';
+  
+  // Clear related field errors
   if (fieldErrors.value.college) {
     delete fieldErrors.value.college;
   }
@@ -82,6 +86,12 @@ const handleRoleSelect = (selectedRole) => {
   }
   if (fieldErrors.value.student_id_number) {
     delete fieldErrors.value.student_id_number;
+  }
+  if (fieldErrors.value.student_type) {
+    delete fieldErrors.value.student_type;
+  }
+  if (fieldErrors.value.organization_name) {
+    delete fieldErrors.value.organization_name;
   }
 };
 

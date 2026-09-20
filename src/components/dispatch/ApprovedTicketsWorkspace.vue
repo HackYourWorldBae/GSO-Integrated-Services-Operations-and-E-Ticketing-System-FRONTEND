@@ -251,8 +251,20 @@
                     <span>Full Info</span>
                   </button>
 
-                  <!-- Assign Workers CTA -->
+                  <!-- Assign Workers / Assign Inventory CTA (borrowing-aware) -->
                   <router-link
+                    v-if="isBorrowingTicket(ticket)"
+                    :to="borrowingDispatchLinkFor(ticket)"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer bg-amber-600 hover:bg-amber-700"
+                    title="Assign inventory for this borrowing request"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <span>Assign Inventory</span>
+                  </router-link>
+                  <router-link
+                    v-else
                     :to="`${assignRoute}?ticket=${ticket.id}`"
                     :class="[
                       'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer',
@@ -374,6 +386,17 @@
             Full Info
           </button>
           <router-link
+            v-if="isBorrowingTicket(ticket)"
+            :to="borrowingDispatchLinkFor(ticket)"
+            class="px-4 py-2 min-h-[38px] rounded-xl text-white text-xs font-black uppercase tracking-wider inline-flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95 touch-manipulation bg-amber-600 hover:bg-amber-700"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Inventory</span>
+          </router-link>
+          <router-link
+            v-else
             :to="`${assignRoute}?ticket=${ticket.id}`"
             :class="[
               'px-4 py-2 min-h-[38px] rounded-xl text-white text-xs font-black uppercase tracking-wider inline-flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95 touch-manipulation',
@@ -565,6 +588,17 @@
             </button>
 
             <router-link
+              v-if="isBorrowingTicket(selectedTicketForModal)"
+              :to="borrowingDispatchLinkFor(selectedTicketForModal)"
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shadow-sm bg-amber-600 hover:bg-amber-700 shadow-amber-600/20"
+            >
+              <span>Proceed to Assign Inventory</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </router-link>
+            <router-link
+              v-else
               :to="`${assignRoute}?ticket=${selectedTicketForModal.id}`"
               :class="[
                 'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shadow-sm',
@@ -590,6 +624,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '@/api/client';
+import { isBorrowingService, borrowingDispatchLink } from '@/utils/borrowing';
 import { toast } from 'vue3-toastify';
 
 const route = useRoute();
@@ -727,6 +762,12 @@ const getInitials = (name) => {
   return name.substring(0, 2).toUpperCase();
 };
 
+// ── Borrowing detection (LEAU Borrowing of Plants / Tools & Equipment) ──
+// Borrowing tickets use the inventory workflow instead of worker assignment.
+const isBorrowingTicket = (ticket) => isBorrowingService(ticket);
+
+const borrowingDispatchLinkFor = (ticket) => borrowingDispatchLink(ticket?.id);
+
 const formatDate = (val) => {
   if (!val) return 'N/A';
   const d = new Date(String(val).replace(' ', 'T'));
@@ -854,3 +895,4 @@ onMounted(async () => {
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
 </style>
+

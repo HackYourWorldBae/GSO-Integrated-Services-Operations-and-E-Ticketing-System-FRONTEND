@@ -43,6 +43,9 @@ const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
 const LEAU_Personnel = () => import('../views/dashboards/admin/leau/LEAU_Personnel.vue');
+const LEAU_InventoryManagement = () => import('../views/dashboards/admin/leau/LEAU_InventoryManagement.vue');
+const LEAU_BorrowingDispatch = () => import('../views/dashboards/admin/leau/LEAU_BorrowingDispatch.vue');
+const LEAU_Borrowing = () => import('../views/dashboards/admin/leau/LEAU_Borrowing.vue');
 const FGMU_Archives = () => import('../views/dashboards/admin/fgmu/FGMU_Archives.vue');
 const LEAU_Archives = () => import('../views/dashboards/admin/leau/LEAU_Archives.vue');
 const SSU_Archives = () => import('../views/dashboards/admin/ssu/SSU_Archives.vue');
@@ -225,6 +228,24 @@ const router = createRouter({
       name: 'leau-admin-personnel',
       component: LEAU_Personnel,
       meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU', permission: 'personnel.manage' }
+    },
+    {
+      path: '/admin/leau/inventory',
+      name: 'leau-admin-inventory',
+      component: LEAU_InventoryManagement,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU', permission: 'personnel.manage' }
+    },
+    {
+      path: '/admin/leau/borrowing-dispatch',
+      name: 'leau-borrowing-dispatch',
+      component: LEAU_BorrowingDispatch,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU', permission: 'tickets.dispatch' }
+    },
+    {
+      path: '/admin/leau/borrowing',
+      name: 'leau-borrowing-queue',
+      component: LEAU_Borrowing,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
     {
       path: '/admin/leau/archives',
