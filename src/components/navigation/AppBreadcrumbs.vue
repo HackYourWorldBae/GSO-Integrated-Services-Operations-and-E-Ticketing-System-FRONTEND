@@ -60,8 +60,8 @@ const breadcrumbs = computed(() => {
     crumbs.push({ label: 'Personnel Management', to: null });
   } else if (path.includes('/archives')) {
     crumbs.push({ label: 'Archives', to: null });
-  } else if (path.includes('/workers') || path.includes('/assign-workers')) {
-    crumbs.push({ label: 'Assign Workers', to: null });
+  } else if (path.includes('/workers') || path.includes('/assign-workers') || path.includes('/borrowing-dispatch')) {
+    crumbs.push({ label: 'Dispatch Tickets', to: null });
   } else if (path.includes('/active-tickets')) {
     crumbs.push({ label: 'Active Tickets', to: null });
   } else if (path.includes('/dispatched') || path.includes('/scheduled')) {

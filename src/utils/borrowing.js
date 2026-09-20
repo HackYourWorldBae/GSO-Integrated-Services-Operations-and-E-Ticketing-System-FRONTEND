@@ -140,7 +140,9 @@ export function canAssignInventory(borrowingStatus) {
 
 /**
  * Dispatch link for a borrowing ticket.
+ * Borrowing is unified into the LEAU Dispatch tickets page, which switches to
+ * inventory assignment when the ticket nature is a borrowing request.
  */
 export function borrowingDispatchLink(ticketId) {
-  return `/admin/leau/borrowing-dispatch?ticket=${ticketId}`;
+  return `/admin/leau/assign-workers?ticket=${ticketId}`;
 }

@@ -118,7 +118,7 @@ describe('borrowing utils', () => {
 
   it('builds the borrowing dispatch deep link', () => {
     expect(borrowingDispatchLink('LEAU-TIC-1-2026')).toBe(
-      '/admin/leau/borrowing-dispatch?ticket=LEAU-TIC-1-2026'
+      '/admin/leau/assign-workers?ticket=LEAU-TIC-1-2026'
     );
   });
 });

@@ -1,9 +1,27 @@
 <template>
   <div class="space-y-6 pb-12 px-4 sm:px-6 lg:px-8 py-6 max-w-[1750px] mx-auto min-h-screen">
     
+    <!-- Borrowing fallback: this ticket uses inventory dispatch, not workers -->
+    <div
+      v-if="isBorrowingSelected"
+      class="p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs sm:text-sm font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+    >
+      <p>
+        Ticket #{{ selectedTicket?.id }} is a borrowing request. It is dispatched by assigning inventory,
+        not workers. Switch to inventory mode to continue.
+      </p>
+      <button
+        type="button"
+        @click="switchToInventoryMode"
+        class="px-4 py-2.5 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black shrink-0 cursor-pointer active:scale-95"
+      >
+        Switch to Assign Inventory
+      </button>
+    </div>
+
     <!-- ═══ Selected Ticket Target Banner ═══ -->
     <div
-      v-if="selectedTicket"
+      v-if="selectedTicket && !isBorrowingSelected"
       class="p-6 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white shadow-xl relative overflow-hidden border border-emerald-500/30 animate-scale-up space-y-6"
     >
       <div class="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
@@ -392,7 +410,7 @@
 
     <!-- ═══ 3. Current Assignments Panel (Shown when personnel are assigned to the target) ═══ -->
     <div
-      v-if="selectedTicket && currentAssignments.length > 0"
+      v-if="selectedTicket && !isBorrowingSelected && currentAssignments.length > 0"
       class="p-5 sm:p-6 rounded-3xl bg-slate-900 text-white shadow-lg border border-slate-800 space-y-4 animate-scale-up"
     >
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
@@ -467,8 +485,8 @@
       </div>
     </div>
 
-    <!-- ═══ 4. Available Personnel Section ═══ -->
-    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-6">
+    <!-- ═══ 4. Available Personnel Section (job requests only; borrowing uses inventory) ═══ -->
+    <div v-if="!isBorrowingSelected" class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-6">
       
       <!-- Section Header & Legend -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
@@ -906,6 +924,7 @@ import 'flatpickr/dist/flatpickr.css';
 import 'flatpickr/dist/themes/dark.css';
 import CrossUnitCollaborationModal from './CrossUnitCollaborationModal.vue';
 import { ALL_MATERIAL_NAMES, getDefaultUnit } from '@/constants/materials';
+import { isBorrowingService } from '@/utils/borrowing';
 
 const isCollaborationModalOpen = ref(false);
 const openCollaborationModal = () => {
@@ -938,6 +957,28 @@ const props = defineProps({
 
 const route = useRoute();
 const router = useRouter();
+
+// LEAU borrowing requests are dispatched via inventory assignment on the same
+// Dispatch tickets page. If a borrowing ticket lands here (e.g. type resolution
+// raced), surface a switch notice instead of the worker workflow.
+const isBorrowingSelected = computed(() => {
+  if (String(props.unitCode || '').toUpperCase() !== 'LEAU') return false;
+  if (!selectedTicket.value) return false;
+  return isBorrowingService(selectedTicket.value);
+});
+
+const switchToInventoryMode = () => {
+  if (!selectedTicket.value) return;
+  // Force the parent unified dispatcher to re-resolve this ticket as borrowing.
+  router.replace({
+    path: route.path,
+    query: { ...route.query, ticket: selectedTicket.value.id, _t: Date.now() },
+  });
+  // Fallback: full reload guarantees the borrowing workspace mounts.
+  setTimeout(() => {
+    if (isBorrowingSelected.value) window.location.reload();
+  }, 600);
+};
 
 const loadingTickets = ref(false);
 const isDispatching = ref(false);

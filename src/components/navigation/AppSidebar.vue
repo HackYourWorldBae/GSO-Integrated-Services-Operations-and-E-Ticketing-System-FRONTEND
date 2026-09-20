@@ -78,6 +78,11 @@ const isItemActive = (item) => {
     return currentPath === targetPath;
   }
 
+  // Legacy LEAU borrowing-dispatch URL is unified into the Dispatch tickets page
+  if (currentPath.includes('/borrowing-dispatch') && targetPath.includes('/assign-workers')) {
+    return true;
+  }
+
   return currentPath === targetPath || (currentPath.startsWith(targetPath + '/') && targetPath !== '/');
 };
 
@@ -164,7 +169,7 @@ const rawNavGroups = computed(() => {
               icon: 'queue'
             },
             {
-              label: 'Assign Workers',
+              label: 'Dispatch tickets',
               to: `/admin/${unit}/assign-workers`,
               icon: 'dispatch'
             },
@@ -188,11 +193,6 @@ const rawNavGroups = computed(() => {
                 label: 'Inventory Management',
                 to: '/admin/leau/inventory',
                 icon: 'box'
-              },
-              {
-                label: 'Borrowing Dispatch',
-                to: '/admin/leau/borrowing-dispatch',
-                icon: 'dispatch'
               },
               {
                 label: 'Borrowing Queue',

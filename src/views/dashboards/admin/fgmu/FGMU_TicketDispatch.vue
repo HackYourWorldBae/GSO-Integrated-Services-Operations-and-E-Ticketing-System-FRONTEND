@@ -3,7 +3,7 @@
     <template #header-title>
       <div class="flex flex-col">
         <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none mb-1">FGMU Operations</h2>
-        <p class="text-xs text-emerald-600 font-black tracking-wider uppercase">Worker Assignment &amp; Scheduling</p>
+        <p class="text-xs text-emerald-600 font-black tracking-wider uppercase">Dispatch Tickets &amp; Scheduling</p>
       </div>
     </template>
 

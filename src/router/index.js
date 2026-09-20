@@ -44,7 +44,6 @@ const User_Settings = () => import('../views/dashboards/user/User_Settings.vue')
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
 const LEAU_Personnel = () => import('../views/dashboards/admin/leau/LEAU_Personnel.vue');
 const LEAU_InventoryManagement = () => import('../views/dashboards/admin/leau/LEAU_InventoryManagement.vue');
-const LEAU_BorrowingDispatch = () => import('../views/dashboards/admin/leau/LEAU_BorrowingDispatch.vue');
 const LEAU_Borrowing = () => import('../views/dashboards/admin/leau/LEAU_Borrowing.vue');
 const FGMU_Archives = () => import('../views/dashboards/admin/fgmu/FGMU_Archives.vue');
 const LEAU_Archives = () => import('../views/dashboards/admin/leau/LEAU_Archives.vue');
@@ -236,9 +235,11 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU', permission: 'personnel.manage' }
     },
     {
+      // Legacy URL — borrowing dispatch is unified into the Dispatch tickets page,
+      // which switches to inventory assignment for borrowing requests.
       path: '/admin/leau/borrowing-dispatch',
       name: 'leau-borrowing-dispatch',
-      component: LEAU_BorrowingDispatch,
+      redirect: to => ({ path: '/admin/leau/assign-workers', query: to.query }),
       meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
     {

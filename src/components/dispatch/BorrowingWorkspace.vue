@@ -113,7 +113,7 @@
             Mark Returned
           </button>
           <router-link
-            :to="`/admin/leau/borrowing-dispatch?ticket=${req.ticket_id}`"
+            :to="`/admin/leau/assign-workers?ticket=${req.ticket_id}`"
             class="px-4 py-2 min-h-[40px] rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center cursor-pointer"
           >
             Details

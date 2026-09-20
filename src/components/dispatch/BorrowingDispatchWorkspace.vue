@@ -378,7 +378,7 @@ const selectTicketById = async (ticketId) => {
 const clearSelectedTicket = () => {
   selectedTicket.value = null;
   borrowing.value = null;
-  router.push({ path: '/admin/leau/borrowing-dispatch' });
+  router.replace({ path: '/admin/leau/assign-workers', query: {} });
 };
 
 const refreshData = async () => {
