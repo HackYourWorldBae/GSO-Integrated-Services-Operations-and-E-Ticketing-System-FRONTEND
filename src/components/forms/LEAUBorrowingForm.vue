@@ -173,6 +173,31 @@ const isBorrowingOnly = computed(() => {
   return hasBorrowingServices.value && props.services.length === 1;
 });
 
+// Item name placeholder adapts to the borrow service selected:
+// plants-only -> plant examples, tools-only -> common simple tool examples,
+// both -> combined.
+const hasPlantsBorrowing = computed(() => {
+  return props.services.some(s =>
+    s.service.toLowerCase().includes('borrowing of plants')
+  );
+});
+
+const hasToolsBorrowing = computed(() => {
+  return props.services.some(s =>
+    s.service.toLowerCase().includes('borrowing of tools')
+  );
+});
+
+const itemNamePlaceholder = computed(() => {
+  if (hasPlantsBorrowing.value && hasToolsBorrowing.value) {
+    return 'e.g., Shovel, Rake, Ladder or Snake Plant, Pothos (specify species for plants)';
+  }
+  if (hasPlantsBorrowing.value) {
+    return 'e.g., Snake Plant, Pothos, Palm (specify species)';
+  }
+  return 'e.g., Shovel, Rake, Ladder, Wheelbarrow';
+});
+
 // Initialize on mount
 import { onMounted } from 'vue';
 onMounted(() => {
@@ -220,7 +245,7 @@ onMounted(() => {
               v-model="borrowingState.item_name"
               type="text"
               @blur="v$.item_name.$touch()"
-              placeholder="e.g., Brush Cutter, Hedge Trimmer, Ornamental Plant (specify species)"
+              :placeholder="itemNamePlaceholder"
               class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs"
               :class="v$.item_name.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
             />
@@ -245,10 +270,10 @@ onMounted(() => {
             <p v-if="v$.quantity_needed.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Quantity must be at least 1</p>
           </div>
 
-          <!-- Purpose / Project Name -->
+          <!-- Purpose / Event or Project Name -->
           <div class="sm:col-span-2 space-y-2 relative pb-5">
             <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="v$.purpose_project.$error ? 'text-red-500' : 'text-slate-700'">
-              Purpose / Project Name <span class="text-rose-500">*</span>
+              Purpose / Event or Project Name <span class="text-rose-500">*</span>
             </label>
             <textarea
               v-model="borrowingState.purpose_project"
