@@ -811,7 +811,7 @@ const handleRegister = async () => {
                 BSU Faculty &amp; Staff Classification
               </h3>
               <p class="text-xs text-emerald-800/90 font-medium leading-relaxed mt-0.5">
-                Select your personnel appointment type. Teaching personnel must specify their designated college or academic unit.
+                Select the category that best describes your role. Teaching and support staff will be asked for their assigned college or building next.
               </p>
             </div>
           </div>
