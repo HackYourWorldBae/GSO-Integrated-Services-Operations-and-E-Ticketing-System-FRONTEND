@@ -183,7 +183,7 @@
 
     <!-- ═══ Borrowing Requests Pane (LEAU only, awaiting pickup) ═══ -->
     <div v-if="isLeauBorrowing">
-      <BorrowingWorkspace initial-tab="awaiting" :show-tabs="false" :key="'scheduled-borrowing-' + scheduledTabRefreshKey" />
+      <BorrowingWorkspace initial-tab="awaiting" :show-tabs="false" :status-filter="['ready_for_pickup']" :key="'scheduled-borrowing-' + scheduledTabRefreshKey" />
     </div>
 
     <!-- ═══ Desktop Tabular View (Matching Approved Tickets Layout) ═══ -->

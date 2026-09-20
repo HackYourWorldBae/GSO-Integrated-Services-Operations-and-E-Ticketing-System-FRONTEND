@@ -47,7 +47,7 @@
     </div>
 
     <!-- Overdue auto-mark notice -->
-    <div v-if="activeTab === 'overdue'" class="p-3 rounded-2xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+    <div v-if="showOverdueNotice" class="p-3 rounded-2xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
       <p class="text-xs text-rose-700 font-semibold">Items past their expected return date are flagged overdue. Use “Mark Overdue Now” to refresh flags before review.</p>
       <button
         type="button"
@@ -172,9 +172,13 @@ import { toast } from 'vue3-toastify';
 
 const props = defineProps({
   initialTab: { type: String, default: 'awaiting' },
-  // When embedded inside another ticket-list layout (e.g. LEAU Scheduled Tickets),
+  // When embedded inside another ticket-list layout (e.g. LEAU Scheduled / Active Tickets),
   // the host provides the tab switcher — hide this component's own tab row.
-  showTabs: { type: Boolean, default: true }
+  showTabs: { type: Boolean, default: true },
+  // Optional locked status set for embedded mode (e.g. ['ready_for_pickup'] on the
+  // Scheduled page, ['picked_up', 'overdue'] on the Active page). When provided with
+  // showTabs=false, the list shows these statuses combined instead of a single tab.
+  statusFilter: { type: Array, default: null }
 });
 
 const tabs = [
@@ -204,7 +208,31 @@ const overdueList = computed(() => {
 
 const tabCounts = computed(() => ({ awaiting: awaitingList.value.length, borrowed: borrowedList.value.length, overdue: overdueList.value.length }));
 
-const baseList = computed(() => activeTab.value === 'awaiting' ? awaitingList.value : activeTab.value === 'borrowed' ? borrowedList.value : overdueList.value);
+const lockedStatuses = computed(() => {
+  if (props.showTabs) return null;
+  if (!Array.isArray(props.statusFilter) || props.statusFilter.length === 0) return null;
+  return props.statusFilter.map(s => String(s));
+});
+
+// Overdue helper notice: shown on the overdue tab, or in embedded mode whenever the
+// locked set covers borrowed/overdue items.
+const showOverdueNotice = computed(() => {
+  if (props.showTabs) return activeTab.value === 'overdue';
+  const locked = lockedStatuses.value;
+  return !!locked && locked.some(s => ['picked_up', 'overdue'].includes(s));
+});
+
+const baseList = computed(() => {
+  const locked = lockedStatuses.value;
+  if (locked) {
+    const merged = [...requests.value];
+    overdue.value.forEach(o => { if (!merged.some(m => String(m.ticket_id) === String(o.ticket_id))) merged.push(o); });
+    const filtered = merged.filter(r => locked.includes(String(r.status)));
+    // Surface overdue items first so past-due returns are actioned promptly.
+    return [...filtered].sort((a, b) => (String(b.status) === 'overdue') - (String(a.status) === 'overdue'));
+  }
+  return activeTab.value === 'awaiting' ? awaitingList.value : activeTab.value === 'borrowed' ? borrowedList.value : overdueList.value;
+});
 
 const visibleRequests = computed(() => {
   const q = searchQuery.value.trim().toLowerCase();

@@ -249,7 +249,7 @@ const router = createRouter({
       redirect: to => {
         const tab = String(to.query?.tab || '').toLowerCase();
         if (tab === 'borrowed' || tab === 'overdue') {
-          return { path: '/admin/leau/active-tickets', query: { tab } };
+          return { path: '/admin/leau/active-tickets', query: { tab: 'borrowed' } };
         }
         return { path: '/admin/leau/dispatched', query: { tab: 'borrowing' } };
       },

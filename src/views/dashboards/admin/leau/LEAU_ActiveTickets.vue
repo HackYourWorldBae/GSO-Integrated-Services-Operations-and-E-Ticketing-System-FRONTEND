@@ -18,56 +18,15 @@
     </template>
 
     <template #main-content>
-      <div class="px-3 sm:px-8 pt-4 max-w-[1600px] mx-auto">
-        <div class="flex items-center gap-1.5 flex-wrap bg-white rounded-2xl border border-slate-200 p-1.5 shadow-xs w-fit">
-          <button
-            type="button"
-            @click="activeTab = 'jobs'"
-            :class="['px-4 py-2.5 min-h-[44px] rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer', activeTab === 'jobs' ? 'bg-amber-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']"
-          >
-            Job Tickets
-          </button>
-          <button
-            type="button"
-            @click="activeTab = 'borrowed'"
-            :class="['px-4 py-2.5 min-h-[44px] rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer', activeTab === 'borrowed' ? 'bg-amber-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']"
-          >
-            Borrowed Items
-          </button>
-          <button
-            type="button"
-            @click="activeTab = 'overdue'"
-            :class="['px-4 py-2.5 min-h-[44px] rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer', activeTab === 'overdue' ? 'bg-rose-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']"
-          >
-            Overdue
-          </button>
-        </div>
-      </div>
-      <div v-if="activeTab === 'jobs'">
-        <ActiveTicketsWorkspace
-          unit-code="LEAU"
-          unit-title="Landscaping &amp; Environmental Aesthetics Unit"
-        />
-      </div>
-      <div v-else class="px-3 sm:px-8 py-4 max-w-[1600px] mx-auto">
-        <BorrowingWorkspace :initial-tab="activeTab" :key="activeTab" />
-      </div>
+      <ActiveTicketsWorkspace
+        unit-code="LEAU"
+        unit-title="Landscaping &amp; Environmental Aesthetics Unit"
+      />
     </template>
   </MainLayout>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import ActiveTicketsWorkspace from '@/components/dispatch/ActiveTicketsWorkspace.vue';
-import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
-
-const route = useRoute();
-const activeTab = ref(['borrowed', 'overdue'].includes(String(route.query.tab || '')) ? String(route.query.tab) : 'jobs');
-
-onMounted(() => {
-  const t = String(route.query.tab || '');
-  if (['borrowed', 'overdue'].includes(t)) activeTab.value = t;
-});
 </script>

@@ -34,7 +34,36 @@
             </span>
           </button>
 
-          <!-- Tab 2: Awaiting Requestor Rating -->
+          <!-- Tab 2 (LEAU only): Borrowed Requests — picked up + overdue items -->
+          <button
+            v-if="isLEAU"
+            type="button"
+            @click="switchTab('borrowed')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              activeTab === 'borrowed'
+                ? [themeAccentBg, themeAccentShadow, 'text-white shadow-md']
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg v-if="activeTab === 'borrowed'" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Borrowed Requests</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                activeTab === 'borrowed' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              ]"
+            >
+              {{ borrowedCount }}
+            </span>
+          </button>
+
+          <!-- Tab 3: Awaiting Requestor Rating -->
           <button
             type="button"
             @click="switchTab('awaiting_rating')"
@@ -60,8 +89,8 @@
           </button>
         </div>
 
-        <!-- Urgency Filters -->
-        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
+        <!-- Urgency Filters (job tabs only; borrowing has its own search) -->
+        <div v-if="!isLeauBorrowed" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
             type="button"
             @click="setUrgencyFilter('all')"
@@ -101,8 +130,8 @@
         </div>
       </div>
 
-      <!-- Bottom Row: Search + Service Category Filter + Refresh -->
-      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
+      <!-- Bottom Row: Search + Service Category Filter + Refresh (job tabs only) -->
+      <div v-if="!isLeauBorrowed" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
         <!-- Search Input -->
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -166,8 +195,13 @@
       </div>
     </div>
 
+    <!-- ═══ Borrowed Requests Pane (LEAU only: picked up + overdue) ═══ -->
+    <div v-if="isLeauBorrowed">
+      <BorrowingWorkspace initial-tab="borrowed" :show-tabs="false" :status-filter="['picked_up', 'overdue']" :key="'active-borrowed-' + borrowedRefreshKey" />
+    </div>
+
     <!-- ═══ Desktop Tabular View (Matching Approved Tickets Layout) ═══ -->
-    <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+    <div v-if="!isLeauBorrowed" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
@@ -495,7 +529,7 @@
     </div>
 
     <!-- ═══ Mobile View (Cards) ═══ -->
-    <div class="md:hidden space-y-3">
+    <div v-if="!isLeauBorrowed" class="md:hidden space-y-3">
       <!-- Loading State -->
       <div v-if="loading && activeTabTickets.length === 0" class="py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">
         <div class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -1116,7 +1150,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue';
@@ -1125,11 +1159,14 @@ import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import CrossUnitCollaborationModal from './CrossUnitCollaborationModal.vue';
+import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
+import { getBorrowingQueue } from '@/api/borrowing';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
 import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
 
 const route = useRoute();
+const router = useRouter();
 
 const props = defineProps({
   unitCode: {
@@ -1145,18 +1182,50 @@ const props = defineProps({
 // State
 const rawTickets = ref([]);
 const loading = ref(false);
-const activeTab = ref('in_progress'); // 'in_progress' | 'awaiting_rating'
+const activeTab = ref('in_progress'); // 'in_progress' | 'borrowed' (LEAU) | 'awaiting_rating'
 const searchQuery = ref('');
 const urgencyFilter = ref('all');
 const selectedServiceFilter = ref('');
 const currentPage = ref(1);
 const pageSize = ref(10);
 
+// LEAU borrowed-items tab (picked up + overdue), embedded between In Progress
+// and Awaiting Requestor Rating. FGMU has no borrowing workflow.
+const borrowedCount = ref(0);
+const borrowedRefreshKey = ref(0);
+const isLeauBorrowed = computed(() => String(props.unitCode || '').toUpperCase() === 'LEAU' && activeTab.value === 'borrowed');
+
 const switchTab = (tab) => {
-  activeTab.value = tab;
+  const next = String(tab || '');
+  if (next === 'borrowed' && String(props.unitCode || '').toUpperCase() !== 'LEAU') return;
+  activeTab.value = next === 'borrowed' ? 'borrowed' : (next === 'awaiting_rating' ? 'awaiting_rating' : 'in_progress');
   currentPage.value = 1;
   urgencyFilter.value = 'all';
   selectedServiceFilter.value = '';
+  if (String(props.unitCode || '').toUpperCase() === 'LEAU') {
+    const nextQuery = { ...route.query };
+    if (activeTab.value === 'borrowed') {
+      nextQuery.tab = 'borrowed';
+    } else if (nextQuery.tab === 'borrowed' || nextQuery.tab === 'overdue') {
+      delete nextQuery.tab;
+    }
+    router.replace({ path: route.path, query: nextQuery }).catch(() => {});
+    if (activeTab.value === 'borrowed') {
+      borrowedRefreshKey.value += 1;
+      fetchBorrowingCount();
+    }
+  }
+};
+
+const fetchBorrowingCount = async () => {
+  if (String(props.unitCode || '').toUpperCase() !== 'LEAU') return;
+  try {
+    const res = await getBorrowingQueue({ per_page: 500 });
+    const list = res.data?.data?.borrowing_requests || [];
+    borrowedCount.value = list.filter(r => ['picked_up', 'overdue'].includes(String(r.status))).length;
+  } catch {
+    borrowedCount.value = 0;
+  }
 };
 
 // Modal state
@@ -1736,8 +1805,27 @@ watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () =>
   checkRouteQueryTicket();
 });
 
+watch(() => route.query.tab, (v) => {
+  if (String(props.unitCode || '').toUpperCase() !== 'LEAU') return;
+  const t = String(v || '').toLowerCase();
+  const next = (t === 'borrowed' || t === 'overdue') ? 'borrowed' : null;
+  if (next && next !== activeTab.value) {
+    activeTab.value = next;
+    currentPage.value = 1;
+    borrowedRefreshKey.value += 1;
+    fetchBorrowingCount();
+  } else if (!next && activeTab.value === 'borrowed') {
+    activeTab.value = 'in_progress';
+    currentPage.value = 1;
+  }
+});
+
 onMounted(async () => {
-  await fetchActiveTickets();
+  const q = String(route.query.tab || '').toLowerCase();
+  if (String(props.unitCode || '').toUpperCase() === 'LEAU' && (q === 'borrowed' || q === 'overdue')) {
+    activeTab.value = 'borrowed';
+  }
+  await Promise.all([fetchActiveTickets(), fetchBorrowingCount()]);
   checkRouteQueryTicket();
   durationRefreshTimer = setInterval(refreshDurations, 60 * 1000);
 });
