@@ -25,7 +25,7 @@ describe('collaborations api module', () => {
     vi.clearAllMocks();
   });
 
-  it('submits a collaboration request with correct payload', async () => {
+  it('submits a collaboration request to the ticket-scoped endpoint', async () => {
     const payload = {
       ticket_id: 'FGMU-TIC-10-2026',
       collaborating_unit_id: 2,
@@ -33,20 +33,35 @@ describe('collaborations api module', () => {
     };
     apiClient.post.mockResolvedValueOnce({ data: { status: true } });
     await requestCollaboration(payload);
-    expect(apiClient.post).toHaveBeenCalledWith('/collaborations', payload);
+    expect(apiClient.post).toHaveBeenCalledWith(
+      '/tickets/FGMU-TIC-10-2026/collaborations',
+      expect.objectContaining({
+        collaborating_unit_id: 2,
+        reason: 'Trimming branches obstructing overhead power lines',
+        scope_of_work: 'Trimming branches obstructing overhead power lines',
+      })
+    );
   });
 
   it('fetches collaborations for a ticket', async () => {
     apiClient.get.mockResolvedValueOnce({ data: { status: true, data: [] } });
     await getTicketCollaborations('FGMU-TIC-10-2026');
-    expect(apiClient.get).toHaveBeenCalledWith('/collaborations/ticket/FGMU-TIC-10-2026');
+    expect(apiClient.get).toHaveBeenCalledWith('/tickets/FGMU-TIC-10-2026/collaborations');
   });
 
   it('responds to a collaboration request (accept/decline)', async () => {
     const payload = { response_status: 'accepted', notes: 'Will assign 2 tree cutters' };
     apiClient.patch.mockResolvedValueOnce({ data: { status: true } });
-    await respondCollaboration('collab-123', payload);
-    expect(apiClient.patch).toHaveBeenCalledWith('/collaborations/collab-123/respond', payload);
+    await respondCollaboration(123, payload);
+    expect(apiClient.patch).toHaveBeenCalledWith(
+      '/collaborations/123/respond',
+      expect.objectContaining({
+        action: 'accepted',
+        response_status: 'accepted',
+        response_notes: 'Will assign 2 tree cutters',
+        notes: 'Will assign 2 tree cutters',
+      })
+    );
   });
 
   it('assigns personnel from collaborating unit', async () => {
@@ -56,14 +71,20 @@ describe('collaborations api module', () => {
       task_notes: 'Chainsaw crew',
     };
     apiClient.post.mockResolvedValueOnce({ data: { status: true } });
-    await assignCollaboratingPersonnel('collab-123', payload);
-    expect(apiClient.post).toHaveBeenCalledWith('/collaborations/collab-123/assign-personnel', payload);
+    await assignCollaboratingPersonnel(123, payload);
+    expect(apiClient.post).toHaveBeenCalledWith('/collaborations/123/assign-personnel', payload);
   });
 
   it('completes collaboration with notes', async () => {
     apiClient.patch.mockResolvedValueOnce({ data: { status: true } });
-    await completeCollaboration('collab-123', { notes: 'Finished cutting branches' });
-    expect(apiClient.patch).toHaveBeenCalledWith('/collaborations/collab-123/complete', { notes: 'Finished cutting branches' });
+    await completeCollaboration(123, { notes: 'Finished cutting branches' });
+    expect(apiClient.patch).toHaveBeenCalledWith(
+      '/collaborations/123/complete',
+      expect.objectContaining({
+        notes: 'Finished cutting branches',
+        completion_notes: 'Finished cutting branches',
+      })
+    );
   });
 
   it('fetches unit collaborations', async () => {

@@ -98,12 +98,51 @@ const availableTargetUnits = computed(() => {
 });
 
 // Fetch collaborations for the selected ticket
+const normalizeCollaboration = (collab, assignments = []) => {
+  const scope = collab.scope_of_work || collab.reason || '';
+  const notes = collab.response_notes ?? collab.collaboration_notes ?? collab.notes ?? '';
+  // Backend returns ticket-level assignments separately; attribute workers whose
+  // home unit matches the collaborating unit (plus explicit personnel if present).
+  const nested = Array.isArray(collab.personnel) ? collab.personnel : [];
+  const fromAssignments = Array.isArray(assignments)
+    ? assignments
+        .filter((a) => Number(a.worker_unit_id) === Number(collab.collaborating_unit_id))
+        .map((a) => ({
+          id: a.personnel_id ?? a.id,
+          name: a.worker_name || a.name || 'Shared Worker',
+          specialty: a.worker_specialty || a.specialty || 'Worker',
+          unit_code: a.worker_unit_code || a.unit_code || 'Shared',
+        }))
+    : [];
+  const merged = [...nested];
+  for (const p of fromAssignments) {
+    if (!merged.some((m) => String(m.id) === String(p.id))) merged.push(p);
+  }
+  return {
+    ...collab,
+    scope_of_work: scope,
+    reason: collab.reason || scope,
+    response_notes: notes,
+    collaboration_notes: notes,
+    personnel: merged.length > 0 ? merged : nested,
+  };
+};
+
 const loadCollaborations = async () => {
   if (!props.ticket?.id) return;
   isLoading.value = true;
   try {
     const res = await getTicketCollaborations(props.ticket.id);
-    collaborations.value = res.data?.data || [];
+    const payload = res.data?.data;
+    const rawList = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.collaborations)
+        ? payload.collaborations
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : [];
+    const assignments = Array.isArray(payload?.assignments) ? payload.assignments : [];
+    collaborations.value = rawList.map((c) => normalizeCollaboration(c, assignments));
   } catch (err) {
     console.error('Failed to load collaborations:', err);
     toast.error('Unable to fetch cross-unit collaborations.');
@@ -160,10 +199,12 @@ const handleSendRequest = async () => {
 
   isSubmitting.value = true;
   try {
+    const scope = requestForm.value.scope_of_work.trim();
     await requestCollaboration({
       ticket_id: props.ticket.id,
       collaborating_unit_id: requestForm.value.collaborating_unit_id,
-      scope_of_work: requestForm.value.scope_of_work.trim(),
+      reason: scope,
+      scope_of_work: scope,
     });
     toast.success('Collaboration request dispatched successfully!');
     requestForm.value.scope_of_work = '';
@@ -193,7 +234,9 @@ const handleRespondAction = async () => {
   responseModal.value.isLoading = true;
   try {
     await respondCollaboration(responseModal.value.collaborationId, {
+      action: responseModal.value.action,
       response_status: responseModal.value.action,
+      response_notes: responseModal.value.notes.trim(),
       notes: responseModal.value.notes.trim(),
     });
     toast.success(
@@ -254,6 +297,7 @@ const handleCompleteCollaboration = async (collab) => {
   try {
     await completeCollaboration(collab.id, {
       notes: 'Completed cross-unit scope of work.',
+      completion_notes: 'Completed cross-unit scope of work.',
     });
     toast.success('Collaboration marked as completed!');
     await loadCollaborations();
@@ -420,16 +464,16 @@ const getStatusBadge = (status) => {
                   </div>
 
                   <span class="text-[11px] text-slate-400 font-medium">
-                    Requested on {{ new Date(collab.created_at).toLocaleDateString() }}
+                    Requested on {{ collab.created_at ? new Date(collab.created_at).toLocaleDateString() : 'N/A' }}
                   </span>
                 </div>
 
                 <!-- Scope of Work / Assistance Details -->
                 <div class="p-3 bg-white rounded-xl border border-slate-200/80 text-xs space-y-1">
                   <p class="font-bold text-[10px] text-slate-400 uppercase tracking-wider">Required Scope of Work:</p>
-                  <p class="text-slate-800 font-medium leading-relaxed">{{ collab.scope_of_work }}</p>
-                  <p v-if="collab.collaboration_notes" class="text-slate-500 italic text-[11px] pt-1 border-t border-slate-100">
-                    Response notes: "{{ collab.collaboration_notes }}"
+                  <p class="text-slate-800 font-medium leading-relaxed">{{ collab.scope_of_work || collab.reason || 'No scope details provided.' }}</p>
+                  <p v-if="collab.response_notes || collab.collaboration_notes" class="text-slate-500 italic text-[11px] pt-1 border-t border-slate-100">
+                    Response notes: "{{ collab.response_notes || collab.collaboration_notes }}"
                   </p>
                 </div>
 
