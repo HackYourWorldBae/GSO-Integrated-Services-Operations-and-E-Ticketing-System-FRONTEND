@@ -5,6 +5,9 @@ import { required, minLength } from '@vuelidate/validators';
 
 const getFormattedToday = () => new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
+// Quantity is optional; when provided it must be at least 1.
+const optionalQuantity = (v) => v === '' || v === null || v === undefined || (Number(v) >= 1);
+
 const createUnitFormState = () => ({
   sectionA: {
     date: getFormattedToday(),
@@ -19,10 +22,9 @@ const createUnitFormState = () => ({
 });
 
 const createBorrowingFormState = () => ({
-  // Item Details
+  // Item Details (item name only; quantity is optional and defaults to 1)
   item_name: '',
-  item_model: '',
-  quantity_needed: 1,
+  quantity_needed: '',
   purpose_project: '',
 
   // Schedule
@@ -84,8 +86,7 @@ export const useFormsStore = defineStore('forms', () => {
     },
     leauBorrowingState: {
       item_name: { required },
-      item_model: { required },
-      quantity_needed: { required },
+      quantity_needed: { optionalQuantity },
       purpose_project: { required, minLength: minLength(10) },
       date_needed: { required },
       expected_return_date: { required },

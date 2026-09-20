@@ -22,10 +22,9 @@ const props = defineProps({
 
 // Borrowing form state - separate from regular LEAU form
 const borrowingState = ref({
-  // Item Details
+  // Item Details (item name only; quantity is optional and defaults to 1)
   item_name: '',
-  item_model: '',
-  quantity_needed: 1,
+  quantity_needed: '',
   purpose_project: '',
 
   // Schedule
@@ -61,11 +60,11 @@ const initDates = () => {
   }
 };
 
-// Validation rules
+// Validation rules (quantity is optional; when provided it must be at least 1)
+const optionalQuantity = (v) => v === '' || v === null || v === undefined || (Number(v) >= 1);
 const rules = computed(() => ({
   item_name: { required },
-  item_model: { required },
-  quantity_needed: { required },
+  quantity_needed: { optionalQuantity },
   purpose_project: { required, minLength: minLength(10) },
   date_needed: { required },
   expected_return_date: { required },
@@ -76,7 +75,6 @@ const v$ = useVuelidate(rules, borrowingState);
 
 // Watch for changes to touch validation
 watch(() => borrowingState.value.item_name, () => v$.value.item_name.$touch());
-watch(() => borrowingState.value.item_model, () => v$.value.item_model.$touch());
 watch(() => borrowingState.value.quantity_needed, () => v$.value.quantity_needed.$touch());
 watch(() => borrowingState.value.purpose_project, () => v$.value.purpose_project.$touch());
 watch(() => borrowingState.value.date_needed, () => v$.value.date_needed.$touch());
@@ -133,8 +131,11 @@ const validateBorrowingForm = () => {
 // Get form data for submission
 const getBorrowingData = () => {
   const user = authStore.user;
+  const qtyRaw = borrowingState.value.quantity_needed;
+  const qty = (qtyRaw === '' || qtyRaw === null || qtyRaw === undefined) ? 1 : Math.max(1, parseInt(qtyRaw, 10) || 1);
   return {
     ...borrowingState.value,
+    quantity_needed: qty,
     // Borrower info (auto-filled from user profile)
     borrower_name: user?.full_name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
     borrower_id_number: user?.student_id_number || user?.employee_id_number || '',
@@ -150,8 +151,7 @@ const getBorrowingData = () => {
 const resetBorrowingForm = () => {
   borrowingState.value = {
     item_name: '',
-    item_model: '',
-    quantity_needed: 1,
+    quantity_needed: '',
     purpose_project: '',
     date_needed: '',
     expected_return_date: '',
@@ -201,56 +201,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- Borrower Information (Auto-filled, Read-only display) -->
-      <div class="bg-slate-50/80 p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-slate-200/80">
-        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          Borrower Information (Auto-filled from your profile)
-        </h4>
-        <p class="text-[11px] text-slate-500 font-medium mb-4">This information is taken from your account profile and cannot be edited here. Contact Super Admin to update your profile.</p>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div class="space-y-1">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Full Name</label>
-            <div class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-900">
-              {{ authStore.user?.full_name || `${authStore.user?.first_name || ''} ${authStore.user?.last_name || ''}`.trim() || '—' }}
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">University ID Number</label>
-            <div class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-900 font-mono">
-              {{ authStore.user?.student_id_number || authStore.user?.employee_id_number || '—' }}
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">User Type</label>
-            <div class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-900 capitalize">
-              {{ authStore.user?.role === 'student' ? 'Student' : 'Faculty/Staff' }}
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Department / Major</label>
-            <div class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-900">
-              {{ authStore.user?.college || '—' }}
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">University Email</label>
-            <div class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-900">
-              {{ authStore.user?.email || '—' }}
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Contact Number</label>
-            <div class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-900 font-mono">
-              {{ authStore.user?.contact_number || authStore.user?.contact_no || '—' }}
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Item Details -->
       <div class="space-y-6">
         <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
@@ -262,9 +212,9 @@ onMounted(() => {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
           <!-- Item Name -->
-          <div class="space-y-2 relative pb-5">
+          <div class="space-y-2 relative pb-5 sm:col-span-2">
             <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="v$.item_name.$error ? 'text-red-500' : 'text-slate-700'">
-              Item Name / Model <span class="text-rose-500">*</span>
+              Item Name <span class="text-rose-500">*</span>
             </label>
             <input
               v-model="borrowingState.item_name"
@@ -277,37 +227,22 @@ onMounted(() => {
             <p v-if="v$.item_name.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Item name is required</p>
           </div>
 
-          <!-- Item Model (Optional) -->
-          <div class="space-y-2 relative pb-5">
-            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="v$.item_model.$error ? 'text-red-500' : 'text-slate-700'">
-              Item Model / Specification <span class="text-rose-500">*</span>
-            </label>
-            <input
-              v-model="borrowingState.item_model"
-              type="text"
-              @blur="v$.item_model.$touch()"
-              placeholder="e.g., STIHL FS 240, Ficus benjamina 1.5m, Makita XHU02Z"
-              class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs"
-              :class="v$.item_model.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
-            />
-            <p v-if="v$.item_model.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Item model/specification is required</p>
-          </div>
-
-          <!-- Quantity Needed -->
+          <!-- Quantity Needed (Optional) -->
           <div class="space-y-2 relative pb-5">
             <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="v$.quantity_needed.$error ? 'text-red-500' : 'text-slate-700'">
-              Quantity Needed <span class="text-rose-500">*</span>
+              Quantity Needed <span class="text-xs font-normal text-slate-400 normal-case">(Optional)</span>
             </label>
             <input
               v-model.number="borrowingState.quantity_needed"
               type="number"
               min="1"
               max="100"
+              placeholder="e.g., 5 (leave blank if unsure)"
               @blur="v$.quantity_needed.$touch()"
               class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs text-center"
               :class="v$.quantity_needed.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
             />
-            <p v-if="v$.quantity_needed.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Quantity is required (minimum 1)</p>
+            <p v-if="v$.quantity_needed.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Quantity must be at least 1</p>
           </div>
 
           <!-- Purpose / Project Name -->
