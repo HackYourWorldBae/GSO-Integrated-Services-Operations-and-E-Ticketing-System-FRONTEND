@@ -401,22 +401,23 @@ const getStatusBadge = (status) => {
 </script>
 
 <template>
-  <Transition name="fade">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 pointer-events-auto overflow-y-auto"
-    >
-      <!-- Backdrop -->
+  <Teleport to="body">
+    <Transition name="fade">
       <div
-        class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
-        @click="!isSubmitting && emit('close')"
-      ></div>
-
-      <!-- Modal Card -->
-      <div
-        class="relative z-10 bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-3xl p-5 sm:p-7 my-8 text-left animate-scale-up max-h-[90vh] flex flex-col"
-        @click.stop
+        v-if="isOpen"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-6 pointer-events-auto overflow-y-auto"
       >
+        <!-- Backdrop -->
+        <div
+          class="fixed inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity"
+          @click="!isSubmitting && emit('close')"
+        ></div>
+
+        <!-- Modal Card -->
+        <div
+          class="relative z-10 bg-white rounded-3xl sm:rounded-[2rem] shadow-2xl border border-slate-200 w-full max-w-3xl p-5 sm:p-7 my-auto text-left animate-scale-up max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] flex flex-col overflow-hidden"
+          @click.stop
+        >
         <!-- Modal Top Bar -->
         <div class="flex items-center justify-between pb-4 border-b border-slate-100 shrink-0">
           <div class="flex items-center gap-3 min-w-0">
@@ -806,57 +807,61 @@ const getStatusBadge = (status) => {
       </div>
     </div>
   </Transition>
+</Teleport>
 
   <!-- Respond Modal (Accept or Decline) -->
-  <Transition name="fade">
-    <div
-      v-if="responseModal.isOpen"
-      class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
-    >
-      <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md p-6 space-y-4 animate-scale-up">
-        <h4 class="text-base font-black text-slate-900">
-          {{ responseModal.action === 'accepted' ? 'Accept Collaboration Request' : 'Decline Collaboration Request' }}
-        </h4>
-        <p class="text-xs text-slate-600">
-          {{ responseModal.action === 'accepted' 
-            ? 'Accepting this request commits your unit to coordinating manpower for this ticket.'
-            : 'Please state the reason for declining this request.' }}
-        </p>
+  <Teleport to="body">
+    <Transition name="fade">
+      <div
+        v-if="responseModal.isOpen"
+        class="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md overflow-y-auto pointer-events-auto"
+        @click.self="!responseModal.isLoading && (responseModal.isOpen = false)"
+      >
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md p-6 space-y-4 animate-scale-up my-auto" @click.stop>
+          <h4 class="text-base font-black text-slate-900">
+            {{ responseModal.action === 'accepted' ? 'Accept Collaboration Request' : 'Decline Collaboration Request' }}
+          </h4>
+          <p class="text-xs text-slate-600">
+            {{ responseModal.action === 'accepted' 
+              ? 'Accepting this request commits your unit to coordinating manpower for this ticket.'
+              : 'Please state the reason for declining this request.' }}
+          </p>
 
-        <div>
-          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
-            Notes / Remarks (Optional)
-          </label>
-          <textarea
-            v-model="responseModal.notes"
-            rows="3"
-            placeholder="Add any instructions or remarks for the primary unit..."
-            class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500"
-          ></textarea>
-        </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
+              Notes / Remarks (Optional)
+            </label>
+            <textarea
+              v-model="responseModal.notes"
+              rows="3"
+              placeholder="Add any instructions or remarks for the primary unit..."
+              class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500"
+            ></textarea>
+          </div>
 
-        <div class="flex items-center justify-end gap-2 pt-2">
-          <button
-            type="button"
-            :disabled="responseModal.isLoading"
-            @click="responseModal.isOpen = false"
-            class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            :disabled="responseModal.isLoading"
-            @click="handleRespondAction"
-            :class="[
-              'px-4 py-2 rounded-xl text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50',
-              responseModal.action === 'accepted' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
-            ]"
-          >
-            {{ responseModal.isLoading ? 'Processing...' : (responseModal.action === 'accepted' ? 'Confirm Acceptance' : 'Confirm Decline') }}
-          </button>
+          <div class="flex items-center justify-end gap-2 pt-2">
+            <button
+              type="button"
+              :disabled="responseModal.isLoading"
+              @click="responseModal.isOpen = false"
+              class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              :disabled="responseModal.isLoading"
+              @click="handleRespondAction"
+              :class="[
+                'px-4 py-2 rounded-xl text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50',
+                responseModal.action === 'accepted' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
+              ]"
+            >
+              {{ responseModal.isLoading ? 'Processing...' : (responseModal.action === 'accepted' ? 'Confirm Acceptance' : 'Confirm Decline') }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </Transition>
+    </Transition>
+  </Teleport>
 </template>
