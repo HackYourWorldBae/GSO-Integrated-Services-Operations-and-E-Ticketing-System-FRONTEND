@@ -416,23 +416,90 @@
               <p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed whitespace-pre-wrap">{{ selectedTicket.scope_of_work || selectedTicket.collaboration_reason || 'No scope details provided.' }}</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Your Unit's Dispatch</span>
-                <p class="text-sm font-black mt-1" :class="selectedTicket.my_unit_dispatched ? 'text-emerald-700' : 'text-amber-700'">
-                  {{ selectedTicket.my_unit_dispatched ? `✓ Dispatched (${(selectedTicket.my_unit_assignments || []).length} worker(s))` : '○ Not yet dispatched' }}
-                </p>
-                <div v-if="(selectedTicket.my_unit_assignments || []).length > 0" class="mt-2 space-y-1">
-                  <div v-for="a in selectedTicket.my_unit_assignments" :key="a.id" class="text-[11px] font-semibold text-slate-700">• {{ a.worker_name }} <span class="text-slate-400">({{ a.worker_specialty || 'Worker' }} • {{ (a.implementation_date || '').toString().slice(0, 10) }})</span></div>
+              <!-- Your Unit's Dispatched Personnel -->
+              <div class="p-4 rounded-2xl bg-indigo-50/40 border border-indigo-200/80 space-y-2.5">
+                <div class="flex items-center justify-between gap-2 pb-2 border-b border-indigo-100">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="font-mono text-xs font-black px-2 py-0.5 rounded-lg bg-indigo-100 text-indigo-900 border border-indigo-300">
+                      {{ props.unitCode }}
+                    </span>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-600 truncate">
+                      Your Unit's Dispatch
+                    </span>
+                  </div>
+                  <span
+                    :class="[
+                      'px-2 py-0.5 rounded-full text-[10px] font-black border shrink-0',
+                      selectedTicket.my_unit_dispatched
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                        : 'bg-amber-100 text-amber-800 border-amber-300'
+                    ]"
+                  >
+                    {{ selectedTicket.my_unit_dispatched ? `✓ ${(selectedTicket.my_unit_assignments || []).length} Assigned` : '○ Awaiting Dispatch' }}
+                  </span>
                 </div>
+
+                <div v-if="(selectedTicket.my_unit_assignments || []).length > 0" class="space-y-1.5">
+                  <div
+                    v-for="a in selectedTicket.my_unit_assignments"
+                    :key="a.id"
+                    class="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs"
+                  >
+                    <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-800 border border-indigo-200 flex items-center justify-center font-black text-[10px] shrink-0">
+                      {{ getWorkerInitials(a.worker_name) }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-xs font-black text-slate-900 truncate leading-tight">{{ a.worker_name }}</p>
+                      <p class="text-[10px] text-slate-500 font-semibold truncate">{{ a.worker_specialty || 'Personnel' }}</p>
+                    </div>
+                  </div>
+                </div>
+                <p v-else class="text-xs text-slate-400 italic py-1">
+                  No workers assigned yet from your unit.
+                </p>
               </div>
-              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Counterpart Dispatch</span>
-                <p class="text-sm font-black mt-1" :class="(selectedTicket.other_unit_assignments || []).length > 0 ? 'text-emerald-700' : 'text-slate-500'">
-                  {{ (selectedTicket.other_unit_assignments || []).length > 0 ? `✓ ${(selectedTicket.other_unit_assignments || []).length} worker(s) assigned` : '○ Awaiting counterpart' }}
-                </p>
-                <div v-if="(selectedTicket.other_unit_assignments || []).length > 0" class="mt-2 space-y-1">
-                  <div v-for="a in selectedTicket.other_unit_assignments" :key="a.id" class="text-[11px] font-semibold text-slate-700">• {{ a.worker_name }} <span class="text-slate-400">({{ a.worker_unit_code || 'Unit' }})</span></div>
+
+              <!-- Counterpart Unit's Dispatched Personnel -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+                <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-200">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="font-mono text-xs font-black px-2 py-0.5 rounded-lg bg-slate-200 text-slate-800 border border-slate-300">
+                      {{ getCounterpartUnitCode(selectedTicket) }}
+                    </span>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-600 truncate">
+                      Counterpart Dispatch
+                    </span>
+                  </div>
+                  <span
+                    :class="[
+                      'px-2 py-0.5 rounded-full text-[10px] font-black border shrink-0',
+                      (selectedTicket.other_unit_assignments || []).length > 0
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                        : 'bg-slate-200 text-slate-700 border-slate-300'
+                    ]"
+                  >
+                    {{ (selectedTicket.other_unit_assignments || []).length > 0 ? `✓ ${(selectedTicket.other_unit_assignments || []).length} Assigned` : '○ Awaiting Counterpart' }}
+                  </span>
                 </div>
+
+                <div v-if="(selectedTicket.other_unit_assignments || []).length > 0" class="space-y-1.5">
+                  <div
+                    v-for="a in selectedTicket.other_unit_assignments"
+                    :key="a.id"
+                    class="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs"
+                  >
+                    <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-800 border border-slate-300 flex items-center justify-center font-black text-[10px] shrink-0">
+                      {{ getWorkerInitials(a.worker_name) }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-xs font-black text-slate-900 truncate leading-tight">{{ a.worker_name }}</p>
+                      <p class="text-[10px] text-slate-500 font-semibold truncate">{{ a.worker_specialty || a.worker_unit_code || 'Personnel' }}</p>
+                    </div>
+                  </div>
+                </div>
+                <p v-else class="text-xs text-slate-400 italic py-1">
+                  Awaiting counterpart unit dispatch.
+                </p>
               </div>
             </div>
             <div v-if="mode !== 'approved'" class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-semibold leading-relaxed">
@@ -477,6 +544,7 @@ import api from '@/api/client';
 import { fetchCollabTickets, respondCollaboration } from '@/api/collaborations';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
 import { toast } from 'vue3-toastify';
+import { getWorkerInitials } from '@/utils/ticketPersonnelHelper';
 
 const props = defineProps({
   unitCode: { type: String, required: true },
@@ -684,6 +752,13 @@ const startEarly = async (ticket) => {
   } finally {
     actionLoading.value = false;
   }
+};
+
+const getCounterpartUnitCode = (ticket) => {
+  if (!ticket) return 'Unit';
+  return ticket.is_outgoing
+    ? (ticket.collaborating_unit_code || 'Unit')
+    : (ticket.requesting_unit_code || 'Unit');
 };
 
 watch(() => [props.mode, props.direction, props.unitCode], () => {

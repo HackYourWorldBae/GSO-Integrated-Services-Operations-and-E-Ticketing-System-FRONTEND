@@ -546,10 +546,19 @@
                   #{{ selectedTicketForModal.id }}
                 </span>
                 <span class="text-xs sm:text-sm font-bold text-slate-400">
-                  Scheduled for {{ formatDate(selectedTicketForModal.assignment?.implementation_date) }}
+                  Scheduled for {{ formatDate(selectedTicketForModal.assignment?.implementation_date || selectedTicketForModal.implementation_date) }}
                 </span>
                 <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-wider border border-amber-200">
                   Scheduled
+                </span>
+                <span
+                  v-if="isCollabTicket(selectedTicketForModal)"
+                  class="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-black uppercase tracking-wider border border-indigo-200 inline-flex items-center gap-1 shadow-2xs"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Cross-Unit Collaboration
                 </span>
               </div>
               <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Scheduled Ticket Particulars</h3>
@@ -570,8 +579,201 @@
           <!-- Scrollable Modal Body -->
           <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
             
-            <!-- Assigned Personnel & Schedule Banner -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 to-slate-900 text-white space-y-3">
+            <!-- Cross-Unit Collaboration Personnel Section (Separated Per Unit) -->
+            <div v-if="isCollabTicket(selectedTicketForModal)" class="space-y-3.5">
+              <!-- Header Bar -->
+              <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xs space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div class="flex items-center gap-2.5">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    </span>
+                    <div>
+                      <span class="text-[10px] font-black uppercase tracking-widest text-indigo-300 block">Cross-Unit Joint Roster</span>
+                      <p class="text-sm sm:text-base font-black text-white leading-none mt-0.5">Multi-Unit Dispatched Personnel</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-[11px] font-black border border-indigo-500/30">
+                      {{ getTotalCollabWorkers(selectedTicketForModal) }} {{ getTotalCollabWorkers(selectedTicketForModal) === 1 ? 'Worker' : 'Total Workers' }}
+                    </span>
+                    <span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-amber-500/30">
+                      Scheduled
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Joint Schedule & Scope Details -->
+                <div class="pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
+                  <div>
+                    <span class="text-[9px] text-slate-400 uppercase font-black block">Planned Joint Start Date</span>
+                    <span class="font-bold text-white text-xs sm:text-sm">{{ formatDate(selectedTicketForModal.assignment?.implementation_date || selectedTicketForModal.implementation_date) }}</span>
+                  </div>
+                  <div v-if="selectedTicketForModal.scope_of_work" class="text-right max-w-xs">
+                    <span class="text-[9px] text-indigo-300 uppercase font-black block">Collaboration Scope</span>
+                    <span class="text-[11px] text-slate-300 line-clamp-1 italic" :title="selectedTicketForModal.scope_of_work">"{{ selectedTicketForModal.scope_of_work }}"</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dedicated Card Per Participating Unit -->
+              <div class="space-y-3">
+                <div
+                  v-for="unitGroup in getCollabUnitsWithWorkers(selectedTicketForModal)"
+                  :key="unitGroup.code"
+                  :class="[
+                    'rounded-2xl border p-4 sm:p-5 transition-all shadow-xs',
+                    unitGroup.code === 'LEAU'
+                      ? 'bg-emerald-50/40 border-emerald-200/90'
+                      : unitGroup.code === 'SSU'
+                        ? 'bg-indigo-50/40 border-indigo-200/90'
+                        : 'bg-amber-50/40 border-amber-200/90'
+                  ]"
+                >
+                  <!-- Unit Header -->
+                  <div
+                    class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b"
+                    :class="unitGroup.code === 'LEAU' ? 'border-emerald-200/60' : unitGroup.code === 'SSU' ? 'border-indigo-200/60' : 'border-amber-200/60'"
+                  >
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <span
+                        :class="[
+                          'font-mono text-xs sm:text-sm font-black px-2.5 py-1 rounded-lg border shrink-0',
+                          unitGroup.code === 'LEAU'
+                            ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                            : unitGroup.code === 'SSU'
+                              ? 'bg-indigo-100 text-indigo-900 border-indigo-300'
+                              : 'bg-amber-100 text-amber-900 border-amber-300'
+                        ]"
+                      >
+                        {{ unitGroup.code }}
+                      </span>
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                          <h4 class="text-xs sm:text-sm font-black text-slate-900 leading-tight">{{ unitGroup.name }}</h4>
+                          <span
+                            v-if="unitGroup.isMyUnit"
+                            class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-900 text-white"
+                          >
+                            Your Unit
+                          </span>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                          {{ unitGroup.roleLabel }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Dispatch Count / Status Badge -->
+                    <div class="flex items-center gap-2">
+                      <span
+                        v-if="unitGroup.hasDispatched"
+                        :class="[
+                          'px-2.5 py-1 rounded-full text-[11px] font-black border flex items-center gap-1.5 shadow-2xs',
+                          unitGroup.code === 'LEAU'
+                            ? 'bg-emerald-100/90 text-emerald-800 border-emerald-300'
+                            : unitGroup.code === 'SSU'
+                              ? 'bg-indigo-100/90 text-indigo-800 border-indigo-300'
+                              : 'bg-amber-100/90 text-amber-800 border-amber-300'
+                        ]"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ unitGroup.count }} {{ unitGroup.count === 1 ? 'Worker Assigned' : 'Workers Assigned' }}
+                      </span>
+                      <span
+                        v-else
+                        class="px-2.5 py-1 rounded-full text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-200 flex items-center gap-1.5 shadow-2xs"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Awaiting Dispatch
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Unit Workers Roster -->
+                  <div class="pt-3">
+                    <div v-if="unitGroup.workers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div
+                        v-for="(worker, wIdx) in unitGroup.workers"
+                        :key="worker.id || wIdx"
+                        class="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-colors"
+                      >
+                        <!-- Avatar -->
+                        <div
+                          :class="[
+                            'w-9 h-9 rounded-lg flex items-center justify-center font-black text-xs shrink-0 border',
+                            unitGroup.code === 'LEAU'
+                              ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                              : unitGroup.code === 'SSU'
+                                ? 'bg-indigo-100 text-indigo-800 border-indigo-200'
+                                : 'bg-amber-100 text-amber-800 border-amber-200'
+                          ]"
+                        >
+                          {{ getWorkerInitials(worker.name) }}
+                        </div>
+                        <!-- Info -->
+                        <div class="min-w-0 flex-1">
+                          <p class="text-xs sm:text-sm font-black text-slate-900 leading-tight truncate">{{ worker.name }}</p>
+                          <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                            <span
+                              :class="[
+                                'inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border truncate',
+                                unitGroup.code === 'LEAU'
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                  : unitGroup.code === 'SSU'
+                                    ? 'bg-indigo-50 text-indigo-800 border-indigo-200'
+                                    : 'bg-amber-50 text-amber-800 border-amber-200'
+                              ]"
+                            >
+                              {{ worker.profession }}
+                            </span>
+                            <span v-if="worker.contact" class="text-[10px] text-slate-500 font-semibold flex items-center gap-1 truncate">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                              </svg>
+                              {{ worker.contact }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Empty State for this Unit -->
+                    <div
+                      v-else
+                      class="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 rounded-xl bg-white/80 border border-dashed border-slate-300 text-slate-600 text-xs"
+                    >
+                      <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>No personnel dispatched yet by <strong>{{ unitGroup.code }}</strong> for this scheduled engagement.</span>
+                      </div>
+                      <button
+                        v-if="unitGroup.isMyUnit"
+                        type="button"
+                        @click="goToDispatchWorkers(selectedTicketForModal)"
+                        class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-wider transition-all shadow-2xs active:scale-95 cursor-pointer shrink-0 inline-flex items-center gap-1.5"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                        </svg>
+                        <span>Dispatch {{ unitGroup.code }} Workers</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Standard Non-Collab Designated Personnel Banner -->
+            <div v-else class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 to-slate-900 text-white space-y-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Designated Personnel</span>
@@ -614,7 +816,7 @@
               <div class="pt-2 border-t border-white/10 text-[11px] text-slate-300">
                 <div>
                   <span class="text-[9px] text-slate-400 uppercase font-black block">Planned Start Date</span>
-                  <span class="font-bold text-white">{{ formatDate(selectedTicketForModal.assignment?.implementation_date) }}</span>
+                  <span class="font-bold text-white">{{ formatDate(selectedTicketForModal.assignment?.implementation_date || selectedTicketForModal.implementation_date) }}</span>
                 </div>
               </div>
             </div>
@@ -776,6 +978,19 @@
             </button>
 
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+              <!-- Collaborating Unit Dispatch Worker Shortcut -->
+              <button
+                v-if="isCollabTicket(selectedTicketForModal) && canDispatchCollabWorkers(selectedTicketForModal)"
+                type="button"
+                @click="goToDispatchWorkers(selectedTicketForModal)"
+                class="px-4 py-2.5 min-h-[40px] rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                <span>Dispatch {{ props.unitCode }} Workers</span>
+              </button>
+
               <button
                 type="button"
                 @click="openJobOrderDocument(selectedTicketForModal)"
@@ -842,7 +1057,7 @@ import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
-import { fetchCollabTickets } from '@/api/collaborations';
+import { fetchCollabTickets, getTicketCollaborations } from '@/api/collaborations';
 import { getBorrowingQueue } from '@/api/borrowing';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { parseDateLocal } from '@/utils/workCalendar';
@@ -1183,8 +1398,251 @@ const fetchScheduledTickets = async () => {
   }
 };
 
-const openDetailsModal = (ticket) => {
+const isCollabTicket = (ticket) => {
+  if (!ticket) return false;
+  if (ticket.is_collab) return true;
+  if (collabScheduledIds.value?.has(String(ticket.id))) return true;
+  if (isScheduledCollab.value) return true;
+  if (ticket.collaborating_unit_code || ticket.collaborating_unit_id) return true;
+  if (Array.isArray(ticket.collaborations) && ticket.collaborations.length > 0) return true;
+  return false;
+};
+
+const getUnitTheme = (unitCode) => {
+  const code = String(unitCode || '').toUpperCase().trim();
+  if (code === 'LEAU') {
+    return {
+      containerClass: 'bg-emerald-50/40 border-emerald-200/80',
+      borderClass: 'border-emerald-100',
+      badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+      avatarClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      specBadgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    };
+  }
+  if (code === 'SSU') {
+    return {
+      containerClass: 'bg-indigo-50/40 border-indigo-200/80',
+      borderClass: 'border-indigo-100',
+      badgeClass: 'bg-indigo-50 text-indigo-800 border-indigo-300',
+      avatarClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+      specBadgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    };
+  }
+  return {
+    containerClass: 'bg-amber-50/40 border-amber-200/80',
+    borderClass: 'border-amber-100',
+    badgeClass: 'bg-amber-50 text-amber-800 border-amber-300',
+    avatarClass: 'bg-amber-50 text-amber-700 border-amber-200',
+    specBadgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
+  };
+};
+
+const getUnitFullName = (unitCode) => {
+  const code = String(unitCode || '').toUpperCase().trim();
+  if (code === 'LEAU') return 'Landscaping & Environmental Aesthetics Unit';
+  if (code === 'SSU') return 'Security Services Unit';
+  return 'Facilities & Grounds Management Unit';
+};
+
+const getCollabUnitsWithWorkers = (ticket) => {
+  if (!ticket) return [];
+
+  // 1. Determine primary / requesting unit
+  const primaryCode = String(
+    ticket.requesting_unit_code ||
+    ticket.unit_code ||
+    (ticket.unit_id === 2 ? 'LEAU' : ticket.unit_id === 3 ? 'SSU' : 'FGMU')
+  ).toUpperCase();
+
+  // 2. Determine collaborating unit(s)
+  const collabCodes = new Set();
+  if (ticket.collaborating_unit_code) {
+    collabCodes.add(String(ticket.collaborating_unit_code).toUpperCase());
+  }
+  if (Array.isArray(ticket.collaborations)) {
+    ticket.collaborations.forEach((c) => {
+      const code = c.collaborating_unit_code || (c.collaborating_unit_id === 2 ? 'LEAU' : c.collaborating_unit_id === 3 ? 'SSU' : 'FGMU');
+      if (code) collabCodes.add(String(code).toUpperCase());
+    });
+  }
+
+  // If no collab unit was explicitly found yet, infer counterpart
+  if (collabCodes.size === 0) {
+    const myCode = String(props.unitCode || '').toUpperCase();
+    if (myCode && myCode !== primaryCode) {
+      collabCodes.add(myCode);
+    } else {
+      collabCodes.add(primaryCode === 'FGMU' ? 'LEAU' : 'FGMU');
+    }
+  }
+
+  // 3. Gather all workers
+  const allWorkers = [];
+
+  // From nested collab.personnel
+  if (Array.isArray(ticket.collaborations)) {
+    ticket.collaborations.forEach((c) => {
+      const cCode = String(c.collaborating_unit_code || (c.collaborating_unit_id === 2 ? 'LEAU' : c.collaborating_unit_id === 3 ? 'SSU' : 'FGMU')).toUpperCase();
+      if (Array.isArray(c.personnel)) {
+        c.personnel.forEach((p) => {
+          allWorkers.push({
+            id: p.personnel_id || p.id,
+            name: p.name || p.worker_name,
+            profession: p.specialty || p.profession || 'Personnel',
+            contact: p.contact || p.contact_number || '',
+            unit_code: String(p.unit_code || cCode).toUpperCase(),
+          });
+        });
+      }
+    });
+  }
+
+  // From my_unit_assignments
+  if (Array.isArray(ticket.my_unit_assignments)) {
+    const myCode = String(props.unitCode || '').toUpperCase();
+    ticket.my_unit_assignments.forEach((a) => {
+      allWorkers.push({
+        id: a.personnel_id || a.id,
+        name: a.worker_name || a.personnel_name || a.name,
+        profession: a.worker_specialty || a.specialty || 'Personnel',
+        contact: a.personnel_contact || a.contact || '',
+        unit_code: String(a.worker_unit_code || myCode).toUpperCase(),
+      });
+    });
+  }
+
+  // From other_unit_assignments
+  if (Array.isArray(ticket.other_unit_assignments)) {
+    const firstCollabCode = Array.from(collabCodes)[0] || '';
+    ticket.other_unit_assignments.forEach((a) => {
+      allWorkers.push({
+        id: a.personnel_id || a.id,
+        name: a.worker_name || a.personnel_name || a.name,
+        profession: a.worker_specialty || a.specialty || 'Personnel',
+        contact: a.personnel_contact || a.contact || '',
+        unit_code: String(a.worker_unit_code || firstCollabCode).toUpperCase(),
+      });
+    });
+  }
+
+  // From ticket.assignments or ticket.collab_assignments
+  const rawAssigns = Array.isArray(ticket.collab_assignments) && ticket.collab_assignments.length > 0
+    ? ticket.collab_assignments
+    : Array.isArray(ticket.assignments) ? ticket.assignments : [];
+
+  rawAssigns.forEach((a) => {
+    const uCode = String(a.worker_unit_code || a.unit_code || '').toUpperCase();
+    allWorkers.push({
+      id: a.personnel_id || a.id,
+      name: a.worker_name || a.personnel_name || a.name,
+      profession: a.worker_specialty || a.specialty || a.profession || 'Personnel',
+      contact: a.personnel_contact || a.contact || '',
+      unit_code: uCode,
+    });
+  });
+
+  // Also include standard extracted workers
+  const standardWorkers = getAssignedWorkers(ticket);
+  standardWorkers.forEach((w) => {
+    allWorkers.push({
+      id: w.id,
+      name: w.name,
+      profession: w.profession,
+      contact: w.contact,
+      unit_code: String(w.unit_code || '').toUpperCase(),
+    });
+  });
+
+  // 4. Structure by units: Primary Unit first, then Collaborating Unit(s)
+  const orderedCodes = [primaryCode, ...Array.from(collabCodes).filter(c => c !== primaryCode)];
+
+  return orderedCodes.map((code) => {
+    const isPrimary = code === primaryCode;
+    const isMyUnit = String(props.unitCode || '').toUpperCase() === code;
+    
+    // Filter and deduplicate workers for this unit
+    const seen = new Set();
+    const unitWorkers = [];
+
+    allWorkers.forEach((w) => {
+      if (!w || !w.name) return;
+      const cleanName = String(w.name).trim();
+      const lowerKey = cleanName.toLowerCase();
+      if (seen.has(lowerKey)) return;
+
+      let belongs = false;
+      if (w.unit_code) {
+        belongs = (w.unit_code === code);
+      } else if (isPrimary) {
+        // Untagged workers default to primary requesting unit
+        belongs = true;
+      }
+
+      if (belongs) {
+        seen.add(lowerKey);
+        unitWorkers.push({
+          ...w,
+          name: cleanName,
+        });
+      }
+    });
+
+    return {
+      code,
+      name: getUnitFullName(code),
+      isPrimary,
+      isMyUnit,
+      roleLabel: isPrimary ? 'Primary Requesting Unit' : 'Collaborating Sub-Unit',
+      theme: getUnitTheme(code),
+      workers: unitWorkers,
+      count: unitWorkers.length,
+      hasDispatched: unitWorkers.length > 0,
+    };
+  });
+};
+
+const getTotalCollabWorkers = (ticket) => {
+  const groups = getCollabUnitsWithWorkers(ticket);
+  return groups.reduce((acc, g) => acc + g.workers.length, 0);
+};
+
+const canDispatchCollabWorkers = (ticket) => {
+  if (!ticket) return false;
+  const myCode = String(props.unitCode || '').toUpperCase();
+  const groups = getCollabUnitsWithWorkers(ticket);
+  const myGroup = groups.find(g => g.code === myCode);
+  return myGroup && myGroup.workers.length === 0;
+};
+
+const goToDispatchWorkers = (ticket) => {
+  if (!ticket) return;
+  const tId = ticket.id;
+  selectedTicketForModal.value = null;
+  router.push(`/admin/${props.unitCode.toLowerCase()}/assign-workers?ticket=${tId}&collab=1`);
+};
+
+const openDetailsModal = async (ticket) => {
   selectedTicketForModal.value = ticket;
+  if (isCollabTicket(ticket)) {
+    try {
+      const res = await getTicketCollaborations(ticket.id);
+      const payload = res.data?.data;
+      if (payload) {
+        const rawList = Array.isArray(payload) ? payload : (payload.collaborations || []);
+        const assigns = Array.isArray(payload.assignments) ? payload.assignments : [];
+        if (selectedTicketForModal.value && String(selectedTicketForModal.value.id) === String(ticket.id)) {
+          selectedTicketForModal.value = {
+            ...selectedTicketForModal.value,
+            is_collab: true,
+            collaborations: rawList,
+            collab_assignments: assigns,
+          };
+        }
+      }
+    } catch (err) {
+      // Non-blocking
+    }
+  }
 };
 
 // Collab-tab rows reuse this workspace's rich details modal (personnel
@@ -1196,22 +1654,61 @@ const openCollabDetails = async (collabTicket) => {
   const local = rawTickets.value.find(t =>
     String(t.id || t.ticketId || '').toLowerCase().trim() === target
   );
-  if (local) {
-    selectedTicketForModal.value = local;
-  }
+  
+  const baseTicket = {
+    ...(local || {}),
+    ...(collabTicket || {}),
+    is_collab: true,
+  };
+  selectedTicketForModal.value = baseTicket;
+
   try {
-    const res = await api.get(`tickets/${collabTicket.id}`);
-    const raw = res.data?.data?.ticket || res.data?.data;
-    if (raw) {
-      selectedTicketForModal.value = mapTicket(raw);
-    } else if (!local) {
-      toast.error('Failed to load ticket details.');
+    const [ticketRes, collabRes] = await Promise.allSettled([
+      api.get(`tickets/${collabTicket.id}`),
+      getTicketCollaborations(collabTicket.id),
+    ]);
+
+    let mapped = baseTicket;
+    if (ticketRes.status === 'fulfilled') {
+      const raw = ticketRes.value.data?.data?.ticket || ticketRes.value.data?.data;
+      if (raw) {
+        mapped = { ...baseTicket, ...mapTicket(raw) };
+      }
     }
+
+    let collabRecords = collabTicket.collaborations || [];
+    let collabAssignments = collabTicket.assignments || [];
+
+    if (collabRes.status === 'fulfilled') {
+      const payload = collabRes.value.data?.data;
+      if (payload) {
+        const rawList = Array.isArray(payload)
+          ? payload
+          : (payload.collaborations || payload.data || []);
+        if (Array.isArray(rawList) && rawList.length > 0) {
+          collabRecords = rawList;
+        }
+        if (Array.isArray(payload.assignments) && payload.assignments.length > 0) {
+          collabAssignments = payload.assignments;
+        }
+      }
+    }
+
+    selectedTicketForModal.value = {
+      ...baseTicket,
+      ...mapped,
+      is_collab: true,
+      requesting_unit_code: collabTicket.requesting_unit_code || mapped.requesting_unit_code || mapped.unit_code,
+      collaborating_unit_code: collabTicket.collaborating_unit_code || mapped.collaborating_unit_code,
+      scope_of_work: collabTicket.scope_of_work || mapped.scope_of_work || collabTicket.collaboration_reason,
+      collaborations: collabRecords,
+      collab_assignments: collabAssignments,
+      assignments: collabAssignments.length > 0 ? collabAssignments : (mapped.assignments || collabTicket.assignments || []),
+      my_unit_assignments: collabTicket.my_unit_assignments || [],
+      other_unit_assignments: collabTicket.other_unit_assignments || [],
+    };
   } catch (err) {
     console.error('Failed to refresh collab ticket details:', err);
-    if (!local) {
-      toast.error('Failed to load ticket details.');
-    }
   }
 };
 

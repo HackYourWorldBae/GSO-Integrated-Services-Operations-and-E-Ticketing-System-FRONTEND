@@ -13,27 +13,35 @@ export const getAssignedWorkers = (ticket) => {
   // 1. Check if ticket has explicit assignments array
   if (Array.isArray(ticket.assignments) && ticket.assignments.length > 0) {
     // If it's a single item with comma-separated names, treat it as comma-separated
-    if (ticket.assignments.length === 1 && String(ticket.assignments[0]?.personnel_name || '').includes(',')) {
+    if (ticket.assignments.length === 1 && String(ticket.assignments[0]?.personnel_name || ticket.assignments[0]?.worker_name || '').includes(',')) {
       const item = ticket.assignments[0];
-      const names = String(item.personnel_name).split(',').map(s => s.trim()).filter(Boolean);
-      const specs = String(item.specialty || item.profession || '').split(',').map(s => s.trim()).filter(Boolean);
+      const names = String(item.personnel_name || item.worker_name).split(',').map(s => s.trim()).filter(Boolean);
+      const specs = String(item.specialty || item.worker_specialty || item.profession || '').split(',').map(s => s.trim()).filter(Boolean);
       return names.map((name, idx) => ({
         id: item.personnel_id || item.id || null,
         name,
         profession: specs[idx] || specs[0] || 'Personnel',
         contact: String(item.personnel_contact || '').trim(),
+        unit_id: item.worker_unit_id || item.unit_id || null,
+        unit_code: item.worker_unit_code || item.unit_code || null,
+        unit_name: item.worker_unit_name || item.unit_name || null,
+        implementation_date: item.implementation_date || ticket.implementation_date || null,
       }));
     }
 
     const valid = ticket.assignments
-      .filter(a => a && (a.personnel_name || a.name || a.first_name))
+      .filter(a => a && (a.personnel_name || a.name || a.first_name || a.worker_name))
       .map(a => {
-        const name = a.personnel_name || a.name || `${a.first_name || ''} ${a.last_name || ''}`.trim();
+        const name = a.personnel_name || a.name || a.worker_name || `${a.first_name || ''} ${a.last_name || ''}`.trim();
         return {
           id: a.personnel_id || a.id || null,
           name: String(name).trim(),
-          profession: String(a.specialty || a.profession || a.role || 'Personnel').trim(),
+          profession: String(a.specialty || a.worker_specialty || a.profession || a.role || 'Personnel').trim(),
           contact: String(a.personnel_contact || a.contact || a.contact_number || '').trim(),
+          unit_id: a.worker_unit_id || a.unit_id || null,
+          unit_code: a.worker_unit_code || a.unit_code || null,
+          unit_name: a.worker_unit_name || a.unit_name || null,
+          implementation_date: a.implementation_date || ticket.implementation_date || null,
         };
       })
       .filter(w => w.name !== '');
@@ -55,11 +63,12 @@ export const getAssignedWorkers = (ticket) => {
 
   // 2. Parse from ticket.assignment or ticket root
   const assignment = ticket.assignment || {};
-  const rawNames = String(assignment.personnel_name || ticket.personnel_name || '').trim();
+  const rawNames = String(assignment.personnel_name || assignment.worker_name || ticket.personnel_name || '').trim();
   if (!rawNames) return [];
 
   const rawSpecs = String(
     assignment.specialty ||
+    assignment.worker_specialty ||
     assignment.profession ||
     ticket.specialty ||
     ticket.profession ||
@@ -74,6 +83,10 @@ export const getAssignedWorkers = (ticket) => {
     name,
     profession: specs[idx] || specs[0] || 'Personnel',
     contact: String(assignment.personnel_contact || ticket.contact_number || '').trim(),
+    unit_id: assignment.worker_unit_id || assignment.unit_id || null,
+    unit_code: assignment.worker_unit_code || assignment.unit_code || null,
+    unit_name: assignment.worker_unit_name || assignment.unit_name || null,
+    implementation_date: assignment.implementation_date || ticket.implementation_date || null,
   }));
 };
 
