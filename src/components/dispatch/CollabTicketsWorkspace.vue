@@ -247,17 +247,6 @@
                       <span>Materials</span>
                     </button>
                     <button
-                      type="button"
-                      @click="emitAction('collab', ticket)"
-                      class="px-2.5 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
-                      title="Cross-Unit Collaboration Center"
-                    >
-                      <svg class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                      <span>Collab</span>
-                    </button>
-                    <button
                       v-if="ticket.is_requesting_unit"
                       type="button"
                       @click="emitAction('complete', ticket)"
@@ -365,7 +354,6 @@
             >
               Materials
             </button>
-            <button type="button" @click="emitAction('collab', ticket)" class="py-2 px-2.5 min-h-[38px] rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-black cursor-pointer">Collab</button>
             <button
               v-if="ticket.is_requesting_unit"
               type="button"
@@ -561,8 +549,8 @@ const props = defineProps({
   // reuse its richer details modal so both tabs share one design.
   emitDetails: { type: Boolean, default: false },
   // When true (active mode), rows expose the In Progress action set
-  // (Job Order, Extend, Materials, Collab, Complete) via 'collab-action'
-  // events handled by the parent workspace. Extend / Materials / Complete
+  // (Job Order, Extend, Materials, Complete) via 'collab-action' events
+  // handled by the parent workspace. Extend / Materials / Complete
   // are requesting-unit only.
   emitActions: { type: Boolean, default: false },
 });
