@@ -70,15 +70,16 @@
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
               <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Collab Flow</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Status</th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Elapsed Duration</th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Target Duration</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 text-xs">
             <tr v-if="loading && tickets.length === 0">
-              <td colspan="5" class="py-16 text-center">
+              <td colspan="6" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                   <svg class="animate-spin h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -89,7 +90,7 @@
               </td>
             </tr>
             <tr v-else-if="paginatedTickets.length === 0">
-              <td colspan="5" class="py-16 text-center">
+              <td colspan="6" class="py-16 text-center">
                 <div class="max-w-sm mx-auto flex flex-col items-center">
                   <div class="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-400 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,17 +117,6 @@
                   <span v-if="ticket.is_emergency" class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200">Emergency</span>
                 </div>
               </td>
-              <td class="px-3 py-2.5">
-                <div class="flex items-center gap-2">
-                  <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
-                    {{ getInitials(ticket.requester) }}
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-xs font-semibold text-slate-800 truncate block max-w-[130px]">{{ ticket.requester }}</span>
-                    <span class="text-[10px] text-slate-400 block">{{ ticket.location || 'Main Campus' }}</span>
-                  </div>
-                </div>
-              </td>
               <td class="px-3 py-2.5 whitespace-nowrap">
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span :class="['px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border', ticket.is_outgoing ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-indigo-50 text-indigo-800 border-indigo-200']">
@@ -140,6 +130,27 @@
                 <span :class="['px-2 py-0.5 rounded-full text-[10px] font-black border', collabBadge(ticket).cls]">{{ collabBadge(ticket).label }}</span>
                 <div v-if="mode !== 'approved'" class="text-[10px] font-bold mt-0.5" :class="ticket.my_unit_dispatched ? 'text-emerald-700' : 'text-amber-700'">
                   {{ ticket.my_unit_dispatched ? '✓ Your unit dispatched' : '○ Awaiting your dispatch' }}
+                </div>
+              </td>
+              <!-- Elapsed Duration (from joint assignments) -->
+              <td class="px-3 py-2.5 whitespace-nowrap">
+                <span class="text-xs font-bold px-2 py-0.5 rounded-lg border inline-flex items-center gap-1.5 w-fit bg-indigo-50/60 border-indigo-200/70 text-indigo-900">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{{ elapsedFor(ticket) }}</span>
+                </span>
+                <span class="block text-[9px] font-black uppercase tracking-wider text-indigo-700 mt-0.5">
+                  {{ hasStarted(ticket) ? '● In Progress' : '○ Awaiting Start' }}
+                </span>
+              </td>
+              <!-- Target Duration (requesting unit's turnaround) -->
+              <td class="px-3 py-2.5 whitespace-nowrap">
+                <div class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>{{ targetDaysFor(ticket) }} {{ targetDaysFor(ticket) === 1 ? 'Day' : 'Days' }}</span>
                 </div>
               </td>
               <td class="px-3 py-3 whitespace-nowrap text-right" @click.stop>
@@ -188,6 +199,77 @@
                   >
                     Start Early
                   </button>
+                  <!-- In Progress actions (active mode, handled by the parent workspace) -->
+                  <template v-if="mode === 'active' && emitActions">
+                    <button
+                      type="button"
+                      @click="emitAction('job-order', ticket)"
+                      class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1 cursor-pointer border border-slate-200"
+                      title="Print / View Job Order"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                      </svg>
+                      <span>Job Order</span>
+                    </button>
+                    <button
+                      type="button"
+                      @click="emitAction('regen', ticket)"
+                      class="p-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-900 border border-amber-200 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center justify-center cursor-pointer"
+                      title="Re-inject ticket data and generate fresh Job Order document"
+                    >
+                      <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                    <button
+                      v-if="ticket.is_requesting_unit"
+                      type="button"
+                      @click="emitAction('extend', ticket)"
+                      class="px-2.5 py-1.5 rounded-xl border border-amber-200/80 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                      title="Grant timeline extension with reason"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Extend</span>
+                    </button>
+                    <button
+                      v-if="ticket.is_requesting_unit"
+                      type="button"
+                      @click="emitAction('materials', ticket)"
+                      class="px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                      title="Adjust ongoing materials and supplies"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span>Materials</span>
+                    </button>
+                    <button
+                      type="button"
+                      @click="emitAction('collab', ticket)"
+                      class="px-2.5 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                      title="Cross-Unit Collaboration Center"
+                    >
+                      <svg class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      <span>Collab</span>
+                    </button>
+                    <button
+                      v-if="ticket.is_requesting_unit"
+                      type="button"
+                      @click="emitAction('complete', ticket)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer bg-indigo-600 hover:bg-indigo-700"
+                      title="Complete Job and log materials used"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Complete</span>
+                    </button>
+                  </template>
                 </div>
               </td>
             </tr>
@@ -232,7 +314,18 @@
         </div>
         <div class="mt-2 text-xs text-slate-600 truncate">{{ ticket.requester }} • {{ ticket.location || 'Main Campus' }}</div>
         <div class="mt-1 text-[11px] text-slate-500 truncate">{{ ticket.scope_of_work || '' }}</div>
-        <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end gap-2" @click.stop>
+        <div class="mt-2 flex items-center justify-between text-[11px] font-bold text-slate-600">
+          <span class="inline-flex items-center gap-1 text-indigo-800">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ elapsedFor(ticket) }}
+          </span>
+          <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] text-slate-700">
+            {{ targetDaysFor(ticket) }} Target {{ targetDaysFor(ticket) === 1 ? 'Day' : 'Days' }}
+          </span>
+        </div>
+        <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end gap-2 flex-wrap" @click.stop>
           <button type="button" @click="openDetailsModal(ticket)" class="px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 text-slate-700 text-xs font-bold cursor-pointer">Full Info</button>
           <template v-if="canRespond(ticket)">
             <button type="button" @click="respond(ticket, 'accepted')" :disabled="actionLoading" class="px-3.5 py-2 min-h-[38px] rounded-xl bg-emerald-600 text-white text-xs font-black cursor-pointer disabled:opacity-50">Accept</button>
@@ -254,6 +347,34 @@
           >
             Start Early
           </button>
+          <template v-if="mode === 'active' && emitActions">
+            <button type="button" @click="emitAction('job-order', ticket)" class="py-2 px-2.5 min-h-[38px] rounded-xl border border-slate-200 bg-slate-100 text-slate-700 text-xs font-bold cursor-pointer">Job Order</button>
+            <button
+              v-if="ticket.is_requesting_unit"
+              type="button"
+              @click="emitAction('extend', ticket)"
+              class="py-2 px-3 min-h-[38px] rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs font-black cursor-pointer"
+            >
+              Extend
+            </button>
+            <button
+              v-if="ticket.is_requesting_unit"
+              type="button"
+              @click="emitAction('materials', ticket)"
+              class="py-2 px-2.5 min-h-[38px] rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-black cursor-pointer"
+            >
+              Materials
+            </button>
+            <button type="button" @click="emitAction('collab', ticket)" class="py-2 px-2.5 min-h-[38px] rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-black cursor-pointer">Collab</button>
+            <button
+              v-if="ticket.is_requesting_unit"
+              type="button"
+              @click="emitAction('complete', ticket)"
+              class="py-2 px-3 min-h-[38px] rounded-xl text-white text-xs font-black bg-indigo-600 cursor-pointer"
+            >
+              Complete Job
+            </button>
+          </template>
         </div>
       </div>
       <div v-if="filteredTickets.length > 0" class="p-4 bg-white rounded-2xl border border-slate-200 flex items-center justify-between text-xs text-slate-500">
@@ -354,6 +475,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import api from '@/api/client';
 import { fetchCollabTickets, respondCollaboration } from '@/api/collaborations';
+import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
 import { toast } from 'vue3-toastify';
 
 const props = defineProps({
@@ -370,9 +492,18 @@ const props = defineProps({
   // ticket instead of opening this component's own modal — lets the parent
   // reuse its richer details modal so both tabs share one design.
   emitDetails: { type: Boolean, default: false },
+  // When true (active mode), rows expose the In Progress action set
+  // (Job Order, Extend, Materials, Collab, Complete) via 'collab-action'
+  // events handled by the parent workspace. Extend / Materials / Complete
+  // are requesting-unit only.
+  emitActions: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['updated', 'open-details']);
+const emit = defineEmits(['updated', 'open-details', 'collab-action']);
+
+const emitAction = (action, ticket) => {
+  emit('collab-action', { action, ticket });
+};
 
 const loading = ref(false);
 const actionLoading = ref(false);
@@ -447,6 +578,35 @@ const getInitials = (name) => {
   const parts = String(name).trim().split(' ');
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return String(name).substring(0, 2).toUpperCase();
+};
+
+// Joint assignments backing a collab row (backend returns ta.* + worker info).
+const collabAssignments = (ticket) =>
+  Array.isArray(ticket?.assignments) ? ticket.assignments : [];
+
+// Elapsed working duration from the earliest started joint assignment.
+const hasStarted = (ticket) =>
+  collabAssignments(ticket).some(a => a.dispatched_at || a.implementation_date || a.assigned_at);
+
+const elapsedFor = (ticket) => {
+  const assigns = collabAssignments(ticket);
+  const started = assigns.find(a => a.dispatched_at) || assigns[0];
+  if (!started) return 'Awaiting start';
+  const startRaw = started.dispatched_at || started.implementation_date || started.assigned_at;
+  if (!startRaw) return 'Awaiting start';
+  try {
+    const dur = calculateWorkingHoursElapsed(startRaw, new Date(), ticket?.overtime_hours || 0);
+    return dur.formatted;
+  } catch {
+    return 'In Progress';
+  }
+};
+
+// Target turnaround in working days (set by the requesting unit).
+const targetDaysFor = (ticket) => {
+  const assigns = collabAssignments(ticket);
+  const days = Number(assigns[0]?.working_days);
+  return days >= 1 ? days : 1;
 };
 
 const collabBadge = (t) => {

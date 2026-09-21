@@ -273,7 +273,7 @@
       <BorrowingWorkspace initial-tab="borrowed" :show-tabs="false" :status-filter="['picked_up', 'overdue']" :key="'active-borrowed-' + borrowedRefreshKey" />
     </div>
 
-    <!-- ═══ Collab Active Pane (shares the toolbar search above) ═══ -->
+    <!-- ═══ Collab Active Pane (shares the toolbar search + action handlers above) ═══ -->
     <div v-if="isCollabActiveTab">
       <CollabTicketsWorkspace
         :unit-code="props.unitCode"
@@ -282,8 +282,10 @@
         :show-dispatch-action="false"
         :hide-toolbar="true"
         :search-text="searchQuery"
+        :emit-actions="true"
         :key="'active-collab-' + collabActiveRefreshKey"
         @updated="onCollabActiveUpdated"
+        @collab-action="handleCollabAction"
       />
     </div>
 
@@ -1287,6 +1289,8 @@ const isLeauBorrowed = computed(() => String(props.unitCode || '').toUpperCase()
 // Collab Active tab — joint execution between FGMU and LEAU.
 // Only the requesting unit can complete; counterpart dispatch is read-only here.
 const collabActiveCount = ref(0);
+// Live-collab ticket ids — these live ONLY in the Collab tab, never in job tabs.
+const collabActiveIds = ref(new Set());
 const collabActiveRefreshKey = ref(0);
 const isCollabActiveTab = computed(() => activeTab.value === 'collab');
 
@@ -1317,9 +1321,16 @@ const switchTab = (tab) => {
 const fetchCollabActiveCount = async () => {
   try {
     const res = await fetchCollabTickets({ direction: 'all', stage: 'active' });
-    collabActiveCount.value = res.data?.data?.count ?? (res.data?.data?.tickets || []).length;
+    const list = res.data?.data?.tickets || [];
+    collabActiveCount.value = res.data?.data?.count ?? list.length;
+    collabActiveIds.value = new Set(
+      list
+        .filter(t => ['pending', 'accepted'].includes(String(t.collaboration_status || '')))
+        .map(t => String(t.id))
+    );
   } catch {
     collabActiveCount.value = 0;
+    collabActiveIds.value = new Set();
   }
 };
 
@@ -1364,7 +1375,43 @@ const openCollabModal = (ticket) => {
 };
 
 const handleCollabUpdated = () => {
-  fetchTickets();
+  fetchActiveTickets();
+  fetchCollabActiveCount();
+};
+
+// Collab-tab action buttons reuse this workspace's own handlers (extension,
+// materials, completion, job order, collab center) so both tabs share one
+// behavior. The collab row is resolved to its full ticket record first.
+const resolveCollabFullTicket = async (collabTicket) => {
+  const target = String(collabTicket?.id || '').toLowerCase().trim();
+  const local = rawTickets.value.find(t =>
+    String(t.id || t.ticketId || '').toLowerCase().trim() === target
+  );
+  if (local) return local;
+  const res = await api.get(`tickets/${collabTicket.id}`);
+  const raw = res.data?.data?.ticket || res.data?.data;
+  return raw ? mapTicket(raw) : null;
+};
+
+const handleCollabAction = async ({ action, ticket } = {}) => {
+  if (!ticket) return;
+  let full = null;
+  try {
+    full = await resolveCollabFullTicket(ticket);
+  } catch (err) {
+    console.error('Failed to resolve collab ticket:', err);
+  }
+  if (!full) {
+    toast.error('Failed to load ticket details.');
+    return;
+  }
+  if (action === 'job-order') openJobOrderDocument(full);
+  else if (action === 'regen') handleDirectRegenerate(full);
+  else if (action === 'extend') openExtensionModal(full);
+  else if (action === 'materials') openAdjustModal(full);
+  else if (action === 'collab') openCollabModal(full);
+  else if (action === 'complete') openMaterialCompletionModal(full);
+  else if (action === 'details') openDetailsModal(full);
 };
 
 // Document Viewer state
@@ -1449,6 +1496,7 @@ const themeAttachmentIconBg = computed(() => {
 // In Progress tickets: actually started (step 5), not resolved, not closed, not archived.
 // Awaiting-start tickets (step 4) live on the Scheduled page — including its
 // collab tab — even though the API returns them with status 'processing'.
+// Live collab tickets live ONLY in the Collab tab.
 const inProgressTickets = computed(() => {
   return rawTickets.value.filter(t => {
     const isArchived = t.is_archived == 1 || t.is_archived === true || t.is_archived === '1';
@@ -1456,6 +1504,7 @@ const inProgressTickets = computed(() => {
     const isResolved = t.current_step == 6 || t.status === 'resolved' || t.status === 'closed';
     if (isResolved) return false;
     if (t.current_step == 4) return false;
+    if (collabActiveIds.value.has(String(t.id))) return false;
     return t.current_step == 5 || t.status === 'processing';
   });
 });
