@@ -657,12 +657,12 @@
         <!-- Scrollable Modal Body -->
         <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
           <!-- Approval Delay Notice Banner -->
-          <div v-if="selectedTicketForModal.is_approval_delayed" class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-1">
-            <div class="flex items-center gap-2 font-black text-xs uppercase tracking-wider text-amber-800">
-              <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <div v-if="selectedTicketForModal.is_approval_delayed" class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-1.5">
+            <div class="flex items-center gap-2 font-black text-sm sm:text-base tracking-wide text-amber-900">
+              <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               <span>Delay Reason: {{ selectedTicketForModal.approval_delay_reason || 'Pending Materials / Procurement' }}</span>
             </div>
-            <p v-if="selectedTicketForModal.delayed_by_first_name" class="text-[11px] text-amber-700 font-medium">
+            <p v-if="selectedTicketForModal.delayed_by_first_name" class="text-xs sm:text-sm text-amber-700 font-medium leading-relaxed">
               Deferred by {{ selectedTicketForModal.delayed_by_first_name }} {{ selectedTicketForModal.delayed_by_last_name }} on {{ formatDate(selectedTicketForModal.approval_delayed_at) }}. Ticket is held outside general queue until resumed or approved.
             </p>
           </div>
@@ -942,58 +942,58 @@
   <!-- Delay Approval Modal -->
   <Teleport to="body">
     <div v-if="ticketToDelay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in" @click.self="closeDelayModal">
-      <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 animate-scale-up space-y-5">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div class="flex items-center gap-2.5">
-            <div class="p-2.5 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 animate-scale-up space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="p-3 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div>
-              <h3 class="text-base font-black text-slate-900">Delay Ticket Approval</h3>
-              <p class="text-[11px] text-slate-500 font-medium">Ticket #{{ ticketToDelay?.ticketId }} will be moved to Delayed Queue</p>
+              <h3 class="text-lg sm:text-xl font-black text-slate-900 leading-tight">Delay Ticket Approval</h3>
+              <p class="text-xs sm:text-sm text-slate-500 font-semibold mt-0.5">Ticket #{{ ticketToDelay?.ticketId }} will be moved to Delayed Queue</p>
             </div>
           </div>
-          <button @click="closeDelayModal" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors">
+          <button @click="closeDelayModal" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors" title="Close">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div class="space-y-3.5">
+        <div class="space-y-4">
           <div>
-            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider mb-2">
               Reason for Delay <span class="text-amber-600">*</span>
             </label>
-            <div class="space-y-2">
+            <div class="space-y-2.5">
               <label
                 v-for="preset in delayPresets"
                 :key="preset"
-                class="flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer text-xs transition-all select-none"
-                :class="selectedDelayPreset === preset ? 'bg-amber-50/80 border-amber-300 text-amber-950 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/60'"
+                class="flex items-center gap-3 p-3 sm:p-3.5 rounded-xl border cursor-pointer text-sm sm:text-[15px] transition-all select-none"
+                :class="selectedDelayPreset === preset ? 'bg-amber-50/90 border-amber-300 text-amber-950 font-bold shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/70 font-medium'"
               >
                 <input
                   type="radio"
                   name="fgmu-delay-reason"
                   :value="preset"
                   v-model="selectedDelayPreset"
-                  class="text-amber-600 focus:ring-amber-500 border-slate-300"
+                  class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300 shrink-0"
                 />
                 <span>{{ preset }}</span>
               </label>
 
               <label
-                class="flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer text-xs transition-all select-none"
-                :class="selectedDelayPreset === 'Other / Custom Reason' ? 'bg-amber-50/80 border-amber-300 text-amber-950 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/60'"
+                class="flex items-center gap-3 p-3 sm:p-3.5 rounded-xl border cursor-pointer text-sm sm:text-[15px] transition-all select-none"
+                :class="selectedDelayPreset === 'Other / Custom Reason' ? 'bg-amber-50/90 border-amber-300 text-amber-950 font-bold shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/70 font-medium'"
               >
                 <input
                   type="radio"
                   name="fgmu-delay-reason"
                   value="Other / Custom Reason"
                   v-model="selectedDelayPreset"
-                  class="text-amber-600 focus:ring-amber-500 border-slate-300"
+                  class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300 shrink-0"
                 />
                 <span>Other / Custom Reason</span>
               </label>
@@ -1001,34 +1001,34 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">
               {{ selectedDelayPreset === 'Other / Custom Reason' ? 'Specify Custom Reason' : 'Additional Notes (Optional)' }}
               <span v-if="selectedDelayPreset === 'Other / Custom Reason'" class="text-rose-500">*</span>
             </label>
             <textarea
               v-model="delayNotesInput"
-              rows="2.5"
+              rows="3"
               :placeholder="selectedDelayPreset === 'Other / Custom Reason' ? 'Provide clear reason for delaying approval...' : 'e.g., Awaiting delivery of circuit breakers from supplier.'"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 placeholder:text-slate-400"
+              class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm sm:text-[15px] font-medium leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 placeholder:text-slate-400"
             ></textarea>
           </div>
 
-          <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200/70 text-[11px] text-amber-800 flex items-start gap-2">
-            <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <div class="p-3.5 sm:p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs sm:text-sm text-amber-900 flex items-start gap-2.5 leading-relaxed">
+            <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             <span>This ticket will be excluded from the pending approval queue until resumed or directly approved once items arrive.</span>
           </div>
         </div>
 
         <div class="flex gap-3 pt-2">
-          <button @click="closeDelayModal" class="w-full px-4 py-2.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 cursor-pointer transition-colors">
+          <button @click="closeDelayModal" class="w-full px-4 py-3 bg-slate-100 text-slate-700 text-sm sm:text-[15px] font-bold rounded-xl hover:bg-slate-200 cursor-pointer transition-colors">
             Cancel
           </button>
           <button
             @click="submitDelayApproval"
             :disabled="isSubmittingDelay || (!selectedDelayPreset || (selectedDelayPreset === 'Other / Custom Reason' && !delayNotesInput.trim()))"
-            class="w-full px-4 py-2.5 bg-amber-600 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-amber-600/20 hover:bg-amber-500 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-1.5"
+            class="w-full px-4 py-3 bg-amber-600 text-white text-sm sm:text-[15px] font-black uppercase tracking-wider rounded-xl shadow-lg shadow-amber-600/20 hover:bg-amber-500 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-2"
           >
-            <svg v-if="isSubmittingDelay" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+            <svg v-if="isSubmittingDelay" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
             <span>{{ isSubmittingDelay ? 'Saving...' : 'Confirm Delay' }}</span>
           </button>
         </div>
