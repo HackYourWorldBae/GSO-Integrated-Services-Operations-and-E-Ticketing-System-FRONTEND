@@ -315,16 +315,13 @@
                 <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
               </td>
 
-              <!-- Target Schedule -->
+              <!-- Target Schedule (date only — durations appear on Active tickets only) -->
               <td class="px-3 py-2.5 whitespace-nowrap">
                 <div class="text-xs font-bold text-slate-800">
                   {{ formatDate(ticket.assignment?.implementation_date) }}
                 </div>
-                <div class="text-[10px] font-bold text-amber-700 flex items-center gap-1 mt-0.5">
-                  <span class="px-1.5 py-0.2 rounded bg-amber-50 border border-amber-200">
-                    {{ (ticket.working_days || ticket.assignment?.working_days) ? `${ticket.working_days || ticket.assignment?.working_days} Day(s)` : '1 Day' }}
-                  </span>
-                  <span class="text-slate-400 font-medium">• Scheduled</span>
+                <div class="text-[10px] text-slate-400 font-medium mt-0.5">
+                  Scheduled
                 </div>
               </td>
 
@@ -614,14 +611,10 @@
                 No personnel assigned yet.
               </div>
 
-              <div class="pt-2 border-t border-white/10 grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+              <div class="pt-2 border-t border-white/10 text-[11px] text-slate-300">
                 <div>
                   <span class="text-[9px] text-slate-400 uppercase font-black block">Planned Start Date</span>
                   <span class="font-bold text-white">{{ formatDate(selectedTicketForModal.assignment?.implementation_date) }}</span>
-                </div>
-                <div>
-                  <span class="text-[9px] text-slate-400 uppercase font-black block">Target Duration</span>
-                  <span class="font-bold text-white">{{ selectedTicketForModal.working_days || selectedTicketForModal.assignment?.working_days || 1 }} Day(s)</span>
                 </div>
               </div>
             </div>

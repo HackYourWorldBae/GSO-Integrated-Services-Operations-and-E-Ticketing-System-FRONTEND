@@ -72,14 +72,14 @@
               <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Collab Flow</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Status</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Elapsed Duration</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Target Duration</th>
+              <th v-if="showDurations" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Elapsed Duration</th>
+              <th v-if="showDurations" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Target Duration</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 text-xs">
             <tr v-if="loading && tickets.length === 0">
-              <td colspan="6" class="py-16 text-center">
+              <td :colspan="showDurations ? 6 : 4" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                   <svg class="animate-spin h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -90,7 +90,7 @@
               </td>
             </tr>
             <tr v-else-if="paginatedTickets.length === 0">
-              <td colspan="6" class="py-16 text-center">
+              <td :colspan="showDurations ? 6 : 4" class="py-16 text-center">
                 <div class="max-w-sm mx-auto flex flex-col items-center">
                   <div class="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-400 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,8 +132,8 @@
                   {{ ticket.my_unit_dispatched ? '✓ Your unit dispatched' : '○ Awaiting your dispatch' }}
                 </div>
               </td>
-              <!-- Elapsed Duration (from joint assignments) -->
-              <td class="px-3 py-2.5 whitespace-nowrap">
+              <!-- Elapsed Duration (from joint assignments, active collab only) -->
+              <td v-if="showDurations" class="px-3 py-2.5 whitespace-nowrap">
                 <span class="text-xs font-bold px-2 py-0.5 rounded-lg border inline-flex items-center gap-1.5 w-fit bg-indigo-50/60 border-indigo-200/70 text-indigo-900">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -144,8 +144,8 @@
                   {{ hasStarted(ticket) ? '● In Progress' : '○ Awaiting Start' }}
                 </span>
               </td>
-              <!-- Target Duration (requesting unit's turnaround) -->
-              <td class="px-3 py-2.5 whitespace-nowrap">
+              <!-- Target Duration (requesting unit's turnaround, active collab only) -->
+              <td v-if="showDurations" class="px-3 py-2.5 whitespace-nowrap">
                 <div class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -314,7 +314,7 @@
         </div>
         <div class="mt-2 text-xs text-slate-600 truncate">{{ ticket.requester }} • {{ ticket.location || 'Main Campus' }}</div>
         <div class="mt-1 text-[11px] text-slate-500 truncate">{{ ticket.scope_of_work || '' }}</div>
-        <div class="mt-2 flex items-center justify-between text-[11px] font-bold text-slate-600">
+        <div v-if="showDurations" class="mt-2 flex items-center justify-between text-[11px] font-bold text-slate-600">
           <span class="inline-flex items-center gap-1 text-indigo-800">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -533,6 +533,11 @@ const stageLabel = computed(() => {
   if (props.mode === 'active') return 'Collab — Active';
   return 'Collab Tickets';
 });
+
+// Elapsed / Target durations are meaningful only once joint work has started,
+// so they are shown exclusively on the Active collab tab (both requesting and
+// receiving units share the ActiveTicketsWorkspace with mode="active").
+const showDurations = computed(() => props.mode === 'active');
 
 // Effective search: parent-owned input when embedded (hideToolbar),
 // otherwise this component's own toolbar input.
