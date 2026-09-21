@@ -3,10 +3,10 @@
     <Transition name="modal">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-[130] flex items-center justify-center p-2 sm:p-6 bg-slate-950/75 backdrop-blur-md overflow-hidden"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-6 bg-slate-950/70 backdrop-blur-md overflow-y-auto pointer-events-auto"
         @click.self="emitClose"
       >
-        <div class="bg-white w-full max-w-4xl h-[92vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden border border-slate-200 relative animate-scale-up">
+        <div class="my-auto bg-white w-full max-w-4xl max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] h-[92vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden border border-slate-200 relative animate-scale-up pointer-events-auto">
           
           <!-- Top Action Bar (hidden during printing) -->
           <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0 gap-4 print:hidden">

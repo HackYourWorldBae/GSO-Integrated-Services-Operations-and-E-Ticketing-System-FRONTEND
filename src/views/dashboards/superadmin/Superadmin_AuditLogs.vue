@@ -321,10 +321,10 @@
       <Teleport to="body">
         <div
           v-if="selectedLog"
-          class="fixed inset-0 z-[9990] overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 pointer-events-auto"
+          class="fixed inset-0 z-[150] overflow-y-auto bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 pointer-events-auto"
           @click.self="closeLogDetails"
         >
-          <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-5 sm:p-6 animate-scale-up space-y-5 max-h-[92vh] overflow-y-auto custom-scrollbar pointer-events-auto">
+          <div class="my-auto bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-5 sm:p-6 animate-scale-up space-y-5 max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar pointer-events-auto">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100">
               <div class="flex items-center gap-2.5">
                 <div class="p-2.5 rounded-xl bg-purple-50 text-purple-600 shrink-0">

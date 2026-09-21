@@ -274,7 +274,7 @@
       </div>
       <!-- Add Personnel Modal -->
       <Teleport to="body">
-        <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
+        <div v-if="showAddModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto">
           <div class="pointer-events-auto bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-5 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
             <div class="flex items-center justify-between mb-6">
               <div>
@@ -331,7 +331,7 @@
 
       <!-- Edit Personnel Modal -->
       <Teleport to="body">
-        <div v-if="showEditModal && editingWorker" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
+        <div v-if="showEditModal && editingWorker" class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto">
           <div class="pointer-events-auto bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-5 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
             <div class="flex items-center justify-between mb-6">
               <div>
@@ -370,7 +370,7 @@
 
       <!-- Category Management Modal -->
       <Teleport to="body">
-        <div v-if="showCategoryModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
+        <div v-if="showCategoryModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto">
           <div class="pointer-events-auto bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-2xl p-5 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
             <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
               <div>
@@ -600,7 +600,7 @@
 
       <!-- Delete Confirmation Modal -->
       <Teleport to="body">
-        <div v-if="workerToDelete" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
+        <div v-if="workerToDelete" class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto">
           <div class="pointer-events-auto bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-slate-100 text-center animate-scale-up my-auto">
             <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>

@@ -3,10 +3,10 @@
     <Transition name="fade">
       <div 
         v-if="isOpen" 
-        class="fixed inset-0 z-[100000] flex items-center justify-center p-4 overflow-y-auto bg-slate-900/60 backdrop-blur-md select-none"
+        class="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-slate-950/70 backdrop-blur-md select-none pointer-events-auto"
       >
         <div 
-          class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-8 transform transition-all animate-modal-pop text-center space-y-6"
+          class="my-auto relative w-full max-w-md bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 transform transition-all animate-modal-pop text-center space-y-6 max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto shadow-2xl pointer-events-auto"
         >
           <!-- Animated Warning Icon -->
           <div class="mx-auto w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shadow-sm relative">

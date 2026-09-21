@@ -46,10 +46,10 @@ defineEmits(['confirm', 'cancel']);
     <Transition name="fade">
       <div 
         v-if="isOpen" 
-        :class="['fixed inset-0 flex items-center justify-center p-4 pointer-events-auto', zIndexClass || 'z-[10000]']"
+        :class="['fixed inset-0 flex items-center justify-center p-4 pointer-events-auto overflow-y-auto', zIndexClass || 'z-[10000]']"
       >
-        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="!isLoading && $emit('cancel')"></div>
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md p-6 sm:p-8 relative z-10 transform transition-all animate-modal-pop border border-slate-100">
+        <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity" @click="!isLoading && $emit('cancel')"></div>
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md p-6 sm:p-8 relative z-10 transform transition-all animate-modal-pop border border-slate-100 my-auto">
         <div class="flex items-center gap-4 mb-4">
           <div :class="[
             'w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border',

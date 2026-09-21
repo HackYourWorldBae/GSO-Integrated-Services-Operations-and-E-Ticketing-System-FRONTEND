@@ -596,10 +596,10 @@
           <Transition name="modal">
             <div
               v-if="selectedTicket"
-              class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+              class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
               @click.self="closeTimeline"
             >
-              <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden" @click.stop>
+              <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-hidden my-auto" @click.stop>
 
                 <!-- Modal Header -->
                 <div class="flex items-start justify-between px-6 pt-6 pb-5 border-b border-slate-100 shrink-0">
@@ -1063,10 +1063,10 @@
         <Transition name="modal">
           <div
             v-if="showCancelModal"
-            class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+            class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
             @click.self="showCancelModal = false"
           >
-            <div class="w-full max-w-md bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8 transform transition-all">
+            <div class="w-full max-w-md bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8 transform transition-all my-auto" @click.stop>
               <div class="flex items-center gap-3.5 mb-4">
                 <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

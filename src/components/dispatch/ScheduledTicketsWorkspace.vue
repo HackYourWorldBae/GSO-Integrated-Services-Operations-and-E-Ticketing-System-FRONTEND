@@ -528,10 +528,10 @@
     <Teleport to="body">
       <div
         v-if="selectedTicketForModal"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs animate-fade-in pointer-events-auto"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
         @click.self="selectedTicketForModal = null"
       >
-        <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-hidden">
+        <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-hidden my-auto">
           
           <!-- Fixed Modal Header -->
           <div class="p-5 sm:p-6 pb-4 border-b border-slate-100 flex items-start justify-between gap-4 shrink-0 bg-white">
@@ -901,10 +901,26 @@ const scheduledTabRefreshKey = ref(0);
 const isLeauBorrowing = computed(() => isLEAU.value && scheduledTab.value === 'borrowing');
 const isScheduledCollab = computed(() => scheduledTab.value === 'collab');
 
+const clearRouteQueryTicket = () => {
+  if (route.query.ticketId || route.query.highlight || route.query._t) {
+    const nextQuery = { ...route.query };
+    delete nextQuery.ticketId;
+    delete nextQuery.highlight;
+    delete nextQuery._t;
+    router.replace({ path: route.path, query: nextQuery }).catch(() => {});
+  }
+};
+
 const switchScheduledTab = (tab) => {
   scheduledTab.value = tab === 'borrowing' ? 'borrowing' : tab === 'collab' ? 'collab' : 'jobs';
   currentPage.value = 1;
+  // Close any open ticket modal and drop consumed deep-link params so
+  // switching tabs never re-triggers the details modal.
+  selectedTicketForModal.value = null;
   const nextQuery = { ...route.query };
+  delete nextQuery.ticketId;
+  delete nextQuery.highlight;
+  delete nextQuery._t;
   if (scheduledTab.value === 'borrowing' || scheduledTab.value === 'collab') {
     nextQuery.tab = scheduledTab.value;
   } else {
@@ -1431,6 +1447,9 @@ const checkRouteQueryTicket = () => {
     if (idx !== -1) {
       currentPage.value = Math.floor(idx / pageSize.value) + 1;
     }
+    // Consume the deep-link params so later navigations (e.g. tab
+    // switches) don't re-trigger this modal.
+    clearRouteQueryTicket();
     setTimeout(() => {
       const el = document.getElementById('ticket-' + match.id) || document.getElementById('mob-ticket-' + match.id);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1438,7 +1457,10 @@ const checkRouteQueryTicket = () => {
   }
 };
 
-watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
+// NOTE: array-of-getters (not a single getter returning an array) so this
+// only fires when one of the deep-link values actually changes — a plain
+// `?tab=` switch must never re-open the ticket modal.
+watch([() => route.query.ticketId, () => route.query.highlight, () => route.query._t], () => {
   checkRouteQueryTicket();
 });
 
@@ -1448,6 +1470,7 @@ watch(() => route.query.tab, (v) => {
   if (next !== scheduledTab.value) {
     scheduledTab.value = next;
     currentPage.value = 1;
+    selectedTicketForModal.value = null;
     if (next === 'borrowing') {
       scheduledTabRefreshKey.value += 1;
       fetchBorrowingCount();

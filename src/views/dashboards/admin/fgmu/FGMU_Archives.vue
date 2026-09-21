@@ -276,8 +276,9 @@
 
     <template #modal-overlay>
       <!-- Read-Only Ticket Details Modal -->
-      <div v-if="showDetailsModal && selectedTicket" class="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeDetailsModal">
-        <div class="bg-white rounded-[2rem] p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <Teleport to="body">
+        <div v-if="showDetailsModal && selectedTicket" class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in pointer-events-auto overflow-y-auto" @click.self="closeDetailsModal">
+          <div class="bg-white rounded-[2rem] p-6 sm:p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto" @click.stop>
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-2xl font-black text-slate-900">Archived Ticket Details</h3>
             <button @click="closeDetailsModal" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full transition-colors active:scale-95">
@@ -554,6 +555,7 @@
           </div>
         </div>
       </div>
+    </Teleport>
       
       <!-- Document & Attachment Viewer Modal -->
       <DocumentViewerModal

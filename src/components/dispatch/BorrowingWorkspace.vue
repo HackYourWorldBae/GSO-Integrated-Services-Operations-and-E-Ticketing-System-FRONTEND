@@ -215,8 +215,8 @@
 
     <!-- Return modal -->
     <Teleport to="body">
-      <div v-if="returnTarget" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" @click.self="returnTarget = null">
-        <div class="bg-white rounded-3xl w-full max-w-md p-5 sm:p-6 shadow-2xl border border-slate-100">
+      <div v-if="returnTarget" class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto" @click.self="returnTarget = null">
+        <div class="bg-white rounded-3xl w-full max-w-md p-5 sm:p-6 shadow-2xl border border-slate-100 my-auto">
           <h3 class="text-lg font-black text-slate-900">Mark Returned — #{{ returnTarget.ticket_id }}</h3>
           <p class="text-xs text-slate-500 mt-1">Returning auto-archives the ticket as completed. No rating form is shown to the end user.</p>
           <div class="space-y-3 mt-4">

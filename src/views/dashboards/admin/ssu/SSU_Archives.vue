@@ -284,8 +284,9 @@
         :initialYear="yearFilter"
       />
       <!-- Read-Only Ticket Details Modal -->
-      <div v-if="showDetailsModal && selectedTicket" class="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeDetailsModal">
-        <div class="bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <Teleport to="body">
+        <div v-if="showDetailsModal && selectedTicket" class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in pointer-events-auto overflow-y-auto" @click.self="closeDetailsModal">
+          <div class="bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto" @click.stop>
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl sm:text-2xl font-black text-slate-900">Archived Ticket Details</h3>
             <button @click="closeDetailsModal" class="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full transition-colors active:scale-95 touch-manipulation">
@@ -375,20 +376,23 @@
           </div>
         </div>
       </div>
+    </Teleport>
       
       <!-- Image Viewer Modal -->
-      <div v-if="showImageModal" class="absolute inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeImageModal">
-        <div class="relative bg-white rounded-2xl p-2 max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
-          <button @click="closeImageModal" class="absolute -top-4 -right-4 bg-white text-slate-500 hover:text-slate-700 p-2 rounded-full shadow-lg transition-colors z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <div class="overflow-auto rounded-xl flex items-center justify-center bg-slate-100 min-h-[200px] min-w-[200px]">
-            <img :src="selectedImageUrl" alt="Attachment Preview" class="max-w-full max-h-[85vh] object-contain rounded-xl" />
+      <Teleport to="body">
+        <div v-if="showImageModal" class="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in pointer-events-auto overflow-y-auto" @click.self="closeImageModal">
+          <div class="relative bg-white rounded-2xl p-2 max-w-4xl max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] flex flex-col shadow-2xl my-auto" @click.stop>
+            <button @click="closeImageModal" class="absolute -top-4 -right-4 bg-white text-slate-500 hover:text-slate-700 p-2 rounded-full shadow-lg transition-colors z-10 cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div class="overflow-auto rounded-xl flex items-center justify-center bg-slate-100 min-h-[200px] min-w-[200px]">
+              <img :src="selectedImageUrl" alt="Attachment Preview" class="max-w-full max-h-[85vh] object-contain rounded-xl" />
+            </div>
           </div>
         </div>
-      </div>
+      </Teleport>
     </template>
   </MainLayout>
 </template>

@@ -92,22 +92,23 @@ const handleFinalDelete = () => {
 </script>
 
 <template>
-  <Transition name="fade">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto overflow-y-auto"
-    >
-      <!-- Backdrop -->
+  <Teleport to="body">
+    <Transition name="fade">
       <div
-        class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
-        @click="!isLoading && emit('close')"
-      ></div>
-
-      <!-- Modal Card -->
-      <div
-        class="relative z-10 bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xl p-6 sm:p-8 my-8 text-left animate-scale-up"
-        @click.stop
+        v-if="isOpen"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-4 pointer-events-auto overflow-y-auto"
       >
+        <!-- Backdrop -->
+        <div
+          class="fixed inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity"
+          @click="!isLoading && emit('close')"
+        ></div>
+
+        <!-- Modal Card -->
+        <div
+          class="relative z-10 bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xl p-6 sm:p-8 my-auto text-left animate-scale-up max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto"
+          @click.stop
+        >
         <!-- Modal Top Bar -->
         <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
           <div class="flex items-center gap-3">
@@ -400,4 +401,5 @@ const handleFinalDelete = () => {
       </div>
     </div>
   </Transition>
+</Teleport>
 </template>

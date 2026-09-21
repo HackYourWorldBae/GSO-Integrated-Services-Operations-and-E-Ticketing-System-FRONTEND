@@ -480,7 +480,7 @@
     <Teleport to="body">
       <div
         v-if="notationModal.isOpen"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
         @click.self="closeNotationModal"
       >
         <div class="pointer-events-auto bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 my-auto animate-scale-up">
@@ -539,7 +539,7 @@
     <Teleport to="body">
       <div
         v-if="resolveModal.isOpen"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
         @click.self="closeResolveModal"
       >
         <div class="pointer-events-auto bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 my-auto animate-scale-up text-center">
@@ -584,7 +584,7 @@
     <Teleport to="body">
       <div
         v-if="dismissModal.isOpen"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
         @click.self="closeDismissModal"
       >
         <div class="pointer-events-auto bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 my-auto animate-scale-up">
@@ -641,10 +641,10 @@
     <Teleport to="body">
       <div
         v-if="detailsModal.isOpen"
-        class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/70 backdrop-blur-sm animate-fade-in overflow-y-auto"
+        class="fixed inset-0 z-[150] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
         @click.self="closeDetailsModal"
       >
-        <div class="pointer-events-auto bg-white w-full sm:rounded-3xl sm:max-w-2xl shadow-2xl border border-slate-100 animate-scale-up max-h-screen sm:max-h-[92vh] flex flex-col">
+        <div class="pointer-events-auto bg-white w-full sm:rounded-3xl sm:max-w-2xl shadow-2xl border border-slate-100 animate-scale-up max-h-screen sm:max-h-[88vh] flex flex-col my-auto">
 
           <!-- Modal Header -->
           <div class="flex items-start justify-between gap-4 p-5 sm:p-6 pb-4 border-b border-slate-100 shrink-0">
@@ -888,10 +888,10 @@
     <Teleport to="body">
       <div
         v-if="confirmInvestigateModal.isOpen"
-        class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-fade-in"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
         @click.self="closeInvestigateModal"
       >
-        <div class="pointer-events-auto bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 animate-scale-up text-center">
+        <div class="pointer-events-auto bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 animate-scale-up text-center my-auto">
           <div class="w-14 h-14 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center mx-auto mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

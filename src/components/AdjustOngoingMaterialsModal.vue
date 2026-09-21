@@ -3,10 +3,10 @@
     <Transition name="modal">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md overflow-hidden"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md overflow-y-auto pointer-events-auto"
         @click.self="emitClose"
       >
-        <div class="bg-white w-full max-w-3xl max-h-[92vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-scale-up">
+        <div class="my-auto bg-white w-full max-w-3xl max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-scale-up pointer-events-auto">
           
           <!-- Header -->
           <div class="px-6 sm:px-8 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950 text-white flex items-center justify-between shrink-0 border-b border-slate-800">

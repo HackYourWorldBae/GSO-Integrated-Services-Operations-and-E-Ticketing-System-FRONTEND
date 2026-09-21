@@ -2,11 +2,11 @@
   <Teleport to="body">
     <div
       v-if="isOpen"
-      class="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+      class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
       @click.self="handleBackdropClick"
     >
       <div
-        class="bg-white rounded-[2.5rem] border border-slate-200/80 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all"
+        class="bg-white rounded-[2.5rem] border border-slate-200/80 shadow-2xl max-w-2xl w-full max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] flex flex-col overflow-hidden transform transition-all my-auto"
       >
         <!-- Modal Header -->
         <div class="p-6 sm:p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">

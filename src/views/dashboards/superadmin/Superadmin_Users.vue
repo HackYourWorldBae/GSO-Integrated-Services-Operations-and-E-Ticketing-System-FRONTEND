@@ -632,11 +632,11 @@
         <!-- Provision User Modal -->
         <div 
           v-if="isCreateModalOpen" 
-          class="fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto"
+          class="fixed inset-0 z-[150] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 pointer-events-auto overflow-y-auto"
           @click.self="isCreateModalOpen = false"
         >
         <div 
-          class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[90vh] overflow-y-auto custom-scrollbar pointer-events-auto"
+          class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar pointer-events-auto my-auto"
           @click.stop
         >
           <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -772,11 +772,11 @@
       <!-- Edit User Modal -->
       <div 
         v-if="isEditModalOpen" 
-        class="fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto"
+        class="fixed inset-0 z-[150] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 pointer-events-auto overflow-y-auto"
         @click.self="isEditModalOpen = false"
       >
         <div 
-          class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[90vh] overflow-y-auto custom-scrollbar pointer-events-auto"
+          class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar pointer-events-auto my-auto"
           @click.stop
         >
           <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -869,11 +869,11 @@
       <!-- Inspect ID Card & Verification Modal -->
       <div 
         v-if="isInspectModalOpen && inspectingUser" 
-        class="fixed inset-0 z-[75] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto"
+        class="fixed inset-0 z-[160] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 pointer-events-auto overflow-y-auto"
         @click.self="isInspectModalOpen = false"
       >
         <div 
-          class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[92vh] overflow-y-auto custom-scrollbar pointer-events-auto"
+          class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar pointer-events-auto my-auto"
           @click.stop
         >
           <div class="flex items-center justify-between pb-3 border-b border-slate-100">

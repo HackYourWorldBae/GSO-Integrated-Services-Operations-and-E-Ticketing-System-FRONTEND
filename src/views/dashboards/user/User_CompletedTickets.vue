@@ -271,8 +271,8 @@
     <template #modal-overlay>
       <!-- Read-Only Ticket Details Modal (Teleported to body for mobile responsiveness & no pointer-events trapping) -->
       <Teleport to="body">
-        <div v-if="showDetailsModal && selectedTicket" class="fixed inset-0 z-[9990] flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in pointer-events-auto" @click.self="closeDetailsModal">
-          <div class="bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto custom-scrollbar pointer-events-auto">
+        <div v-if="showDetailsModal && selectedTicket" class="fixed inset-0 z-[9990] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in pointer-events-auto overflow-y-auto" @click.self="closeDetailsModal">
+          <div class="bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar pointer-events-auto my-auto" @click.stop>
             <div class="flex items-center justify-between mb-5 sm:mb-6">
               <h3 class="text-xl sm:text-2xl font-black text-slate-900">Completed Ticket Details</h3>
               <div class="flex items-center gap-2">
@@ -505,10 +505,10 @@
       <Teleport to="body">
         <div
           v-if="selectedTimelineTicket"
-          class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in pointer-events-auto"
+          class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in pointer-events-auto overflow-y-auto"
           @click.self="closeTimeline"
         >
-          <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden pointer-events-auto" @click.stop>
+          <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-hidden pointer-events-auto my-auto" @click.stop>
             <!-- Modal Header -->
             <div class="flex items-start justify-between px-5 sm:px-6 pt-5 sm:pt-6 pb-4 sm:pb-5 border-b border-slate-100 shrink-0">
               <div class="flex items-start gap-3 sm:gap-4 min-w-0 flex-1 mr-2">
