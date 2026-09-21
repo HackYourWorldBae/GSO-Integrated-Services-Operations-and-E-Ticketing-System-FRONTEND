@@ -68,7 +68,96 @@
       <p class="text-xs text-slate-400 mt-1">Requests move here automatically as their status changes.</p>
     </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <!-- ═══ Desktop Tabular View (matching other ticket lists) ═══ -->
+    <div v-else-if="isTableLayout" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Borrower</th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Item Requested</th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Schedule</th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Status</th>
+              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            <tr
+              v-for="req in visibleRequests"
+              :key="req.ticket_id || req.id"
+              class="hover:bg-amber-50/50 transition-all duration-150 group relative"
+            >
+              <td class="px-4 py-2.5 whitespace-nowrap relative">
+                <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
+                <span class="font-mono text-sm font-bold px-3 py-1 rounded-lg border bg-amber-50 text-amber-800 border-amber-200 inline-flex items-center group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all duration-150 shadow-2xs">
+                  #{{ req.ticket_id }}
+                </span>
+              </td>
+              <td class="px-3 py-2.5">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
+                    {{ getInitials(req.borrower_name) }}
+                  </div>
+                  <div class="min-w-0">
+                    <span class="text-xs font-semibold text-slate-800 truncate block max-w-[150px]">{{ req.borrower_name }}</span>
+                    <span class="text-[10px] text-slate-400 block truncate max-w-[150px]">{{ req.borrower_type }}{{ req.borrower_id_number ? ` • ${req.borrower_id_number}` : '' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-3 py-2.5">
+                <div class="text-xs font-black text-slate-900 truncate max-w-[220px]">
+                  {{ req.item_name_requested }}
+                  <span v-if="req.item_model_requested" class="font-semibold text-slate-500">({{ req.item_model_requested }})</span>
+                </div>
+                <div class="text-[10px] text-slate-500">Qty: {{ req.assigned_quantity || req.quantity_needed }}{{ req.purpose_project ? ` • ${req.purpose_project}` : '' }}</div>
+              </td>
+              <td class="px-3 py-2.5 whitespace-nowrap">
+                <div class="text-xs font-bold text-slate-800">{{ formatDate(req.date_needed) }}</div>
+                <div class="text-[10px] font-bold" :class="isOverdue(req) ? 'text-rose-600' : 'text-slate-500'">→ {{ formatDate(req.expected_return_date) }}</div>
+              </td>
+              <td class="px-3 py-2.5 whitespace-nowrap">
+                <span :class="['px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border', statusPillClass(req.status)]">
+                  {{ formatStatus(req.status) }}
+                </span>
+              </td>
+              <td class="px-3 py-2.5 whitespace-nowrap text-right" @click.stop>
+                <div class="flex items-center justify-end gap-1.5">
+                  <button
+                    v-if="req.status === 'ready_for_pickup'"
+                    type="button"
+                    @click="doPickup(req)"
+                    :disabled="actionLoading"
+                    class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black transition-all cursor-pointer disabled:opacity-50"
+                    title="Record early or on-time pickup"
+                  >
+                    Picked Up
+                  </button>
+                  <button
+                    v-if="req.status === 'picked_up' || req.status === 'overdue'"
+                    type="button"
+                    @click="openReturnModal(req)"
+                    :disabled="actionLoading"
+                    class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all cursor-pointer disabled:opacity-50"
+                    title="Record item return (auto-archives, no rating)"
+                  >
+                    Mark Returned
+                  </button>
+                  <router-link
+                    :to="`/admin/leau/assign-workers?ticket=${req.ticket_id}`"
+                    class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center cursor-pointer"
+                  >
+                    Details
+                  </router-link>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div v-else :class="[isTableLayout ? 'md:hidden space-y-4' : 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4']">
       <div
         v-for="req in visibleRequests"
         :key="req.ticket_id || req.id"
@@ -178,8 +267,20 @@ const props = defineProps({
   // Optional locked status set for embedded mode (e.g. ['ready_for_pickup'] on the
   // Scheduled page, ['picked_up', 'overdue'] on the Active page). When provided with
   // showTabs=false, the list shows these statuses combined instead of a single tab.
-  statusFilter: { type: Array, default: null }
+  statusFilter: { type: Array, default: null },
+  // List layout: 'cards' (default grid) or 'table' (tabular, matching the other
+  // ticket-list workspaces on desktop; mobile stays as cards).
+  layout: { type: String, default: 'cards' }
 });
+
+const isTableLayout = computed(() => String(props.layout || 'cards').toLowerCase() === 'table');
+
+const getInitials = (name) => {
+  if (!name) return 'U';
+  const parts = String(name).trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return String(name).substring(0, 2).toUpperCase();
+};
 
 const tabs = [
   { key: 'awaiting', label: 'Borrowing Requests (Awaiting Pickup Date)' },
@@ -246,6 +347,11 @@ const visibleRequests = computed(() => {
 });
 
 const formatStatus = (s) => borrowingStatusLabel(s);
+const statusPillClass = (s) => s === 'overdue'
+  ? 'bg-rose-50 text-rose-700 border-rose-200'
+  : s === 'picked_up'
+    ? 'bg-blue-50 text-blue-700 border-blue-200'
+    : 'bg-emerald-50 text-emerald-700 border-emerald-200';
 const formatDate = (v) => {
   if (!v) return '—';
   const d = new Date(v);

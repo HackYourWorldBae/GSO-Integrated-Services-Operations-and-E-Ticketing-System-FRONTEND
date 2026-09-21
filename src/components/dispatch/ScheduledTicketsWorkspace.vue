@@ -194,7 +194,7 @@
 
     <!-- ═══ Borrowing Requests Pane (LEAU only, awaiting pickup) ═══ -->
     <div v-if="isLeauBorrowing">
-      <BorrowingWorkspace initial-tab="awaiting" :show-tabs="false" :status-filter="['ready_for_pickup']" :key="'scheduled-borrowing-' + scheduledTabRefreshKey" />
+      <BorrowingWorkspace initial-tab="awaiting" :show-tabs="false" :status-filter="['ready_for_pickup']" layout="table" :key="'scheduled-borrowing-' + scheduledTabRefreshKey" />
     </div>
 
     <!-- ═══ Collab Tickets Pane (shares the toolbar search + details modal above) ═══ -->
@@ -687,6 +687,9 @@
               </p>
             </div>
 
+            <!-- Borrowing Request Particulars (item, purpose, schedule, borrower) -->
+            <BorrowingDetailsSection :ticket="selectedTicketForModal" />
+
             <!-- Official Job Order Document Section -->
             <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -844,6 +847,7 @@ import { toast } from 'vue3-toastify';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
+import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
 import { fetchCollabTickets } from '@/api/collaborations';
 import { getBorrowingQueue } from '@/api/borrowing';

@@ -590,6 +590,9 @@
               </p>
             </div>
 
+            <!-- Borrowing Request Particulars (item, purpose, schedule, borrower) -->
+            <BorrowingDetailsSection :ticket="selectedTicketForModal" />
+
             <!-- Attachments & Proof Documents -->
             <div class="space-y-2.5">
               <span class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
@@ -679,6 +682,7 @@ import api from '@/api/client';
 import { isBorrowingService, borrowingDispatchLink } from '@/utils/borrowing';
 import { fetchCollabTickets } from '@/api/collaborations';
 import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
+import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 import { toast } from 'vue3-toastify';
 
 const route = useRoute();

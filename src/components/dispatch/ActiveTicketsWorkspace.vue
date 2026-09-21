@@ -270,7 +270,7 @@
 
     <!-- ═══ Borrowed Requests Pane (LEAU only: picked up + overdue) ═══ -->
     <div v-if="isLeauBorrowed">
-      <BorrowingWorkspace initial-tab="borrowed" :show-tabs="false" :status-filter="['picked_up', 'overdue']" :key="'active-borrowed-' + borrowedRefreshKey" />
+      <BorrowingWorkspace initial-tab="borrowed" :show-tabs="false" :status-filter="['picked_up', 'overdue']" layout="table" :key="'active-borrowed-' + borrowedRefreshKey" />
     </div>
 
     <!-- ═══ Collab Active Pane (shares the toolbar search + action handlers above) ═══ -->
@@ -1018,6 +1018,9 @@
               </p>
             </div>
 
+            <!-- Borrowing Request Particulars (item, purpose, schedule, borrower) -->
+            <BorrowingDetailsSection :ticket="selectedTicketForModal" />
+
             <!-- Official Job Order Document Section -->
             <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1249,6 +1252,7 @@ import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import CrossUnitCollaborationModal from './CrossUnitCollaborationModal.vue';
 import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
+import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
 import { fetchCollabTickets } from '@/api/collaborations';
 import { getBorrowingQueue } from '@/api/borrowing';
