@@ -41,7 +41,7 @@ const activeTab = ref('active'); // 'active' | 'request'
 
 // Form State: Request Collaboration
 const requestForm = ref({
-  collaborating_unit_id: null,
+  collaborating_unit_ids: [],
   scope_of_work: '',
 });
 
@@ -97,12 +97,47 @@ const isPrimaryUnit = computed(() => {
 // Available target units for collaboration request (exclude ticket's primary unit)
 const availableTargetUnits = computed(() => {
   const units = [
-    { id: 1, code: 'FGMU', name: 'Facilities & Grounds (FGMU)' },
-    { id: 2, code: 'LEAU', name: 'Landscaping & Aesthetics (LEAU)' },
-    { id: 3, code: 'SSU', name: 'Security Services (SSU)' },
+    {
+      id: 1,
+      code: 'FGMU',
+      shortName: 'Facilities & Grounds',
+      name: 'Facilities & Grounds Management (FGMU)',
+      desc: 'Electrical, carpentry, plumbing, painting, masonry, and infrastructure repairs',
+    },
+    {
+      id: 2,
+      code: 'LEAU',
+      shortName: 'Landscaping & Aesthetics',
+      name: 'Landscaping & Aesthetics (LEAU)',
+      desc: 'Tree trimming, landscaping, grounds clearing, and vegetative maintenance',
+    },
+    {
+      id: 3,
+      code: 'SSU',
+      shortName: 'Security Services',
+      name: 'Security Services (SSU)',
+      desc: 'Perimeter safety, traffic/crowd management, security escorts, and logistics',
+    },
   ];
   return units.filter(u => u.id !== ticketPrimaryUnitId.value);
 });
+
+const isUnitRequested = (unitId) => {
+  return collaborations.value.some(
+    (c) => Number(c.collaborating_unit_id) === Number(unitId) && ['pending', 'accepted'].includes(c.status)
+  );
+};
+
+const getExistingStatusBadge = (unitId) => {
+  const collab = collaborations.value.find(
+    (c) => Number(c.collaborating_unit_id) === Number(unitId) && ['pending', 'accepted'].includes(c.status)
+  );
+  if (!collab) return { label: '', cls: '' };
+  if (collab.status === 'accepted') {
+    return { label: 'Active Collaboration', cls: 'bg-emerald-100 text-emerald-800 border border-emerald-300' };
+  }
+  return { label: 'Pending Request', cls: 'bg-amber-100 text-amber-800 border border-amber-300' };
+};
 
 // Fetch collaborations for the selected ticket
 const normalizeCollaboration = (collab, assignments = []) => {
@@ -185,7 +220,7 @@ watch(
     if (open && props.ticket) {
       activeTab.value = props.hideJointTab ? 'request' : 'active';
       requestForm.value = {
-        collaborating_unit_id: availableTargetUnits.value[0]?.id || null,
+        collaborating_unit_ids: [],
         scope_of_work: '',
       };
       assignForm.value = {
@@ -202,32 +237,54 @@ watch(
 
 // Submit Collaboration Request
 const handleSendRequest = async () => {
-  if (!requestForm.value.collaborating_unit_id) {
-    toast.error('Please select a university unit to collaborate with.');
+  if (!requestForm.value.collaborating_unit_ids || requestForm.value.collaborating_unit_ids.length === 0) {
+    toast.error('Please select at least one target GSO sub-unit.');
     return;
   }
   if (!requestForm.value.scope_of_work.trim()) {
-    toast.error('Please describe the required work scope or assistance.');
+    toast.error('Please describe the required inter-unit assistance and scope of work.');
     return;
   }
 
   isSubmitting.value = true;
   try {
     const scope = requestForm.value.scope_of_work.trim();
-    await requestCollaboration({
-      ticket_id: props.ticket.id,
-      collaborating_unit_id: requestForm.value.collaborating_unit_id,
-      reason: scope,
-      scope_of_work: scope,
-    });
-    toast.success('Collaboration request dispatched successfully!');
-    requestForm.value.scope_of_work = '';
-    await loadCollaborations();
-    emit('updated');
-    if (props.hideJointTab) {
-      emit('close');
-    } else {
-      activeTab.value = 'active';
+    const targetUnitIds = [...requestForm.value.collaborating_unit_ids];
+
+    const results = await Promise.allSettled(
+      targetUnitIds.map((unitId) =>
+        requestCollaboration({
+          ticket_id: props.ticket.id,
+          collaborating_unit_id: unitId,
+          reason: scope,
+          scope_of_work: scope,
+        })
+      )
+    );
+
+    const fulfilled = results.filter((r) => r.status === 'fulfilled');
+    const rejected = results.filter((r) => r.status === 'rejected');
+
+    if (fulfilled.length > 0) {
+      toast.success(
+        fulfilled.length === 1
+          ? 'Collaboration request dispatched successfully!'
+          : `Collaboration requests dispatched to ${fulfilled.length} GSO sub-units successfully!`
+      );
+      requestForm.value.collaborating_unit_ids = [];
+      requestForm.value.scope_of_work = '';
+      await loadCollaborations();
+      emit('updated');
+      if (props.hideJointTab) {
+        emit('close');
+      } else {
+        activeTab.value = 'active';
+      }
+    }
+
+    if (rejected.length > 0) {
+      const firstError = rejected[0].reason?.response?.data?.message || 'Failed to dispatch collaboration request.';
+      toast.error(firstError);
     }
   } catch (err) {
     toast.error(err.response?.data?.message || 'Failed to submit collaboration request.');
@@ -657,34 +714,63 @@ const getStatusBadge = (status) => {
 
           <!-- ─── TAB 2: REQUEST COLLABORATION ─── -->
           <div v-else-if="activeTab === 'request'" class="space-y-4">
-            <div class="space-y-3">
+            <div class="space-y-3.5">
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
-                  Target University Unit <span class="text-rose-500">*</span>
+                  Target GSO Sub-Unit <span class="text-rose-500">*</span>
+                  <span class="text-slate-400 font-normal lowercase tracking-normal ml-1">(select one or both)</span>
                 </label>
-                <select
-                  v-model="requestForm.collaborating_unit_id"
-                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold focus:outline-none focus:border-indigo-500 cursor-pointer"
-                >
-                  <option
+
+                <!-- Checkbox Selection -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <label
                     v-for="unit in availableTargetUnits"
                     :key="unit.id"
-                    :value="unit.id"
+                    class="relative flex items-start gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer select-none"
+                    :class="[
+                      isUnitRequested(unit.id)
+                        ? 'bg-slate-100/80 border-slate-200 opacity-65 cursor-not-allowed'
+                        : requestForm.collaborating_unit_ids.includes(unit.id)
+                          ? 'bg-indigo-50/90 border-indigo-300 ring-2 ring-indigo-500/20 shadow-xs'
+                          : 'bg-slate-50 border-slate-200 hover:bg-slate-100/80 hover:border-slate-300'
+                    ]"
                   >
-                    {{ unit.name }}
-                  </option>
-                </select>
+                    <input
+                      type="checkbox"
+                      :value="unit.id"
+                      v-model="requestForm.collaborating_unit_ids"
+                      :disabled="isUnitRequested(unit.id)"
+                      class="mt-0.5 h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 disabled:opacity-50 cursor-pointer"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="text-xs font-black text-slate-900">{{ unit.code }}</span>
+                        <span class="text-[11px] font-semibold text-slate-600 truncate">{{ unit.shortName || unit.name }}</span>
+                      </div>
+                      <p class="text-[10px] text-slate-500 font-medium line-clamp-2 mt-0.5 leading-snug">
+                        {{ unit.desc }}
+                      </p>
+                      <span
+                        v-if="isUnitRequested(unit.id)"
+                        class="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
+                        :class="getExistingStatusBadge(unit.id).cls"
+                      >
+                        {{ getExistingStatusBadge(unit.id).label }}
+                      </span>
+                    </div>
+                  </label>
+                </div>
               </div>
 
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
-                  Scope of Work &amp; Required Assistance <span class="text-rose-500">*</span>
+                  Inter-Unit Assistance Details &amp; Scope of Work <span class="text-rose-500">*</span>
                 </label>
                 <textarea
                   v-model="requestForm.scope_of_work"
                   rows="4"
                   required
-                  placeholder="Describe why collaboration is needed and what the requested unit will do (e.g., 'Need LEAU tree-trimming team to clear branches before electrical wiring repairs can proceed safely')..."
+                  placeholder="Provide the collaboration message and specific tasks requested from the target sub-unit(s) (e.g., 'Requesting LEAU tree-trimming team to prune branches obstructing service lines before FGMU electrical wiring repairs can proceed safely')..."
                   class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500 placeholder:text-slate-400"
                 ></textarea>
               </div>
@@ -693,17 +779,25 @@ const getStatusBadge = (status) => {
                 <button
                   type="button"
                   @click="hideJointTab ? emit('close') : activeTab = 'active'"
-                  class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors"
+                  class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
-                  :disabled="isSubmitting"
+                  :disabled="isSubmitting || requestForm.collaborating_unit_ids.length === 0 || !requestForm.scope_of_work.trim()"
                   @click="handleSendRequest"
                   class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
                 >
-                  <span>{{ isSubmitting ? 'Dispatching...' : 'Dispatch Request' }}</span>
+                  <span>
+                    {{
+                      isSubmitting
+                        ? 'Dispatching...'
+                        : requestForm.collaborating_unit_ids.length > 1
+                          ? `Dispatch (${requestForm.collaborating_unit_ids.length} Sub-Units)`
+                          : 'Dispatch Request'
+                    }}
+                  </span>
                 </button>
               </div>
             </div>
