@@ -187,18 +187,47 @@
       </div>
       <div v-else class="relative z-10 pt-2">
         <!-- Receiving-end notice: schedule & materials belong to the requesting unit -->
-        <div class="flex items-start gap-3 bg-indigo-500/10 border border-indigo-400/30 rounded-2xl p-4">
-          <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div class="bg-indigo-500/10 border border-indigo-400/30 rounded-2xl p-4 space-y-3">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <h4 class="text-sm font-black text-white">Joint Ticket from {{ requestingUnitCode }}</h4>
+              <p class="text-[11px] text-slate-300 font-medium mt-0.5 leading-relaxed">
+                Schedule and materials were set up by the requesting unit — read-only for your unit.
+                Just assign your personnel below; they will follow the joint schedule.
+              </p>
+            </div>
           </div>
-          <div class="min-w-0">
-            <h4 class="text-sm font-black text-white">Joint Ticket from {{ requestingUnitCode }}</h4>
-            <p class="text-[11px] text-slate-300 font-medium mt-0.5 leading-relaxed">
-              Implementation date, target working days, and material assessment were already set up by the requesting unit.
-              Your unit only needs to assign personnel below — they will follow the joint schedule.
-            </p>
+          <!-- Read-only joint schedule set by the requesting unit -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-3.5 py-3">
+              <div class="w-9 h-9 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-300 shrink-0 border border-indigo-400/30">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Work Date (set by {{ requestingUnitCode }})</span>
+                <p class="text-sm sm:text-base font-black text-white truncate mt-0.5">{{ receivingScheduleDate || 'To be scheduled' }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-3.5 py-3">
+              <div class="w-9 h-9 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-300 shrink-0 border border-indigo-400/30">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Target Duration (set by {{ requestingUnitCode }})</span>
+                <p class="text-sm sm:text-base font-black text-white truncate mt-0.5">
+                  {{ receivingWorkingDays ? receivingWorkingDays + (receivingWorkingDays === 1 ? ' working day' : ' working days') : 'To be scheduled' }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1021,6 +1050,25 @@ const isReceivingCollabDispatch = computed(() => {
 const requestingUnitCode = computed(() => {
   const ticketUnit = selectedTicket.value?.unit_id;
   return UNIT_CODE_MAP[Number(ticketUnit)] || String(props.unitCode || '').toUpperCase();
+});
+
+// Read-only joint schedule for the receiving unit (set by the requesting unit).
+const receivingScheduleDate = computed(() => {
+  const raw = selectedTicket.value?.implementationDate || selectedTicket.value?.implementation_date;
+  if (!raw) return null;
+  const s = String(raw).slice(0, 10);
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return s;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  if (isNaN(d.getTime())) return s;
+  const monthShort = d.toLocaleDateString('en-US', { month: 'short' });
+  const weekday = d.toLocaleDateString('en-US', { weekday: 'long' });
+  return `${monthShort} ${d.getDate()}, ${d.getFullYear()}, ${weekday}`;
+});
+
+const receivingWorkingDays = computed(() => {
+  const n = Number(selectedTicket.value?.working_days || selectedTicket.value?.workingDays);
+  return n >= 1 && n <= 31 ? n : null;
 });
 
 // Schedule form state
