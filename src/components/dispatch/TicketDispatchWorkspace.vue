@@ -897,7 +897,7 @@
                     unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-600' : 'bg-emerald-600'
                   ]"
                 ></span>
-                Attached Documents &amp; Damage Proof ({{ (selectedTicket.attachments || []).length }})
+                Attached images and documents ({{ (selectedTicket.attachments || []).length }})
               </span>
 
               <div v-if="!selectedTicket.attachments || selectedTicket.attachments.length === 0" class="p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center text-slate-400 text-xs">

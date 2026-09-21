@@ -748,7 +748,7 @@
           <div v-if="selectedTicketForModal.attachments && selectedTicketForModal.attachments.length > 0" class="space-y-2.5">
             <span class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
               <span class="w-2 h-3 rounded-full bg-emerald-600"></span>
-              Attached Documents &amp; Damage Proof ({{ selectedTicketForModal.attachments.length }})
+              Attached images and documents ({{ selectedTicketForModal.attachments.length }})
             </span>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div
