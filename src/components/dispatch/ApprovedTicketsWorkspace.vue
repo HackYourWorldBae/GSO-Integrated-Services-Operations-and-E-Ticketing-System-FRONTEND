@@ -513,7 +513,6 @@
                 </span>
               </div>
               <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Full Ticket Information</h3>
-              <p class="text-xs text-slate-500 font-medium mt-0.5">Comprehensive institutional job particulars and requester verification</p>
             </div>
             <button
               type="button"
