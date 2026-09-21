@@ -1763,9 +1763,11 @@ const handleJobCompleted = (result) => {
     status: 'resolved',
   };
 
-  // Switch to Awaiting Requestor Rating tab so completed ticket is immediately visible
+  // Switch to Awaiting Requestor Rating tab so completed ticket is immediately visible.
+  // Refresh collab ids too so the finished ticket drops out of the Collab tab.
   activeTab.value = 'awaiting_rating';
   fetchActiveTickets();
+  fetchCollabActiveCount();
   showReceiptModal.value = true;
 };
 
