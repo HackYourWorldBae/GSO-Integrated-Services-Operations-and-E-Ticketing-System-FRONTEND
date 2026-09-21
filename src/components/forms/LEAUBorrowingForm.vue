@@ -1,13 +1,9 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useFormsStore } from '@/stores/forms';
-import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue3-toastify';
-import { required, minLength, email } from '@vuelidate/validators';
-import { useVuelidate } from '@vuelidate/core';
 
 const formsStore = useFormsStore();
-const authStore = useAuthStore();
 
 const props = defineProps({
   services: {
@@ -20,66 +16,18 @@ const props = defineProps({
   }
 });
 
-// Borrowing form state - separate from regular LEAU form
-const borrowingState = ref({
-  // Item Details (item name only; quantity is optional and defaults to 1)
-  item_name: '',
-  quantity_needed: '',
-  purpose_project: '',
-
-  // Schedule
-  date_needed: '',
-  expected_return_date: '',
-
-  // Acknowledgement
-  terms_agreed: false,
-
-  // Attachments
-  attachments: []
-});
+// This form binds directly to the shared intake store (same pattern as
+// FGMUForm / LEAUForm) so the validation + submission in FormsView operate
+// on exactly what the user typed. Date fields intentionally start empty —
+// the user picks both pickup and return dates (backend requires both, and
+// borrower identity falls back to the logged-in profile server-side).
+const borrowingState = computed(() => formsStore.leauBorrowingState);
 
 const isDragging = ref(false);
-
-// Initialize default dates
-const today = new Date();
-const tomorrow = new Date(today);
-tomorrow.setDate(tomorrow.getDate() + 1);
 
 const formatDateForInput = (date) => {
   return date.toISOString().split('T')[0];
 };
-
-const initDates = () => {
-  if (!borrowingState.value.date_needed) {
-    borrowingState.value.date_needed = formatDateForInput(tomorrow);
-  }
-  if (!borrowingState.value.expected_return_date) {
-    const returnDate = new Date(tomorrow);
-    returnDate.setDate(returnDate.getDate() + 7); // Default 1 week
-    borrowingState.value.expected_return_date = formatDateForInput(returnDate);
-  }
-};
-
-// Validation rules (quantity is optional; when provided it must be at least 1)
-const optionalQuantity = (v) => v === '' || v === null || v === undefined || (Number(v) >= 1);
-const rules = computed(() => ({
-  item_name: { required },
-  quantity_needed: { optionalQuantity },
-  purpose_project: { required, minLength: minLength(10) },
-  date_needed: { required },
-  expected_return_date: { required },
-  terms_agreed: { required }
-}));
-
-const v$ = useVuelidate(rules, borrowingState);
-
-// Watch for changes to touch validation
-watch(() => borrowingState.value.item_name, () => v$.value.item_name.$touch());
-watch(() => borrowingState.value.quantity_needed, () => v$.value.quantity_needed.$touch());
-watch(() => borrowingState.value.purpose_project, () => v$.value.purpose_project.$touch());
-watch(() => borrowingState.value.date_needed, () => v$.value.date_needed.$touch());
-watch(() => borrowingState.value.expected_return_date, () => v$.value.expected_return_date.$touch());
-watch(() => borrowingState.value.terms_agreed, () => v$.value.terms_agreed.$touch());
 
 // File handling
 const processFiles = (files) => {
@@ -98,8 +46,8 @@ const processFiles = (files) => {
       return;
     }
 
-    if (!borrowingState.value.attachments.some(a => a.name === f.name && a.size === f.size)) {
-      borrowingState.value.attachments.push(f);
+    if (!formsStore.leauBorrowingState.attachments.some(a => a.name === f.name && a.size === f.size)) {
+      formsStore.leauBorrowingState.attachments.push(f);
     }
   });
 };
@@ -119,47 +67,7 @@ const handleDrop = (e) => {
 };
 
 const removeFile = (idx) => {
-  borrowingState.value.attachments.splice(idx, 1);
-};
-
-// Validation helper
-const validateBorrowingForm = () => {
-  v$.value.$touch();
-  return !v$.value.$error;
-};
-
-// Get form data for submission
-const getBorrowingData = () => {
-  const user = authStore.user;
-  const qtyRaw = borrowingState.value.quantity_needed;
-  const qty = (qtyRaw === '' || qtyRaw === null || qtyRaw === undefined) ? 1 : Math.max(1, parseInt(qtyRaw, 10) || 1);
-  return {
-    ...borrowingState.value,
-    quantity_needed: qty,
-    // Borrower info (auto-filled from user profile)
-    borrower_name: user?.full_name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
-    borrower_id_number: user?.student_id_number || user?.employee_id_number || '',
-    borrower_type: user?.role === 'student' ? 'student' : 'staff', // faculty/staff grouped
-    department_major: user?.college || '',
-    borrower_email: user?.email || '',
-    borrower_contact: user?.contact_number || user?.contact_no || '',
-    // Attachments handled separately
-    attachments: borrowingState.value.attachments
-  };
-};
-
-const resetBorrowingForm = () => {
-  borrowingState.value = {
-    item_name: '',
-    quantity_needed: '',
-    purpose_project: '',
-    date_needed: '',
-    expected_return_date: '',
-    terms_agreed: false,
-    attachments: []
-  };
-  v$.value.$reset();
-  initDates();
+  formsStore.leauBorrowingState.attachments.splice(idx, 1);
 };
 
 const hasBorrowingServices = computed(() => {
@@ -198,11 +106,6 @@ const itemNamePlaceholder = computed(() => {
   return 'e.g., Shovel, Rake, Ladder, Wheelbarrow';
 });
 
-// Initialize on mount
-import { onMounted } from 'vue';
-onMounted(() => {
-  initDates();
-});
 </script>
 
 <template>
@@ -238,23 +141,23 @@ onMounted(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
           <!-- Item Name -->
           <div class="space-y-2 relative pb-5 sm:col-span-2">
-            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="v$.item_name.$error ? 'text-red-500' : 'text-slate-700'">
+            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="formsStore.v$.leauBorrowingState.item_name.$error ? 'text-red-500' : 'text-slate-700'">
               Item Name <span class="text-rose-500">*</span>
             </label>
             <input
               v-model="borrowingState.item_name"
               type="text"
-              @blur="v$.item_name.$touch()"
+              @blur="formsStore.v$.leauBorrowingState.item_name.$touch()"
               :placeholder="itemNamePlaceholder"
               class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs"
-              :class="v$.item_name.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
+              :class="formsStore.v$.leauBorrowingState.item_name.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
             />
-            <p v-if="v$.item_name.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Item name is required</p>
+            <p v-if="formsStore.v$.leauBorrowingState.item_name.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Item name is required</p>
           </div>
 
           <!-- Quantity Needed (Optional) -->
           <div class="space-y-2 relative pb-5">
-            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="v$.quantity_needed.$error ? 'text-red-500' : 'text-slate-700'">
+            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="formsStore.v$.leauBorrowingState.quantity_needed.$error ? 'text-red-500' : 'text-slate-700'">
               Quantity Needed <span class="text-xs font-normal text-slate-400 normal-case">(Optional)</span>
             </label>
             <input
@@ -263,26 +166,26 @@ onMounted(() => {
               min="1"
               max="100"
               placeholder="e.g., 5 (leave blank if unsure)"
-              @blur="v$.quantity_needed.$touch()"
+              @blur="formsStore.v$.leauBorrowingState.quantity_needed.$touch()"
               class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs text-center"
-              :class="v$.quantity_needed.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
+              :class="formsStore.v$.leauBorrowingState.quantity_needed.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
             />
-            <p v-if="v$.quantity_needed.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Quantity must be at least 1</p>
+            <p v-if="formsStore.v$.leauBorrowingState.quantity_needed.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Quantity must be at least 1</p>
           </div>
 
           <!-- Purpose / Event or Project Name -->
           <div class="sm:col-span-2 space-y-2 relative pb-5">
-            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="v$.purpose_project.$error ? 'text-red-500' : 'text-slate-700'">
+            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="formsStore.v$.leauBorrowingState.purpose_project.$error ? 'text-red-500' : 'text-slate-700'">
               Purpose / Event or Project Name <span class="text-rose-500">*</span>
             </label>
             <textarea
               v-model="borrowingState.purpose_project"
-              @blur="v$.purpose_project.$touch()"
+              @blur="formsStore.v$.leauBorrowingState.purpose_project.$touch()"
               placeholder="Brief description of why the item is needed (e.g., Biology lab experiment, Landscaping project for environmental club, Campus beautification for Foundation Day)"
               class="w-full px-4 sm:px-6 py-4 sm:py-5 rounded-xl sm:rounded-[2rem] bg-slate-50 border-2 focus:bg-white text-base sm:text-sm font-medium outline-none transition-all min-h-[110px] sm:min-h-[120px] resize-none shadow-inner"
-              :class="v$.purpose_project.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-100 focus:border-amber-500'"
+              :class="formsStore.v$.leauBorrowingState.purpose_project.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-100 focus:border-amber-500'"
             ></textarea>
-            <p v-if="v$.purpose_project.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Please provide a valid purpose (min 10 characters)</p>
+            <p v-if="formsStore.v$.leauBorrowingState.purpose_project.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Please provide a valid purpose (min 10 characters)</p>
           </div>
         </div>
       </div>
@@ -299,34 +202,34 @@ onMounted(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
           <!-- Date Needed (Pickup Date) -->
           <div class="space-y-2 relative pb-5">
-            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="v$.date_needed.$error ? 'text-red-500' : 'text-slate-700'">
+            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="formsStore.v$.leauBorrowingState.date_needed.$error ? 'text-red-500' : 'text-slate-700'">
               Date Needed (Pickup Date) <span class="text-rose-500">*</span>
             </label>
             <input
               v-model="borrowingState.date_needed"
               type="date"
               :min="formatDateForInput(new Date())"
-              @blur="v$.date_needed.$touch()"
+              @blur="formsStore.v$.leauBorrowingState.date_needed.$touch()"
               class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs"
-              :class="v$.date_needed.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
+              :class="formsStore.v$.leauBorrowingState.date_needed.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
             />
-            <p v-if="v$.date_needed.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Pickup date is required</p>
+            <p v-if="formsStore.v$.leauBorrowingState.date_needed.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Pickup date is required</p>
           </div>
 
           <!-- Expected Return Date -->
           <div class="space-y-2 relative pb-5">
-            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="v$.expected_return_date.$error ? 'text-red-500' : 'text-slate-700'">
+            <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="formsStore.v$.leauBorrowingState.expected_return_date.$error ? 'text-red-500' : 'text-slate-700'">
               Expected Return Date <span class="text-rose-500">*</span>
             </label>
             <input
               v-model="borrowingState.expected_return_date"
               type="date"
               :min="borrowingState.date_needed || formatDateForInput(new Date())"
-              @blur="v$.expected_return_date.$touch()"
+              @blur="formsStore.v$.leauBorrowingState.expected_return_date.$touch()"
               class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs"
-              :class="v$.expected_return_date.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
+              :class="formsStore.v$.leauBorrowingState.expected_return_date.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
             />
-            <p v-if="v$.expected_return_date.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Return date is required</p>
+            <p v-if="formsStore.v$.leauBorrowingState.expected_return_date.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Return date is required</p>
           </div>
         </div>
 
@@ -349,11 +252,11 @@ onMounted(() => {
         </h4>
 
         <div class="p-4 sm:p-6 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-3">
-          <label class="flex items-start gap-3 cursor-pointer" :class="v$.terms_agreed.$error ? 'ring-2 ring-rose-500/50' : ''">
+          <label class="flex items-start gap-3 cursor-pointer" :class="formsStore.v$.leauBorrowingState.terms_agreed.$error ? 'ring-2 ring-rose-500/50' : ''">
             <input
               v-model="borrowingState.terms_agreed"
               type="checkbox"
-              @blur="v$.terms_agreed.$touch()"
+              @blur="formsStore.v$.leauBorrowingState.terms_agreed.$touch()"
               class="w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500 mt-0.5 cursor-pointer"
             />
             <div class="text-sm text-slate-700 leading-relaxed">
@@ -367,7 +270,7 @@ onMounted(() => {
               </ol>
             </div>
           </label>
-          <p v-if="v$.terms_agreed.$error" class="text-xs font-bold text-red-500 animate-fade-in ml-7">You must agree to the terms and conditions</p>
+          <p v-if="formsStore.v$.leauBorrowingState.terms_agreed.$error" class="text-xs font-bold text-red-500 animate-fade-in ml-7">You must agree to the terms and conditions</p>
         </div>
       </div>
 
@@ -415,7 +318,7 @@ onMounted(() => {
         <div v-if="borrowingState.attachments.length > 0" class="space-y-2 animate-fade-in pt-1">
           <div class="flex items-center justify-between text-xs font-bold text-slate-500 px-1">
             <span>Attached Files ({{ borrowingState.attachments.length }}/5)</span>
-            <button type="button" @click="borrowingState.attachments = []" class="text-red-500 hover:text-red-700 hover:underline cursor-pointer py-1 px-2">
+            <button type="button" @click="formsStore.leauBorrowingState.attachments = []" class="text-red-500 hover:text-red-700 hover:underline cursor-pointer py-1 px-2">
               Remove All
             </button>
           </div>
