@@ -31,6 +31,9 @@ const locations = LOCATIONS;
 // State moved to src/stores/forms.js
 
 onMounted(async () => {
+  // Drop any corrupted attachments restored from persisted storage
+  // (File objects can't survive JSON — they come back as `{}`).
+  formsStore.sanitizeAttachments?.();
   // Populate default requestor info
   user.value = authStore.user;
   const fullName = user.value?.full_name || `${user.value?.first_name || ''} ${user.value?.last_name || ''}`.trim() || 'John Requestor';
@@ -203,10 +206,26 @@ const handleFinalSubmit = async () => {
     // so the browser generates the multipart boundary automatically.
     const uploadFiles = async (ticketId, filesArray) => {
       if (!filesArray || filesArray.length === 0) return { ok: true, skipped: true };
+      // Guard against corrupted entries restored from persisted storage
+      // (plain `{}` objects instead of real Files after a page reload).
+      const validFiles = filesArray.filter((f) => f instanceof File);
+      if (validFiles.length === 0) {
+        console.warn(`Attachments for ${ticketId} are corrupted (not File objects) — ask user to re-attach.`);
+        return {
+          ok: false,
+          ticketId,
+          message: 'attached files were lost (page was reloaded). Please re-attach the files and try again',
+          details: null
+        };
+      }
+      if (validFiles.length !== filesArray.length) {
+        console.warn(`Dropped ${filesArray.length - validFiles.length} invalid attachment(s) for ${ticketId}.`);
+      }
       const formData = new FormData();
-      filesArray.forEach(f => formData.append('attachments[]', f));
+      validFiles.forEach(f => formData.append('attachments[]', f, f.name));
       try {
-        await api.post(`tickets/${ticketId}/attachments`, formData);
+        // File uploads can exceed the default 12s api timeout on slow networks.
+        await api.post(`tickets/${ticketId}/attachments`, formData, { timeout: 60000 });
         return { ok: true };
       } catch (uploadError) {
         const payload = uploadError.response?.data ?? {};

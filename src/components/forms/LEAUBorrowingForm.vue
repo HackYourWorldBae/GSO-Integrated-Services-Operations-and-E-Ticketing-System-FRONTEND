@@ -32,17 +32,17 @@ const formatDateForInput = (date) => {
 // File handling
 const processFiles = (files) => {
   files.forEach(f => {
-    // Validate file
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Must stay in sync with TicketAttachmentController (backend enforces 5MB max)
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+    const maxSize = 5 * 1024 * 1024; // 5MB (backend limit)
 
     if (!validTypes.includes(f.type)) {
-      toast.error(`Invalid file type: ${f.name}. Allowed: JPG, PNG, WebP, PDF, DOC, DOCX`);
+      toast.error(`Invalid file type: ${f.name}. Allowed: JPG, PNG, WebP, PDF, DOC, DOCX, XLS, XLSX`);
       return;
     }
 
     if (f.size > maxSize) {
-      toast.error(`File too large: ${f.name}. Max size: 10MB`);
+      toast.error(`File too large: ${f.name}. Max size: 5MB`);
       return;
     }
 

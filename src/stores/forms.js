@@ -121,8 +121,35 @@ export const useFormsStore = defineStore('forms', () => {
     leauBorrowingState,
     ssuIncidentState,
     clearForms,
-    v$
+    v$,
+    /**
+     * Drop any non-File entries from attachment arrays.
+     * File/Blob objects cannot survive JSON persistence (they rehydrate
+     * as plain `{}`), which previously caused "No files uploaded" on submit.
+     * Safe to call on view mount and before upload.
+     */
+    sanitizeAttachments,
   };
+
+  function sanitizeAttachments() {
+    for (const state of [fgmuState.value, leauState.value, leauBorrowingState.value]) {
+      if (state && Array.isArray(state.attachments)) {
+        const valid = state.attachments.filter((f) => f instanceof File);
+        if (valid.length !== state.attachments.length) {
+          state.attachments = valid;
+        }
+      }
+    }
+  }
 }, {
-  persist: true
+  // NOTE: File/Blob objects cannot be JSON-serialized. Persisting them turns
+  // them into `{}` on reload, breaking uploads. Exclude attachments so only
+  // text fields survive a refresh — users re-attach files after reload.
+  persist: {
+    omit: [
+      'fgmuState.attachments',
+      'leauState.attachments',
+      'leauBorrowingState.attachments',
+    ],
+  },
 });
