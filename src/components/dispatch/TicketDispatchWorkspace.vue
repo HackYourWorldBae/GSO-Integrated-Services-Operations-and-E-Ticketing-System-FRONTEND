@@ -950,10 +950,11 @@
       </div>
     </Teleport>
 
-    <!-- Cross-Unit Collaboration Modal -->
+    <!-- Cross-Unit Collaboration Modal (Joint tab hidden when requesting unit is dispatching) -->
     <CrossUnitCollaborationModal
       :is-open="isCollaborationModalOpen"
       :ticket="selectedTicket"
+      :hide-joint-tab="!isReceivingCollabDispatch"
       @close="isCollaborationModalOpen = false"
       @updated="handleCollaborationUpdated"
     />

@@ -20,6 +20,13 @@ const props = defineProps({
     type: Object,
     default: () => null,
   },
+  // When true (requesting unit dispatching its own ticket), the
+  // "Joint Units & Personnel" tab is hidden — the modal opens straight
+  // into "Request Assistance" since there is nothing joint to manage yet.
+  hideJointTab: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['close', 'updated']);
@@ -166,10 +173,17 @@ const loadMyUnitPersonnel = async () => {
 };
 
 watch(
+  () => props.hideJointTab,
+  (hidden) => {
+    if (hidden && props.isOpen) activeTab.value = 'request';
+  }
+);
+
+watch(
   () => props.isOpen,
   (open) => {
     if (open && props.ticket) {
-      activeTab.value = 'active';
+      activeTab.value = props.hideJointTab ? 'request' : 'active';
       requestForm.value = {
         collaborating_unit_id: availableTargetUnits.value[0]?.id || null,
         scope_of_work: '',
@@ -208,9 +222,13 @@ const handleSendRequest = async () => {
     });
     toast.success('Collaboration request dispatched successfully!');
     requestForm.value.scope_of_work = '';
-    activeTab.value = 'active';
     await loadCollaborations();
     emit('updated');
+    if (props.hideJointTab) {
+      emit('close');
+    } else {
+      activeTab.value = 'active';
+    }
   } catch (err) {
     toast.error(err.response?.data?.message || 'Failed to submit collaboration request.');
   } finally {
@@ -377,9 +395,10 @@ const getStatusBadge = (status) => {
           </button>
         </div>
 
-        <!-- Navigation Tabs -->
-        <div class="flex items-center gap-2 pt-4 pb-2 border-b border-slate-100 shrink-0">
+        <!-- Navigation Tabs (Joint tab hidden when requesting unit is dispatching) -->
+        <div v-if="!hideJointTab || isPrimaryUnit" class="flex items-center gap-2 pt-4 pb-2 border-b border-slate-100 shrink-0">
           <button
+            v-if="!hideJointTab"
             type="button"
             @click="activeTab = 'active'"
             class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
@@ -392,7 +411,7 @@ const getStatusBadge = (status) => {
           </button>
 
           <button
-            v-if="isPrimaryUnit"
+            v-if="isPrimaryUnit || hideJointTab"
             type="button"
             @click="activeTab = 'request'"
             class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
@@ -407,8 +426,8 @@ const getStatusBadge = (status) => {
 
         <!-- Content Area -->
         <div class="flex-1 overflow-y-auto custom-scrollbar py-4 space-y-4">
-          <!-- ─── TAB 1: COLLABORATIONS & SHARED WORKERS ─── -->
-          <div v-if="activeTab === 'active'" class="space-y-4">
+          <!-- ─── TAB 1: COLLABORATIONS & SHARED WORKERS (hidden when requesting unit is dispatching) ─── -->
+          <div v-if="activeTab === 'active' && !hideJointTab" class="space-y-4">
             <div v-if="isLoading" class="py-12 text-center text-slate-400">
               <div class="inline-flex items-center gap-2 text-xs font-semibold">
                 <svg class="animate-spin h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24">
@@ -638,18 +657,6 @@ const getStatusBadge = (status) => {
 
           <!-- ─── TAB 2: REQUEST COLLABORATION ─── -->
           <div v-else-if="activeTab === 'request'" class="space-y-4">
-            <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-950 text-xs leading-relaxed space-y-1">
-              <p class="font-black flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Institutional Cross-Unit Collaboration</span>
-              </p>
-              <p class="text-indigo-800">
-                When a service ticket requires the specialized equipment, function, or manpower of another university unit, submit a collaboration request here. The invited unit head will review, coordinate, and dispatch shared personnel to this ticket.
-              </p>
-            </div>
-
             <div class="space-y-3">
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
@@ -685,7 +692,7 @@ const getStatusBadge = (status) => {
               <div class="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  @click="activeTab = 'active'"
+                  @click="hideJointTab ? emit('close') : activeTab = 'active'"
                   class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors"
                 >
                   Cancel
