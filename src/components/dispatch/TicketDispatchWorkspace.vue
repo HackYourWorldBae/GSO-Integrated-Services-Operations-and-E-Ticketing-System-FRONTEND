@@ -90,7 +90,8 @@
       </div>
 
       <!-- Bottom Row: Scheduling & Turnaround Configuration Controls -->
-      <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+      <!-- Hidden for incoming collab dispatches: the requesting unit owns the schedule -->
+      <div v-if="!isReceivingCollabDispatch" class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
         <!-- Implementation Date Picker Card -->
         <div
           @click="openDatePicker"
@@ -184,9 +185,27 @@
           </div>
         </div>
       </div>
+      <div v-else class="relative z-10 pt-2">
+        <!-- Receiving-end notice: schedule & materials belong to the requesting unit -->
+        <div class="flex items-start gap-3 bg-indigo-500/10 border border-indigo-400/30 rounded-2xl p-4">
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <h4 class="text-sm font-black text-white">Joint Ticket from {{ requestingUnitCode }}</h4>
+            <p class="text-[11px] text-slate-300 font-medium mt-0.5 leading-relaxed">
+              Implementation date, target working days, and material assessment were already set up by the requesting unit.
+              Your unit only needs to assign personnel below — they will follow the joint schedule.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <!-- Row 3: Initial Material Assessment & Labor-Only Scope -->
-      <div class="relative z-10 pt-2 border-t border-white/10">
+      <!-- Hidden for incoming collab dispatches: the requesting unit owns the materials -->
+      <div v-if="!isReceivingCollabDispatch" class="relative z-10 pt-2 border-t border-white/10">
         <div class="bg-white/5 rounded-2xl border border-white/10 p-4 sm:p-5 space-y-4">
           
           <!-- Section Header & Quick Scope Indicator -->
@@ -986,6 +1005,24 @@ const dispatchQueue = ref([]);
 const selectedTicket = ref(null);
 const currentAssignments = ref([]);
 
+// Receiving-end collab dispatch: the selected ticket belongs to another unit,
+// so implementation date / working days / material assessment stay with the
+// requesting unit — this unit only assigns its own personnel.
+const UNIT_ID_MAP = { FGMU: 1, LEAU: 2, SSU: 3 };
+const UNIT_CODE_MAP = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
+const myUnitId = computed(() => UNIT_ID_MAP[String(props.unitCode || '').toUpperCase()] ?? null);
+
+const isReceivingCollabDispatch = computed(() => {
+  const ticketUnit = selectedTicket.value?.unit_id;
+  if (ticketUnit === null || ticketUnit === undefined || myUnitId.value === null) return false;
+  return Number(ticketUnit) !== myUnitId.value;
+});
+
+const requestingUnitCode = computed(() => {
+  const ticketUnit = selectedTicket.value?.unit_id;
+  return UNIT_CODE_MAP[Number(ticketUnit)] || String(props.unitCode || '').toUpperCase();
+});
+
 // Schedule form state
 const todayIsoDate = new Date().toISOString().split('T')[0];
 const implementationDate = ref(todayIsoDate);
@@ -1388,14 +1425,17 @@ const assignWorkerToTicket = (worker) => {
     toast.error('Please select an approved ticket first.');
     return;
   }
-  if (!implementationDate.value) {
-    toast.error('Please select an implementation date.');
-    return;
-  }
-  const days = Number(workingDays.value);
-  if (!days || days < 1 || days > 31) {
-    toast.error('Please specify target working days between 1 and 31 days.');
-    return;
+  // Receiving-end collab dispatches inherit the requesting unit's schedule.
+  if (!isReceivingCollabDispatch.value) {
+    if (!implementationDate.value) {
+      toast.error('Please select an implementation date.');
+      return;
+    }
+    const days = Number(workingDays.value);
+    if (!days || days < 1 || days > 31) {
+      toast.error('Please specify target working days between 1 and 31 days.');
+      return;
+    }
   }
 
   if (isWorkerAssigned(worker.id)) {
@@ -1423,19 +1463,29 @@ const dispatchAll = async () => {
     toast.error('Please assign at least one worker before dispatching.');
     return;
   }
-  if (!implementationDate.value) {
-    toast.error('Please specify an implementation date.');
-    return;
-  }
-  const days = Number(workingDays.value);
-  if (!days || days < 1 || days > 31) {
-    toast.error('Please specify valid working days between 1 and 31 days.');
-    return;
+
+  // Receiving-end collab dispatches inherit the requesting unit's joint
+  // schedule and material setup — only personnel are assigned here.
+  const receiving = isReceivingCollabDispatch.value;
+  const ticketDate = selectedTicket.value.implementationDate || selectedTicket.value.implementation_date || null;
+  const ticketDays = Number(selectedTicket.value.working_days || selectedTicket.value.workingDays);
+
+  let days = ticketDays;
+  if (!receiving) {
+    if (!implementationDate.value) {
+      toast.error('Please specify an implementation date.');
+      return;
+    }
+    days = Number(workingDays.value);
+    if (!days || days < 1 || days > 31) {
+      toast.error('Please specify valid working days between 1 and 31 days.');
+      return;
+    }
   }
 
   isDispatching.value = true;
   try {
-    const payloadMaterials = (!assessmentLaborOnly.value)
+    const payloadMaterials = (!receiving && !assessmentLaborOnly.value)
       ? assessmentMaterials.value
           .filter(m => m.material_name && m.material_name.trim() !== '')
           .map(m => ({
@@ -1449,17 +1499,24 @@ const dispatchAll = async () => {
 
     for (let i = 0; i < currentAssignments.value.length; i++) {
       const assign = currentAssignments.value[i];
-      await api.post('dispatch/assign', {
+      const payload = {
         ticket_id: selectedTicket.value.id,
         personnel_id: assign.workerId,
-        implementation_date: implementationDate.value,
-        working_days: Math.min(31, Math.max(1, days)),
         task_notes: taskNotes.value.trim() || selectedTicket.value.service || selectedTicket.value.type || 'Maintenance Task',
         is_emergency: isEmergency.value ? 1 : 0,
         pause_current: pauseCurrentTask.value ? 1 : 0,
-        is_labor_only: assessmentLaborOnly.value ? 1 : 0,
-        materials: (i === 0) ? payloadMaterials : [],
-      });
+      };
+      if (receiving) {
+        // Inherit the joint schedule when the requesting unit already set one.
+        if (ticketDate) payload.implementation_date = String(ticketDate).slice(0, 10);
+        if (ticketDays >= 1 && ticketDays <= 31) payload.working_days = ticketDays;
+      } else {
+        payload.implementation_date = implementationDate.value;
+        payload.working_days = Math.min(31, Math.max(1, days));
+        payload.is_labor_only = assessmentLaborOnly.value ? 1 : 0;
+        payload.materials = (i === 0) ? payloadMaterials : [];
+      }
+      await api.post('dispatch/assign', payload);
     }
 
     // Auto-generate official Job Order document and attach to ticket with latest assignment details
@@ -1518,6 +1575,8 @@ const fetchDispatchQueue = async () => {
     if (Array.isArray(rawData)) {
       dispatchQueue.value = rawData.map(t => ({
         id: t.id,
+        unit_id: t.unit_id ?? null,
+        unit_code: t.unit_code ?? null,
         title: t.title,
         service: t.service_type,
         type: t.title || t.project_title || t.service_type || t.type || 'Service Request',
@@ -1569,6 +1628,8 @@ const checkRouteQueryTicket = async () => {
       if (t) {
         selectTicket({
           id: t.id,
+          unit_id: t.unit_id ?? null,
+          unit_code: t.unit_code ?? null,
           title: t.title,
           service: t.service_type,
           type: t.title || t.project_title || t.service_type || t.type,
@@ -1584,7 +1645,12 @@ const checkRouteQueryTicket = async () => {
           submittedAt: new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric'
           }),
-          implementationDate: new Date().toISOString().split('T')[0]
+          // Carry the requesting unit's joint schedule so receiving-end
+          // dispatches inherit it instead of setting their own.
+          working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
+          workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
+          implementationDate: t.implementation_date || t.assignment?.implementation_date || new Date().toISOString().split('T')[0],
+          implementation_date: t.implementation_date || t.assignment?.implementation_date || null
         });
       }
     } catch (err) {
