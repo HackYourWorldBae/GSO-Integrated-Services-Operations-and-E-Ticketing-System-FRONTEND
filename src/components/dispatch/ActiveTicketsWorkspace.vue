@@ -1446,13 +1446,16 @@ const themeAttachmentIconBg = computed(() => {
   return isLEAU.value ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700';
 });
 
-// In Progress tickets: step 5 / processing, not resolved, not closed, not archived
+// In Progress tickets: actually started (step 5), not resolved, not closed, not archived.
+// Awaiting-start tickets (step 4) live on the Scheduled page — including its
+// collab tab — even though the API returns them with status 'processing'.
 const inProgressTickets = computed(() => {
   return rawTickets.value.filter(t => {
     const isArchived = t.is_archived == 1 || t.is_archived === true || t.is_archived === '1';
     if (isArchived) return false;
     const isResolved = t.current_step == 6 || t.status === 'resolved' || t.status === 'closed';
     if (isResolved) return false;
+    if (t.current_step == 4) return false;
     return t.current_step == 5 || t.status === 'processing';
   });
 });

@@ -366,9 +366,13 @@ const props = defineProps({
   // hide this component's own toolbar and filter via the parent's search input.
   hideToolbar: { type: Boolean, default: false },
   searchText: { type: String, default: '' },
+  // When true, row clicks / Full Info buttons emit 'open-details' with the raw
+  // ticket instead of opening this component's own modal — lets the parent
+  // reuse its richer details modal so both tabs share one design.
+  emitDetails: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['updated']);
+const emit = defineEmits(['updated', 'open-details']);
 
 const loading = ref(false);
 const actionLoading = ref(false);
@@ -472,6 +476,10 @@ const fetchTickets = async () => {
 };
 
 const openDetailsModal = (ticket) => {
+  if (props.emitDetails) {
+    emit('open-details', ticket);
+    return;
+  }
   selectedTicket.value = ticket;
 };
 

@@ -197,7 +197,7 @@
       <BorrowingWorkspace initial-tab="awaiting" :show-tabs="false" :status-filter="['ready_for_pickup']" :key="'scheduled-borrowing-' + scheduledTabRefreshKey" />
     </div>
 
-    <!-- ═══ Collab Tickets Pane (shares the toolbar search above) ═══ -->
+    <!-- ═══ Collab Tickets Pane (shares the toolbar search + details modal above) ═══ -->
     <div v-if="isScheduledCollab">
       <CollabTicketsWorkspace
         :unit-code="props.unitCode"
@@ -207,8 +207,10 @@
         :show-dispatch-action="true"
         :hide-toolbar="true"
         :search-text="searchQuery"
+        :emit-details="true"
         :key="'scheduled-collab-' + scheduledTabRefreshKey"
         @updated="onCollabUpdated"
+        @open-details="openCollabDetails"
       />
     </div>
 
@@ -896,6 +898,8 @@ const isLEAU = computed(() => props.unitCode?.toUpperCase() === 'LEAU');
 const scheduledTab = ref('jobs');
 const borrowingAwaitingCount = ref(0);
 const collabScheduledCount = ref(0);
+// Live-collab ticket ids — these live ONLY in the Collab tab, never in Job Schedules.
+const collabScheduledIds = ref(new Set());
 const scheduledTabRefreshKey = ref(0);
 const isLeauBorrowing = computed(() => isLEAU.value && scheduledTab.value === 'borrowing');
 const isScheduledCollab = computed(() => scheduledTab.value === 'collab');
@@ -923,9 +927,16 @@ const switchScheduledTab = (tab) => {
 const fetchCollabScheduledCount = async () => {
   try {
     const res = await fetchCollabTickets({ direction: 'all', stage: 'scheduled' });
-    collabScheduledCount.value = res.data?.data?.count ?? (res.data?.data?.tickets || []).length;
+    const list = res.data?.data?.tickets || [];
+    collabScheduledCount.value = res.data?.data?.count ?? list.length;
+    collabScheduledIds.value = new Set(
+      list
+        .filter(t => ['pending', 'accepted'].includes(String(t.collaboration_status || '')))
+        .map(t => String(t.id))
+    );
   } catch {
     collabScheduledCount.value = 0;
+    collabScheduledIds.value = new Set();
   }
 };
 
@@ -997,9 +1008,10 @@ const themeAttachmentIconBg = computed(() => {
   return isLEAU.value ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700';
 });
 
-// Scheduled tickets: step 4
+// Scheduled tickets: step 4, excluding live collab tickets —
+// those live ONLY in the Collab tab (same ticket list, one home).
 const scheduledTickets = computed(() => {
-  return rawTickets.value.filter(t => t.current_step == 4);
+  return rawTickets.value.filter(t => t.current_step == 4 && !collabScheduledIds.value.has(String(t.id)));
 });
 
 const emergencyCount = computed(() => {
@@ -1160,6 +1172,34 @@ const fetchScheduledTickets = async () => {
 
 const openDetailsModal = (ticket) => {
   selectedTicketForModal.value = ticket;
+};
+
+// Collab-tab rows reuse this workspace's rich details modal (personnel
+// banner, job order docs, attachments) so both tabs share one design.
+// Collab tickets stay in rawTickets — only the Job Schedules list excludes
+// them — so resolve the full mapped row locally, refreshing from the server.
+const openCollabDetails = async (collabTicket) => {
+  const target = String(collabTicket?.id || '').toLowerCase().trim();
+  const local = rawTickets.value.find(t =>
+    String(t.id || t.ticketId || '').toLowerCase().trim() === target
+  );
+  if (local) {
+    selectedTicketForModal.value = local;
+  }
+  try {
+    const res = await api.get(`tickets/${collabTicket.id}`);
+    const raw = res.data?.data?.ticket || res.data?.data;
+    if (raw) {
+      selectedTicketForModal.value = mapTicket(raw);
+    } else if (!local) {
+      toast.error('Failed to load ticket details.');
+    }
+  } catch (err) {
+    console.error('Failed to refresh collab ticket details:', err);
+    if (!local) {
+      toast.error('Failed to load ticket details.');
+    }
+  }
 };
 
 const initiateStartEarly = (ticket) => {
