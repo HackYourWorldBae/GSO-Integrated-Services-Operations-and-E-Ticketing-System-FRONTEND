@@ -114,12 +114,6 @@ const handleLogin = async () => {
 
     const role = result.role;
 
-    // Personnel bulletin-board accounts land on the works board
-    if (String(authStore.user?.email || '').toLowerCase().endsWith('-personnels@email.com')) {
-      router.push('/personnel');
-      return;
-    }
-
     // Redirect based on role
     if (role === 'superadmin') {
       router.push('/superadmin/users');
