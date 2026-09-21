@@ -388,16 +388,6 @@
                         <span>Full Info</span>
                       </button>
                       <button
-                        @click="handleResumeApproval(ticket)"
-                        class="px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="Return to general pending approval queue"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        <span>Resume</span>
-                      </button>
-                      <button
                         @click="openDeclineModal(ticket)"
                         class="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 transition-all cursor-pointer"
                         title="Decline Request"
@@ -572,7 +562,6 @@
               <button v-if="activeTab === 'pending'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
 
               <!-- Delayed Actions -->
-              <button v-if="activeTab === 'delayed'" @click="handleResumeApproval(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Resume</button>
               <button v-if="activeTab === 'delayed'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
               <button v-if="activeTab === 'delayed'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
 
@@ -663,7 +652,7 @@
               <span>Delay Reason: {{ selectedTicketForModal.approval_delay_reason || 'Pending Materials / Procurement' }}</span>
             </div>
             <p v-if="selectedTicketForModal.delayed_by_first_name" class="text-xs sm:text-sm text-amber-700 font-medium leading-relaxed">
-              Deferred by {{ selectedTicketForModal.delayed_by_first_name }} {{ selectedTicketForModal.delayed_by_last_name }} on {{ formatDate(selectedTicketForModal.approval_delayed_at) }}. Ticket is held outside general queue until resumed or approved.
+              Deferred by {{ selectedTicketForModal.delayed_by_first_name }} {{ selectedTicketForModal.delayed_by_last_name }} on {{ formatDate(selectedTicketForModal.approval_delayed_at) }}. Ticket is held outside general queue until directly approved once ready.
             </p>
           </div>
 
@@ -803,12 +792,6 @@
             </button>
           </div>
           <div v-else-if="activeTab === 'delayed'" class="flex items-center gap-2">
-            <button @click="handleResumeApproval(selectedTicketForModal); closeDetailsModal()" class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span>Resume to Queue</span>
-            </button>
             <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
               Decline
             </button>
@@ -1017,7 +1000,7 @@
 
           <div class="p-3 sm:p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs sm:text-sm text-amber-900 flex items-start gap-2.5 leading-relaxed">
             <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span>This ticket will be excluded from the pending approval queue until resumed or directly approved once items arrive.</span>
+            <span>This ticket will be excluded from the pending approval queue until directly approved once items arrive.</span>
           </div>
         </div>
 
@@ -1493,17 +1476,6 @@ const submitDelayApproval = async () => {
     toast.error(msg);
   } finally {
     isSubmittingDelay.value = false;
-  }
-};
-
-const handleResumeApproval = async (ticket) => {
-  try {
-    await api.patch(`tickets/${ticket.id}/resume-approval`);
-    toast.success(`Ticket #${ticket.ticketId || ticket.id} returned to General Approval Queue.`);
-    fetchAllQueues();
-  } catch (error) {
-    const msg = error.response?.data?.messages?.error || error.response?.data?.message || 'Failed to resume approval';
-    toast.error(msg);
   }
 };
 
