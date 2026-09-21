@@ -420,22 +420,22 @@ const getStatusBadge = (status) => {
         >
         <!-- Modal Top Bar -->
         <div class="flex items-center justify-between pb-4 border-b border-slate-100 shrink-0">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shrink-0">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shrink-0">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
             <div class="min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight truncate">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <h3 class="text-base sm:text-xl font-black text-slate-900 leading-tight truncate">
                   Cross-Unit Collaboration Center
                 </h3>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-black font-mono bg-indigo-50 text-indigo-700 border border-indigo-200">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-black font-mono bg-indigo-50 text-indigo-700 border border-indigo-200">
                   #{{ ticket?.id }}
                 </span>
               </div>
-              <p class="text-xs text-slate-500 font-medium truncate mt-0.5">
+              <p class="text-xs sm:text-sm text-slate-500 font-medium truncate mt-0.5">
                 {{ ticket?.title || ticket?.type || 'Service Request' }}
               </p>
             </div>
@@ -445,7 +445,7 @@ const getStatusBadge = (status) => {
             type="button"
             :disabled="isSubmitting"
             @click="emit('close')"
-            class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+            class="p-2.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -453,29 +453,28 @@ const getStatusBadge = (status) => {
           </button>
         </div>
 
-        <!-- Navigation Tabs (Joint tab hidden when requesting unit is dispatching) -->
-        <div v-if="!hideJointTab || isPrimaryUnit" class="flex items-center gap-2 pt-4 pb-2 border-b border-slate-100 shrink-0">
+        <!-- Navigation Tabs (Only shown when joint tab is not hidden) -->
+        <div v-if="!hideJointTab" class="flex items-center gap-2 pt-4 pb-2 border-b border-slate-100 shrink-0">
           <button
-            v-if="!hideJointTab"
             type="button"
             @click="activeTab = 'active'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer"
             :class="activeTab === 'active' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'"
           >
             <span>Joint Units &amp; Personnel</span>
-            <span v-if="collaborations.length > 0" class="px-1.5 py-0.2 rounded-full text-[10px] font-black" :class="activeTab === 'active' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-700'">
+            <span v-if="collaborations.length > 0" class="px-2 py-0.5 rounded-full text-xs font-black" :class="activeTab === 'active' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-700'">
               {{ collaborations.length }}
             </span>
           </button>
 
           <button
-            v-if="isPrimaryUnit || hideJointTab"
+            v-if="isPrimaryUnit"
             type="button"
             @click="activeTab = 'request'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer"
             :class="activeTab === 'request' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'"
           >
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             <span>Request Assistance</span>
@@ -504,8 +503,8 @@ const getStatusBadge = (status) => {
                 </svg>
               </div>
               <div>
-                <h4 class="text-sm font-black text-slate-800">No Cross-Unit Collaborations Yet</h4>
-                <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+                <h4 class="text-base font-black text-slate-800">No Cross-Unit Collaborations Yet</h4>
+                <p class="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
                   {{ isPrimaryUnit 
                     ? 'Does this service request require participation or manpower from other campus units? Invite FGMU, LEAU, or SSU to collaborate.'
                     : 'Your unit has not participated in this ticket yet.' }}
@@ -515,7 +514,7 @@ const getStatusBadge = (status) => {
                 v-if="isPrimaryUnit"
                 type="button"
                 @click="activeTab = 'request'"
-                class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
+                class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <span>Request Unit Collaboration</span>
               </button>
@@ -532,24 +531,24 @@ const getStatusBadge = (status) => {
                 <!-- Collaboration Header Card -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-black bg-white border border-slate-200 text-slate-800 shadow-2xs">
+                    <span class="px-2.5 py-1 rounded-lg text-xs sm:text-sm font-black bg-white border border-slate-200 text-slate-800 shadow-2xs">
                       {{ collab.collaborating_unit_name || UNIT_MAP[collab.collaborating_unit_id]?.name || 'Collaborating Unit' }}
                     </span>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black border" :class="getStatusBadge(collab.status).class">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-black border" :class="getStatusBadge(collab.status).class">
                       {{ getStatusBadge(collab.status).label }}
                     </span>
                   </div>
 
-                  <span class="text-[11px] text-slate-400 font-medium">
+                  <span class="text-xs text-slate-400 font-medium">
                     Requested on {{ collab.created_at ? new Date(collab.created_at).toLocaleDateString() : 'N/A' }}
                   </span>
                 </div>
 
                 <!-- Scope of Work / Assistance Details -->
-                <div class="p-3 bg-white rounded-xl border border-slate-200/80 text-xs space-y-1">
-                  <p class="font-bold text-[10px] text-slate-400 uppercase tracking-wider">Required Scope of Work:</p>
+                <div class="p-3.5 bg-white rounded-xl border border-slate-200/80 text-xs sm:text-sm space-y-1.5">
+                  <p class="font-bold text-[11px] sm:text-xs text-slate-400 uppercase tracking-wider">Required Scope of Work:</p>
                   <p class="text-slate-800 font-medium leading-relaxed">{{ collab.scope_of_work || collab.reason || 'No scope details provided.' }}</p>
-                  <p v-if="collab.response_notes || collab.collaboration_notes" class="text-slate-500 italic text-[11px] pt-1 border-t border-slate-100">
+                  <p v-if="collab.response_notes || collab.collaboration_notes" class="text-slate-600 italic text-xs sm:text-sm pt-1.5 border-t border-slate-100">
                     Response notes: "{{ collab.response_notes || collab.collaboration_notes }}"
                   </p>
                 </div>
@@ -562,7 +561,7 @@ const getStatusBadge = (status) => {
                   <button
                     type="button"
                     @click="openRespondModal(collab, 'accepted')"
-                    class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -573,7 +572,7 @@ const getStatusBadge = (status) => {
                   <button
                     type="button"
                     @click="openRespondModal(collab, 'declined')"
-                    class="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all cursor-pointer"
+                    class="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs sm:text-sm font-bold transition-all cursor-pointer"
                   >
                     <span>Decline</span>
                   </button>
@@ -582,8 +581,8 @@ const getStatusBadge = (status) => {
                 <!-- Active Collaboration: Shared Manpower Roster -->
                 <div v-if="collab.status === 'accepted'" class="space-y-3 pt-2 border-t border-slate-200">
                   <div class="flex items-center justify-between">
-                    <h5 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                      <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h5 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                       </svg>
                       <span>Assigned Shared Personnel</span>
@@ -594,7 +593,7 @@ const getStatusBadge = (status) => {
                       v-if="currentUnitId === Number(collab.collaborating_unit_id) && assignForm.collaborationId !== collab.id"
                       type="button"
                       @click="openAssignPersonnel(collab)"
-                      class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200 transition-colors cursor-pointer flex items-center gap-1"
+                      class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs sm:text-sm font-bold border border-indigo-200 transition-colors cursor-pointer flex items-center gap-1"
                     >
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -609,11 +608,11 @@ const getStatusBadge = (status) => {
                     class="p-4 rounded-xl bg-white border border-indigo-200 shadow-xs space-y-3 animate-scale-up"
                   >
                     <div class="flex items-center justify-between">
-                      <span class="text-xs font-bold text-indigo-900">Dispatch Worker from {{ UNIT_MAP[currentUnitId]?.code }}</span>
+                      <span class="text-xs sm:text-sm font-bold text-indigo-900">Dispatch Worker from {{ UNIT_MAP[currentUnitId]?.code }}</span>
                       <button
                         type="button"
                         @click="assignForm.collaborationId = null"
-                        class="text-xs text-slate-400 hover:text-slate-600"
+                        class="text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
                       >
                         ✕ Cancel
                       </button>
@@ -621,10 +620,10 @@ const getStatusBadge = (status) => {
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Personnel *</label>
+                        <label class="block text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Personnel *</label>
                         <select
                           v-model="assignForm.personnel_id"
-                          class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold focus:outline-none focus:border-indigo-500 cursor-pointer"
+                          class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-bold focus:outline-none focus:border-indigo-500 cursor-pointer"
                         >
                           <option value="" disabled>Select personnel...</option>
                           <option
@@ -638,22 +637,22 @@ const getStatusBadge = (status) => {
                       </div>
 
                       <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Implementation Date *</label>
+                        <label class="block text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Implementation Date *</label>
                         <input
                           type="date"
                           v-model="assignForm.implementation_date"
-                          class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-indigo-500"
+                          class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-semibold focus:outline-none focus:border-indigo-500"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Task Assignment Notes</label>
+                      <label class="block text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Task Assignment Notes</label>
                       <input
                         type="text"
                         v-model="assignForm.task_notes"
                         placeholder="e.g. Assist in clearing debris and tree branches"
-                        class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium focus:outline-none focus:border-indigo-500"
+                        class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-medium focus:outline-none focus:border-indigo-500"
                       />
                     </div>
 
@@ -662,7 +661,7 @@ const getStatusBadge = (status) => {
                         type="button"
                         :disabled="isSubmitting"
                         @click="handleAssignSharedPersonnel"
-                        class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                       >
                         {{ isSubmitting ? 'Dispatching...' : 'Confirm Dispatch' }}
                       </button>
@@ -670,25 +669,25 @@ const getStatusBadge = (status) => {
                   </div>
 
                   <!-- Personnel List -->
-                  <div v-if="!collab.personnel || collab.personnel.length === 0" class="text-xs text-slate-400 italic py-1">
+                  <div v-if="!collab.personnel || collab.personnel.length === 0" class="text-xs sm:text-sm text-slate-400 italic py-1">
                     No shared personnel assigned yet.
                   </div>
                   <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div
                       v-for="p in collab.personnel"
                       :key="p.id"
-                      class="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2"
+                      class="p-3 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2"
                     >
-                      <div class="flex items-center gap-2 min-w-0">
-                        <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0 border border-indigo-100">
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 border border-indigo-100">
                           {{ p.name ? p.name.charAt(0).toUpperCase() : 'W' }}
                         </div>
                         <div class="min-w-0">
-                          <p class="text-xs font-bold text-slate-900 truncate">{{ p.name }}</p>
-                          <p class="text-[10px] text-slate-500 truncate">{{ p.specialty || 'Worker' }} &bull; {{ p.unit_code || 'Shared' }}</p>
+                          <p class="text-xs sm:text-sm font-bold text-slate-900 truncate">{{ p.name }}</p>
+                          <p class="text-[11px] sm:text-xs text-slate-500 truncate">{{ p.specialty || 'Worker' }} &bull; {{ p.unit_code || 'Shared' }}</p>
                         </div>
                       </div>
-                      <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                         Dispatched
                       </span>
                     </div>
@@ -703,7 +702,7 @@ const getStatusBadge = (status) => {
                       type="button"
                       :disabled="isSubmitting"
                       @click="handleCompleteCollaboration(collab)"
-                      class="px-3 py-1.5 rounded-lg border border-indigo-300 bg-white hover:bg-indigo-50 text-indigo-700 text-xs font-bold transition-colors cursor-pointer"
+                      class="px-3.5 py-2 rounded-xl border border-indigo-300 bg-white hover:bg-indigo-50 text-indigo-700 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
                     >
                       ✓ Mark Unit Participation as Done
                     </button>
@@ -714,20 +713,20 @@ const getStatusBadge = (status) => {
           </div>
 
           <!-- ─── TAB 2: REQUEST COLLABORATION ─── -->
-          <div v-else-if="activeTab === 'request'" class="space-y-4">
-            <div class="space-y-3.5">
+          <div v-else-if="activeTab === 'request'" class="space-y-5">
+            <div class="space-y-4">
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                <label class="block text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wider mb-2">
                   Target GSO Sub-Unit <span class="text-rose-500">*</span>
-                  <span class="text-slate-400 font-normal lowercase tracking-normal ml-1">(select one or both)</span>
+                  <span class="text-slate-400 font-normal normal-case tracking-normal ml-1.5">(select one or both)</span>
                 </label>
 
                 <!-- Checkbox Selection -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <label
                     v-for="unit in availableTargetUnits"
                     :key="unit.id"
-                    class="relative flex items-start gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer select-none"
+                    class="relative flex items-start gap-3.5 p-4 rounded-2xl border transition-all cursor-pointer select-none"
                     :class="[
                       isUnitRequested(unit.id)
                         ? 'bg-slate-100/80 border-slate-200 opacity-65 cursor-not-allowed'
@@ -741,19 +740,19 @@ const getStatusBadge = (status) => {
                       :value="unit.id"
                       v-model="requestForm.collaborating_unit_ids"
                       :disabled="isUnitRequested(unit.id)"
-                      class="mt-0.5 h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 disabled:opacity-50 cursor-pointer"
+                      class="mt-1 h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 disabled:opacity-50 cursor-pointer"
                     />
                     <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-1.5 flex-wrap">
-                        <span class="text-xs font-black text-slate-900">{{ unit.code }}</span>
-                        <span class="text-[11px] font-semibold text-slate-600 truncate">{{ unit.shortName || unit.name }}</span>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm sm:text-base font-black text-slate-900">{{ unit.code }}</span>
+                        <span class="text-xs sm:text-sm font-bold text-slate-700 truncate">{{ unit.shortName || unit.name }}</span>
                       </div>
-                      <p class="text-[10px] text-slate-500 font-medium line-clamp-2 mt-0.5 leading-snug">
+                      <p class="text-xs sm:text-[13px] text-slate-600 font-medium line-clamp-2 mt-1 leading-relaxed">
                         {{ unit.desc }}
                       </p>
                       <span
                         v-if="isUnitRequested(unit.id)"
-                        class="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
+                        class="inline-flex items-center gap-1 mt-2 px-2.5 py-0.5 rounded-md text-[10px] sm:text-xs font-black uppercase tracking-wider"
                         :class="getExistingStatusBadge(unit.id).cls"
                       >
                         {{ getExistingStatusBadge(unit.id).label }}
@@ -764,23 +763,26 @@ const getStatusBadge = (status) => {
               </div>
 
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
-                  Inter-Unit Assistance Details &amp; Scope of Work <span class="text-rose-500">*</span>
+                <label class="block text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  Scope of Work &amp; Required Assistance <span class="text-rose-500">*</span>
                 </label>
                 <textarea
                   v-model="requestForm.scope_of_work"
                   rows="4"
                   required
                   placeholder="Provide the collaboration message and specific tasks requested from the target sub-unit(s) (e.g., 'Requesting LEAU tree-trimming team to prune branches obstructing service lines before FGMU electrical wiring repairs can proceed safely')..."
-                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500 placeholder:text-slate-400"
+                  class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm sm:text-base font-medium text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white placeholder:text-slate-400 placeholder:text-xs sm:placeholder:text-sm leading-relaxed transition-all"
                 ></textarea>
+                <p class="text-xs text-slate-400 mt-1.5 font-medium">
+                  State clear objectives, location conditions, or hazards so the collaborating unit can designate the right personnel and tools.
+                </p>
               </div>
 
-              <div class="flex items-center justify-end gap-2 pt-2">
+              <div class="flex items-center justify-end gap-3 pt-2">
                 <button
                   type="button"
                   @click="hideJointTab ? emit('close') : activeTab = 'active'"
-                  class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors cursor-pointer"
+                  class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -788,8 +790,12 @@ const getStatusBadge = (status) => {
                   type="button"
                   :disabled="isSubmitting || requestForm.collaborating_unit_ids.length === 0 || !requestForm.scope_of_work.trim()"
                   @click="handleSendRequest"
-                  class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                  class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider transition-all shadow-sm cursor-pointer disabled:opacity-50 flex items-center gap-2"
                 >
+                  <svg v-if="isSubmitting" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                   <span>
                     {{
                       isSubmitting
@@ -818,33 +824,33 @@ const getStatusBadge = (status) => {
         @click.self="!responseModal.isLoading && (responseModal.isOpen = false)"
       >
         <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md p-6 space-y-4 animate-scale-up my-auto" @click.stop>
-          <h4 class="text-base font-black text-slate-900">
+          <h4 class="text-base sm:text-lg font-black text-slate-900">
             {{ responseModal.action === 'accepted' ? 'Accept Collaboration Request' : 'Decline Collaboration Request' }}
           </h4>
-          <p class="text-xs text-slate-600">
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
             {{ responseModal.action === 'accepted' 
               ? 'Accepting this request commits your unit to coordinating manpower for this ticket.'
               : 'Please state the reason for declining this request.' }}
           </p>
 
           <div>
-            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
               Notes / Remarks (Optional)
             </label>
             <textarea
               v-model="responseModal.notes"
               rows="3"
               placeholder="Add any instructions or remarks for the primary unit..."
-              class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:border-indigo-500"
             ></textarea>
           </div>
 
-          <div class="flex items-center justify-end gap-2 pt-2">
+          <div class="flex items-center justify-end gap-2.5 pt-2">
             <button
               type="button"
               :disabled="responseModal.isLoading"
               @click="responseModal.isOpen = false"
-              class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors cursor-pointer"
+              class="px-4 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -853,7 +859,7 @@ const getStatusBadge = (status) => {
               :disabled="responseModal.isLoading"
               @click="handleRespondAction"
               :class="[
-                'px-4 py-2 rounded-xl text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50',
+                'px-5 py-2.5 rounded-xl text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50',
                 responseModal.action === 'accepted' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
               ]"
             >
