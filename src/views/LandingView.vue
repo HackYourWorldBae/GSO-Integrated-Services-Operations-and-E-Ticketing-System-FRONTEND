@@ -45,7 +45,7 @@ const goToRegister = () => router.push({ name: 'register' });
       <div class="navbar-inner">
         <!-- Brand -->
         <div class="navbar-brand">
-          <div class="navbar-logo-ring navbar-logo-bp" title="Bagong Pilipinas">
+          <div class="navbar-logo-bp" title="Bagong Pilipinas">
             <img src="/bagong-pilipinas-logo.svg" alt="Bagong Pilipinas Logo" class="navbar-logo-img navbar-logo-bp-img" />
           </div>
           <div class="navbar-logo-ring" title="Benguet State University">
@@ -575,9 +575,15 @@ const goToRegister = () => router.push({ name: 'register' });
 }
 
 .navbar-logo-bp {
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .navbar-logo-img {
@@ -588,7 +594,6 @@ const goToRegister = () => router.push({ name: 'register' });
 
 .navbar-logo-bp-img {
   object-fit: contain;
-  padding: 1px;
 }
 
 .navbar-text {
@@ -1800,7 +1805,8 @@ const goToRegister = () => router.push({ name: 'register' });
     height: 58px;
   }
 
-  .navbar-logo-ring {
+  .navbar-logo-ring,
+  .navbar-logo-bp {
     width: 38px;
     height: 38px;
   }
