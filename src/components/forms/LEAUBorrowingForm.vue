@@ -98,10 +98,10 @@ const hasToolsBorrowing = computed(() => {
 
 const itemNamePlaceholder = computed(() => {
   if (hasPlantsBorrowing.value && hasToolsBorrowing.value) {
-    return 'e.g., Shovel, Rake, Ladder or Snake Plant, Pothos (specify species for plants)';
+    return 'e.g., Shovel, Rake, Ladder or Palm, Fern, Snake Plant';
   }
   if (hasPlantsBorrowing.value) {
-    return 'e.g., Snake Plant, Pothos, Palm (specify species)';
+    return 'e.g., Palm, Fern, Snake Plant, Peace Lily';
   }
   return 'e.g., Shovel, Rake, Ladder, Wheelbarrow';
 });
