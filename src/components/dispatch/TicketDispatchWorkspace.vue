@@ -862,7 +862,7 @@
             <!-- Service & Job Particulars -->
             <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
               <div class="flex items-center justify-between gap-3">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">{{ selectedTicket?.borrowing || isBorrowingService(selectedTicket) ? 'Purpose of use detail' : 'Job Particular & Nature of Work' }}</span>
                 <span
                   :class="[
                     'px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border',
