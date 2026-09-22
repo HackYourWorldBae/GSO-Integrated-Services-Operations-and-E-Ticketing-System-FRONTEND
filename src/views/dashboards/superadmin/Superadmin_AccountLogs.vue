@@ -414,8 +414,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-black text-slate-900">Account Activity Log</h3>
-                  <p class="text-xs text-slate-400 font-semibold">Event Reference #{{ selectedLog.id }}</p>
+                  <h3 class="text-lg font-black text-slate-900">Account Activity Log</h3>
+                  <p class="text-sm text-slate-400 font-semibold">Event Reference #{{ selectedLog.id }}</p>
                 </div>
               </div>
               <button
@@ -429,78 +429,78 @@
               </button>
             </div>
 
-            <div class="space-y-3.5 text-xs">
+            <div class="space-y-3.5 text-sm">
               <div class="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Timestamp</div>
-                  <div class="font-semibold text-slate-800 mt-0.5">{{ formatFullDateTime(selectedLog.created_at) }}</div>
+                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Timestamp</div>
+                  <div class="font-semibold text-slate-800 mt-0.5 text-sm">{{ formatFullDateTime(selectedLog.created_at) }}</div>
                 </div>
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Severity</div>
+                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Severity</div>
                   <div class="mt-0.5">
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold border uppercase" :class="getSeverityBadgeClass(selectedLog.severity)">
+                    <span class="px-2 py-0.5 rounded text-xs font-bold border uppercase" :class="getSeverityBadgeClass(selectedLog.severity)">
                       {{ selectedLog.severity }}
                     </span>
                   </div>
                 </div>
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Event Type</div>
-                  <div class="font-mono font-bold text-purple-700 mt-0.5 truncate">{{ selectedLog.event_type }}</div>
+                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Event Type</div>
+                  <div class="font-mono font-bold text-purple-700 mt-0.5 truncate text-sm">{{ selectedLog.event_type }}</div>
                 </div>
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Client Device</div>
-                  <div class="font-semibold text-slate-800 mt-0.5 truncate">{{ selectedLog.device_summary || 'Unknown' }}</div>
+                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Client Device</div>
+                  <div class="font-semibold text-slate-800 mt-0.5 truncate text-sm">{{ selectedLog.device_summary || 'Unknown' }}</div>
                 </div>
               </div>
 
               <!-- Actor and Target Account Info -->
               <div class="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Actor / Initiator</div>
-                  <div class="font-bold text-slate-900 mt-0.5">
+                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Actor / Initiator</div>
+                  <div class="font-bold text-slate-900 mt-0.5 text-sm">
                     {{ selectedLog.actor_first_name ? `${selectedLog.actor_first_name} ${selectedLog.actor_last_name}` : 'System Automation' }}
                   </div>
-                  <div class="text-[11px] text-slate-500 font-mono">{{ formatEmail(selectedLog.actor_email) }}</div>
+                  <div class="text-sm text-slate-500 font-mono">{{ formatEmail(selectedLog.actor_email) }}</div>
                 </div>
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Target User</div>
-                  <div class="font-bold text-slate-900 mt-0.5">
+                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Target User</div>
+                  <div class="font-bold text-slate-900 mt-0.5 text-sm">
                     {{ selectedLog.target_first_name ? `${selectedLog.target_first_name} ${selectedLog.target_last_name}` : 'Self / Global' }}
                   </div>
-                  <div class="text-[11px] text-slate-500 font-mono">{{ formatEmail(selectedLog.target_email) }}</div>
+                  <div class="text-sm text-slate-500 font-mono">{{ formatEmail(selectedLog.target_email) }}</div>
                 </div>
               </div>
 
               <!-- Event Details -->
               <div>
-                <label class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Activity Narrative</label>
-                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-xs leading-relaxed font-medium">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-400 block mb-1">Activity Narrative</label>
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-sm leading-relaxed font-medium">
                   {{ selectedLog.details || 'No additional narrative recorded.' }}
                 </div>
               </div>
 
               <!-- Network Provenance & Data Privacy Tag -->
-              <div class="p-3 rounded-xl bg-purple-50/60 border border-purple-100 text-purple-900 text-xs flex items-center justify-between">
+              <div class="p-3 rounded-xl bg-purple-50/60 border border-purple-100 text-purple-900 text-sm flex items-center justify-between">
                 <div>
                   <span class="font-bold">Network IP:</span>
                   <span class="font-mono ml-1">{{ formatIp(selectedLog.ip_address) }}</span>
                 </div>
-                <span class="text-[10px] font-black text-purple-700 uppercase bg-purple-100 px-2 py-0.5 rounded">
+                <span class="text-xs font-black text-purple-700 uppercase bg-purple-100 px-2 py-0.5 rounded">
                   Immutable Record
                 </span>
               </div>
 
               <!-- Metadata JSON (Sanitized) -->
               <div v-if="selectedLog.metadata">
-                <label class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Sanitized Telemetry Metadata</label>
-                <pre class="p-3 rounded-xl bg-slate-900 text-slate-200 font-mono text-[11px] leading-relaxed break-words whitespace-pre-wrap max-h-36 overflow-y-auto custom-scrollbar">{{ formatMetadata(selectedLog.metadata) }}</pre>
+                <label class="text-xs font-black uppercase tracking-wider text-slate-400 block mb-1">Sanitized Telemetry Metadata</label>
+                <pre class="p-3 rounded-xl bg-slate-900 text-slate-200 font-mono text-sm leading-relaxed break-words whitespace-pre-wrap max-h-36 overflow-y-auto custom-scrollbar">{{ formatMetadata(selectedLog.metadata) }}</pre>
               </div>
             </div>
 
             <div class="pt-2 flex justify-end">
               <button
                 @click="closeLogDetails"
-                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all min-h-[44px] cursor-pointer touch-manipulation"
+                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold transition-all min-h-[44px] cursor-pointer touch-manipulation"
               >
                 Close Details
               </button>

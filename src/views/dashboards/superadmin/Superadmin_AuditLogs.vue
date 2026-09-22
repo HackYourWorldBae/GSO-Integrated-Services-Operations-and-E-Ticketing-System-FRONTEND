@@ -333,8 +333,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-black text-slate-900">Audit Log Details</h3>
-                  <p class="text-xs text-slate-400 font-semibold">Entry #{{ selectedLog.id }}</p>
+                  <h3 class="text-lg font-black text-slate-900">Audit Log Details</h3>
+                  <p class="text-sm text-slate-400 font-semibold">Entry #{{ selectedLog.id }}</p>
                 </div>
               </div>
               <button
@@ -348,26 +348,26 @@
               </button>
             </div>
 
-            <div class="space-y-3.5 text-xs">
+            <div class="space-y-3.5 text-sm">
               <div class="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Timestamp</div>
-                  <div class="font-semibold text-slate-800 mt-0.5">{{ formatFullDateTime(selectedLog.created_at) }}</div>
+                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Timestamp</div>
+                  <div class="font-semibold text-slate-800 mt-0.5 text-sm">{{ formatFullDateTime(selectedLog.created_at) }}</div>
                 </div>
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket ID</div>
-                  <div class="font-mono font-bold text-purple-700 mt-0.5">{{ selectedLog.ticket_id ? `#${selectedLog.ticket_id}` : '—' }}</div>
+                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Ticket ID</div>
+                  <div class="font-mono font-bold text-purple-700 mt-0.5 text-sm">{{ selectedLog.ticket_id ? `#${selectedLog.ticket_id}` : '—' }}</div>
                 </div>
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Actor</div>
-                  <div class="font-semibold text-slate-800 mt-0.5 truncate">
+                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Actor</div>
+                  <div class="font-semibold text-slate-800 mt-0.5 truncate text-sm">
                     {{ selectedLog.first_name ? `${selectedLog.first_name} ${selectedLog.last_name}` : 'System Automation' }}
                   </div>
                 </div>
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Action</div>
+                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Action</div>
                   <div class="mt-0.5">
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold border" :class="getActionBadgeClass(selectedLog.action)">
+                    <span class="px-2 py-0.5 rounded text-xs font-bold border" :class="getActionBadgeClass(selectedLog.action)">
                       {{ selectedLog.action }}
                     </span>
                   </div>
@@ -375,13 +375,13 @@
               </div>
 
               <div>
-                <label class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Details & Payload</label>
-                <div class="p-3.5 rounded-2xl bg-slate-900 text-slate-200 font-mono text-[11px] leading-relaxed break-words whitespace-pre-wrap max-h-48 overflow-y-auto custom-scrollbar">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-400 block mb-1">Details & Payload</label>
+                <div class="p-3.5 rounded-2xl bg-slate-900 text-slate-200 font-mono text-sm leading-relaxed break-words whitespace-pre-wrap max-h-48 overflow-y-auto custom-scrollbar">
                   {{ selectedLog.details || 'No details recorded.' }}
                 </div>
               </div>
 
-              <div v-if="selectedLog.location || selectedLog.college_building" class="p-3 rounded-xl bg-purple-50/50 border border-purple-100 text-purple-900 text-xs font-medium">
+              <div v-if="selectedLog.location || selectedLog.college_building" class="p-3 rounded-xl bg-purple-50/50 border border-purple-100 text-purple-900 text-sm font-medium">
                 <span class="font-bold">Location Context:</span> {{ selectedLog.location || selectedLog.college_building }}<span v-if="selectedLog.office_room"> ({{ selectedLog.office_room }})</span>
               </div>
             </div>
@@ -389,7 +389,7 @@
             <div class="pt-2 flex justify-end">
               <button
                 @click="closeLogDetails"
-                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all min-h-[44px] cursor-pointer touch-manipulation"
+                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold transition-all min-h-[44px] cursor-pointer touch-manipulation"
               >
                 Close Details
               </button>
