@@ -736,10 +736,16 @@
             </div>
           </div>
 
-          <!-- Service & Particulars -->
-          <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+          <!-- Borrowing Request Particulars (Item, Quantity, Purpose, Schedule, Borrower) -->
+          <BorrowingDetailsSection
+            v-if="isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing"
+            :ticket="selectedTicketForModal"
+          />
+
+          <!-- Standard Job Particular & Nature of Work (Non-borrowing requests) -->
+          <div v-else class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
             <div class="flex items-center justify-between gap-3">
-              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">{{ selectedTicketForModal?.borrowing || isBorrowingService(selectedTicketForModal) ? 'Purpose of use detail' : 'Job Particular & Nature of Work' }}</span>
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular & Nature of Work</span>
               <span class="px-3 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-black uppercase tracking-wider border border-amber-200">
                 {{ selectedTicketForModal.service }}
               </span>
@@ -1049,6 +1055,7 @@ import { LEAU_SERVICES } from '@/constants/services';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
 import { isBorrowingService } from '@/utils/borrowing';
 import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
+import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 
 const authStore = useAuthStore();
 const route = useRoute();
@@ -1239,6 +1246,8 @@ const mapTicket = (t) => {
     location: t.location || t.college_building,
     office_room: t.office_room,
     attachments: t.attachments || [],
+    borrowing: t.borrowing || t.details || null,
+    details: t.details || t.borrowing || null,
     working_days: Number(t.working_days || t.project_working_days || t.assignment?.working_days) || 1,
     extension_days: Number(t.extension_days) || 0,
     overtime_hours: Number(t.overtime_hours) || 0,
@@ -1337,7 +1346,7 @@ const checkRouteQueryTicket = () => {
 
   if (match) {
     handledRouteQueryTicketId = String(targetId);
-    selectedTicketForModal.value = match;
+    openDetailsModal(match);
 
     if (queuesData.value.active?.some(t => String(t.id) === String(match.id))) {
       activeTab.value = 'active';
@@ -1394,8 +1403,28 @@ const downloadAttachment = async (att) => {
   }
 };
 
-const openDetailsModal = (ticket) => {
+const openDetailsModal = async (ticket) => {
+  if (!ticket) return;
   selectedTicketForModal.value = ticket;
+
+  // For borrowing requests, if borrowing particulars (item name or schedule) aren't fully populated yet, fetch single ticket
+  if (isBorrowingService(ticket) && (!ticket.borrowing || !ticket.borrowing.item_name_requested)) {
+    try {
+      const res = await api.get(`tickets/${ticket.id || ticket.ticketId}`);
+      const freshTicket = res.data?.data?.ticket || res.data?.data;
+      if (freshTicket && selectedTicketForModal.value && String(selectedTicketForModal.value.id || selectedTicketForModal.value.ticketId) === String(ticket.id || ticket.ticketId)) {
+        const mapped = mapTicket(freshTicket);
+        selectedTicketForModal.value = {
+          ...selectedTicketForModal.value,
+          ...mapped,
+          borrowing: freshTicket.borrowing || freshTicket.details || selectedTicketForModal.value.borrowing,
+          details: freshTicket.details || freshTicket.borrowing || selectedTicketForModal.value.details,
+        };
+      }
+    } catch (err) {
+      console.warn('Could not refresh borrowing ticket details for modal:', err);
+    }
+  }
 };
 
 const initiateApproval = (ticket) => {
