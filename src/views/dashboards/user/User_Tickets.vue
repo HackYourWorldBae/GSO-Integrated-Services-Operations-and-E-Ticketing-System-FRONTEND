@@ -1157,6 +1157,12 @@ import { useAuthStore } from '@/stores/auth';
 import { useNetworkStatus } from '@/utils/networkMonitor';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+import {
+  isBorrowingService,
+  BORROWING_STEPS,
+  getBorrowingCurrentStep,
+  getBorrowingStepDescription,
+} from '@/utils/borrowing';
 
 const router = useRouter();
 
@@ -1289,6 +1295,7 @@ const isIncidentTicket = (t) => {
 const isUnscheduledTicket = (t) => {
   if (!t) return true;
   if (isIncidentTicket(t)) return true;
+  if (isBorrowingService(t)) return true;
   const status = String(t.status || '').toLowerCase();
   if (['pending', 'declined', 'cancelled'].includes(status)) return true;
   return (!t.assignment?.working_days && !t.project_working_days && !t.working_days && !t.workingDays);
@@ -1311,25 +1318,47 @@ const isInternalStaffDocument = (fileName) => {
 };
 
 /**
- * Digital ticket card for FGMU/LEAU.
+ * Digital ticket card for FGMU/LEAU / Borrowing.
  */
 const DigitalFormCard = defineComponent({
   props: { ticket: Object, color: { type: String, default: 'emerald' } },
   emits: ['download'],
   setup(props, { emit }) {
-    return () => h('div', { class: 'p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3' }, [
-      h('div', { class: 'grid grid-cols-2 gap-3' }, [
-        h(FormRow, { label: 'Date', value: props.ticket.date }),
-        h(FormRow, { label: 'Service', value: props.ticket.service }),
-        h(FormRow, { label: 'Location', value: props.ticket.location || 'Main Campus' }),
-        h(FormRow, { label: 'Office / Room', value: props.ticket.office_room || 'N/A' }),
-        ...((!isUnscheduledTicket(props.ticket) && props.ticket.implementationDate) ? [h(FormRow, { label: 'Implementation Date', value: props.ticket.implementationDate })] : []),
-        ...((!isUnscheduledTicket(props.ticket) && props.ticket.workingDays) ? [h(FormRow, { label: 'Target Working Days', value: `${props.ticket.workingDays} Day(s)` + (props.ticket.extension_days > 0 ? ` (+${props.ticket.extension_days}d ext)` : '') })] : []),
-        ...((!isUnscheduledTicket(props.ticket) && (props.ticket.effective_target_date || props.ticket.target_completion_date)) ? [h(FormRow, { label: 'Target Completion Date', value: formatDate(props.ticket.effective_target_date || props.ticket.target_completion_date) })] : []),
-      ]),
+    return () => {
+      const t = props.ticket || {};
+      const isBorrow = isBorrowingService(t);
+      const b = t.borrowing || t.details || {};
 
-      ...(props.ticket.attachments?.length ? [h(AttachmentList, { attachments: props.ticket.attachments, onDownload: (att) => emit('download', att) })] : []),
-    ]);
+      if (isBorrow) {
+        return h('div', { class: 'p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3' }, [
+          h('div', { class: 'grid grid-cols-2 gap-3' }, [
+            h(FormRow, { label: 'Date Requested', value: t.date }),
+            h(FormRow, { label: 'Service', value: t.service }),
+            h(FormRow, { label: 'Item/s Requested', value: b.item_name_requested || 'N/A' }),
+            h(FormRow, { label: 'Quantity Needed', value: String(b.quantity_needed || 1) }),
+            h(FormRow, { label: 'Pickup Date', value: b.date_needed ? formatDate(b.date_needed) : 'N/A' }),
+            h(FormRow, { label: 'Expected Return Date', value: b.expected_return_date ? formatDate(b.expected_return_date) : 'N/A' }),
+            h(FormRow, { label: 'Purpose of Use', value: b.purpose_project || t.description || 'N/A', full: true }),
+            ...(b.assigned_quantity ? [h(FormRow, { label: 'Assigned Quantity', value: `${b.assigned_quantity} unit(s)` })] : []),
+            ...(b.return_condition ? [h(FormRow, { label: 'Return Condition', value: String(b.return_condition).toUpperCase() })] : []),
+          ]),
+          ...(t.attachments?.length ? [h(AttachmentList, { attachments: t.attachments, onDownload: (att) => emit('download', att) })] : []),
+        ]);
+      }
+
+      return h('div', { class: 'p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3' }, [
+        h('div', { class: 'grid grid-cols-2 gap-3' }, [
+          h(FormRow, { label: 'Date', value: t.date }),
+          h(FormRow, { label: 'Service', value: t.service }),
+          h(FormRow, { label: 'Location', value: t.location || 'Main Campus' }),
+          h(FormRow, { label: 'Office / Room', value: t.office_room || 'N/A' }),
+          ...((!isUnscheduledTicket(t) && t.implementationDate) ? [h(FormRow, { label: 'Implementation Date', value: t.implementationDate })] : []),
+          ...((!isUnscheduledTicket(t) && t.workingDays) ? [h(FormRow, { label: 'Target Working Days', value: `${t.workingDays} Day(s)` + (t.extension_days > 0 ? ` (+${t.extension_days}d ext)` : '') })] : []),
+          ...((!isUnscheduledTicket(t) && (t.effective_target_date || t.target_completion_date)) ? [h(FormRow, { label: 'Target Completion Date', value: formatDate(t.effective_target_date || t.target_completion_date) })] : []),
+        ]),
+        ...(t.attachments?.length ? [h(AttachmentList, { attachments: t.attachments, onDownload: (att) => emit('download', att) })] : []),
+      ]);
+    };
   },
 });
 
@@ -1451,6 +1480,9 @@ const mapTicketData = (t) => {
     attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
     declineReason: t.decline_reason || '',
     currentStep: (() => {
+      if (isBorrowingService(t)) {
+        return getBorrowingCurrentStep(t);
+      }
       const rawStep = parseInt(t.current_step, 10);
       const isClosedOrResolved = ['closed', 'completed', 'resolved'].includes(t.status);
       if (isClosedOrResolved) {
@@ -1464,6 +1496,7 @@ const mapTicketData = (t) => {
       }
       return Math.min(rawStep, 5);
     })(),
+    borrowing: t.borrowing || null,
     assignment: t.assignment || null,
     assignments: t.assignments || [],
     assignedWorker: isUnscheduled ? null : (t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null),
@@ -1841,10 +1874,24 @@ const unitSteps = {
       { label: 'Archiving',               description: 'Ticket moved to digital archives for record-keeping.' },
     ],
   },
+  Borrowing: BORROWING_STEPS,
 };
 
 const getSteps = (ticket) => {
   if (!ticket) return [];
+
+  if (isBorrowingService(ticket)) {
+    let steps = BORROWING_STEPS.map(s => ({ ...s }));
+    if (ticket.status === 'declined' || ticket.status === 'rejected') {
+      const reason = ticket.declineReason || 'Borrowing request declined by Director.';
+      if (steps.length > 1) {
+        steps[1] = { label: 'Ticket Declined', description: `Reason: ${reason}` };
+        steps = steps.slice(0, 2);
+      }
+    }
+    return steps;
+  }
+
   let steps = ticket.unit === 'SSU'
     ? [...(unitSteps.SSU[ticket.service] || [])]
     : [...(unitSteps[ticket.unit] || [])];
@@ -1871,10 +1918,15 @@ const getSteps = (ticket) => {
 
 /**
  * Returns a dynamic description for a given step.
- * For SSU Incident Reports, step 3 (index 2) reflects the live ticket state
- * so the reporter sees exactly what is happening with their case.
+ * Context-aware for SSU Incident Reports and LEAU Borrowing requests.
  */
 const getStepDescription = (ticket, step, index) => {
+  if (!ticket || !step) return '';
+
+  if (isBorrowingService(ticket)) {
+    return getBorrowingStepDescription(ticket, step, index, formatDate);
+  }
+
   if (
     ticket?.unit === 'SSU' &&
     ticket?.service === 'Incident Report' &&
@@ -1977,6 +2029,7 @@ const resetForm = () => {
 
 const isFeedbackEligible = (ticket) => {
   if (!ticket || ticket.isClosed || ticket.status === 'closed' || ticket.status === 'completed') return false;
+  if (isBorrowingService(ticket)) return false;
   // Ratings supported for FGMU and LEAU at completed step 6 or resolved status
   if (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') return ticket.currentStep === 6 || ticket.status === 'resolved';
   return false;
@@ -1998,9 +2051,9 @@ const isStepCompleted = (ticket, index) => {
     return true;
   }
 
-  // The final step ("Job Finished" for FGMU/LEAU or final step of workflow) is completed
+  // The final step ("Job Finished" for FGMU/LEAU, "Returned & Completed" for borrowing, or final step of workflow) is completed
   // ONLY if the ticket actually reached that step AND is in resolved or completed status
-  if (stepNum === totalSteps || steps[index]?.label === 'Job Finished') {
+  if (stepNum === totalSteps || steps[index]?.label === 'Job Finished' || steps[index]?.label === 'Returned & Completed') {
     return (
       ticket.currentStep >= totalSteps &&
       ['resolved', 'completed', 'closed'].includes(ticket.status)
@@ -2188,6 +2241,7 @@ const getStepFill = (status) => {
     'in-progress': 'bg-blue-500',
     approved:      'bg-blue-500',
     scheduled:     'bg-blue-500',
+    overdue:       'bg-rose-500',
     completed:     'bg-emerald-500',
     resolved:      'bg-emerald-500',
     cancelled:     'bg-slate-400',
@@ -2204,6 +2258,7 @@ const getActiveDot = (status) => {
     'in-progress': 'bg-blue-500 text-white',
     approved:      'bg-blue-500 text-white',
     scheduled:     'bg-blue-500 text-white',
+    overdue:       'bg-rose-500 text-white',
     completed:     'bg-emerald-500 text-white',
     resolved:      'bg-emerald-500 text-white',
     cancelled:     'bg-slate-400 text-white',
@@ -2220,6 +2275,7 @@ const getActiveStepBadge = (status) => {
     'in-progress': 'bg-blue-100 text-blue-700',
     approved:      'bg-blue-100 text-blue-700',
     scheduled:     'bg-blue-100 text-blue-700',
+    overdue:       'bg-rose-100 text-rose-700',
     completed:     'bg-emerald-100 text-emerald-700',
     resolved:      'bg-emerald-100 text-emerald-700',
     cancelled:     'bg-slate-100 text-slate-600',

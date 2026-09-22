@@ -38,6 +38,16 @@ export const BORROWING_TRANSITIONS = {
   cancelled: [],
 };
 
+export const BORROWING_STEPS = [
+  { label: 'Digital Submission',   description: 'The borrower completes and submits the digital borrowing form.' },
+  { label: 'Ticket Creation',      description: 'System generated a Digital Ticket under Pending Director Approval.' },
+  { label: 'Director Approval',    description: 'Director reviews and approves the borrowing request.' },
+  { label: 'Inventory Allocation', description: 'LEAU checks and allocates requested inventory item(s).' },
+  { label: 'Ready for Pickup',     description: 'Item(s) prepped and ready for pickup at the LEAU office.' },
+  { label: 'Item Picked Up',       description: 'Item(s) claimed by borrower for the approved borrowing duration.' },
+  { label: 'Returned & Completed', description: 'Item(s) returned to LEAU, inspected, and request finalized.' },
+];
+
 /**
  * Normalize a service name for comparison (case/space/slash tolerant).
  */
@@ -50,19 +60,24 @@ export function normalizeServiceName(value) {
 
 /**
  * True when a service name / ticket object is a borrowing service.
- * Accepts a raw string or a ticket-like object with service/service_type/type.
+ * Accepts a raw string or a ticket-like object with service/service_type/type/borrowing.
  */
 export function isBorrowingService(input) {
+  if (!input) return false;
+  if (typeof input === 'object' && input.borrowing) {
+    return true;
+  }
   let name = '';
   if (typeof input === 'string') {
     name = input;
-  } else if (input && typeof input === 'object') {
-    name = input.service || input.service_type || input.type || '';
+  } else if (typeof input === 'object') {
+    name = input.service || input.service_type || input.title || input.type || '';
   }
   const normalized = normalizeServiceName(name);
   return (
     normalized.includes('borrowing of plants') ||
-    normalized.includes('borrowing of tools')
+    normalized.includes('borrowing of tools') ||
+    normalized.includes('borrowing request')
   );
 }
 
@@ -145,4 +160,115 @@ export function canAssignInventory(borrowingStatus) {
  */
 export function borrowingDispatchLink(ticketId) {
   return `/admin/leau/assign-workers?ticket=${ticketId}`;
+}
+
+/**
+ * Calculate the current step index (1-7) for a borrowing ticket.
+ *
+ * 1: Digital Submission (completed upon submit)
+ * 2: Ticket Creation (active while pending director review)
+ * 3: Director Approval (active once approved by director)
+ * 4: Inventory Allocation (active once inventory is assigned)
+ * 5: Ready for Pickup (active once marked ready for pickup)
+ * 6: Item Picked Up (active during borrowing period / overdue)
+ * 7: Returned & Completed (terminal)
+ */
+export function getBorrowingCurrentStep(ticket) {
+  if (!ticket) return 1;
+  const b = ticket.borrowing || ticket.details || {};
+  const bStatus = String(b.status || ticket.borrowing_status || '').toLowerCase();
+  const tStatus = String(ticket.status || '').toLowerCase();
+  const rawStep = parseInt(ticket.current_step, 10);
+
+  if (['closed', 'completed'].includes(tStatus) || bStatus === 'returned' || rawStep >= 7) {
+    return 7;
+  }
+  if (bStatus === 'picked_up' || bStatus === 'overdue' || rawStep === 6 || tStatus === 'picked_up') {
+    return 6;
+  }
+  if (bStatus === 'ready_for_pickup' || rawStep === 5) {
+    return 5;
+  }
+  if (bStatus === 'inventory_assigned' || rawStep === 4) {
+    return 4;
+  }
+  if (['approved', 'approved_director'].includes(tStatus) || bStatus === 'approved_director' || rawStep === 3) {
+    return 3;
+  }
+  if (rawStep >= 2 || ['pending', 'pending_director'].includes(tStatus)) {
+    return 2;
+  }
+  return Math.max(rawStep || 1, 1);
+}
+
+/**
+ * Dynamic description for each step of a borrowing ticket.
+ */
+export function getBorrowingStepDescription(ticket, step, index, formatDateFn = null) {
+  if (!ticket) return step?.description || '';
+  const b = ticket.borrowing || ticket.details || {};
+  const format = typeof formatDateFn === 'function' ? formatDateFn : (d) => d;
+  const stepNum = ticket.currentStep || getBorrowingCurrentStep(ticket);
+
+  switch (index) {
+    case 0: { // Digital Submission
+      const itemName = b.item_name_requested || '';
+      const qty = b.quantity_needed || 1;
+      if (itemName) {
+        return `Borrower submitted request for ${qty} unit(s) of "${itemName}".`;
+      }
+      return step?.description || 'The borrower completes and submits the digital borrowing form.';
+    }
+    case 1: { // Ticket Creation
+      return 'System generated a Digital Ticket under Pending Director Approval.';
+    }
+    case 2: { // Director Approval
+      if (stepNum > 3 || ['approved_director', 'inventory_assigned', 'ready_for_pickup', 'picked_up', 'overdue', 'returned'].includes(b.status)) {
+        return 'Approved by the Director. Queued for LEAU inventory assignment.';
+      }
+      return step?.description || 'Director reviews and approves the borrowing request.';
+    }
+    case 3: { // Inventory Allocation
+      if (stepNum > 4 || ['inventory_assigned', 'ready_for_pickup', 'picked_up', 'overdue', 'returned'].includes(b.status)) {
+        const assignedQty = b.assigned_quantity || b.quantity_needed || 1;
+        const itemName = b.item_name_requested || 'requested item(s)';
+        return `LEAU allocated ${assignedQty} unit(s) of "${itemName}". Ready for preparation.`;
+      }
+      return step?.description || 'LEAU checks and allocates requested inventory item(s).';
+    }
+    case 4: { // Ready for Pickup
+      if (stepNum >= 5) {
+        const pickupDate = b.date_needed ? format(b.date_needed) : null;
+        if (pickupDate) {
+          return `Item(s) prepared and ready for pickup at the LEAU office (Pickup Date: ${pickupDate}).`;
+        }
+        return 'Item(s) prepared and ready for pickup at the LEAU office.';
+      }
+      return step?.description || 'Item(s) prepped and ready for pickup at the LEAU office.';
+    }
+    case 5: { // Item Picked Up
+      if (b.status === 'overdue') {
+        const returnDate = b.expected_return_date ? format(b.expected_return_date) : '';
+        return `Item is OVERDUE for return${returnDate ? ` (Due: ${returnDate})` : ''}. Please return to the LEAU office immediately.`;
+      }
+      if (stepNum >= 6) {
+        const returnDate = b.expected_return_date ? format(b.expected_return_date) : null;
+        if (returnDate) {
+          return `Item(s) claimed by borrower. Expected return date: ${returnDate}.`;
+        }
+        return 'Item(s) claimed by borrower for the approved borrowing duration.';
+      }
+      return step?.description || 'Item(s) claimed by borrower for the approved borrowing duration.';
+    }
+    case 6: { // Returned & Completed
+      const isClosed = ticket.isClosed || ['closed', 'completed'].includes(ticket.status) || b.status === 'returned';
+      if (isClosed) {
+        const cond = b.return_condition ? ` (Condition: ${String(b.return_condition).toUpperCase()})` : '';
+        return `Item(s) successfully returned to LEAU and inspected${cond}. Request finalized and archived.`;
+      }
+      return step?.description || 'Item(s) returned to LEAU, inspected, and request finalized.';
+    }
+    default:
+      return step?.description || '';
+  }
 }

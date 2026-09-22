@@ -13,6 +13,9 @@ import {
   clampAssignQuantity,
   canAssignInventory,
   borrowingDispatchLink,
+  BORROWING_STEPS,
+  getBorrowingCurrentStep,
+  getBorrowingStepDescription,
 } from '../borrowing';
 
 // Level 1 — Unit tests: pure borrowing helpers shared by the LEAU
@@ -121,4 +124,63 @@ describe('borrowing utils', () => {
       '/admin/leau/assign-workers?ticket=LEAU-TIC-1-2026'
     );
   });
+
+  it('exposes the 7-step borrowing workflow catalog', () => {
+    expect(BORROWING_STEPS).toHaveLength(7);
+    expect(BORROWING_STEPS.map((s) => s.label)).toEqual([
+      'Digital Submission',
+      'Ticket Creation',
+      'Director Approval',
+      'Inventory Allocation',
+      'Ready for Pickup',
+      'Item Picked Up',
+      'Returned & Completed',
+    ]);
+  });
+
+  it('maps ticket status to borrowing step numbers accurately', () => {
+    expect(getBorrowingCurrentStep(null)).toBe(1);
+    expect(getBorrowingCurrentStep({ status: 'pending' })).toBe(2);
+    expect(getBorrowingCurrentStep({ status: 'pending', current_step: 1 })).toBe(2);
+    expect(getBorrowingCurrentStep({ status: 'approved' })).toBe(3);
+    expect(getBorrowingCurrentStep({ borrowing: { status: 'approved_director' } })).toBe(3);
+    expect(getBorrowingCurrentStep({ borrowing: { status: 'inventory_assigned' } })).toBe(4);
+    expect(getBorrowingCurrentStep({ borrowing: { status: 'ready_for_pickup' } })).toBe(5);
+    expect(getBorrowingCurrentStep({ borrowing: { status: 'picked_up' } })).toBe(6);
+    expect(getBorrowingCurrentStep({ borrowing: { status: 'overdue' } })).toBe(6);
+    expect(getBorrowingCurrentStep({ status: 'closed', borrowing: { status: 'returned' } })).toBe(7);
+    expect(getBorrowingCurrentStep({ status: 'completed' })).toBe(7);
+  });
+
+  it('generates dynamic context-aware borrowing step descriptions', () => {
+    const ticket = {
+      currentStep: 6,
+      borrowing: {
+        item_name_requested: 'Peace Lily',
+        quantity_needed: 3,
+        assigned_quantity: 3,
+        date_needed: '2026-09-25',
+        expected_return_date: '2026-09-30',
+        status: 'picked_up',
+      },
+    };
+
+    const desc0 = getBorrowingStepDescription(ticket, BORROWING_STEPS[0], 0);
+    expect(desc0).toContain('Peace Lily');
+    expect(desc0).toContain('3 unit(s)');
+
+    const desc2 = getBorrowingStepDescription(ticket, BORROWING_STEPS[2], 2);
+    expect(desc2).toContain('Approved by the Director');
+
+    const desc3 = getBorrowingStepDescription(ticket, BORROWING_STEPS[3], 3);
+    expect(desc3).toContain('LEAU allocated 3 unit(s)');
+
+    const desc4 = getBorrowingStepDescription(ticket, BORROWING_STEPS[4], 4);
+    expect(desc4).toContain('ready for pickup');
+
+    const desc5 = getBorrowingStepDescription(ticket, BORROWING_STEPS[5], 5);
+    expect(desc5).toContain('claimed by borrower');
+    expect(desc5).toContain('2026-09-30');
+  });
 });
+

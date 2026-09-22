@@ -338,7 +338,7 @@
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.service_type || selectedTicket.service || selectedTicket.title }}</p>
               </div>
-              <div v-if="!isIncidentTicket(selectedTicket) && selectedTicket.workingDays">
+              <div v-if="!isIncidentTicket(selectedTicket) && !isBorrowingService(selectedTicket) && selectedTicket.workingDays">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Duration</p>
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <p class="text-base font-semibold text-emerald-800">{{ selectedTicket.workingDays }} Working Day(s)</p>
@@ -347,14 +347,40 @@
                   </span>
                 </div>
               </div>
-              <div v-if="!isIncidentTicket(selectedTicket) && (selectedTicket.effective_target_date || selectedTicket.target_completion_date)">
+              <div v-if="!isIncidentTicket(selectedTicket) && !isBorrowingService(selectedTicket) && (selectedTicket.effective_target_date || selectedTicket.target_completion_date)">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Completion Date</p>
                 <p class="text-base font-semibold text-slate-800">{{ formatDate(selectedTicket.effective_target_date || selectedTicket.target_completion_date) }}</p>
               </div>
 
+              <!-- Borrowing Details Summary if Borrowing Request -->
+              <template v-if="isBorrowingService(selectedTicket)">
+                <div v-if="selectedTicket.borrowing?.item_name_requested">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Item(s) Borrowed</p>
+                  <p class="text-base font-semibold text-slate-900">{{ selectedTicket.borrowing.item_name_requested }}</p>
+                </div>
+                <div v-if="selectedTicket.borrowing?.assigned_quantity || selectedTicket.borrowing?.quantity_needed">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Quantity</p>
+                  <p class="text-base font-semibold text-slate-900">{{ selectedTicket.borrowing.assigned_quantity || selectedTicket.borrowing.quantity_needed }} unit(s)</p>
+                </div>
+                <div v-if="selectedTicket.borrowing?.date_needed">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date Needed / Pickup</p>
+                  <p class="text-base font-semibold text-slate-900">{{ formatDate(selectedTicket.borrowing.date_needed) }}</p>
+                </div>
+                <div v-if="selectedTicket.borrowing?.returned_at || selectedTicket.borrowing?.expected_return_date">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Return Date</p>
+                  <p class="text-base font-semibold text-slate-900">{{ formatDate(selectedTicket.borrowing.returned_at || selectedTicket.borrowing.expected_return_date) }}</p>
+                </div>
+                <div v-if="selectedTicket.borrowing?.return_condition" class="col-span-2">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Return Inspection Condition</p>
+                  <span class="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-lg uppercase">
+                    {{ selectedTicket.borrowing.return_condition }}
+                  </span>
+                </div>
+              </template>
+
               <!-- Dedicated Job Particulars / Description Section -->
               <div v-if="selectedTicket.description" class="col-span-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Job Particulars / Description</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{{ isBorrowingService(selectedTicket) ? 'Purpose of Use in Detail' : 'Job Particulars / Description' }}</p>
                 <div class="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
                   <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
                 </div>
@@ -642,6 +668,11 @@ import { parseDateLocal } from '@/utils/workCalendar';
 import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectly } from '@/utils/attachmentHelper';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
+import {
+  isBorrowingService,
+  BORROWING_STEPS,
+  getBorrowingStepDescription,
+} from '@/utils/borrowing';
 
 const formatDate = (dateStr) => {
   if (!dateStr) return 'N/A';
@@ -738,7 +769,10 @@ onMounted(async () => {
             attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
             isDeclining: false,
             declineReason: t.decline_reason || '',
-            currentStep: Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 6),
+            currentStep: isBorrowingService(t)
+              ? 7
+              : Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 6),
+            borrowing: t.borrowing || null,
             assignedWorker: t.assignment?.personnel_name || t.assigned_worker || 'Unassigned',
             assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
             assignment: t.assignment || null,
@@ -746,7 +780,7 @@ onMounted(async () => {
             details: t.details || null,
             materials: t.materials || [],
             total_material_cost: t.total_material_cost || 0,
-            implementationDate: (!isIncident && rawWorkingDays && (t.assignment?.implementation_date || t.scheduled_date))
+            implementationDate: (!isIncident && !isBorrowingService(t) && rawWorkingDays && (t.assignment?.implementation_date || t.scheduled_date))
               ? formatDate(t.assignment?.implementation_date || t.scheduled_date)
               : null,
             extension_days: extensionDays,
@@ -910,10 +944,28 @@ const unitSteps = {
       { label: 'Archiving',               description: 'Ticket moved to digital archives for record-keeping.' },
     ],
   },
+  Borrowing: BORROWING_STEPS,
 };
 
 const getSteps = (ticket) => {
   if (!ticket) return [];
+
+  if (isBorrowingService(ticket)) {
+    let steps = BORROWING_STEPS.map(s => ({ ...s }));
+    if (ticket.status === 'declined' || ticket.status === 'rejected') {
+      const reason = ticket.declineReason || 'Borrowing request declined by Director.';
+      if (steps.length > 1) {
+        steps[1] = { label: 'Ticket Declined', description: `Reason: ${reason}` };
+        steps = steps.slice(0, 2);
+      }
+      return steps;
+    }
+    return steps.map((s, idx) => ({
+      ...s,
+      description: getBorrowingStepDescription(ticket, s, idx, formatDate),
+    }));
+  }
+
   let steps = ticket.unit === 'SSU'
     ? [...(unitSteps.SSU[ticket.service] || [])]
     : [...(unitSteps[ticket.unit] || [])];
