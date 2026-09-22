@@ -66,12 +66,6 @@ onMounted(async () => {
   if (storedOthers) otherSpecifics.value = JSON.parse(storedOthers);
   if (storedCustomDesc) customDescriptions.value = JSON.parse(storedCustomDesc);
   
-  if (authStore.isDeactivated) {
-    toast.error('Your account is deactivated. Service request submissions are disabled.');
-    router.push('/user/dashboard');
-    return;
-  }
-
   // Student Account Role Authorization Guard (RSO / SSG accounts)
   const userRole = (user.value?.role || authStore.role || '').toLowerCase();
   if (userRole === 'student') {
@@ -150,11 +144,6 @@ const hasOthers = computed(() => otherServices.value.length > 0);
 const goBack = () => router.back();
 
 const handleFinalSubmit = async () => {
-  if (authStore.isDeactivated) {
-    toast.error('Your account is deactivated. Service request submissions are disabled.');
-    return;
-  }
-
   formsStore.v$.$touch();
   let isValid = true;
   

@@ -43,28 +43,8 @@
     <template #main-content>
       <div class="space-y-5 sm:space-y-8 animate-fade-in">
 
-        <!-- Deactivated Account Notice Banner -->
-        <div v-if="authStore.isDeactivated" class="rounded-2xl border border-orange-200/90 bg-gradient-to-r from-orange-50/90 via-amber-50/80 to-orange-50/90 p-4 sm:p-6 shadow-sm">
-          <div class="flex items-start gap-3.5">
-            <div class="p-2.5 sm:p-3 rounded-xl bg-orange-100 text-orange-700 shrink-0 mt-0.5">
-              <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-              </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-                <h4 class="text-sm sm:text-base font-black text-orange-950">Account Deactivated</h4>
-                <span class="px-2.5 py-0.5 text-xs font-black rounded-full bg-orange-200 text-orange-900">Requests Disabled</span>
-              </div>
-              <p class="text-xs sm:text-sm text-orange-900 font-medium max-w-2xl leading-relaxed">
-                Your account has been deactivated by the administrator. You can review your past tickets and profile, but you cannot submit new service requests. Please visit or contact the GSO office to reactivate your account.
-              </p>
-            </div>
-          </div>
-        </div>
-
         <!-- Identity Verification Pending Notice -->
-        <div v-else-if="!isUserVerified" class="rounded-2xl border border-amber-200/90 bg-gradient-to-r from-amber-50/90 via-orange-50/80 to-amber-50/90 p-4 sm:p-6 shadow-sm">
+        <div v-if="!isUserVerified" class="rounded-2xl border border-amber-200/90 bg-gradient-to-r from-amber-50/90 via-orange-50/80 to-amber-50/90 p-4 sm:p-6 shadow-sm">
           <div class="flex items-start gap-3.5">
             <div class="p-2.5 sm:p-3 rounded-xl bg-amber-100 text-amber-800 shrink-0 mt-0.5">
               <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -99,7 +79,7 @@
               <p class="text-emerald-100 text-xs sm:text-base font-medium mt-1 leading-relaxed">Submit a new service request to the GSO in seconds.</p>
             </div>
             <button
-              v-if="authStore.hasPermission('tickets.create') && isUserVerified && !authStore.isDeactivated"
+              v-if="authStore.hasPermission('tickets.create') && isUserVerified"
               @click="$router.push('/services')"
               class="w-full sm:w-auto min-h-[48px] group flex items-center justify-center gap-2.5 bg-white hover:bg-emerald-50 active:scale-[0.98] text-emerald-800 font-black px-6 py-3.5 rounded-xl shadow-lg shadow-black/20 transition-all shrink-0 text-sm sm:text-base cursor-pointer"
             >
@@ -108,15 +88,6 @@
               </svg>
               <span>New Service Request</span>
             </button>
-            <div
-              v-else-if="authStore.isDeactivated"
-              class="w-full sm:w-auto flex items-center justify-center gap-2 bg-orange-950/50 text-orange-100 font-bold px-4 py-3 rounded-xl border border-orange-400/40 text-xs sm:text-sm shadow-inner min-h-[44px]"
-            >
-              <svg class="h-4 w-4 text-orange-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-              </svg>
-              <span>Requests Disabled (Deactivated)</span>
-            </div>
             <div
               v-else-if="!isUserVerified"
               class="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-900/50 text-emerald-100 font-bold px-4 py-3 rounded-xl border border-emerald-500/30 text-xs sm:text-sm shadow-inner min-h-[44px]"

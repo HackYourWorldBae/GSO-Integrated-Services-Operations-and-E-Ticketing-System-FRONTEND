@@ -54,7 +54,9 @@ export const useAuthStore = defineStore('auth', () => {
   const college = computed(() => user.value?.college || '');
 
   const unitId = computed(() => user.value?.unit_id ?? null);
-  const isDeactivated = computed(() => user.value?.status === 'Deactivated');
+  // Legacy alias — Deactivated has been retired (migrated to Suspended). Keep for
+  // backward-compat with cached payloads; always false for current data.
+  const isDeactivated = computed(() => false);
 
   /**
    * Check whether current user has permission for a specific feature key.
@@ -64,11 +66,6 @@ export const useAuthStore = defineStore('auth', () => {
   const hasPermission = (featureKey) => {
     if (!featureKey) return true;
     if (role.value === 'superadmin') return true;
-
-    // Deactivated user accounts can view and log in, but are barred from creating tickets
-    if (user.value?.status === 'Deactivated' && featureKey === 'tickets.create') {
-      return false;
-    }
 
     // Pending/unverified accounts cannot create tickets until verified by Superadmin
     const isVerified = user.value?.is_verified === 1 || user.value?.is_verified === true || user.value?.is_verified === '1';
@@ -97,7 +94,7 @@ export const useAuthStore = defineStore('auth', () => {
         return ['reports.view', 'tickets.view_all', 'tickets.verify_close'].includes(featureKey);
       }
       if (role.value === 'student' || role.value === 'employee') {
-        return isVerified && user.value?.status !== 'Deactivated' ? ['tickets.create'].includes(featureKey) : false;
+        return isVerified ? ['tickets.create'].includes(featureKey) : false;
       }
       if (role.value === 'worker') {
         return ['tickets.complete_work'].includes(featureKey);
