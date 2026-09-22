@@ -110,7 +110,7 @@ const itemNamePlaceholder = computed(() => {
 
 <template>
   <div v-if="hasBorrowingServices" class="bg-white rounded-2xl sm:rounded-[3rem] border border-slate-200 shadow-2xl shadow-slate-200/40 overflow-hidden slide-up delay-100">
-    <div class="bg-amber-900 p-5 sm:p-10 text-white flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4 border-b-4 border-amber-500">
+    <div class="bg-slate-900 p-5 sm:p-10 text-white flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4 border-b-4 border-amber-500">
       <div>
         <h3 class="text-xl sm:text-3xl font-black tracking-tight">Landscaping & Aesthetics <span class="text-amber-500">(LEAU)</span></h3>
         <p class="text-slate-400 mt-1 text-xs sm:text-base font-medium">Borrowing of Plants / Tools & Equipment</p>
@@ -139,10 +139,10 @@ const itemNamePlaceholder = computed(() => {
         </h4>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-          <!-- Item Name -->
+          <!-- Item/s Name -->
           <div class="space-y-2 relative pb-5 sm:col-span-2">
             <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="formsStore.v$.leauBorrowingState.item_name.$error ? 'text-red-500' : 'text-slate-700'">
-              Item Name <span class="text-rose-500">*</span>
+              Item/s Name <span class="text-rose-500">*</span>
             </label>
             <input
               v-model="borrowingState.item_name"
@@ -152,7 +152,7 @@ const itemNamePlaceholder = computed(() => {
               class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs"
               :class="formsStore.v$.leauBorrowingState.item_name.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
             />
-            <p v-if="formsStore.v$.leauBorrowingState.item_name.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Item name is required</p>
+            <p v-if="formsStore.v$.leauBorrowingState.item_name.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Item/s name is required</p>
           </div>
 
           <!-- Quantity Needed (Optional) -->
@@ -173,15 +173,15 @@ const itemNamePlaceholder = computed(() => {
             <p v-if="formsStore.v$.leauBorrowingState.quantity_needed.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Quantity must be at least 1</p>
           </div>
 
-          <!-- Purpose / Event or Project Name -->
+          <!-- State the Purpose in Detail -->
           <div class="sm:col-span-2 space-y-2 relative pb-5">
             <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="formsStore.v$.leauBorrowingState.purpose_project.$error ? 'text-red-500' : 'text-slate-700'">
-              Purpose / Event or Project Name <span class="text-rose-500">*</span>
+              State the Purpose in Detail <span class="text-rose-500">*</span>
             </label>
             <textarea
               v-model="borrowingState.purpose_project"
               @blur="formsStore.v$.leauBorrowingState.purpose_project.$touch()"
-              placeholder="Brief description of why the item is needed (e.g., Biology lab experiment, Landscaping project for environmental club, Campus beautification for Foundation Day)"
+              placeholder="State the purpose in detail (e.g., Biology lab experiment, Landscaping project for environmental club, Campus beautification for Foundation Day)"
               class="w-full px-4 sm:px-6 py-4 sm:py-5 rounded-xl sm:rounded-[2rem] bg-slate-50 border-2 focus:bg-white text-base sm:text-sm font-medium outline-none transition-all min-h-[110px] sm:min-h-[120px] resize-none shadow-inner"
               :class="formsStore.v$.leauBorrowingState.purpose_project.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'border-slate-100 focus:border-amber-500'"
             ></textarea>

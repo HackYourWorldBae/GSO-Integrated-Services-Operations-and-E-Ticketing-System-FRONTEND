@@ -75,9 +75,9 @@ const formatDate = (val) => {
       </div>
     </div>
 
-    <!-- Purpose / Event or Project -->
+    <!-- Purpose in Detail -->
     <div class="p-3.5 rounded-xl bg-white border border-amber-200/60 space-y-1.5">
-      <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Purpose / Event or Project Name</span>
+      <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">State the Purpose in Detail</span>
       <p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed whitespace-pre-wrap">
         {{ borrowing.purpose_project || 'No purpose stated.' }}
       </p>
