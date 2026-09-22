@@ -864,10 +864,16 @@
               </div>
             </div>
 
-            <!-- Service & Job Particulars -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+            <!-- Borrowing Request Particulars -->
+            <BorrowingDetailsSection
+              v-if="isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing"
+              :ticket="selectedTicketForModal"
+            />
+
+            <!-- Service & Job Particulars (Non-borrowing requests) -->
+            <div v-else class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
               <div class="flex items-center justify-between gap-3">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">{{ selectedTicketForModal?.borrowing || isBorrowingService(selectedTicketForModal) ? 'Purpose of use detail' : 'Job Particular & Nature of Work' }}</span>
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
                 <span
                   :class="[
                     'px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border',
@@ -878,15 +884,12 @@
                 </span>
               </div>
               <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/70 shadow-2xs">
-                {{ selectedTicketForModal.job_description || selectedTicketForModal.title || 'No detailed scope notes provided.' }}
+                {{ selectedTicketForModal.job_description || selectedTicketForModal.description || selectedTicketForModal.title || 'No detailed scope notes provided.' }}
               </p>
             </div>
 
-            <!-- Borrowing Request Particulars (item, purpose, schedule, borrower) -->
-            <BorrowingDetailsSection :ticket="selectedTicketForModal" />
-
-            <!-- Official Job Order Document Section -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+            <!-- Official Job Order Document Section (Non-borrowing requests) -->
+            <div v-if="!isBorrowingService(selectedTicketForModal) && !selectedTicketForModal?.borrowing" class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                   <div :class="['w-10 h-10 rounded-xl flex items-center justify-center font-bold border shrink-0', themeAttachmentIconBg]">
@@ -1623,7 +1626,25 @@ const goToDispatchWorkers = (ticket) => {
 };
 
 const openDetailsModal = async (ticket) => {
+  if (!ticket) return;
   selectedTicketForModal.value = ticket;
+
+  if (isBorrowingService(ticket) && (!ticket.borrowing || !ticket.borrowing.item_name_requested)) {
+    try {
+      const res = await api.get(`tickets/${ticket.id}`);
+      const freshTicket = res.data?.data?.ticket || res.data?.data;
+      if (freshTicket && selectedTicketForModal.value && String(selectedTicketForModal.value.id) === String(ticket.id)) {
+        selectedTicketForModal.value = {
+          ...selectedTicketForModal.value,
+          ...freshTicket,
+          borrowing: freshTicket.borrowing || freshTicket.details || selectedTicketForModal.value.borrowing,
+        };
+      }
+    } catch (err) {
+      console.warn('Could not refresh borrowing ticket details for modal:', err);
+    }
+  }
+
   if (isCollabTicket(ticket)) {
     try {
       const res = await getTicketCollaborations(ticket.id);

@@ -571,10 +571,16 @@
               </div>
             </div>
 
-            <!-- Service & Job Particulars -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+            <!-- Borrowing Request Particulars -->
+            <BorrowingDetailsSection
+              v-if="isBorrowingTicket(selectedTicketForModal) || isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing"
+              :ticket="selectedTicketForModal"
+            />
+
+            <!-- Service & Job Particulars (Non-borrowing requests) -->
+            <div v-else class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
               <div class="flex items-center justify-between gap-3">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">{{ selectedTicketForModal?.borrowing || isBorrowingTicket(selectedTicketForModal) ? 'Purpose of use detail' : 'Job Particular & Nature of Work' }}</span>
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
                 <span
                   :class="[
                     'px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border',
@@ -585,12 +591,9 @@
                 </span>
               </div>
               <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/70 shadow-2xs">
-                {{ selectedTicketForModal.job_description || 'No detailed scope notes provided by client.' }}
+                {{ selectedTicketForModal.job_description || selectedTicketForModal.description || 'No detailed scope notes provided by client.' }}
               </p>
             </div>
-
-            <!-- Borrowing Request Particulars (item, purpose, schedule, borrower) -->
-            <BorrowingDetailsSection :ticket="selectedTicketForModal" />
 
             <!-- Attachments & Proof Documents -->
             <div class="space-y-2.5">
@@ -909,8 +912,25 @@ const fetchApprovedTickets = async () => {
   }
 };
 
-const openDetailsModal = (ticket) => {
+const openDetailsModal = async (ticket) => {
+  if (!ticket) return;
   selectedTicketForModal.value = ticket;
+
+  if ((isBorrowingTicket(ticket) || isBorrowingService(ticket)) && (!ticket.borrowing || !ticket.borrowing.item_name_requested)) {
+    try {
+      const res = await api.get(`tickets/${ticket.id}`);
+      const freshTicket = res.data?.data?.ticket || res.data?.data;
+      if (freshTicket && selectedTicketForModal.value && String(selectedTicketForModal.value.id) === String(ticket.id)) {
+        selectedTicketForModal.value = {
+          ...selectedTicketForModal.value,
+          ...freshTicket,
+          borrowing: freshTicket.borrowing || freshTicket.details || selectedTicketForModal.value.borrowing,
+        };
+      }
+    } catch (err) {
+      console.warn('Could not refresh borrowing ticket details for modal:', err);
+    }
+  }
 };
 
 const downloadAttachment = async (att) => {

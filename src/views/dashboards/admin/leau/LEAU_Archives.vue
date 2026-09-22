@@ -332,15 +332,15 @@
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.service_type || selectedTicket.service || selectedTicket.title }}</p>
               </div>
-              <div v-if="selectedTicket.workingDays">
+              <div v-if="!isBorrowingService(selectedTicket) && selectedTicket.workingDays">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Duration</p>
                 <p class="text-base font-semibold text-emerald-800">{{ selectedTicket.workingDays }} Working Day(s)</p>
               </div>
-              <div :class="{ 'col-span-2': !selectedTicket.workingDays }">
+              <div :class="{ 'col-span-2': isBorrowingService(selectedTicket) || !selectedTicket.workingDays }">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Location / Office</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.location }} - {{ selectedTicket.office_room }}</p>
               </div>
-              <div v-if="selectedTicket.assignedWorker && selectedTicket.assignedWorker !== 'Unassigned'" class="col-span-2">
+              <div v-if="!isBorrowingService(selectedTicket) && selectedTicket.assignedWorker && selectedTicket.assignedWorker !== 'Unassigned'" class="col-span-2">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Assigned Personnel</p>
                 <p class="text-base font-semibold text-slate-900">
                   {{ selectedTicket.assignedWorker }}
@@ -349,7 +349,10 @@
                   </span>
                 </p>
               </div>
-              <div class="col-span-2">
+              <div v-if="isBorrowingService(selectedTicket) || selectedTicket.borrowing" class="col-span-2">
+                <BorrowingDetailsSection :ticket="selectedTicket" />
+              </div>
+              <div v-else class="col-span-2">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Job Particulars / Description</p>
                 <div class="p-4 bg-white border border-slate-200 rounded-xl">
                   <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
@@ -399,8 +402,8 @@
                 </div>
               </div>
 
-              <!-- Dedicated Materials Used & Receipt Section -->
-              <div class="col-span-2 mt-2">
+              <!-- Dedicated Materials Used & Receipt Section (Job requests only) -->
+              <div v-if="!isBorrowingService(selectedTicket) && !selectedTicket.borrowing" class="col-span-2 mt-2">
                 <div class="flex items-center justify-between mb-2">
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -551,6 +554,8 @@ import { isDocxFile, isPdfFile, handleAttachmentClick, downloadAttachmentDirectl
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import { LEAU_SERVICES } from '@/constants/services';
+import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
+import { isBorrowingService } from '@/utils/borrowing';
 
 const route = useRoute();
 const tickets = ref([]);
@@ -741,9 +746,26 @@ const displayedPages = computed(() => {
   return pages;
 });
 
-const viewDetails = (ticket) => {
+const viewDetails = async (ticket) => {
+  if (!ticket) return;
   selectedTicket.value = ticket;
   showDetailsModal.value = true;
+
+  if (isBorrowingService(ticket) && (!ticket.borrowing || !ticket.borrowing.item_name_requested)) {
+    try {
+      const res = await api.get(`tickets/${ticket.ticketId || ticket.id}`);
+      const freshTicket = res.data?.data?.ticket || res.data?.data;
+      if (freshTicket && selectedTicket.value && String(selectedTicket.value.ticketId || selectedTicket.value.id) === String(ticket.ticketId || ticket.id)) {
+        selectedTicket.value = {
+          ...selectedTicket.value,
+          ...freshTicket,
+          borrowing: freshTicket.borrowing || freshTicket.details || selectedTicket.value.borrowing,
+        };
+      }
+    } catch (err) {
+      console.warn('Could not refresh archived borrowing ticket details:', err);
+    }
+  }
 };
 
 const closeDetailsModal = () => {

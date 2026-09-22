@@ -53,6 +53,14 @@ describe('borrowing utils', () => {
     expect(isBorrowingService(null)).toBe(false);
   });
 
+  it('does not confuse typed item names with borrowing service categories', () => {
+    expect(isBorrowingService('Peace Lily')).toBe(false);
+    expect(isBorrowingService('Monstera Deliciosa')).toBe(false);
+    expect(isBorrowingService('Wheelbarrow')).toBe(false);
+    expect(isBorrowingService('Lawn Mower')).toBe(false);
+    expect(isBorrowingService('Garden Shovel')).toBe(false);
+  });
+
   it('formats status slugs as human labels', () => {
     expect(borrowingStatusLabel('ready_for_pickup')).toBe('Ready For Pickup');
     expect(borrowingStatusLabel('picked_up')).toBe('Picked Up');

@@ -354,21 +354,21 @@
 
               <!-- Borrowing Details Summary if Borrowing Request -->
               <template v-if="isBorrowingService(selectedTicket)">
-                <div v-if="selectedTicket.borrowing?.item_name_requested">
+                <div v-if="selectedTicket.borrowing?.item_name_requested || selectedTicket.item_name_requested">
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Item(s) Borrowed</p>
-                  <p class="text-base font-semibold text-slate-900">{{ selectedTicket.borrowing.item_name_requested }}</p>
+                  <p class="text-base font-semibold text-slate-900">{{ selectedTicket.borrowing?.item_name_requested || selectedTicket.item_name_requested }}</p>
                 </div>
-                <div v-if="selectedTicket.borrowing?.assigned_quantity || selectedTicket.borrowing?.quantity_needed">
+                <div v-if="selectedTicket.borrowing?.assigned_quantity || selectedTicket.borrowing?.quantity_needed || selectedTicket.quantity_needed">
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Quantity</p>
-                  <p class="text-base font-semibold text-slate-900">{{ selectedTicket.borrowing.assigned_quantity || selectedTicket.borrowing.quantity_needed }} unit(s)</p>
+                  <p class="text-base font-semibold text-slate-900">{{ selectedTicket.borrowing?.assigned_quantity || selectedTicket.borrowing?.quantity_needed || selectedTicket.quantity_needed || 1 }} unit(s)</p>
                 </div>
-                <div v-if="selectedTicket.borrowing?.date_needed">
+                <div v-if="selectedTicket.borrowing?.date_needed || selectedTicket.date_needed">
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date Needed / Pickup</p>
-                  <p class="text-base font-semibold text-slate-900">{{ formatDate(selectedTicket.borrowing.date_needed) }}</p>
+                  <p class="text-base font-semibold text-slate-900">{{ formatDate(selectedTicket.borrowing?.date_needed || selectedTicket.date_needed) }}</p>
                 </div>
-                <div v-if="selectedTicket.borrowing?.returned_at || selectedTicket.borrowing?.expected_return_date">
+                <div v-if="selectedTicket.borrowing?.returned_at || selectedTicket.returned_at || selectedTicket.borrowing?.expected_return_date || selectedTicket.expected_return_date">
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Return Date</p>
-                  <p class="text-base font-semibold text-slate-900">{{ formatDate(selectedTicket.borrowing.returned_at || selectedTicket.borrowing.expected_return_date) }}</p>
+                  <p class="text-base font-semibold text-slate-900">{{ formatDate(selectedTicket.borrowing?.returned_at || selectedTicket.returned_at || selectedTicket.borrowing?.expected_return_date || selectedTicket.expected_return_date) }}</p>
                 </div>
                 <div v-if="selectedTicket.borrowing?.return_condition" class="col-span-2">
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Return Inspection Condition</p>
