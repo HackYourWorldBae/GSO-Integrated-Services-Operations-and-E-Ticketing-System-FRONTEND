@@ -16,6 +16,7 @@ import {
   BORROWING_STEPS,
   getBorrowingCurrentStep,
   getBorrowingStepDescription,
+  getBorrowingStatusLabel,
 } from '../borrowing';
 
 // Level 1 — Unit tests: pure borrowing helpers shared by the LEAU
@@ -181,6 +182,93 @@ describe('borrowing utils', () => {
     const desc5 = getBorrowingStepDescription(ticket, BORROWING_STEPS[5], 5);
     expect(desc5).toContain('claimed by borrower');
     expect(desc5).toContain('2026-09-30');
+  });
+
+  describe('getBorrowingStatusLabel', () => {
+    it('defensively overrides stale Queued for Dispatch label', () => {
+      expect(getBorrowingStatusLabel({
+        status: 'approved',
+        status_label: 'Queued for Dispatch',
+      })).toBe('Approved - Awaiting Inventory Assignment');
+
+      expect(getBorrowingStatusLabel({
+        status: 'approved',
+        statusLabel: 'Queued for Dispatch',
+      })).toBe('Approved - Awaiting Inventory Assignment');
+    });
+
+    it('maps approved_director to Approved - Awaiting Inventory Assignment', () => {
+      expect(getBorrowingStatusLabel({
+        status: 'approved',
+        borrowing: { status: 'approved_director' },
+      })).toBe('Approved - Awaiting Inventory Assignment');
+
+      expect(getBorrowingStatusLabel({
+        status: 'approved',
+      })).toBe('Approved - Awaiting Inventory Assignment');
+    });
+
+    it('maps pending states to Pending Director Approval', () => {
+      expect(getBorrowingStatusLabel(null)).toBe('Pending Director Approval');
+      expect(getBorrowingStatusLabel({})).toBe('Pending Director Approval');
+      expect(getBorrowingStatusLabel({ status: 'pending' })).toBe('Pending Director Approval');
+      expect(getBorrowingStatusLabel({ borrowing: { status: 'pending_director' } })).toBe('Pending Director Approval');
+    });
+
+    it('maps inventory_assigned to Inventory Assigned - Awaiting Pickup Prep', () => {
+      expect(getBorrowingStatusLabel({
+        status: 'processing',
+        borrowing: { status: 'inventory_assigned' },
+      })).toBe('Inventory Assigned - Awaiting Pickup Prep');
+    });
+
+    it('maps ready_for_pickup to Ready for Pickup', () => {
+      expect(getBorrowingStatusLabel({
+        status: 'processing',
+        borrowing: { status: 'ready_for_pickup' },
+      })).toBe('Ready for Pickup');
+    });
+
+    it('maps picked_up to Item Picked Up', () => {
+      expect(getBorrowingStatusLabel({
+        status: 'processing',
+        borrowing: { status: 'picked_up' },
+      })).toBe('Item Picked Up');
+    });
+
+    it('maps overdue to Overdue for Return', () => {
+      expect(getBorrowingStatusLabel({
+        status: 'processing',
+        borrowing: { status: 'overdue' },
+      })).toBe('Overdue for Return');
+    });
+
+    it('maps closed, completed, and returned to Returned & Completed', () => {
+      expect(getBorrowingStatusLabel({
+        status: 'closed',
+        borrowing: { status: 'returned' },
+      })).toBe('Returned & Completed');
+
+      expect(getBorrowingStatusLabel({
+        status: 'completed',
+      })).toBe('Returned & Completed');
+    });
+
+    it('maps declined and rejected to Declined by Director', () => {
+      expect(getBorrowingStatusLabel({
+        status: 'declined',
+      })).toBe('Declined by Director');
+
+      expect(getBorrowingStatusLabel({
+        status: 'rejected',
+      })).toBe('Declined by Director');
+    });
+
+    it('maps cancelled to Cancelled', () => {
+      expect(getBorrowingStatusLabel({
+        status: 'cancelled',
+      })).toBe('Cancelled');
+    });
   });
 });
 

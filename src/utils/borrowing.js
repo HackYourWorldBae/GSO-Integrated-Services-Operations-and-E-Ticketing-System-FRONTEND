@@ -91,6 +91,72 @@ export function borrowingStatusLabel(status) {
 }
 
 /**
+ * Map a borrowing ticket / request record to an accurate, user-facing status label.
+ * Specifically overrides generic job-order dispatch labels like "Queued for Dispatch".
+ *
+ * @param {Object} ticket
+ * @returns {string}
+ */
+export function getBorrowingStatusLabel(ticket) {
+  if (!ticket) return 'Pending Director Approval';
+
+  const b = ticket.borrowing || ticket.details || {};
+  const bStatus = String(b.status || ticket.borrowing_status || '').toLowerCase().trim();
+  const tStatus = String(ticket.status || '').toLowerCase().trim();
+  const rawLabel = String(ticket.status_label || ticket.statusLabel || '').trim();
+
+  // Cancelled or declined states
+  if (['declined', 'rejected'].includes(tStatus) || bStatus === 'cancelled') {
+    return 'Declined by Director';
+  }
+  if (tStatus === 'cancelled') {
+    return 'Cancelled';
+  }
+
+  // Step 7: Returned & Completed
+  if (['closed', 'completed'].includes(tStatus) || bStatus === 'returned') {
+    return 'Returned & Completed';
+  }
+
+  // Step 6 (variant): Overdue
+  if (bStatus === 'overdue' || rawLabel.toLowerCase().includes('overdue')) {
+    return 'Overdue for Return';
+  }
+
+  // Step 6: Item Picked Up
+  if (bStatus === 'picked_up' || rawLabel.toLowerCase().includes('picked up')) {
+    return 'Item Picked Up';
+  }
+
+  // Step 5: Ready for Pickup
+  if (bStatus === 'ready_for_pickup' || rawLabel.toLowerCase().includes('ready for pickup')) {
+    return 'Ready for Pickup';
+  }
+
+  // Step 4: Inventory Assigned
+  if (bStatus === 'inventory_assigned' || rawLabel.toLowerCase().includes('inventory assigned')) {
+    return 'Inventory Assigned - Awaiting Pickup Prep';
+  }
+
+  // Step 3: Director Approved (explicitly catches and replaces stale "Queued for Dispatch")
+  if (
+    ['approved', 'approved_director'].includes(tStatus) ||
+    bStatus === 'approved_director' ||
+    rawLabel.toLowerCase().includes('dispatch') ||
+    rawLabel.toLowerCase().includes('approved')
+  ) {
+    return 'Approved - Awaiting Inventory Assignment';
+  }
+
+  // Step 2: Pending Director Approval
+  if (['pending', 'pending_director'].includes(tStatus) || bStatus === 'pending_director') {
+    return 'Pending Director Approval';
+  }
+
+  return rawLabel || 'Pending Director Approval';
+}
+
+/**
  * True when a status is terminal (returned / cancelled).
  */
 export function isBorrowingTerminal(status) {
@@ -223,7 +289,7 @@ export function getBorrowingStepDescription(ticket, step, index, formatDateFn = 
       return 'System generated a Digital Ticket under Pending Director Approval.';
     }
     case 2: { // Director Approval
-      if (stepNum > 3 || ['approved_director', 'inventory_assigned', 'ready_for_pickup', 'picked_up', 'overdue', 'returned'].includes(b.status)) {
+      if (stepNum >= 3 || ['approved', 'approved_director'].includes(String(ticket?.status || '').toLowerCase()) || ['approved_director', 'inventory_assigned', 'ready_for_pickup', 'picked_up', 'overdue', 'returned'].includes(b.status)) {
         return 'Approved by the Director. Queued for LEAU inventory assignment.';
       }
       return step?.description || 'Director reviews and approves the borrowing request.';

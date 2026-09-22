@@ -672,6 +672,7 @@ import {
   isBorrowingService,
   BORROWING_STEPS,
   getBorrowingStepDescription,
+  getBorrowingStatusLabel,
 } from '@/utils/borrowing';
 
 const formatDate = (dateStr) => {
@@ -758,7 +759,7 @@ onMounted(async () => {
             unit_id: t.unit_id,
             description: t.description,
             status: t.status,
-            statusLabel: t.status_label,
+            statusLabel: isBorrowingService(t) ? getBorrowingStatusLabel(t) : t.status_label,
             date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             submitted_at: t.submitted_at,
             completed_at: t.completed_at || null,

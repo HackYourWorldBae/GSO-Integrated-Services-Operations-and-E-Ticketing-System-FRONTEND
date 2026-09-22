@@ -1162,6 +1162,7 @@ import {
   BORROWING_STEPS,
   getBorrowingCurrentStep,
   getBorrowingStepDescription,
+  getBorrowingStatusLabel,
 } from '@/utils/borrowing';
 
 const router = useRouter();
@@ -1471,7 +1472,7 @@ const mapTicketData = (t) => {
     unit: t.unit_code,
     description: t.description,
     status: t.status,
-    statusLabel: t.status_label,
+    statusLabel: isBorrowingService(t) ? getBorrowingStatusLabel(t) : t.status_label,
     date: new Date(t.completed_at || t.submitted_at || t.updated_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     requestedBy: userName.value || t.requester || t.requestedBy || (t.user ? `${t.user.first_name || ''} ${t.user.last_name || ''}`.trim() : '') || (t.first_name || t.last_name ? `${t.first_name || ''} ${t.last_name || ''}`.trim() : '') || 'User',
     contact_number: t.contact_number || t.requester_contact || t.user?.contact_number || 'N/A',

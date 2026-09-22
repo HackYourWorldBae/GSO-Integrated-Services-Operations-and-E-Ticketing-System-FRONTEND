@@ -225,6 +225,7 @@ import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { useNetworkStatus } from '@/utils/networkMonitor';
+import { isBorrowingService, getBorrowingStatusLabel } from '@/utils/borrowing';
 
 const router     = useRouter();
 const authStore  = useAuthStore();
@@ -364,7 +365,7 @@ const fetchDashboardData = async () => {
         title: t.title,
         service: t.service_type,
         status: t.status,
-        statusLabel: t.status_label,
+        statusLabel: isBorrowingService(t) ? getBorrowingStatusLabel(t) : t.status_label,
         date: new Date(t.submitted_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         submitted_at: t.submitted_at,
         completed_at: t.completed_at || t.updated_at,
@@ -378,7 +379,7 @@ const fetchDashboardData = async () => {
         title: t.title,
         service: t.service_type,
         status: t.status,
-        statusLabel: t.status_label,
+        statusLabel: isBorrowingService(t) ? getBorrowingStatusLabel(t) : t.status_label,
         date: new Date(t.completed_at || t.updated_at || t.submitted_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         submitted_at: t.submitted_at,
         completed_at: t.completed_at || t.updated_at,
