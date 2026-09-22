@@ -1458,10 +1458,13 @@ const themeAttachmentIconBg = computed(() => {
 // Awaiting-start tickets (step 4) live on the Scheduled page — including its
 // collab tab — even though the API returns them with status 'processing'.
 // Live collab tickets live ONLY in the Collab tab.
+// Borrowing tickets live ONLY in the Borrowed Requests tab (BorrowingWorkspace)
+// and must never leak into the regular job In Progress list.
 const inProgressTickets = computed(() => {
   return rawTickets.value.filter(t => {
     const isArchived = t.is_archived == 1 || t.is_archived === true || t.is_archived === '1';
     if (isArchived) return false;
+    if (isBorrowingService(t) || t?.borrowing) return false;
     const isResolved = t.current_step == 6 || t.status === 'resolved' || t.status === 'closed';
     if (isResolved) return false;
     if (t.current_step == 4) return false;
@@ -1471,10 +1474,12 @@ const inProgressTickets = computed(() => {
 });
 
 // Awaiting Requestor Rating tickets: step 6 / status === 'resolved', not archived
+// (borrowing returns auto-archive with no rating — never show here).
 const awaitingRatingTickets = computed(() => {
   return rawTickets.value.filter(t => {
     const isArchived = t.is_archived == 1 || t.is_archived === true || t.is_archived === '1';
     if (isArchived) return false;
+    if (isBorrowingService(t) || t?.borrowing) return false;
     return t.current_step == 6 || t.status === 'resolved' || (t.status_label || '').toLowerCase().includes('rating');
   });
 });

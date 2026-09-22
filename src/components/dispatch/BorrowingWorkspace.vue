@@ -68,7 +68,6 @@
               <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Borrower</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Item Requested</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Schedule</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Status</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
@@ -76,7 +75,7 @@
           <tbody class="divide-y divide-slate-100 text-xs">
             <!-- Loading State -->
             <tr v-if="loading && requests.length === 0">
-              <td colspan="6" class="py-16 text-center">
+              <td colspan="5" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                   <svg class="animate-spin h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -89,7 +88,7 @@
 
             <!-- Empty State -->
             <tr v-else-if="paginatedRequests.length === 0">
-              <td colspan="6" class="py-16 text-center">
+              <td colspan="5" class="py-16 text-center">
                 <div class="max-w-sm mx-auto flex flex-col items-center">
                   <div class="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,7 +134,6 @@
                   </div>
                   <div class="min-w-0">
                     <span class="text-xs font-semibold text-slate-800 truncate block max-w-[150px]">{{ req.borrower_name }}</span>
-                    <span class="text-[10px] text-slate-400 block truncate max-w-[150px]">{{ req.borrower_type }}{{ req.borrower_id_number ? ` • ${req.borrower_id_number}` : '' }}</span>
                   </div>
                 </div>
               </td>
@@ -147,17 +145,7 @@
                   <span v-if="req.item_model_requested" class="font-semibold text-slate-500">({{ req.item_model_requested }})</span>
                 </div>
                 <div class="text-[10px] text-slate-500 truncate max-w-[220px]">
-                  Qty: <strong class="text-slate-700">{{ req.assigned_quantity || req.quantity_needed }}</strong>{{ req.purpose_project ? ` • ${req.purpose_project}` : '' }}
-                </div>
-              </td>
-
-              <!-- Schedule -->
-              <td class="px-3 py-2.5 whitespace-nowrap">
-                <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <span class="text-slate-400 text-[10px] font-semibold">Pickup:</span> {{ formatDate(req.date_needed) }}
-                </div>
-                <div class="text-[10px] font-bold flex items-center gap-1.5 mt-0.5" :class="isOverdue(req) ? 'text-rose-600' : 'text-slate-500'">
-                  <span class="text-slate-400 font-semibold">Return:</span> {{ formatDate(req.expected_return_date) }}
+                  Item/s requested
                 </div>
               </td>
 
@@ -294,7 +282,6 @@
             </div>
             <div class="min-w-0 flex-1">
               <span class="text-xs font-bold text-slate-800 truncate block">{{ req.borrower_name }}</span>
-              <span class="text-[10px] text-slate-400 block truncate">{{ req.borrower_type }}{{ req.borrower_id_number ? ` • ${req.borrower_id_number}` : '' }}</span>
             </div>
           </div>
 
@@ -304,22 +291,8 @@
               <span v-if="req.item_model_requested" class="font-semibold text-slate-500">({{ req.item_model_requested }})</span>
             </div>
             <div class="text-[10px] text-slate-500 flex items-center gap-1.5 flex-wrap">
-              <span>Qty: <strong class="text-slate-700">{{ req.assigned_quantity || req.quantity_needed }}</strong></span>
-              <span v-if="req.purpose_project">• {{ req.purpose_project }}</span>
+              <span>Item/s requested</span>
             </div>
-          </div>
-        </div>
-
-        <!-- Schedule Row -->
-        <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-600">
-          <div class="flex items-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Pickup: <strong>{{ formatDate(req.date_needed) }}</strong></span>
-          </div>
-          <div :class="isOverdue(req) ? 'text-rose-600 font-bold' : 'text-slate-500'">
-            <span>Return: <strong>{{ formatDate(req.expected_return_date) }}</strong></span>
           </div>
         </div>
 
@@ -401,9 +374,8 @@
           </div>
           <div class="min-w-0">
             <p class="text-sm font-black text-slate-900 truncate">{{ req.item_name_requested }} <span v-if="req.item_model_requested" class="font-semibold text-slate-500">({{ req.item_model_requested }})</span></p>
-            <p class="text-xs text-slate-600 font-semibold truncate">{{ req.borrower_name }} • {{ req.borrower_type }} • {{ req.borrower_id_number }}</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">Pickup: <strong class="text-slate-600">{{ formatDate(req.date_needed) }}</strong> • Return: <strong :class="isOverdue(req) ? 'text-rose-600' : 'text-slate-600'">{{ formatDate(req.expected_return_date) }}</strong> • Qty: {{ req.assigned_quantity || req.quantity_needed }}</p>
-            <p v-if="req.purpose_project" class="text-[11px] text-slate-500 mt-1 line-clamp-2">{{ req.purpose_project }}</p>
+            <p class="text-xs text-slate-600 font-semibold truncate">{{ req.borrower_name }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Item/s requested</p>
           </div>
           <div class="pt-2 border-t border-slate-100 flex items-center justify-end gap-2" @click.stop>
             <button

@@ -1358,8 +1358,10 @@ const themeAttachmentIconBg = computed(() => {
 
 // Scheduled tickets: step 4, excluding live collab tickets —
 // those live ONLY in the Collab tab (same ticket list, one home).
+// Borrowing tickets live ONLY in the Borrowing Requests tab (BorrowingWorkspace)
+// and must never leak into the regular Job Schedules list.
 const scheduledTickets = computed(() => {
-  return rawTickets.value.filter(t => t.current_step == 4 && !collabScheduledIds.value.has(String(t.id)));
+  return rawTickets.value.filter(t => t.current_step == 4 && !collabScheduledIds.value.has(String(t.id)) && !isBorrowingService(t) && !t?.borrowing);
 });
 
 const emergencyCount = computed(() => {
