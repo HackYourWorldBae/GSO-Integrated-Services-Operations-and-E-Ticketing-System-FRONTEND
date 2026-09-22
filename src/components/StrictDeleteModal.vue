@@ -174,7 +174,6 @@ const handleFinalDelete = () => {
           <div class="shrink-0 text-right">
             <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border"
               :class="user.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                     user.status === 'Deactivated' ? 'bg-orange-50 text-orange-700 border-orange-200' :
                      user.status === 'Suspended' ? 'bg-rose-50 text-rose-700 border-rose-200' :
                      'bg-slate-100 text-slate-600 border-slate-200'">
               {{ user.status }}

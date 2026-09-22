@@ -177,6 +177,28 @@
             </div>
 
             <!-- Role Scope Information Callout -->
+            <!-- Email Notifications Opt-In -->
+            <div class="p-4 sm:p-5 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.emailNotificationsEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
+              <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-xs" :class="form.emailNotificationsEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-400 text-white'">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0 space-y-1">
+                <div class="flex items-center justify-between gap-3">
+                  <h4 class="text-xs font-black uppercase tracking-wider" :class="form.emailNotificationsEnabled ? 'text-emerald-900' : 'text-slate-700'">Email Notifications — Request & Ticket Updates</h4>
+                  <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input type="checkbox" v-model="form.emailNotificationsEnabled" class="sr-only peer" />
+                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                </div>
+                <p class="text-xs leading-relaxed font-medium" :class="form.emailNotificationsEnabled ? 'text-emerald-800/80' : 'text-slate-500'">
+                  When on, new requests and SSU incident reports across all sub-units notify <span class="font-bold">this address ({{ form.email || 'your email' }})</span>. Director-level alerts cover FGMU, LEAU, and SSU. Toggle off to stay dashboard-only.
+                </p>
+                <p v-if="!form.emailNotificationsEnabled" class="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">Email alerts are paused — SSU incident and ticket update emails are muted until re-enabled.</p>
+              </div>
+            </div>
+
             <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/60 border border-emerald-200/70 flex items-start gap-3.5">
               <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -232,6 +254,7 @@ const form = ref({
   firstName: '',
   lastName: '',
   email: '',
+  emailNotificationsEnabled: true,
   password: '',
   confirmPassword: '',
 });
@@ -245,6 +268,7 @@ onMounted(() => {
     form.value.firstName = user.first_name || '';
     form.value.lastName  = user.last_name  || '';
     form.value.email     = user.email      || '';
+    form.value.emailNotificationsEnabled = user.email_notifications_enabled === 0 || user.email_notifications_enabled === '0' ? false : true;
     if (user.avatar_path) {
       avatarPreviewUrl.value = `/api/v1/auth/avatar/${user.id}?t=${Date.now()}`;
     }
@@ -309,6 +333,7 @@ const handleSave = async () => {
     const payload = {
       first_name: form.value.firstName,
       last_name:  form.value.lastName,
+      email_notifications_enabled: form.value.emailNotificationsEnabled ? 1 : 0,
     };
     if (emailChanged) {
       payload.email = form.value.email.trim().toLowerCase();

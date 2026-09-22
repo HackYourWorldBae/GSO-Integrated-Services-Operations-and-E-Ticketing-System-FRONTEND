@@ -1407,11 +1407,12 @@ const getRoleBadgeClass = (role) => {
 const getStatusBadgeClass = (status) => {
   const map = {
     Active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    Deactivated: 'bg-orange-50 text-orange-700 border-orange-200',
     Pending: 'bg-amber-50 text-amber-700 border-amber-200',
     Suspended: 'bg-rose-50 text-rose-700 border-rose-200',
     Rejected: 'bg-rose-50 text-rose-700 border-rose-200'
   };
+  // Legacy 'Deactivated' rows (migrated to Suspended) render as Suspended
+  if (status === 'Deactivated') return map.Suspended;
   return map[status] || 'bg-slate-100 text-slate-600 border-slate-200';
 };
 
