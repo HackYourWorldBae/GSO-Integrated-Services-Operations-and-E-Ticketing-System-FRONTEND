@@ -46,19 +46,6 @@
       </div>
     </div>
 
-    <!-- Overdue auto-mark notice -->
-    <div v-if="showOverdueNotice" class="p-3 rounded-2xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-      <p class="text-xs text-rose-700 font-semibold">Items past their expected return date are flagged overdue. Use “Mark Overdue Now” to refresh flags before review.</p>
-      <button
-        type="button"
-        @click="markOverdueNow"
-        :disabled="loading"
-        class="px-4 py-2 min-h-[40px] rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black cursor-pointer disabled:opacity-50 shrink-0"
-      >
-        Mark Overdue Now
-      </button>
-    </div>
-
     <!-- ═══ Desktop Tabular View (matching other ticket lists on this system) ═══ -->
     <div v-if="isTableLayout" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
       <div class="overflow-x-auto">
@@ -477,7 +464,6 @@ import { ref, computed, onMounted, watch } from 'vue';
 import {
   getBorrowingQueue,
   getOverdueBorrowings,
-  markOverdueBorrowings,
   recordBorrowingPickup,
   recordBorrowingReturn,
 } from '@/api/borrowing';
@@ -545,14 +531,6 @@ const lockedStatuses = computed(() => {
   if (props.showTabs) return null;
   if (!Array.isArray(props.statusFilter) || props.statusFilter.length === 0) return null;
   return props.statusFilter.map(s => String(s));
-});
-
-// Overdue helper notice: shown on the overdue tab, or in embedded mode whenever the
-// locked set covers borrowed/overdue items.
-const showOverdueNotice = computed(() => {
-  if (props.showTabs) return activeTab.value === 'overdue';
-  const locked = lockedStatuses.value;
-  return !!locked && locked.some(s => ['picked_up', 'overdue'].includes(s));
 });
 
 const baseList = computed(() => {
@@ -652,16 +630,6 @@ const refreshAll = async () => {
   finally {
     loading.value = false;
   }
-};
-
-const markOverdueNow = async () => {
-  loading.value = true;
-  try {
-    const res = await markOverdueBorrowings();
-    toast.success(`Overdue flags refreshed (${res.data?.data?.updated_count ?? 0} updated).`);
-    await refreshAll();
-  } catch (e) { toast.error(e.response?.data?.message || 'Failed to mark overdue.'); }
-  finally { loading.value = false; }
 };
 
 const doPickup = async (req) => {
