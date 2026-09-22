@@ -31,7 +31,7 @@ export const getMe = () =>
 
 /**
  * Update the current user's profile fields.
- * @param {{ first_name?, last_name?, contact_number? }} data
+ * @param {{ first_name?, last_name?, contact_number?, email? }} data
  */
 export const updateProfile = (data) =>
   apiClient.patch('/auth/profile', data);

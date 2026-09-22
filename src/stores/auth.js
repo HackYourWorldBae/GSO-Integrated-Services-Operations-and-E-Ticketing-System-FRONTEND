@@ -333,7 +333,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   /**
    * Update the current user's profile fields.
-   * @param {{ first_name?, last_name?, contact_number? }} data
+   * @param {{ first_name?, last_name?, contact_number?, email? }} data
    */
   const updateProfile = async (data) => {
     try {

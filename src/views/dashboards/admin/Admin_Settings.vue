@@ -109,12 +109,11 @@
                   <input
                     v-model="form.email"
                     type="email"
-                    disabled
-                    class="block w-full pl-11 pr-4 py-3 sm:py-3.5 min-h-[44px] bg-slate-100/70 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-500 cursor-not-allowed outline-none"
+                    class="block w-full pl-11 pr-4 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                     placeholder="admin@bsu.edu.ph"
                   />
                 </div>
-                <p class="text-[11px] text-slate-400 font-medium ml-1">Official operational unit administrator email address.</p>
+                <p class="text-[11px] text-slate-400 font-medium ml-1">Official operational unit administrator email address. Used for login and system notifications.</p>
               </div>
 
               <!-- New Password -->
@@ -321,12 +320,22 @@ const handleSave = async () => {
     }
   }
 
+  const emailChanged = (form.value.email || '').trim().toLowerCase() !== (authStore.user?.email || '').trim().toLowerCase();
+  if (emailChanged && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((form.value.email || '').trim())) {
+    toast.error('Please enter a valid email address.');
+    return;
+  }
+
   isSaving.value = true;
   try {
-    const result = await authStore.updateProfile({
+    const payload = {
       first_name: form.value.firstName,
       last_name:  form.value.lastName,
-    });
+    };
+    if (emailChanged) {
+      payload.email = form.value.email.trim().toLowerCase();
+    }
+    const result = await authStore.updateProfile(payload);
     
     if (form.value.password) {
       await api.post('/auth/change-password', {
