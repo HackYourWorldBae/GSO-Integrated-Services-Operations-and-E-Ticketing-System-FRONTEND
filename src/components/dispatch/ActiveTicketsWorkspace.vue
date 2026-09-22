@@ -849,10 +849,26 @@
                   #{{ selectedTicketForModal.id }}
                 </span>
                 <span class="text-xs sm:text-sm font-bold text-slate-400">
-                  Started on {{ formatDate(getTicketStartTime(selectedTicketForModal)) }}
+                  <template v-if="isModalBorrowing">
+                    Picked up on {{ formatDate(modalBorrowingPickupDate) }}
+                  </template>
+                  <template v-else>
+                    Started on {{ formatDate(getTicketStartTime(selectedTicketForModal)) }}
+                  </template>
                 </span>
                 <span
-                  v-if="selectedTicketForModal.current_step == 6 || selectedTicketForModal.status === 'resolved'"
+                  v-if="isModalBorrowing"
+                  :class="[
+                    'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border',
+                    modalBorrowingStatus === 'overdue'
+                      ? 'bg-rose-100 text-rose-800 border-rose-200'
+                      : 'bg-blue-100 text-blue-800 border-blue-200'
+                  ]"
+                >
+                  {{ modalBorrowingStatusLabel }}
+                </span>
+                <span
+                  v-else-if="selectedTicketForModal.current_step == 6 || selectedTicketForModal.status === 'resolved'"
                   class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black uppercase tracking-wider border border-amber-200"
                 >
                   ★ Awaiting Requestor Rating
@@ -865,10 +881,10 @@
                 </span>
               </div>
               <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                {{ (selectedTicketForModal.current_step == 6 || selectedTicketForModal.status === 'resolved') ? 'Completed Ticket Details' : 'Active Work Details' }}
+                {{ isModalBorrowing ? 'Borrowed Request Details' : ((selectedTicketForModal.current_step == 6 || selectedTicketForModal.status === 'resolved') ? 'Completed Ticket Details' : 'Active Work Details') }}
               </h3>
               <p class="text-xs text-slate-500 font-medium mt-0.5">
-                {{ (selectedTicketForModal.current_step == 6 || selectedTicketForModal.status === 'resolved') ? 'Job marked completed by dispatch admin. Awaiting client rating and closure from their dashboard.' : 'Real-time assignment parameters, elapsed work tracking, and requester particulars' }}
+                {{ isModalBorrowing ? 'Borrowed item particulars, pickup and return schedule, and borrower information' : ((selectedTicketForModal.current_step == 6 || selectedTicketForModal.status === 'resolved') ? 'Job marked completed by dispatch admin. Awaiting client rating and closure from their dashboard.' : 'Real-time assignment parameters, elapsed work tracking, and requester particulars') }}
               </p>
             </div>
             <button
@@ -886,8 +902,8 @@
           <!-- Scrollable Modal Body -->
           <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
             
-            <!-- Assigned Personnel & Live Timeline Card -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white space-y-3">
+            <!-- Assigned Personnel & Live Timeline Card (job tickets only — borrowed requests have no field workers) -->
+            <div v-if="!isModalBorrowing" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white space-y-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Field Personnel</span>
@@ -947,7 +963,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <!-- Requester Profile -->
               <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Requester Profile</span>
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">{{ isModalBorrowing ? 'Borrower Profile' : 'Requester Profile' }}</span>
                 <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicketForModal.requester }}</p>
                 <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
                   <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -975,13 +991,14 @@
 
               <!-- Designated Location -->
               <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Designated Location</span>
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">{{ isModalBorrowing ? 'Department / College' : 'Designated Location' }}</span>
                 <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicketForModal.location || selectedTicketForModal.college_building || 'Main Campus' }}</p>
                 <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
                   <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                   </svg>
-                  <span>{{ selectedTicketForModal.office_room ? `Room / Office: ${selectedTicketForModal.office_room}` : 'No specific room designated' }}</span>
+                  <span v-if="isModalBorrowing">{{ selectedTicketForModal.borrowing?.borrower_id_number ? `ID: ${selectedTicketForModal.borrowing.borrower_id_number}` : 'No ID on file' }}</span>
+                  <span v-else>{{ selectedTicketForModal.office_room ? `Room / Office: ${selectedTicketForModal.office_room}` : 'No specific room designated' }}</span>
                 </p>
               </div>
             </div>
@@ -1103,6 +1120,22 @@
             </button>
 
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+              <!-- Borrowed request: return flow only (no job-order / extension / materials / completion) -->
+              <template v-if="isModalBorrowing">
+                <button
+                  type="button"
+                  @click="openBorrowReturnModal(selectedTicketForModal)"
+                  class="px-5 py-2.5 min-h-[40px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+                  title="Record item return (auto-archives, no rating)"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Mark Returned</span>
+                </button>
+              </template>
+
+              <template v-else>
               <button
                 type="button"
                 @click="openJobOrderDocument(selectedTicketForModal)"
@@ -1110,7 +1143,7 @@
                 title="Print official Job Order document"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
                 <span>Print Job Order</span>
               </button>
@@ -1154,9 +1187,42 @@
                   Complete Job
                 </button>
               </template>
+              </template>
             </div>
           </div>
 
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- ═══ Borrowed Request Return Modal ═══ -->
+    <Teleport to="body">
+      <div v-if="borrowReturnTarget" class="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto" @click.self="borrowReturnTarget = null">
+        <div class="bg-white rounded-3xl w-full max-w-md p-5 sm:p-6 shadow-2xl border border-slate-100 my-auto">
+          <h3 class="text-lg font-black text-slate-900">Mark Returned — #{{ borrowReturnTarget.ticket_id || borrowReturnTarget.id }}</h3>
+          <p class="text-xs text-slate-500 mt-1">Returning auto-archives the ticket as completed. No rating form is shown to the end user.</p>
+          <div class="space-y-3 mt-4">
+            <div>
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Return Condition *</label>
+              <select v-model="borrowReturnForm.condition" class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer bg-white">
+                <option value="excellent">Excellent</option>
+                <option value="good">Good</option>
+                <option value="fair">Fair</option>
+                <option value="damaged">Damaged</option>
+                <option value="lost">Lost</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Return Notes</label>
+              <textarea v-model="borrowReturnForm.notes" rows="2" placeholder="Condition notes, damages, missing parts..." class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2 mt-5">
+            <button type="button" @click="borrowReturnTarget = null" class="px-5 py-3 min-h-[44px] rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer">Cancel</button>
+            <button type="button" @click="doBorrowReturn" :disabled="borrowReturnLoading" class="px-5 py-3 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black cursor-pointer disabled:opacity-50">
+              {{ borrowReturnLoading ? 'Saving...' : 'Confirm Return' }}
+            </button>
+          </div>
         </div>
       </div>
     </Teleport>
@@ -1225,8 +1291,8 @@ import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
 import { fetchCollabTickets } from '@/api/collaborations';
-import { getBorrowingQueue } from '@/api/borrowing';
-import { isBorrowingService } from '@/utils/borrowing';
+import { getBorrowingQueue, recordBorrowingReturn } from '@/api/borrowing';
+import { isBorrowingService, borrowingStatusLabel } from '@/utils/borrowing';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
 import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
@@ -1341,6 +1407,26 @@ const showAdjustModal = ref(false);
 const selectedTicketForAdjust = ref(null);
 const showReceiptModal = ref(false);
 const receiptTicket = ref(null);
+// Full-info modal is shared by job tickets and borrowed requests —
+// isModalBorrowing switches title, badges, sections, and footer actions.
+const isModalBorrowing = computed(() => {
+  const t = selectedTicketForModal.value;
+  if (!t) return false;
+  return isBorrowingService(t) || !!t?.borrowing;
+});
+const modalBorrowingStatus = computed(() => {
+  const t = selectedTicketForModal.value;
+  return String(t?.borrowing?.status || t?.status || '').toLowerCase();
+});
+const modalBorrowingStatusLabel = computed(() => borrowingStatusLabel(selectedTicketForModal.value?.borrowing?.status || selectedTicketForModal.value?.status));
+const modalBorrowingPickupDate = computed(() => {
+  const t = selectedTicketForModal.value;
+  return t?.borrowing?.picked_up_at || t?.borrowing?.date_needed || t?.borrowing?.expected_return_date || getTicketStartTime(t);
+});
+// Borrowed-request return flow (mirrors BorrowingWorkspace return modal).
+const borrowReturnTarget = ref(null);
+const borrowReturnForm = ref({ condition: 'good', notes: '' });
+const borrowReturnLoading = ref(false);
 // Collab-tab action buttons reuse this workspace's own handlers (extension,
 // materials, completion, job order) so both tabs share one behavior.
 // The collab row is resolved to its full ticket record first.
@@ -1752,6 +1838,33 @@ const handleBorrowingViewDetails = (req) => {
     }
   };
   openDetailsModal(mapped);
+};
+
+const openBorrowReturnModal = (ticket) => {
+  if (!ticket) return;
+  borrowReturnTarget.value = ticket;
+  borrowReturnForm.value = { condition: 'good', notes: '' };
+};
+
+const doBorrowReturn = async () => {
+  if (!borrowReturnTarget.value) return;
+  const tid = borrowReturnTarget.value.ticket_id || borrowReturnTarget.value.id;
+  borrowReturnLoading.value = true;
+  try {
+    await recordBorrowingReturn(tid, {
+      return_condition: borrowReturnForm.value.condition,
+      return_notes: borrowReturnForm.value.notes,
+    });
+    toast.success(`#${tid} returned and archived (no rating required).`);
+    borrowReturnTarget.value = null;
+    selectedTicketForModal.value = null;
+    borrowedRefreshKey.value += 1;
+    await Promise.all([fetchBorrowingCount(), fetchActiveTickets()]);
+  } catch (e) {
+    toast.error(e.response?.data?.message || 'Failed to record return.');
+  } finally {
+    borrowReturnLoading.value = false;
+  }
 };
 
 const openExtensionModal = (ticket) => {
