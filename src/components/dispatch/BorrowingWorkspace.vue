@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4 animate-fade-in relative pb-4">
-    <!-- Tabs -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-1.5">
+    <!-- Tabs & Search Toolbar (shown only when !hideToolbar) -->
+    <div v-if="!hideToolbar" class="bg-white rounded-2xl border border-slate-200 shadow-xs p-1.5">
       <div class="flex items-center gap-1.5 flex-wrap">
         <template v-if="showTabs">
           <button
@@ -36,7 +36,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search ticket #, borrower, item..."
+            placeholder="Search ticket #, borrower, item, ID..."
             class="w-full pl-9 pr-4 py-2.5 min-h-[44px] rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:bg-white transition-all"
           />
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,17 +59,8 @@
       </button>
     </div>
 
-    <!-- List -->
-    <div v-if="loading && visibleRequests.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
-      <p class="text-xs font-bold text-slate-400">Loading borrowing requests...</p>
-    </div>
-    <div v-else-if="visibleRequests.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
-      <p class="text-sm font-bold text-slate-600">No borrowing requests in this tab</p>
-      <p class="text-xs text-slate-400 mt-1">Requests move here automatically as their status changes.</p>
-    </div>
-
-    <!-- ═══ Desktop Tabular View (matching other ticket lists) ═══ -->
-    <div v-else-if="isTableLayout" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+    <!-- ═══ Desktop Tabular View (matching other ticket lists on this system) ═══ -->
+    <div v-if="isTableLayout" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
@@ -83,17 +74,60 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 text-xs">
+            <!-- Loading State -->
+            <tr v-if="loading && requests.length === 0">
+              <td colspan="6" class="py-16 text-center">
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
+                  <svg class="animate-spin h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Loading borrowing requests...
+                </div>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr v-else-if="paginatedRequests.length === 0">
+              <td colspan="6" class="py-16 text-center">
+                <div class="max-w-sm mx-auto flex flex-col items-center">
+                  <div class="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                  </div>
+                  <p class="text-sm font-bold text-slate-700">No Borrowing Requests Found</p>
+                  <p class="text-xs text-slate-400 mt-1">
+                    {{ effectiveSearch ? 'No requests match your search criteria.' : 'No borrowing requests in this tab.' }}
+                  </p>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Data Rows -->
             <tr
-              v-for="req in visibleRequests"
+              v-for="req in paginatedRequests"
               :key="req.ticket_id || req.id"
-              class="hover:bg-amber-50/50 transition-all duration-150 group relative"
+              class="hover:bg-amber-50/30 transition-all duration-150 group cursor-pointer relative"
+              @click="emitDetails(req)"
             >
+              <!-- Ticket Ref -->
               <td class="px-4 py-2.5 whitespace-nowrap relative">
                 <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
-                <span class="font-mono text-sm font-bold px-3 py-1 rounded-lg border bg-amber-50 text-amber-800 border-amber-200 inline-flex items-center group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all duration-150 shadow-2xs">
-                  #{{ req.ticket_id }}
-                </span>
+                <div class="relative inline-flex items-center gap-1.5 flex-wrap">
+                  <span class="font-mono text-sm font-bold px-3 py-1 rounded-lg border bg-amber-50 text-amber-800 border-amber-200 inline-flex items-center group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all duration-150 shadow-2xs">
+                    #{{ req.ticket_id }}
+                  </span>
+                  <span
+                    v-if="isOverdue(req)"
+                    class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200"
+                  >
+                    Overdue
+                  </span>
+                </div>
               </td>
+
+              <!-- Borrower -->
               <td class="px-3 py-2.5">
                 <div class="flex items-center gap-2">
                   <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
@@ -105,22 +139,36 @@
                   </div>
                 </div>
               </td>
+
+              <!-- Item Requested -->
               <td class="px-3 py-2.5">
                 <div class="text-xs font-black text-slate-900 truncate max-w-[220px]">
                   {{ req.item_name_requested }}
                   <span v-if="req.item_model_requested" class="font-semibold text-slate-500">({{ req.item_model_requested }})</span>
                 </div>
-                <div class="text-[10px] text-slate-500">Qty: {{ req.assigned_quantity || req.quantity_needed }}{{ req.purpose_project ? ` • ${req.purpose_project}` : '' }}</div>
+                <div class="text-[10px] text-slate-500 truncate max-w-[220px]">
+                  Qty: <strong class="text-slate-700">{{ req.assigned_quantity || req.quantity_needed }}</strong>{{ req.purpose_project ? ` • ${req.purpose_project}` : '' }}
+                </div>
               </td>
+
+              <!-- Schedule -->
               <td class="px-3 py-2.5 whitespace-nowrap">
-                <div class="text-xs font-bold text-slate-800">{{ formatDate(req.date_needed) }}</div>
-                <div class="text-[10px] font-bold" :class="isOverdue(req) ? 'text-rose-600' : 'text-slate-500'">→ {{ formatDate(req.expected_return_date) }}</div>
+                <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <span class="text-slate-400 text-[10px] font-semibold">Pickup:</span> {{ formatDate(req.date_needed) }}
+                </div>
+                <div class="text-[10px] font-bold flex items-center gap-1.5 mt-0.5" :class="isOverdue(req) ? 'text-rose-600' : 'text-slate-500'">
+                  <span class="text-slate-400 font-semibold">Return:</span> {{ formatDate(req.expected_return_date) }}
+                </div>
               </td>
+
+              <!-- Status -->
               <td class="px-3 py-2.5 whitespace-nowrap">
-                <span :class="['px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border', statusPillClass(req.status)]">
+                <span :class="['px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border inline-flex items-center gap-1 shadow-2xs', statusPillClass(req.status)]">
                   {{ formatStatus(req.status) }}
                 </span>
               </td>
+
+              <!-- Actions -->
               <td class="px-3 py-2.5 whitespace-nowrap text-right" @click.stop>
                 <div class="flex items-center justify-end gap-1.5">
                   <button
@@ -128,87 +176,292 @@
                     type="button"
                     @click="doPickup(req)"
                     :disabled="actionLoading"
-                    class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black transition-all cursor-pointer disabled:opacity-50"
+                    class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95 flex items-center gap-1 disabled:opacity-50"
                     title="Record early or on-time pickup"
                   >
-                    Picked Up
+                    <span>Picked Up</span>
                   </button>
                   <button
                     v-if="req.status === 'picked_up' || req.status === 'overdue'"
                     type="button"
                     @click="openReturnModal(req)"
                     :disabled="actionLoading"
-                    class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all cursor-pointer disabled:opacity-50"
+                    class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95 flex items-center gap-1 disabled:opacity-50"
                     title="Record item return (auto-archives, no rating)"
                   >
-                    Mark Returned
+                    <span>Mark Returned</span>
                   </button>
-                  <router-link
-                    :to="`/admin/leau/assign-workers?ticket=${req.ticket_id}`"
-                    class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center cursor-pointer"
+                  <button
+                    type="button"
+                    @click="emitDetails(req)"
+                    class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1 cursor-pointer"
+                    title="View full request details"
                   >
-                    Details
-                  </router-link>
+                    <span>Details</span>
+                  </button>
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <!-- Desktop Pagination Footer -->
+      <div v-if="visibleRequests.length > 0" class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div>
+          Showing <span class="font-bold text-slate-800">{{ paginationRange.start }}</span> to <span class="font-bold text-slate-800">{{ paginationRange.end }}</span> of <span class="font-bold text-slate-800">{{ visibleRequests.length }}</span> tickets
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            @click="changePage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+          >
+            Previous
+          </button>
+          <div class="px-3 py-1.5 font-bold text-slate-700">
+            {{ currentPage }} / {{ totalPages }}
+          </div>
+          <button
+            type="button"
+            @click="changePage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
 
-    <div v-else :class="[isTableLayout ? 'md:hidden space-y-4' : 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4']">
+    <!-- ═══ Mobile View (Cards) when Table Layout ═══ -->
+    <div v-if="isTableLayout" class="md:hidden space-y-3">
+      <!-- Loading State -->
+      <div v-if="loading && requests.length === 0" class="py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">
+        <div class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
+          <svg class="animate-spin h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Loading borrowing requests...
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="paginatedRequests.length === 0" class="py-12 text-center bg-white rounded-2xl border border-slate-200">
+        <div class="h-10 w-10 mx-auto rounded-xl bg-amber-50 flex items-center justify-center text-amber-500 mb-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+        </div>
+        <p class="text-xs font-bold text-slate-700">No Borrowing Requests Found</p>
+        <p class="text-[10px] text-slate-400 mt-0.5">
+          {{ effectiveSearch ? 'No requests match your search criteria.' : 'No borrowing requests in this tab.' }}
+        </p>
+      </div>
+
+      <!-- Mobile Data Cards -->
       <div
-        v-for="req in visibleRequests"
+        v-for="req in paginatedRequests"
         :key="req.ticket_id || req.id"
-        class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 space-y-3 hover:border-amber-300 transition-all"
+        class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 space-y-3 cursor-pointer transition-all hover:border-amber-300 active:scale-[0.99]"
+        @click="emitDetails(req)"
       >
+        <!-- Top Row: Ref Mono Badge & Status -->
         <div class="flex items-center justify-between gap-2">
-          <span class="font-mono text-sm font-bold px-2.5 py-0.5 rounded-lg border bg-amber-50 text-amber-800 border-amber-200">#{{ req.ticket_id }}</span>
-          <span
-            :class="[
-              'px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border',
-              req.status === 'overdue' ? 'bg-rose-50 text-rose-700 border-rose-200' :
-              req.status === 'picked_up' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-              'bg-emerald-50 text-emerald-700 border-emerald-200'
-            ]"
-          >
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="font-mono text-sm font-bold px-2.5 py-0.5 rounded-lg border bg-amber-50 text-amber-800 border-amber-200 shadow-2xs">
+              #{{ req.ticket_id }}
+            </span>
+            <span
+              v-if="isOverdue(req)"
+              class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200"
+            >
+              Overdue
+            </span>
+          </div>
+          <span :class="['px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border inline-flex items-center gap-1 shadow-2xs', statusPillClass(req.status)]">
             {{ formatStatus(req.status) }}
           </span>
         </div>
-        <div class="min-w-0">
-          <p class="text-sm font-black text-slate-900 truncate">{{ req.item_name_requested }} <span v-if="req.item_model_requested" class="font-semibold text-slate-500">({{ req.item_model_requested }})</span></p>
-          <p class="text-xs text-slate-600 font-semibold truncate">{{ req.borrower_name }} • {{ req.borrower_type }} • {{ req.borrower_id_number }}</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Pickup: <strong class="text-slate-600">{{ formatDate(req.date_needed) }}</strong> • Return: <strong :class="isOverdue(req) ? 'text-rose-600' : 'text-slate-600'">{{ formatDate(req.expected_return_date) }}</strong> • Qty: {{ req.assigned_quantity || req.quantity_needed }}</p>
-          <p v-if="req.purpose_project" class="text-[11px] text-slate-500 mt-1 line-clamp-2">{{ req.purpose_project }}</p>
+
+        <!-- Borrower & Item Summary -->
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[9px] font-bold flex items-center justify-center shrink-0">
+              {{ getInitials(req.borrower_name) }}
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="text-xs font-bold text-slate-800 truncate block">{{ req.borrower_name }}</span>
+              <span class="text-[10px] text-slate-400 block truncate">{{ req.borrower_type }}{{ req.borrower_id_number ? ` • ${req.borrower_id_number}` : '' }}</span>
+            </div>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+            <div class="text-xs font-black text-slate-900 leading-tight">
+              {{ req.item_name_requested }}
+              <span v-if="req.item_model_requested" class="font-semibold text-slate-500">({{ req.item_model_requested }})</span>
+            </div>
+            <div class="text-[10px] text-slate-500 flex items-center gap-1.5 flex-wrap">
+              <span>Qty: <strong class="text-slate-700">{{ req.assigned_quantity || req.quantity_needed }}</strong></span>
+              <span v-if="req.purpose_project">• {{ req.purpose_project }}</span>
+            </div>
+          </div>
         </div>
-        <div class="pt-2 border-t border-slate-100 flex items-center justify-end gap-2" @click.stop>
+
+        <!-- Schedule Row -->
+        <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-600">
+          <div class="flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Pickup: <strong>{{ formatDate(req.date_needed) }}</strong></span>
+          </div>
+          <div :class="isOverdue(req) ? 'text-rose-600 font-bold' : 'text-slate-500'">
+            <span>Return: <strong>{{ formatDate(req.expected_return_date) }}</strong></span>
+          </div>
+        </div>
+
+        <!-- Card Action Buttons -->
+        <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-100" @click.stop>
           <button
             v-if="req.status === 'ready_for_pickup'"
             type="button"
             @click="doPickup(req)"
             :disabled="actionLoading"
-            class="px-4 py-2 min-h-[40px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black cursor-pointer disabled:opacity-50"
-            title="Record early or on-time pickup"
+            class="flex-1 py-2 px-3 min-h-[38px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black text-center transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50"
+            title="Record item pickup"
           >
-            Picked Up
+            <span>Picked Up</span>
           </button>
           <button
             v-if="req.status === 'picked_up' || req.status === 'overdue'"
             type="button"
             @click="openReturnModal(req)"
             :disabled="actionLoading"
-            class="px-4 py-2 min-h-[40px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black cursor-pointer disabled:opacity-50"
-            title="Record item return (auto-archives, no rating)"
+            class="flex-1 py-2 px-3 min-h-[38px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black text-center transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50"
+            title="Record item return"
           >
-            Mark Returned
+            <span>Mark Returned</span>
           </button>
-          <router-link
-            :to="`/admin/leau/assign-workers?ticket=${req.ticket_id}`"
-            class="px-4 py-2 min-h-[40px] rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center cursor-pointer"
+          <button
+            type="button"
+            @click="emitDetails(req)"
+            class="py-2 px-4 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold text-center transition-all shadow-2xs active:scale-95 cursor-pointer flex items-center justify-center gap-1"
           >
-            Details
-          </router-link>
+            <span>Details</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Pagination Footer -->
+      <div v-if="visibleRequests.length > 0" class="flex items-center justify-between p-3 bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">
+        <button
+          type="button"
+          @click="changePage(currentPage - 1)"
+          :disabled="currentPage === 1"
+          class="px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-slate-50 text-slate-700 disabled:opacity-40 font-bold touch-manipulation flex items-center justify-center"
+        >
+          Prev
+        </button>
+        <span class="font-bold text-slate-700">{{ currentPage }} / {{ totalPages }}</span>
+        <button
+          type="button"
+          @click="changePage(currentPage + 1)"
+          :disabled="currentPage === totalPages"
+          class="px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-slate-50 text-slate-700 disabled:opacity-40 font-bold touch-manipulation flex items-center justify-center"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ Grid Cards View (when layout !== 'table') ═══ -->
+    <div v-else class="space-y-4">
+      <div v-if="loading && requests.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
+        <p class="text-xs font-bold text-slate-400">Loading borrowing requests...</p>
+      </div>
+      <div v-else-if="paginatedRequests.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
+        <p class="text-sm font-bold text-slate-600">No borrowing requests found</p>
+        <p class="text-xs text-slate-400 mt-1">Requests move here automatically as their status changes.</p>
+      </div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div
+          v-for="req in paginatedRequests"
+          :key="req.ticket_id || req.id"
+          class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 space-y-3 hover:border-amber-300 transition-all cursor-pointer"
+          @click="emitDetails(req)"
+        >
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-mono text-sm font-bold px-2.5 py-0.5 rounded-lg border bg-amber-50 text-amber-800 border-amber-200">#{{ req.ticket_id }}</span>
+            <span :class="['px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border', statusPillClass(req.status)]">
+              {{ formatStatus(req.status) }}
+            </span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-black text-slate-900 truncate">{{ req.item_name_requested }} <span v-if="req.item_model_requested" class="font-semibold text-slate-500">({{ req.item_model_requested }})</span></p>
+            <p class="text-xs text-slate-600 font-semibold truncate">{{ req.borrower_name }} • {{ req.borrower_type }} • {{ req.borrower_id_number }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Pickup: <strong class="text-slate-600">{{ formatDate(req.date_needed) }}</strong> • Return: <strong :class="isOverdue(req) ? 'text-rose-600' : 'text-slate-600'">{{ formatDate(req.expected_return_date) }}</strong> • Qty: {{ req.assigned_quantity || req.quantity_needed }}</p>
+            <p v-if="req.purpose_project" class="text-[11px] text-slate-500 mt-1 line-clamp-2">{{ req.purpose_project }}</p>
+          </div>
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-end gap-2" @click.stop>
+            <button
+              v-if="req.status === 'ready_for_pickup'"
+              type="button"
+              @click="doPickup(req)"
+              :disabled="actionLoading"
+              class="px-4 py-2 min-h-[40px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black cursor-pointer disabled:opacity-50"
+              title="Record early or on-time pickup"
+            >
+              Picked Up
+            </button>
+            <button
+              v-if="req.status === 'picked_up' || req.status === 'overdue'"
+              type="button"
+              @click="openReturnModal(req)"
+              :disabled="actionLoading"
+              class="px-4 py-2 min-h-[40px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black cursor-pointer disabled:opacity-50"
+              title="Record item return (auto-archives, no rating)"
+            >
+              Mark Returned
+            </button>
+            <button
+              type="button"
+              @click="emitDetails(req)"
+              class="px-4 py-2 min-h-[40px] rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center cursor-pointer"
+            >
+              Details
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid Pagination Footer -->
+      <div v-if="visibleRequests.length > 0" class="px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div>
+          Showing <span class="font-bold text-slate-800">{{ paginationRange.start }}</span> to <span class="font-bold text-slate-800">{{ paginationRange.end }}</span> of <span class="font-bold text-slate-800">{{ visibleRequests.length }}</span> tickets
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            @click="changePage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+          >
+            Previous
+          </button>
+          <div class="px-3 py-1.5 font-bold text-slate-700">
+            {{ currentPage }} / {{ totalPages }}
+          </div>
+          <button
+            type="button"
+            @click="changePage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
@@ -248,7 +501,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import {
   getBorrowingQueue,
   getOverdueBorrowings,
@@ -264,6 +517,10 @@ const props = defineProps({
   // When embedded inside another ticket-list layout (e.g. LEAU Scheduled / Active Tickets),
   // the host provides the tab switcher — hide this component's own tab row.
   showTabs: { type: Boolean, default: true },
+  // Suppresses the internal toolbar completely (tabs + search + refresh), delegating to parent.
+  hideToolbar: { type: Boolean, default: false },
+  // Optional search text passed down from parent workspace toolbar
+  searchText: { type: String, default: '' },
   // Optional locked status set for embedded mode (e.g. ['ready_for_pickup'] on the
   // Scheduled page, ['picked_up', 'overdue'] on the Active page). When provided with
   // showTabs=false, the list shows these statuses combined instead of a single tab.
@@ -272,6 +529,8 @@ const props = defineProps({
   // ticket-list workspaces on desktop; mobile stays as cards).
   layout: { type: String, default: 'cards' }
 });
+
+const emit = defineEmits(['view-details', 'status-changed', 'updated']);
 
 const isTableLayout = computed(() => String(props.layout || 'cards').toLowerCase() === 'table');
 
@@ -295,6 +554,7 @@ const loading = ref(false);
 const actionLoading = ref(false);
 const searchQuery = ref('');
 const currentPage = ref(1);
+const perPage = ref(10);
 const returnTarget = ref(null);
 const returnForm = ref({ condition: 'good', notes: '' });
 
@@ -335,15 +595,51 @@ const baseList = computed(() => {
   return activeTab.value === 'awaiting' ? awaitingList.value : activeTab.value === 'borrowed' ? borrowedList.value : overdueList.value;
 });
 
+const effectiveSearch = computed(() => {
+  if (props.searchText !== undefined && props.searchText !== null && props.searchText.trim() !== '') {
+    return props.searchText.trim().toLowerCase();
+  }
+  return searchQuery.value.trim().toLowerCase();
+});
+
 const visibleRequests = computed(() => {
-  const q = searchQuery.value.trim().toLowerCase();
+  const q = effectiveSearch.value;
   if (!q) return baseList.value;
   return baseList.value.filter(r =>
     String(r.ticket_id || '').toLowerCase().includes(q) ||
     String(r.borrower_name || '').toLowerCase().includes(q) ||
     String(r.item_name_requested || '').toLowerCase().includes(q) ||
-    String(r.borrower_id_number || '').toLowerCase().includes(q)
+    String(r.item_model_requested || '').toLowerCase().includes(q) ||
+    String(r.borrower_id_number || '').toLowerCase().includes(q) ||
+    String(r.department_college || '').toLowerCase().includes(q) ||
+    String(r.purpose_project || '').toLowerCase().includes(q)
   );
+});
+
+// ═══ Pagination Computeds ═══
+const totalPages = computed(() => Math.max(1, Math.ceil(visibleRequests.value.length / perPage.value)));
+
+const paginatedRequests = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return visibleRequests.value.slice(start, start + perPage.value);
+});
+
+const paginationRange = computed(() => {
+  const total = visibleRequests.value.length;
+  if (!total) return { start: 0, end: 0 };
+  const start = (currentPage.value - 1) * perPage.value + 1;
+  const end = Math.min(start + perPage.value - 1, total);
+  return { start, end };
+});
+
+const changePage = (p) => {
+  if (p >= 1 && p <= totalPages.value) {
+    currentPage.value = p;
+  }
+};
+
+watch([effectiveSearch, activeTab], () => {
+  currentPage.value = 1;
 });
 
 const formatStatus = (s) => borrowingStatusLabel(s);
@@ -373,9 +669,17 @@ const fetchOverdue = async () => {
 
 const refreshAll = async () => {
   loading.value = true;
-  try { await Promise.all([fetchQueue(), fetchOverdue()]); }
-  catch (e) { console.error(e); toast.error('Failed to load borrowing queues.'); }
-  finally { loading.value = false; }
+  try {
+    await Promise.all([fetchQueue(), fetchOverdue()]);
+    emit('updated');
+  }
+  catch (e) {
+    console.error(e);
+    toast.error('Failed to load borrowing queues.');
+  }
+  finally {
+    loading.value = false;
+  }
 };
 
 const markOverdueNow = async () => {
@@ -393,6 +697,8 @@ const doPickup = async (req) => {
   try {
     await recordBorrowingPickup(req.ticket_id, {});
     toast.success(`#${req.ticket_id} picked up — moved to Borrowed Items.`);
+    emit('status-changed', { ticket_id: req.ticket_id, status: 'picked_up' });
+    emit('updated');
     await refreshAll();
   } catch (e) { toast.error(e.response?.data?.message || 'Failed to record pickup.'); }
   finally { actionLoading.value = false; }
@@ -407,16 +713,28 @@ const doReturn = async () => {
   if (!returnTarget.value) return;
   actionLoading.value = true;
   try {
-    await recordBorrowingReturn(returnTarget.value.ticket_id, {
+    const tid = returnTarget.value.ticket_id;
+    await recordBorrowingReturn(tid, {
       return_condition: returnForm.value.condition,
       return_notes: returnForm.value.notes
     });
-    toast.success(`#${returnTarget.value.ticket_id} returned and archived (no rating required).`);
+    toast.success(`#${tid} returned and archived (no rating required).`);
     returnTarget.value = null;
+    emit('status-changed', { ticket_id: tid, status: 'returned' });
+    emit('updated');
     await refreshAll();
   } catch (e) { toast.error(e.response?.data?.message || 'Failed to record return.'); }
   finally { actionLoading.value = false; }
 };
+
+const emitDetails = (req) => {
+  emit('view-details', req);
+};
+
+defineExpose({
+  refreshAll,
+  refresh: refreshAll,
+});
 
 onMounted(refreshAll);
 </script>

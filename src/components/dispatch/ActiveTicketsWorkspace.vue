@@ -270,7 +270,14 @@
 
     <!-- ═══ Borrowed Requests Pane (LEAU only: picked up + overdue) ═══ -->
     <div v-if="isLeauBorrowed">
-      <BorrowingWorkspace initial-tab="borrowed" :show-tabs="false" :status-filter="['picked_up', 'overdue']" layout="table" :key="'active-borrowed-' + borrowedRefreshKey" />
+      <BorrowingWorkspace
+        initial-tab="borrowed"
+        :show-tabs="false"
+        :status-filter="['picked_up', 'overdue']"
+        layout="table"
+        :key="'active-borrowed-' + borrowedRefreshKey"
+        @view-details="handleBorrowingViewDetails"
+      />
     </div>
 
     <!-- ═══ Collab Active Pane (shares the toolbar search + action handlers above) ═══ -->
@@ -1696,6 +1703,50 @@ const openDetailsModal = async (ticket) => {
       console.warn('Could not refresh borrowing ticket details for modal:', err);
     }
   }
+};
+
+const handleBorrowingViewDetails = (req) => {
+  if (!req) return;
+  const mapped = {
+    ...req,
+    id: req.ticket_id || req.id,
+    ticket_id: req.ticket_id || req.id,
+    ticketId: req.ticket_id || req.id,
+    service: 'Borrowing',
+    service_type: 'Borrowing of Facilities/Equipment',
+    type: 'Borrowing of Facilities/Equipment',
+    title: req.purpose_project || `Borrowing - ${req.item_name_requested}`,
+    requester: req.borrower_name,
+    requestedBy: req.borrower_name,
+    contact_number: req.borrower_contact,
+    email: req.borrower_email || req.email || '',
+    location: req.department_college || 'Main Campus',
+    college_building: req.department_college || 'Main Campus',
+    office_room: req.borrower_id_number ? `ID: ${req.borrower_id_number}` : 'N/A',
+    status: req.status,
+    implementation_date: req.date_needed,
+    assignment: {
+      implementation_date: req.date_needed,
+    },
+    job_description: req.purpose_project || `Borrowing of ${req.item_name_requested}`,
+    borrowing: {
+      ...req,
+      item_name_requested: req.item_name_requested,
+      item_model_requested: req.item_model_requested,
+      quantity_needed: req.quantity_needed,
+      assigned_quantity: req.assigned_quantity || req.quantity_needed,
+      purpose_project: req.purpose_project,
+      date_needed: req.date_needed,
+      expected_return_date: req.expected_return_date,
+      borrower_name: req.borrower_name,
+      borrower_type: req.borrower_type,
+      borrower_id_number: req.borrower_id_number,
+      borrower_contact: req.borrower_contact,
+      department_college: req.department_college,
+      status: req.status,
+    }
+  };
+  openDetailsModal(mapped);
 };
 
 const openExtensionModal = (ticket) => {

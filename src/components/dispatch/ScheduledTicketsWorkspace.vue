@@ -86,7 +86,10 @@
         </div>
 
         <!-- Urgency Filters (job schedules only) -->
-        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
+        <div
+          v-if="scheduledTab === 'jobs'"
+          class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1"
+        >
           <button
             type="button"
             @click="setUrgencyFilter('all')"
@@ -126,8 +129,8 @@
         </div>
       </div>
 
-      <!-- Bottom Row: Search + Service Category Filter + Refresh (shared by jobs + collab; borrowing has its own search) -->
-      <div v-if="!isLeauBorrowing" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
+      <!-- Bottom Row: Search + Service Category Filter + Refresh (shared by jobs, borrowing, and collab) -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
         <!-- Search Input -->
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -139,7 +142,7 @@
             v-model="searchQuery"
             @input="currentPage = 1"
             type="text"
-            placeholder="Search ticket #, title, service, requester, worker, room..."
+            :placeholder="scheduledTab === 'borrowing' ? 'Search ticket #, borrower, item, ID...' : 'Search ticket #, title, service, requester, worker, room...'"
             :class="[
               'w-full pl-9 pr-9 py-2.5 min-h-[44px] rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:bg-white transition-all',
               themeFocusRing
@@ -194,7 +197,17 @@
 
     <!-- ═══ Borrowing Requests Pane (LEAU only, awaiting pickup) ═══ -->
     <div v-if="isLeauBorrowing">
-      <BorrowingWorkspace initial-tab="awaiting" :show-tabs="false" :status-filter="['ready_for_pickup']" layout="table" :key="'scheduled-borrowing-' + scheduledTabRefreshKey" />
+      <BorrowingWorkspace
+        initial-tab="awaiting"
+        :show-tabs="false"
+        :hide-toolbar="true"
+        :search-text="searchQuery"
+        :status-filter="['ready_for_pickup']"
+        layout="table"
+        :key="'scheduled-borrowing-' + scheduledTabRefreshKey"
+        @view-details="handleBorrowingViewDetails"
+        @updated="onBorrowingUpdated"
+      />
     </div>
 
     <!-- ═══ Collab Tickets Pane (shares the toolbar search + details modal above) ═══ -->
@@ -546,7 +559,7 @@
                   #{{ selectedTicketForModal.id }}
                 </span>
                 <span class="text-xs sm:text-sm font-bold text-slate-400">
-                  Scheduled for {{ formatDate(selectedTicketForModal.assignment?.implementation_date || selectedTicketForModal.implementation_date) }}
+                  Scheduled for {{ formatDate(selectedTicketForModal.assignment?.implementation_date || selectedTicketForModal.implementation_date || selectedTicketForModal.borrowing?.date_needed) }}
                 </span>
                 <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-wider border border-amber-200">
                   Scheduled
@@ -561,8 +574,12 @@
                   Cross-Unit Collaboration
                 </span>
               </div>
-              <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Scheduled Ticket Particulars</h3>
-              <p class="text-xs text-slate-500 font-medium mt-0.5">Assigned personnel parameters, planned implementation schedule, and institutional particulars</p>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                {{ (isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing) ? 'Scheduled Borrowing Particulars' : 'Scheduled Ticket Particulars' }}
+              </h3>
+              <p class="text-xs text-slate-500 font-medium mt-0.5">
+                {{ (isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing) ? 'Item reservation parameters, planned pickup and return schedule, and institutional particulars' : 'Assigned personnel parameters, planned implementation schedule, and institutional particulars' }}
+              </p>
             </div>
             <button
               type="button"
@@ -772,8 +789,30 @@
               </div>
             </div>
 
+            <!-- Borrowing Schedule Banner (Matching Scheduled Ticket Theme) -->
+            <div v-else-if="isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 via-slate-900 to-slate-900 text-white space-y-3 shadow-xs">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Borrowing Reservation &amp; Schedule</span>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
+                  Ready for Pickup
+                </span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-white/10 text-xs">
+                <div>
+                  <span class="text-[9px] text-slate-400 uppercase font-black block">Planned Pickup Date</span>
+                  <span class="font-bold text-white text-sm">{{ formatDate(selectedTicketForModal.borrowing?.date_needed || selectedTicketForModal.date_needed || selectedTicketForModal.implementation_date) }}</span>
+                </div>
+                <div>
+                  <span class="text-[9px] text-amber-300 uppercase font-black block">Expected Return Date</span>
+                  <span class="font-bold text-amber-200 text-sm">{{ formatDate(selectedTicketForModal.borrowing?.expected_return_date || selectedTicketForModal.expected_return_date) }}</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Standard Non-Collab Designated Personnel Banner -->
-            <div v-else class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 to-slate-900 text-white space-y-3">
+            <div v-else-if="!isBorrowingService(selectedTicketForModal) && !selectedTicketForModal?.borrowing" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 to-slate-900 text-white space-y-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Designated Personnel</span>
@@ -995,6 +1034,7 @@
               </button>
 
               <button
+                v-if="!isBorrowingService(selectedTicketForModal) && !selectedTicketForModal?.borrowing"
                 type="button"
                 @click="openJobOrderDocument(selectedTicketForModal)"
                 class="px-4 py-2.5 min-h-[40px] rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 text-xs font-black uppercase tracking-wider transition-all shadow-2xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
@@ -1007,6 +1047,7 @@
               </button>
 
               <button
+                v-if="!isBorrowingService(selectedTicketForModal) && !selectedTicketForModal?.borrowing"
                 type="button"
                 @click="handleModalStartEarly"
                 class="px-5 py-2.5 min-h-[40px] rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
@@ -1015,6 +1056,19 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                 </svg>
                 <span>Start Job Early</span>
+              </button>
+
+              <!-- Borrowing Modal Action: Mark as Picked Up -->
+              <button
+                v-if="(isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing) && (selectedTicketForModal.status === 'ready_for_pickup' || selectedTicketForModal.borrowing?.status === 'ready_for_pickup')"
+                type="button"
+                @click="handleModalBorrowingPickup(selectedTicketForModal)"
+                class="px-5 py-2.5 min-h-[40px] rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Mark as Picked Up</span>
               </button>
             </div>
           </div>
@@ -1061,7 +1115,7 @@ import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
 import { fetchCollabTickets, getTicketCollaborations } from '@/api/collaborations';
-import { getBorrowingQueue } from '@/api/borrowing';
+import { getBorrowingQueue, recordBorrowingPickup } from '@/api/borrowing';
 import { isBorrowingService } from '@/utils/borrowing';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { parseDateLocal } from '@/utils/workCalendar';
@@ -1180,7 +1234,69 @@ const onCollabUpdated = async () => {
 
 const refreshScheduledAll = async () => {
   scheduledTabRefreshKey.value += 1;
-  await Promise.all([fetchScheduledTickets(), fetchCollabScheduledCount()]);
+  await Promise.all([fetchScheduledTickets(), fetchCollabScheduledCount(), fetchBorrowingCount()]);
+};
+
+const handleBorrowingViewDetails = (req) => {
+  if (!req) return;
+  const mapped = {
+    ...req,
+    id: req.ticket_id || req.id,
+    ticket_id: req.ticket_id || req.id,
+    ticketId: req.ticket_id || req.id,
+    service: 'Borrowing',
+    service_type: 'Borrowing of Facilities/Equipment',
+    type: 'Borrowing of Facilities/Equipment',
+    title: req.purpose_project || `Borrowing - ${req.item_name_requested}`,
+    requester: req.borrower_name,
+    requestedBy: req.borrower_name,
+    contact_number: req.borrower_contact,
+    email: req.borrower_email || req.email || '',
+    location: req.department_college || 'Main Campus',
+    college_building: req.department_college || 'Main Campus',
+    office_room: req.borrower_id_number ? `ID: ${req.borrower_id_number}` : 'N/A',
+    status: req.status,
+    implementation_date: req.date_needed,
+    assignment: {
+      implementation_date: req.date_needed,
+    },
+    job_description: req.purpose_project || `Borrowing of ${req.item_name_requested}`,
+    borrowing: {
+      ...req,
+      item_name_requested: req.item_name_requested,
+      item_model_requested: req.item_model_requested,
+      quantity_needed: req.quantity_needed,
+      assigned_quantity: req.assigned_quantity || req.quantity_needed,
+      purpose_project: req.purpose_project,
+      date_needed: req.date_needed,
+      expected_return_date: req.expected_return_date,
+      borrower_name: req.borrower_name,
+      borrower_type: req.borrower_type,
+      borrower_id_number: req.borrower_id_number,
+      borrower_contact: req.borrower_contact,
+      department_college: req.department_college,
+      status: req.status,
+    }
+  };
+  openDetailsModal(mapped);
+};
+
+const onBorrowingUpdated = async () => {
+  await fetchBorrowingCount();
+};
+
+const handleModalBorrowingPickup = async (ticket) => {
+  if (!ticket) return;
+  const ticketId = ticket.ticket_id || ticket.id;
+  try {
+    await recordBorrowingPickup(ticketId, {});
+    toast.success(`#${ticketId} marked as picked up.`);
+    selectedTicketForModal.value = null;
+    scheduledTabRefreshKey.value += 1;
+    await fetchBorrowingCount();
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Failed to record pickup.');
+  }
 };
 
 const fetchBorrowingCount = async () => {
