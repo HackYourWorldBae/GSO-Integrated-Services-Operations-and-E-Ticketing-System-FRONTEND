@@ -700,9 +700,9 @@
               </div>
 
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Assigned Sub-Unit</label>
-                <select v-model="createForm.unit_id" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer" :disabled="['superadmin', 'director'].includes(createForm.role)">
-                  <option :value="null">None (Global / Cross-Campus)</option>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Assigned Sub-Unit *</label>
+                <select v-model="createForm.unit_id" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer" :disabled="['superadmin', 'director'].includes(createForm.role)">
+                  <option v-if="!['admin', 'staff'].includes(createForm.role)" :value="null">None (Global / Cross-Campus)</option>
                   <option :value="1">Facilities & Grounds (FGMU)</option>
                   <option :value="2">Landscaping & Aesthetics (LEAU)</option>
                   <option :value="3">Security Services (SSU)</option>
@@ -804,9 +804,9 @@
               </div>
 
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Sub-Unit</label>
-                <select v-model="editForm.unit_id" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer" :disabled="['student', 'employee', 'superadmin', 'director'].includes(editForm.role)">
-                  <option :value="null">None (Global / Cross-Campus)</option>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Sub-Unit *</label>
+                <select v-model="editForm.unit_id" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer" :disabled="['student', 'employee', 'superadmin', 'director'].includes(editForm.role)">
+                  <option v-if="!['admin', 'staff'].includes(editForm.role)" :value="null">None (Global / Cross-Campus)</option>
                   <option :value="1">Facilities & Grounds (FGMU)</option>
                   <option :value="2">Landscaping & Aesthetics (LEAU)</option>
                   <option :value="3">Security Services (SSU)</option>
@@ -1539,6 +1539,11 @@ const submitCreateUser = async () => {
     isSubmitting.value = false;
     return;
   }
+  if (['admin', 'staff'].includes(createForm.role) && !createForm.unit_id) {
+    modalError.value = 'Admin and Staff accounts must be assigned to a sub-unit (FGMU, LEAU, or SSU).';
+    isSubmitting.value = false;
+    return;
+  }
   if (createForm.password.length < 8) {
     modalError.value = 'Password must be at least 8 characters long.';
     isSubmitting.value = false;
@@ -1606,6 +1611,13 @@ const submitEditUser = async () => {
   isSubmitting.value = true;
   modalError.value = '';
   try {
+    const finalRole = editForm.role;
+    const finalUnitId = editForm.unit_id ? Number(editForm.unit_id) : null;
+    if (['admin', 'staff'].includes(finalRole) && !finalUnitId) {
+      modalError.value = 'Admin and Staff accounts must be assigned to a sub-unit (FGMU, LEAU, or SSU).';
+      isSubmitting.value = false;
+      return;
+    }
     const payload = {
       first_name: editForm.first_name ? editForm.first_name.trim() : undefined,
       last_name: editForm.last_name ? editForm.last_name.trim() : undefined,
