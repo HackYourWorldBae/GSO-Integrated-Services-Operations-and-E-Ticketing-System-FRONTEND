@@ -258,6 +258,8 @@ const unitFullName = computed(() => {
 });
 
 const roleLabel = computed(() => {
+  const role = (authStore.role || authStore.user?.role || '').toLowerCase();
+  if (role === 'staff') return `${unitCode.value} Staff`;
   return `${unitCode.value} Administrator`;
 });
 

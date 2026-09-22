@@ -132,7 +132,7 @@ const router = createRouter({
       path: '/admin/fgmu',
       name: 'fgmu-dashboard',
       component: FGMU_Dashboard,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['admin', 'staff'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/approved-tickets',
@@ -177,7 +177,7 @@ const router = createRouter({
       path: '/admin/fgmu/settings',
       name: 'fgmu-admin-settings',
       component: Admin_Settings,
-      meta: { requiresAuth: true, roles: ['admin', 'superadmin'], unit: 'FGMU' }
+      meta: { requiresAuth: true, roles: ['admin', 'staff', 'superadmin'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/announcements',
@@ -193,7 +193,7 @@ const router = createRouter({
       path: '/admin/leau',
       name: 'leau-dashboard',
       component: LEAU_Dashboard,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['admin', 'staff'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/approved-tickets',
@@ -266,7 +266,7 @@ const router = createRouter({
       path: '/admin/leau/settings',
       name: 'leau-admin-settings',
       component: Admin_Settings,
-      meta: { requiresAuth: true, roles: ['admin', 'superadmin'], unit: 'LEAU' }
+      meta: { requiresAuth: true, roles: ['admin', 'staff', 'superadmin'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/announcements',
@@ -282,7 +282,7 @@ const router = createRouter({
       path: '/admin/ssu',
       name: 'ssu-dashboard',
       component: SSU_Dashboard,
-      meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU' }
+      meta: { requiresAuth: true, roles: ['admin', 'staff'], unit: 'SSU' }
     },
     {
       path: '/admin/ssu/submitted-tickets',
@@ -326,7 +326,7 @@ const router = createRouter({
       path: '/admin/ssu/settings',
       name: 'ssu-admin-settings',
       component: Admin_Settings,
-      meta: { requiresAuth: true, roles: ['admin', 'superadmin'], unit: 'SSU' }
+      meta: { requiresAuth: true, roles: ['admin', 'staff', 'superadmin'], unit: 'SSU' }
     },
     {
       path: '/admin/settings',
@@ -563,7 +563,7 @@ router.beforeEach((to, from, next) => {
     if (userRole === 'superadmin') {
       return '/superadmin/users';
     }
-    if (userRole === 'admin') {
+    if (userRole === 'admin' || userRole === 'staff') {
       const u = (userUnit || 'fgmu').toLowerCase();
       return ['fgmu', 'leau', 'ssu'].includes(u) ? `/admin/${u}` : '/admin/fgmu';
     }

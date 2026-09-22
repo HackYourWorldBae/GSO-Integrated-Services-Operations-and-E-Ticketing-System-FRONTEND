@@ -10,7 +10,7 @@ const authStore = useAuthStore();
 const activeRole = computed(() => {
   const userRole = (authStore.role || '').toLowerCase();
   if (userRole === 'superadmin') return 'superadmin';
-  if (userRole === 'admin') return 'admin';
+  if (userRole === 'admin' || userRole === 'staff') return 'admin';
   if (userRole === 'director') return 'director';
   if (['student', 'employee', 'worker'].includes(userRole)) return 'requestor';
 
@@ -28,8 +28,8 @@ const activeUnit = computed(() => {
   const userRole = (authStore.role || '').toLowerCase();
   const unitId = Number(authStore.unitId ?? authStore.user?.unit_id ?? 0);
 
-  // If user belongs to a specific unit and is an operational admin, lock to their unit
-  if (userRole === 'admin') {
+  // If user belongs to a specific unit and is an operational admin/staff, lock to their unit
+  if (userRole === 'admin' || userRole === 'staff') {
     if (unitId === 1) return 'fgmu';
     if (unitId === 2) return 'leau';
     if (unitId === 3) return 'ssu';

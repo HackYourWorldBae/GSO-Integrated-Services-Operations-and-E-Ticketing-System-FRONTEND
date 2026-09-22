@@ -642,7 +642,7 @@
           <div class="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <h3 class="text-lg font-black text-slate-900 tracking-tight">Provision New Account</h3>
-              <p class="text-xs text-slate-500 font-medium">Add a user with dedicated university role privileges</p>
+              <p class="text-xs text-slate-500 font-medium">Provision an internal GSO account — admins and staff only. Students and employees sign up on their own.</p>
             </div>
             <button 
               type="button"
@@ -692,9 +692,8 @@
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">System Role *</label>
                 <select v-model="createForm.role" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer">
-                  <option value="student">Student (Requester)</option>
-                  <option value="employee">Employee (Requester)</option>
                   <option value="admin">Admin (Unit Governance)</option>
+                  <option value="staff">Staff (Sub-Unit Personnel)</option>
                   <option value="director">Director (Executive)</option>
                   <option value="superadmin">Superadmin (Master)</option>
                 </select>
@@ -702,29 +701,13 @@
 
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Assigned Sub-Unit</label>
-                <select v-model="createForm.unit_id" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer" :disabled="['student', 'employee', 'superadmin', 'director'].includes(createForm.role)">
+                <select v-model="createForm.unit_id" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer" :disabled="['superadmin', 'director'].includes(createForm.role)">
                   <option :value="null">None (Global / Cross-Campus)</option>
                   <option :value="1">Facilities & Grounds (FGMU)</option>
                   <option :value="2">Landscaping & Aesthetics (LEAU)</option>
                   <option :value="3">Security Services (SSU)</option>
                 </select>
               </div>
-            </div>
-
-            <div v-if="createForm.role === 'student'">
-              <div class="flex items-center justify-between mb-1">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Student ID Number (Strict 7 digits)</label>
-                <span class="text-[9px] text-slate-400 font-semibold">{{ createForm.student_id_number ? createForm.student_id_number.length : 0 }}/7 digits</span>
-              </div>
-              <input 
-                v-model="createForm.student_id_number" 
-                type="text" 
-                inputmode="numeric"
-                maxlength="7"
-                @input="createForm.student_id_number = createForm.student_id_number.replace(/\D/g, '').slice(0, 7)"
-                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" 
-                placeholder="e.g. 2301219" 
-              />
             </div>
 
             <div>
@@ -814,6 +797,7 @@
                   <option value="student">Student</option>
                   <option value="employee">Employee</option>
                   <option value="admin">Admin</option>
+                  <option value="staff">Staff</option>
                   <option value="director">Director</option>
                   <option value="superadmin">Superadmin</option>
                 </select>
@@ -1353,6 +1337,7 @@ const filters = reactive({
 const roleOptions = [
   { value: 'all', label: 'All Roles' },
   { value: 'admin', label: 'Admins' },
+  { value: 'staff', label: 'Staff' },
   { value: 'director', label: 'Directors' },
   { value: 'employee', label: 'Employees' },
   { value: 'student', label: 'Students' },
@@ -1373,7 +1358,6 @@ const createForm = reactive({
   password: '',
   confirm_password: '',
   contact_number: '',
-  student_id_number: '',
   status: 'Active'
 });
 
@@ -1411,6 +1395,7 @@ const getRoleBadgeClass = (role) => {
   const map = {
     superadmin: 'bg-purple-100 text-purple-700 border-purple-200',
     admin: 'bg-slate-200 text-slate-800 border-slate-300',
+    staff: 'bg-sky-100 text-sky-700 border-sky-200',
     director: 'bg-indigo-100 text-indigo-700 border-indigo-200',
     worker: 'bg-amber-100 text-amber-700 border-amber-200',
     employee: 'bg-emerald-100 text-emerald-700 border-emerald-200',
@@ -1533,7 +1518,6 @@ const openCreateModal = () => {
   createForm.password = '';
   createForm.confirm_password = '';
   createForm.contact_number = '';
-  createForm.student_id_number = '';
   createForm.status = 'Active';
   isCreateModalOpen.value = true;
 };
@@ -1547,11 +1531,6 @@ const submitCreateUser = async () => {
   }
   if (createForm.last_name.trim().length < 2) {
     modalError.value = 'Last name must be at least 2 characters.';
-    isSubmitting.value = false;
-    return;
-  }
-  if (createForm.role === 'student' && createForm.student_id_number && !/^\d{7}$/.test(createForm.student_id_number.trim())) {
-    modalError.value = 'Student ID Number must be exactly 7 numeric digits (e.g. 2301219).';
     isSubmitting.value = false;
     return;
   }
@@ -1582,7 +1561,6 @@ const submitCreateUser = async () => {
       status: createForm.status,
       unit_id: isGlobalRole(createForm.role) ? null : (createForm.unit_id ? Number(createForm.unit_id) : null),
       contact_number: createForm.contact_number ? createForm.contact_number.trim() : null,
-      student_id_number: createForm.role === 'student' && createForm.student_id_number ? createForm.student_id_number.trim() : null,
     };
 
     const res = await apiCreateUser(payload);
