@@ -131,11 +131,19 @@
               <button 
                 @click="toggleNotification" 
                 class="relative p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-200 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
+                :title="unreadNotificationCount > 0 ? `${unreadNotificationCount} unread notification${unreadNotificationCount > 1 ? 's' : ''}` : 'Notifications'"
+                aria-label="Notifications"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:animate-swing" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
-                <span v-if="unreadNotificationCount > 0" class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(245,158,11,0.4)]"></span>
+                <!-- Number of Notifications Badge -->
+                <span 
+                  v-if="unreadNotificationCount > 0" 
+                  class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 bg-rose-600 text-white text-[11px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-transform duration-200 pointer-events-none"
+                >
+                  {{ unreadNotificationCount > 99 ? '99+' : unreadNotificationCount }}
+                </span>
               </button>
 
               <!-- Mobile Backdrop -->
@@ -154,7 +162,8 @@
                   <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
                     <div class="flex items-center gap-2">
                       <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">Notifications</h3>
-                      <span v-if="unreadNotificationCount > 0" class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-black rounded-md">{{ unreadNotificationCount }} New</span>
+                      <span v-if="unreadNotificationCount > 0" class="px-2.5 py-0.5 bg-rose-100 text-rose-700 text-xs font-black rounded-full">{{ unreadNotificationCount }} New</span>
+                      <span v-else-if="notifications.length > 0" class="px-2.5 py-0.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-full">All Read</span>
                     </div>
                     <!-- Tactile Close Button on Mobile -->
                     <button
@@ -302,7 +311,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -432,6 +441,16 @@ const fetchNotifications = async () => {
   }
 };
 
+// Synchronize document tab title with unread notifications count
+watch(unreadNotificationCount, (count) => {
+  if (count > 0) {
+    const formatted = count > 99 ? '99+' : count;
+    document.title = `(${formatted}) GSO E-Ticketing`;
+  } else {
+    document.title = 'GSO E-Ticketing';
+  }
+}, { immediate: true });
+
 const markAsRead = async (id) => {
   try {
     await api.post(`notifications/read/${id}`);
@@ -443,19 +462,24 @@ const markAsRead = async (id) => {
 
 const markAllAsRead = async () => {
   try {
+    unreadNotificationCount.value = 0;
+    notifications.value.forEach((n) => { n.is_read = 1; });
     await api.post('notifications/read-all');
     fetchNotifications();
   } catch (error) {
     console.error('Failed to mark all as read:', error);
+    fetchNotifications();
   }
 };
 
 const clearReadNotifications = async () => {
   try {
+    notifications.value = notifications.value.filter((n) => n.is_read == 0);
     await api.delete('notifications/clear');
     fetchNotifications();
   } catch (error) {
     console.error('Failed to clear notifications:', error);
+    fetchNotifications();
   }
 };
 
@@ -701,6 +725,7 @@ onUnmounted(() => {
     notificationsAbort?.abort('Layout unmounted');
   } catch { /* noop */ }
   isFetchingNotifications = false;
+  document.title = 'GSO E-Ticketing';
 });
 
 const handleLogout = () => {
