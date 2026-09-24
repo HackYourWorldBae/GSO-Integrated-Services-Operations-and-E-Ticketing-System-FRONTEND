@@ -157,7 +157,7 @@
                           </span>
                         </div>
                         <span class="text-[11px] text-slate-500 truncate">{{ user.email || 'No email provided' }}</span>
-                        <span v-if="user.contact_number" class="text-[10px] text-slate-400 font-medium">📞 {{ user.contact_number }}</span>
+                        <span v-if="user.contact_number && !isInternalRole(user.role)" class="text-[10px] text-slate-400 font-medium">📞 {{ user.contact_number }}</span>
                       </div>
                     </div>
                   </td>
@@ -439,7 +439,7 @@
                   <div class="flex items-center gap-2 text-[11px] text-slate-500 font-semibold mt-1">
                     <span v-if="user.unit_code">Unit: <strong class="text-slate-800">{{ user.unit_code }}</strong></span>
                     <span v-else class="italic text-slate-400">Global</span>
-                    <span v-if="user.contact_number">• {{ user.contact_number }}</span>
+                    <span v-if="user.contact_number && !isInternalRole(user.role)">• {{ user.contact_number }}</span>
                     <span>• <strong class="text-indigo-600">{{ user.request_count || 0 }} reqs</strong></span>
                   </div>
                 </div>
@@ -710,22 +710,6 @@
               </div>
             </div>
 
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contact Number (Optional)</label>
-                <span class="text-[9px] text-slate-400 font-semibold">{{ createForm.contact_number ? createForm.contact_number.length : 0 }}/11 digits</span>
-              </div>
-              <input 
-                v-model="createForm.contact_number" 
-                type="tel" 
-                inputmode="numeric"
-                maxlength="11"
-                @input="createForm.contact_number = createForm.contact_number.replace(/\D/g, '').slice(0, 11)"
-                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" 
-                placeholder="09171234567" 
-              />
-            </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Temporary Password *</label>
@@ -892,7 +876,7 @@
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ID Number</p>
               <p class="font-bold text-emerald-700 mt-0.5">{{ inspectingUser.student_id_number || 'N/A' }}</p>
             </div>
-            <div>
+            <div v-if="!isInternalRole(inspectingUser.role)">
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact</p>
               <a
                 v-if="inspectingUser.contact_number && inspectingUser.contact_number !== 'N/A'"
@@ -1083,6 +1067,7 @@ import {
 const authStore = useAuthStore();
 const isCurrentUser = (u) => Boolean(u && authStore.user?.id && authStore.user.id === u.id);
 const isRegisteredUser = (u) => Boolean(u && ['student', 'employee'].includes(u.role));
+const isInternalRole = (role) => ['admin', 'staff', 'director', 'superadmin'].includes(role);
 const isGlobalRole = (role) => ['student', 'employee', 'superadmin', 'director'].includes(role);
 
 const extractErrorMessage = (err, fallback) => {
@@ -1357,7 +1342,6 @@ const createForm = reactive({
   unit_id: 1,
   password: '',
   confirm_password: '',
-  contact_number: '',
   status: 'Active'
 });
 
@@ -1370,8 +1354,7 @@ const editForm = reactive({
   unit_id: null,
   status: 'Active',
   password: '',
-  confirm_password: '',
-  contact_number: ''
+  confirm_password: ''
 });
 
 // Automatically manage sub-unit selection based on selected system role
@@ -1518,7 +1501,6 @@ const openCreateModal = () => {
   createForm.unit_id = 1;
   createForm.password = '';
   createForm.confirm_password = '';
-  createForm.contact_number = '';
   createForm.status = 'Active';
   isCreateModalOpen.value = true;
 };
@@ -1532,11 +1514,6 @@ const submitCreateUser = async () => {
   }
   if (createForm.last_name.trim().length < 2) {
     modalError.value = 'Last name must be at least 2 characters.';
-    isSubmitting.value = false;
-    return;
-  }
-  if (createForm.contact_number && !/^09\d{9}$/.test(createForm.contact_number.trim())) {
-    modalError.value = 'Contact number must be an 11-digit Philippine mobile number starting with 09 (e.g. 09171234567).';
     isSubmitting.value = false;
     return;
   }
@@ -1566,7 +1543,6 @@ const submitCreateUser = async () => {
       confirm_password: createForm.confirm_password,
       status: createForm.status,
       unit_id: isGlobalRole(createForm.role) ? null : (createForm.unit_id ? Number(createForm.unit_id) : null),
-      contact_number: createForm.contact_number ? createForm.contact_number.trim() : null,
     };
 
     const res = await apiCreateUser(payload);
@@ -1599,7 +1575,6 @@ const openEditModal = (user) => {
   editForm.status = user.status || 'Active';
   editForm.password = '';
   editForm.confirm_password = '';
-  editForm.contact_number = user.contact_number || '';
   isEditModalOpen.value = true;
 };
 
@@ -1625,7 +1600,6 @@ const submitEditUser = async () => {
       role: editForm.role,
       status: editForm.status,
       unit_id: isGlobalRole(editForm.role) ? null : (editForm.unit_id ? Number(editForm.unit_id) : null),
-      contact_number: editForm.contact_number ? editForm.contact_number.trim() : null,
     };
     if (editForm.password && editForm.password.trim()) {
       if (editForm.password !== editForm.confirm_password) {

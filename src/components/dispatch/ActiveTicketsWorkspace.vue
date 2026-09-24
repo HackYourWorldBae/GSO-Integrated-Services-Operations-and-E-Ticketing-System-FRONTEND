@@ -1005,7 +1005,7 @@
 
             <!-- Borrowing Request Particulars -->
             <BorrowingDetailsSection
-              v-if="isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing"
+              v-if="isBorrowingService(selectedTicketForModal)"
               :ticket="selectedTicketForModal"
             />
 
@@ -1028,7 +1028,7 @@
             </div>
 
             <!-- Official Job Order Document Section (Non-borrowing requests) -->
-            <div v-if="!isBorrowingService(selectedTicketForModal) && !selectedTicketForModal?.borrowing" class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+            <div v-if="!isBorrowingService(selectedTicketForModal)" class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                   <div :class="['w-10 h-10 rounded-xl flex items-center justify-center font-bold border shrink-0', themeAttachmentIconBg]">
@@ -1412,7 +1412,7 @@ const receiptTicket = ref(null);
 const isModalBorrowing = computed(() => {
   const t = selectedTicketForModal.value;
   if (!t) return false;
-  return isBorrowingService(t) || !!t?.borrowing;
+  return isBorrowingService(t);
 });
 const modalBorrowingStatus = computed(() => {
   const t = selectedTicketForModal.value;
@@ -1550,7 +1550,7 @@ const inProgressTickets = computed(() => {
   return rawTickets.value.filter(t => {
     const isArchived = t.is_archived == 1 || t.is_archived === true || t.is_archived === '1';
     if (isArchived) return false;
-    if (isBorrowingService(t) || t?.borrowing) return false;
+    if (isBorrowingService(t)) return false;
     const isResolved = t.current_step == 6 || t.status === 'resolved' || t.status === 'closed';
     if (isResolved) return false;
     if (t.current_step == 4) return false;
@@ -1565,7 +1565,7 @@ const awaitingRatingTickets = computed(() => {
   return rawTickets.value.filter(t => {
     const isArchived = t.is_archived == 1 || t.is_archived === true || t.is_archived === '1';
     if (isArchived) return false;
-    if (isBorrowingService(t) || t?.borrowing) return false;
+    if (isBorrowingService(t)) return false;
     return t.current_step == 6 || t.status === 'resolved' || (t.status_label || '').toLowerCase().includes('rating');
   });
 });
@@ -1787,7 +1787,7 @@ const openDetailsModal = async (ticket) => {
         selectedTicketForModal.value = {
           ...selectedTicketForModal.value,
           ...freshTicket,
-          borrowing: freshTicket.borrowing || freshTicket.details || selectedTicketForModal.value.borrowing,
+          borrowing: isBorrowingService(freshTicket) ? (freshTicket.borrowing || null) : null,
         };
       }
     } catch (err) {

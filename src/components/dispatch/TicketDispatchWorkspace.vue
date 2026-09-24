@@ -861,7 +861,7 @@
 
             <!-- Borrowing Request Particulars -->
             <BorrowingDetailsSection
-              v-if="isBorrowingService(selectedTicket) || selectedTicket?.borrowing"
+              v-if="isBorrowingService(selectedTicket)"
               :ticket="selectedTicket"
             />
 

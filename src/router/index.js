@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, createMemoryHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { cancelPendingRequests } from '@/api/client';
 
@@ -59,7 +59,9 @@ const Director_Settings = () => import('../views/dashboards/director/Director_Se
 const Admin_Settings = () => import('../views/dashboards/admin/Admin_Settings.vue');
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: typeof window !== 'undefined' && typeof window.history !== 'undefined'
+    ? createWebHistory(import.meta.env.BASE_URL)
+    : createMemoryHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
@@ -356,7 +358,7 @@ const router = createRouter({
       path: '/superadmin/dashboard',
       name: 'superadmin-dashboard',
       component: Superadmin_Dashboard,
-      meta: { requiresAuth: true, roles: ['superadmin', 'admin', 'director'] }
+      meta: { requiresAuth: true, roles: ['superadmin'] }
     },
     {
       path: '/superadmin/users',
@@ -399,45 +401,45 @@ const router = createRouter({
       path: '/director/dashboard',
       name: 'director-dashboard',
       component: Director_Dashboard,
-      meta: { requiresAuth: true, roles: ['director', 'admin'] }
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'] }
     },
     {
       path: '/director/materials',
       name: 'director-materials',
       component: Director_Materials,
-      meta: { requiresAuth: true, roles: ['director', 'admin'], permission: 'reports.view' }
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'], permission: 'reports.view' }
     },
     {
       path: '/director/fgmu/queues',
-      alias: ['/admin/fgmu/queues', '/director/queues/fgmu'],
+      alias: ['/director/queues/fgmu'],
       name: 'director-fgmu-ticket-queues',
       component: Director_FGMU_TicketQueues,
-      meta: { requiresAuth: true, roles: ['director', 'admin', 'superadmin'], unit: 'FGMU', permission: 'tickets.view_all' }
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'], unit: 'FGMU', permission: 'tickets.view_all' }
     },
     {
       path: '/director/leau/queues',
-      alias: ['/admin/leau/queues', '/director/queues/leau'],
+      alias: ['/director/queues/leau'],
       name: 'director-leau-ticket-queues',
       component: Director_LEAU_TicketQueues,
-      meta: { requiresAuth: true, roles: ['director', 'admin', 'superadmin'], unit: 'LEAU', permission: 'tickets.view_all' }
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'], unit: 'LEAU', permission: 'tickets.view_all' }
     },
     {
       path: '/director/fgmu',
       name: 'director-fgmu',
       component: Director_FGMU,
-      meta: { requiresAuth: true, roles: ['director', 'admin'], permission: 'reports.view' }
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'], permission: 'reports.view' }
     },
     {
       path: '/director/leau',
       name: 'director-leau',
       component: Director_LEAU,
-      meta: { requiresAuth: true, roles: ['director', 'admin'], permission: 'reports.view' }
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'], permission: 'reports.view' }
     },
     {
       path: '/director/ssu',
       name: 'director-ssu',
       component: Director_SSU,
-      meta: { requiresAuth: true, roles: ['director', 'admin'], permission: 'reports.view' }
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'], permission: 'reports.view' }
     },
     {
       path: '/director/queues',
@@ -528,8 +530,28 @@ const router = createRouter({
   ]
 });
 
-// Global Navigation Guard — enforce authentication, role-based authorization, and unit scoping
-router.beforeEach((to, from, next) => {
+// Canonical home route for each role and unit association
+export const getCanonicalHomeRoute = (userRole, userUnit) => {
+  const r = String(userRole || '').toLowerCase();
+  if (r === 'superadmin') {
+    return '/superadmin/dashboard';
+  }
+  if (r === 'director') {
+    return '/director/dashboard';
+  }
+  if (r === 'admin' || r === 'staff') {
+    const u = String(userUnit || 'fgmu').toLowerCase();
+    if (['fgmu', 'leau', 'ssu'].includes(u)) {
+      return `/admin/${u}`;
+    }
+    return '/admin/fgmu';
+  }
+  // student, employee, worker, or any other authenticated user
+  return '/user/dashboard';
+};
+
+// Global Navigation Guard — enforce authentication, strict role-based authorization, and sub-unit scoping
+export const checkRouteAccess = (to, from, next) => {
   // Performance: abort stale in-flight GETs from the previous tab so rapid
   // sidebar switching never piles up overlapping requests/retries.
   // Skip on the very first load (from.name == null) to avoid cancelling boot fetches.
@@ -558,41 +580,61 @@ router.beforeEach((to, from, next) => {
     sessionStorage.removeItem('auth');
   }
 
-  // Helper: map a role and unit to its canonical landing view
-  const getHomeRoute = (userRole, userUnit) => {
-    if (userRole === 'superadmin') {
-      return '/superadmin/users';
+  // Fallback to Pinia auth store if user was not in sessionStorage directly
+  if (!user) {
+    try {
+      const authStore = useAuthStore();
+      user = authStore.user || null;
+      role = authStore.role || user?.role || null;
+      const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
+      unit = String(user?.unit_code || user?.unit || unitMap[user?.unit_id] || '').toUpperCase();
+    } catch {
+      // Pinia might not be initialized yet
     }
-    if (userRole === 'admin' || userRole === 'staff') {
-      const u = (userUnit || 'fgmu').toLowerCase();
-      return ['fgmu', 'leau', 'ssu'].includes(u) ? `/admin/${u}` : '/admin/fgmu';
+  }
+
+  // Safe redirect helper that avoids infinite loops
+  const redirectToHome = () => {
+    const home = getCanonicalHomeRoute(role, unit);
+    if (to.path === home) {
+      return next();
     }
-    if (userRole === 'director') {
-      return '/director/dashboard';
-    }
-    return '/user/dashboard';
+    return next(home);
   };
 
   // 1. Prevent already-authenticated users from re-visiting login, register, or recovery pages
-  if ((to.name === 'login' || to.name === 'register' || to.name === 'forgot-password' || to.name === 'reset-password') && user && role) {
-    return next(getHomeRoute(role, unit));
+  const authRoutes = ['login', 'register', 'forgot-password', 'reset-password'];
+  if (authRoutes.includes(to.name) && user && role) {
+    return redirectToHome();
   }
 
-  // 2. Protect routes requiring authentication
-  if (to.meta && to.meta.requiresAuth) {
+  // 2. Identify whether target route is protected
+  const normalizedPath = to.path.toLowerCase().replace(/\/+$/, '') || '/';
+  const isProtectedPath =
+    normalizedPath.startsWith('/admin') ||
+    normalizedPath.startsWith('/director') ||
+    normalizedPath.startsWith('/superadmin') ||
+    normalizedPath.startsWith('/user') ||
+    normalizedPath.startsWith('/services') ||
+    normalizedPath.startsWith('/dispatcher');
+
+  const requiresAuth = Boolean(to.meta?.requiresAuth || isProtectedPath);
+
+  if (requiresAuth) {
     if (typeof window !== 'undefined' && window.__gso_session_superseded) {
       return next({ name: 'login' });
     }
 
-    if (!user) {
+    if (!user || !role) {
       return next({ name: 'login', query: { redirect: to.fullPath } });
     }
 
     const authStore = useAuthStore();
+    const normalizedRole = String(role).toLowerCase();
 
     // 2.1 Identity Verification Gate for Ticket Intake
     // Unverified users can browse their dashboard/settings, but cannot create tickets
-    if (to.path === '/services' || to.path.startsWith('/services/forms')) {
+    if (normalizedPath === '/services' || normalizedPath.startsWith('/services/forms')) {
       const isVerified = user.is_verified === 1 || user.is_verified === true || user.is_verified === '1';
       if (!isVerified) {
         showSwal({
@@ -601,43 +643,107 @@ router.beforeEach((to, from, next) => {
           text: 'Your uploaded ID is currently being reviewed by the Super Administrator. You will be able to submit service requests once verified.',
           confirmButtonColor: '#059669',
         });
-        return next('/user/dashboard');
+        return redirectToHome();
       }
     }
 
-    // 3. Capability Permission Check
-    if (to.meta.permission) {
-      if (!authStore.hasPermission(to.meta.permission) && role !== 'superadmin') {
-        console.warn(`[Router Guard] Access denied to ${to.path}. Missing required capability: ${to.meta.permission}`);
-        return next(getHomeRoute(role, unit));
+    // 2.2 Superadmin Domain Guard (/superadmin/*)
+    // ONLY Superadmin is allowed to access any superadmin portal views
+    if (normalizedPath.startsWith('/superadmin')) {
+      if (normalizedRole !== 'superadmin') {
+        console.warn(`[Router Guard] Access denied to ${to.path}. Role '${role}' lacks superadmin authority.`);
+        return redirectToHome();
       }
     }
 
-    // 4. Enforce Role-Based Access Control
-    if (to.meta.roles && Array.isArray(to.meta.roles)) {
-      const allowedRoles = [...to.meta.roles];
+    // 2.3 Director Domain Guard (/director/*)
+    // ONLY Director and Superadmin are allowed to access director portal views
+    if (normalizedPath.startsWith('/director')) {
+      if (normalizedRole !== 'director' && normalizedRole !== 'superadmin') {
+        console.warn(`[Router Guard] Access denied to ${to.path}. Role '${role}' lacks executive director privileges.`);
+        return redirectToHome();
+      }
+    }
 
-      const hasDirectRole = role && allowedRoles.includes(role);
-      const hasDelegatedPermission = to.meta.permission && authStore.hasPermission(to.meta.permission);
+    // 2.4 Sub-Unit Admin Domain Guard (/admin/*)
+    if (normalizedPath.startsWith('/admin')) {
+      // End-users (students, employees, workers) cannot access any admin pages
+      if (['student', 'employee', 'worker'].includes(normalizedRole)) {
+        console.warn(`[Router Guard] Access denied to ${to.path}. End-user role '${role}' cannot access admin views.`);
+        return redirectToHome();
+      }
 
-      if (!hasDirectRole && !hasDelegatedPermission && role !== 'superadmin') {
+      // Director access within /admin: Director only allowed on specific oversight views
+      if (normalizedRole === 'director') {
+        const isDirectorAllowedAdminRoute =
+          Boolean(to.meta?.roles?.includes('director')) ||
+          normalizedPath.endsWith('/archives') ||
+          normalizedPath.startsWith('/admin/ssu/submitted') ||
+          normalizedPath.startsWith('/admin/ssu/investigating') ||
+          normalizedPath.startsWith('/admin/ssu/collab') ||
+          normalizedPath.startsWith('/admin/ssu/queues');
+
+        if (!isDirectorAllowedAdminRoute) {
+          console.warn(`[Router Guard] Access denied to ${to.path}. Director cannot access sub-unit operational dispatch/personnel tools.`);
+          return redirectToHome();
+        }
+      }
+
+      // Unit Admin / Staff: strictly enforce unit association (FGMU, LEAU, SSU)
+      if (normalizedRole === 'admin' || normalizedRole === 'staff') {
+        let routeUnit = '';
+        if (normalizedPath.startsWith('/admin/fgmu')) routeUnit = 'FGMU';
+        else if (normalizedPath.startsWith('/admin/leau')) routeUnit = 'LEAU';
+        else if (normalizedPath.startsWith('/admin/ssu')) routeUnit = 'SSU';
+        else if (to.meta?.unit) routeUnit = String(to.meta.unit).toUpperCase();
+
+        if (routeUnit && unit !== routeUnit) {
+          console.warn(`[Router Guard] Jurisdiction mismatch for ${to.path}. Admin unit is '${unit}', but route requires '${routeUnit}'.`);
+          return redirectToHome();
+        }
+      }
+    }
+
+    // 2.5 End-User Domain Guard (/user/*)
+    // Client personal pages are for students, employees, and workers (and superadmin)
+    if (normalizedPath.startsWith('/user')) {
+      if (normalizedRole === 'admin' || normalizedRole === 'staff' || normalizedRole === 'director') {
+        console.warn(`[Router Guard] Redirecting administrative role '${role}' from end-user portal to respective workspace.`);
+        return redirectToHome();
+      }
+    }
+
+    // 3. Route Meta Roles Check (if route specifies explicit roles)
+    if (to.meta?.roles && Array.isArray(to.meta.roles)) {
+      if (normalizedRole !== 'superadmin' && !to.meta.roles.includes(normalizedRole)) {
         console.warn(`[Router Guard] Access denied to ${to.path}. Required roles: ${to.meta.roles.join(', ')}. Current role: ${role}`);
-        return next(getHomeRoute(role, unit));
+        return redirectToHome();
       }
     }
 
-    // 5. Enforce Sub-Unit Scoping for Admin (Director & Superadmin have university-wide access)
-    if (to.meta.unit && role !== 'director' && role !== 'superadmin') {
+    // 4. Route Meta Unit Check (if route specifies explicit unit)
+    if (to.meta?.unit && normalizedRole !== 'superadmin') {
       const targetUnit = String(to.meta.unit).toUpperCase();
-      if (unit && unit !== targetUnit) {
-        console.warn(`[Router Guard] Jurisdiction mismatch for ${to.path}. Target unit: ${targetUnit}. Current unit: ${unit}`);
-        return next(getHomeRoute(role, unit));
+      const isDirectorPermitted = normalizedRole === 'director' && to.meta?.roles?.includes('director');
+      if (!isDirectorPermitted && unit !== targetUnit) {
+        console.warn(`[Router Guard] Unit mismatch for ${to.path}. Required unit: ${targetUnit}. Current unit: ${unit}`);
+        return redirectToHome();
+      }
+    }
+
+    // 5. Capability Permission Check (if route specifies explicit permission)
+    if (to.meta?.permission && normalizedRole !== 'superadmin') {
+      if (!authStore.hasPermission(to.meta.permission)) {
+        console.warn(`[Router Guard] Access denied to ${to.path}. Missing required capability: ${to.meta.permission}`);
+        return redirectToHome();
       }
     }
   }
 
   next();
-});
+};
+
+router.beforeEach(checkRouteAccess);
 
 // Listen for Session Superseded (Single Session Per User Enforcement)
 if (typeof window !== 'undefined') {

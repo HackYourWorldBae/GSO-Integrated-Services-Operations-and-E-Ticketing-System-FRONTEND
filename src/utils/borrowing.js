@@ -64,9 +64,7 @@ export function normalizeServiceName(value) {
  */
 export function isBorrowingService(input) {
   if (!input) return false;
-  if (typeof input === 'object' && input.borrowing) {
-    return true;
-  }
+
   let name = '';
   if (typeof input === 'string') {
     name = input;
@@ -74,11 +72,33 @@ export function isBorrowingService(input) {
     name = input.service || input.service_type || input.title || input.type || '';
   }
   const normalized = normalizeServiceName(name);
-  return (
+  if (
     normalized.includes('borrowing of plants') ||
     normalized.includes('borrowing of tools') ||
     normalized.includes('borrowing request')
-  );
+  ) {
+    return true;
+  }
+
+  // If a known service or title is explicitly present and does not match borrowing, it is NOT borrowing
+  if (normalized.length > 0) {
+    return false;
+  }
+
+  // Fallback: only if service name/title is empty, inspect borrowing property for valid borrowing fields
+  if (typeof input === 'object' && input.borrowing && typeof input.borrowing === 'object') {
+    const b = input.borrowing;
+    return Boolean(
+      b.item_name_requested ||
+      b.item_name ||
+      b.date_needed ||
+      b.expected_return_date ||
+      b.borrowing_request_id ||
+      (b.status && BORROWING_STATUSES.includes(b.status))
+    );
+  }
+
+  return false;
 }
 
 /**

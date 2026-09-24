@@ -5,16 +5,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-700 shadow-2xs shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        </div>
-        <div class="flex flex-col">
-          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mb-1">Director's Dashboard</h2>
-          <p class="text-xs text-emerald-700 font-extrabold tracking-wider uppercase">Executive Unit Oversight &amp; Reports</p>
-        </div>
+      <div class="flex flex-col">
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mb-1">Director's Dashboard</h2>
+        <p class="text-xs text-emerald-700 font-extrabold tracking-wider uppercase">Executive Unit Oversight &amp; Reports</p>
       </div>
     </template>
 
@@ -28,17 +21,9 @@
           <!-- Section Header & Export Toolbar -->
           <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-6 pb-6 border-b border-slate-100">
             <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                  Executive Overview
-                </span>
-                <span class="text-xs sm:text-sm font-bold text-slate-500">BSU General Services Office</span>
-              </div>
               <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                 Performance Overview &amp; Reports
               </h3>
-              <p class="text-xs sm:text-sm text-slate-600 font-medium">Across all GSO operational units for the selected period.</p>
             </div>
 
             <!-- PDF Action Button -->
@@ -235,7 +220,6 @@
                         <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-blue-50 text-blue-700 border border-blue-200/60 uppercase shrink-0">FGMU</span>
                         <div>
                           <div class="font-bold text-slate-900 text-sm sm:text-base">Facilities Management</div>
-                          <span class="text-xs sm:text-sm text-slate-500 font-medium">Electrical, Plumbing, Carpentry, HVAC</span>
                         </div>
                       </div>
                     </td>
@@ -255,7 +239,6 @@
                         <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase shrink-0">LEAU</span>
                         <div>
                           <div class="font-bold text-slate-900 text-sm sm:text-base">Landscaping &amp; Environment</div>
-                          <span class="text-xs sm:text-sm text-slate-500 font-medium">Grounds, Campus Ecology, Tree Pruning</span>
                         </div>
                       </div>
                     </td>
@@ -275,7 +258,6 @@
                         <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-rose-50 text-rose-700 border border-rose-200/60 uppercase shrink-0">SSU</span>
                         <div>
                           <div class="font-bold text-slate-900 text-sm sm:text-base">Security Services</div>
-                          <span class="text-xs sm:text-sm text-slate-500 font-medium">Campus Safety, Guard Posts &amp; Surveillance</span>
                         </div>
                       </div>
                     </td>
@@ -516,32 +498,27 @@
             <!-- Right: SLA Compliance & Quality Dimensions -->
             <div class="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm">
               <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Service Completion &amp; Quality</h4>
               </div>
 
               <!-- 4 Health Tiles -->
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 <div class="p-3.5 bg-sky-50/70 rounded-xl border border-sky-200/60 text-center">
-                  <svg class="w-5 h-5 text-sky-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                   <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.early_finished ?? 0 }}</span>
                   <span class="text-xs font-black text-sky-700 block">{{ executiveAnalytics?.completion_health?.early_finished_percent ?? 0 }}%</span>
                   <span class="text-xs font-black text-sky-800 uppercase tracking-wider block mt-0.5">Early</span>
                 </div>
                 <div class="p-3.5 bg-emerald-50/70 rounded-xl border border-emerald-200/60 text-center">
-                  <svg class="w-5 h-5 text-emerald-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                   <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.on_time ?? 0 }}</span>
                   <span class="text-xs font-black text-emerald-700 block">{{ executiveAnalytics?.completion_health?.on_time_percent ?? 0 }}%</span>
                   <span class="text-xs font-black text-emerald-800 uppercase tracking-wider block mt-0.5">On-Time</span>
                 </div>
                 <div class="p-3.5 bg-amber-50/70 rounded-xl border border-amber-200/60 text-center">
-                  <svg class="w-5 h-5 text-amber-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                   <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.beyond_time ?? 0 }}</span>
                   <span class="text-xs font-black text-amber-700 block">{{ executiveAnalytics?.completion_health?.beyond_time_percent ?? 0 }}%</span>
                   <span class="text-xs font-black text-amber-800 uppercase tracking-wider block mt-0.5">Overdue</span>
                 </div>
                 <div class="p-3.5 bg-slate-100/70 rounded-xl border border-slate-200/60 text-center">
-                  <svg class="w-4 h-4 text-slate-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.not_completed ?? 0 }}</span>
                   <span class="text-xs font-black text-slate-600 block">{{ executiveAnalytics?.completion_health?.not_completed_percent ?? 0 }}%</span>
                   <span class="text-xs font-black text-slate-700 uppercase tracking-wider block mt-0.5">Incomplete</span>
@@ -554,21 +531,18 @@
                 <div class="grid grid-cols-3 gap-2">
                   <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1">
                     <div class="flex items-center gap-1.5">
-                      <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                       <span class="text-xs font-black text-slate-600 uppercase">Quality</span>
                     </div>
                     <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_quality ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
                   </div>
                   <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1">
                     <div class="flex items-center gap-1.5">
-                      <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                       <span class="text-xs font-black text-slate-600 uppercase">Efficiency</span>
                     </div>
                     <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
                   </div>
                   <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1">
                     <div class="flex items-center gap-1.5">
-                      <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       <span class="text-xs font-black text-slate-600 uppercase">Timeliness</span>
                     </div>
                     <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>

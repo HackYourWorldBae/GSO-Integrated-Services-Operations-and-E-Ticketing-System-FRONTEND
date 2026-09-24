@@ -6,16 +6,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-700 shadow-2xs shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-          </svg>
-        </div>
-        <div class="flex flex-col">
-          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mb-1">Material Logs and Report</h2>
-          <p class="text-xs text-emerald-700 font-extrabold tracking-wider uppercase">Executive Unit Oversight &amp; Reports</p>
-        </div>
+      <div class="flex flex-col">
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mb-1">Material Logs and Report</h2>
+        <p class="text-xs text-emerald-700 font-extrabold tracking-wider uppercase">Executive Unit Oversight &amp; Reports</p>
       </div>
     </template>
 

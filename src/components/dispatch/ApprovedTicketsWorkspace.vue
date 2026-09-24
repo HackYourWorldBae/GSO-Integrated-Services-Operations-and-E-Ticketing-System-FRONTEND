@@ -573,7 +573,7 @@
 
             <!-- Borrowing Request Particulars -->
             <BorrowingDetailsSection
-              v-if="isBorrowingTicket(selectedTicketForModal) || isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing"
+              v-if="isBorrowingService(selectedTicketForModal)"
               :ticket="selectedTicketForModal"
             />
 
@@ -924,7 +924,7 @@ const openDetailsModal = async (ticket) => {
         selectedTicketForModal.value = {
           ...selectedTicketForModal.value,
           ...freshTicket,
-          borrowing: freshTicket.borrowing || freshTicket.details || selectedTicketForModal.value.borrowing,
+          borrowing: isBorrowingService(freshTicket) ? (freshTicket.borrowing || null) : null,
         };
       }
     } catch (err) {

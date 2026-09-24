@@ -349,7 +349,7 @@
                   </span>
                 </p>
               </div>
-              <div v-if="isBorrowingService(selectedTicket) || selectedTicket.borrowing" class="col-span-2">
+              <div v-if="isBorrowingService(selectedTicket)" class="col-span-2">
                 <BorrowingDetailsSection :ticket="selectedTicket" />
               </div>
               <div v-else class="col-span-2">
@@ -403,7 +403,7 @@
               </div>
 
               <!-- Dedicated Materials Used & Receipt Section (Job requests only) -->
-              <div v-if="!isBorrowingService(selectedTicket) && !selectedTicket.borrowing" class="col-span-2 mt-2">
+              <div v-if="!isBorrowingService(selectedTicket)" class="col-span-2 mt-2">
                 <div class="flex items-center justify-between mb-2">
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -759,7 +759,7 @@ const viewDetails = async (ticket) => {
         selectedTicket.value = {
           ...selectedTicket.value,
           ...freshTicket,
-          borrowing: freshTicket.borrowing || freshTicket.details || selectedTicket.value.borrowing,
+          borrowing: isBorrowingService(freshTicket) ? (freshTicket.borrowing || null) : null,
         };
       }
     } catch (err) {

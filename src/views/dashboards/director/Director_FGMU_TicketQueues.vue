@@ -45,7 +45,7 @@
           </span>
         </div>
         <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase mt-1">
-          {{ authStore.role === 'director' ? 'Director Executive Review & Operations' : 'FGMU Unit Head Monitoring & Approval' }}
+          Director Executive Review & Operations
         </p>
       </div>
     </template>

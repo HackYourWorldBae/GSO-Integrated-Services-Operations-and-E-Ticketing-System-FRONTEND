@@ -388,7 +388,7 @@ export const useAuthStore = defineStore('auth', () => {
   };
 }, {
   persist: {
-    storage: sessionStorage,
+    storage: typeof window !== 'undefined' && typeof sessionStorage !== 'undefined' ? sessionStorage : undefined,
     pick: ['user', 'role', 'token', 'permissions'],
   },
 });

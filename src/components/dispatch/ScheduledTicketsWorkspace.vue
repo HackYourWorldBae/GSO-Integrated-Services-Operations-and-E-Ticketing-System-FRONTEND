@@ -575,10 +575,10 @@
                 </span>
               </div>
               <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                {{ (isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing) ? 'Scheduled Borrowing Particulars' : 'Scheduled Ticket Particulars' }}
+                {{ isBorrowingService(selectedTicketForModal) ? 'Scheduled Borrowing Particulars' : 'Scheduled Ticket Particulars' }}
               </h3>
               <p class="text-xs text-slate-500 font-medium mt-0.5">
-                {{ (isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing) ? 'Item reservation parameters, planned pickup and return schedule, and institutional particulars' : 'Assigned personnel parameters, planned implementation schedule, and institutional particulars' }}
+                {{ isBorrowingService(selectedTicketForModal) ? 'Item reservation parameters, planned pickup and return schedule, and institutional particulars' : 'Assigned personnel parameters, planned implementation schedule, and institutional particulars' }}
               </p>
             </div>
             <button
@@ -790,7 +790,7 @@
             </div>
 
             <!-- Borrowing Schedule Banner (Matching Scheduled Ticket Theme) -->
-            <div v-else-if="isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 via-slate-900 to-slate-900 text-white space-y-3 shadow-xs">
+            <div v-else-if="isBorrowingService(selectedTicketForModal)" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 via-slate-900 to-slate-900 text-white space-y-3 shadow-xs">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Borrowing Reservation &amp; Schedule</span>
@@ -812,7 +812,7 @@
             </div>
 
             <!-- Standard Non-Collab Designated Personnel Banner -->
-            <div v-else-if="!isBorrowingService(selectedTicketForModal) && !selectedTicketForModal?.borrowing" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 to-slate-900 text-white space-y-3">
+            <div v-else-if="!isBorrowingService(selectedTicketForModal)" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 to-slate-900 text-white space-y-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Designated Personnel</span>
@@ -905,7 +905,7 @@
 
             <!-- Borrowing Request Particulars -->
             <BorrowingDetailsSection
-              v-if="isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing"
+              v-if="isBorrowingService(selectedTicketForModal)"
               :ticket="selectedTicketForModal"
             />
 
@@ -928,7 +928,7 @@
             </div>
 
             <!-- Official Job Order Document Section (Non-borrowing requests) -->
-            <div v-if="!isBorrowingService(selectedTicketForModal) && !selectedTicketForModal?.borrowing" class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+            <div v-if="!isBorrowingService(selectedTicketForModal)" class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                   <div :class="['w-10 h-10 rounded-xl flex items-center justify-center font-bold border shrink-0', themeAttachmentIconBg]">
@@ -1034,7 +1034,7 @@
               </button>
 
               <button
-                v-if="!isBorrowingService(selectedTicketForModal) && !selectedTicketForModal?.borrowing"
+                v-if="!isBorrowingService(selectedTicketForModal)"
                 type="button"
                 @click="openJobOrderDocument(selectedTicketForModal)"
                 class="px-4 py-2.5 min-h-[40px] rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 text-xs font-black uppercase tracking-wider transition-all shadow-2xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
@@ -1047,7 +1047,7 @@
               </button>
 
               <button
-                v-if="!isBorrowingService(selectedTicketForModal) && !selectedTicketForModal?.borrowing"
+                v-if="!isBorrowingService(selectedTicketForModal)"
                 type="button"
                 @click="handleModalStartEarly"
                 class="px-5 py-2.5 min-h-[40px] rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
@@ -1060,7 +1060,7 @@
 
               <!-- Borrowing Modal Action: Mark as Picked Up -->
               <button
-                v-if="(isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing) && (selectedTicketForModal.status === 'ready_for_pickup' || selectedTicketForModal.borrowing?.status === 'ready_for_pickup')"
+                v-if="isBorrowingService(selectedTicketForModal) && (selectedTicketForModal.status === 'ready_for_pickup' || selectedTicketForModal.borrowing?.status === 'ready_for_pickup')"
                 type="button"
                 @click="handleModalBorrowingPickup(selectedTicketForModal)"
                 class="px-5 py-2.5 min-h-[40px] rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
@@ -1361,7 +1361,7 @@ const themeAttachmentIconBg = computed(() => {
 // Borrowing tickets live ONLY in the Borrowing Requests tab (BorrowingWorkspace)
 // and must never leak into the regular Job Schedules list.
 const scheduledTickets = computed(() => {
-  return rawTickets.value.filter(t => t.current_step == 4 && !collabScheduledIds.value.has(String(t.id)) && !isBorrowingService(t) && !t?.borrowing);
+  return rawTickets.value.filter(t => t.current_step == 4 && !collabScheduledIds.value.has(String(t.id)) && !isBorrowingService(t));
 });
 
 const emergencyCount = computed(() => {
@@ -1755,7 +1755,7 @@ const openDetailsModal = async (ticket) => {
         selectedTicketForModal.value = {
           ...selectedTicketForModal.value,
           ...freshTicket,
-          borrowing: freshTicket.borrowing || freshTicket.details || selectedTicketForModal.value.borrowing,
+          borrowing: isBorrowingService(freshTicket) ? (freshTicket.borrowing || null) : null,
         };
       }
     } catch (err) {

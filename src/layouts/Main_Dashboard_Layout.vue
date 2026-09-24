@@ -588,14 +588,12 @@ const handleNotificationClick = async (notif) => {
       if (isCompleted) targetPath = '/admin/leau/archives';
       else if (isActive) targetPath = '/admin/leau/active-tickets';
       else if (isDispatched) targetPath = '/admin/leau/dispatched';
-      else if (isApproved) targetPath = '/admin/leau/approved-tickets';
-      else targetPath = '/admin/leau/queues';
+      else targetPath = '/admin/leau/approved-tickets';
     } else {
       if (isCompleted) targetPath = '/admin/fgmu/archives';
       else if (isActive) targetPath = '/admin/fgmu/active-tickets';
       else if (isDispatched) targetPath = '/admin/fgmu/dispatched';
-      else if (isApproved) targetPath = '/admin/fgmu/approved-tickets';
-      else targetPath = '/admin/fgmu/queues';
+      else targetPath = '/admin/fgmu/approved-tickets';
     }
   } else if (role === 'director') {
     if (isCompleted) {

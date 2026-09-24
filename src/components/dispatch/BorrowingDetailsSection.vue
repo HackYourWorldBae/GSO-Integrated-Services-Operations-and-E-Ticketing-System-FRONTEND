@@ -14,7 +14,7 @@ const props = defineProps({
 
 const resolvedBorrowing = computed(() => {
   const t = props.ticket;
-  if (!t) return null;
+  if (!t || !isBorrowingService(t)) return null;
 
   // Helper to pluck typed item name without ever falling back to service name / title
   const extractItemName = (...candidates) => {
@@ -53,25 +53,21 @@ const resolvedBorrowing = computed(() => {
   const returnCondition = b?.return_condition || d?.return_condition || t.return_condition || null;
   const returnNotes = b?.return_notes || d?.return_notes || t.return_notes || null;
 
-  if (isBorrowingService(t) || b || itemName || dateNeeded || expectedReturn) {
-    return {
-      ...(b || {}),
-      ...(d || {}),
-      item_name_requested: itemName,
-      item_model_requested: itemModel,
-      quantity_needed: qtyNeeded,
-      assigned_quantity: qtyAssigned,
-      date_needed: dateNeeded,
-      expected_return_date: expectedReturn,
-      purpose_project: purpose,
-      status,
-      returned_at: returnedAt,
-      return_condition: returnCondition,
-      return_notes: returnNotes,
-    };
-  }
-
-  return null;
+  return {
+    ...(b || {}),
+    ...(d || {}),
+    item_name_requested: itemName,
+    item_model_requested: itemModel,
+    quantity_needed: qtyNeeded,
+    assigned_quantity: qtyAssigned,
+    date_needed: dateNeeded,
+    expected_return_date: expectedReturn,
+    purpose_project: purpose,
+    status,
+    returned_at: returnedAt,
+    return_condition: returnCondition,
+    return_notes: returnNotes,
+  };
 });
 
 const borrowing = computed(() => resolvedBorrowing.value);

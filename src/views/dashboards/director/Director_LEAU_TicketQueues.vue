@@ -45,7 +45,7 @@
           </span>
         </div>
         <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase mt-1">
-          {{ authStore.role === 'director' ? 'Director Executive Review & Operations' : 'LEAU Unit Head Monitoring & Approval' }}
+          Director Executive Review & Operations
         </p>
       </div>
     </template>
@@ -738,7 +738,7 @@
 
           <!-- Borrowing Request Particulars (Item, Quantity, Purpose, Schedule, Borrower) -->
           <BorrowingDetailsSection
-            v-if="isBorrowingService(selectedTicketForModal) || selectedTicketForModal?.borrowing"
+            v-if="isBorrowingService(selectedTicketForModal)"
             :ticket="selectedTicketForModal"
           />
 
@@ -1246,16 +1246,16 @@ const mapTicket = (t) => {
     location: t.location || t.college_building,
     office_room: t.office_room,
     attachments: t.attachments || [],
-    borrowing: t.borrowing || t.details || null,
-    details: t.details || t.borrowing || null,
-    item_name_requested: t.item_name_requested || t.borrowing?.item_name_requested || t.details?.item_name_requested || '',
-    item_model_requested: t.item_model_requested || t.borrowing?.item_model_requested || t.details?.item_model_requested || null,
-    quantity_needed: t.quantity_needed ?? t.borrowing?.quantity_needed ?? t.details?.quantity_needed ?? 1,
-    assigned_quantity: t.assigned_quantity ?? t.borrowing?.assigned_quantity ?? t.details?.assigned_quantity ?? null,
-    date_needed: t.date_needed || t.borrowing?.date_needed || t.details?.date_needed || null,
-    expected_return_date: t.expected_return_date || t.borrowing?.expected_return_date || t.details?.expected_return_date || null,
-    purpose_project: t.purpose_project || t.borrowing?.purpose_project || t.details?.purpose_project || t.description || '',
-    borrowing_status: t.borrowing_status || t.borrowing?.status || t.details?.status || '',
+    borrowing: isBorrowingService(t) ? (t.borrowing || null) : null,
+    details: t.details || null,
+    item_name_requested: isBorrowingService(t) ? (t.item_name_requested || t.borrowing?.item_name_requested || '') : '',
+    item_model_requested: isBorrowingService(t) ? (t.item_model_requested || t.borrowing?.item_model_requested || null) : null,
+    quantity_needed: isBorrowingService(t) ? (t.quantity_needed ?? t.borrowing?.quantity_needed ?? 1) : 1,
+    assigned_quantity: isBorrowingService(t) ? (t.assigned_quantity ?? t.borrowing?.assigned_quantity ?? null) : null,
+    date_needed: isBorrowingService(t) ? (t.date_needed || t.borrowing?.date_needed || null) : null,
+    expected_return_date: isBorrowingService(t) ? (t.expected_return_date || t.borrowing?.expected_return_date || null) : null,
+    purpose_project: isBorrowingService(t) ? (t.purpose_project || t.borrowing?.purpose_project || t.description || '') : '',
+    borrowing_status: isBorrowingService(t) ? (t.borrowing_status || t.borrowing?.status || '') : '',
     working_days: Number(t.working_days || t.project_working_days || t.assignment?.working_days) || 1,
     extension_days: Number(t.extension_days) || 0,
     overtime_hours: Number(t.overtime_hours) || 0,
@@ -1425,8 +1425,8 @@ const openDetailsModal = async (ticket) => {
         selectedTicketForModal.value = {
           ...selectedTicketForModal.value,
           ...mapped,
-          borrowing: freshTicket.borrowing || freshTicket.details || selectedTicketForModal.value.borrowing,
-          details: freshTicket.details || freshTicket.borrowing || selectedTicketForModal.value.details,
+          borrowing: isBorrowingService(freshTicket) ? (freshTicket.borrowing || null) : null,
+          details: freshTicket.details || null,
         };
       }
     } catch (err) {

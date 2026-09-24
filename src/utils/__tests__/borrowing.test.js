@@ -50,6 +50,9 @@ describe('borrowing utils', () => {
     expect(isBorrowingService({ service_type: 'Borrowing of Plants' })).toBe(true);
     expect(isBorrowingService({ service: 'Borrowing of tools/equipment' })).toBe(true);
     expect(isBorrowingService({ type: 'Hauling' })).toBe(false);
+    expect(isBorrowingService({ service: 'Cleaning/ Grubbing', borrowing: { college_building: 'Main' } })).toBe(false);
+    expect(isBorrowingService({ service: 'Hauling', borrowing: { college_building: 'Gym' } })).toBe(false);
+    expect(isBorrowingService({ service: 'Disinfection', details: { college_building: 'Admin' } })).toBe(false);
     expect(isBorrowingService(null)).toBe(false);
   });
 
