@@ -62,6 +62,17 @@
         <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
           <button
             type="button"
+            @click="openCollaborationModal"
+            class="px-4 py-2.5 min-h-[44px] bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 hover:text-white text-xs font-black rounded-xl transition-all border border-indigo-500/30 cursor-pointer touch-manipulation flex items-center gap-1.5 justify-center shadow-xs"
+            title="Request collaboration with other university units"
+          >
+            <svg class="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Unit Collaboration</span>
+          </button>
+          <button
+            type="button"
             @click="openTicketScopeModal"
             class="px-4 py-2.5 min-h-[44px] bg-white/10 hover:bg-white/20 text-white text-xs font-black rounded-xl transition-all border border-white/10 cursor-pointer touch-manipulation flex items-center justify-center"
           >
@@ -931,7 +942,17 @@
           </div>
 
           <!-- Fixed Modal Footer Actions -->
-          <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex items-center justify-end shrink-0">
+          <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <button
+              type="button"
+              @click="openCollaborationModal"
+              class="px-4 py-2.5 min-h-[40px] rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs font-black transition-colors cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+            >
+              <svg class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span>Unit Collaboration</span>
+            </button>
             <button
               type="button"
               @click="showScopeModal = false"
@@ -944,6 +965,15 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Cross-Unit Collaboration Modal -->
+    <CrossUnitCollaborationModal
+      :is-open="isCollaborationModalOpen"
+      :ticket="selectedTicket"
+      :hide-joint-tab="false"
+      @close="isCollaborationModalOpen = false"
+      @updated="handleCollaborationUpdated"
+    />
 
   </div>
 </template>
@@ -959,6 +989,33 @@ import 'flatpickr/dist/themes/dark.css';
 import { ALL_MATERIAL_NAMES, getDefaultUnit } from '@/constants/materials';
 import { isBorrowingService } from '@/utils/borrowing';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
+import CrossUnitCollaborationModal from '@/components/dispatch/CrossUnitCollaborationModal.vue';
+
+const isCollaborationModalOpen = ref(false);
+const openCollaborationModal = () => {
+  if (!selectedTicket.value) {
+    toast.info('Please select a ticket first to manage collaborations.');
+    return;
+  }
+  isCollaborationModalOpen.value = true;
+};
+const handleCollaborationUpdated = async () => {
+  if (selectedTicket.value?.id) {
+    try {
+      const res = await api.get(`tickets/${selectedTicket.value.id}`);
+      const t = res.data?.data?.ticket;
+      if (t) {
+        selectedTicket.value = {
+          ...selectedTicket.value,
+          ...t,
+        };
+      }
+    } catch (err) {
+      console.error('Failed to reload ticket after collaboration update:', err);
+    }
+  }
+  await fetchDispatchQueue();
+};
 
 const props = defineProps({
   unitCode: {

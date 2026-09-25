@@ -185,6 +185,9 @@ const loadCollaborations = async () => {
           : [];
     const assignments = Array.isArray(payload?.assignments) ? payload.assignments : [];
     collaborations.value = rawList.map((c) => normalizeCollaboration(c, assignments));
+    if (collaborations.value.length === 0 && isPrimaryUnit.value && !props.hideJointTab) {
+      activeTab.value = 'request';
+    }
   } catch (err) {
     console.error('Failed to load collaborations:', err);
     toast.error('Unable to fetch cross-unit collaborations.');
