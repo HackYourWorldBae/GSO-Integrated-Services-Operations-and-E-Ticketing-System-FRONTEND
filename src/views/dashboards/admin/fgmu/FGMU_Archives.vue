@@ -337,8 +337,12 @@
                 <p class="text-base font-semibold text-emerald-800">{{ selectedTicket.workingDays }} Working Day(s)</p>
               </div>
               <div :class="{ 'col-span-2': !selectedTicket.workingDays }">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Location / Office</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.location }} - {{ selectedTicket.office_room }}</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Designated Location</p>
+                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.location || selectedTicket.college_building || 'Main Campus' }}</p>
+                <div v-if="selectedTicket.office_room && selectedTicket.office_room !== 'N/A'" class="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200/90 text-blue-950 font-bold text-xs">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-blue-600">Room</span>
+                  <span class="font-mono">{{ selectedTicket.office_room }}</span>
+                </div>
               </div>
               <div v-if="selectedTicket.assignedWorker && selectedTicket.assignedWorker !== 'Unassigned'" class="col-span-2">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Assigned Personnel</p>

@@ -891,15 +891,52 @@
               </div>
 
               <!-- Designated Location -->
-              <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Designated Location</span>
-                <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicketForModal.location || selectedTicketForModal.college_building || 'Main Campus' }}</p>
-                <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
-                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                  </svg>
-                  <span>{{ selectedTicketForModal.office_room ? `Room / Office: ${selectedTicketForModal.office_room}` : 'No specific room designated' }}</span>
-                </p>
+              <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                  {{ isBorrowingService(selectedTicketForModal) ? 'Department / College' : 'Designated Location' }}
+                </span>
+                <div>
+                  <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicketForModal.location || selectedTicketForModal.college_building || 'Main Campus' }}</p>
+                  <p class="text-xs text-slate-500 font-semibold flex items-center gap-1.5 mt-0.5">
+                    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span>{{ isBorrowingService(selectedTicketForModal) ? 'Academic Unit / Department' : 'Campus Building / Facility' }}</span>
+                  </p>
+                </div>
+                <!-- Emphasized Room Below Building (Job Requests) / Borrower ID (Borrowing Requests) -->
+                <div class="pt-1.5 border-t border-slate-200/70">
+                  <div v-if="!isBorrowingService(selectedTicketForModal)">
+                    <div
+                      v-if="selectedTicketForModal.office_room && selectedTicketForModal.office_room !== 'N/A'"
+                      class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200/90 text-blue-950 font-black text-sm sm:text-base shadow-2xs group w-fit"
+                    >
+                      <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v.01M12 14v.01M16 14v.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      <span class="text-[10px] font-black uppercase tracking-wider text-blue-600">Room</span>
+                      <span class="font-mono tracking-tight text-blue-900 font-black">{{ selectedTicketForModal.office_room }}</span>
+                    </div>
+                    <p v-else class="text-xs text-slate-400 font-semibold flex items-center gap-2 py-0.5">
+                      <svg class="w-4 h-4 text-slate-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                      </svg>
+                      <span>No specific room designated</span>
+                    </p>
+                  </div>
+                  <div v-else>
+                    <div
+                      v-if="selectedTicketForModal.borrowing?.borrower_id_number || (selectedTicketForModal.office_room && selectedTicketForModal.office_room !== 'N/A')"
+                      class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200/90 text-amber-950 font-black text-sm sm:text-base shadow-2xs group w-fit"
+                    >
+                      <span class="text-[10px] font-black uppercase tracking-wider text-amber-600">Borrower ID</span>
+                      <span class="font-mono tracking-tight text-amber-900 font-black">{{ selectedTicketForModal.borrowing?.borrower_id_number || selectedTicketForModal.office_room }}</span>
+                    </div>
+                    <p v-else class="text-xs text-slate-400 font-semibold flex items-center gap-2 py-0.5">
+                      <span>No ID on file</span>
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 

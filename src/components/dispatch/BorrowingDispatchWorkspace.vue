@@ -11,9 +11,6 @@
       <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/10">
         <div>
           <div class="flex items-center gap-3 mb-2 flex-wrap">
-            <span class="px-3 py-1 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-xs">
-              Borrowing Dispatch Target
-            </span>
             <span class="text-sm font-black text-amber-400 bg-white/10 px-3 py-1 rounded-full border border-white/10">
               #{{ selectedTicket.id }}
             </span>
@@ -66,25 +63,117 @@
       </div>
 
       <!-- Borrower + assigned inventory summary -->
-      <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-white/10">
-        <div class="bg-white/5 rounded-2xl border border-white/10 p-4 space-y-1.5 text-xs">
-          <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest block">Borrower Information</span>
-          <p class="text-slate-200"><strong class="text-white">{{ borrowing?.borrower_name }}</strong> • {{ borrowing?.borrower_type }} • {{ borrowing?.borrower_id_number }}</p>
-          <p class="text-slate-300">{{ borrowing?.department_major }} • {{ borrowing?.borrower_email }} • {{ borrowing?.borrower_contact }}</p>
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 pt-2 border-t border-white/10">
+        <!-- Organized Borrower Information Card -->
+        <div class="lg:col-span-7 bg-white/5 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-white/10 p-5 sm:p-6 space-y-4">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <span class="text-[10px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Borrower Information
+            </span>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span
+                v-if="resolvedBorrower.type"
+                class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black uppercase tracking-wider"
+              >
+                {{ resolvedBorrower.type }}
+              </span>
+              <span
+                v-if="resolvedBorrower.idNumber"
+                class="px-2.5 py-0.5 rounded-full bg-white/10 text-slate-200 border border-white/15 text-[10px] font-mono font-bold"
+              >
+                ID: {{ resolvedBorrower.idNumber }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Name & Department Profile Header -->
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-500/30 text-amber-300 text-sm font-black flex items-center justify-center shrink-0 shadow-inner">
+              {{ getInitials(resolvedBorrower.name) }}
+            </div>
+            <div class="min-w-0 flex-1">
+              <h4 class="text-base sm:text-lg font-black text-white truncate leading-tight">
+                {{ resolvedBorrower.name || 'Borrower Name Not Provided' }}
+              </h4>
+              <p class="text-xs text-slate-300 font-semibold truncate mt-0.5 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <span>{{ resolvedBorrower.department || 'No department/college specified' }}</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Structured Contact Channels Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <!-- Email -->
+            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5 min-w-0">
+              <div class="w-7 h-7 rounded-lg bg-white/10 text-slate-300 flex items-center justify-center shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block leading-none mb-0.5">Email Address</span>
+                <a
+                  v-if="resolvedBorrower.email && resolvedBorrower.email !== 'N/A'"
+                  :href="`mailto:${resolvedBorrower.email}`"
+                  class="text-xs font-semibold text-slate-200 hover:text-white truncate block transition-colors"
+                >
+                  {{ resolvedBorrower.email }}
+                </a>
+                <span v-else class="text-xs text-slate-400 font-medium">No email on file</span>
+              </div>
+            </div>
+
+            <!-- Phone / Contact -->
+            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5 min-w-0">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block leading-none mb-0.5">Contact Number</span>
+                <a
+                  v-if="resolvedBorrower.contact && resolvedBorrower.contact !== 'N/A'"
+                  :href="`tel:${resolvedBorrower.contact}`"
+                  class="text-xs font-mono font-bold text-emerald-300 hover:text-emerald-200 truncate block transition-colors"
+                >
+                  {{ resolvedBorrower.contact }}
+                </a>
+                <span v-else class="text-xs text-slate-400 font-medium">No contact on file</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="bg-white/5 rounded-2xl border border-white/10 p-4 space-y-1.5 text-xs">
-          <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest block">Assigned Inventory</span>
-          <p v-if="borrowing?.assigned_inventory_id" class="text-slate-200">
-            <strong class="text-amber-300">{{ assignedInventoryName }}</strong>
-            <span v-if="borrowing?.assigned_quantity"> × {{ borrowing.assigned_quantity }}</span>
-          </p>
-          <p v-else class="text-slate-400">No inventory assigned yet — select an item below.</p>
+
+        <!-- Assigned Inventory Summary Card -->
+        <div class="lg:col-span-5 bg-white/5 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-white/10 p-5 sm:p-6 space-y-3 flex flex-col justify-between">
+          <div class="space-y-2">
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300 block">Assigned Inventory</span>
+            <div v-if="borrowing?.assigned_inventory_id" class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+              <p class="text-sm font-black text-amber-300 leading-tight">
+                {{ assignedInventoryName }}
+              </p>
+              <p class="text-xs font-semibold text-slate-300">
+                Quantity assigned: <strong class="text-white">{{ borrowing.assigned_quantity || 1 }}</strong> unit(s)
+              </p>
+            </div>
+            <p v-else class="text-xs text-slate-400">
+              No inventory assigned yet — select an available item below to fulfill this request.
+            </p>
+          </div>
+
           <div v-if="borrowing?.status === 'inventory_assigned'" class="pt-2">
             <button
               type="button"
               @click="markReadyForPickup"
               :disabled="actionLoading"
-              class="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
+              class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
             >
               <span>{{ actionLoading ? 'Updating...' : 'Set Ready for Pickup' }}</span>
             </button>
@@ -272,6 +361,27 @@ const assignedInventoryName = computed(() => {
   const found = inventory.value.find(i => String(i.id) === String(borrowing.value.assigned_inventory_id));
   return found ? found.name : `#${borrowing.value.assigned_inventory_id}`;
 });
+
+const resolvedBorrower = computed(() => {
+  const b = borrowing.value || {};
+  const t = selectedTicket.value || {};
+  return {
+    name: b.borrower_name || t.requester || t.requestedBy || '',
+    type: b.borrower_type || (t.user?.role ? String(t.user.role).toUpperCase() : null),
+    idNumber: b.borrower_id_number || t.user?.id_number || null,
+    department: b.department_major || t.location || t.college_building || '',
+    email: b.borrower_email || t.email || t.user?.email || null,
+    contact: b.borrower_contact || t.contact_number || t.user?.contact_number || null,
+  };
+});
+
+const getInitials = (name) => {
+  if (!name || typeof name !== 'string') return '??';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '??';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
 
 const filteredInventory = computed(() => {
   let list = inventory.value.filter(i => i.is_active !== 0 && i.is_active !== false);
