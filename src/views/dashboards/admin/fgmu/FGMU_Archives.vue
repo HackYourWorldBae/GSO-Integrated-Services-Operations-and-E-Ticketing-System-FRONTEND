@@ -339,9 +339,15 @@
               <div :class="{ 'col-span-2': !selectedTicket.workingDays }">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Designated Location</p>
                 <p class="text-base font-semibold text-slate-900">{{ selectedTicket.location || selectedTicket.college_building || 'Main Campus' }}</p>
-                <div v-if="selectedTicket.office_room && selectedTicket.office_room !== 'N/A'" class="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200/90 text-blue-950 font-bold text-xs">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-blue-600">Room</span>
-                  <span class="font-mono">{{ selectedTicket.office_room }}</span>
+                <div
+                  v-if="selectedTicket.office_room && selectedTicket.office_room !== 'N/A'"
+                  class="inline-flex items-center gap-2 mt-1.5 px-3 py-1 rounded-xl bg-slate-100/90 border border-slate-200 text-slate-800"
+                >
+                  <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 20V6a2 2 0 00-2-2H8a2 2 0 00-2 2v14 M2 20h20 M14 12v.01" />
+                  </svg>
+                  <span class="text-xs font-bold text-slate-500">Room / Office:</span>
+                  <span class="text-sm font-black text-slate-900 tracking-tight">{{ selectedTicket.office_room }}</span>
                 </div>
               </div>
               <div v-if="selectedTicket.assignedWorker && selectedTicket.assignedWorker !== 'Unassigned'" class="col-span-2">
