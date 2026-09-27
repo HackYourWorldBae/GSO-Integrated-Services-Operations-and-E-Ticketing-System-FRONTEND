@@ -112,7 +112,7 @@ const formatDate = (val) => {
           {{ ticket.service || ticket.service_type || 'Borrowing Request' }}
         </span>
         <span
-          v-if="borrowing.status"
+          v-if="borrowing.status && String(borrowing.status).toLowerCase() !== 'approved_director'"
           :class="['px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border', statusBadgeClass]"
         >
           {{ borrowingStatusLabel(borrowing.status) }}

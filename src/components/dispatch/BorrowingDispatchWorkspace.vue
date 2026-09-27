@@ -18,7 +18,7 @@
               #{{ selectedTicket.id }}
             </span>
             <span
-              v-if="borrowing?.status"
+              v-if="borrowing?.status && String(borrowing.status).toLowerCase() !== 'approved_director'"
               class="px-2.5 py-0.5 rounded-full bg-white/10 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-white/10"
             >
               {{ formatBorrowingStatus(borrowing.status) }}
