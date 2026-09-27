@@ -53,48 +53,56 @@
           </div>
 
           <!-- Status & Specialty Filters -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
+          <div class="pt-3 border-t border-slate-100 space-y-3 min-w-0">
             <!-- Status Filter Tabs -->
-            <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs">
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1 shrink-0">Status:</span>
               <button
+                type="button"
                 @click="statusFilter = 'all'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', statusFilter === 'all' ? 'bg-slate-900 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', statusFilter === 'all' ? 'bg-slate-900 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 All ({{ store.personnel.length }})
               </button>
               <button
+                type="button"
                 @click="statusFilter = 'Available'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', statusFilter === 'Available' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', statusFilter === 'Available' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 Available ({{ availableCount }})
               </button>
               <button
+                type="button"
                 @click="statusFilter = 'Working'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', statusFilter === 'Working' ? 'bg-amber-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', statusFilter === 'Working' ? 'bg-amber-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 Working ({{ workingCount }})
               </button>
               <button
+                type="button"
                 @click="statusFilter = 'On Leave'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', statusFilter === 'On Leave' ? 'bg-rose-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', statusFilter === 'On Leave' ? 'bg-rose-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 On Leave ({{ onLeaveCount }})
               </button>
             </div>
 
             <!-- Specialty Category Filter Pills -->
-            <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pt-1 sm:pt-0 text-xs">
+            <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100/70 text-xs min-w-0">
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1 shrink-0">Specialty:</span>
               <button
+                type="button"
                 @click="categoryFilter = 'all'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', categoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', categoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 All Categories
               </button>
               <button
+                type="button"
                 v-for="cat in store.categories"
                 :key="cat.id"
                 @click="categoryFilter = cat.name"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', categoryFilter === cat.name ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', categoryFilter === cat.name ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 {{ cat.name }}
               </button>

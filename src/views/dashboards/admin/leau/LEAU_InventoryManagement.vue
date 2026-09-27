@@ -10,24 +10,67 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in pb-12 px-3 sm:px-8 py-4 sm:py-6 max-w-[1600px] mx-auto min-h-screen">
 
-        <!-- Top Toolbar: Search, Actions & Filters -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-4 sm:p-6 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <!-- Top Toolbar: Search, View Switcher, Actions & Filters -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-4 sm:p-6 space-y-4 min-w-0">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <!-- Search bar -->
             <div class="relative flex-1 max-w-md w-full">
               <input
                 v-model="searchQuery"
+                @input="currentPage = 1"
                 type="text"
-                placeholder="Search inventory by name, model, or serial..."
-                class="w-full pl-10 pr-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/50 bg-slate-50/50"
+                placeholder="Search inventory by name, model, serial, or location..."
+                class="w-full pl-10 pr-9 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/50 bg-slate-50/50"
               />
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
+              <button
+                v-if="searchQuery"
+                @click="searchQuery = ''; currentPage = 1"
+                class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
 
-            <!-- Action Buttons: Add Inventory -->
-            <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end sm:justify-start shrink-0">
+            <!-- Action Controls: View Switcher + Add Inventory -->
+            <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end shrink-0">
+              <!-- View Switcher -->
+              <div class="hidden sm:inline-flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80">
+                <button
+                  type="button"
+                  @click="viewMode = 'table'"
+                  :class="[
+                    'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
+                    viewMode === 'table' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                  ]"
+                  title="Table View"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  <span>Table</span>
+                </button>
+                <button
+                  type="button"
+                  @click="viewMode = 'cards'"
+                  :class="[
+                    'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
+                    viewMode === 'cards' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                  ]"
+                  title="Cards View"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                  <span>Cards</span>
+                </button>
+              </div>
+
+              <!-- Add Inventory Button -->
               <button
                 v-if="isAdmin"
                 @click="openAddModal"
@@ -41,55 +84,64 @@
             </div>
           </div>
 
-          <!-- Status & Category Filters -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
-            <!-- Availability Filter Tabs -->
-            <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs">
+          <!-- Status & Category Filters (Non-overflowing wrapped layout) -->
+          <div class="pt-3 border-t border-slate-100 space-y-3 min-w-0">
+            <!-- Row 1: Stock Status Filter Tabs -->
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1 shrink-0">Stock Status:</span>
               <button
+                type="button"
                 @click="availabilityFilter = 'all'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', availabilityFilter === 'all' ? 'bg-slate-900 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', availabilityFilter === 'all' ? 'bg-slate-900 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 All ({{ totalCount }})
               </button>
               <button
+                type="button"
                 @click="availabilityFilter = 'available'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', availabilityFilter === 'available' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', availabilityFilter === 'available' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 Available ({{ availableCount }})
               </button>
               <button
+                type="button"
                 @click="availabilityFilter = 'out_of_stock'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', availabilityFilter === 'out_of_stock' ? 'bg-rose-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', availabilityFilter === 'out_of_stock' ? 'bg-rose-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 Out of Stock ({{ outOfStockCount }})
               </button>
               <button
+                type="button"
                 @click="availabilityFilter = 'maintenance'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', availabilityFilter === 'maintenance' ? 'bg-amber-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', availabilityFilter === 'maintenance' ? 'bg-amber-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 Maintenance ({{ maintenanceCount }})
               </button>
               <button
+                type="button"
                 @click="availabilityFilter = 'retired'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', availabilityFilter === 'retired' ? 'bg-slate-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', availabilityFilter === 'retired' ? 'bg-slate-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 Retired ({{ retiredCount }})
               </button>
             </div>
 
-            <!-- Category Filter Pills -->
-            <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pt-1 sm:pt-0 text-xs">
+            <!-- Row 2: Category Filter Pills -->
+            <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100/70 text-xs min-w-0">
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1 shrink-0">Category:</span>
               <button
+                type="button"
                 @click="categoryFilter = 'all'"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', categoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', categoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 All Categories
               </button>
               <button
+                type="button"
                 v-for="cat in categories"
                 :key="cat"
                 @click="categoryFilter = cat"
-                :class="['px-3 py-2 sm:py-1.5 min-h-[38px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', categoryFilter === cat ? 'bg-amber-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
+                :class="['px-3 py-1.5 min-h-[36px] rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap touch-manipulation flex items-center justify-center', categoryFilter === cat ? 'bg-amber-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
               >
                 {{ cat.charAt(0).toUpperCase() + cat.slice(1) }}
               </button>
@@ -97,9 +149,20 @@
           </div>
         </div>
 
-        <!-- Inventory Cards Grid -->
-        <div v-if="filteredInventory.length === 0" class="py-16 text-center bg-white rounded-3xl border border-dashed border-slate-200 p-8">
-          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+        <!-- Loading State -->
+        <div v-if="loading && inventoryItems.length === 0" class="py-16 text-center bg-white rounded-3xl border border-slate-200/80 p-8 shadow-xs">
+          <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
+            <svg class="animate-spin h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Loading inventory items...
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else-if="filteredInventory.length === 0" class="py-16 text-center bg-white rounded-3xl border border-dashed border-slate-200 p-8">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
@@ -108,36 +171,205 @@
           <p class="text-xs text-slate-400 mt-1">Try adjusting your search criteria or add new inventory items.</p>
         </div>
 
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+        <!-- ═══ Table View (Desktop & Tablet) ═══ -->
+        <div v-else-if="viewMode === 'table'" class="hidden md:block bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50/80 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  <th class="px-5 py-3">Item Particulars</th>
+                  <th class="px-4 py-3">Category</th>
+                  <th class="px-4 py-3">Stock &amp; Availability</th>
+                  <th class="px-4 py-3">Condition</th>
+                  <th class="px-4 py-3">Storage Location</th>
+                  <th class="px-5 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-xs">
+                <tr
+                  v-for="item in paginatedInventory"
+                  :key="item.id"
+                  class="hover:bg-amber-50/20 transition-colors group"
+                >
+                  <!-- Item Particulars -->
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-700 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+                        {{ item.name.charAt(0).toUpperCase() }}
+                      </div>
+                      <div class="min-w-0">
+                        <p class="font-black text-slate-900 text-sm leading-tight truncate">{{ item.name }}</p>
+                        <p v-if="item.model" class="text-[11px] text-slate-500 font-semibold truncate mt-0.5">{{ item.model }}</p>
+                        <p v-if="item.serial_number" class="text-[10px] font-mono text-slate-400 truncate">SN: {{ item.serial_number }}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Category -->
+                  <td class="px-4 py-3.5 whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200/70">
+                      <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      {{ item.category.charAt(0).toUpperCase() + item.category.slice(1) }}
+                    </span>
+                  </td>
+
+                  <!-- Stock Availability -->
+                  <td class="px-4 py-3.5 whitespace-nowrap">
+                    <div class="space-y-1 max-w-[170px]">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="font-black text-slate-900 text-xs">{{ item.quantity_available }} / {{ item.quantity_total }} in stock</span>
+                        <span
+                          :class="[
+                            'px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shrink-0',
+                            item.quantity_available > 0
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : item.condition_status === 'needs_repair'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : item.condition_status === 'retired'
+                                  ? 'bg-slate-50 text-slate-700 border-slate-200'
+                                  : 'bg-rose-50 text-rose-700 border-rose-200'
+                          ]"
+                        >
+                          {{ getAvailabilityLabel(item) }}
+                        </span>
+                      </div>
+                      <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          class="h-full rounded-full transition-all duration-300"
+                          :class="item.quantity_available === 0 ? 'bg-rose-500' : item.quantity_available < item.quantity_total ? 'bg-amber-500' : 'bg-emerald-500'"
+                          :style="{ width: `${Math.round((item.quantity_available / Math.max(1, item.quantity_total)) * 100)}%` }"
+                        ></div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Condition -->
+                  <td class="px-4 py-3.5 whitespace-nowrap">
+                    <span
+                      :class="[
+                        'px-2.5 py-1 rounded-lg text-xs font-bold border inline-flex items-center gap-1.5',
+                        item.condition_status === 'excellent' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' :
+                        item.condition_status === 'good' ? 'bg-blue-50 text-blue-800 border-blue-200' :
+                        item.condition_status === 'fair' ? 'bg-amber-50 text-amber-800 border-amber-200' :
+                        item.condition_status === 'needs_repair' ? 'bg-rose-50 text-rose-800 border-rose-200' :
+                        'bg-slate-50 text-slate-700 border-slate-200'
+                      ]"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full" :class="item.condition_status === 'needs_repair' ? 'bg-rose-500' : item.condition_status === 'excellent' || item.condition_status === 'good' ? 'bg-emerald-500' : 'bg-amber-500'"></span>
+                      {{ item.condition_status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) }}
+                    </span>
+                  </td>
+
+                  <!-- Location -->
+                  <td class="px-4 py-3.5 whitespace-nowrap text-slate-600 font-medium">
+                    <span v-if="item.location" class="inline-flex items-center gap-1.5 text-xs text-slate-700 font-semibold">
+                      <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {{ item.location }}
+                    </span>
+                    <span v-else class="text-slate-300 italic">—</span>
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="px-5 py-3.5 whitespace-nowrap text-right">
+                    <div class="flex items-center justify-end gap-1.5">
+                      <button
+                        v-if="isAdmin"
+                        @click="openAdjustQuantityModal(item)"
+                        class="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center gap-1"
+                        title="Adjust available quantity"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Qty</span>
+                      </button>
+
+                      <button
+                        v-if="isAdmin"
+                        @click="openEditModal(item)"
+                        class="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center gap-1"
+                        title="Edit item details"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        v-if="isAdmin && item.condition_status !== 'maintenance'"
+                        @click="setMaintenance(item)"
+                        class="p-1.5 rounded-lg border border-amber-200/80 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95"
+                        title="Mark for maintenance"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </button>
+
+                      <button
+                        v-if="isAdmin && item.condition_status === 'maintenance'"
+                        @click="returnFromMaintenance(item)"
+                        class="p-1.5 rounded-lg border border-emerald-200/80 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95"
+                        title="Return from maintenance"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </button>
+
+                      <button
+                        v-if="isAdmin && item.quantity_available === item.quantity_total && item.condition_status !== 'maintenance'"
+                        @click="confirmDelete(item)"
+                        class="p-1.5 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-600 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
+                        title="Remove from inventory"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ═══ Streamlined Cards View (Clean Cards layout, default on mobile) ═══ -->
+        <div :class="['grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5', viewMode === 'table' ? 'md:hidden' : '']">
           <div
-            v-for="item in filteredInventory"
+            v-for="item in paginatedInventory"
             :key="item.id"
-            class="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 hover:shadow-md transition-all flex flex-col justify-between gap-4 group"
+            class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 hover:shadow-md transition-all flex flex-col justify-between gap-3 group"
           >
-            <!-- Card Body: Item Details -->
-            <div class="space-y-3.5">
-              <!-- Top Row: Icon, Name, Category & Availability Badge -->
+            <div class="space-y-3">
+              <!-- Card Header: Category & Availability + Item Name -->
               <div class="flex items-start justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 text-amber-700 flex items-center justify-center font-black text-sm shrink-0 border border-amber-200 shadow-xs">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                  </div>
-                  <div class="min-w-0">
-                    <h4 class="text-sm font-black text-slate-900 truncate leading-tight">
-                      {{ item.name }}
-                    </h4>
-                    <span class="inline-block text-xs font-bold text-slate-500 truncate mt-0.5">
-                      {{ item.model ? item.model : 'No model specified' }}
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200/70">
+                      {{ item.category.charAt(0).toUpperCase() + item.category.slice(1) }}
+                    </span>
+                    <span v-if="item.location" class="text-[10px] text-slate-400 font-semibold truncate flex items-center gap-1">
+                      • {{ item.location }}
                     </span>
                   </div>
+                  <h4 class="text-sm sm:text-base font-black text-slate-900 leading-tight truncate">
+                    {{ item.name }}
+                  </h4>
+                  <p v-if="item.model" class="text-xs text-slate-500 font-semibold truncate mt-0.5">
+                    {{ item.model }}
+                  </p>
                 </div>
 
-                <!-- Availability Badge -->
                 <span
                   :class="[
-                    'px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 border',
+                    'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 border',
                     item.quantity_available > 0
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       : item.condition_status === 'needs_repair'
@@ -151,115 +383,104 @@
                 </span>
               </div>
 
-              <!-- Category & Condition Badges -->
-              <div class="flex flex-wrap items-center gap-1.5">
-                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200/60 flex items-center gap-1">
-                  <span class="w-1 h-1 rounded-full bg-amber-500"></span>
-                  {{ item.category.charAt(0).toUpperCase() + item.category.slice(1) }}
-                </span>
-                <span
-                  :class="[
-                    'px-2 py-0.5 rounded-md text-[10px] font-bold border flex items-center gap-1',
-                    item.condition_status === 'excellent' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' :
-                    item.condition_status === 'good' ? 'bg-blue-50 text-blue-800 border-blue-200' :
-                    item.condition_status === 'fair' ? 'bg-amber-50 text-amber-800 border-amber-200' :
-                    item.condition_status === 'needs_repair' ? 'bg-rose-50 text-rose-800 border-rose-200' :
-                    'bg-slate-50 text-slate-700 border-slate-200'
-                  ]"
-                >
-                  {{ item.condition_status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) }}
-                </span>
-                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-700 border border-slate-200/60">
-                  Qty: {{ item.quantity_available }} / {{ item.quantity_total }}
-                </span>
-              </div>
-
-              <!-- Location & Serial -->
-              <div v-if="item.location || item.serial_number" class="space-y-1 pt-1 border-t border-slate-100/50">
-                <div v-if="item.location" class="flex items-center gap-1.5 text-xs text-slate-500">
-                  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span class="font-medium text-slate-700">{{ item.location }}</span>
+              <!-- Stock Health & Status -->
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1.5">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-slate-500 text-[11px]">Stock Level</span>
+                  <span class="font-black text-slate-900">{{ item.quantity_available }} of {{ item.quantity_total }} Available</span>
                 </div>
-                <div v-if="item.serial_number" class="flex items-center gap-1.5 text-xs text-slate-500">
-                  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                  </svg>
-                  <span class="font-mono text-slate-700">SN: {{ item.serial_number }}</span>
+                <div class="w-full bg-slate-200/70 rounded-full h-1.5 overflow-hidden">
+                  <div
+                    class="h-full rounded-full transition-all duration-300"
+                    :class="item.quantity_available === 0 ? 'bg-rose-500' : item.quantity_available < item.quantity_total ? 'bg-amber-500' : 'bg-emerald-500'"
+                    :style="{ width: `${Math.round((item.quantity_available / Math.max(1, item.quantity_total)) * 100)}%` }"
+                  ></div>
                 </div>
               </div>
             </div>
 
-            <!-- Card Bottom: Action Buttons -->
+            <!-- Simplified Action Bar -->
             <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2 flex-wrap">
-                <!-- Edit Inventory -->
+              <div class="flex items-center gap-1.5">
                 <button
                   v-if="isAdmin"
-                  @click="openEditModal(item)"
-                  class="px-3 sm:px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black transition-colors cursor-pointer flex items-center gap-1.5 touch-manipulation"
-                  title="Edit inventory item"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                  <span>Edit</span>
-                </button>
-
-                <!-- Adjust Quantity -->
-                <button
-                  v-if="isAdmin && item.quantity_available > 0"
                   @click="openAdjustQuantityModal(item)"
-                  class="px-3 sm:px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black transition-colors cursor-pointer flex items-center gap-1.5 touch-manipulation"
-                  title="Adjust available quantity"
+                  class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-xs font-black transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center gap-1"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span>Adjust Qty</span>
                 </button>
-
-                <!-- Set Maintenance -->
                 <button
-                  v-if="isAdmin && item.condition_status !== 'maintenance'"
-                  @click="setMaintenance(item)"
-                  class="px-3 sm:px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black transition-colors cursor-pointer flex items-center gap-1.5 touch-manipulation"
-                  title="Mark for maintenance"
+                  v-if="isAdmin"
+                  @click="openEditModal(item)"
+                  class="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-black transition-all cursor-pointer shadow-2xs active:scale-95"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  <span>Maintenance</span>
-                </button>
-
-                <!-- Return from Maintenance -->
-                <button
-                  v-if="isAdmin && item.condition_status === 'maintenance'"
-                  @click="returnFromMaintenance(item)"
-                  class="px-3 sm:px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black transition-colors cursor-pointer flex items-center gap-1.5 touch-manipulation"
-                  title="Return from maintenance"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Back to Service</span>
+                  Edit
                 </button>
               </div>
 
-              <!-- Delete Button -->
-              <button
-                v-if="isAdmin && item.quantity_available === item.quantity_total && item.condition_status !== 'maintenance'"
-                @click="confirmDelete(item)"
-                class="w-9 h-9 min-h-[38px] min-w-[38px] rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center cursor-pointer touch-manipulation shrink-0"
-                title="Remove from inventory"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+              <div class="flex items-center gap-1">
+                <button
+                  v-if="isAdmin && item.condition_status !== 'maintenance'"
+                  @click="setMaintenance(item)"
+                  class="p-2 rounded-xl text-amber-600 hover:bg-amber-50 transition-all cursor-pointer"
+                  title="Mark for maintenance"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </button>
+                <button
+                  v-if="isAdmin && item.condition_status === 'maintenance'"
+                  @click="returnFromMaintenance(item)"
+                  class="p-2 rounded-xl text-emerald-600 hover:bg-emerald-50 transition-all cursor-pointer"
+                  title="Return from maintenance"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+                <button
+                  v-if="isAdmin && item.quantity_available === item.quantity_total && item.condition_status !== 'maintenance'"
+                  @click="confirmDelete(item)"
+                  class="p-2 rounded-xl text-rose-500 hover:bg-rose-50 transition-all cursor-pointer"
+                  title="Remove from inventory"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="filteredInventory.length > 0" class="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs text-xs text-slate-500">
+          <div class="font-medium">
+            Showing <span class="font-bold text-slate-800">{{ paginationRange.start }}</span> to <span class="font-bold text-slate-800">{{ paginationRange.end }}</span> of <span class="font-bold text-slate-800">{{ filteredInventory.length }}</span> items
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              @click="changePage(currentPage - 1)"
+              :disabled="currentPage === 1"
+              class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+            >
+              Prev
+            </button>
+            <span class="font-bold text-slate-700 px-2">{{ currentPage }} / {{ totalPages }}</span>
+            <button
+              type="button"
+              @click="changePage(currentPage + 1)"
+              :disabled="currentPage === totalPages"
+              class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
@@ -267,8 +488,8 @@
       <!-- Add Inventory Modal -->
       <Teleport to="body">
         <div v-if="showAddModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto">
-          <div class="pointer-events-auto bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-5 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
-            <div class="flex items-center justify-between mb-6">
+          <div class="pointer-events-auto bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-5 sm:p-7 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-5">
               <div>
                 <span class="px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-wider">
                   New Item
@@ -281,58 +502,140 @@
             </div>
 
             <form @submit.prevent="submitAddInventory" class="space-y-4">
+              <!-- Item Name -->
               <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Item Name *</label>
-                <input v-model="addForm.name" required placeholder="e.g. Brush Cutter, Hedge Trimmer, Ficus benjamina" class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500" />
-              </div>
-              <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Model / Specification</label>
-                <input v-model="addForm.model" placeholder="e.g. STIHL FS 240, Makita XHU02Z, 1.5m height" class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500" />
-              </div>
-              <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Category *</label>
-                <select v-model="addForm.category" required class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer bg-white">
-                  <option value="" disabled>Select Category</option>
-                  <option value="tools">Tools</option>
-                  <option value="equipment">Equipment</option>
-                  <option value="plants">Plants</option>
-                  <option value="materials">Materials</option>
-                  <option value="others">Others</option>
-                </select>
-              </div>
-              <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Serial Number</label>
-                <input v-model="addForm.serial_number" placeholder="Optional serial/asset number" class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500" />
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Total Quantity *</label>
-                  <input v-model.number="addForm.quantity_total" type="number" min="1" required class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500" />
-                </div>
-                <div>
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Condition *</label>
-                  <select v-model="addForm.condition_status" required class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer bg-white">
-                    <option value="excellent">Excellent</option>
-                    <option value="good" selected>Good</option>
-                    <option value="fair">Fair</option>
-                    <option value="needs_repair">Needs Repair</option>
-                    <option value="retired">Retired</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Storage Location</label>
-                <input v-model="addForm.location" placeholder="e.g. LEAU Warehouse - Shelf A3" class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500" />
-              </div>
-              <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Description</label>
-                <textarea v-model="addForm.description" rows="2" placeholder="Additional details, specifications, or notes..." class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none" />
+                <input
+                  v-model="addForm.name"
+                  required
+                  placeholder="e.g. Lawn Mower, Garden Shovel, Fertilizer"
+                  class="w-full px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
               </div>
 
-              <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
-                <button type="button" @click="showAddModal = false" class="px-5 py-3 min-h-[44px] rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer touch-manipulation">Cancel</button>
-                <button type="submit" :disabled="submitting" class="px-6 py-3 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black transition-all shadow-sm shadow-amber-200 active:scale-95 disabled:opacity-50 cursor-pointer touch-manipulation">
-                  {{ submitting ? 'Saving...' : 'Add to Inventory' }}
+              <!-- Category & Quantity (2 columns) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Category *</label>
+                  <select
+                    v-model="addForm.category"
+                    required
+                    class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer bg-white"
+                  >
+                    <option value="" disabled>Select Category</option>
+                    <option value="tools">Tools</option>
+                    <option value="equipment">Equipment</option>
+                    <option value="plants">Plants</option>
+                    <option value="materials">Materials</option>
+                    <option value="others">Others</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Total Quantity *</label>
+                  <input
+                    v-model.number="addForm.quantity_total"
+                    type="number"
+                    min="1"
+                    required
+                    class="w-full px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+              </div>
+
+              <!-- Location -->
+              <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Storage Location (Optional)</label>
+                <input
+                  v-model="addForm.location"
+                  placeholder="e.g. Tool Shed, Greenhouse A, Main Warehouse"
+                  class="w-full px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              <!-- Optional Advanced Details Toggle -->
+              <div class="pt-1">
+                <button
+                  type="button"
+                  @click="showAddAdvanced = !showAddAdvanced"
+                  class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 hover:text-amber-800 transition-colors cursor-pointer"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 transition-transform duration-200"
+                    :class="{ 'rotate-90': showAddAdvanced }"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span>{{ showAddAdvanced ? 'Hide Additional Details' : '+ Add Model, Serial #, Condition, or Notes (Optional)' }}</span>
+                </button>
+
+                <div v-if="showAddAdvanced" class="mt-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-3">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Model / Specification</label>
+                      <input
+                        v-model="addForm.model"
+                        placeholder="e.g. STIHL FS 240, 24V"
+                        class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Serial Number</label>
+                      <input
+                        v-model="addForm.serial_number"
+                        placeholder="e.g. SN-882910"
+                        class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Initial Condition</label>
+                    <select
+                      v-model="addForm.condition_status"
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                    >
+                      <option value="excellent">Excellent</option>
+                      <option value="good">Good (Default)</option>
+                      <option value="fair">Fair</option>
+                      <option value="needs_repair">Needs Repair</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Notes / Description</label>
+                    <textarea
+                      v-model="addForm.description"
+                      rows="2"
+                      placeholder="Maintenance tips, notes, or specific handling instructions..."
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Modal Actions -->
+              <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 mt-5">
+                <button
+                  type="button"
+                  @click="showAddModal = false"
+                  class="px-5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer touch-manipulation"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  :disabled="submitting"
+                  class="px-6 py-2.5 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black transition-all shadow-sm shadow-amber-200 active:scale-95 disabled:opacity-50 cursor-pointer touch-manipulation flex items-center gap-2"
+                >
+                  <svg v-if="submitting" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>{{ submitting ? 'Adding...' : 'Add Item' }}</span>
                 </button>
               </div>
             </form>
@@ -490,7 +793,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from 'vue';
+import { ref, computed, reactive, onMounted, watch } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue3-toastify';
@@ -518,9 +821,11 @@ const inventoryItems = ref([]);
 const categories = ['tools', 'equipment', 'plants', 'materials', 'others'];
 const loading = ref(false);
 const stats = ref({});
+const viewMode = ref('table');
 
 // Modals
 const showAddModal = ref(false);
+const showAddAdvanced = ref(false);
 const submitting = ref(false);
 const addForm = reactive({
   name: '',
@@ -555,6 +860,32 @@ const adjustQtyForm = reactive({
 
 const itemToDelete = ref(null);
 const deleteSubmitting = ref(false);
+
+// Pagination State
+const currentPage = ref(1);
+const perPage = computed(() => (viewMode.value === 'table' ? 15 : 12));
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredInventory.value.length / perPage.value)));
+
+const paginatedInventory = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredInventory.value.slice(start, start + perPage.value);
+});
+
+const paginationRange = computed(() => {
+  if (filteredInventory.value.length === 0) return { start: 0, end: 0 };
+  const start = (currentPage.value - 1) * perPage.value + 1;
+  const end = Math.min(currentPage.value * perPage.value, filteredInventory.value.length);
+  return { start, end };
+});
+
+const changePage = (page) => {
+  if (page < 1 || page > totalPages.value) return;
+  currentPage.value = page;
+};
+
+watch([searchQuery, availabilityFilter, categoryFilter, viewMode], () => {
+  currentPage.value = 1;
+});
 
 // Computed
 const totalCount = computed(() => inventoryItems.value.length);
@@ -637,6 +968,7 @@ onMounted(async () => {
 
 // Add Inventory
 const openAddModal = () => {
+  showAddAdvanced.value = false;
   addForm.name = '';
   addForm.model = '';
   addForm.category = '';
@@ -650,15 +982,21 @@ const openAddModal = () => {
 
 const submitAddInventory = async () => {
   if (!addForm.name || !addForm.category) {
-    toast.error('Please fill in all required fields.');
+    toast.error('Please enter an item name and select a category.');
     return;
   }
   submitting.value = true;
   try {
-    await createInventoryItem(addForm);
+    const payload = {
+      ...addForm,
+      condition_status: addForm.condition_status || 'good',
+      quantity_total: Math.max(1, Number(addForm.quantity_total) || 1),
+    };
+    await createInventoryItem(payload);
     toast.success('Inventory item added successfully!');
     showAddModal.value = false;
     await fetchInventory();
+    await fetchStats();
   } catch (err) {
     const msg = err?.response?.data?.message || 'Failed to add inventory item.';
     toast.error(msg);
