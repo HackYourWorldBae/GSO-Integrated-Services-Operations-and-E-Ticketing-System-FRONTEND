@@ -164,9 +164,9 @@ const formatDate = (val) => {
       </div>
     </div>
 
-    <!-- Row 3: Purpose in Detail (Full width) -->
+    <!-- Row 3: Purpose of Use Details (Full width) -->
     <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/70 shadow-2xs space-y-1">
-      <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">State the Purpose in Detail</span>
+      <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Purpose of Use Details</span>
       <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">
         {{ borrowing.purpose_project || ticket.description || 'No detailed purpose provided.' }}
       </p>

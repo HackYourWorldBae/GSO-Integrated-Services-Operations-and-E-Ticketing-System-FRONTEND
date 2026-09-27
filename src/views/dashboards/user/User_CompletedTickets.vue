@@ -380,7 +380,7 @@
 
               <!-- Dedicated Job Particulars / Description Section -->
               <div v-if="selectedTicket.description" class="col-span-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{{ isBorrowingService(selectedTicket) ? 'Purpose of Use in Detail' : 'Job Particulars / Description' }}</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{{ isBorrowingService(selectedTicket) ? 'Purpose of Use Details' : 'Job Particulars / Description' }}</p>
                 <div class="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
                   <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
                 </div>

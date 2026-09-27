@@ -1339,7 +1339,7 @@ const DigitalFormCard = defineComponent({
             h(FormRow, { label: 'Quantity Needed', value: String(b.quantity_needed || t.quantity_needed || 1) }),
             h(FormRow, { label: 'Pickup Date', value: (b.date_needed || t.date_needed) ? formatDate(b.date_needed || t.date_needed) : 'N/A' }),
             h(FormRow, { label: 'Expected Return Date', value: (b.expected_return_date || t.expected_return_date) ? formatDate(b.expected_return_date || t.expected_return_date) : 'N/A' }),
-            h(FormRow, { label: 'State the Purpose in Detail', value: b.purpose_project || t.purpose_project || t.description || 'N/A', full: true }),
+            h(FormRow, { label: 'Purpose of Use Details', value: b.purpose_project || t.purpose_project || t.description || 'N/A', full: true }),
             ...(b.assigned_quantity ? [h(FormRow, { label: 'Assigned Quantity', value: `${b.assigned_quantity} unit(s)` })] : []),
             ...(b.return_condition ? [h(FormRow, { label: 'Return Condition', value: String(b.return_condition).toUpperCase() })] : []),
           ]),
