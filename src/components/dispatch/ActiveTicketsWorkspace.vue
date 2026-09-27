@@ -902,8 +902,37 @@
           <!-- Scrollable Modal Body -->
           <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
             
+            <!-- Borrowed Request Status & Schedule Card (Active Borrowing) -->
+            <div v-if="isModalBorrowing" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950 via-slate-900 to-slate-900 text-white space-y-3 shadow-xs">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Borrowed Item Tracking</span>
+                </div>
+                <span
+                  :class="[
+                    'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border',
+                    modalBorrowingStatus === 'overdue'
+                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                  ]"
+                >
+                  {{ modalBorrowingStatusLabel }}
+                </span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-white/10 text-xs">
+                <div>
+                  <span class="text-[9px] text-slate-400 uppercase font-black block">Date Picked Up</span>
+                  <span class="font-bold text-white text-sm">{{ formatDate(modalBorrowingPickupDate) }}</span>
+                </div>
+                <div>
+                  <span class="text-[9px] text-amber-300 uppercase font-black block">Expected Return Date</span>
+                  <span class="font-bold text-amber-200 text-sm">{{ formatDate(selectedTicketForModal.borrowing?.expected_return_date || selectedTicketForModal.expected_return_date) }}</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Assigned Personnel & Live Timeline Card (job tickets only — borrowed requests have no field workers) -->
-            <div v-if="!isModalBorrowing" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white space-y-3">
+            <div v-else class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white space-y-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Field Personnel</span>
@@ -1842,9 +1871,10 @@ const handleBorrowingViewDetails = (req) => {
     id: req.ticket_id || req.id,
     ticket_id: req.ticket_id || req.id,
     ticketId: req.ticket_id || req.id,
-    service: 'Borrowing',
-    service_type: 'Borrowing of Facilities/Equipment',
-    type: 'Borrowing of Facilities/Equipment',
+    is_borrowing: true,
+    service: req.service || 'Borrowing of Facilities/Equipment',
+    service_type: req.service_type || 'Borrowing of Facilities/Equipment',
+    type: req.type || 'Borrowing of Facilities/Equipment',
     title: req.purpose_project || `Borrowing - ${req.item_name_requested}`,
     requester: req.borrower_name,
     requestedBy: req.borrower_name,

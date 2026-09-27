@@ -44,11 +44,17 @@ describe('borrowing utils', () => {
   });
 
   it('detects borrowing services from strings and ticket objects', () => {
+    expect(isBorrowingService('Borrowing')).toBe(true);
     expect(isBorrowingService('Borrowing of plants')).toBe(true);
     expect(isBorrowingService('Borrowing of tools/ equipment')).toBe(true);
+    expect(isBorrowingService('Borrowing of Facilities/Equipment')).toBe(true);
     expect(isBorrowingService('Cleaning/ Grubbing')).toBe(false);
+    expect(isBorrowingService({ service: 'Borrowing' })).toBe(true);
     expect(isBorrowingService({ service_type: 'Borrowing of Plants' })).toBe(true);
     expect(isBorrowingService({ service: 'Borrowing of tools/equipment' })).toBe(true);
+    expect(isBorrowingService({ service_type: 'Borrowing of Facilities/Equipment' })).toBe(true);
+    expect(isBorrowingService({ is_borrowing: true })).toBe(true);
+    expect(isBorrowingService({ borrowing_request_id: 10, item_name_requested: 'Projector', borrower_name: 'Juan' })).toBe(true);
     expect(isBorrowingService({ type: 'Hauling' })).toBe(false);
     expect(isBorrowingService({ service: 'Cleaning/ Grubbing', borrowing: { college_building: 'Main' } })).toBe(false);
     expect(isBorrowingService({ service: 'Hauling', borrowing: { college_building: 'Gym' } })).toBe(false);
