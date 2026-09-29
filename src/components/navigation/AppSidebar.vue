@@ -163,14 +163,14 @@ const rawNavGroups = computed(() => {
               icon: 'shield'
             },
             {
-              label: 'Dispatch Tickets',
-              to: '/admin/ssu/assign-workers',
-              icon: 'dispatch'
-            },
-            {
               label: 'Collab Tickets',
               to: '/admin/ssu/collab-tickets',
               icon: 'users'
+            },
+            {
+              label: 'Dispatch Tickets',
+              to: '/admin/ssu/assign-workers',
+              icon: 'dispatch'
             },
             {
               label: 'Security Personnel',

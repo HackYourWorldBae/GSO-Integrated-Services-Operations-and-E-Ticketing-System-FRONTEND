@@ -436,23 +436,71 @@
       <div class="max-w-md">
         <h3 class="text-xl font-black text-slate-900 tracking-tight">No Assignment Target Selected</h3>
         <p class="text-xs sm:text-sm text-slate-500 mt-1">
-          Pick an approved service request from the queue to start scheduling personnel, setting implementation dates, and dispatching work orders.
+          <template v-if="unitCode.toUpperCase() === 'SSU'">
+            Pick an incoming collaboration request from other units to schedule and dispatch security personnel.
+          </template>
+          <template v-else>
+            Pick an approved service request from the queue to start scheduling personnel, setting implementation dates, and dispatching work orders.
+          </template>
         </p>
       </div>
 
       <div class="flex items-center gap-3 pt-2">
         <router-link
-          :to="`/admin/${unitCode.toLowerCase()}/approved-tickets`"
+          :to="unitCode.toUpperCase() === 'SSU' ? '/admin/ssu/collab-tickets?tab=approved' : `/admin/${unitCode.toLowerCase()}/approved-tickets`"
           :class="[
             'px-5 py-3 min-h-[44px] rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 touch-manipulation',
-            unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'
+            unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-600 hover:bg-amber-700' : (unitCode.toUpperCase() === 'SSU' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-emerald-600 hover:bg-emerald-700')
           ]"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          <span>Select from Approved Ticket Queue ({{ dispatchQueue.length }})</span>
+          <span v-if="unitCode.toUpperCase() === 'SSU'">Select from Collab Tickets Requests ({{ dispatchQueue.length }})</span>
+          <span v-else>Select from Approved Ticket Queue ({{ dispatchQueue.length }})</span>
         </router-link>
+      </div>
+
+      <!-- Quick select cards for SSU Collab Requests -->
+      <div v-if="unitCode.toUpperCase() === 'SSU' && dispatchQueue.length > 0" class="w-full max-w-2xl mt-4 pt-4 border-t border-slate-100 text-left">
+        <p class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2.5">
+          Or pick directly from incoming requests awaiting dispatch:
+        </p>
+        <div class="space-y-2">
+          <button
+            v-for="ticket in dispatchQueue"
+            :key="ticket.id"
+            type="button"
+            @click="selectTicket(ticket)"
+            class="w-full p-3 rounded-2xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 bg-white transition-all flex items-center justify-between gap-3 text-left cursor-pointer group shadow-2xs touch-manipulation"
+          >
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-black text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
+                  #{{ ticket.id }}
+                </span>
+                <span v-if="ticket.requesting_unit_code || ticket.unit_code" class="text-[10px] font-bold text-slate-500 uppercase">
+                  From {{ ticket.requesting_unit_code || ticket.unit_code }}
+                </span>
+                <span v-if="ticket.is_emergency" class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase">
+                  Urgent
+                </span>
+              </div>
+              <p class="text-xs font-black text-slate-900 group-hover:text-indigo-900 truncate">
+                {{ ticket.title || ticket.type || 'Collaboration Request' }}
+              </p>
+              <p class="text-[11px] text-slate-500 truncate mt-0.5">
+                {{ ticket.location }} • Requester: {{ ticket.requester }}
+              </p>
+            </div>
+            <div class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold group-hover:bg-indigo-700 transition-colors">
+              <span>Assign</span>
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -770,7 +818,7 @@
             <!-- Prompt to select ticket first if none is active -->
             <router-link
               v-else
-              :to="`/admin/${unitCode.toLowerCase()}/approved-tickets`"
+              :to="unitCode.toUpperCase() === 'SSU' ? '/admin/ssu/collab-tickets?tab=approved' : `/admin/${unitCode.toLowerCase()}/approved-tickets`"
               class="flex-1 py-2.5 px-3 min-h-[40px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold text-center transition-colors cursor-pointer flex items-center justify-center"
             >
               Select Ticket to Assign
@@ -1666,15 +1714,24 @@ const downloadAttachment = async (att) => {
 const fetchDispatchQueue = async () => {
   loadingTickets.value = true;
   try {
-    const res = await api.get(`tickets/dispatch/${props.unitCode}`);
-    const rawData = res.data?.data?.tickets || res.data?.data || [];
+    let rawData = [];
+    if (props.unitCode?.toUpperCase() === 'SSU') {
+      const { fetchCollabTickets } = await import('@/api/collaborations');
+      const collabRes = await fetchCollabTickets({ direction: 'incoming', stage: 'approved' });
+      rawData = collabRes.data?.data?.tickets || [];
+    } else {
+      const res = await api.get(`tickets/dispatch/${props.unitCode}`);
+      rawData = res.data?.data?.tickets || res.data?.data || [];
+    }
     if (Array.isArray(rawData)) {
       dispatchQueue.value = rawData.map(t => ({
         id: t.id,
         unit_id: t.unit_id ?? null,
-        unit_code: t.unit_code ?? null,
-        title: t.title,
-        service: t.service_type,
+        unit_code: t.unit_code ?? t.requesting_unit_code ?? null,
+        requesting_unit_code: t.requesting_unit_code || t.unit_code || null,
+        collaboration_id: t.collaboration_id || null,
+        title: t.title || t.project_title || t.service_type || 'Service Request',
+        service: t.service_type || t.service,
         type: t.title || t.project_title || t.service_type || t.type || 'Service Request',
         location: t.location || t.college_building || 'Campus Facility',
         college_building: t.details?.college_building || t.college_building || t.location,
@@ -1684,13 +1741,17 @@ const fetchDispatchQueue = async () => {
         requester: t.details?.requesting_personnel || t.requester || (t.user ? `${t.user.first_name} ${t.user.last_name}` : 'End User'),
         status: t.status,
         is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency'),
-        job_description: t.description || t.job_description || '',
+        job_description: t.description || t.job_description || t.scope_of_work || '',
+        scope_of_work: t.scope_of_work || t.reason || '',
         attachments: t.attachments || [],
         submitted_at: t.submitted_at || t.created_at,
-        submittedAt: new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', {
+        submittedAt: new Date(t.submitted_at || t.created_at || Date.now()).toLocaleDateString('en-US', {
           month: 'short', day: 'numeric', year: 'numeric'
         }),
-        implementationDate: new Date().toISOString().split('T')[0]
+        implementationDate: t.implementation_date || t.implementationDate || new Date().toISOString().split('T')[0],
+        implementation_date: t.implementation_date || t.implementationDate || null,
+        working_days: t.working_days || t.workingDays || null,
+        workingDays: t.working_days || t.workingDays || null,
       }));
 
       // If route query ticket is provided, auto-select it

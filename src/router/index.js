@@ -321,6 +321,11 @@ const router = createRouter({
       redirect: to => ({ path: '/admin/ssu/collab-tickets', query: { tab: 'dispatched', ...to.query } })
     },
     {
+      path: '/admin/ssu/approved-tickets',
+      alias: ['/admin/ssu/approved'],
+      redirect: to => ({ path: '/admin/ssu/collab-tickets', query: { tab: 'approved', ...to.query } })
+    },
+    {
       path: '/admin/ssu/queues',
       redirect: '/admin/ssu/submitted-tickets'
     },
