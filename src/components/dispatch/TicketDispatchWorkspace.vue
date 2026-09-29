@@ -1148,7 +1148,14 @@ const requestingUnitCode = computed(() => {
 
 // Read-only joint schedule for the receiving unit (set by the requesting unit).
 const receivingScheduleDate = computed(() => {
-  const raw = selectedTicket.value?.implementationDate || selectedTicket.value?.implementation_date;
+  const t = selectedTicket.value;
+  if (!t) return null;
+  const raw = t.implementation_date || 
+              t.implementationDate || 
+              t.project_target_date ||
+              t.assignment?.implementation_date ||
+              t.assignments?.find(a => a.implementation_date)?.implementation_date ||
+              t.other_unit_assignments?.find(a => a.implementation_date)?.implementation_date;
   if (!raw) return null;
   const s = String(raw).slice(0, 10);
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -1161,7 +1168,15 @@ const receivingScheduleDate = computed(() => {
 });
 
 const receivingWorkingDays = computed(() => {
-  const n = Number(selectedTicket.value?.working_days || selectedTicket.value?.workingDays);
+  const t = selectedTicket.value;
+  if (!t) return null;
+  const raw = t.working_days || 
+              t.workingDays || 
+              t.project_working_days ||
+              t.assignment?.working_days ||
+              t.assignments?.find(a => a.working_days)?.working_days ||
+              t.other_unit_assignments?.find(a => a.working_days)?.working_days;
+  const n = Number(raw);
   return n >= 1 && n <= 31 ? n : null;
 });
 
@@ -1539,11 +1554,27 @@ const selectTicket = (ticket) => {
     ];
   }
 
-  if (ticket.implementationDate) {
-    implementationDate.value = ticket.implementationDate;
+  const foundDate = ticket.implementation_date || 
+                    ticket.implementationDate || 
+                    ticket.project_target_date ||
+                    ticket.assignment?.implementation_date ||
+                    ticket.assignments?.find(a => a.implementation_date)?.implementation_date ||
+                    ticket.other_unit_assignments?.find(a => a.implementation_date)?.implementation_date;
+  if (foundDate) {
+    const s = String(foundDate).slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      implementationDate.value = s;
+    }
   }
-  if (ticket.working_days || ticket.workingDays) {
-    const d = Number(ticket.working_days || ticket.workingDays);
+
+  const foundDays = ticket.working_days || 
+                    ticket.workingDays || 
+                    ticket.project_working_days ||
+                    ticket.assignment?.working_days ||
+                    ticket.assignments?.find(a => a.working_days)?.working_days ||
+                    ticket.other_unit_assignments?.find(a => a.working_days)?.working_days;
+  if (foundDays) {
+    const d = Number(foundDays);
     if (!isNaN(d) && d >= 1) {
       workingDays.value = Math.min(31, Math.max(1, d));
     }
@@ -1609,8 +1640,8 @@ const dispatchAll = async () => {
   // Receiving-end collab dispatches inherit the requesting unit's joint
   // schedule and material setup — only personnel are assigned here.
   const receiving = isReceivingCollabDispatch.value;
-  const ticketDate = selectedTicket.value.implementationDate || selectedTicket.value.implementation_date || null;
-  const ticketDays = Number(selectedTicket.value.working_days || selectedTicket.value.workingDays);
+  const ticketDate = selectedTicket.value.implementationDate || selectedTicket.value.implementation_date || implementationDate.value || null;
+  const ticketDays = Number(selectedTicket.value.working_days || selectedTicket.value.workingDays || workingDays.value);
 
   let days = ticketDays;
   if (!receiving) {
@@ -1724,35 +1755,43 @@ const fetchDispatchQueue = async () => {
       rawData = res.data?.data?.tickets || res.data?.data || [];
     }
     if (Array.isArray(rawData)) {
-      dispatchQueue.value = rawData.map(t => ({
-        id: t.id,
-        unit_id: t.unit_id ?? null,
-        unit_code: t.unit_code ?? t.requesting_unit_code ?? null,
-        requesting_unit_code: t.requesting_unit_code || t.unit_code || null,
-        collaboration_id: t.collaboration_id || null,
-        title: t.title || t.project_title || t.service_type || 'Service Request',
-        service: t.service_type || t.service,
-        type: t.title || t.project_title || t.service_type || t.type || 'Service Request',
-        location: t.location || t.college_building || 'Campus Facility',
-        college_building: t.details?.college_building || t.college_building || t.location,
-        office_room: t.details?.office_room || t.office_room,
-        source_of_fund: t.details?.source_of_fund || 'N/A',
-        contact_number: t.contact_number || t.requester_contact || t.details?.contact_number || t.details?.contact_no || t.user?.contact_number || 'N/A',
-        requester: t.details?.requesting_personnel || t.requester || (t.user ? `${t.user.first_name} ${t.user.last_name}` : 'End User'),
-        status: t.status,
-        is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency'),
-        job_description: t.description || t.job_description || t.scope_of_work || '',
-        scope_of_work: t.scope_of_work || t.reason || '',
-        attachments: t.attachments || [],
-        submitted_at: t.submitted_at || t.created_at,
-        submittedAt: new Date(t.submitted_at || t.created_at || Date.now()).toLocaleDateString('en-US', {
-          month: 'short', day: 'numeric', year: 'numeric'
-        }),
-        implementationDate: t.implementation_date || t.implementationDate || new Date().toISOString().split('T')[0],
-        implementation_date: t.implementation_date || t.implementationDate || null,
-        working_days: t.working_days || t.workingDays || null,
-        workingDays: t.working_days || t.workingDays || null,
-      }));
+      dispatchQueue.value = rawData.map(t => {
+        const firstAssignWithDate = (t.assignments || t.other_unit_assignments || []).find(a => a.implementation_date || a.working_days);
+        const resolvedImplDate = t.implementation_date || t.implementationDate || t.project_target_date || firstAssignWithDate?.implementation_date || null;
+        const resolvedWorkingDays = t.working_days || t.workingDays || t.project_working_days || firstAssignWithDate?.working_days || null;
+
+        return {
+          id: t.id,
+          unit_id: t.unit_id ?? null,
+          unit_code: t.unit_code ?? t.requesting_unit_code ?? null,
+          requesting_unit_code: t.requesting_unit_code || t.unit_code || null,
+          collaboration_id: t.collaboration_id || null,
+          title: t.title || t.project_title || t.service_type || 'Service Request',
+          service: t.service_type || t.service,
+          type: t.title || t.project_title || t.service_type || t.type || 'Service Request',
+          location: t.location || t.college_building || 'Campus Facility',
+          college_building: t.details?.college_building || t.college_building || t.location,
+          office_room: t.details?.office_room || t.office_room,
+          source_of_fund: t.details?.source_of_fund || 'N/A',
+          contact_number: t.contact_number || t.requester_contact || t.details?.contact_number || t.details?.contact_no || t.user?.contact_number || 'N/A',
+          requester: t.details?.requesting_personnel || t.requester || (t.user ? `${t.user.first_name} ${t.user.last_name}` : 'End User'),
+          status: t.status,
+          is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency'),
+          job_description: t.description || t.job_description || t.scope_of_work || '',
+          scope_of_work: t.scope_of_work || t.reason || '',
+          attachments: t.attachments || [],
+          submitted_at: t.submitted_at || t.created_at,
+          submittedAt: new Date(t.submitted_at || t.created_at || Date.now()).toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric'
+          }),
+          implementationDate: resolvedImplDate ? String(resolvedImplDate).slice(0, 10) : new Date().toISOString().split('T')[0],
+          implementation_date: resolvedImplDate ? String(resolvedImplDate).slice(0, 10) : null,
+          working_days: resolvedWorkingDays ? Number(resolvedWorkingDays) : null,
+          workingDays: resolvedWorkingDays ? Number(resolvedWorkingDays) : null,
+          assignments: t.assignments || [],
+          other_unit_assignments: t.other_unit_assignments || [],
+        };
+      });
 
       // If route query ticket is provided, auto-select it
       checkRouteQueryTicket();
@@ -1783,6 +1822,10 @@ const checkRouteQueryTicket = async () => {
       const res = await api.get(`tickets/${cleanParam}`);
       const t = res.data?.data?.ticket;
       if (t) {
+        const firstAssignWithDate = (t.assignments || []).find(a => a.implementation_date || a.working_days);
+        const resolvedImplDate = t.implementation_date || t.assignment?.implementation_date || t.project_target_date || firstAssignWithDate?.implementation_date || null;
+        const resolvedWorkingDays = t.working_days || t.project_working_days || t.assignment?.working_days || firstAssignWithDate?.working_days || null;
+
         selectTicket({
           id: t.id,
           unit_id: t.unit_id ?? null,
@@ -1802,12 +1845,11 @@ const checkRouteQueryTicket = async () => {
           submittedAt: new Date(t.submitted_at || t.created_at).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric'
           }),
-          // Carry the requesting unit's joint schedule so receiving-end
-          // dispatches inherit it instead of setting their own.
-          working_days: t.working_days || t.project_working_days || t.assignment?.working_days || null,
-          workingDays: t.working_days || t.project_working_days || t.assignment?.working_days || null,
-          implementationDate: t.implementation_date || t.assignment?.implementation_date || new Date().toISOString().split('T')[0],
-          implementation_date: t.implementation_date || t.assignment?.implementation_date || null
+          working_days: resolvedWorkingDays ? Number(resolvedWorkingDays) : null,
+          workingDays: resolvedWorkingDays ? Number(resolvedWorkingDays) : null,
+          implementationDate: resolvedImplDate ? String(resolvedImplDate).slice(0, 10) : new Date().toISOString().split('T')[0],
+          implementation_date: resolvedImplDate ? String(resolvedImplDate).slice(0, 10) : null,
+          assignments: t.assignments || [],
         });
       }
     } catch (err) {

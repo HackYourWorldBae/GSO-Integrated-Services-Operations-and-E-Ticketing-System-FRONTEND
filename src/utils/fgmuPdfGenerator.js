@@ -103,18 +103,20 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     'End User'
   ).trim();
 
-  const contactNum = (
+  const contactNo = (
     t.contact_number ||
     t.requester_contact ||
     details.contact_number ||
+    details.contact_no ||
+    t.details?.contact_number ||
+    t.details?.contact_no ||
     t.user?.contact_number ||
     t.user?.requester_contact ||
     ''
   ).trim();
 
-  const requestor = contactNum && contactNum !== 'N/A' && !baseRequestor.includes(contactNum)
-    ? `${baseRequestor} (Tel: ${contactNum})`
-    : baseRequestor;
+  // The requester name is kept clean without phone number appended
+  const requestor = baseRequestor;
 
   const workingDays  = String(
     t.working_days ||
@@ -145,7 +147,19 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
   let rawWorkers = [];
   if (Array.isArray(t.assignments) && t.assignments.length > 0) {
     t.assignments.forEach(a => {
-      const name = a.personnel_name || a.assigned_to_name || a.name || '';
+      const name = a.personnel_name || a.assigned_to_name || a.worker_name || a.name || '';
+      if (name) rawWorkers.push(...name.split(/[,;\n]+/));
+    });
+  }
+  if (Array.isArray(t.my_unit_assignments) && t.my_unit_assignments.length > 0) {
+    t.my_unit_assignments.forEach(a => {
+      const name = a.worker_name || a.personnel_name || a.name || '';
+      if (name) rawWorkers.push(...name.split(/[,;\n]+/));
+    });
+  }
+  if (Array.isArray(t.other_unit_assignments) && t.other_unit_assignments.length > 0) {
+    t.other_unit_assignments.forEach(a => {
+      const name = a.worker_name || a.personnel_name || a.name || '';
       if (name) rawWorkers.push(...name.split(/[,;\n]+/));
     });
   }
@@ -155,7 +169,7 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
       if (name) rawWorkers.push(...name.split(/[,;\n]+/));
     });
   }
-  const fallbackWorkers = assignment.personnel_name || t.assignedWorker || t.assigned_worker || t.assigned_personnel || '';
+  const fallbackWorkers = assignment.personnel_name || assignment.worker_name || t.assignedWorker || t.assigned_worker || t.assigned_personnel || '';
   if (fallbackWorkers && typeof fallbackWorkers === 'string') {
     rawWorkers.push(...fallbackWorkers.split(/[,;\n]+/));
   }
@@ -165,6 +179,14 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     return lower && lower !== 'unassigned' && lower !== 'n/a' && lower !== 'none';
   });
 
+  const personnelData = {};
+  for (let i = 1; i <= 10; i++) {
+    const pName = personnelNames[i - 1] || '';
+    personnelData[`Personnel_${i}`] = pName;
+    personnelData[`personnel_${i}`] = pName;
+    personnelData[`Personnel${i}`] = pName;
+  }
+
   const isLeau = t.unit_code === 'LEAU' || t.unit === 'LEAU' || t.unit_id === 2 || (typeof t.id === 'string' && t.id.includes('LEAU'));
   const unitCode = isLeau ? 'LEAU' : 'FGMU';
   const unitFullName = isLeau
@@ -173,19 +195,14 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
   const ticketRef = String(t.ticket_number || t.reference_number || t.ticketRef || t.ticketId || t.id || '0000');
   const jrNo = details.jr_no || t.jr_no || ticketRef;
 
-  let remarks = (
+  // Only include explicit remarks if provided by the user/dispatcher/client.
+  // Do NOT pre-fill with default boilerplate so remarks are not encoded prematurely.
+  const remarks = (
     feedback.remarks ||
     t.remarks ||
-    assignment.dispatcher_notes ||
-    assignment.task_notes ||
-    assignment.instructions ||
-    assignment.task_briefing ||
+    details.remarks ||
     ''
   ).trim();
-
-  if (!remarks) {
-    remarks = isCompleted ? 'Work completed satisfactorily.' : 'Work order issued. Awaiting job execution.';
-  }
 
   return {
     ticketId:        String(t.ticketId || t.id || '0000').padStart(4, '0'),
@@ -197,6 +214,13 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     Room:            room,
     Fund:            fund,
     Requestor:       requestor,
+    requestor:       requestor,
+    Requester:       requestor,
+    requester:       requestor,
+    contact_no:      contactNo,
+    Contact_no:      contactNo,
+    'contact_no':    contactNo,
+    contact_number:  contactNo,
     Working_days:    workingDays,
     'Working_days':  workingDays,
     ' Working_days ': workingDays,
@@ -206,11 +230,9 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     'Date Completed': dateCompleted,
     Date_completed:  dateCompleted,
     Job_particulars: jobParticulars,
-    Personnel_1:     personnelNames[0] || '',
-    Personnel_2:     personnelNames[1] || '',
-    Personnel_3:     personnelNames[2] || '',
-    Personnel_4:     personnelNames[3] || '',
+    ...personnelData,
     Remarks:         remarks,
+    remarks:         remarks,
     JR_No:           jrNo,
     'JR No.':        jrNo,
     JR_no:           jrNo,

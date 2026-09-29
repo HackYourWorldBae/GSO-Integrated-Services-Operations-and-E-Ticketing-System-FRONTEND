@@ -100,18 +100,21 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     'End User'
   ).trim();
 
-  const contactNum = (
+  const contactNo = (
     t.contact_number ||
     t.requester_contact ||
     details.contact_number ||
+    details.contact_no ||
+    t.details?.contact_number ||
+    t.details?.contact_no ||
     t.user?.contact_number ||
     t.user?.requester_contact ||
     ''
   ).trim();
 
-  const requestor = contactNum && contactNum !== 'N/A' && !baseRequestor.includes(contactNum)
-    ? `${baseRequestor} (Tel: ${contactNum})`
-    : baseRequestor;
+  // The requester name is kept clean without phone number appended,
+  // matching the new {contact_no} placeholder in the template.
+  const requestor = baseRequestor;
 
   // 6. Target Working Days Duration
   const workingDays = String(
@@ -140,11 +143,23 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     jobParticulars = `[${serviceCategory}]\n${jobParticulars}`;
   }
 
-  // 8. Assigned Personnel Extraction (Personnel_1 .. Personnel_4)
+  // 8. Assigned Personnel Extraction (Personnel_1 .. Personnel_10)
   let rawWorkers = [];
   if (Array.isArray(t.assignments) && t.assignments.length > 0) {
     t.assignments.forEach(a => {
-      const name = a.personnel_name || a.assigned_to_name || a.name || a.personnel?.name || a.worker?.name || '';
+      const name = a.personnel_name || a.assigned_to_name || a.worker_name || a.name || a.personnel?.name || a.worker?.name || '';
+      if (name) rawWorkers.push(...name.split(/[,;\n]+/));
+    });
+  }
+  if (Array.isArray(t.my_unit_assignments) && t.my_unit_assignments.length > 0) {
+    t.my_unit_assignments.forEach(a => {
+      const name = a.worker_name || a.personnel_name || a.name || '';
+      if (name) rawWorkers.push(...name.split(/[,;\n]+/));
+    });
+  }
+  if (Array.isArray(t.other_unit_assignments) && t.other_unit_assignments.length > 0) {
+    t.other_unit_assignments.forEach(a => {
+      const name = a.worker_name || a.personnel_name || a.name || '';
       if (name) rawWorkers.push(...name.split(/[,;\n]+/));
     });
   }
@@ -154,7 +169,7 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
       if (name) rawWorkers.push(...name.split(/[,;\n]+/));
     });
   }
-  const fallbackWorkers = assignment.personnel_name || t.assignedWorker || t.assigned_worker || t.assigned_personnel || '';
+  const fallbackWorkers = assignment.personnel_name || assignment.worker_name || t.assignedWorker || t.assigned_worker || t.assigned_personnel || '';
   if (fallbackWorkers && typeof fallbackWorkers === 'string') {
     rawWorkers.push(...fallbackWorkers.split(/[,;\n]+/));
   }
@@ -164,27 +179,23 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     return lower && lower !== 'unassigned' && lower !== 'n/a' && lower !== 'none';
   });
 
-  const personnel1 = personnelNames[0] || '';
-  const personnel2 = personnelNames[1] || '';
-  const personnel3 = personnelNames[2] || '';
-  const personnel4 = personnelNames[3] || '';
+  const personnelData = {};
+  for (let i = 1; i <= 10; i++) {
+    const pName = personnelNames[i - 1] || '';
+    personnelData[`Personnel_${i}`] = pName;
+    personnelData[`personnel_${i}`] = pName;
+    personnelData[`Personnel${i}`] = pName;
+  }
 
   // 9. Dispatcher & Task Remarks
-  let remarks = (
+  // Only include explicit remarks if provided by the user/dispatcher/client.
+  // Do NOT pre-fill with default boilerplate so remarks are not encoded prematurely.
+  const remarks = (
     feedback.remarks ||
     t.remarks ||
-    assignment.dispatcher_notes ||
-    assignment.task_notes ||
-    t.task_notes ||
-    t.dispatcher_notes ||
-    assignment.instructions ||
-    assignment.task_briefing ||
+    details.remarks ||
     ''
   ).trim();
-
-  if (!remarks) {
-    remarks = isCompleted ? 'Work completed satisfactorily.' : 'Work order issued. Awaiting job execution.';
-  }
 
   const ticketRef = String(t.ticket_number || t.reference_number || t.ticketRef || t.ticketId || t.id || '0000');
   const jrNo = details.jr_no || t.jr_no || ticketRef;
@@ -195,6 +206,13 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     Room: room,
     Fund: fund,
     Requestor: requestor,
+    requestor: requestor,
+    Requester: requestor,
+    requester: requestor,
+    contact_no: contactNo,
+    Contact_no: contactNo,
+    'contact_no': contactNo,
+    contact_number: contactNo,
     Working_days: workingDays,
     'Working_days': workingDays,
     ' Working_days ': workingDays,
@@ -204,11 +222,9 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     'Date Completed': dateCompleted,
     Date_completed: dateCompleted,
     Job_particulars: jobParticulars,
-    Personnel_1: personnel1,
-    Personnel_2: personnel2,
-    Personnel_3: personnel3,
-    Personnel_4: personnel4,
+    ...personnelData,
     Remarks: remarks,
+    remarks: remarks,
     JR_No: jrNo,
     'JR No.': jrNo,
     JR_no: jrNo,
