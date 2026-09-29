@@ -44,6 +44,7 @@ const User_Tickets = () => import('../views/dashboards/user/User_Tickets.vue');
 const User_Settings = () => import('../views/dashboards/user/User_Settings.vue');
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
 const LEAU_Personnel = () => import('../views/dashboards/admin/leau/LEAU_Personnel.vue');
+const SSU_Personnel = () => import('../views/dashboards/admin/ssu/SSU_Personnel.vue');
 const LEAU_InventoryManagement = () => import('../views/dashboards/admin/leau/LEAU_InventoryManagement.vue');
 const FGMU_Archives = () => import('../views/dashboards/admin/fgmu/FGMU_Archives.vue');
 const LEAU_Archives = () => import('../views/dashboards/admin/leau/LEAU_Archives.vue');
@@ -317,6 +318,12 @@ const router = createRouter({
       name: 'ssu-incident-queues',
       component: SSU_IncidentTicketQueues,
       meta: { requiresAuth: true, roles: ['admin', 'director', 'superadmin'], unit: 'SSU', permission: 'tickets.view_all' }
+    },
+    {
+      path: '/admin/ssu/personnel',
+      name: 'ssu-admin-personnel',
+      component: SSU_Personnel,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU', permission: 'personnel.manage' }
     },
     {
       path: '/admin/ssu/archives',

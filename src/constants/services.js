@@ -32,6 +32,12 @@ export const LEAU_SERVICES = [
 
 export const SSU_SERVICES = [
   'Incident Report',
+  'Campus Security / Patrol',
+  'Traffic & Parking Assistance',
+  'Crowd Management / Escort',
+  'Perimeter Security',
+  'CCTV / Surveillance Check',
+  'Emergency Response',
   'Others'
 ];
 
