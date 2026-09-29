@@ -6,7 +6,8 @@
     <!-- the parent toolbar owns the tabs + shared search input instead. -->
     <div v-if="!hideToolbar" class="bg-white rounded-2xl border border-slate-200 shadow-xs">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
-        <div class="flex items-center gap-1.5">
+        <!-- If showStageTabs is false: show the single stage pill -->
+        <div v-if="!showStageTabs" class="flex items-center gap-1.5">
           <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider text-white shadow-md bg-indigo-600">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -17,10 +18,89 @@
             </span>
           </div>
         </div>
+
+        <!-- If showStageTabs is true: show tabs beside Collab Requests (Awaiting Dispatch) -->
+        <div v-else class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+          <!-- Tab 1: Collab Requests (Awaiting Dispatch) -->
+          <button
+            type="button"
+            @click="switchStageTab('approved')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              currentStage === 'approved'
+                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="currentStage === 'approved' ? 'text-white' : 'text-indigo-600'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Collab Requests (Awaiting Dispatch)</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                currentStage === 'approved' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              ]"
+            >
+              {{ stageCounts.approved }}
+            </span>
+          </button>
+
+          <!-- Tab 2: Dispatched -->
+          <button
+            type="button"
+            @click="switchStageTab('scheduled')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              currentStage === 'scheduled'
+                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="currentStage === 'scheduled' ? 'text-white' : 'text-slate-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Dispatched</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                currentStage === 'scheduled' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              ]"
+            >
+              {{ stageCounts.scheduled }}
+            </span>
+          </button>
+
+          <!-- Tab 3: Active Collab -->
+          <button
+            type="button"
+            @click="switchStageTab('active')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              currentStage === 'active'
+                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="currentStage === 'active' ? 'text-white' : 'text-emerald-600'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>Active Collab</span>
+            <span
+              :class="[
+                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
+                currentStage === 'active' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
+              ]"
+            >
+              {{ stageCounts.active }}
+            </span>
+          </button>
+        </div>
+
         <div class="text-[11px] text-slate-500 font-semibold px-2">
-          <span v-if="mode === 'approved'">Incoming requests awaiting your unit's dispatch</span>
-          <span v-else-if="mode === 'scheduled'">Joint tickets awaiting schedule / counterpart dispatch</span>
-          <span v-else-if="mode === 'active'">Joint tickets in execution (requesting unit completes)</span>
+          <span v-if="effectiveMode === 'approved'">Incoming requests awaiting your unit's dispatch</span>
+          <span v-else-if="effectiveMode === 'scheduled'">Dispatched collaboration requests scheduled with assigned personnel</span>
+          <span v-else-if="effectiveMode === 'active'">Live cross-unit execution tracking with turnaround duration monitoring</span>
           <span v-else>Incoming collaboration requests for your unit</span>
         </div>
       </div>
@@ -181,7 +261,7 @@
                     </button>
                   </template>
                   <router-link
-                    v-if="showDispatchAction && assignRoute && !ticket.is_outgoing && !ticket.my_unit_dispatched && (mode === 'approved' || mode === 'all' || mode === 'scheduled')"
+                    v-if="showDispatchAction && assignRoute && !ticket.is_outgoing && !ticket.my_unit_dispatched && (effectiveMode === 'approved' || effectiveMode === 'all' || effectiveMode === 'scheduled')"
                     :to="`${assignRoute}?ticket=${ticket.id}&collab=1`"
                     class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-white text-xs font-black transition-all shadow-xs bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
                   >
@@ -191,7 +271,7 @@
                     <span>Dispatch</span>
                   </router-link>
                   <button
-                    v-if="mode === 'scheduled' && ticket.is_requesting_unit"
+                    v-if="effectiveMode === 'scheduled' && ticket.is_requesting_unit"
                     type="button"
                     @click="startEarly(ticket)"
                     :disabled="actionLoading"
@@ -200,7 +280,7 @@
                     Start Early
                   </button>
                   <!-- In Progress actions (active mode, handled by the parent workspace) -->
-                  <template v-if="mode === 'active' && emitActions">
+                  <template v-if="effectiveMode === 'active' && emitActions">
                     <button
                       type="button"
                       @click="emitAction('job-order', ticket)"
@@ -321,14 +401,14 @@
             <button type="button" @click="respond(ticket, 'declined')" :disabled="actionLoading" class="px-3.5 py-2 min-h-[38px] rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold cursor-pointer disabled:opacity-50">Decline</button>
           </template>
           <router-link
-            v-if="showDispatchAction && assignRoute && !ticket.is_outgoing && !ticket.my_unit_dispatched && (mode === 'approved' || mode === 'all' || mode === 'scheduled')"
+            v-if="showDispatchAction && assignRoute && !ticket.is_outgoing && !ticket.my_unit_dispatched && (effectiveMode === 'approved' || effectiveMode === 'all' || effectiveMode === 'scheduled')"
             :to="`${assignRoute}?ticket=${ticket.id}&collab=1`"
             class="px-4 py-2 min-h-[38px] rounded-xl text-white text-xs font-black uppercase inline-flex items-center bg-indigo-600 cursor-pointer"
           >
             Dispatch
           </router-link>
           <button
-            v-if="mode === 'scheduled' && ticket.is_requesting_unit"
+            v-if="effectiveMode === 'scheduled' && ticket.is_requesting_unit"
             type="button"
             @click="startEarly(ticket)"
             :disabled="actionLoading"
@@ -336,7 +416,7 @@
           >
             Start Early
           </button>
-          <template v-if="mode === 'active' && emitActions">
+          <template v-if="effectiveMode === 'active' && emitActions">
             <button type="button" @click="emitAction('job-order', ticket)" class="py-2 px-2.5 min-h-[38px] rounded-xl border border-slate-200 bg-slate-100 text-slate-700 text-xs font-bold cursor-pointer">Job Order</button>
             <button
               v-if="ticket.is_requesting_unit"
@@ -528,6 +608,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/client';
 import { fetchCollabTickets, respondCollaboration } from '@/api/collaborations';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
@@ -543,6 +624,8 @@ const props = defineProps({
   // When embedded under a parent tabbed toolbar (director queue style),
   // hide this component's own toolbar and filter via the parent's search input.
   hideToolbar: { type: Boolean, default: false },
+  // Standalone stage tabs rendered directly in the top toolbar row (beside Collab Requests)
+  showStageTabs: { type: Boolean, default: false },
   searchText: { type: String, default: '' },
   // When true, row clicks / Full Info buttons emit 'open-details' with the raw
   // ticket instead of opening this component's own modal — lets the parent
@@ -556,6 +639,62 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['updated', 'open-details', 'collab-action']);
+
+const route = useRoute();
+const router = useRouter();
+
+const resolveInitialStage = (tabQuery) => {
+  if (tabQuery === 'dispatched' || tabQuery === 'scheduled') return 'scheduled';
+  if (tabQuery === 'active') return 'active';
+  return 'approved';
+};
+
+const currentStage = ref(props.showStageTabs ? resolveInitialStage(route?.query?.tab) : (props.mode || 'approved'));
+const effectiveMode = computed(() => (props.showStageTabs ? currentStage.value : props.mode));
+
+const stageCounts = ref({ approved: 0, scheduled: 0, active: 0 });
+
+const switchStageTab = (stage) => {
+  if (currentStage.value === stage) return;
+  currentStage.value = stage;
+  if (router && route) {
+    router.replace({
+      query: {
+        ...route.query,
+        tab: stage === 'scheduled' ? 'dispatched' : stage
+      }
+    });
+  }
+  fetchTickets();
+};
+
+watch(() => route?.query?.tab, (newTab) => {
+  if (props.showStageTabs && newTab) {
+    const resolved = resolveInitialStage(newTab);
+    if (currentStage.value !== resolved) {
+      currentStage.value = resolved;
+      fetchTickets();
+    }
+  }
+});
+
+const fetchStageCounts = async () => {
+  if (!props.showStageTabs) return;
+  try {
+    const [appRes, schedRes, actRes] = await Promise.all([
+      fetchCollabTickets({ stage: 'approved', direction: 'incoming' }),
+      fetchCollabTickets({ stage: 'scheduled', direction: 'all' }),
+      fetchCollabTickets({ stage: 'active', direction: 'all' }),
+    ]);
+    stageCounts.value = {
+      approved: (appRes.data?.data?.tickets || []).length,
+      scheduled: (schedRes.data?.data?.tickets || []).length,
+      active: (actRes.data?.data?.tickets || []).length,
+    };
+  } catch (err) {
+    console.warn('Failed to fetch collab stage counts:', err);
+  }
+};
 
 const emitAction = (action, ticket) => {
   emit('collab-action', { action, ticket });
@@ -571,29 +710,29 @@ const selectedTicket = ref(null);
 
 const resolvedDirection = computed(() => {
   if (props.direction) return props.direction;
-  if (props.mode === 'approved') return 'incoming';
-  if (props.mode === 'all') return 'incoming';
+  if (effectiveMode.value === 'approved') return 'incoming';
+  if (effectiveMode.value === 'all') return 'incoming';
   return 'all';
 });
 
 const resolvedStage = computed(() => {
-  if (props.mode === 'approved') return 'approved';
-  if (props.mode === 'scheduled') return 'scheduled';
-  if (props.mode === 'active') return 'active';
+  if (effectiveMode.value === 'approved') return 'approved';
+  if (effectiveMode.value === 'scheduled') return 'scheduled';
+  if (effectiveMode.value === 'active') return 'active';
   return 'all';
 });
 
 const stageLabel = computed(() => {
-  if (props.mode === 'approved') return 'Collab Requests (Incoming)';
-  if (props.mode === 'scheduled') return 'Collab — Scheduled';
-  if (props.mode === 'active') return 'Collab — Active';
+  if (effectiveMode.value === 'approved') return 'Collab Requests (Awaiting Dispatch)';
+  if (effectiveMode.value === 'scheduled') return 'Collab — Scheduled';
+  if (effectiveMode.value === 'active') return 'Collab — Active';
   return 'Collab Tickets';
 });
 
 // Elapsed / Target durations are meaningful only once joint work has started,
 // so they are shown exclusively on the Active collab tab (both requesting and
 // receiving units share the ActiveTicketsWorkspace with mode="active").
-const showDurations = computed(() => props.mode === 'active');
+const showDurations = computed(() => effectiveMode.value === 'active');
 
 // Effective search: parent-owned input when embedded (hideToolbar),
 // otherwise this component's own toolbar input.
@@ -688,6 +827,10 @@ const fetchTickets = async () => {
     const res = await fetchCollabTickets({ direction: resolvedDirection.value, stage: resolvedStage.value });
     const list = res.data?.data?.tickets || [];
     tickets.value = Array.isArray(list) ? list : [];
+    if (props.showStageTabs) {
+      stageCounts.value[currentStage.value] = tickets.value.length;
+      fetchStageCounts();
+    }
   } catch (err) {
     console.error('Failed to load collab tickets:', err);
     toast.error('Failed to load collab tickets.');
@@ -759,7 +902,12 @@ watch(() => props.searchText, () => {
   currentPage.value = 1;
 });
 
-onMounted(fetchTickets);
+onMounted(() => {
+  fetchTickets();
+  if (props.showStageTabs) {
+    fetchStageCounts();
+  }
+});
 
 defineExpose({ refresh: fetchTickets });
 </script>
