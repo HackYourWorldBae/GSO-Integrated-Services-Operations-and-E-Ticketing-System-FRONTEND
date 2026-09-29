@@ -22,6 +22,13 @@
         <span class="text">Under Investigation</span>
       </router-link>
 
+      <router-link to="/admin/ssu/assign-workers" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <span class="text">Dispatch Personnel</span>
+      </router-link>
+
       <router-link to="/admin/ssu/collab-tickets" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -174,12 +181,12 @@
             :key="worker.id"
             class="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 hover:shadow-md transition-all flex flex-col justify-between gap-4 group"
           >
-            <!-- Card Body: Name, Specialty, Status & Assigned Dispatches -->
+            <!-- Card Body: Name, Specialty, Status & Assigned Tickets Dropdown -->
             <div class="space-y-3.5">
               <!-- Top Row: Avatar, Name, Specialization & Status Badge -->
               <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-100 to-rose-200 text-rose-800 flex items-center justify-center font-black text-sm shrink-0 border border-rose-200 shadow-xs">
+                  <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-800 flex items-center justify-center font-black text-sm shrink-0 border border-slate-200 shadow-xs">
                     {{ getInitials(worker.name) }}
                   </div>
                   <div class="min-w-0">
@@ -195,105 +202,133 @@
                 <!-- Status Badge -->
                 <span
                   :class="[
-                    'text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shrink-0 border whitespace-nowrap',
-                    worker.status === 'Available' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                    worker.status === 'Working' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                    worker.status === 'On Trip' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                    'bg-rose-50 text-rose-700 border-rose-200'
+                    'px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 border',
+                    worker.status === 'Available'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : worker.status === 'Working'
+                        ? 'bg-amber-50 text-amber-700 border-amber-200'
+                        : 'bg-rose-50 text-rose-700 border-rose-200'
                   ]"
                 >
                   {{ worker.status }}
                 </span>
               </div>
 
-              <!-- Active Dispatches Accordion / Card -->
-              <div class="space-y-2">
-                <!-- If assigned to active dispatch or collaboration -->
-                <div v-if="worker.assignedTicket" class="rounded-xl bg-slate-50/80 border border-slate-200/80 p-3 space-y-2">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-1.5 min-w-0">
-                      <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0 animate-pulse"></span>
-                      <span class="text-xs font-black text-slate-800 truncate">
-                        {{ worker.assignedTicket }}
-                      </span>
-                      <span v-if="worker.isProject" class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 shrink-0">
-                        Collab / Project
-                      </span>
-                    </div>
-                    <span class="text-[10px] font-bold text-slate-500 shrink-0">
-                      {{ worker.implementationDate || 'Active' }}
+              <!-- Assigned Tickets Accordion Toggle -->
+              <div>
+                <button
+                  type="button"
+                  @click="toggleWorkerTickets(worker.id)"
+                  class="w-full min-h-[40px] flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200/70 text-xs font-bold transition-all cursor-pointer touch-manipulation group/toggle"
+                >
+                  <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 group-hover/toggle:text-rose-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    <span class="text-slate-700 font-black">Assigned Tickets</span>
+                    <span
+                      :class="[
+                        'px-2 py-0.5 rounded-full text-[10px] font-black',
+                        (worker.assignments?.length || 0) > 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-500'
+                      ]"
+                    >
+                      {{ worker.assignments?.length || 0 }}
                     </span>
                   </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 text-slate-400 transition-transform duration-200"
+                    :class="{ 'rotate-180': isWorkerExpanded(worker.id) }"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
 
-                  <p class="text-xs font-semibold text-slate-600 line-clamp-2">
-                    {{ worker.projectTitle || worker.ticketTask || 'Assigned Security Operations' }}
-                  </p>
-
-                  <!-- Queued next task indicator if available -->
-                  <div v-if="worker.nextAssignment" class="pt-2 border-t border-slate-200/70 text-[11px] flex items-center justify-between text-slate-500">
-                    <span class="font-bold truncate">Next: {{ worker.nextAssignment.ticketId }}</span>
-                    <span class="shrink-0 text-slate-400">{{ worker.nextAssignment.date }}</span>
+                <!-- Dropdown List of All Assigned Tickets -->
+                <div v-if="isWorkerExpanded(worker.id)" class="mt-2 space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar animate-fade-in">
+                  <div v-if="!worker.assignments || worker.assignments.length === 0" class="p-4 text-center rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-xs text-slate-400 font-bold">
+                    No tickets currently assigned.
                   </div>
-                </div>
+                  <div
+                    v-else
+                    v-for="(ticket, tIdx) in worker.assignments"
+                    :key="ticket.id || tIdx"
+                    class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs space-y-1.5 hover:border-slate-300 transition-all"
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-black text-slate-900">#{{ ticket.ticket_id }}</span>
+                        <span v-if="ticket.is_emergency" class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider">
+                          Urgent
+                        </span>
+                        <span v-if="ticket.is_project" class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 text-[9px] font-black uppercase tracking-wider">
+                          Project
+                        </span>
+                      </div>
+                      <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                        {{ ticket.queue_order === 1 ? 'Active Job' : `Queue #${ticket.queue_order}` }}
+                      </span>
+                    </div>
 
-                <!-- If idle / available -->
-                <div v-else-if="worker.status === 'Available'" class="rounded-xl bg-emerald-50/50 border border-emerald-200/50 p-2.5 flex items-center gap-2 text-emerald-800 text-xs font-bold">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Ready for Campus &amp; Collab Dispatches</span>
-                </div>
+                    <p class="text-slate-700 font-bold leading-tight">
+                      {{ ticket.task || ticket.project_title || ticket.service_type || 'Security Operations' }}
+                    </p>
 
-                <!-- If on leave -->
-                <div v-else class="rounded-xl bg-rose-50/50 border border-rose-200/50 p-2.5 flex items-center gap-2 text-rose-800 text-xs font-bold">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Currently On Leave</span>
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 font-medium pt-1 border-t border-slate-200/50">
+                      <span>Scheduled: {{ ticket.implementation_date || ticket.target_completion_date || 'TBD' }}</span>
+                      <span class="font-bold capitalize" :class="ticket.ticket_status === 'in_progress' ? 'text-amber-600' : 'text-slate-500'">
+                        {{ ticket.ticket_status ? ticket.ticket_status.replace('_', ' ') : 'Active' }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Card Footer: Quick Actions -->
+            <!-- Card Bottom: Roster Action Buttons -->
             <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  @click="handleWorkerStatusClick(worker)"
-                  class="px-2.5 py-1 min-h-[32px] text-xs font-black rounded-lg transition-colors cursor-pointer"
-                  :class="worker.status === 'On Leave'
-                    ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
-                    : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'"
-                >
-                  {{ worker.status === 'On Leave' ? 'Mark Available' : 'Set Leave' }}
-                </button>
-              </div>
-
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <!-- Edit Personnel -->
                 <button
                   v-if="isAdmin"
-                  type="button"
                   @click="openEditModal(worker)"
-                  class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-                  title="Edit Security Personnel"
+                  class="px-3 sm:px-3.5 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black transition-colors cursor-pointer flex items-center gap-1.5 touch-manipulation"
+                  title="Edit staff details"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                   </svg>
+                  <span>Edit</span>
                 </button>
 
+                <!-- Status Toggle -->
                 <button
-                  v-if="isAdmin"
-                  type="button"
-                  @click="confirmDelete(worker)"
-                  class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                  title="Remove Security Personnel"
+                  @click="handleWorkerStatusClick(worker)"
+                  class="px-3 sm:px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-black transition-all cursor-pointer border touch-manipulation"
+                  :class="worker.status === 'On Leave'
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                    : worker.status === 'Working'
+                      ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
+                  {{ worker.status === 'On Leave' ? 'Set Available' : (worker.status === 'Working' || worker.assignedTicket) ? 'Set Leave (Active)' : 'Set Leave' }}
                 </button>
               </div>
+
+              <!-- Delete Button -->
+              <button
+                v-if="isAdmin && worker.status !== 'Working' && !worker.assignedTicket"
+                @click="confirmDelete(worker)"
+                class="w-9 h-9 min-h-[38px] min-w-[38px] rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center cursor-pointer touch-manipulation shrink-0"
+                title="Remove from roster"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -674,6 +709,13 @@ const getInitials = (name) => {
   if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
+
+// ── Assigned Tickets Dropdown ───────────────────────────────────────────────
+const expandedWorkers = reactive({});
+const toggleWorkerTickets = (workerId) => {
+  expandedWorkers[workerId] = !expandedWorkers[workerId];
+};
+const isWorkerExpanded = (workerId) => Boolean(expandedWorkers[workerId]);
 
 // ── Add Personnel Modal ─────────────────────────────────────────────────────
 const nameExtensionOptions = ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];

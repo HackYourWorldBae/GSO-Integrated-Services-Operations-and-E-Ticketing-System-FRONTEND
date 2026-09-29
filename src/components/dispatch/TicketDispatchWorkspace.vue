@@ -1613,13 +1613,15 @@ const dispatchAll = async () => {
       await api.post('dispatch/assign', payload);
     }
 
-    // Auto-generate official Job Order document and attach to ticket with latest assignment details
+    // Auto-generate official Job Order document and attach to ticket with latest assignment details (FGMU only)
     try {
-      const ticketRes = await api.get(`tickets/${selectedTicket.value.id}`);
-      const freshTicket = ticketRes.data?.data?.ticket || ticketRes.data?.data;
-      if (freshTicket) {
-        const { attachFgmuJobRequestForm } = await import('@/utils/fgmuDocxGenerator');
-        await attachFgmuJobRequestForm(freshTicket);
+      if (props.unitCode?.toUpperCase() === 'FGMU') {
+        const ticketRes = await api.get(`tickets/${selectedTicket.value.id}`);
+        const freshTicket = ticketRes.data?.data?.ticket || ticketRes.data?.data;
+        if (freshTicket) {
+          const { attachFgmuJobRequestForm } = await import('@/utils/fgmuDocxGenerator');
+          await attachFgmuJobRequestForm(freshTicket);
+        }
       }
     } catch (genErr) {
       console.warn('Could not auto-attach job order at dispatch:', genErr);

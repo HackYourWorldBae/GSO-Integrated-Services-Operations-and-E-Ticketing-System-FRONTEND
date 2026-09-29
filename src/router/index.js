@@ -23,6 +23,7 @@ const SSU_SubmittedTickets = () => import('../views/dashboards/admin/ssu/SSU_Sub
 const SSU_InvestigatingTickets = () => import('../views/dashboards/admin/ssu/SSU_InvestigatingTickets.vue');
 const SSU_IncidentTicketQueues = () => import('../views/dashboards/admin/ssu/SSU_IncidentTicketQueues.vue');
 const SSU_CollabTickets = () => import('../views/dashboards/admin/ssu/SSU_CollabTickets.vue');
+const SSU_TicketDispatch = () => import('../views/dashboards/admin/ssu/SSU_TicketDispatch.vue');
 const Director_Dashboard = () => import('../views/dashboards/director/Director_Dashboard.vue');
 const Director_Materials = () => import('../views/dashboards/director/Director_Materials.vue');
 const Director_FGMU_TicketQueues = () => import('../views/dashboards/director/Director_FGMU_TicketQueues.vue');
@@ -307,6 +308,17 @@ const router = createRouter({
       name: 'ssu-collab-tickets',
       component: SSU_CollabTickets,
       meta: { requiresAuth: true, roles: ['admin', 'director', 'superadmin'], unit: 'SSU', permission: 'tickets.view_all' }
+    },
+    {
+      path: '/admin/ssu/assign-workers',
+      alias: ['/admin/ssu/dispatch'],
+      name: 'ssu-assign-workers',
+      component: SSU_TicketDispatch,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU', permission: 'tickets.dispatch' }
+    },
+    {
+      path: '/admin/ssu/dispatched',
+      redirect: to => ({ path: '/admin/ssu/collab-tickets', query: { tab: 'dispatched', ...to.query } })
     },
     {
       path: '/admin/ssu/queues',
