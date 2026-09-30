@@ -12,6 +12,7 @@ import {
   validateBorrowingDates,
   clampAssignQuantity,
   canAssignInventory,
+  canUnassignInventory,
   borrowingDispatchLink,
   BORROWING_STEPS,
   getBorrowingCurrentStep,
@@ -84,6 +85,7 @@ describe('borrowing utils', () => {
     expect(canBorrowingTransition('pending_director', 'approved_director')).toBe(true);
     expect(canBorrowingTransition('approved_director', 'inventory_assigned')).toBe(true);
     expect(canBorrowingTransition('inventory_assigned', 'ready_for_pickup')).toBe(true);
+    expect(canBorrowingTransition('inventory_assigned', 'approved_director')).toBe(true);
     expect(canBorrowingTransition('ready_for_pickup', 'picked_up')).toBe(true);
     expect(canBorrowingTransition('picked_up', 'overdue')).toBe(true);
     expect(canBorrowingTransition('picked_up', 'returned')).toBe(true);
@@ -135,6 +137,12 @@ describe('borrowing utils', () => {
     expect(canAssignInventory('approved_director')).toBe(true);
     expect(canAssignInventory('pending_director')).toBe(false);
     expect(canAssignInventory('inventory_assigned')).toBe(false);
+  });
+
+  it('gates inventory unassignment on inventory_assigned status', () => {
+    expect(canUnassignInventory('inventory_assigned')).toBe(true);
+    expect(canUnassignInventory('ready_for_pickup')).toBe(false);
+    expect(canUnassignInventory('approved_director')).toBe(false);
   });
 
   it('builds the borrowing dispatch deep link', () => {

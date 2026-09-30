@@ -36,6 +36,10 @@ export const directorRejectBorrowing = (ticketId, reason = '') =>
 export const assignInventoryToBorrowing = (ticketId, { inventory_id, assigned_quantity }) =>
   apiClient.post(`/borrowing/${ticketId}/assign-inventory`, { inventory_id, assigned_quantity });
 
+/** LEAU Admin unassigns inventory from a request before ready-for-pickup, reverting to approved. */
+export const unassignInventoryFromBorrowing = (ticketId) =>
+  apiClient.post(`/borrowing/${ticketId}/unassign-inventory`, {});
+
 /** LEAU Admin marks an assigned request as ready for pickup. */
 export const markBorrowingReadyForPickup = (ticketId, notes = '') =>
   apiClient.patch(`/borrowing/${ticketId}/ready-for-pickup`, { notes });

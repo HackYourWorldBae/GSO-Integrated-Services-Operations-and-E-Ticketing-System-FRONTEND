@@ -13,6 +13,7 @@ vi.mock('../client', () => ({
 import apiClient from '../client'
 import {
   assignInventoryToBorrowing,
+  unassignInventoryFromBorrowing,
   markBorrowingReadyForPickup,
   recordBorrowingPickup,
   recordBorrowingReturn,
@@ -98,6 +99,22 @@ describe('borrowing end-to-end flow', () => {
     await recordBorrowingReturn(ticketId, { return_condition: 'good', return_notes: '' })
     available += assigned
     expect(available).toBe(total)
+  })
+
+  it('unassigns inventory restoring stock and transitioning back to approved_director', async () => {
+    let available = 5
+    const assigned = 2
+    available -= assigned
+    expect(available).toBe(3)
+
+    expect(canBorrowingTransition('inventory_assigned', 'approved_director')).toBe(true)
+
+    apiClient.post.mockResolvedValueOnce({ data: { status: true } })
+    await unassignInventoryFromBorrowing(ticketId)
+    expect(apiClient.post).toHaveBeenCalledWith(`/borrowing/${ticketId}/unassign-inventory`, {})
+
+    available += assigned
+    expect(available).toBe(5)
   })
 
   it('detects overdue after the expected return date passes', () => {

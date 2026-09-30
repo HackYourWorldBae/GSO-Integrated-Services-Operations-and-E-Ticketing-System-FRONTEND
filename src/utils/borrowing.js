@@ -30,7 +30,7 @@ export const BORROWING_TERMINAL_STATUSES = ['returned', 'cancelled'];
 export const BORROWING_TRANSITIONS = {
   pending_director: ['approved_director', 'cancelled'],
   approved_director: ['inventory_assigned', 'cancelled'],
-  inventory_assigned: ['ready_for_pickup', 'cancelled'],
+  inventory_assigned: ['ready_for_pickup', 'approved_director', 'cancelled'],
   ready_for_pickup: ['picked_up', 'cancelled'],
   picked_up: ['overdue', 'returned', 'cancelled'],
   overdue: ['returned', 'cancelled'],
@@ -249,6 +249,13 @@ export function clampAssignQuantity(quantity, available, requested) {
  */
 export function canAssignInventory(borrowingStatus) {
   return String(borrowingStatus ?? '') === 'approved_director';
+}
+
+/**
+ * True when inventory may be unassigned (currently in inventory_assigned state).
+ */
+export function canUnassignInventory(borrowingStatus) {
+  return String(borrowingStatus ?? '') === 'inventory_assigned';
 }
 
 /**

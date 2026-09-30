@@ -1162,6 +1162,49 @@
       @cancel="closeConfirmModal"
     />
 
+    <!-- Confirm Modal for Borrowing Pickup -->
+    <ConfirmModal
+      :is-open="showBorrowingPickupConfirm"
+      :title="`Confirm Item Pickup — #${borrowingPickupTarget?.ticket_id || borrowingPickupTarget?.id || ''}`"
+      message="Are you sure you want to mark this item as picked up by the borrower? This will transition the ticket to Borrowed Items."
+      confirm-text="Yes, Mark Picked Up"
+      cancel-text="Cancel"
+      type="warning"
+      :is-loading="borrowingPickupLoading"
+      @confirm="executeBorrowingPickup"
+      @cancel="closeBorrowingPickupConfirm"
+    >
+      <div v-if="borrowingPickupTarget" class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-slate-500 font-semibold">Borrower:</span>
+          <span class="font-black text-slate-900 truncate text-right">
+            {{ borrowingPickupTarget.borrower?.name || borrowingPickupTarget.borrower_name || borrowingPickupTarget.requester || '—' }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-slate-500 font-semibold">Item Requested:</span>
+          <span class="font-bold text-slate-800 text-right truncate">
+            {{ borrowingPickupTarget.borrowing?.item_name_requested || borrowingPickupTarget.item_name_requested || borrowingPickupTarget.service || '—' }}
+            <span v-if="borrowingPickupTarget.borrowing?.item_model_requested || borrowingPickupTarget.item_model_requested" class="text-slate-500 text-[11px]">
+              ({{ borrowingPickupTarget.borrowing?.item_model_requested || borrowingPickupTarget.item_model_requested }})
+            </span>
+          </span>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-slate-500 font-semibold">Quantity:</span>
+          <span class="font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
+            {{ borrowingPickupTarget.borrowing?.assigned_quantity || borrowingPickupTarget.borrowing?.quantity_needed || borrowingPickupTarget.assigned_quantity || 1 }} unit(s)
+          </span>
+        </div>
+        <div v-if="borrowingPickupTarget.borrowing?.expected_return_date || borrowingPickupTarget.expected_return_date" class="flex items-center justify-between gap-2">
+          <span class="text-slate-500 font-semibold">Expected Return:</span>
+          <span class="font-bold text-slate-700">
+            {{ formatDate(borrowingPickupTarget.borrowing?.expected_return_date || borrowingPickupTarget.expected_return_date) }}
+          </span>
+        </div>
+      </div>
+    </ConfirmModal>
+
     <!-- Document Viewer Modal for Job Order & Attachments -->
     <DocumentViewerModal
       :is-open="viewerModal.isOpen"
@@ -1221,6 +1264,9 @@ const pageSize = ref(10);
 const selectedTicketForModal = ref(null);
 const showConfirmModal = ref(false);
 const pendingTicketId = ref(null);
+const showBorrowingPickupConfirm = ref(false);
+const borrowingPickupTarget = ref(null);
+const borrowingPickupLoading = ref(false);
 
 // Document Viewer state
 const viewerModal = reactive({
@@ -1359,18 +1405,40 @@ const onBorrowingUpdated = async () => {
   await fetchBorrowingCount();
 };
 
-const handleModalBorrowingPickup = async (ticket) => {
+const openBorrowingPickupConfirm = (ticket) => {
   if (!ticket) return;
+  borrowingPickupTarget.value = ticket;
+  showBorrowingPickupConfirm.value = true;
+};
+
+const closeBorrowingPickupConfirm = () => {
+  if (borrowingPickupLoading.value) return;
+  showBorrowingPickupConfirm.value = false;
+  borrowingPickupTarget.value = null;
+};
+
+const executeBorrowingPickup = async () => {
+  if (!borrowingPickupTarget.value) return;
+  const ticket = borrowingPickupTarget.value;
   const ticketId = ticket.ticket_id || ticket.id;
+  borrowingPickupLoading.value = true;
   try {
     await recordBorrowingPickup(ticketId, {});
     toast.success(`#${ticketId} marked as picked up.`);
+    showBorrowingPickupConfirm.value = false;
+    borrowingPickupTarget.value = null;
     selectedTicketForModal.value = null;
     scheduledTabRefreshKey.value += 1;
     await fetchBorrowingCount();
   } catch (err) {
     toast.error(err.response?.data?.message || 'Failed to record pickup.');
+  } finally {
+    borrowingPickupLoading.value = false;
   }
+};
+
+const handleModalBorrowingPickup = (ticket) => {
+  openBorrowingPickupConfirm(ticket);
 };
 
 const fetchBorrowingCount = async () => {

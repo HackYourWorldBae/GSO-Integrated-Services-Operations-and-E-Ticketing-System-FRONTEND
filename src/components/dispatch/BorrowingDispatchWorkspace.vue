@@ -384,12 +384,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import api from '@/api/client';
 import {
   getBorrowingByTicket,
   assignInventoryToBorrowing,
+  unassignInventoryFromBorrowing,
   markBorrowingReadyForPickup,
 } from '@/api/borrowing';
 import { listInventory } from '@/api/inventory';
@@ -522,13 +523,46 @@ const fetchBorrowing = async (ticketId) => {
   }
 };
 
+const isMarkingReady = ref(false);
+
+const doUnassignInventory = async (silent = false) => {
+  if (!selectedTicket.value || borrowing.value?.status !== 'inventory_assigned') return;
+  const tid = selectedTicket.value.id;
+  try {
+    await unassignInventoryFromBorrowing(tid);
+    if (!silent) {
+      toast.info(`Assigned inventory unassigned. Ticket #${tid} reverted to approved list.`);
+    }
+    await Promise.all([fetchBorrowing(tid), fetchInventory(), fetchDispatchQueue()]);
+  } catch (e) {
+    console.error('Failed to unassign inventory:', e);
+    if (!silent) {
+      toast.error(e.response?.data?.message || 'Failed to unassign inventory.');
+    }
+  }
+};
+
+const clearSelectedTicket = async () => {
+  if (borrowing.value?.status === 'inventory_assigned' && selectedTicket.value && !isMarkingReady.value) {
+    await doUnassignInventory(false);
+  }
+  selectedTicket.value = null;
+  borrowing.value = null;
+  router.replace({ path: route.path, query: {} });
+};
+
 const selectTicketById = async (ticketId) => {
-  if (!ticketId) {
+  const cleanId = ticketId ? String(ticketId).trim().replace(/^#/, '') : null;
+  // If we currently have a ticket selected with inventory assigned, and we're switching without ready-for-pickup:
+  if (selectedTicket.value && String(selectedTicket.value.id) !== cleanId && borrowing.value?.status === 'inventory_assigned' && !isMarkingReady.value) {
+    await doUnassignInventory(true);
+  }
+
+  if (!cleanId) {
     selectedTicket.value = null;
     borrowing.value = null;
     return;
   }
-  const cleanId = String(ticketId).trim().replace(/^#/, '');
   let found = dispatchQueue.value.find(t => String(t.id) === cleanId);
   if (!found) {
     await fetchDispatchQueue();
@@ -569,12 +603,6 @@ const selectTicketById = async (ticketId) => {
   });
 };
 
-const clearSelectedTicket = () => {
-  selectedTicket.value = null;
-  borrowing.value = null;
-  router.replace({ path: route.path, query: {} });
-};
-
 const refreshData = async () => {
   await Promise.all([fetchDispatchQueue(), fetchInventory()]);
   if (selectedTicket.value) await fetchBorrowing(selectedTicket.value.id);
@@ -594,7 +622,7 @@ const assignInventory = async (item) => {
       assigned_quantity: qty
     });
     toast.success(`Assigned ${qty} × ${item.name}. Now set ready for pickup.`);
-    await Promise.all([fetchBorrowing(selectedTicket.value.id), fetchInventory()]);
+    await Promise.all([fetchBorrowing(selectedTicket.value.id), fetchInventory(), fetchDispatchQueue()]);
   } catch (e) {
     console.error('Assign inventory failed:', e);
     toast.error(e.response?.data?.message || 'Failed to assign inventory.');
@@ -606,12 +634,14 @@ const assignInventory = async (item) => {
 const markReadyForPickup = async () => {
   if (!selectedTicket.value) return;
   actionLoading.value = true;
+  isMarkingReady.value = true;
   try {
     await markBorrowingReadyForPickup(selectedTicket.value.id);
     toast.success('Marked ready for pickup. See Scheduled Tickets › Borrowing Requests.');
     await fetchBorrowing(selectedTicket.value.id);
     router.push('/admin/leau/dispatched?tab=borrowing');
   } catch (e) {
+    isMarkingReady.value = false;
     console.error('Ready for pickup failed:', e);
     toast.error(e.response?.data?.message || 'Failed to mark ready for pickup.');
   } finally {
@@ -619,9 +649,43 @@ const markReadyForPickup = async () => {
   }
 };
 
+onBeforeRouteLeave(async (to, from, next) => {
+  if (borrowing.value?.status === 'inventory_assigned' && selectedTicket.value?.id && !isMarkingReady.value) {
+    try {
+      await unassignInventoryFromBorrowing(selectedTicket.value.id);
+    } catch (e) {
+      console.error('Failed to unassign inventory on route leave:', e);
+    }
+  }
+  next();
+});
+
+onBeforeUnmount(async () => {
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+  if (borrowing.value?.status === 'inventory_assigned' && selectedTicket.value?.id && !isMarkingReady.value) {
+    try {
+      await unassignInventoryFromBorrowing(selectedTicket.value.id);
+    } catch (e) {
+      console.error('Failed to unassign inventory on unmount:', e);
+    }
+  }
+});
+
+const handleBeforeUnload = () => {
+  if (borrowing.value?.status === 'inventory_assigned' && selectedTicket.value?.id && !isMarkingReady.value) {
+    const url = `/api/v1/borrowing/${selectedTicket.value.id}/unassign-inventory`;
+    try {
+      navigator.sendBeacon(url);
+    } catch {
+      // Ignored
+    }
+  }
+};
+
 watch(() => route.query.ticket, (v) => { selectTicketById(v); });
 
 onMounted(async () => {
+  window.addEventListener('beforeunload', handleBeforeUnload);
   await Promise.all([fetchDispatchQueue(), fetchInventory()]);
   if (route.query.ticket) await selectTicketById(route.query.ticket);
 });

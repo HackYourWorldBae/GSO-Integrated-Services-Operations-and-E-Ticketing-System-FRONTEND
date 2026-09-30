@@ -19,6 +19,7 @@ import {
   directorApproveBorrowing,
   directorRejectBorrowing,
   assignInventoryToBorrowing,
+  unassignInventoryFromBorrowing,
   markBorrowingReadyForPickup,
   recordBorrowingPickup,
   recordBorrowingReturn,
@@ -84,6 +85,15 @@ describe('borrowing api module', () => {
     // The module normalizes { inventory_id, assigned_quantity }, so compare
     // by value rather than reference.
     expect(apiClient.post.mock.calls[0][1]).toStrictEqual(payload)
+  })
+
+  it('unassigns inventory from a borrowing request', async () => {
+    apiClient.post.mockResolvedValueOnce({ data: { status: true } })
+    await unassignInventoryFromBorrowing('LEAU-TIC-1-2026')
+    expect(apiClient.post).toHaveBeenCalledWith(
+      '/borrowing/LEAU-TIC-1-2026/unassign-inventory',
+      {}
+    )
   })
 
   it('advances ready-for-pickup then pickup without payload loss', async () => {

@@ -149,8 +149,8 @@
                   <button
                     v-if="req.status === 'ready_for_pickup'"
                     type="button"
-                    @click="doPickup(req)"
-                    :disabled="actionLoading"
+                    @click="openPickupModal(req)"
+                    :disabled="actionLoading || pickupLoading"
                     class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95 flex items-center gap-1 disabled:opacity-50"
                     title="Record early or on-time pickup"
                   >
@@ -298,8 +298,8 @@
           <button
             v-else-if="req.status === 'ready_for_pickup'"
             type="button"
-            @click="doPickup(req)"
-            :disabled="actionLoading"
+            @click="openPickupModal(req)"
+            :disabled="actionLoading || pickupLoading"
             class="flex-1 py-2 px-3 min-h-[38px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black text-center transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50"
             title="Record item pickup"
           >
@@ -388,8 +388,8 @@
             <button
               v-else-if="req.status === 'ready_for_pickup'"
               type="button"
-              @click="doPickup(req)"
-              :disabled="actionLoading"
+              @click="openPickupModal(req)"
+              :disabled="actionLoading || pickupLoading"
               class="px-4 py-2 min-h-[40px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black cursor-pointer disabled:opacity-50"
               title="Record early or on-time pickup"
             >
@@ -445,6 +445,43 @@
       </div>
     </div>
 
+    <!-- Pickup confirmation modal -->
+    <ConfirmModal
+      :is-open="!!pickupTarget"
+      :title="`Confirm Item Pickup — #${pickupTarget?.ticket_id || ''}`"
+      message="Are you sure you want to mark this item as picked up by the borrower? This will transition the ticket to Borrowed Items."
+      confirm-text="Yes, Mark Picked Up"
+      cancel-text="Cancel"
+      type="warning"
+      :is-loading="pickupLoading"
+      @confirm="confirmPickup"
+      @cancel="closePickupModal"
+    >
+      <div v-if="pickupTarget" class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-slate-500 font-semibold">Borrower:</span>
+          <span class="font-black text-slate-900 truncate text-right">{{ pickupTarget.borrower_name || '—' }}</span>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-slate-500 font-semibold">Item Requested:</span>
+          <span class="font-bold text-slate-800 text-right truncate">
+            {{ pickupTarget.item_name_requested }}
+            <span v-if="pickupTarget.item_model_requested" class="text-slate-500 text-[11px]">({{ pickupTarget.item_model_requested }})</span>
+          </span>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-slate-500 font-semibold">Quantity:</span>
+          <span class="font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
+            {{ pickupTarget.assigned_quantity || pickupTarget.quantity_needed || 1 }} unit(s)
+          </span>
+        </div>
+        <div v-if="pickupTarget.expected_return_date" class="flex items-center justify-between gap-2">
+          <span class="text-slate-500 font-semibold">Expected Return:</span>
+          <span class="font-bold text-slate-700">{{ formatDate(pickupTarget.expected_return_date) }}</span>
+        </div>
+      </div>
+    </ConfirmModal>
+
     <!-- Return modal -->
     <Teleport to="body">
       <div v-if="returnTarget" class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto" @click.self="returnTarget = null">
@@ -481,6 +518,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 import {
   getBorrowingQueue,
   getOverdueBorrowings,
@@ -536,6 +574,8 @@ const currentPage = ref(1);
 const perPage = ref(10);
 const returnTarget = ref(null);
 const returnForm = ref({ condition: 'good', notes: '' });
+const pickupTarget = ref(null);
+const pickupLoading = ref(false);
 
 const awaitingList = computed(() => requests.value.filter(r => r.status === 'ready_for_pickup' || r.status === 'inventory_assigned'));
 const borrowedList = computed(() => requests.value.filter(r => r.status === 'picked_up'));
@@ -670,16 +710,35 @@ const doReadyForPickup = async (req) => {
   }
 };
 
-const doPickup = async (req) => {
-  actionLoading.value = true;
+const openPickupModal = (req) => {
+  pickupTarget.value = req;
+};
+
+const closePickupModal = () => {
+  if (pickupLoading.value) return;
+  pickupTarget.value = null;
+};
+
+const confirmPickup = async () => {
+  if (!pickupTarget.value) return;
+  pickupLoading.value = true;
   try {
-    await recordBorrowingPickup(req.ticket_id, {});
-    toast.success(`#${req.ticket_id} picked up — moved to Borrowed Items.`);
-    emit('status-changed', { ticket_id: req.ticket_id, status: 'picked_up' });
+    const tid = pickupTarget.value.ticket_id;
+    await recordBorrowingPickup(tid, {});
+    toast.success(`#${tid} picked up — moved to Borrowed Items.`);
+    emit('status-changed', { ticket_id: tid, status: 'picked_up' });
     emit('updated');
+    pickupTarget.value = null;
     await refreshAll();
-  } catch (e) { toast.error(e.response?.data?.message || 'Failed to record pickup.'); }
-  finally { actionLoading.value = false; }
+  } catch (e) {
+    toast.error(e.response?.data?.message || 'Failed to record pickup.');
+  } finally {
+    pickupLoading.value = false;
+  }
+};
+
+const doPickup = (req) => {
+  openPickupModal(req);
 };
 
 const openReturnModal = (req) => {
