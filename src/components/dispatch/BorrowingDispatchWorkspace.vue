@@ -190,18 +190,83 @@
     <!-- Empty state -->
     <div
       v-else
-      class="p-8 sm:p-12 rounded-3xl border-2 border-dashed border-slate-200 bg-white text-center flex flex-col items-center justify-center space-y-4 shadow-xs"
+      class="space-y-6"
     >
-      <h3 class="text-xl font-black text-slate-900 tracking-tight">No Borrowing Target Selected</h3>
-      <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-md">
-        Pick a director-approved borrowing request from the queue to assign inventory. Pickup and return dates come from the request form.
-      </p>
-      <router-link
-        to="/admin/leau/approved-tickets"
-        class="px-5 py-3 min-h-[44px] rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700"
+      <div
+        class="p-8 sm:p-12 rounded-3xl border-2 border-dashed border-slate-200 bg-white text-center flex flex-col items-center justify-center space-y-4 shadow-xs"
       >
-        <span>Select from Approved Tickets ({{ dispatchQueue.length }})</span>
-      </router-link>
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center border shadow-xs bg-amber-50 text-amber-600 border-amber-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+        </div>
+
+        <div class="max-w-md">
+          <h3 class="text-xl font-black text-slate-900 tracking-tight">No Borrowing Target Selected</h3>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            Pick a director-approved borrowing request from the queue to assign inventory. Pickup and return dates come from the request form.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <router-link
+            to="/admin/leau/approved-tickets"
+            class="px-5 py-3 min-h-[44px] rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700"
+          >
+            <span>Select from Approved Tickets ({{ dispatchQueue.length }})</span>
+          </router-link>
+        </div>
+      </div>
+
+      <!-- Quick Selection Cards from Borrowing Queue -->
+      <div v-if="dispatchQueue.length > 0" class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+            <span class="w-2.5 h-5 rounded-full bg-amber-500"></span>
+            <span>Borrowing Requests Awaiting Fulfillment ({{ dispatchQueue.length }})</span>
+          </h3>
+          <span class="text-xs text-slate-400 font-semibold">Click any request to allocate inventory</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <div
+            v-for="t in dispatchQueue"
+            :key="t.id"
+            @click="selectTicketById(t.id)"
+            class="p-4 rounded-2xl border border-slate-200 hover:border-amber-400 hover:shadow-md transition-all cursor-pointer bg-slate-50/50 hover:bg-white space-y-2.5 group"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-xs font-black px-2.5 py-0.5 rounded-lg border bg-white text-slate-800 border-slate-200 shadow-2xs">
+                #{{ t.id }}
+              </span>
+              <span
+                :class="[
+                  'px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border',
+                  t.status === 'processing' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                ]"
+              >
+                {{ t.status === 'processing' ? 'Inventory Assigned' : 'Approved' }}
+              </span>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-1">
+                {{ t.service_type || t.title || 'Borrowing Request' }}
+              </h4>
+              <p class="text-xs text-slate-500 font-medium mt-0.5">
+                {{ t.requester || t.requestedBy || 'End User' }}
+              </p>
+            </div>
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+              <span class="text-[11px]">{{ t.submittedAt || 'Recent' }}</span>
+              <button
+                type="button"
+                class="px-3 py-1 rounded-lg text-xs font-bold text-amber-600 group-hover:bg-amber-50 transition-colors"
+              >
+                {{ t.status === 'processing' ? 'Ready for Pickup &rarr;' : 'Assign &rarr;' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ═══ Available Inventory (replaces Available Personnel) ═══ -->
@@ -463,10 +528,29 @@ const selectTicketById = async (ticketId) => {
     borrowing.value = null;
     return;
   }
-  let found = dispatchQueue.value.find(t => String(t.id) === String(ticketId));
+  const cleanId = String(ticketId).trim().replace(/^#/, '');
+  let found = dispatchQueue.value.find(t => String(t.id) === cleanId);
   if (!found) {
     await fetchDispatchQueue();
-    found = dispatchQueue.value.find(t => String(t.id) === String(ticketId));
+    found = dispatchQueue.value.find(t => String(t.id) === cleanId);
+  }
+  if (!found) {
+    try {
+      const res = await api.get(`tickets/${cleanId}`);
+      const t = res.data?.data?.ticket || res.data?.data;
+      if (t) {
+        found = {
+          id: t.id,
+          title: t.title || t.service_type || 'Borrowing Request',
+          service_type: t.service_type || t.service,
+          status: t.status,
+          is_emergency: !!t.is_emergency,
+          ...t,
+        };
+      }
+    } catch (e) {
+      console.warn('Fallback ticket fetch failed:', e);
+    }
   }
   if (!found) {
     toast.error(`Ticket #${ticketId} not found in the LEAU dispatch queue. It may need director approval first.`);
@@ -478,7 +562,7 @@ const selectTicketById = async (ticketId) => {
     return;
   }
   selectedTicket.value = found;
-  await fetchBorrowing(ticketId);
+  await fetchBorrowing(cleanId);
   // Default assign qty to requested quantity
   inventory.value.forEach(i => {
     assignQty.value[i.id] = Math.min(Math.max(1, i.quantity_available || 1), borrowing.value?.quantity_needed || 1);
@@ -488,7 +572,7 @@ const selectTicketById = async (ticketId) => {
 const clearSelectedTicket = () => {
   selectedTicket.value = null;
   borrowing.value = null;
-  router.replace({ path: '/admin/leau/assign-workers', query: {} });
+  router.replace({ path: route.path, query: {} });
 };
 
 const refreshData = async () => {

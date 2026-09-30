@@ -286,7 +286,17 @@
         <!-- Card Action Buttons -->
         <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-100" @click.stop>
           <button
-            v-if="req.status === 'ready_for_pickup'"
+            v-if="req.status === 'inventory_assigned'"
+            type="button"
+            @click="doReadyForPickup(req)"
+            :disabled="actionLoading"
+            class="flex-1 py-2 px-3 min-h-[38px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black text-center transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50"
+            title="Mark ready for pickup"
+          >
+            <span>Set Ready for Pickup</span>
+          </button>
+          <button
+            v-else-if="req.status === 'ready_for_pickup'"
             type="button"
             @click="doPickup(req)"
             :disabled="actionLoading"
@@ -296,7 +306,7 @@
             <span>Picked Up</span>
           </button>
           <button
-            v-if="req.status === 'picked_up' || req.status === 'overdue'"
+            v-else-if="req.status === 'picked_up' || req.status === 'overdue'"
             type="button"
             @click="openReturnModal(req)"
             :disabled="actionLoading"
@@ -366,7 +376,17 @@
           </div>
           <div class="pt-2 border-t border-slate-100 flex items-center justify-end gap-2" @click.stop>
             <button
-              v-if="req.status === 'ready_for_pickup'"
+              v-if="req.status === 'inventory_assigned'"
+              type="button"
+              @click="doReadyForPickup(req)"
+              :disabled="actionLoading"
+              class="px-4 py-2 min-h-[40px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black cursor-pointer disabled:opacity-50"
+              title="Mark ready for pickup"
+            >
+              Set Ready for Pickup
+            </button>
+            <button
+              v-else-if="req.status === 'ready_for_pickup'"
               type="button"
               @click="doPickup(req)"
               :disabled="actionLoading"
@@ -376,7 +396,7 @@
               Picked Up
             </button>
             <button
-              v-if="req.status === 'picked_up' || req.status === 'overdue'"
+              v-else-if="req.status === 'picked_up' || req.status === 'overdue'"
               type="button"
               @click="openReturnModal(req)"
               :disabled="actionLoading"
@@ -466,6 +486,7 @@ import {
   getOverdueBorrowings,
   recordBorrowingPickup,
   recordBorrowingReturn,
+  markBorrowingReadyForPickup,
 } from '@/api/borrowing';
 import { borrowingStatusLabel, isOverdueBorrowing } from '@/utils/borrowing';
 import { toast } from 'vue3-toastify';
@@ -516,7 +537,7 @@ const perPage = ref(10);
 const returnTarget = ref(null);
 const returnForm = ref({ condition: 'good', notes: '' });
 
-const awaitingList = computed(() => requests.value.filter(r => r.status === 'ready_for_pickup'));
+const awaitingList = computed(() => requests.value.filter(r => r.status === 'ready_for_pickup' || r.status === 'inventory_assigned'));
 const borrowedList = computed(() => requests.value.filter(r => r.status === 'picked_up'));
 const overdueList = computed(() => {
   const fromQueue = requests.value.filter(r => r.status === 'overdue');
@@ -597,7 +618,9 @@ const statusPillClass = (s) => s === 'overdue'
   ? 'bg-rose-50 text-rose-700 border-rose-200'
   : s === 'picked_up'
     ? 'bg-blue-50 text-blue-700 border-blue-200'
-    : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    : s === 'inventory_assigned'
+      ? 'bg-amber-50 text-amber-700 border-amber-200'
+      : 'bg-emerald-50 text-emerald-700 border-emerald-200';
 const formatDate = (v) => {
   if (!v) return '—';
   const d = new Date(v);
@@ -629,6 +652,21 @@ const refreshAll = async () => {
   }
   finally {
     loading.value = false;
+  }
+};
+
+const doReadyForPickup = async (req) => {
+  actionLoading.value = true;
+  try {
+    await markBorrowingReadyForPickup(req.ticket_id);
+    toast.success(`#${req.ticket_id} marked ready for pickup.`);
+    emit('status-changed', { ticket_id: req.ticket_id, status: 'ready_for_pickup' });
+    emit('updated');
+    await refreshAll();
+  } catch (e) {
+    toast.error(e.response?.data?.message || 'Failed to mark ready for pickup.');
+  } finally {
+    actionLoading.value = false;
   }
 };
 

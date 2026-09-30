@@ -461,10 +461,15 @@
         </router-link>
       </div>
 
-      <!-- Quick select cards for SSU Collab Requests -->
-      <div v-if="unitCode.toUpperCase() === 'SSU' && dispatchQueue.length > 0" class="w-full max-w-2xl mt-4 pt-4 border-t border-slate-100 text-left">
+      <!-- Quick select cards for Tickets Awaiting Dispatch -->
+      <div v-if="dispatchQueue.length > 0" class="w-full max-w-3xl mt-4 pt-4 border-t border-slate-100 text-left">
         <p class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2.5">
-          Or pick directly from incoming requests awaiting dispatch:
+          <template v-if="unitCode.toUpperCase() === 'SSU'">
+            Or pick directly from incoming collaboration requests awaiting dispatch:
+          </template>
+          <template v-else>
+            Or pick directly from approved tickets awaiting dispatch:
+          </template>
         </p>
         <div class="space-y-2">
           <button
@@ -472,11 +477,27 @@
             :key="ticket.id"
             type="button"
             @click="selectTicket(ticket)"
-            class="w-full p-3 rounded-2xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 bg-white transition-all flex items-center justify-between gap-3 text-left cursor-pointer group shadow-2xs touch-manipulation"
+            :class="[
+              'w-full p-3 rounded-2xl border border-slate-200 bg-white transition-all flex items-center justify-between gap-3 text-left cursor-pointer group shadow-2xs touch-manipulation',
+              unitCode.toUpperCase() === 'SSU'
+                ? 'hover:border-indigo-400 hover:bg-indigo-50/40'
+                : unitCode.toUpperCase() === 'LEAU'
+                  ? 'hover:border-amber-400 hover:bg-amber-50/40'
+                  : 'hover:border-emerald-400 hover:bg-emerald-50/40'
+            ]"
           >
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-black text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
+                <span
+                  :class="[
+                    'text-xs font-black px-2 py-0.5 rounded-md border',
+                    unitCode.toUpperCase() === 'SSU'
+                      ? 'text-indigo-700 bg-indigo-50 border-indigo-200'
+                      : unitCode.toUpperCase() === 'LEAU'
+                        ? 'text-amber-800 bg-amber-50 border-amber-200'
+                        : 'text-emerald-800 bg-emerald-50 border-emerald-200'
+                  ]"
+                >
                   #{{ ticket.id }}
                 </span>
                 <span v-if="ticket.requesting_unit_code || ticket.unit_code" class="text-[10px] font-bold text-slate-500 uppercase">
@@ -486,14 +507,23 @@
                   Urgent
                 </span>
               </div>
-              <p class="text-xs font-black text-slate-900 group-hover:text-indigo-900 truncate">
-                {{ ticket.title || ticket.type || 'Collaboration Request' }}
+              <p class="text-xs font-black text-slate-900 group-hover:text-slate-800 truncate">
+                {{ ticket.title || ticket.service || ticket.type || 'Service Request' }}
               </p>
               <p class="text-[11px] text-slate-500 truncate mt-0.5">
                 {{ ticket.location }} • Requester: {{ ticket.requester }}
               </p>
             </div>
-            <div class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold group-hover:bg-indigo-700 transition-colors">
+            <div
+              :class="[
+                'shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-white text-xs font-bold transition-colors',
+                unitCode.toUpperCase() === 'SSU'
+                  ? 'bg-indigo-600 group-hover:bg-indigo-700'
+                  : unitCode.toUpperCase() === 'LEAU'
+                    ? 'bg-amber-600 group-hover:bg-amber-700'
+                    : 'bg-emerald-600 group-hover:bg-emerald-700'
+              ]"
+            >
               <span>Assign</span>
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -1706,10 +1736,24 @@ const dispatchAll = async () => {
       console.warn('Could not auto-attach job order at dispatch:', genErr);
     }
 
-    toast.success(`Workers successfully dispatched for #${selectedTicket.value.id}!`);
+    const dispatchedTicketId = selectedTicket.value?.id;
+    const isTodayOrEmergency = isEmergency.value || (implementationDate.value <= (new Date().toISOString().split('T')[0]));
+    toast.success(`Workers successfully dispatched for #${dispatchedTicketId}!`);
     await fetchDispatchQueue();
     clearSelectedTicket();
-    router.push(`/admin/${props.unitCode.toLowerCase()}/dispatched`);
+    if (isTodayOrEmergency) {
+      if (props.unitCode?.toUpperCase() === 'SSU') {
+        router.push('/admin/ssu/collab-tickets?tab=active');
+      } else {
+        router.push({ path: `/admin/${props.unitCode.toLowerCase()}/active-tickets`, query: { highlight: dispatchedTicketId } });
+      }
+    } else {
+      if (props.unitCode?.toUpperCase() === 'SSU') {
+        router.push('/admin/ssu/collab-tickets?tab=dispatched');
+      } else {
+        router.push({ path: `/admin/${props.unitCode.toLowerCase()}/dispatched`, query: { highlight: dispatchedTicketId } });
+      }
+    }
   } catch (error) {
     console.error('Dispatch assignment failed:', error);
     toast.error('Failed to dispatch workers. Please verify network connection.');

@@ -577,11 +577,12 @@ const handleNotificationClick = async (notif) => {
   const isDispatched = notif.status === 'processing' || text.includes('dispatched') || text.includes('assigned') || text.includes('scheduled');
   const isApproved = notif.status === 'approved' || text.includes('approved');
 
-  let targetPath = '';
+  const isBorrowing = text.includes('borrow') || text.includes('pickup') || text.includes('inventory');
 
   if (role === 'admin') {
     if (unitCode === 'ssu') {
       if (isCompleted) targetPath = '/admin/ssu/archives';
+      else if (text.includes('collab') || text.includes('joint')) targetPath = '/admin/ssu/collab-tickets';
       else if (isActive || isDispatched || text.includes('investigat')) targetPath = '/admin/ssu/investigating-tickets';
       else targetPath = '/admin/ssu/submitted-tickets';
     } else if (unitCode === 'leau') {
@@ -621,9 +622,13 @@ const handleNotificationClick = async (notif) => {
   }
 
   // 5. Navigate to target path passing ticket reference
+  const navQuery = { ticketId, highlight: ticketId, _t: Date.now() };
+  if (isBorrowing) {
+    navQuery.tab = 'borrowing';
+  }
   router.push({
     path: targetPath,
-    query: { ticketId, highlight: ticketId, _t: Date.now() }
+    query: navQuery
   });
 };
 

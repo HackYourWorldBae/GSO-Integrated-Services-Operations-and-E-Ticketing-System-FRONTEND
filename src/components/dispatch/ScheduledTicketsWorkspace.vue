@@ -202,7 +202,7 @@
         :show-tabs="false"
         :hide-toolbar="true"
         :search-text="searchQuery"
-        :status-filter="['ready_for_pickup']"
+        :status-filter="['ready_for_pickup', 'inventory_assigned']"
         layout="table"
         :key="'scheduled-borrowing-' + scheduledTabRefreshKey"
         @view-details="handleBorrowingViewDetails"
@@ -258,7 +258,38 @@
             <!-- Empty State -->
             <tr v-else-if="paginatedTickets.length === 0">
               <td colspan="5" class="py-16 text-center">
-                <div class="max-w-sm mx-auto flex flex-col items-center">
+                <div v-if="activeMatchesFromSearch.length > 0" class="max-w-md mx-auto p-4 rounded-2xl bg-sky-50 border border-sky-200 text-sky-900 text-left space-y-2">
+                  <div class="flex items-center gap-2 font-bold text-sm">
+                    <svg class="w-5 h-5 text-sky-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Looking for Ticket #{{ activeMatchesFromSearch[0].id }}?</span>
+                  </div>
+                  <p class="text-xs text-sky-800">
+                    <template v-if="isBorrowingService(activeMatchesFromSearch[0])">
+                      This is a borrowing request. View it under the <strong>Borrowing Requests</strong> tab.
+                    </template>
+                    <template v-else>
+                      This ticket is already in progress (Step 5 / Active). It is managed under <strong>Active Tickets</strong>.
+                    </template>
+                  </p>
+                  <div class="pt-1">
+                    <button
+                      v-if="isBorrowingService(activeMatchesFromSearch[0])"
+                      type="button"
+                      @click="switchScheduledTab('borrowing')"
+                      class="px-3.5 py-1.5 rounded-xl bg-amber-600 text-white text-xs font-black hover:bg-amber-700 transition-colors cursor-pointer"
+                    >
+                      Switch to Borrowing Requests
+                    </button>
+                    <router-link
+                      v-else
+                      :to="`/admin/${props.unitCode.toLowerCase()}/active-tickets?ticketId=${activeMatchesFromSearch[0].id}`"
+                      class="inline-block px-3.5 py-1.5 rounded-xl bg-sky-600 text-white text-xs font-black hover:bg-sky-700 transition-colors cursor-pointer"
+                    >
+                      Go to Active Tickets &rarr;
+                    </router-link>
+                  </div>
+                </div>
+                <div v-else class="max-w-sm mx-auto flex flex-col items-center">
                   <div class="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -1347,7 +1378,7 @@ const fetchBorrowingCount = async () => {
   try {
     const res = await getBorrowingQueue({ per_page: 500 });
     const list = res.data?.data?.borrowing_requests || [];
-    borrowingAwaitingCount.value = list.filter(r => r.status === 'ready_for_pickup').length;
+    borrowingAwaitingCount.value = list.filter(r => r.status === 'ready_for_pickup' || r.status === 'inventory_assigned').length;
   } catch {
     borrowingAwaitingCount.value = 0;
   }
@@ -1450,6 +1481,17 @@ const filteredTickets = computed(() => {
   }
 
   return list;
+});
+
+const activeMatchesFromSearch = computed(() => {
+  if (!searchQuery.value.trim() || scheduledTab.value !== 'jobs') return [];
+  const q = searchQuery.value.toLowerCase().trim();
+  return rawTickets.value.filter(t => {
+    if (t.current_step == 4) return false;
+    const idMatch = String(t.id).includes(q) || String(t.ticketId || '').includes(q);
+    const titleMatch = (t.title || '').toLowerCase().includes(q);
+    return idMatch || titleMatch;
+  });
 });
 
 const totalPages = computed(() => {
@@ -2122,6 +2164,23 @@ const checkRouteQueryTicket = () => {
   });
 
   if (match) {
+    // If borrowing, switch to Borrowing Requests tab
+    if (isBorrowingService(match)) {
+      if (scheduledTab.value !== 'borrowing') {
+        scheduledTab.value = 'borrowing';
+        fetchBorrowingCount();
+      }
+    } else if (match.current_step == 5 || match.status === 'processing') {
+      // If job has already started, redirect to Active Tickets where it lives
+      const targetUnit = String(props.unitCode || '').toLowerCase();
+      if (targetUnit === 'ssu') {
+        router.replace({ path: '/admin/ssu/collab-tickets', query: { tab: 'active', ticketId: match.id, highlight: match.id } }).catch(() => {});
+      } else {
+        router.replace({ path: `/admin/${targetUnit}/active-tickets`, query: { ticketId: match.id, highlight: match.id } }).catch(() => {});
+      }
+      return;
+    }
+
     selectedTicketForModal.value = match;
     const idx = filteredTickets.value.findIndex(t => String(t.id) === String(match.id));
     if (idx !== -1) {
