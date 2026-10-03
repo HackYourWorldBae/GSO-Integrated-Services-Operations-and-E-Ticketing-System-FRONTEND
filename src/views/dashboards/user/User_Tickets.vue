@@ -815,204 +815,35 @@
 
 
 
-                  <!-- ========== AWAITING RATING STATE IN TIMELINE ========== -->
+                  <!-- ========== AWAITING RATING NOTICE IN TIMELINE ========== -->
                   <div
                     v-if="isFeedbackEligible(selectedTicket) && !selectedTicket.isClosed"
-                    class="bg-amber-50/90 border-2 border-amber-200 rounded-3xl p-6 sm:p-7 text-left space-y-6 shadow-sm"
+                    class="bg-amber-50/90 border-2 border-amber-200 rounded-3xl p-5 sm:p-6 text-left space-y-4 shadow-sm"
                   >
-                    <div class="flex items-start gap-4">
-                      <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-md shadow-amber-500/30">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                        </svg>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200/80 text-amber-900 border border-amber-300">Action Required</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div class="flex items-start gap-3.5">
+                        <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm shadow-amber-500/30">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                          </svg>
                         </div>
-                        <h4 class="font-black text-slate-900 text-lg sm:text-xl tracking-tight">Service Complete — Evaluation Required</h4>
-                        <p class="text-xs sm:text-sm text-slate-600 mt-1">The service has been completed by the assigned team. Please rate the service quality below to finalize and close this ticket.</p>
-                      </div>
-                    </div>
-
-                    <!-- Direct embedded rating form inside the timeline modal -->
-                    <div class="border-t border-amber-200/80 pt-6 space-y-6">
-                      <!-- 1. Job Completion Status -->
-                      <div class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-3">
-                        <div class="flex items-center justify-between gap-2">
-                          <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide">
-                            1. Job Completion Status <span class="text-rose-500">*</span>
-                          </label>
-                          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Required</span>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <label
-                            v-for="option in completionOptions"
-                            :key="option.value"
-                            :class="[
-                              'flex items-center gap-3.5 p-4 border-2 rounded-2xl cursor-pointer transition-all duration-150 select-none group',
-                              satisfactionForm.completionStatus === option.value
-                                ? option.activeClass
-                                : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50/80 shadow-2xs hover:shadow-xs'
-                            ]"
-                          >
-                            <input type="radio" v-model="satisfactionForm.completionStatus" :value="option.value" class="hidden" />
-                            <div
-                              class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-                              :class="satisfactionForm.completionStatus === option.value ? option.indicatorClass : 'border-slate-300 bg-white group-hover:border-slate-400'"
-                            >
-                              <div v-if="satisfactionForm.completionStatus === option.value" class="w-2.5 h-2.5 rounded-full bg-white"></div>
-                            </div>
-                            <span class="text-sm sm:text-base font-bold leading-snug min-w-0 break-words">{{ option.label }}</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      <!-- 2. Service Quality Rating -->
-                      <div
-                        v-if="satisfactionForm.completionStatus === 'early' || satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'"
-                        class="bg-white p-5 sm:p-7 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-5 animate-fade-in"
-                      >
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
-                          <div>
-                            <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide">
-                              2. Service Quality Rating <span class="text-rose-500">*</span>
-                            </label>
-                            <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Click a number from 1 to 5 for each criterion</p>
+                        <div>
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200/80 text-amber-900 border border-amber-300">Action Required</span>
                           </div>
-
-                          <!-- Rating Scale Legend Pills -->
-                          <div class="flex items-center gap-1.5 flex-wrap text-xs font-bold text-slate-600 bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs">
-                            <span class="text-rose-600 font-bold">1: Poor</span>
-                            <span class="text-slate-300">•</span>
-                            <span class="text-amber-600 font-bold">2: Fair</span>
-                            <span class="text-slate-300">•</span>
-                            <span class="text-blue-600 font-bold">3: Satisfactory</span>
-                            <span class="text-slate-300">•</span>
-                            <span class="text-emerald-600 font-bold">4: Very Sat.</span>
-                            <span class="text-slate-300">•</span>
-                            <span class="text-emerald-700 font-black">5: Outstanding</span>
-                          </div>
-                        </div>
-
-                        <!-- Rating Criteria Items -->
-                        <div class="space-y-4">
-                          <div
-                            v-for="(label, key) in ratingCriteria"
-                            :key="key"
-                            class="bg-slate-50/70 border-2 border-slate-200/80 hover:border-slate-300 rounded-2xl p-4 sm:p-5 transition-all shadow-2xs space-y-3"
-                          >
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                              <div>
-                                <h5 class="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
-                                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
-                                  {{ label }}
-                                </h5>
-                                <p class="text-xs sm:text-sm text-slate-500 font-medium pl-4 mt-0.5">{{ getCriteriaDesc(key) }}</p>
-                              </div>
-
-                              <!-- Dynamic Feedback Score Badge -->
-                              <div v-if="satisfactionForm.ratings[key]" class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100/90 border border-amber-300 text-amber-900 rounded-xl text-xs sm:text-sm font-black shadow-xs self-start sm:self-auto animate-fade-in">
-                                <span class="text-amber-600 font-black">★</span>
-                                <span>Score: {{ satisfactionForm.ratings[key] }} / 5</span>
-                                <span class="text-amber-700 font-extrabold">({{ getRatingLabel(satisfactionForm.ratings[key]) }})</span>
-                              </div>
-                              <div v-else class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-3 py-1 rounded-xl self-start sm:self-auto">
-                                Please click 1 to 5 below
-                              </div>
-                            </div>
-
-                            <!-- Big, tactile, unmistakably clickable buttons -->
-                            <div class="grid grid-cols-5 gap-1.5 sm:gap-3 pt-1">
-                              <button
-                                v-for="star in 5"
-                                :key="star"
-                                type="button"
-                                @click="satisfactionForm.ratings[key] = star"
-                                :title="`${star} - ${getRatingLabel(star)}`"
-                                :class="[
-                                  'min-h-[58px] sm:min-h-[68px] p-1 sm:p-2 rounded-2xl flex flex-col items-center justify-center transition-all duration-150 cursor-pointer select-none group border-2',
-                                  satisfactionForm.ratings[key] === star
-                                    ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-white font-black border-amber-500 shadow-md shadow-amber-500/35 scale-[1.02] ring-2 ring-amber-400 ring-offset-2'
-                                    : 'bg-white hover:bg-amber-50 text-slate-800 hover:text-amber-900 font-black border-slate-300 hover:border-amber-400 shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
-                                ]"
-                              >
-                                <div class="flex items-center gap-1">
-                                  <span class="text-lg sm:text-2xl font-black leading-none group-hover:scale-110 transition-transform">
-                                    {{ star }}
-                                  </span>
-                                  <span class="text-amber-400 text-sm sm:text-base leading-none" :class="satisfactionForm.ratings[key] === star ? 'text-white' : 'group-hover:text-amber-500'">★</span>
-                                </div>
-                                <span
-                                  class="hidden sm:block text-[10px] sm:text-xs font-bold mt-1 leading-none text-center truncate max-w-full px-0.5"
-                                  :class="satisfactionForm.ratings[key] === star ? 'text-amber-100 font-black' : 'text-slate-500 group-hover:text-amber-800'"
-                                >
-                                  {{ getRatingLabel(star, true) }}
-                                </span>
-                              </button>
-                            </div>
-                          </div>
+                          <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight">Service Complete — Evaluation Required</h4>
+                          <p class="text-xs sm:text-sm text-slate-600 mt-1">The service has been completed by the assigned team. Please rate the service using the evaluation extension on the ticket card to finalize and close this ticket.</p>
                         </div>
                       </div>
-
-                      <!-- Beyond Time Reasons -->
-                      <div v-if="satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 space-y-3 animate-fade-in shadow-xs">
-                        <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-3">
-                          Reasons for beyond time completion
-                        </label>
-                        <div class="space-y-3">
-                          <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.personnelAbsent" label="Personnel absent / on-leave" />
-                          <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.extendedBreak" label="Extended break period" />
-                          <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.additionalWork" label="Additional work requested" />
-                        </div>
-                      </div>
-
-                      <!-- Not Completed Reasons -->
-                      <div v-if="satisfactionForm.completionStatus === 'not-completed'" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 space-y-3 animate-fade-in shadow-xs">
-                        <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-3">
-                          Reasons for not completed / performed
-                        </label>
-                        <div class="space-y-3">
-                          <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackWorkingDays" label="Lack of working days" />
-                          <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackMaterials" label="Lack of materials / tools" />
-                          <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackSkills" label="Lack of skills" />
-                        </div>
-                      </div>
-
-                      <!-- Remarks -->
-                      <div v-if="satisfactionForm.completionStatus" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-2 animate-fade-in">
-                        <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-1">
-                          Remarks / Commendations (Optional)
-                        </label>
-                        <textarea
-                          v-model="satisfactionForm.remarks"
-                          rows="3"
-                          class="w-full px-4 py-3 bg-slate-50/60 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white outline-none text-sm sm:text-base text-slate-800 transition-all resize-none placeholder:text-slate-400 font-medium"
-                          placeholder="Share your commendations, comments, or suggestions regarding the service...">
-                        </textarea>
-                      </div>
-
-                      <!-- Submit Action Button -->
                       <button
                         type="button"
-                        @click="closeTicket(selectedTicket)"
-                        :disabled="!isFormValid || isSubmittingFeedback"
-                        :class="[
-                          'w-full py-4 px-6 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-3 transition-all duration-150 select-none cursor-pointer shadow-md',
-                          isFormValid && !isSubmittingFeedback
-                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/25 hover:shadow-lg active:scale-[0.99]'
-                            : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                        ]"
+                        @click="triggerRatingFromModal(selectedTicket)"
+                        class="px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm shrink-0 flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
                       >
-                        <svg v-if="isSubmittingFeedback" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        <span>Rate on Ticket</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
                         </svg>
-                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>{{ isSubmittingFeedback ? 'Submitting Evaluation & Closing Ticket...' : 'Submit Evaluation & Close Ticket' }}</span>
                       </button>
                     </div>
                   </div>
@@ -1201,6 +1032,17 @@ const toggleRatingForm = (ticket) => {
     ratingTicketId.value = ticket.ticketId;
     resetForm();
   }
+};
+
+const triggerRatingFromModal = (ticket) => {
+  const targetId = ticket.ticketId || ticket.id;
+  closeTimeline();
+  ratingTicketId.value = targetId;
+  resetForm();
+  setTimeout(() => {
+    const el = document.getElementById(targetId);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
 };
 
 // ---- Sub-components defined inline to keep file self-contained ----
@@ -1656,7 +1498,16 @@ const handleRouteTicket = () => {
       currentPage.value = Math.floor(matchIdx / perPage.value) + 1;
     }
     if (!selectedTicket.value) {
-      openTimeline(match);
+      if (isFeedbackEligible(match) && !match.isClosed) {
+        ratingTicketId.value = match.ticketId;
+        resetForm();
+        setTimeout(() => {
+          const el = document.getElementById(match.ticketId);
+          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
+      } else {
+        openTimeline(match);
+      }
     }
   } else if (tickets.value.length > 0) {
     // If ticket is not in active requests, it's completed/closed; redirect to completed tickets
