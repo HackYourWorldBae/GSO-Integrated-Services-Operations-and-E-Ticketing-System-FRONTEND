@@ -67,30 +67,6 @@
           </div>
         </div>
 
-        <!-- ===================== NOTICE CARD IF AWAITING EVALUATION ===================== -->
-        <div
-          v-if="statusCounts.resolved > 0"
-          class="p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
-        >
-          <div class="flex items-start gap-3.5">
-            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/30">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-            </div>
-            <div>
-              <h4 class="text-sm sm:text-base font-black text-amber-950">Action Needed: {{ statusCounts.resolved }} Completed Ticket(s) Awaiting Your Rating</h4>
-              <p class="text-xs text-amber-800 font-medium mt-0.5">Please rate the completed services so that tickets can be formally closed and removed from active rosters.</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            @click="statusFilter = 'resolved'"
-            class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap self-start sm:self-auto"
-          >
-            View Tickets to Rate
-          </button>
-        </div>
 
         <!-- ===================== EMPTY STATE ===================== -->
         <div v-if="filteredTickets.length === 0" class="bg-white border border-slate-200 rounded-2xl p-12 sm:p-16 flex flex-col items-center text-center shadow-sm">
