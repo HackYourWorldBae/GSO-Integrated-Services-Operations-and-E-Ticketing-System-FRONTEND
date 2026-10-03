@@ -59,6 +59,7 @@ const Superadmin_AccountLogs = () => import('../views/dashboards/superadmin/Supe
 const Superadmin_Settings = () => import('../views/dashboards/superadmin/Superadmin_Settings.vue');
 const Director_Settings = () => import('../views/dashboards/director/Director_Settings.vue');
 const Admin_Settings = () => import('../views/dashboards/admin/Admin_Settings.vue');
+const Admin_MyRequests = () => import('../views/dashboards/admin/Admin_MyRequests.vue');
 
 const router = createRouter({
   history: typeof window !== 'undefined' && typeof window.history !== 'undefined'
@@ -172,6 +173,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU', permission: 'personnel.manage' }
     },
     {
+      path: '/admin/fgmu/my-requests',
+      name: 'fgmu-my-requests',
+      component: Admin_MyRequests,
+      meta: { requiresAuth: true, roles: ['admin', 'staff'], unit: 'FGMU', permission: 'tickets.create' }
+    },
+    {
       path: '/admin/fgmu/archives',
       name: 'fgmu-admin-archives',
       component: FGMU_Archives,
@@ -261,6 +268,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin'], unit: 'LEAU', permission: 'tickets.dispatch' }
     },
     {
+      path: '/admin/leau/my-requests',
+      name: 'leau-my-requests',
+      component: Admin_MyRequests,
+      meta: { requiresAuth: true, roles: ['admin', 'staff'], unit: 'LEAU', permission: 'tickets.create' }
+    },
+    {
       path: '/admin/leau/archives',
       name: 'leau-admin-archives',
       component: LEAU_Archives,
@@ -343,6 +356,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin'], unit: 'SSU', permission: 'personnel.manage' }
     },
     {
+      path: '/admin/ssu/my-requests',
+      name: 'ssu-my-requests',
+      component: Admin_MyRequests,
+      meta: { requiresAuth: true, roles: ['admin', 'staff'], unit: 'SSU', permission: 'tickets.create' }
+    },
+    {
       path: '/admin/ssu/archives',
       name: 'ssu-admin-archives',
       component: SSU_Archives,
@@ -353,6 +372,22 @@ const router = createRouter({
       name: 'ssu-admin-settings',
       component: Admin_Settings,
       meta: { requiresAuth: true, roles: ['admin', 'staff', 'superadmin'], unit: 'SSU' }
+    },
+    {
+      path: '/admin/my-requests',
+      redirect: to => {
+        let unit = 'fgmu';
+        try {
+          const raw = sessionStorage.getItem('auth');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const user = parsed.user || parsed;
+            const u = (user.unit_code || '').toLowerCase();
+            if (['fgmu', 'leau', 'ssu'].includes(u)) unit = u;
+          }
+        } catch { /* noop */ }
+        return { path: `/admin/${unit}/my-requests`, query: to.query };
+      }
     },
     {
       path: '/admin/settings',

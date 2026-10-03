@@ -145,72 +145,86 @@ const rawNavGroups = computed(() => {
             to: `/admin/${unit}`,
             exact: true,
             icon: 'home'
-          },
+          }
+        ]
+      },
+      {
+        title: 'Service Request',
+        items: [
           {
             label: 'Request Service',
             to: '/services',
             icon: 'request'
           },
-          ...(isSSU ? [
+          {
+            label: 'My Service Requests',
+            to: `/admin/${unit}/my-requests`,
+            exact: true,
+            icon: 'queue'
+          }
+        ]
+      },
+      {
+        title: 'Ticket Management',
+        items: isSSU ? [
+          {
+            label: 'Submitted Tickets',
+            to: '/admin/ssu/submitted-tickets',
+            icon: 'queue'
+          },
+          {
+            label: 'Under Investigation',
+            to: '/admin/ssu/investigating-tickets',
+            icon: 'shield'
+          },
+          {
+            label: 'Collab Tickets',
+            to: '/admin/ssu/collab-tickets',
+            icon: 'users'
+          },
+          {
+            label: 'Dispatch Tickets',
+            to: '/admin/ssu/assign-workers',
+            icon: 'dispatch'
+          }
+        ] : [
+          {
+            label: 'Approved Tickets',
+            to: `/admin/${unit}/approved-tickets`,
+            icon: 'queue'
+          },
+          {
+            label: 'Dispatch Tickets',
+            to: `/admin/${unit}/assign-workers`,
+            icon: 'dispatch'
+          },
+          {
+            label: 'Scheduled Tickets',
+            to: `/admin/${unit}/dispatched`,
+            icon: 'calendar'
+          },
+          {
+            label: 'Active Tickets',
+            to: `/admin/${unit}/active-tickets`,
+            icon: 'tools'
+          },
+          ...(unit === 'leau' ? [
             {
-              label: 'Submitted Tickets',
-              to: '/admin/ssu/submitted-tickets',
-              icon: 'queue'
-            },
-            {
-              label: 'Under Investigation',
-              to: '/admin/ssu/investigating-tickets',
-              icon: 'shield'
-            },
-            {
-              label: 'Collab Tickets',
-              to: '/admin/ssu/collab-tickets',
-              icon: 'users'
-            },
-            {
-              label: 'Dispatch Tickets',
-              to: '/admin/ssu/assign-workers',
-              icon: 'dispatch'
-            },
-            {
-              label: 'Security Personnel',
-              to: '/admin/ssu/personnel',
-              icon: 'users'
+              label: 'Inventory Management',
+              to: '/admin/leau/inventory',
+              icon: 'box'
             }
-          ] : [
-            {
-              label: 'Approved Tickets',
-              to: `/admin/${unit}/approved-tickets`,
-              icon: 'queue'
-            },
-            {
-              label: 'Dispatch tickets',
-              to: `/admin/${unit}/assign-workers`,
-              icon: 'dispatch'
-            },
-            {
-              label: 'Scheduled Tickets',
-              to: `/admin/${unit}/dispatched`,
-              icon: 'calendar'
-            },
-            {
-              label: 'Active Tickets',
-              to: `/admin/${unit}/active-tickets`,
-              icon: 'tools'
-            },
-            {
-              label: 'Personnel Management',
-              to: `/admin/${unit}/personnel`,
-              icon: 'users'
-            },
-            ...(unit === 'leau' ? [
-              {
-                label: 'Inventory Management',
-                to: '/admin/leau/inventory',
-                icon: 'box'
-              }
-            ] : [])
-          ])
+          ] : [])
+        ]
+      },
+      {
+        title: 'Roster',
+        items: [
+          {
+            label: isSSU ? 'Security Personnel' : 'Personnel Management',
+            to: `/admin/${unit}/personnel`,
+            icon: 'users'
+          }
         ]
       },
       {

@@ -614,7 +614,17 @@ const handleNotificationClick = async (notif) => {
   let targetPath = '';
 
   if (role === 'admin') {
-    if (unitCode === 'ssu') {
+    const adminUnit = (authStore.user?.unit_code || '').toLowerCase() || unitCode || 'fgmu';
+    const isOwnRequest = fullText.includes('your request') || 
+      fullText.includes('your service request') || 
+      fullText.includes('evaluation required') || 
+      fullText.includes('rate the service') || 
+      fullText.includes('rate your') ||
+      fullText.includes('your ticket');
+
+    if (isOwnRequest) {
+      targetPath = `/admin/${adminUnit}/my-requests`;
+    } else if (unitCode === 'ssu') {
       if (isCompleted) {
         targetPath = '/admin/ssu/archives';
       } else if (fullText.includes('collab') || fullText.includes('joint')) {
