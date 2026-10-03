@@ -129,7 +129,7 @@
           <!-- Executive KPI Cards Grid (Consolidated Overview) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <!-- 1. Total Requests Filed -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-slate-900 text-white shadow-md flex flex-col justify-between gap-4 group hover:shadow-xl transition-all duration-200">
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-slate-900 text-white shadow-md flex flex-col justify-between gap-4">
               <div class="flex items-center justify-between gap-2">
                 <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
                   <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
@@ -148,7 +148,7 @@
             </div>
 
             <!-- 2. Resolved & Completed -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4 hover:border-emerald-300 hover:shadow-xl transition-all duration-200">
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4">
               <div class="flex items-center justify-between gap-2">
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center shrink-0">
                   <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -162,7 +162,7 @@
             </div>
 
             <!-- 3. Declined / Out of Scope -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4 hover:border-slate-300 hover:shadow-xl transition-all duration-200">
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4">
               <div class="flex items-center justify-between gap-2">
                 <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/60 flex items-center justify-center shrink-0">
                   <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -176,7 +176,7 @@
             </div>
 
             <!-- 4. Client Satisfaction Rating -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4 hover:border-amber-300 hover:shadow-xl transition-all duration-200">
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4">
               <div class="flex items-center justify-between gap-2">
                 <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center shrink-0">
                   <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>

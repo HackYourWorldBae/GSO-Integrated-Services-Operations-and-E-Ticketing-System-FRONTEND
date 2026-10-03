@@ -135,7 +135,7 @@
           <!-- Top 3 Cards Grid: Total, Resolved, Declined -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- 1. Total Requests / Daily Total Requests -->
-            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+            <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-slate-900 text-white shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -156,7 +156,7 @@
             </div>
 
             <!-- 2. Resolved Tickets / Daily Completed Jobs -->
-            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+            <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
@@ -177,7 +177,7 @@
             </div>
 
             <!-- 3. Declined Requests / Daily Declined Requests -->
-            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+            <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-rose-50 text-rose-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
@@ -289,7 +289,7 @@
           <!-- Bottom 3 Cards Grid: Pending, Dispatched, Active -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- 1. Pending -->
-            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+            <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-amber-50 text-amber-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -303,7 +303,7 @@
             </div>
 
             <!-- 2. Dispatched & Scheduled -->
-            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+            <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-blue-50 text-blue-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -317,7 +317,7 @@
             </div>
 
             <!-- 3. Active Dispatches -->
-            <div class="group p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+            <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-2xl bg-emerald-100 text-emerald-700 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>

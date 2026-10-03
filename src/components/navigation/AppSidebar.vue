@@ -152,11 +152,6 @@ const rawNavGroups = computed(() => {
         title: 'Service Request',
         items: [
           {
-            label: 'Request Service',
-            to: '/services',
-            icon: 'request'
-          },
-          {
             label: 'My Service Requests',
             to: `/admin/${unit}/my-requests`,
             exact: true,
