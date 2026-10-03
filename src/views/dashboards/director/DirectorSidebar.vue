@@ -70,6 +70,36 @@
       </nav>
     </div>
 
+    <!-- Unit Archives -->
+    <div>
+      <p class="px-4 text-xs font-black text-slate-500 uppercase tracking-wider mb-2.5">Archives</p>
+      <nav class="space-y-1">
+        <!-- FGMU Archives -->
+        <router-link to="/admin/fgmu/archives" exact-active-class="router-link-active" active-class="" class="nav-item group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-blue-500 group-hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+          </svg>
+          <span class="text truncate">FGMU Archives</span>
+        </router-link>
+
+        <!-- LEAU Archives -->
+        <router-link to="/admin/leau/archives" exact-active-class="router-link-active" active-class="" class="nav-item group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-emerald-500 group-hover:text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+          </svg>
+          <span class="text truncate">LEAU Archives</span>
+        </router-link>
+
+        <!-- SSU Archives -->
+        <router-link to="/admin/ssu/archives" exact-active-class="router-link-active" active-class="" class="nav-item group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-rose-500 group-hover:text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+          </svg>
+          <span class="text truncate">SSU Archives</span>
+        </router-link>
+      </nav>
+    </div>
+
     <!-- Account Settings -->
     <div>
       <p class="px-4 text-xs font-black text-slate-500 uppercase tracking-wider mb-2.5">Account</p>

@@ -554,6 +554,269 @@
 
         </div>
 
+        <!-- EXECUTIVE PER-UNIT ARCHIVES REPOSITORY SECTION -->
+        <div class="bg-white rounded-2xl sm:rounded-[2rem] border border-slate-200/80 p-5 sm:p-8 space-y-6 shadow-sm">
+          <!-- Section Title & Meta -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xs shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base sm:text-xl font-black text-slate-900 tracking-tight">Per-Unit Historical Archives</h3>
+                  <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-wider border border-slate-200">
+                    {{ totalCombinedArchived }} Total Records
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">
+                  Concluded tickets, verified incident dossiers, and fulfilled borrowing histories organized by operating unit
+                </p>
+              </div>
+            </div>
+
+            <!-- Global Action / Refresh -->
+            <button
+              type="button"
+              @click="fetchRecentArchives"
+              :disabled="isArchivesLoading"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-xs disabled:opacity-50 self-start sm:self-auto"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300" :class="{ 'animate-spin': isArchivesLoading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Refresh Archives</span>
+            </button>
+          </div>
+
+          <!-- 3 Sub-Unit Archive Gateway Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <!-- 1. FGMU Facilities Archives Card -->
+            <div class="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-blue-50/50 to-white border border-blue-100/80 shadow-xs flex flex-col justify-between gap-5 group hover:shadow-md hover:border-blue-200 transition-all duration-200">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-blue-600 text-white uppercase tracking-wider">
+                    FGMU Unit
+                  </span>
+                  <span class="text-xs font-bold text-slate-500">Facilities & Maintenance</span>
+                </div>
+                <div>
+                  <h4 class="text-base font-black text-slate-900 group-hover:text-blue-700 transition-colors">Facilities Management Archives</h4>
+                  <p class="text-xs text-slate-600 font-medium leading-relaxed mt-1">
+                    Infrastructure repairs, carpentry, electrical wiring, plumbing, air conditioning, and preventative maintenance logs.
+                  </p>
+                </div>
+                <div class="pt-3 border-t border-blue-100/60 flex items-baseline justify-between">
+                  <span class="text-xs font-black text-slate-500 uppercase tracking-wider">Resolved Tickets</span>
+                  <span class="text-2xl font-black text-blue-700 tabular-nums">
+                    {{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}
+                  </span>
+                </div>
+              </div>
+              <router-link
+                to="/admin/fgmu/archives"
+                class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer min-h-[42px] touch-manipulation group-hover:translate-y-[-1px]"
+              >
+                <span>Access FGMU Archives</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </router-link>
+            </div>
+
+            <!-- 2. LEAU Environment Archives Card -->
+            <div class="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-emerald-50/50 to-white border border-emerald-100/80 shadow-xs flex flex-col justify-between gap-5 group hover:shadow-md hover:border-emerald-200 transition-all duration-200">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-600 text-white uppercase tracking-wider">
+                    LEAU Unit
+                  </span>
+                  <span class="text-xs font-bold text-slate-500">Landscaping & Ecology</span>
+                </div>
+                <div>
+                  <h4 class="text-base font-black text-slate-900 group-hover:text-emerald-700 transition-colors">Landscaping & Borrowing Archives</h4>
+                  <p class="text-xs text-slate-600 font-medium leading-relaxed mt-1">
+                    Campus groundskeeping, environmental care, tree maintenance, waste disposal, and fulfilled equipment borrowing slips.
+                  </p>
+                </div>
+                <div class="pt-3 border-t border-emerald-100/60 flex items-baseline justify-between">
+                  <span class="text-xs font-black text-slate-500 uppercase tracking-wider">Resolved Tickets</span>
+                  <span class="text-2xl font-black text-emerald-700 tabular-nums">
+                    {{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}
+                  </span>
+                </div>
+              </div>
+              <router-link
+                to="/admin/leau/archives"
+                class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer min-h-[42px] touch-manipulation group-hover:translate-y-[-1px]"
+              >
+                <span>Access LEAU Archives</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </router-link>
+            </div>
+
+            <!-- 3. SSU Security Archives Card -->
+            <div class="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-rose-50/50 to-white border border-rose-100/80 shadow-xs flex flex-col justify-between gap-5 group hover:shadow-md hover:border-rose-200 transition-all duration-200">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-rose-600 text-white uppercase tracking-wider">
+                    SSU Unit
+                  </span>
+                  <span class="text-xs font-bold text-slate-500">Security & Safety</span>
+                </div>
+                <div>
+                  <h4 class="text-base font-black text-slate-900 group-hover:text-rose-700 transition-colors">Special Security Archives</h4>
+                  <p class="text-xs text-slate-600 font-medium leading-relaxed mt-1">
+                    Concluded incident investigations, security blotters, safety interventions, and joint multi-unit dispatches.
+                  </p>
+                </div>
+                <div class="pt-3 border-t border-rose-100/60 flex items-baseline justify-between">
+                  <span class="text-xs font-black text-slate-500 uppercase tracking-wider">Resolved Incidents</span>
+                  <span class="text-2xl font-black text-rose-700 tabular-nums">
+                    {{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}
+                  </span>
+                </div>
+              </div>
+              <router-link
+                to="/admin/ssu/archives"
+                class="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer min-h-[42px] touch-manipulation group-hover:translate-y-[-1px]"
+              >
+                <span>Access SSU Archives</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </router-link>
+            </div>
+          </div>
+
+          <!-- Recent Concluded Records Explorer -->
+          <div class="pt-4 border-t border-slate-100 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <h4 class="text-sm font-black text-slate-900 uppercase tracking-wider">Recent Concluded Records Explorer</h4>
+              </div>
+
+              <!-- Filter Tabs and Search Bar -->
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <!-- Unit Tabs -->
+                <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/70 gap-1">
+                  <button
+                    v-for="tab in archiveTabs"
+                    :key="tab.key"
+                    type="button"
+                    @click="activeArchiveTab = tab.key"
+                    class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[30px] touch-manipulation"
+                    :class="activeArchiveTab === tab.key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
+                  >
+                    {{ tab.label }}
+                  </button>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative min-w-[200px]">
+                  <input
+                    v-model="searchArchiveQuery"
+                    type="text"
+                    placeholder="Search archives..."
+                    class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 focus:bg-white transition-all min-h-[34px]"
+                  />
+                  <div class="pointer-events-none absolute inset-y-0 left-0 pl-2.5 flex items-center text-slate-400">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Records Table -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-xs">
+              <table class="min-w-[700px] w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-700 text-xs font-black uppercase tracking-wider border-b border-slate-200">
+                    <th class="py-3 px-4">Ticket Ref</th>
+                    <th class="py-3 px-3 text-center">Unit</th>
+                    <th class="py-3 px-4">Service Category / Title</th>
+                    <th class="py-3 px-4">Requestor</th>
+                    <th class="py-3 px-4 text-center">Date Concluded</th>
+                    <th class="py-3 px-3 text-center">Status</th>
+                    <th class="py-3 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs">
+                  <tr v-if="isArchivesLoading">
+                    <td colspan="7" class="py-8 text-center text-slate-400 font-bold">
+                      <div class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Loading archived records...</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr v-else-if="filteredRecentArchives.length === 0">
+                    <td colspan="7" class="py-8 text-center text-slate-400 font-medium">
+                      No archived records match the current filter or search criteria.
+                    </td>
+                  </tr>
+                  <tr
+                    v-for="record in filteredRecentArchives"
+                    :key="record.id"
+                    class="hover:bg-slate-50/80 transition-colors"
+                  >
+                    <td class="py-3 px-4 font-black text-slate-900 tabular-nums">
+                      #{{ record.id }}
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                      <span
+                        class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider"
+                        :class="record.unit_code === 'FGMU' ? 'bg-blue-100 text-blue-800' : (record.unit_code === 'LEAU' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800')"
+                      >
+                        {{ record.unit_code }}
+                      </span>
+                    </td>
+                    <td class="py-3 px-4 font-bold text-slate-800">
+                      <div class="truncate max-w-[220px]" :title="record.title || record.service_type">
+                        {{ record.title || record.service_type || 'General Service' }}
+                      </div>
+                      <div class="text-[11px] font-normal text-slate-500 truncate max-w-[220px]">
+                        {{ record.service_type }}
+                      </div>
+                    </td>
+                    <td class="py-3 px-4 text-slate-700 font-medium">
+                      {{ record.requester || record.requestedBy || (record.user ? `${record.user.first_name} ${record.user.last_name}` : '') || 'Campus Member' }}
+                    </td>
+                    <td class="py-3 px-4 text-center tabular-nums text-slate-600 font-medium">
+                      {{ new Date(record.completed_at || record.updated_at || record.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }}
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                      <span
+                        class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider"
+                        :class="['completed', 'resolved'].includes(record.status) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'"
+                      >
+                        {{ record.status_label || record.status }}
+                      </span>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                      <router-link
+                        :to="{ path: `/admin/${record.unit_code.toLowerCase()}/archives`, query: { ticketId: record.id } }"
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold transition-colors"
+                      >
+                        <span>Open Record</span>
+                        <span>›</span>
+                      </router-link>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
     </template>
   </MainLayout>
@@ -730,11 +993,93 @@ const handleDownloadReport = async () => {
   }
 };
 
+// -----------------------------------------------------------------------------
+// Per-Unit Archives Explorer State & Logic
+// -----------------------------------------------------------------------------
+const recentArchives = ref([]);
+const isArchivesLoading = ref(false);
+const activeArchiveTab = ref('ALL');
+const searchArchiveQuery = ref('');
+const archiveTabs = [
+  { key: 'ALL',  label: 'All Units' },
+  { key: 'FGMU', label: 'FGMU' },
+  { key: 'LEAU', label: 'LEAU' },
+  { key: 'SSU',  label: 'SSU' },
+];
 
+const totalCombinedArchived = computed(() => {
+  const fgmu = executiveAnalytics.value?.units?.FGMU?.resolved ?? 0;
+  const leau = executiveAnalytics.value?.units?.LEAU?.resolved ?? 0;
+  const ssu = executiveAnalytics.value?.units?.SSU?.resolved ?? 0;
+  return fgmu + leau + ssu;
+});
+
+const fetchRecentArchives = async () => {
+  isArchivesLoading.value = true;
+  try {
+    const [fgmuRes, leauRes, ssuRes] = await Promise.allSettled([
+      api.get('tickets/archives/FGMU'),
+      api.get('tickets/archives/LEAU'),
+      api.get('tickets/archives/SSU'),
+    ]);
+
+    const combined = [];
+
+    if (fgmuRes.status === 'fulfilled' && fgmuRes.value?.data?.data?.tickets) {
+      fgmuRes.value.data.data.tickets.forEach(t => {
+        combined.push({ ...t, unit_code: 'FGMU' });
+      });
+    }
+
+    if (leauRes.status === 'fulfilled' && leauRes.value?.data?.data?.tickets) {
+      leauRes.value.data.data.tickets.forEach(t => {
+        combined.push({ ...t, unit_code: 'LEAU' });
+      });
+    }
+
+    if (ssuRes.status === 'fulfilled' && ssuRes.value?.data?.data?.tickets) {
+      ssuRes.value.data.data.tickets.forEach(t => {
+        combined.push({ ...t, unit_code: 'SSU' });
+      });
+    }
+
+    // Sort descending by completion date or updated date
+    combined.sort((a, b) => {
+      const dateA = new Date(a.completed_at || a.updated_at || a.submitted_at || 0).getTime();
+      const dateB = new Date(b.completed_at || b.updated_at || b.submitted_at || 0).getTime();
+      return dateB - dateA;
+    });
+
+    recentArchives.value = combined.slice(0, 30);
+  } catch (err) {
+    console.error('Failed to load recent archives:', err);
+  } finally {
+    isArchivesLoading.value = false;
+  }
+};
+
+const filteredRecentArchives = computed(() => {
+  let list = recentArchives.value;
+  if (activeArchiveTab.value !== 'ALL') {
+    list = list.filter(t => t.unit_code === activeArchiveTab.value);
+  }
+  const q = searchArchiveQuery.value.trim().toLowerCase();
+  if (q) {
+    list = list.filter(t => {
+      const id = String(t.id || '').toLowerCase();
+      const service = String(t.service_type || '').toLowerCase();
+      const title = String(t.title || '').toLowerCase();
+      const requester = String(t.requester || t.requestedBy || (t.user ? `${t.user.first_name} ${t.user.last_name}` : '') || '').toLowerCase();
+      return id.includes(q) || service.includes(q) || title.includes(q) || requester.includes(q);
+    });
+  }
+  return list;
+});
 
 onMounted(() => {
   isAlive = true;
   fetchExecutiveAnalytics();
+  fetchRecentArchives();
 });
 
 onUnmounted(() => {

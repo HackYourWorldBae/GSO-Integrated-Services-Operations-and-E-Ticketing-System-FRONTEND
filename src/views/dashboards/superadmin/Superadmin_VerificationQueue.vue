@@ -409,11 +409,14 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { debounce } from '@/utils/debounce';
 import { fetchUsers, verifyUser, rejectVerification } from '@/api/superadmin';
+
+const route = useRoute();
 
 const loading = ref(false);
 const isActionLoading = ref(false);
@@ -604,8 +607,37 @@ const getStudentAffiliationFullLabel = (studentType) => {
   return 'Student Representative';
 };
 
-onMounted(() => {
-  fetchPendingUsers();
+const syncFromRouteQuery = () => {
+  const q = String(route.query.search || '').trim();
+  if (q) {
+    searchQuery.value = q;
+    debouncedSearchQuery.value = q;
+
+    if (users.value && users.value.length > 0) {
+      const qLower = q.toLowerCase();
+      const match = users.value.find(u => 
+        (u.student_id_number && u.student_id_number.toLowerCase().includes(qLower)) ||
+        `${u.first_name || ''} ${u.last_name || ''}`.toLowerCase().includes(qLower) ||
+        (u.email && u.email.toLowerCase().includes(qLower))
+      );
+      if (match) {
+        openInspectModal(match);
+      }
+    }
+  }
+};
+
+watch(() => route.query.search, () => {
+  syncFromRouteQuery();
+});
+
+onMounted(async () => {
+  if (route.query.search) {
+    searchQuery.value = String(route.query.search);
+    debouncedSearchQuery.value = String(route.query.search);
+  }
+  await fetchPendingUsers();
+  syncFromRouteQuery();
 });
 
 onBeforeUnmount(() => {

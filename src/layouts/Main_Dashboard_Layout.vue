@@ -109,7 +109,6 @@
           <slot name="header-actions">
             <!-- Sound Alert Toggle (Dashboard Audio Notification Chimes) -->
             <button
-              v-if="!isSuperAdmin"
               type="button"
               @click="toggleSound"
               :title="soundActive ? 'Notification sound enabled (Click to mute)' : 'Notification sound muted (Click to unmute)'"
@@ -126,8 +125,8 @@
               </svg>
             </button>
 
-            <!-- Notifications (hidden for superadmin) -->
-            <div v-if="!isSuperAdmin" class="relative" id="layout-notification-menu">
+            <!-- Notifications Menu -->
+            <div class="relative" id="layout-notification-menu">
               <button 
                 @click="toggleNotification" 
                 class="relative p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-200 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
@@ -209,7 +208,7 @@
                           <div class="flex items-center justify-between pt-1">
                             <span class="text-[11px] text-slate-500 font-bold uppercase">{{ new Date(notif.created_at).toLocaleString() }}</span>
                             <span class="inline-flex items-center gap-0.5 text-xs font-black text-emerald-600 group-hover:translate-x-0.5 transition-transform">
-                              View Ticket ›
+                              {{ isRegistrationNotification(notif) ? (isSuperAdmin ? 'Review Queue ›' : 'View Status ›') : 'View Ticket ›' }}
                             </span>
                           </div>
                         </div>
@@ -410,7 +409,6 @@ let notificationsAbort = null;
 let hasInitialNotifsLoaded = false;
 
 const fetchNotifications = async () => {
-  if (isSuperAdmin.value) return;
   // Guard: never stack overlapping notification polls during fast tab switches
   if (isFetchingNotifications) return;
   isFetchingNotifications = true;
@@ -483,6 +481,16 @@ const clearReadNotifications = async () => {
   }
 };
 
+const isRegistrationNotification = (notif) => {
+  const text = `${notif?.title || ''} ${notif?.message || ''}`.toLowerCase();
+  return text.includes('registration') || 
+         text.includes('verification') || 
+         text.includes('identity') || 
+         text.includes('registered') || 
+         text.includes('new user') ||
+         text.includes('account verified');
+};
+
 const handleNotificationClick = async (notif) => {
   // 1. Optimistically mark as read
   if (notif.is_read == 0) {
@@ -498,7 +506,37 @@ const handleNotificationClick = async (notif) => {
   // 2. Close notification dropdown
   isNotificationOpen.value = false;
 
-  // 3. Extract ticket ID
+  const role = (authStore.user?.role || localStorage.getItem('user_role') || '').toLowerCase();
+  const rawTitle = notif.title || '';
+  const rawMessage = notif.message || '';
+  const fullText = `${rawTitle} ${rawMessage}`.toLowerCase();
+
+  // 3. Fast-path: Registration & Identity Verification requests
+  if (isRegistrationNotification(notif)) {
+    if (role === 'superadmin') {
+      // Extract student/employee ID or search terms if available in parentheses:
+      // Pattern e.g. "A new Student (Juan Dela Cruz, 2022-12345) has registered..."
+      const parenMatch = (rawTitle + ' ' + rawMessage).match(/\(([^,]+),\s*([^)]+)\)/);
+      let searchTerm = '';
+      if (parenMatch && parenMatch[2]) {
+        searchTerm = parenMatch[2].trim();
+      } else if (parenMatch && parenMatch[1]) {
+        searchTerm = parenMatch[1].trim();
+      }
+
+      router.push({
+        path: '/superadmin/queues',
+        query: searchTerm ? { search: searchTerm, _t: Date.now() } : { _t: Date.now() }
+      });
+      return;
+    } else {
+      // Regular user / student / employee
+      router.push('/user/dashboard');
+      return;
+    }
+  }
+
+  // 4. Extract ticket ID
   let ticketId = notif.ticket_id;
   const bogusWords = [
     'submitted', 'created', 'approved', 'declined', 'cancelled', 
@@ -512,20 +550,18 @@ const handleNotificationClick = async (notif) => {
   }
 
   if (!ticketId) {
-    const text = `${notif.title || ''} ${notif.message || ''}`;
-
-    // 1. Try standard unit ticket/project code (e.g. FGMU-TIC-4-2026, LEAU-TIC-1-2026, SSU-TIC-2-2026, FGMU-PRJ-1-2026)
-    const codeMatch = text.match(/\b((?:FGMU|LEAU|SSU)-(?:TIC|PRJ|INC)-[A-Za-z0-9\-_]+)\b/i);
+    // 4a. Try standard unit ticket/project code (e.g. FGMU-TIC-4-2026, LEAU-TIC-1-2026, SSU-TIC-2-2026, FGMU-PRJ-1-2026)
+    const codeMatch = (rawTitle + ' ' + rawMessage).match(/\b((?:FGMU|LEAU|SSU)-(?:TIC|PRJ|INC)-[A-Za-z0-9\-_]+)\b/i);
     if (codeMatch) {
       ticketId = codeMatch[1];
     } else {
-      // 2. Try explicit labeled hash (e.g. Ticket #12345, Incident #45, Request #67)
-      const labelMatch = text.match(/(?:Ticket|Incident|Request|Report)\s*#\s*([A-Za-z0-9\-_]+)/i);
+      // 4b. Try explicit labeled hash (e.g. Ticket #12345, Incident #45, Request #67)
+      const labelMatch = (rawTitle + ' ' + rawMessage).match(/(?:Ticket|Incident|Request|Report)\s*#\s*([A-Za-z0-9\-_]+)/i);
       if (labelMatch && !bogusWords.includes(labelMatch[1].toLowerCase())) {
         ticketId = labelMatch[1];
       } else {
-        // 3. Try general hash (#ID)
-        const hashMatch = text.match(/#([A-Za-z0-9\-_]+)/);
+        // 4c. Try general hash (#ID)
+        const hashMatch = (rawTitle + ' ' + rawMessage).match(/#([A-Za-z0-9\-_]+)/);
         if (hashMatch && !bogusWords.includes(hashMatch[1].toLowerCase())) {
           ticketId = hashMatch[1];
         }
@@ -537,8 +573,6 @@ const handleNotificationClick = async (notif) => {
     ticketId = String(ticketId).replace(/^#/, '').trim();
   }
 
-  const role = (authStore.user?.role || localStorage.getItem('user_role') || '').toLowerCase();
-
   if (!ticketId) {
     // If no ticket reference, fallback to user's dashboard based on role & unit
     const unit = (authStore.user?.unit_code || '').toLowerCase();
@@ -547,15 +581,14 @@ const handleNotificationClick = async (notif) => {
     } else if (role === 'director') {
       router.push('/director/dashboard');
     } else if (role === 'superadmin') {
-      router.push('/superadmin/users');
+      router.push('/superadmin/queues');
     } else {
       router.push('/user/dashboard');
     }
     return;
   }
 
-  // 4. Determine Unit Code and Status Context
-  const text = `${notif.title || ''} ${notif.message || ''}`.toLowerCase();
+  // 5. Determine Unit Code and Status Context
   let unitCode = '';
   const upperTicket = String(ticketId).toUpperCase();
   if (upperTicket.startsWith('FGMU')) unitCode = 'fgmu';
@@ -571,30 +604,55 @@ const handleNotificationClick = async (notif) => {
 
   const isCompleted = notif.is_archived === 1 || 
     ['completed', 'resolved', 'declined', 'cancelled', 'closed'].includes(notif.status) ||
-    text.includes('completed') || text.includes('resolved') || text.includes('declined') || text.includes('cancelled');
+    fullText.includes('completed') || fullText.includes('resolved') || fullText.includes('declined') || fullText.includes('cancelled');
 
-  const isActive = notif.status === 'in_progress' || text.includes('in progress') || text.includes('started');
-  const isDispatched = notif.status === 'processing' || text.includes('dispatched') || text.includes('assigned') || text.includes('scheduled');
-  const isApproved = notif.status === 'approved' || text.includes('approved');
+  const isActive = notif.status === 'in_progress' || fullText.includes('in progress') || fullText.includes('started');
+  const isDispatched = notif.status === 'processing' || fullText.includes('dispatched') || fullText.includes('assigned') || fullText.includes('scheduled');
+  const isApproved = notif.status === 'approved' || fullText.includes('approved');
+  const isBorrowing = fullText.includes('borrow') || fullText.includes('pickup') || fullText.includes('inventory');
 
-  const isBorrowing = text.includes('borrow') || text.includes('pickup') || text.includes('inventory');
+  let targetPath = '';
 
   if (role === 'admin') {
     if (unitCode === 'ssu') {
-      if (isCompleted) targetPath = '/admin/ssu/archives';
-      else if (text.includes('collab') || text.includes('joint')) targetPath = '/admin/ssu/collab-tickets';
-      else if (isActive || isDispatched || text.includes('investigat')) targetPath = '/admin/ssu/investigating-tickets';
-      else targetPath = '/admin/ssu/submitted-tickets';
+      if (isCompleted) {
+        targetPath = '/admin/ssu/archives';
+      } else if (fullText.includes('collab') || fullText.includes('joint')) {
+        targetPath = '/admin/ssu/collab-tickets';
+      } else if (isApproved) {
+        targetPath = '/admin/ssu/assign-workers';
+      } else if (isActive || isDispatched || fullText.includes('investigat')) {
+        targetPath = '/admin/ssu/investigating-tickets';
+      } else {
+        targetPath = '/admin/ssu/assign-workers';
+      }
     } else if (unitCode === 'leau') {
-      if (isCompleted) targetPath = '/admin/leau/archives';
-      else if (isActive) targetPath = '/admin/leau/active-tickets';
-      else if (isDispatched) targetPath = '/admin/leau/dispatched';
-      else targetPath = '/admin/leau/approved-tickets';
+      if (isCompleted) {
+        targetPath = '/admin/leau/archives';
+      } else if (isBorrowing) {
+        targetPath = isDispatched ? '/admin/leau/dispatched' : '/admin/leau/approved-tickets';
+      } else if (isApproved) {
+        targetPath = '/admin/leau/approved-tickets';
+      } else if (isActive) {
+        targetPath = '/admin/leau/active-tickets';
+      } else if (isDispatched) {
+        targetPath = '/admin/leau/dispatched';
+      } else {
+        targetPath = '/admin/leau/approved-tickets';
+      }
     } else {
-      if (isCompleted) targetPath = '/admin/fgmu/archives';
-      else if (isActive) targetPath = '/admin/fgmu/active-tickets';
-      else if (isDispatched) targetPath = '/admin/fgmu/dispatched';
-      else targetPath = '/admin/fgmu/approved-tickets';
+      // FGMU Admin
+      if (isCompleted) {
+        targetPath = '/admin/fgmu/archives';
+      } else if (isApproved) {
+        targetPath = '/admin/fgmu/approved-tickets';
+      } else if (isActive) {
+        targetPath = '/admin/fgmu/active-tickets';
+      } else if (isDispatched) {
+        targetPath = '/admin/fgmu/dispatched';
+      } else {
+        targetPath = '/admin/fgmu/approved-tickets';
+      }
     }
   } else if (role === 'director') {
     if (isCompleted) {
@@ -602,26 +660,25 @@ const handleNotificationClick = async (notif) => {
       else if (unitCode === 'leau') targetPath = '/admin/leau/archives';
       else targetPath = '/admin/fgmu/archives';
     } else if (unitCode === 'ssu') {
-      targetPath = (isActive || isDispatched || text.includes('investigat'))
+      targetPath = (isActive || isDispatched || fullText.includes('investigat'))
         ? '/admin/ssu/investigating-tickets'
-        : '/admin/ssu/submitted-tickets';
+        : (fullText.includes('incident') ? '/admin/ssu/queues/incidents' : '/admin/ssu/submitted-tickets');
     } else if (unitCode === 'leau') {
       targetPath = '/director/leau/queues';
     } else {
       targetPath = '/director/fgmu/queues';
     }
   } else if (role === 'superadmin') {
-    targetPath = '/superadmin/users';
+    targetPath = '/superadmin/queues';
   } else {
     // Requestor (student, employee, etc.)
-    // Tickets in 'resolved' status await user satisfaction rating and must open on /user/tickets
     const isUserClosed = notif.is_archived === 1 || 
       ['completed', 'closed', 'declined', 'cancelled'].includes(notif.status) ||
-      text.includes('closed') || text.includes('archived') || text.includes('declined') || text.includes('cancelled');
+      fullText.includes('closed') || fullText.includes('archived') || fullText.includes('declined') || fullText.includes('cancelled');
     targetPath = isUserClosed ? '/user/completed-tickets' : '/user/tickets';
   }
 
-  // 5. Navigate to target path passing ticket reference
+  // 6. Navigate to target path passing ticket reference
   const navQuery = { ticketId, highlight: ticketId, _t: Date.now() };
   if (isBorrowing) {
     navQuery.tab = 'borrowing';
@@ -691,20 +748,16 @@ onMounted(() => {
     authStore._setAuth(currentUser, currentUser.role, currentToken);
   }
 
-  if (!isSuperAdmin.value) {
+  fetchNotifications();
+  notificationInterval = setInterval(() => {
+    if (document.hidden) return;
     fetchNotifications();
-    notificationInterval = setInterval(() => {
-      if (document.hidden) return;
-      fetchNotifications();
-    }, 40000);
-  }
+  }, 40000);
 
   // Fault Tolerance: Automatically re-sync notifications when network restores
   unregisterReconnected = onReconnected(() => {
     showRestoredNotice.value = true;
-    if (!isSuperAdmin.value) {
-      fetchNotifications();
-    }
+    fetchNotifications();
     setTimeout(() => {
       showRestoredNotice.value = false;
     }, 2800);

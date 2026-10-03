@@ -302,6 +302,29 @@ const rawNavGroups = computed(() => {
         ]
       },
       {
+        title: 'Archives',
+        items: [
+          {
+            label: 'FGMU Archives',
+            to: '/admin/fgmu/archives',
+            exact: true,
+            icon: 'archive'
+          },
+          {
+            label: 'LEAU Archives',
+            to: '/admin/leau/archives',
+            exact: true,
+            icon: 'archive'
+          },
+          {
+            label: 'SSU Archives',
+            to: '/admin/ssu/archives',
+            exact: true,
+            icon: 'archive'
+          }
+        ]
+      },
+      {
         title: 'Account',
         items: [
           {
