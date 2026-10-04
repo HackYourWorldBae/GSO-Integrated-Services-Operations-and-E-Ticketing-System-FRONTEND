@@ -361,273 +361,300 @@
       <!-- ======================================================== -->
       <!-- MODAL 1: Two-Step Safe Restore Confirmation Modal       -->
       <!-- ======================================================== -->
-      <div v-if="selectedBackupForRestore" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6">
-          <div class="flex items-center gap-3 text-red-600">
-            <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center shrink-0">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+      <Teleport to="body">
+        <div 
+          v-if="selectedBackupForRestore" 
+          class="fixed inset-0 z-[150] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 pointer-events-auto overflow-y-auto animate-fade-in"
+          @click.self="closeRestoreModal"
+        >
+          <div 
+            class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-scale-up max-h-[calc(100dvh-3rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto pointer-events-auto"
+            @click.stop
+          >
+            <div class="flex items-center gap-3 text-red-600">
+              <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-black text-slate-900 tracking-tight">Database Restoration Warning</h3>
+                <p class="text-xs text-red-600 font-bold uppercase tracking-wider">Destructive State Rollback</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-lg font-black text-slate-900 tracking-tight">Database Restoration Warning</h3>
-              <p class="text-xs text-red-600 font-bold uppercase tracking-wider">Destructive State Rollback</p>
+
+            <div class="bg-red-50 border border-red-200/80 rounded-2xl p-4 text-xs text-red-900 space-y-2 leading-relaxed">
+              <p>
+                You are about to roll back the entire MySQL database to the state recorded in snapshot:
+              </p>
+              <div class="p-2.5 bg-white/80 rounded-xl border border-red-200 font-mono text-[11px] font-bold text-slate-800 break-all">
+                {{ selectedBackupForRestore.file_name }}
+              </div>
+              <p class="font-bold text-red-700">
+                Any tickets, accounts, logs, or attachments created after this snapshot will be permanently overwritten.
+              </p>
             </div>
-          </div>
 
-          <div class="bg-red-50 border border-red-200/80 rounded-2xl p-4 text-xs text-red-900 space-y-2 leading-relaxed">
-            <p>
-              You are about to roll back the entire MySQL database to the state recorded in snapshot:
-            </p>
-            <div class="p-2.5 bg-white/80 rounded-xl border border-red-200 font-mono text-[11px] font-bold text-slate-800 break-all">
-              {{ selectedBackupForRestore.file_name }}
+            <div class="space-y-2">
+              <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                Type <span class="text-red-600 font-mono font-black">CONFIRM RESTORE</span> below to proceed:
+              </label>
+              <input
+                v-model="restoreConfirmationInput"
+                type="text"
+                placeholder="CONFIRM RESTORE"
+                class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-800 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none uppercase"
+                :disabled="isRestoring"
+              />
             </div>
-            <p class="font-bold text-red-700">
-              Any tickets, accounts, logs, or attachments created after this snapshot will be permanently overwritten.
-            </p>
-          </div>
 
-          <div class="space-y-2">
-            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">
-              Type <span class="text-red-600 font-mono font-black">CONFIRM RESTORE</span> below to proceed:
-            </label>
-            <input
-              v-model="restoreConfirmationInput"
-              type="text"
-              placeholder="CONFIRM RESTORE"
-              class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-800 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none uppercase"
-              :disabled="isRestoring"
-            />
-          </div>
-
-          <div class="flex items-center justify-end gap-3 pt-2">
-            <button
-              @click="closeRestoreModal"
-              :disabled="isRestoring"
-              type="button"
-              class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              @click="executeRestore"
-              :disabled="restoreConfirmationInput !== 'CONFIRM RESTORE' || isRestoring"
-              type="button"
-              class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shadow-md"
-            >
-              <svg v-if="isRestoring" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>{{ isRestoring ? 'Restoring Database...' : 'Execute Restoration' }}</span>
-            </button>
+            <div class="flex items-center justify-end gap-3 pt-2">
+              <button
+                @click="closeRestoreModal"
+                :disabled="isRestoring"
+                type="button"
+                class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                @click="executeRestore"
+                :disabled="restoreConfirmationInput !== 'CONFIRM RESTORE' || isRestoring"
+                type="button"
+                class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shadow-md"
+              >
+                <svg v-if="isRestoring" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isRestoring ? 'Restoring Database...' : 'Execute Restoration' }}</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </Teleport>
 
       <!-- ======================================================== -->
       <!-- MODAL 2: Google Drive Configuration Modal               -->
       <!-- ======================================================== -->
-      <div v-if="showDriveModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
-        <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="text-base font-extrabold text-slate-900">Google Drive Cloud Setup</h3>
-                <p class="text-xs text-slate-500">Attach Service Account credentials for automated Drive uploads</p>
-              </div>
-            </div>
-            <button @click="showDriveModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Connection Status Card -->
-          <div class="p-4 rounded-2xl border flex items-center justify-between gap-4" :class="googleDrive.connected ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'">
-            <div class="flex items-center gap-2.5">
-              <span class="w-3 h-3 rounded-full" :class="googleDrive.connected ? 'bg-emerald-500' : 'bg-slate-400'"></span>
-              <div>
-                <h4 class="text-xs font-bold text-slate-900">{{ googleDrive.connected ? 'Google Drive Active' : 'Not Connected' }}</h4>
-                <p class="text-[11px] text-slate-500">{{ googleDrive.message }}</p>
-              </div>
-            </div>
-            <button
-              @click="checkDriveStatus"
-              :disabled="isTestingDrive"
-              type="button"
-              class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <svg :class="{ 'animate-spin': isTestingDrive }" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span>Test Now</span>
-            </button>
-          </div>
-
-          <div class="space-y-4">
-            <!-- Target Folder ID -->
-            <div>
-              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                Google Drive Folder ID (Optional)
-              </label>
-              <input
-                v-model="driveForm.folderId"
-                type="text"
-                placeholder="e.g. 1a2B3c4D5e6F7g8H9i"
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none"
-              />
-              <p class="text-[11px] text-slate-400 mt-1">Leave blank to store in root, or copy the ID from the folder URL in your browser.</p>
-            </div>
-
-            <!-- Service Account JSON Upload -->
-            <div>
-              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                Upload Service Account JSON File
-              </label>
-              <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:border-emerald-500 transition-colors bg-slate-50/50">
-                <input
-                  type="file"
-                  ref="driveJsonFileInput"
-                  accept=".json,application/json"
-                  class="hidden"
-                  @change="handleDriveFileSelected"
-                />
-                <div @click="$refs.driveJsonFileInput.click()" class="cursor-pointer space-y-1">
-                  <svg class="w-8 h-8 text-slate-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+      <Teleport to="body">
+        <div 
+          v-if="showDriveModal" 
+          class="fixed inset-0 z-[150] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 pointer-events-auto overflow-y-auto animate-fade-in"
+          @click.self="showDriveModal = false"
+        >
+          <div 
+            class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-scale-up max-h-[calc(100dvh-3rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto pointer-events-auto"
+            @click.stop
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                   </svg>
-                  <p class="text-xs font-bold text-slate-700">
-                    {{ selectedDriveFileName ? selectedDriveFileName : 'Click to browse service-account.json' }}
-                  </p>
-                  <p class="text-[10px] text-slate-400">Google Cloud Console &rarr; IAM &amp; Admin &rarr; Service Accounts &rarr; Keys</p>
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold text-slate-900">Google Drive Cloud Setup</h3>
+                  <p class="text-xs text-slate-500">Attach Service Account credentials for automated Drive uploads</p>
                 </div>
               </div>
+              <button @click="showDriveModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
 
-            <!-- Or Paste Raw JSON -->
-            <div>
-              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                Or Paste JSON Credentials
-              </label>
-              <textarea
-                v-model="driveForm.credentialsJson"
-                rows="4"
-                placeholder='{"type": "service_account", "project_id": "...", "private_key": "..."}'
-                class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-mono text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none resize-none"
-              ></textarea>
+            <!-- Connection Status Card -->
+            <div class="p-4 rounded-2xl border flex items-center justify-between gap-4" :class="googleDrive.connected ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'">
+              <div class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-full" :class="googleDrive.connected ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+                <div>
+                  <h4 class="text-xs font-bold text-slate-900">{{ googleDrive.connected ? 'Google Drive Active' : 'Not Connected' }}</h4>
+                  <p class="text-[11px] text-slate-500">{{ googleDrive.message }}</p>
+                </div>
+              </div>
+              <button
+                @click="checkDriveStatus"
+                :disabled="isTestingDrive"
+                type="button"
+                class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <svg :class="{ 'animate-spin': isTestingDrive }" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Test Now</span>
+              </button>
             </div>
-          </div>
 
-          <div class="flex items-center justify-end gap-3 pt-2">
-            <button
-              @click="showDriveModal = false"
-              type="button"
-              class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
-            >
-              Close
-            </button>
-            <button
-              @click="saveDriveConfig"
-              :disabled="isSavingDriveConfig"
-              type="button"
-              class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
-            >
-              <svg v-if="isSavingDriveConfig" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>{{ isSavingDriveConfig ? 'Saving...' : 'Save Drive Settings' }}</span>
-            </button>
+            <div class="space-y-4">
+              <!-- Target Folder ID -->
+              <div>
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                  Google Drive Folder ID (Optional)
+                </label>
+                <input
+                  v-model="driveForm.folderId"
+                  type="text"
+                  placeholder="e.g. 1a2B3c4D5e6F7g8H9i"
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none"
+                />
+                <p class="text-[11px] text-slate-400 mt-1">Leave blank to store in root, or copy the ID from the folder URL in your browser.</p>
+              </div>
+
+              <!-- Service Account JSON Upload -->
+              <div>
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                  Upload Service Account JSON File
+                </label>
+                <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:border-emerald-500 transition-colors bg-slate-50/50">
+                  <input
+                    type="file"
+                    ref="driveJsonFileInput"
+                    accept=".json,application/json"
+                    class="hidden"
+                    @change="handleDriveFileSelected"
+                  />
+                  <div @click="$refs.driveJsonFileInput.click()" class="cursor-pointer space-y-1">
+                    <svg class="w-8 h-8 text-slate-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p class="text-xs font-bold text-slate-700">
+                      {{ selectedDriveFileName ? selectedDriveFileName : 'Click to browse service-account.json' }}
+                    </p>
+                    <p class="text-[10px] text-slate-400">Google Cloud Console &rarr; IAM &amp; Admin &rarr; Service Accounts &rarr; Keys</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Or Paste Raw JSON -->
+              <div>
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                  Or Paste JSON Credentials
+                </label>
+                <textarea
+                  v-model="driveForm.credentialsJson"
+                  rows="4"
+                  placeholder='{"type": "service_account", "project_id": "...", "private_key": "..."}'
+                  class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-mono text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none resize-none"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+              <button
+                @click="showDriveModal = false"
+                type="button"
+                class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+              >
+                Close
+              </button>
+              <button
+                @click="saveDriveConfig"
+                :disabled="isSavingDriveConfig"
+                type="button"
+                class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+              >
+                <svg v-if="isSavingDriveConfig" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isSavingDriveConfig ? 'Saving...' : 'Save Drive Settings' }}</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </Teleport>
 
       <!-- ======================================================== -->
       <!-- MODAL 3: Upload External SQL Dump Modal                 -->
       <!-- ======================================================== -->
-      <div v-if="showUploadModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+      <Teleport to="body">
+        <div 
+          v-if="showUploadModal" 
+          class="fixed inset-0 z-[150] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 pointer-events-auto overflow-y-auto animate-fade-in"
+          @click.self="showUploadModal = false"
+        >
+          <div 
+            class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-scale-up max-h-[calc(100dvh-3rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto pointer-events-auto"
+            @click.stop
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold text-slate-900">Upload &amp; Restore .SQL Dump</h3>
+                  <p class="text-xs text-slate-500">Restore database from an offline or external snapshot</p>
+                </div>
+              </div>
+              <button @click="showUploadModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              </div>
+              </button>
+            </div>
+
+            <div class="space-y-4">
               <div>
-                <h3 class="text-base font-extrabold text-slate-900">Upload &amp; Restore .SQL Dump</h3>
-                <p class="text-xs text-slate-500">Restore database from an offline or external snapshot</p>
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                  Select .SQL File
+                </label>
+                <input
+                  type="file"
+                  ref="uploadSqlFileInput"
+                  accept=".sql"
+                  class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-emerald-600 cursor-pointer"
+                  @change="handleUploadFileChange"
+                />
+              </div>
+
+              <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900">
+                <p class="font-bold">Caution:</p>
+                <p class="mt-0.5">Uploading will immediately execute the SQL dump into your active database. Type confirmation below.</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
+                  Type <span class="text-red-600 font-mono font-black">CONFIRM RESTORE</span>:
+                </label>
+                <input
+                  v-model="uploadRestoreConfirmation"
+                  type="text"
+                  placeholder="CONFIRM RESTORE"
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-800 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none uppercase"
+                />
               </div>
             </div>
-            <button @click="showUploadModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
 
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                Select .SQL File
-              </label>
-              <input
-                type="file"
-                ref="uploadSqlFileInput"
-                accept=".sql"
-                class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-emerald-600 cursor-pointer"
-                @change="handleUploadFileChange"
-              />
+            <div class="flex items-center justify-end gap-3 pt-2">
+              <button
+                @click="showUploadModal = false"
+                type="button"
+                class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                @click="executeUploadRestore"
+                :disabled="uploadRestoreConfirmation !== 'CONFIRM RESTORE' || !selectedUploadFile || isUploadingRestore"
+                type="button"
+                class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shadow-md"
+              >
+                <svg v-if="isUploadingRestore" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isUploadingRestore ? 'Uploading & Restoring...' : 'Restore from Upload' }}</span>
+              </button>
             </div>
-
-            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900">
-              <p class="font-bold">Caution:</p>
-              <p class="mt-0.5">Uploading will immediately execute the SQL dump into your active database. Type confirmation below.</p>
-            </div>
-
-            <div>
-              <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
-                Type <span class="text-red-600 font-mono font-black">CONFIRM RESTORE</span>:
-              </label>
-              <input
-                v-model="uploadRestoreConfirmation"
-                type="text"
-                placeholder="CONFIRM RESTORE"
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-800 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none uppercase"
-              />
-            </div>
-          </div>
-
-          <div class="flex items-center justify-end gap-3 pt-2">
-            <button
-              @click="showUploadModal = false"
-              type="button"
-              class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              @click="executeUploadRestore"
-              :disabled="uploadRestoreConfirmation !== 'CONFIRM RESTORE' || !selectedUploadFile || isUploadingRestore"
-              type="button"
-              class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shadow-md"
-            >
-              <svg v-if="isUploadingRestore" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>{{ isUploadingRestore ? 'Uploading & Restoring...' : 'Restore from Upload' }}</span>
-            </button>
           </div>
         </div>
-      </div>
+      </Teleport>
 
     </template>
   </MainLayout>
