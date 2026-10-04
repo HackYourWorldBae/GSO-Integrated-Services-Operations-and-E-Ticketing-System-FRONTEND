@@ -203,13 +203,19 @@
                       Verified
                     </span>
                     <button
-                      v-else
+                      v-else-if="canViewId(user)"
                       @click="openInspectModal(user)"
                       class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 transition-colors"
                     >
                       <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                       Pending ID
                     </button>
+                    <span
+                      v-else
+                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200"
+                    >
+                      N/A
+                    </span>
                   </td>
 
                   <!-- Status -->
@@ -267,7 +273,7 @@
                       </button>
 
                       <!-- Quick Approve / Reject for Pending Users -->
-                      <template v-if="!isUserVerified(user) && user.status !== 'Rejected'">
+                      <template v-if="canViewId(user) && !isUserVerified(user) && user.status !== 'Rejected'">
                         <button
                           @click="openApproveModal(user)"
                           class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors cursor-pointer border border-emerald-200/60"
@@ -288,7 +294,9 @@
                         </button>
                       </template>
 
+                      <!-- Inspect ID Button (Hidden for Administrator & Provisioned Accounts) -->
                       <button
+                        v-if="canViewId(user)"
                         @click="openInspectModal(user)"
                         class="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer border border-purple-200/50"
                         title="Inspect Institutional ID Card"
@@ -395,10 +403,16 @@
                     Verified
                   </span>
                   <span 
-                    v-else 
+                    v-else-if="canViewId(user)" 
                     class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200"
                   >
                     Pending ID
+                  </span>
+                  <span 
+                    v-else 
+                    class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200"
+                  >
+                    N/A
                   </span>
                 </div>
                 <div class="flex items-center gap-1.5 flex-wrap">
@@ -447,8 +461,8 @@
 
               <!-- Mobile Actions Area -->
               <div class="pt-3 border-t border-slate-200 flex flex-col gap-2">
-                <!-- If Unverified: Prompt quick verification -->
-                <div v-if="!isUserVerified(user) && user.status !== 'Rejected'" class="flex items-center gap-2">
+                <!-- If Unverified: Prompt quick verification (registered accounts only) -->
+                <div v-if="canViewId(user) && !isUserVerified(user) && user.status !== 'Rejected'" class="flex items-center gap-2">
                   <button
                     type="button"
                     @click="openInspectModal(user)"
@@ -481,7 +495,7 @@
                 <!-- Secondary actions bar -->
                 <div class="flex items-center gap-2 flex-wrap">
                   <button
-                    v-if="isUserVerified(user) || user.status === 'Rejected'"
+                    v-if="canViewId(user) && (isUserVerified(user) || user.status === 'Rejected')"
                     type="button"
                     @click="openInspectModal(user)"
                     class="py-2 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition-colors flex items-center justify-center gap-1 min-h-[40px] touch-manipulation cursor-pointer"
@@ -1069,6 +1083,13 @@ const isCurrentUser = (u) => Boolean(u && authStore.user?.id && authStore.user.i
 const isRegisteredUser = (u) => Boolean(u && ['student', 'employee'].includes(u.role));
 const isInternalRole = (role) => ['admin', 'staff', 'director', 'superadmin'].includes(role);
 const isGlobalRole = (role) => ['student', 'employee', 'superadmin', 'director'].includes(role);
+const canViewId = (u) => {
+  if (!u) return false;
+  // Administrator accounts and newly provisioned accounts (internal roles) do not have institutional ID cards
+  if (isInternalRole(u.role)) return false;
+  // Only registered user accounts (student, employee) undergo institutional ID verification
+  return isRegisteredUser(u);
+};
 
 const extractErrorMessage = (err, fallback) => {
   const errorData = err?.response?.data;
@@ -1129,6 +1150,10 @@ const openUnlockModal = (user) => {
 };
 
 const openInspectModal = (user) => {
+  if (!canViewId(user)) {
+    toast.info('Institutional ID inspection is only available for registered student and employee accounts.');
+    return;
+  }
   inspectingUser.value = user;
   isInspectModalOpen.value = true;
 };
