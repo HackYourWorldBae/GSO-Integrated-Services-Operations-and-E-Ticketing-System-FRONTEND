@@ -411,7 +411,7 @@ const validateClient = () => {
       }
     } else if (form.value.employee_type === 'Support / Administrative Staff') {
       if (!form.value.college) {
-        fieldErrors.value.college = 'Please select your assigned administrative or support building.';
+        fieldErrors.value.college = 'Please select your assigned college, administrative, or support building.';
       }
     }
   }
@@ -487,7 +487,7 @@ const handleRegister = async () => {
       formData.append('college', form.value.college);
     } else if (form.value.role === 'employee') {
       formData.append('employee_type', form.value.employee_type);
-      if (form.value.employee_type === 'Teaching Staff' && form.value.college) {
+      if (form.value.college) {
         formData.append('college', form.value.college);
       }
     }
@@ -986,13 +986,13 @@ const handleRegister = async () => {
             </p>
           </div>
 
-          <!-- Administrative & Support Buildings Selection (Visible ONLY if Support / Administrative Staff) -->
+          <!-- College & Administrative / Support Buildings Selection (Visible ONLY if Support / Administrative Staff) -->
           <div v-if="form.employee_type === 'Support / Administrative Staff'" class="pt-1">
             <div class="flex items-center justify-between mb-1.5 ml-0.5">
               <label class="block text-slate-700 text-xs font-bold">
-                Assigned Administrative / Support Building <span class="text-rose-500">*</span>
+                Assigned College / Administrative / Support Building <span class="text-rose-500">*</span>
               </label>
-              <span class="text-[11px] text-slate-400 font-medium">BSU Administrative Facility</span>
+              <span class="text-[11px] text-slate-400 font-medium">BSU College or Admin Facility</span>
             </div>
             <div class="relative">
               <select
@@ -1002,14 +1002,25 @@ const handleRegister = async () => {
                 :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20 text-rose-900' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white text-slate-900'"
                 class="w-full px-4 py-3 pr-10 rounded-xl border text-base sm:text-sm font-medium focus:outline-none transition-all min-h-[48px] appearance-none cursor-pointer"
               >
-                <option value="" disabled>Select your administrative or support building...</option>
-                <option 
-                  v-for="b in ADMIN_SUPPORT_BUILDINGS" 
-                  :key="b" 
-                  :value="b"
-                >
-                  {{ b }}
-                </option>
+                <option value="" disabled>Select your assigned college or administrative building...</option>
+                <optgroup label="Colleges / Academic Units">
+                  <option 
+                    v-for="c in BSU_COLLEGES" 
+                    :key="c.code" 
+                    :value="c.name"
+                  >
+                    {{ c.name }}
+                  </option>
+                </optgroup>
+                <optgroup label="Administrative &amp; Support Buildings">
+                  <option 
+                    v-for="b in ADMIN_SUPPORT_BUILDINGS" 
+                    :key="b" 
+                    :value="b"
+                  >
+                    {{ b }}
+                  </option>
+                </optgroup>
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
