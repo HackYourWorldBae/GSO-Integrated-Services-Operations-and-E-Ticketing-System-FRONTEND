@@ -86,7 +86,27 @@ export const resumeTicketApproval = (ticketId) =>
 export const declineTicket = (ticketId, declineReason) =>
   apiClient.patch(`/tickets/${ticketId}/decline`, { decline_reason: declineReason });
 
+/**
+ * Change nature of work / recategorize a pending ticket.
+ * @param {string} ticketId
+ * @param {string} serviceType
+ * @param {string} [reason]
+ * @param {number|null} [unitId]
+ */
+export const recategorizeTicket = (ticketId, serviceType, reason = '', unitId = null) => {
+  const payload = {
+    service_type: serviceType,
+    service: serviceType,
+    reason,
+  };
+  if (unitId) {
+    payload.unit_id = unitId;
+  }
+  return apiClient.patch(`/tickets/${ticketId}/recategorize`, payload);
+};
+
 /** Mark a ticket as completed/resolved. */
 export const completeTicket = (ticketId) =>
   apiClient.patch(`/tickets/${ticketId}/complete`);
+
 

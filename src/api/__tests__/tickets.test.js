@@ -27,6 +27,7 @@ import {
   delayTicketApproval,
   resumeTicketApproval,
   declineTicket,
+  recategorizeTicket,
   completeTicket,
 } from '../tickets'
 
@@ -117,6 +118,17 @@ describe('tickets api module', () => {
     await declineTicket('SSU-TIC-2-2026', 'Duplicate request')
     expect(apiClient.patch).toHaveBeenCalledWith('/tickets/SSU-TIC-2-2026/decline', {
       decline_reason: 'Duplicate request',
+    })
+  })
+
+  it('sends recategorization payload with new service type and reason', async () => {
+    apiClient.patch.mockResolvedValueOnce({ data: { status: true } })
+    await recategorizeTicket('FGMU-TIC-42-2026', 'Plumbing & Sanitary Works', 'Issue specifies leaking pipe', 1)
+    expect(apiClient.patch).toHaveBeenCalledWith('/tickets/FGMU-TIC-42-2026/recategorize', {
+      service_type: 'Plumbing & Sanitary Works',
+      service: 'Plumbing & Sanitary Works',
+      reason: 'Issue specifies leaking pipe',
+      unit_id: 1,
     })
   })
 

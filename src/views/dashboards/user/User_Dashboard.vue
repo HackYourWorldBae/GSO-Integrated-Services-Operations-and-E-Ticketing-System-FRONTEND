@@ -157,12 +157,24 @@
                       <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(update.status)"></span>
                       {{ update.statusLabel || update.status }}
                     </span>
+                    <span v-if="update.is_recategorized" class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wide bg-sky-50 text-sky-700 border border-sky-200 shrink-0" title="Nature of work was recategorized by Director">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                      </svg>
+                      Recategorized
+                    </span>
                   </div>
 
                   <div class="flex items-center gap-2 mt-1 text-xs sm:text-sm text-slate-500">
                     <span>Ticket <span class="font-bold text-slate-700 font-mono">#{{ update.ticketId }}</span></span>
                     <span class="text-slate-300">•</span>
                     <span class="font-medium text-slate-500">{{ update.time }}</span>
+                  </div>
+
+                  <div v-if="update.is_recategorized" class="mt-2 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50/80 border border-sky-200/70 text-sky-900 text-xs">
+                    <span class="font-semibold text-slate-500">Service adjusted to:</span>
+                    <span class="font-bold text-sky-800">{{ update.service }}</span>
+                    <span v-if="update.original_service_type" class="text-slate-400 line-through text-[11px]">({{ update.original_service_type }})</span>
                   </div>
 
                   <div v-if="update.status === 'resolved' && (update.unit === 'FGMU' || update.unit === 'LEAU')" class="mt-2.5 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200/80 text-amber-800">
@@ -240,6 +252,9 @@ const recentUpdates = computed(() => {
     status: t.status,
     statusLabel: t.statusLabel,
     isArchived: t.isArchived,
+    is_recategorized: t.is_recategorized,
+    original_service_type: t.original_service_type,
+    recategorization_reason: t.recategorization_reason,
   }));
 });
 
@@ -340,7 +355,11 @@ const fetchDashboardData = async () => {
         date: new Date(t.submitted_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         submitted_at: t.submitted_at,
         completed_at: t.completed_at || t.updated_at,
-        unit: t.unit_code
+        unit: t.unit_code,
+        is_recategorized: Boolean(Number(t.is_recategorized) === 1 || t.is_recategorized === true),
+        original_service_type: t.original_service_type || null,
+        recategorization_reason: t.recategorization_reason || '',
+        recategorized_at: t.recategorized_at || null,
       }));
     }
 
@@ -354,7 +373,11 @@ const fetchDashboardData = async () => {
         date: new Date(t.completed_at || t.updated_at || t.submitted_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         submitted_at: t.submitted_at,
         completed_at: t.completed_at || t.updated_at,
-        unit: t.unit_code
+        unit: t.unit_code,
+        is_recategorized: Boolean(Number(t.is_recategorized) === 1 || t.is_recategorized === true),
+        original_service_type: t.original_service_type || null,
+        recategorization_reason: t.recategorization_reason || '',
+        recategorized_at: t.recategorized_at || null,
       }));
     }
   } catch (error) {

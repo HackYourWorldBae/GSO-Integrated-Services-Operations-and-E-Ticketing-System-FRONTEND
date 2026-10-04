@@ -150,6 +150,14 @@
                       <span class="w-2 h-2 rounded-full" :class="getStatusDot(ticket.status)"></span>
                       {{ ticket.statusLabel }}
                     </span>
+
+                    <!-- Recategorized badge -->
+                    <span v-if="ticket.is_recategorized" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border bg-sky-50 text-sky-800 border-sky-300 shadow-2xs" title="Nature of work was adjusted by the Director">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                      </svg>
+                      Recategorized
+                    </span>
                   </div>
 
                   <!-- Title -->
@@ -188,6 +196,32 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                       </svg>
                       Target Completion: {{ formatDate(ticket.effective_target_date || ticket.target_completion_date) }}
+                    </div>
+                  </div>
+
+                  <!-- Official Recategorization Notice Card -->
+                  <div v-if="ticket.is_recategorized" class="mt-3.5 flex items-start gap-3 p-4 bg-sky-50/90 border border-sky-200 rounded-2xl animate-fade-in shadow-xs">
+                    <div class="p-2.5 bg-sky-100 rounded-xl shrink-0 mt-0.5 text-sky-700">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1 flex-wrap">
+                        <span class="text-xs sm:text-sm font-black text-sky-950 uppercase tracking-wide">Nature of Work Adjusted by Director</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-sky-200 text-sky-900 border border-sky-300 uppercase tracking-wider">
+                          Notice
+                        </span>
+                      </div>
+                      <p class="text-sm text-sky-950 font-semibold leading-relaxed">
+                        The Director reviewed your problem description and updated the nature of work from <strong class="line-through text-slate-500">{{ ticket.original_service_type || 'previous service' }}</strong> to <strong class="text-sky-900 underline decoration-sky-400 decoration-2 underline-offset-2">{{ ticket.service }}</strong> to ensure the proper team and resources are assigned.
+                      </p>
+                      <p v-if="ticket.recategorization_reason" class="text-sm text-sky-900 font-medium mt-1 italic">
+                        <span class="font-bold not-italic text-xs uppercase tracking-wider text-sky-950">Director's Note:</span> "{{ ticket.recategorization_reason }}"
+                      </p>
+                      <p v-if="ticket.recategorized_at" class="text-xs text-sky-700 font-medium mt-1">
+                        Updated on {{ formatDateTime(ticket.recategorized_at) }}
+                      </p>
                     </div>
                   </div>
 
@@ -629,6 +663,12 @@
                           <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(selectedTicket.status)"></span>
                           {{ selectedTicket.statusLabel }}
                         </span>
+                        <span v-if="selectedTicket.is_recategorized" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border bg-sky-100 text-sky-900 border-sky-300 shadow-2xs">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                          </svg>
+                          Recategorized
+                        </span>
                         <!-- Live Tracking Pulse Indicator -->
                         <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
                           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -675,6 +715,32 @@
 
                   <!-- ========== TIMELINE STEPS ========== -->
                   <div>
+                    <!-- Recategorization Notice Banner in Modal -->
+                    <div v-if="selectedTicket.is_recategorized" class="mb-5 p-4 bg-sky-50 border border-sky-200 rounded-2xl flex items-start gap-3 animate-fade-in shadow-xs">
+                      <div class="p-2 bg-sky-100 rounded-xl text-sky-700 shrink-0 mt-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                          <span class="text-[10px] font-black text-sky-900 uppercase tracking-widest">Nature of Work Adjusted by Director</span>
+                          <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-sky-200 text-sky-900 border border-sky-300 uppercase tracking-wider">
+                            Updated
+                          </span>
+                        </div>
+                        <p class="text-xs text-sky-950 font-semibold leading-relaxed">
+                          Adjusted from <strong class="line-through text-slate-500">{{ selectedTicket.original_service_type || 'previous service' }}</strong> to <strong class="text-sky-900">{{ selectedTicket.service }}</strong> to match your problem description.
+                        </p>
+                        <p v-if="selectedTicket.recategorization_reason" class="text-xs text-sky-900 font-medium mt-1 italic">
+                          <span class="font-bold not-italic text-[10px] uppercase tracking-wider text-sky-950">Director's Note:</span> "{{ selectedTicket.recategorization_reason }}"
+                        </p>
+                        <p v-if="selectedTicket.recategorized_at" class="text-[11px] text-sky-700 font-medium mt-1">
+                          Updated on {{ formatDateTime(selectedTicket.recategorized_at) }}
+                        </p>
+                      </div>
+                    </div>
+
                     <!-- Approval Delay Notice Banner in Modal -->
                     <div v-if="selectedTicket.is_approval_delayed" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in shadow-xs">
                       <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
@@ -1009,6 +1075,19 @@ const formatDate = (dateStr) => {
   const parsed = parseDateLocal(dateStr);
   if (!parsed || isNaN(parsed.getTime())) return dateStr;
   return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return 'N/A';
+  const parsed = new Date(dateStr);
+  if (isNaN(parsed.getTime())) return dateStr;
+  return parsed.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 };
 
 const authStore = useAuthStore();
@@ -1376,6 +1455,10 @@ const mapTicketData = (t) => {
     is_approval_delayed: Boolean(Number(t.is_approval_delayed) === 1 || t.is_approval_delayed === true),
     approval_delay_reason: t.approval_delay_reason || '',
     approval_delayed_at: t.approval_delayed_at || null,
+    is_recategorized: Boolean(Number(t.is_recategorized) === 1 || t.is_recategorized === true),
+    original_service_type: t.original_service_type || null,
+    recategorization_reason: t.recategorization_reason || '',
+    recategorized_at: t.recategorized_at || null,
     // SSU Incident Report specific fields
     isUnderInvestigation: Number(t.is_under_investigation) === 1,
     hasNotation:          Boolean(t.ssu_notation),

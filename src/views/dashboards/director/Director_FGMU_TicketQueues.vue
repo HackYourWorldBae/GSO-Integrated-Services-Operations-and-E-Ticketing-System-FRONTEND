@@ -349,6 +349,16 @@
                         <span>Full Info</span>
                       </button>
                       <button
+                        @click="openRecategorizeModal(ticket)"
+                        class="px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        title="Change Nature of Work / Recategorize Ticket"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>Recategorize</span>
+                      </button>
+                      <button
                         @click="openDelayModal(ticket)"
                         class="px-2.5 py-1.5 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
                         title="Delay Approval (e.g. Awaiting procurement of materials)"
@@ -753,15 +763,36 @@
 
           <!-- Service & Particulars -->
           <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
-            <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
               <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
-              <span class="px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-xs font-black uppercase tracking-wider border border-emerald-200">
-                {{ selectedTicketForModal.service }}
-              </span>
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-xs font-black uppercase tracking-wider border border-emerald-200">
+                  {{ selectedTicketForModal.service }}
+                </span>
+                <button
+                  v-if="activeTab === 'pending'"
+                  type="button"
+                  @click="openRecategorizeModal(selectedTicketForModal); closeDetailsModal()"
+                  class="px-2.5 py-1 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-800 border border-sky-200 text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+                  title="Change nature of work to match description"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span>Change Nature of Work</span>
+                </button>
+              </div>
             </div>
             <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/70 shadow-2xs">
               {{ selectedTicketForModal.description || selectedTicketForModal.title || 'No additional job description provided.' }}
             </p>
+            <div v-if="selectedTicketForModal.is_recategorized" class="p-2.5 rounded-xl bg-sky-50 border border-sky-200 text-[11px] text-sky-900 flex items-start gap-2">
+              <svg class="w-4 h-4 text-sky-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div>
+                <span class="font-bold">Recategorized from:</span> <del class="text-slate-500 font-semibold">{{ selectedTicketForModal.original_service_type }}</del>
+                <span v-if="selectedTicketForModal.recategorization_reason" class="block text-sky-800 mt-0.5"><span class="font-bold">Reason:</span> {{ selectedTicketForModal.recategorization_reason }}</span>
+              </div>
+            </div>
           </div>
 
           <!-- Attachments / Proof Documents -->
@@ -797,6 +828,16 @@
             Close Full Info
           </button>
           <div v-if="activeTab === 'pending'" class="flex items-center gap-2">
+            <button
+              @click="openRecategorizeModal(selectedTicketForModal); closeDetailsModal()"
+              class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
+              title="Change Nature of Work / Recategorize Ticket"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span>Recategorize</span>
+            </button>
             <button @click="openDelayModal(selectedTicketForModal); closeDetailsModal()" class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1049,6 +1090,16 @@
     @close="showExtensionModal = false"
     @extended="handleTicketExtended"
   />
+
+  <!-- Recategorize Nature of Work Modal -->
+  <RecategorizeTicketModal
+    v-if="showRecategorizeModal"
+    :show="showRecategorizeModal"
+    :ticket="ticketToRecategorize"
+    current-unit="FGMU"
+    @close="closeRecategorizeModal"
+    @recategorized="handleTicketRecategorized"
+  />
 </template>
 
 <script setup>
@@ -1060,6 +1111,7 @@ import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from '@/views/dashboards/director/DirectorSidebar.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
+import RecategorizeTicketModal from '@/components/director/RecategorizeTicketModal.vue';
 import { FGMU_SERVICES } from '@/constants/services';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
 import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
@@ -1257,6 +1309,10 @@ const mapTicket = (t) => {
     extension_days: Number(t.extension_days) || 0,
     overtime_hours: Number(t.overtime_hours) || 0,
     is_emergency: Boolean(Number(t.is_emergency) === 1 || t.is_emergency === true || t.urgency === 'Emergency' || t.urgency === 'High'),
+    is_recategorized: Boolean(Number(t.is_recategorized) === 1 || t.is_recategorized === true),
+    original_service_type: t.original_service_type || null,
+    recategorization_reason: t.recategorization_reason || '',
+    recategorized_at: t.recategorized_at || null,
     is_approval_delayed: Boolean(Number(t.is_approval_delayed) === 1 || t.is_approval_delayed === true),
     approval_delay_reason: t.approval_delay_reason || '',
     approval_delayed_at: t.approval_delayed_at || null,
@@ -1422,6 +1478,42 @@ const closeConfirmModal = () => {
   showConfirmModal.value = false;
   ticketToApprove.value = null;
   isEmergencyApproval.value = false;
+};
+
+// Recategorize Modal Handlers
+const showRecategorizeModal = ref(false);
+const ticketToRecategorize = ref(null);
+
+const openRecategorizeModal = (ticket) => {
+  ticketToRecategorize.value = ticket;
+  showRecategorizeModal.value = true;
+};
+
+const closeRecategorizeModal = () => {
+  showRecategorizeModal.value = false;
+  ticketToRecategorize.value = null;
+};
+
+const handleTicketRecategorized = ({ ticketId, newService, reason, data }) => {
+  // Update local pending queue item immediately
+  const ticket = queuesData.value.pending.find((t) => String(t.id) === String(ticketId));
+  if (ticket) {
+    ticket.service = newService;
+    ticket.service_type = newService;
+    ticket.title = newService;
+    ticket.is_recategorized = true;
+    ticket.original_service_type = ticket.original_service_type || data?.original_service_type;
+    ticket.recategorization_reason = reason;
+  }
+  if (selectedTicketForModal.value && String(selectedTicketForModal.value.id) === String(ticketId)) {
+    selectedTicketForModal.value.service = newService;
+    selectedTicketForModal.value.service_type = newService;
+    selectedTicketForModal.value.title = newService;
+    selectedTicketForModal.value.is_recategorized = true;
+    selectedTicketForModal.value.original_service_type = selectedTicketForModal.value.original_service_type || data?.original_service_type;
+    selectedTicketForModal.value.recategorization_reason = reason;
+  }
+  fetchAllQueues();
 };
 
 const confirmApproval = async () => {
