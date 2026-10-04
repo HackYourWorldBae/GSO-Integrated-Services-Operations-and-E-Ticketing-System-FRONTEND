@@ -390,30 +390,6 @@ CREATE TABLE IF NOT EXISTS ticket_collaborations (
     INDEX idx_collab_req_unit (requesting_unit_id, status),
     CONSTRAINT fk_collab_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
     CONSTRAINT fk_collab_req_unit FOREIGN KEY (requesting_unit_id) REFERENCES units(id) ON DELETE CASCADE,
-    CONSTRAINT fk_collab_collab_unit FOREIGN KEY (collaborating_unit_id) REFERENCES units(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Inter-Unit Ticket Collaborations
-CREATE TABLE IF NOT EXISTS ticket_collaborations (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    ticket_id VARCHAR(60) NOT NULL,
-    requesting_unit_id INT UNSIGNED NOT NULL,
-    collaborating_unit_id INT UNSIGNED NOT NULL,
-    requested_by VARCHAR(36) NULL,
-    reason TEXT NOT NULL,
-    scope_of_work TEXT NULL,
-    status ENUM('pending', 'accepted', 'declined', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
-    response_notes TEXT NULL,
-    responded_by VARCHAR(36) NULL,
-    responded_at DATETIME NULL,
-    completed_at DATETIME NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_collab_ticket (ticket_id),
-    INDEX idx_collab_collab_unit (collaborating_unit_id, status),
-    INDEX idx_collab_req_unit (requesting_unit_id, status),
-    CONSTRAINT fk_collab_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
-    CONSTRAINT fk_collab_req_unit FOREIGN KEY (requesting_unit_id) REFERENCES units(id) ON DELETE CASCADE,
     CONSTRAINT fk_collab_collab_unit FOREIGN KEY (collaborating_unit_id) REFERENCES units(id) ON DELETE CASCADE,
     CONSTRAINT fk_collab_requested_by FOREIGN KEY (requested_by) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT fk_collab_responded_by FOREIGN KEY (responded_by) REFERENCES users(id) ON DELETE SET NULL
