@@ -123,7 +123,8 @@
               aria-hidden="true"
             />
             <div
-              class="px-3.5 py-2 min-h-[38px] rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all touch-manipulation"
+              ref="changeButtonRef"
+              class="px-3.5 py-2 min-h-[38px] rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all touch-manipulation cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -1308,7 +1309,69 @@ const saveInitialAssessmentDirectly = async () => {
 
 // Flatpickr ref and instance
 const datePickerInput = ref(null);
+const changeButtonRef = ref(null);
 let fpInstance = null;
+let isScrollListening = false;
+let scrollContainer = null;
+let scrollRafId = null;
+let isRepositioning = false;
+
+const updatePickerPosition = () => {
+  if (!fpInstance || !fpInstance.isOpen) return;
+  const targetEl = changeButtonRef.value || datePickerInput.value;
+  if (!targetEl) return;
+
+  const rect = targetEl.getBoundingClientRect();
+  // Close picker if Change button scrolls completely outside the visible viewport area
+  if (rect.bottom < 60 || rect.top > window.innerHeight) {
+    fpInstance.close();
+    return;
+  }
+
+  fpInstance.positionCalendar(targetEl);
+};
+
+const handleScroll = () => {
+  if (!fpInstance || !fpInstance.isOpen) return;
+  if (isRepositioning) return;
+  isRepositioning = true;
+  scrollRafId = requestAnimationFrame(() => {
+    isRepositioning = false;
+    updatePickerPosition();
+  });
+};
+
+const attachScrollListeners = () => {
+  if (isScrollListening) return;
+  isScrollListening = true;
+
+  window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+  window.addEventListener('resize', handleScroll, { passive: true });
+
+  scrollContainer = datePickerInput.value?.closest('main') || datePickerInput.value?.closest('.overflow-y-auto');
+  if (scrollContainer) {
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+  }
+};
+
+const detachScrollListeners = () => {
+  if (!isScrollListening) return;
+  isScrollListening = false;
+
+  if (scrollRafId) {
+    cancelAnimationFrame(scrollRafId);
+    scrollRafId = null;
+  }
+  isRepositioning = false;
+
+  window.removeEventListener('scroll', handleScroll, { capture: true });
+  window.removeEventListener('resize', handleScroll);
+
+  if (scrollContainer) {
+    scrollContainer.removeEventListener('scroll', handleScroll);
+    scrollContainer = null;
+  }
+};
 
 // User-preferred date format: "month name (abbrevated), day, year, weekday name"
 // e.g. "Sep 11, 2026, Friday"
@@ -1341,29 +1404,45 @@ const formattedDateDisplay = computed(() => {
 const initDatePicker = () => {
   if (!datePickerInput.value) return;
   if (fpInstance) {
+    detachScrollListeners();
     fpInstance.destroy();
   }
+  const targetEl = changeButtonRef.value || datePickerInput.value;
   fpInstance = flatpickr(datePickerInput.value, {
     minDate: 'today',
     dateFormat: 'Y-m-d',
     defaultDate: implementationDate.value || todayIsoDate,
-    position: 'auto center',
+    position: 'auto right',
+    positionElement: targetEl,
     disableMobile: true,
     onChange: (selectedDates, dateStr) => {
       if (dateStr) {
         implementationDate.value = dateStr;
       }
     },
+    onOpen: () => {
+      attachScrollListeners();
+      nextTick(() => {
+        updatePickerPosition();
+      });
+    },
+    onClose: () => {
+      detachScrollListeners();
+    },
   });
 };
 
 const openDatePicker = () => {
+  const targetEl = changeButtonRef.value || datePickerInput.value;
   if (fpInstance) {
-    fpInstance.open();
+    fpInstance.open(undefined, targetEl);
   } else {
     initDatePicker();
-    fpInstance?.open();
+    fpInstance?.open(undefined, targetEl);
   }
+  nextTick(() => {
+    updatePickerPosition();
+  });
 };
 
 watch(selectedTicket, async (ticket) => {
@@ -1371,6 +1450,7 @@ watch(selectedTicket, async (ticket) => {
     await nextTick();
     initDatePicker();
   } else {
+    detachScrollListeners();
     if (fpInstance) {
       fpInstance.destroy();
       fpInstance = null;
@@ -1385,6 +1465,7 @@ watch(implementationDate, (newVal) => {
 });
 
 onUnmounted(() => {
+  detachScrollListeners();
   if (fpInstance) {
     fpInstance.destroy();
     fpInstance = null;
