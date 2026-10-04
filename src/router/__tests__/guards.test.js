@@ -226,6 +226,28 @@ describe('Router Page Guards & RBAC Boundaries', () => {
       const nextUsers = vi.fn();
       checkRouteAccess({ path: '/superadmin/users', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextUsers);
       expect(nextUsers).toHaveBeenCalledWith();
+
+      const nextBackups = vi.fn();
+      checkRouteAccess({ path: '/superadmin/backups', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextBackups);
+      expect(nextBackups).toHaveBeenCalledWith();
+    });
+
+    it('blocks non-superadmin users from accessing /superadmin/backups', () => {
+      setSession('admin', 'FGMU', 1);
+      const nextAdmin = vi.fn();
+      checkRouteAccess({ path: '/superadmin/backups', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextAdmin);
+      expect(nextAdmin).toHaveBeenCalledWith('/admin/fgmu');
+
+      setSession('director');
+      const nextDirector = vi.fn();
+      checkRouteAccess({ path: '/superadmin/backups', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextDirector);
+      expect(nextDirector).toHaveBeenCalledWith('/director/dashboard');
+
+      setSession('student');
+      const nextStudent = vi.fn();
+      checkRouteAccess({ path: '/superadmin/backups', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextStudent);
+      expect(nextStudent).toHaveBeenCalledWith('/user/dashboard');
     });
   });
 });
+

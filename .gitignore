@@ -44,4 +44,5 @@ backup.env
 
 # Database schemas & DDL files
 *.sql
-database/
+!database/
+!database/*.sql

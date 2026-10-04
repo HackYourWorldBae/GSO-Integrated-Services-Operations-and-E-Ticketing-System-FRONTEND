@@ -125,6 +125,12 @@ const rawNavGroups = computed(() => {
             icon: 'shield'
           },
           {
+            label: 'Backup & Recovery',
+            to: '/superadmin/backups',
+            exact: true,
+            icon: 'database'
+          },
+          {
             label: 'Account Settings',
             to: '/superadmin/settings',
             exact: true,
@@ -454,6 +460,11 @@ const navGroups = computed(() => {
           <!-- Completed Check -->
           <svg v-else-if="item.icon === 'check'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+
+          <!-- Database / Backup -->
+          <svg v-else-if="item.icon === 'database'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7zm0 4h16M8 4v4m8-4v4" />
           </svg>
 
           <!-- Settings -->
