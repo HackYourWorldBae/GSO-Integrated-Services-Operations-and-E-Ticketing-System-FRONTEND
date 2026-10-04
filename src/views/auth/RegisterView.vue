@@ -464,10 +464,20 @@ const validateClient = () => {
     fieldErrors.value.id_selfie = 'Please upload a clear selfie while holding your ID card.';
   }
 
+  // 9. Data Privacy Notice & Terms of Use Acceptance (Mandatory)
+  if (!hasAgreedToDisclaimer.value) {
+    fieldErrors.value.disclaimer = 'Please review and accept the Data Privacy Notice & Terms of Use.';
+  }
+
   return Object.keys(fieldErrors.value).length === 0;
 };
 
 const handleRegister = async () => {
+  if (!hasAgreedToDisclaimer.value) {
+    errorMessage.value = 'Please accept the Data Privacy Notice & Terms of Use before submitting.';
+    return;
+  }
+
   if (!validateClient()) {
     errorMessage.value = 'Please correct the highlighted form errors before continuing.';
     return;
@@ -546,6 +556,9 @@ const handleRegister = async () => {
     hasAgreedToDisclaimer.value = true;
     showDisclaimerModal.value = false;
     isDisclaimerTouched.value = true;
+    if (fieldErrors.value.disclaimer) {
+      delete fieldErrors.value.disclaimer;
+    }
   };
 </script>
 
@@ -1531,36 +1544,45 @@ const handleRegister = async () => {
           </div>
         </div>
 
-        <!-- Disclaimer Checkbox (Required) -->
+        <!-- Privacy Notice & Terms Acceptance (Required) -->
         <div class="pt-2">
           <div v-if="!hasAgreedToDisclaimer" class="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
-            <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm flex-shrink-0">
+            <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-xs font-bold text-amber-900">Required: Privacy & Terms Acceptance</p>
+              <p class="text-xs font-bold text-amber-900">Data Privacy Notice &amp; Terms of Use</p>
               <p class="text-xs text-amber-800 mt-0.5 leading-relaxed">
-                You must review and accept the <strong>Data Privacy Notice & Terms of Use</strong> before completing registration.
+                Please review and accept our Data Privacy Notice &amp; Terms of Use before registering.
               </p>
               <button 
                 type="button"
                 @click="showDisclaimerModal = true; isDisclaimerTouched = true"
-                class="mt-2 px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+                class="mt-2.5 px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
-                Review Disclaimer & Accept
+                Review Disclaimer &amp; Accept
               </button>
             </div>
           </div>
-          <div v-else class="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span class="text-xs font-semibold text-emerald-800">Disclaimer accepted — You may proceed with registration.</span>
+          <div v-else class="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span class="text-xs font-semibold text-emerald-800">Privacy Notice &amp; Terms accepted.</span>
+            </div>
+            <button 
+              type="button"
+              @click="showDisclaimerModal = true"
+              class="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer"
+            >
+              View Terms
+            </button>
           </div>
         </div>
 
@@ -1570,7 +1592,7 @@ const handleRegister = async () => {
           type="submit"
           class="w-full min-h-[48px] py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          <span v-if="!isLoading">Complete Registration & Verify ID</span>
+          <span v-if="!isLoading">Complete Registration &amp; Verify ID</span>
           <span v-else>Submitting Verification...</span>
           <svg v-if="!isLoading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
