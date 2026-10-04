@@ -28,7 +28,7 @@
               v-model="filters.search"
               @input="handleSearch"
               type="text"
-              placeholder="Search by name, email, or student ID..."
+              placeholder="Search by name, email, employee or student ID number"
               class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 focus:bg-white transition-all"
             />
             <button
@@ -812,16 +812,6 @@
               </div>
             </div>
 
-            <div>
-              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Account Status</label>
-              <select v-model="editForm.status" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer">
-                <option value="Active">Active</option>
-                <option value="Pending">Pending</option>
-                <option value="Suspended">Suspended</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-            </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Reset Password</label>
@@ -1377,7 +1367,6 @@ const editForm = reactive({
   email: '',
   role: 'admin',
   unit_id: null,
-  status: 'Active',
   password: '',
   confirm_password: ''
 });
@@ -1597,7 +1586,6 @@ const openEditModal = (user) => {
   editForm.email = user.email || '';
   editForm.role = user.role || 'admin';
   editForm.unit_id = user.unit_id || null;
-  editForm.status = user.status || 'Active';
   editForm.password = '';
   editForm.confirm_password = '';
   isEditModalOpen.value = true;
@@ -1623,7 +1611,6 @@ const submitEditUser = async () => {
       first_name: editForm.first_name ? editForm.first_name.trim() : undefined,
       last_name: editForm.last_name ? editForm.last_name.trim() : undefined,
       role: editForm.role,
-      status: editForm.status,
       unit_id: isGlobalRole(editForm.role) ? null : (editForm.unit_id ? Number(editForm.unit_id) : null),
     };
     if (editForm.password && editForm.password.trim()) {
