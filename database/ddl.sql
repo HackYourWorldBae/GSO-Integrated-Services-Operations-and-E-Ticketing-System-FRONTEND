@@ -3,7 +3,152 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 
--- 1. CORE & REFERENCE TABLES
+-- ============================================================================
+-- IDEMPOTENT LIVE SCHEMA MIGRATION / COLUMN PATCHER
+-- ============================================================================
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS `sp_gso_upgrade_schema` $$
+
+CREATE PROCEDURE `sp_gso_upgrade_schema`()
+BEGIN
+    DECLARE current_db VARCHAR(128);
+    SELECT DATABASE() INTO current_db;
+
+    -- 1. Users Table Upgrades
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = current_db AND table_name = 'users') THEN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'student_type') THEN
+            ALTER TABLE `users` ADD COLUMN `student_type` VARCHAR(50) NULL AFTER `student_id_number`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'employee_type') THEN
+            ALTER TABLE `users` ADD COLUMN `employee_type` VARCHAR(100) NULL AFTER `student_type`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'college') THEN
+            ALTER TABLE `users` ADD COLUMN `college` VARCHAR(150) NULL AFTER `organization_name`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'id_selfie_image') THEN
+            ALTER TABLE `users` ADD COLUMN `id_selfie_image` TEXT NULL AFTER `id_card_image`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'failed_login_attempts') THEN
+            ALTER TABLE `users` ADD COLUMN `failed_login_attempts` INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER `is_verified`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'lockout_until') THEN
+            ALTER TABLE `users` ADD COLUMN `lockout_until` DATETIME NULL DEFAULT NULL AFTER `failed_login_attempts`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'email_notifications_enabled') THEN
+            ALTER TABLE `users` ADD COLUMN `email_notifications_enabled` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Per-account opt-in for ticket/request email updates' AFTER `is_verified`;
+        END IF;
+
+        ALTER TABLE `users` MODIFY COLUMN `role` ENUM('student','employee','admin','staff','director','superadmin') NOT NULL DEFAULT 'student';
+        ALTER TABLE `users` MODIFY COLUMN `status` ENUM('Active','Pending','Rejected','Suspended') NOT NULL DEFAULT 'Active';
+    END IF;
+
+    -- 2. Personnel Table Upgrades
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = current_db AND table_name = 'personnel') THEN
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'personnel' AND column_name = 'contact_number') THEN
+            ALTER TABLE `personnel` DROP COLUMN `contact_number`;
+        END IF;
+    END IF;
+
+    -- 3. Personnel Categories Table Upgrades
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = current_db AND table_name = 'personnel_categories') THEN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'personnel_categories' AND column_name = 'supported_services') THEN
+            ALTER TABLE `personnel_categories` ADD COLUMN `supported_services` TEXT NULL AFTER `is_system`;
+        END IF;
+    END IF;
+
+    -- 4. Tickets Table Upgrades
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = current_db AND table_name = 'tickets') THEN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'is_recategorized') THEN
+            ALTER TABLE `tickets` ADD COLUMN `is_recategorized` TINYINT(1) NOT NULL DEFAULT 0 AFTER `service_type`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'original_service_type') THEN
+            ALTER TABLE `tickets` ADD COLUMN `original_service_type` VARCHAR(150) DEFAULT NULL AFTER `is_recategorized`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'recategorized_at') THEN
+            ALTER TABLE `tickets` ADD COLUMN `recategorized_at` DATETIME DEFAULT NULL AFTER `original_service_type`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'recategorized_by') THEN
+            ALTER TABLE `tickets` ADD COLUMN `recategorized_by` VARCHAR(36) DEFAULT NULL AFTER `recategorized_at`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'recategorization_reason') THEN
+            ALTER TABLE `tickets` ADD COLUMN `recategorization_reason` TEXT DEFAULT NULL AFTER `recategorized_by`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'is_emergency') THEN
+            ALTER TABLE `tickets` ADD COLUMN `is_emergency` TINYINT(1) NOT NULL DEFAULT 0 AFTER `status_label`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'is_approval_delayed') THEN
+            ALTER TABLE `tickets` ADD COLUMN `is_approval_delayed` TINYINT(1) NOT NULL DEFAULT 0 AFTER `is_emergency`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'approval_delay_reason') THEN
+            ALTER TABLE `tickets` ADD COLUMN `approval_delay_reason` TEXT DEFAULT NULL AFTER `is_approval_delayed`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'approval_delayed_at') THEN
+            ALTER TABLE `tickets` ADD COLUMN `approval_delayed_at` DATETIME DEFAULT NULL AFTER `approval_delay_reason`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'approval_delayed_by') THEN
+            ALTER TABLE `tickets` ADD COLUMN `approval_delayed_by` VARCHAR(36) DEFAULT NULL AFTER `approval_delayed_at`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'is_labor_only') THEN
+            ALTER TABLE `tickets` ADD COLUMN `is_labor_only` TINYINT(1) NOT NULL DEFAULT 0 AFTER `materials_logged`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'materials_stage') THEN
+            ALTER TABLE `tickets` ADD COLUMN `materials_stage` VARCHAR(20) NOT NULL DEFAULT 'none' AFTER `is_labor_only`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'is_under_investigation') THEN
+            ALTER TABLE `tickets` ADD COLUMN `is_under_investigation` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'SSU only: 1 when flagged for active investigation' AFTER `materials_stage`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'tickets' AND column_name = 'ssu_notation') THEN
+            ALTER TABLE `tickets` ADD COLUMN `ssu_notation` TEXT DEFAULT NULL COMMENT 'SSU only: staff recommendation/notation communicated to reporter' AFTER `is_under_investigation`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = current_db AND table_name = 'tickets' AND index_name = 'idx_tickets_approval_delayed') THEN
+            ALTER TABLE `tickets` ADD INDEX `idx_tickets_approval_delayed` (`is_approval_delayed`);
+        END IF;
+    END IF;
+
+    -- 5. Ticket Feedbacks Table Upgrades
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = current_db AND table_name = 'ticket_feedbacks') THEN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'ticket_feedbacks' AND column_name = 'early_rating') THEN
+            ALTER TABLE `ticket_feedbacks` ADD COLUMN `early_rating` TINYINT(1) UNSIGNED NULL DEFAULT NULL AFTER `timeliness_rating`;
+        END IF;
+    END IF;
+
+    -- 6. Drop Deprecated Tables
+    DROP TABLE IF EXISTS `ci_sessions`;
+    DROP TABLE IF EXISTS `role_permissions`;
+
+END $$
+
+DELIMITER ;
+
+CALL `sp_gso_upgrade_schema`();
+DROP PROCEDURE IF EXISTS `sp_gso_upgrade_schema`;
+
+-- ============================================================================
+-- TABLE CREATIONS (CREATE TABLE IF NOT EXISTS)
+-- ============================================================================
+
 
 -- Units Table
 CREATE TABLE IF NOT EXISTS units (
