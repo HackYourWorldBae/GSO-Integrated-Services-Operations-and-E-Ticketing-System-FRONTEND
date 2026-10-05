@@ -87,3 +87,12 @@ export const updateGoogleDriveConfig = (payload) => {
   }
   return apiClient.post('/superadmin/backups/gdrive-config', payload);
 };
+
+/**
+ * Generate Google OAuth 2.0 Authorization URL for personal Google Drive backup.
+ * Route: GET /api/v1/superadmin/backups/gdrive-oauth-url
+ * @param {Object} [params] - { client_id, client_secret, folder_id }
+ */
+export const getGoogleOAuthUrl = (params = {}) =>
+  apiClient.get('/superadmin/backups/gdrive-oauth-url', { params });
+

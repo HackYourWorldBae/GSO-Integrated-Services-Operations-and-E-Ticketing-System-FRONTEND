@@ -444,19 +444,19 @@
           @click.self="showDriveModal = false"
         >
           <div 
-            class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-scale-up max-h-[calc(100dvh-3rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto pointer-events-auto"
+            class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-scale-up max-h-[calc(100dvh-3rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto pointer-events-auto"
             @click.stop
           >
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                <div class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/>
                   </svg>
                 </div>
                 <div>
                   <h3 class="text-base font-extrabold text-slate-900">Google Drive Cloud Setup</h3>
-                  <p class="text-xs text-slate-500">Attach Service Account credentials for automated Drive uploads</p>
+                  <p class="text-xs text-slate-500">Configure automated cloud database backup storage</p>
                 </div>
               </div>
               <button @click="showDriveModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
@@ -468,18 +468,25 @@
 
             <!-- Connection Status Card -->
             <div class="p-4 rounded-2xl border flex items-center justify-between gap-4" :class="googleDrive.connected ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'">
-              <div class="flex items-center gap-2.5">
+              <div class="flex items-center gap-2.5 min-w-0">
                 <span class="w-3 h-3 rounded-full shrink-0" :class="googleDrive.connected ? 'bg-emerald-500' : 'bg-slate-400'"></span>
-                <div>
-                  <h4 class="text-xs font-bold text-slate-900">{{ googleDrive.connected ? 'Google Drive Active' : 'Not Connected' }}</h4>
-                  <p class="text-[11px] text-slate-500">{{ googleDrive.message }}</p>
+                <div class="min-w-0">
+                  <h4 class="text-xs font-bold text-slate-900">
+                    {{ googleDrive.connected ? (googleDrive.auth_type === 'oauth' ? 'Personal Google Drive Active' : 'Service Account Active') : 'Not Connected' }}
+                  </h4>
+                  <p class="text-[11px] text-slate-500 truncate">
+                    {{ googleDrive.account_email || googleDrive.service_account_email || googleDrive.message }}
+                  </p>
+                  <p v-if="googleDrive.storage_limit" class="text-[10px] font-mono text-emerald-700 font-semibold mt-0.5">
+                    Storage: {{ formatBytes(googleDrive.storage_usage) }} / {{ formatBytes(googleDrive.storage_limit) }} used
+                  </p>
                 </div>
               </div>
               <button
                 @click="checkDriveStatus"
                 :disabled="isTestingDrive"
                 type="button"
-                class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
               >
                 <svg :class="{ 'animate-spin': isTestingDrive }" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -488,61 +495,245 @@
               </button>
             </div>
 
-            <!-- Service Account Email & Shared Folder Authorization Guide -->
-            <div v-if="detectedServiceAccountEmail" class="p-4 rounded-2xl bg-amber-500/10 border border-amber-300/80 space-y-2.5">
-              <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-1.5">
-                  <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                  </svg>
-                  <span class="text-xs font-bold text-amber-950 uppercase tracking-wider">Service Account Email</span>
+            <!-- Auth Mode Segmented Tab Switch -->
+            <div class="grid grid-cols-2 p-1 bg-slate-100/90 rounded-2xl text-xs font-bold gap-1">
+              <button
+                type="button"
+                @click="authTab = 'oauth'"
+                :class="authTab === 'oauth' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'"
+                class="py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+              >
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14h2v2h-2zm0-10h2v8h-2z" />
+                </svg>
+                <span>Personal Drive (OAuth 2.0)</span>
+              </button>
+              <button
+                type="button"
+                @click="authTab = 'service_account'"
+                :class="authTab === 'service_account' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'"
+                class="py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+              >
+                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <span>Workspace Shared Drive</span>
+              </button>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- TAB 1: OAuth 2.0 (Personal Google Drive)       -->
+            <!-- ============================================== -->
+            <div v-if="authTab === 'oauth'" class="space-y-4">
+              <!-- Informational Banner -->
+              <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-300/70 text-xs text-emerald-950 space-y-1.5 leading-relaxed">
+                <div class="flex items-center gap-2 font-bold text-emerald-900">
+                  <span class="px-2 py-0.5 rounded-full bg-emerald-200/90 text-[10px] font-extrabold uppercase tracking-wider">Recommended for @gmail.com</span>
                 </div>
+                <p class="text-[11px] text-slate-700">
+                  Personal accounts store backups directly under your own Google Drive quota (15 GB / 5 TB).
+                </p>
+                <ol class="list-decimal list-inside space-y-0.5 text-[11px] text-slate-700 pt-0.5">
+                  <li>In Google Cloud Console &rarr; <strong>APIs &amp; Services</strong> &rarr; <strong>Credentials</strong>, create an <strong>OAuth client ID</strong> (Web application).</li>
+                  <li>Copy and paste the <strong>Authorized redirect URI</strong> below into your OAuth Client.</li>
+                  <li>Enter your <strong>Client ID</strong> and <strong>Client Secret</strong>, then click <strong>Authorize with Google</strong>.</li>
+                </ol>
+              </div>
+
+              <!-- Redirect URI Card with Copy -->
+              <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Authorized Redirect URI</span>
+                  <button
+                    @click="copyRedirectUri"
+                    type="button"
+                    class="px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    <svg v-if="!hasCopiedRedirectUri" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <svg v-else class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>{{ hasCopiedRedirectUri ? 'Copied!' : 'Copy URI' }}</span>
+                  </button>
+                </div>
+                <div class="p-2 rounded-xl bg-white border border-slate-200 font-mono text-[11px] text-slate-800 break-all select-all">
+                  {{ googleDrive.redirect_uri || `${window.location.origin}/api/v1/superadmin/backups/google-oauth-callback` }}
+                </div>
+              </div>
+
+              <!-- Upload client_secret.json helper -->
+              <div>
+                <input
+                  type="file"
+                  ref="driveJsonFileInput"
+                  accept=".json,application/json"
+                  class="hidden"
+                  @change="handleDriveFileSelected"
+                />
                 <button
-                  @click="copyServiceAccountEmail"
                   type="button"
-                  class="px-2.5 py-1 text-[11px] font-bold bg-amber-200/90 hover:bg-amber-300 text-amber-950 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  @click="$refs.driveJsonFileInput.click()"
+                  class="w-full py-2 px-3 rounded-xl border border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/60 hover:bg-emerald-50/40 text-xs font-semibold text-slate-600 hover:text-emerald-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <svg v-if="!hasCopiedEmail" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                   </svg>
-                  <svg v-else class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>{{ hasCopiedEmail ? 'Copied!' : 'Copy Email' }}</span>
+                  <span>{{ selectedDriveFileName ? `Loaded: ${selectedDriveFileName}` : 'Or click to upload downloaded client_secret_xxx.json' }}</span>
                 </button>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-white/90 border border-amber-200/80 font-mono text-xs font-semibold text-amber-950 break-all select-all">
-                {{ detectedServiceAccountEmail }}
+              <!-- Client ID -->
+              <div>
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                  OAuth Client ID <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="oauthForm.clientId"
+                  type="text"
+                  placeholder="e.g. 123456789-xxxx.apps.googleusercontent.com"
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none"
+                />
               </div>
 
-              <div class="text-[11px] text-amber-950/90 space-y-1 pt-1 leading-relaxed">
-                <p class="font-bold text-amber-950">How to authorize Google Drive uploads:</p>
-                <ol class="list-decimal list-inside space-y-0.5 ml-0.5 text-slate-700">
-                  <li>In Google Drive, open the folder for backups (e.g. <strong>GSO E-Ticketing Backups</strong>).</li>
-                  <li>Click <strong>Share</strong> and invite the Service Account email above with <strong>Editor</strong> role.</li>
-                  <li>Copy the <strong>Folder ID</strong> from the browser URL and paste it below.</li>
-                </ol>
+              <!-- Client Secret -->
+              <div>
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                  OAuth Client Secret <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="oauthForm.clientSecret"
+                  type="password"
+                  placeholder="e.g. GOCSPX-xxxxxxxxxxxxxxxxxxxx"
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none"
+                />
+              </div>
+
+              <!-- Target Folder ID (Optional for OAuth) -->
+              <div>
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                  <span>Google Drive Folder ID (Optional)</span>
+                  <span class="text-[10px] font-bold text-slate-400 normal-case">Leave blank to store in root</span>
+                </label>
+                <input
+                  v-model="oauthForm.folderId"
+                  type="text"
+                  placeholder="e.g. 15u4dxdD1Ua6mQMImo1PCRaNHY0JITuai4"
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none"
+                />
+                <p class="text-[11px] text-slate-500 mt-1">
+                  From folder URL: <code class="font-mono text-slate-700 bg-slate-100 px-1 py-0.5 rounded text-[10px]">drive.google.com/drive/folders/<strong>[FOLDER_ID]</strong></code>
+                </p>
+              </div>
+
+              <!-- Advanced: Manual Refresh Token -->
+              <div class="pt-1">
+                <button
+                  type="button"
+                  @click="showManualRefreshToken = !showManualRefreshToken"
+                  class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer"
+                >
+                  {{ showManualRefreshToken ? 'Hide Manual Refresh Token' : 'Advanced: Paste Refresh Token manually' }}
+                </button>
+                <div v-if="showManualRefreshToken" class="mt-2 space-y-2">
+                  <textarea
+                    v-model="oauthForm.refreshToken"
+                    rows="2"
+                    placeholder="1//04xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (from OAuth Playground or CLI)"
+                    class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-mono text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none resize-none"
+                  ></textarea>
+                  <button
+                    @click="saveOAuthManualConfig"
+                    :disabled="isSavingDriveConfig"
+                    type="button"
+                    class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold cursor-pointer"
+                  >
+                    <span>Save Manual Token</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- OAuth Authorization Action Buttons -->
+              <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  @click="showDriveModal = false"
+                  type="button"
+                  class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                >
+                  Close
+                </button>
+                <button
+                  @click="initiateOAuthFlow"
+                  :disabled="isAuthorizingOAuth"
+                  type="button"
+                  class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                >
+                  <svg v-if="isAuthorizingOAuth" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <svg v-else class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
+                  </svg>
+                  <span>{{ isAuthorizingOAuth ? 'Connecting...' : 'Authorize with Google' }}</span>
+                </button>
               </div>
             </div>
 
-            <div class="space-y-4">
+            <!-- ============================================== -->
+            <!-- TAB 2: Service Account (Workspace Shared Drive)-->
+            <!-- ============================================== -->
+            <div v-else class="space-y-4">
+              <!-- Notice for Service Account -->
+              <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-300/80 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                    </svg>
+                    <span class="text-xs font-bold text-amber-950 uppercase tracking-wider">Service Account Email</span>
+                  </div>
+                  <button
+                    v-if="detectedServiceAccountEmail"
+                    @click="copyServiceAccountEmail"
+                    type="button"
+                    class="px-2.5 py-1 text-[11px] font-bold bg-amber-200/90 hover:bg-amber-300 text-amber-950 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    <svg v-if="!hasCopiedEmail" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <svg v-else class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>{{ hasCopiedEmail ? 'Copied!' : 'Copy Email' }}</span>
+                  </button>
+                </div>
+
+                <div v-if="detectedServiceAccountEmail" class="p-2.5 rounded-xl bg-white/90 border border-amber-200/80 font-mono text-xs font-semibold text-amber-950 break-all select-all">
+                  {{ detectedServiceAccountEmail }}
+                </div>
+
+                <div class="text-[11px] text-amber-950/90 space-y-1 pt-1 leading-relaxed">
+                  <p class="font-bold text-amber-950">Important note for Service Accounts:</p>
+                  <p class="text-slate-700">
+                    Google restricts Service Accounts to <strong>Google Workspace Shared Drives (Team Drives)</strong>. If using a personal @gmail.com account, please switch to the <strong>Personal Drive (OAuth 2.0)</strong> tab.
+                  </p>
+                </div>
+              </div>
+
               <!-- Target Folder ID -->
               <div>
                 <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                  <span>Google Drive Folder ID <span class="text-rose-500">*</span></span>
+                  <span>Shared Drive / Folder ID <span class="text-rose-500">*</span></span>
                   <span class="text-[10px] font-bold text-amber-700 normal-case bg-amber-100/70 px-2 py-0.5 rounded-full">Required for Service Accounts</span>
                 </label>
                 <input
                   v-model="driveForm.folderId"
                   type="text"
                   placeholder="e.g. 1yGzABcDeFGHiJKlmnOPqRSTUVWXYZ"
-                  required
                   class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none"
                 />
-                <p class="text-[11px] text-slate-500 mt-1">
-                  From browser URL: <code class="font-mono text-slate-700 bg-slate-100 px-1 py-0.5 rounded text-[10px]">drive.google.com/drive/folders/<strong>[YOUR_FOLDER_ID]</strong></code>
-                </p>
               </div>
 
               <!-- Service Account JSON Upload -->
@@ -577,34 +768,35 @@
                 </label>
                 <textarea
                   v-model="driveForm.credentialsJson"
-                  rows="4"
+                  rows="3"
                   placeholder='{"type": "service_account", "project_id": "...", "private_key": "..."}'
                   class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-mono text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none resize-none"
                 ></textarea>
               </div>
+
+              <div class="flex items-center justify-end gap-3 pt-2">
+                <button
+                  @click="showDriveModal = false"
+                  type="button"
+                  class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                >
+                  Close
+                </button>
+                <button
+                  @click="saveDriveConfig"
+                  :disabled="isSavingDriveConfig"
+                  type="button"
+                  class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                >
+                  <svg v-if="isSavingDriveConfig" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>{{ isSavingDriveConfig ? 'Saving...' : 'Save Drive Settings' }}</span>
+                </button>
+              </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-2">
-              <button
-                @click="showDriveModal = false"
-                type="button"
-                class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
-              >
-                Close
-              </button>
-              <button
-                @click="saveDriveConfig"
-                :disabled="isSavingDriveConfig"
-                type="button"
-                class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
-              >
-                <svg v-if="isSavingDriveConfig" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>{{ isSavingDriveConfig ? 'Saving...' : 'Save Drive Settings' }}</span>
-              </button>
-            </div>
           </div>
         </div>
       </Teleport>
@@ -704,6 +896,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import {
   fetchBackups,
@@ -714,10 +907,14 @@ import {
   syncBackupToGoogleDrive,
   deleteBackup,
   getGoogleDriveStatus,
-  updateGoogleDriveConfig
+  updateGoogleDriveConfig,
+  getGoogleOAuthUrl
 } from '@/api/backup';
 import { toast } from 'vue3-toastify';
 import Swal from 'sweetalert2';
+
+const route = useRoute();
+const router = useRouter();
 
 // ---------------------------------------------------------
 // Component State
@@ -733,8 +930,15 @@ const googleDrive = ref({
   is_configured: false,
   connected: false,
   message: 'Checking connection...',
+  auth_type: 'oauth',
   folder_id: '',
-  service_account_email: ''
+  service_account_email: '',
+  account_email: '',
+  account_name: '',
+  storage_limit: null,
+  storage_usage: null,
+  client_id: '',
+  redirect_uri: ''
 });
 
 const isLoading = ref(false);
@@ -750,6 +954,19 @@ const isRestoring = ref(false);
 const showDriveModal = ref(false);
 const isTestingDrive = ref(false);
 const isSavingDriveConfig = ref(false);
+const isAuthorizingOAuth = ref(false);
+const authTab = ref('oauth'); // 'oauth' | 'service_account'
+const hasCopiedRedirectUri = ref(false);
+const hasCopiedEmail = ref(false);
+const showManualRefreshToken = ref(false);
+
+const oauthForm = ref({
+  clientId: '',
+  clientSecret: '',
+  refreshToken: '',
+  folderId: ''
+});
+
 const driveJsonFileInput = ref(null);
 const selectedDriveFileName = ref('');
 const driveForm = ref({
@@ -757,10 +974,10 @@ const driveForm = ref({
   credentialsJson: '',
   file: null
 });
-const hasCopiedEmail = ref(false);
 
-// Derived: Service Account email from API response
+// Derived: emails from API response
 const detectedServiceAccountEmail = computed(() => googleDrive.value.service_account_email || '');
+const detectedAccountEmail = computed(() => googleDrive.value.account_email || '');
 
 // Upload SQL Dump Modal State
 const showUploadModal = ref(false);
@@ -772,8 +989,18 @@ const isUploadingRestore = ref(false);
 // ---------------------------------------------------------
 // Lifecycle & Data Fetching
 // ---------------------------------------------------------
-onMounted(() => {
-  loadBackups();
+onMounted(async () => {
+  // Check for OAuth redirect callback query params
+  if (route.query.oauth_success) {
+    const email = route.query.account_email ? ` as ${route.query.account_email}` : '';
+    toast.success(`Personal Google Drive connected successfully${email}!`);
+    router.replace({ path: route.path });
+  } else if (route.query.oauth_error) {
+    toast.error(formatErrorMessage(route.query.oauth_error));
+    router.replace({ path: route.path });
+  }
+
+  await loadBackups();
 });
 
 const loadBackups = async () => {
@@ -785,6 +1012,13 @@ const loadBackups = async () => {
       stats.value = res.data.data.stats || {};
       googleDrive.value = res.data.data.google_drive || {};
       driveForm.value.folderId = googleDrive.value.folder_id || '';
+      oauthForm.value.folderId = googleDrive.value.folder_id || '';
+      if (googleDrive.value.client_id) {
+        oauthForm.value.clientId = googleDrive.value.client_id;
+      }
+      if (googleDrive.value.auth_type) {
+        authTab.value = googleDrive.value.auth_type;
+      }
     }
   } catch (err) {
     toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to fetch backups.'));
@@ -913,18 +1147,106 @@ const executeRestore = async () => {
 // Google Drive Config Handlers
 // ---------------------------------------------------------
 const openDriveConfigModal = () => {
+  driveForm.value.folderId = googleDrive.value.folder_id || '';
+  oauthForm.value.folderId = googleDrive.value.folder_id || '';
+  if (googleDrive.value.client_id) {
+    oauthForm.value.clientId = googleDrive.value.client_id;
+  }
+  if (googleDrive.value.auth_type) {
+    authTab.value = googleDrive.value.auth_type;
+  }
   showDriveModal.value = true;
 };
 
+const copyRedirectUri = async () => {
+  const uri = googleDrive.value.redirect_uri || `${window.location.origin}/api/v1/superadmin/backups/google-oauth-callback`;
+  try {
+    await navigator.clipboard.writeText(uri);
+    hasCopiedRedirectUri.value = true;
+    toast.success('Redirect URI copied to clipboard!');
+    setTimeout(() => { hasCopiedRedirectUri.value = false; }, 2500);
+  } catch {
+    toast.warning('Could not copy automatically — please select and copy manually.');
+  }
+};
+
+const initiateOAuthFlow = async () => {
+  if (!oauthForm.value.clientId || !oauthForm.value.clientSecret) {
+    toast.warning('Please enter both OAuth Client ID and Client Secret.');
+    return;
+  }
+  isAuthorizingOAuth.value = true;
+  try {
+    const res = await getGoogleOAuthUrl({
+      client_id: oauthForm.value.clientId.trim(),
+      client_secret: oauthForm.value.clientSecret.trim(),
+      folder_id: oauthForm.value.folderId ? oauthForm.value.folderId.trim() : ''
+    });
+
+    if (res.data?.status && res.data.data?.auth_url) {
+      toast.info('Redirecting to Google sign-in...');
+      window.location.href = res.data.data.auth_url;
+    } else {
+      toast.error('Failed generating authorization URL.');
+    }
+  } catch (err) {
+    toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to initiate Google authorization.'));
+  } finally {
+    isAuthorizingOAuth.value = false;
+  }
+};
+
+const saveOAuthManualConfig = async () => {
+  if (!oauthForm.value.clientId || !oauthForm.value.clientSecret) {
+    toast.warning('Client ID and Client Secret are required.');
+    return;
+  }
+  isSavingDriveConfig.value = true;
+  try {
+    const payload = {
+      auth_type: 'oauth',
+      client_id: oauthForm.value.clientId.trim(),
+      client_secret: oauthForm.value.clientSecret.trim(),
+      folder_id: oauthForm.value.folderId ? oauthForm.value.folderId.trim() : '',
+      refresh_token: oauthForm.value.refreshToken ? oauthForm.value.refreshToken.trim() : ''
+    };
+    const res = await updateGoogleDriveConfig(payload);
+    if (res.data?.status) {
+      toast.success(res.data.message || 'Google Drive OAuth settings updated.');
+      showDriveModal.value = false;
+      await loadBackups();
+    }
+  } catch (err) {
+    toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to update Google Drive configuration.'));
+  } finally {
+    isSavingDriveConfig.value = false;
+  }
+};
+
 const handleDriveFileSelected = (event) => {
-  const file = event.target.files[0];
+  const file = event.target.files?.[0];
   if (!file) return;
   selectedDriveFileName.value = file.name;
   driveForm.value.file = file;
 
   const reader = new FileReader();
   reader.onload = (e) => {
-    driveForm.value.credentialsJson = e.target.result;
+    try {
+      const parsed = JSON.parse(e.target?.result);
+      if (parsed.web || parsed.installed) {
+        const creds = parsed.web || parsed.installed;
+        authTab.value = 'oauth';
+        if (creds.client_id) oauthForm.value.clientId = creds.client_id;
+        if (creds.client_secret) oauthForm.value.clientSecret = creds.client_secret;
+        toast.info('OAuth Client credentials detected and auto-populated!');
+      } else if (parsed.type === 'service_account') {
+        authTab.value = 'service_account';
+        driveForm.value.credentialsJson = e.target?.result;
+        toast.info('Service Account JSON loaded.');
+      }
+    } catch {
+      toast.warning('Selected file is not valid JSON.');
+    }
   };
   reader.readAsText(file);
 };
@@ -937,9 +1259,12 @@ const checkDriveStatus = async () => {
       const info = res.data.data;
       googleDrive.value.connected = info.success;
       googleDrive.value.message = info.message;
-      if (info.service_account_email) {
-        googleDrive.value.service_account_email = info.service_account_email;
-      }
+      if (info.auth_type) googleDrive.value.auth_type = info.auth_type;
+      if (info.service_account_email) googleDrive.value.service_account_email = info.service_account_email;
+      if (info.account_email) googleDrive.value.account_email = info.account_email;
+      if (info.account_name) googleDrive.value.account_name = info.account_name;
+      if (info.storage_limit !== undefined) googleDrive.value.storage_limit = info.storage_limit;
+      if (info.storage_usage !== undefined) googleDrive.value.storage_usage = info.storage_usage;
       if (info.success) {
         toast.success(info.message);
       } else {
@@ -961,8 +1286,10 @@ const saveDriveConfig = async () => {
       payload = new FormData();
       payload.append('credentials_file', driveForm.value.file);
       payload.append('folder_id', driveForm.value.folderId || '');
+      payload.append('auth_type', 'service_account');
     } else {
       payload = {
+        auth_type: 'service_account',
         folder_id: driveForm.value.folderId || '',
         credentials_json: driveForm.value.credentialsJson || ''
       };

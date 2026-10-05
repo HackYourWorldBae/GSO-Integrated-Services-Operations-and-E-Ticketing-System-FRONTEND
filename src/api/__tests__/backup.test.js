@@ -18,7 +18,8 @@ import {
   syncBackupToGoogleDrive,
   deleteBackup,
   getGoogleDriveStatus,
-  updateGoogleDriveConfig
+  updateGoogleDriveConfig,
+  getGoogleOAuthUrl
 } from '../backup'
 
 describe('Backup API Module', () => {
@@ -173,5 +174,20 @@ describe('Backup API Module', () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
     )
+  })
+
+  it('requests Google OAuth authorization URL via GET /superadmin/backups/gdrive-oauth-url', async () => {
+    apiClient.get.mockResolvedValueOnce({
+      data: {
+        status: true,
+        data: { auth_url: 'https://accounts.google.com/o/oauth2/auth?test=1', redirect_uri: 'https://backend.test/callback' }
+      }
+    })
+
+    const res = await getGoogleOAuthUrl({ client_id: 'abc', client_secret: 'xyz' })
+    expect(apiClient.get).toHaveBeenCalledWith('/superadmin/backups/gdrive-oauth-url', {
+      params: { client_id: 'abc', client_secret: 'xyz' }
+    })
+    expect(res.data.data.auth_url).toContain('accounts.google.com')
   })
 })
