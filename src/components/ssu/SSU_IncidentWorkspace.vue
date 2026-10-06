@@ -15,7 +15,7 @@
           >
             <span class="w-2 h-2 rounded-full bg-white" :class="{ 'animate-ping': activeQueue === 'investigating' }"></span>
             <span>{{ activeQueue === 'submitted' ? 'Submitted Incident Reports' : 'Under Investigation Cases' }}</span>
-            <span class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none bg-white/20 text-white">
+            <span class="ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs bg-white text-slate-950">
               {{ currentQueueTickets.length }}
             </span>
           </div>

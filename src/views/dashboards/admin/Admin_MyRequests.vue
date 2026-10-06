@@ -41,14 +41,18 @@
                 :key="tab.value"
                 @click="statusFilter = tab.value"
                 :class="[
-                  'px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all border min-h-[44px] flex items-center cursor-pointer',
+                  'px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all border min-h-[44px] flex items-center cursor-pointer shadow-2xs',
                   statusFilter === tab.value
                     ? tab.activeClass
-                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                 ]"
               >
                 {{ tab.label }}
-                <span v-if="tab.count !== undefined" class="ml-1.5 px-2 py-0.5 rounded-md text-xs font-black" :class="statusFilter === tab.value ? 'bg-white/30' : 'bg-slate-200 text-slate-700'">
+                <span
+                  v-if="tab.count !== undefined"
+                  class="ml-2 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black min-w-[24px] text-center transition-all shadow-xs"
+                  :class="statusFilter === tab.value ? (tab.activeBadgeClass || 'bg-white text-slate-950') : 'bg-slate-100 text-slate-800 border border-slate-200/80'"
+                >
                   {{ tab.count }}
                 </span>
               </button>
@@ -867,11 +871,11 @@ const statusCounts = computed(() => ({
 }));
 
 const statusTabs = computed(() => [
-  { value: 'all', label: 'All Requests', count: statusCounts.value.all, activeClass: 'bg-slate-900 text-white border-slate-900' },
-  { value: 'pending', label: 'Pending', count: statusCounts.value.pending, activeClass: 'bg-amber-50 text-amber-800 border-amber-400' },
-  { value: 'processing', label: 'In Progress', count: statusCounts.value.processing, activeClass: 'bg-blue-50 text-blue-800 border-blue-400' },
-  { value: 'resolved', label: 'Awaiting Rating', count: statusCounts.value.resolved, activeClass: 'bg-amber-500 text-white border-amber-500 shadow-xs' },
-  { value: 'completed', label: 'Completed', count: statusCounts.value.completed, activeClass: 'bg-emerald-50 text-emerald-800 border-emerald-400' },
+  { value: 'all',        label: 'All Requests',     count: statusCounts.value.all,        activeClass: 'bg-slate-900 text-white border-slate-900 shadow-sm', activeBadgeClass: 'bg-white text-slate-950' },
+  { value: 'pending',    label: 'Pending',          count: statusCounts.value.pending,    activeClass: 'bg-amber-600 text-white border-amber-600 shadow-sm', activeBadgeClass: 'bg-white text-amber-950' },
+  { value: 'processing', label: 'In Progress',      count: statusCounts.value.processing, activeClass: 'bg-blue-600 text-white border-blue-600 shadow-sm', activeBadgeClass: 'bg-white text-blue-950' },
+  { value: 'resolved',   label: 'Awaiting Rating',  count: statusCounts.value.resolved,   activeClass: 'bg-emerald-600 text-white border-emerald-600 shadow-sm', activeBadgeClass: 'bg-white text-emerald-950' },
+  { value: 'completed',  label: 'Completed',        count: statusCounts.value.completed,  activeClass: 'bg-slate-800 text-white border-slate-800 shadow-sm', activeBadgeClass: 'bg-white text-slate-950' },
 ]);
 
 const filteredTickets = computed(() => {

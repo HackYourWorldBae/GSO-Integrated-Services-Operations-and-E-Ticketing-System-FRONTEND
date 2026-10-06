@@ -190,19 +190,22 @@
           </div>
 
           <!-- Tab Pills -->
-          <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs">
+          <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs sm:text-sm">
             <button
               type="button"
               @click="activeTab = 'active'"
               :class="[
-                'px-4 py-2 min-h-[38px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-1.5 touch-manipulation',
+                'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation',
                 activeTab === 'active'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               ]"
             >
               <span>Active Jobs</span>
-              <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="activeTab === 'active' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'">
+              <span
+                class="px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black min-w-[24px] text-center shadow-xs transition-all"
+                :class="activeTab === 'active' ? 'bg-white text-emerald-950 font-black' : 'bg-slate-200 text-slate-800'"
+              >
                 {{ store.activeCount }}
               </span>
             </button>
@@ -211,14 +214,17 @@
               type="button"
               @click="activeTab = 'emergency'"
               :class="[
-                'px-4 py-2 min-h-[38px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-1.5 touch-manipulation',
+                'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation',
                 activeTab === 'emergency'
-                  ? 'bg-rose-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-rose-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               ]"
             >
               <span>Emergency / Urgent</span>
-              <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="activeTab === 'emergency' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'">
+              <span
+                class="px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black min-w-[24px] text-center shadow-xs transition-all"
+                :class="activeTab === 'emergency' ? 'bg-white text-rose-950 font-black' : 'bg-slate-200 text-slate-800'"
+              >
                 {{ emergencyCount }}
               </span>
             </button>
@@ -227,14 +233,17 @@
               type="button"
               @click="activeTab = 'completed'"
               :class="[
-                'px-4 py-2 min-h-[38px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-1.5 touch-manipulation',
+                'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation',
                 activeTab === 'completed'
-                  ? 'bg-sky-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-sky-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               ]"
             >
               <span>Completed History</span>
-              <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="activeTab === 'completed' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'">
+              <span
+                class="px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black min-w-[24px] text-center shadow-xs transition-all"
+                :class="activeTab === 'completed' ? 'bg-white text-sky-950 font-black' : 'bg-slate-200 text-slate-800'"
+              >
                 {{ store.completedCount }}
               </span>
             </button>
@@ -243,14 +252,17 @@
               type="button"
               @click="activeTab = 'all'"
               :class="[
-                'px-4 py-2 min-h-[38px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-1.5 touch-manipulation',
+                'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation',
                 activeTab === 'all'
-                  ? 'bg-slate-800 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-slate-800 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               ]"
             >
               <span>All Work Orders</span>
-              <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="activeTab === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'">
+              <span
+                class="px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black min-w-[24px] text-center shadow-xs transition-all"
+                :class="activeTab === 'all' ? 'bg-white text-slate-950 font-black' : 'bg-slate-200 text-slate-800'"
+              >
                 {{ store.totalCount }}
               </span>
             </button>

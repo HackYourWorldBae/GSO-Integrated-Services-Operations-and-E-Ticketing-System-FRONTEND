@@ -24,8 +24,8 @@
             <span>Unit Tickets</span>
             <span
               :class="[
-                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                approvedTab === 'unit' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                approvedTab === 'unit' ? 'bg-white text-slate-950 font-black' : 'bg-slate-200 text-slate-800'
               ]"
             >
               {{ tickets.length }}
@@ -49,8 +49,8 @@
             <span>Collab Requests</span>
             <span
               :class="[
-                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                approvedTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-900'
+                'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                approvedTab === 'collab' ? 'bg-white text-indigo-950 font-black' : 'bg-indigo-100 text-indigo-950'
               ]"
             >
               {{ collabCount }}

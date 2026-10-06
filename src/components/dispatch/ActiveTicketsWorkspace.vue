@@ -26,8 +26,8 @@
             <span>In Progress</span>
             <span
               :class="[
-                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                activeTab === 'in_progress' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                activeTab === 'in_progress' ? 'bg-white text-slate-950 font-black' : 'bg-slate-200 text-slate-800'
               ]"
             >
               {{ inProgressTickets.length }}
@@ -55,8 +55,8 @@
             <span>Borrowed Requests</span>
             <span
               :class="[
-                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                activeTab === 'borrowed' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                activeTab === 'borrowed' ? 'bg-white text-slate-950 font-black' : 'bg-slate-200 text-slate-800'
               ]"
             >
               {{ borrowedCount }}
@@ -80,8 +80,8 @@
             <span>Collab Active</span>
             <span
               :class="[
-                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                activeTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-900'
+                'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                activeTab === 'collab' ? 'bg-white text-slate-950 font-black' : 'bg-indigo-100 text-indigo-950'
               ]"
             >
               {{ collabActiveCount }}
@@ -105,8 +105,8 @@
             <span>Awaiting Requestor Rating</span>
             <span
               :class="[
-                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                activeTab === 'awaiting_rating' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-900'
+                'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                activeTab === 'awaiting_rating' ? 'bg-white text-slate-950 font-black' : 'bg-amber-100 text-amber-950'
               ]"
             >
               {{ awaitingRatingTickets.length }}

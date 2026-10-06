@@ -73,8 +73,8 @@
               <span class="truncate">1. Pending Approval</span>
               <span
                 :class="[
-                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
-                  activeTab === 'pending' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
+                  activeTab === 'pending' ? 'bg-white text-emerald-950 font-black' : 'bg-amber-100 text-amber-950'
                 ]"
               >
                 {{ queueCounts.pending }}
@@ -97,8 +97,8 @@
               <span class="truncate">Approval Delayed</span>
               <span
                 :class="[
-                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
-                  activeTab === 'delayed' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
+                  activeTab === 'delayed' ? 'bg-white text-amber-950 font-black' : 'bg-amber-100 text-amber-950'
                 ]"
               >
                 {{ queueCounts.delayed || 0 }}
@@ -121,8 +121,8 @@
               <span class="truncate">2. Approved (Dispatch)</span>
               <span
                 :class="[
-                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
-                  activeTab === 'approved' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800'
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
+                  activeTab === 'approved' ? 'bg-white text-emerald-950 font-black' : 'bg-blue-100 text-blue-950'
                 ]"
               >
                 {{ queueCounts.approved }}
@@ -145,8 +145,8 @@
               <span class="truncate">3. In Progress</span>
               <span
                 :class="[
-                  'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none shrink-0',
-                  activeTab === 'active' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
+                  activeTab === 'active' ? 'bg-white text-emerald-950 font-black' : 'bg-emerald-100 text-emerald-950'
                 ]"
               >
                 {{ queueCounts.active }}

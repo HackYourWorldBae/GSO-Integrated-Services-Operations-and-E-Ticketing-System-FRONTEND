@@ -15,7 +15,7 @@
             ]"
           >
             <span>{{ tab.label }}</span>
-            <span :class="['ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none', activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700']">
+            <span :class="['ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all', activeTab === tab.key ? 'bg-white text-amber-950 font-black' : 'bg-slate-200 text-slate-800']">
               {{ tabCounts[tab.key] ?? 0 }}
             </span>
           </button>

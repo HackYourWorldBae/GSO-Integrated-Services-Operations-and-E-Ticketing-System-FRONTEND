@@ -25,8 +25,8 @@
             <span>Job Schedules</span>
             <span
               :class="[
-                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                scheduledTab === 'jobs' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+                'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                scheduledTab === 'jobs' ? 'bg-white text-amber-950 font-black' : 'bg-amber-100 text-amber-950'
               ]"
             >
               {{ scheduledTickets.length }}
@@ -51,8 +51,8 @@
             <span>Borrowing Requests</span>
             <span
               :class="[
-                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                scheduledTab === 'borrowing' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+                'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                scheduledTab === 'borrowing' ? 'bg-white text-amber-950 font-black' : 'bg-amber-100 text-amber-950'
               ]"
             >
               {{ borrowingAwaitingCount }}
@@ -76,8 +76,8 @@
             <span>Collab Tickets</span>
             <span
               :class="[
-                'ml-1 px-2 py-0.5 rounded-full text-[10px] font-black leading-none',
-                scheduledTab === 'collab' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-900'
+                'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                scheduledTab === 'collab' ? 'bg-white text-indigo-950 font-black' : 'bg-indigo-100 text-indigo-950'
               ]"
             >
               {{ collabScheduledCount }}
