@@ -351,7 +351,15 @@
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Specialty / Role *</label>
                 <select v-model="addForm.specialty" required class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer bg-white">
                   <option value="" disabled>Select Specialty</option>
-                  <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
+                  <template v-if="store.categories && store.categories.length > 0">
+                    <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
+                  </template>
+                  <template v-else>
+                    <option value="Groundskeeper">Groundskeeper</option>
+                    <option value="Landscaper">Landscaper</option>
+                    <option value="Janitor">Janitor</option>
+                    <option value="Garbage Collector">Garbage Collector</option>
+                  </template>
                 </select>
               </div>
 
@@ -896,7 +904,7 @@ const authStore = useAuthStore();
 
 const isAdmin = computed(() => {
   const role = authStore.role || authStore.user?.role;
-  return role === 'admin' || role === 'superadmin' || role === 'director';
+  return role === 'admin' || role === 'staff' || role === 'superadmin' || role === 'director';
 });
 
 // ── Search & Filter ─────────────────────────────────────────────────────────
@@ -946,11 +954,13 @@ const isWorkerExpanded = (workerId) => Boolean(expandedWorkers[workerId]);
 
 // ── Add Personnel Modal ─────────────────────────────────────────────────────
 const nameExtensionOptions = ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+const showAddModal = ref(false);
 // ── Password Visibility Toggles ─────────────────────────────────────────────
 const showAddPassword = ref(false);
 const showAddConfirmPassword = ref(false);
 
 const submitting = ref(false);
+const addSubmitting = submitting;
 const addForm = reactive({
   firstName: '',
   middleInitial: '',
@@ -969,7 +979,7 @@ const openAddModal = () => {
   addForm.middleInitial = '';
   addForm.lastName = '';
   addForm.nameExtension = '';
-  addForm.specialty = store.categories[0]?.name || '';
+  addForm.specialty = store.categories[0]?.name || 'Groundskeeper';
   addForm.createAccount = false;
   addForm.email = '';
   addForm.contactNumber = '';
@@ -1011,6 +1021,7 @@ const submitAddPersonnel = async () => {
     submitting.value = false;
   }
 };
+const submitAdd = submitAddPersonnel;
 
 // ── Provision Account for Existing Worker Modal ──────────────────────────────
 const workerForAccountModal = ref(null);

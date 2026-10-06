@@ -352,7 +352,18 @@
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Specialty / Role *</label>
                 <select v-model="addForm.specialty" required class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer bg-white">
                   <option value="" disabled>Select Specialty</option>
-                  <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
+                  <template v-if="store.categories && store.categories.length > 0">
+                    <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
+                  </template>
+                  <template v-else>
+                    <option value="General Maintenance">General Maintenance</option>
+                    <option value="Carpentry">Carpentry</option>
+                    <option value="Electrical">Electrical</option>
+                    <option value="Plumbing">Plumbing</option>
+                    <option value="Aircon / Refrigeration">Aircon / Refrigeration</option>
+                    <option value="Painting / Masonry">Painting / Masonry</option>
+                    <option value="Welding">Welding</option>
+                  </template>
                 </select>
               </div>
 
@@ -898,7 +909,7 @@ const authStore = useAuthStore();
 
 const isAdmin = computed(() => {
   const role = authStore.role || authStore.user?.role;
-  return role === 'admin' || role === 'superadmin' || role === 'director';
+  return role === 'admin' || role === 'staff' || role === 'superadmin' || role === 'director';
 });
 
 // ── Search & Filter ─────────────────────────────────────────────────────────
@@ -979,7 +990,7 @@ const openAddModal = () => {
   addForm.middleInitial = '';
   addForm.lastName = '';
   addForm.nameExtension = '';
-  addForm.specialty = store.categories[0]?.name || '';
+  addForm.specialty = store.categories[0]?.name || 'General Maintenance';
   addForm.createAccount = false;
   addForm.email = '';
   addForm.contactNumber = '';

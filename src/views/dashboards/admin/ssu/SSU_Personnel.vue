@@ -431,9 +431,18 @@
                 required
                 class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/50 bg-white"
               >
-                <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">
-                  {{ cat.name }}
-                </option>
+                <option value="" disabled>Select Specialty</option>
+                <template v-if="store.categories && store.categories.length > 0">
+                  <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">
+                    {{ cat.name }}
+                  </option>
+                </template>
+                <template v-else>
+                  <option value="Campus Security & Patrol">Campus Security & Patrol</option>
+                  <option value="Gate / Entry Control">Gate / Entry Control</option>
+                  <option value="Surveillance / CCTV">Surveillance / CCTV</option>
+                  <option value="Emergency Response">Emergency Response</option>
+                </template>
               </select>
             </div>
 
@@ -906,7 +915,7 @@ const authStore = useAuthStore();
 
 const isAdmin = computed(() => {
   const role = authStore.role || authStore.user?.role;
-  return role === 'admin' || role === 'superadmin' || role === 'director';
+  return role === 'admin' || role === 'staff' || role === 'superadmin' || role === 'director';
 });
 
 // ── Search & Filter ─────────────────────────────────────────────────────────
@@ -962,11 +971,13 @@ const isWorkerExpanded = (workerId) => Boolean(expandedWorkers[workerId]);
 
 // ── Add Personnel Modal ─────────────────────────────────────────────────────
 const nameExtensionOptions = ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+const showAddModal = ref(false);
 // ── Password Visibility Toggles ─────────────────────────────────────────────
 const showAddPassword = ref(false);
 const showAddConfirmPassword = ref(false);
 
 const submitting = ref(false);
+const addSubmitting = submitting;
 const addForm = reactive({
   firstName: '',
   middleInitial: '',
@@ -1027,6 +1038,7 @@ const submitAddPersonnel = async () => {
     submitting.value = false;
   }
 };
+const submitAdd = submitAddPersonnel;
 
 // ── Provision Account for Existing Worker Modal ──────────────────────────────
 const workerForAccountModal = ref(null);
