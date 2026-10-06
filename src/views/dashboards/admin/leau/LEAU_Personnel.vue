@@ -162,18 +162,19 @@
 
                   <span
                     v-if="worker.has_account || worker.user_id"
-                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80"
                     title="Staff has an active portal login account"
                   >
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    📱 Portal Active
+                    Portal Active
                   </span>
                   <span
                     v-else
-                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200"
-                    title="Roster only — no device login account"
+                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200"
+                    title="Roster only — no portal login account"
                   >
-                    📵 No Device
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                    Roster Only
                   </span>
                 </div>
               </div>
@@ -285,10 +286,12 @@
                 <button
                   v-if="isAdmin && !worker.has_account && !worker.user_id"
                   @click="openProvisionAccountModal(worker)"
-                  class="px-2.5 sm:px-3 py-2 min-h-[38px] rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100 text-emerald-800 text-[11px] font-black transition-colors cursor-pointer flex items-center gap-1 touch-manipulation"
-                  title="Create device account for this staff"
+                  class="px-2.5 sm:px-3 py-2 min-h-[38px] rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100 text-emerald-800 text-[11px] font-black transition-colors cursor-pointer flex items-center gap-1.5 touch-manipulation"
+                  title="Create portal login account for this staff"
                 >
-                  <span>📱</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
                   <span>Create Account</span>
                 </button>
               </div>
@@ -367,15 +370,17 @@
               <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
                 <div class="flex items-center justify-between gap-3">
                   <div class="flex items-start gap-2.5 min-w-0">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0 mt-0.5">
-                      📱
+                    <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
                     </div>
                     <div class="min-w-0">
                       <label for="leau-toggle-account" class="text-xs font-black text-slate-800 block cursor-pointer">
                         Create Portal Account
                       </label>
                       <p class="text-[11px] text-slate-500 font-medium leading-tight">
-                        Optional • Toggle ON if personnel has an accessible phone/device
+                        Optional • Enable if personnel requires self-service portal access
                       </p>
                     </div>
                   </div>
@@ -787,7 +792,7 @@
             <div class="flex items-center justify-between mb-5">
               <div>
                 <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
-                  Mobile Access
+                  Portal Access
                 </span>
                 <h3 class="text-xl font-black text-slate-900 mt-1">Create Staff Account</h3>
                 <p class="text-xs text-slate-500 font-medium mt-0.5">For: <strong class="text-slate-800">{{ workerForAccountModal.name }}</strong></p>
