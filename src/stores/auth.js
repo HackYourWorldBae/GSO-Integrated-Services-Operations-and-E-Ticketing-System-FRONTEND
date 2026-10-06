@@ -46,6 +46,9 @@ export const useAuthStore = defineStore('auth', () => {
       if (type === 'ssg') return 'SSG Member';
       return 'RSO Member';
     }
+    if (r === 'worker') {
+      return 'Responding Personnel';
+    }
     return role.value.charAt(0).toUpperCase() + role.value.slice(1);
   });
 

@@ -130,7 +130,7 @@ const handleLogin = async () => {
         router.push('/admin/fgmu');
       }
     } else if (role === 'worker') {
-      router.push('/worker/dashboard');
+      router.push('/personnel/dashboard');
     } else if (role === 'director') {
       router.push('/director/dashboard');
     } else {

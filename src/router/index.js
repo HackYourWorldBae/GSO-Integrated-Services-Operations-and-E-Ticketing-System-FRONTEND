@@ -61,6 +61,7 @@ const Superadmin_Backup = () => import('../views/dashboards/superadmin/Superadmi
 const Director_Settings = () => import('../views/dashboards/director/Director_Settings.vue');
 const Admin_Settings = () => import('../views/dashboards/admin/Admin_Settings.vue');
 const Admin_MyRequests = () => import('../views/dashboards/admin/Admin_MyRequests.vue');
+const Personnel_Dashboard = () => import('../views/dashboards/personnel/Personnel_Dashboard.vue');
 
 const router = createRouter({
   history: typeof window !== 'undefined' && typeof window.history !== 'undefined'
@@ -131,6 +132,16 @@ const router = createRouter({
       name: 'user-completed-tickets',
       component: User_CompletedTickets,
       meta: { requiresAuth: true, roles: ['student', 'employee', 'worker'] }
+    },
+    {
+      path: '/personnel/dashboard',
+      name: 'personnel-dashboard',
+      component: Personnel_Dashboard,
+      meta: { requiresAuth: true, roles: ['worker', 'admin', 'director', 'superadmin'] }
+    },
+    {
+      path: '/worker/dashboard',
+      redirect: '/personnel/dashboard'
     },
 
     // Sub-unit Dashboards — FGMU Admin
@@ -605,6 +616,9 @@ export const getCanonicalHomeRoute = (userRole, userUnit) => {
   if (r === 'director') {
     return '/director/dashboard';
   }
+  if (r === 'worker') {
+    return '/personnel/dashboard';
+  }
   if (r === 'admin' || r === 'staff') {
     const u = String(userUnit || 'fgmu').toLowerCase();
     if (['fgmu', 'leau', 'ssu'].includes(u)) {
@@ -612,7 +626,7 @@ export const getCanonicalHomeRoute = (userRole, userUnit) => {
     }
     return '/admin/fgmu';
   }
-  // student, employee, worker, or any other authenticated user
+  // student, employee, or any other authenticated user
   return '/user/dashboard';
 };
 
@@ -682,7 +696,9 @@ export const checkRouteAccess = (to, from, next) => {
     normalizedPath.startsWith('/superadmin') ||
     normalizedPath.startsWith('/user') ||
     normalizedPath.startsWith('/services') ||
-    normalizedPath.startsWith('/dispatcher');
+    normalizedPath.startsWith('/dispatcher') ||
+    normalizedPath.startsWith('/personnel') ||
+    normalizedPath.startsWith('/worker');
 
   const requiresAuth = Boolean(to.meta?.requiresAuth || isProtectedPath);
 

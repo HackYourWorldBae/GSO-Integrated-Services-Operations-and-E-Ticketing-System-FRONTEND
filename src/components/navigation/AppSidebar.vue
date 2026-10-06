@@ -12,7 +12,8 @@ const activeRole = computed(() => {
   if (userRole === 'superadmin') return 'superadmin';
   if (userRole === 'admin' || userRole === 'staff') return 'admin';
   if (userRole === 'director') return 'director';
-  if (['student', 'employee', 'worker'].includes(userRole)) return 'requestor';
+  if (userRole === 'worker') return 'worker';
+  if (['student', 'employee'].includes(userRole)) return 'requestor';
 
   // Fallback to route path if authStore role is not yet populated
   const path = route.path.toLowerCase();
@@ -20,6 +21,7 @@ const activeRole = computed(() => {
   if (path.startsWith('/admin')) return 'admin';
   if (path.startsWith('/dispatcher')) return 'admin';
   if (path.startsWith('/director')) return 'director';
+  if (path.startsWith('/personnel') || path.startsWith('/worker')) return 'worker';
   return 'requestor';
 });
 
@@ -353,7 +355,29 @@ const rawNavGroups = computed(() => {
     ];
   }
 
-  // Requestor / User Default (Student, Employee, Worker)
+  if (role === 'worker') {
+    return [
+      {
+        title: 'Personnel Portal',
+        items: [
+          {
+            label: 'Assigned Work Orders',
+            to: '/personnel/dashboard',
+            exact: true,
+            icon: 'tools'
+          },
+          {
+            label: 'Account Profile',
+            to: '/user/edit-profile',
+            exact: true,
+            icon: 'settings'
+          }
+        ]
+      }
+    ];
+  }
+
+  // Requestor / User Default (Student, Employee)
   return [
     {
       title: 'Main Menu',

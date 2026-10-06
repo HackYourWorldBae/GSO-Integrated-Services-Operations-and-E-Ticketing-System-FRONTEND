@@ -37,7 +37,10 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
             task: p.next_ticket_task || 'Janitorial & Landscaping Work',
             date: p.next_implementation_date ? new Date(p.next_implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Scheduled Next'
           } : null,
-          assignments: Array.isArray(p.assignments) ? p.assignments : []
+          assignments: Array.isArray(p.assignments) ? p.assignments : [],
+          hasAccount: Boolean(p.has_account || p.user_id),
+          userEmail: p.user_email || null,
+          userContact: p.user_contact || null,
         }));
       } else {
         personnel.value = [];
@@ -77,14 +80,53 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
     return response.data;
   };
 
-  const addPersonnel = async ({ firstName, middleInitial, lastName, nameExtension, specialty }) => {
+  const addPersonnel = async ({
+    firstName,
+    middleInitial,
+    lastName,
+    nameExtension,
+    specialty,
+    createAccount = false,
+    email = '',
+    password = '',
+    contactNumber = ''
+  }) => {
     const nameParts = [firstName.trim()];
     if (middleInitial?.trim()) nameParts.push(middleInitial.trim().replace(/\.?$/, '.'));
     nameParts.push(lastName.trim());
     if (nameExtension?.trim()) nameParts.push(nameExtension.trim());
     const fullName = nameParts.join(' ');
-    const payload = { unit_id: 2, name: fullName, specialty };
+    const payload = {
+      unit_id: 2,
+      name: fullName,
+      first_name: firstName.trim(),
+      middle_initial: middleInitial?.trim() || null,
+      last_name: lastName.trim(),
+      name_extension: nameExtension?.trim() || null,
+      specialty,
+    };
+
+    if (createAccount) {
+      payload.create_account = true;
+      payload.email = email.trim();
+      payload.password = password;
+      if (contactNumber?.trim()) {
+        payload.contact_number = contactNumber.trim();
+      }
+    }
+
     const response = await api.post('personnel', payload);
+    await fetchPersonnel();
+    return response.data;
+  };
+
+  const createPersonnelAccount = async (personnelId, { email, password, contactNumber }) => {
+    const payload = {
+      email: email.trim(),
+      password,
+      contact_number: contactNumber?.trim() || null,
+    };
+    const response = await api.post(`personnel/${personnelId}/create-account`, payload);
     await fetchPersonnel();
     return response.data;
   };
@@ -208,7 +250,7 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
   return {
     personnel, categories, groupedPersonnel,
     fetchPersonnel, fetchCategories, addCategory, removeCategory, updateCategory,
-    addPersonnel, updatePersonnel, removePersonnel,
+    addPersonnel, createPersonnelAccount, updatePersonnel, removePersonnel,
     toggleWorkerStatus, setWorkerStatus, assignWorker, unassignWorker,
     updateTicketDate, startWork,
   };

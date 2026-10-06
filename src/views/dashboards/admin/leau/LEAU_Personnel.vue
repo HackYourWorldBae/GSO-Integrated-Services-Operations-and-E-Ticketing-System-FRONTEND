@@ -145,19 +145,37 @@
                   </div>
                 </div>
 
-                <!-- Status Badge -->
-                <span
-                  :class="[
-                    'px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 border',
-                    worker.status === 'Available'
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                      : worker.status === 'Working'
-                        ? 'bg-amber-50 text-amber-700 border-amber-200'
-                        : 'bg-rose-50 text-rose-700 border-rose-200'
-                  ]"
-                >
-                  {{ worker.status }}
-                </span>
+                <!-- Status & Device Account Indicators -->
+                <div class="flex flex-col items-end gap-1.5 shrink-0">
+                  <span
+                    :class="[
+                      'px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 border',
+                      worker.status === 'Available'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : worker.status === 'Working'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-rose-50 text-rose-700 border-rose-200'
+                    ]"
+                  >
+                    {{ worker.status }}
+                  </span>
+
+                  <span
+                    v-if="worker.has_account || worker.user_id"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                    title="Staff has an active portal login account"
+                  >
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    📱 Portal Active
+                  </span>
+                  <span
+                    v-else
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200"
+                    title="Roster only — no device login account"
+                  >
+                    📵 No Device
+                  </span>
+                </div>
               </div>
 
               <!-- Assigned Tickets Accordion Toggle -->
@@ -262,6 +280,17 @@
                 >
                   {{ worker.status === 'On Leave' ? 'Set Available' : (worker.status === 'Working' || worker.assignedTicket) ? 'Set Leave (Active)' : 'Set Leave' }}
                 </button>
+
+                <!-- Provision Account Button (for staff who didn't have one) -->
+                <button
+                  v-if="isAdmin && !worker.has_account && !worker.user_id"
+                  @click="openProvisionAccountModal(worker)"
+                  class="px-2.5 sm:px-3 py-2 min-h-[38px] rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100 text-emerald-800 text-[11px] font-black transition-colors cursor-pointer flex items-center gap-1 touch-manipulation"
+                  title="Create device account for this staff"
+                >
+                  <span>📱</span>
+                  <span>Create Account</span>
+                </button>
               </div>
 
               <!-- Delete Button -->
@@ -324,6 +353,114 @@
                   <option value="" disabled>Select Specialty</option>
                   <option v-for="cat in store.categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
                 </select>
+              </div>
+
+              <!-- Account Creation Toggle (Optional - If personnel has a device) -->
+              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-start gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0 mt-0.5">
+                      📱
+                    </div>
+                    <div class="min-w-0">
+                      <label for="leau-toggle-account" class="text-xs font-black text-slate-800 block cursor-pointer">
+                        Create Portal Account
+                      </label>
+                      <p class="text-[11px] text-slate-500 font-medium leading-tight">
+                        Optional • Toggle ON if personnel has an accessible phone/device
+                      </p>
+                    </div>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      id="leau-toggle-account"
+                      type="checkbox"
+                      v-model="addForm.createAccount"
+                      class="sr-only peer"
+                    />
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                </div>
+
+                <!-- Expanded Account Form Fields -->
+                <div v-if="addForm.createAccount" class="pt-3 border-t border-slate-200/70 space-y-3 animate-fade-in">
+                  <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Email / Portal Username *</label>
+                    <input
+                      v-model="addForm.email"
+                      type="email"
+                      :required="addForm.createAccount"
+                      placeholder="e.g. name@bsu.edu.ph"
+                      class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Mobile Contact Number (Optional)</label>
+                    <input
+                      v-model="addForm.contactNumber"
+                      type="tel"
+                      placeholder="e.g. 09123456789"
+                      class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                    />
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Password * (Min 8)</label>
+                      <div class="relative">
+                        <input
+                          v-model="addForm.password"
+                          :type="showAddPassword ? 'text' : 'password'"
+                          :required="addForm.createAccount"
+                          minlength="8"
+                          placeholder="••••••••"
+                          class="w-full pl-3 pr-9 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                        />
+                        <button
+                          type="button"
+                          @click="showAddPassword = !showAddPassword"
+                          class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 cursor-pointer touch-manipulation"
+                        >
+                          <svg v-if="!showAddPassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Confirm Password *</label>
+                      <div class="relative">
+                        <input
+                          v-model="addForm.confirmPassword"
+                          :type="showAddConfirmPassword ? 'text' : 'password'"
+                          :required="addForm.createAccount"
+                          minlength="8"
+                          placeholder="••••••••"
+                          class="w-full pl-3 pr-9 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                        />
+                        <button
+                          type="button"
+                          @click="showAddConfirmPassword = !showAddConfirmPassword"
+                          class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 cursor-pointer touch-manipulation"
+                        >
+                          <svg v-if="!showAddConfirmPassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
@@ -635,6 +772,112 @@
         @updated="handleLeaveUpdated"
       />
 
+      <!-- Provision Account Modal for Existing Personnel -->
+      <Teleport to="body">
+        <div v-if="workerForAccountModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto">
+          <div class="pointer-events-auto bg-white rounded-3xl sm:rounded-[2rem] w-full max-w-md p-5 sm:p-8 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
+                  Mobile Access
+                </span>
+                <h3 class="text-xl font-black text-slate-900 mt-1">Create Staff Account</h3>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">For: <strong class="text-slate-800">{{ workerForAccountModal.name }}</strong></p>
+              </div>
+              <button @click="workerForAccountModal = null" class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <form @submit.prevent="submitProvisionAccount" class="space-y-4">
+              <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Email / Portal Username *</label>
+                <input
+                  v-model="accountForm.email"
+                  type="email"
+                  required
+                  placeholder="e.g. name@bsu.edu.ph"
+                  class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                />
+              </div>
+
+              <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Mobile Contact Number (Optional)</label>
+                <input
+                  v-model="accountForm.contactNumber"
+                  type="tel"
+                  placeholder="e.g. 09123456789"
+                  class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Password * (Min 8)</label>
+                  <div class="relative">
+                    <input
+                      v-model="accountForm.password"
+                      :type="showProvisionPassword ? 'text' : 'password'"
+                      required
+                      minlength="8"
+                      placeholder="••••••••"
+                      class="w-full pl-3 pr-9 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                    />
+                    <button
+                      type="button"
+                      @click="showProvisionPassword = !showProvisionPassword"
+                      class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 cursor-pointer"
+                    >
+                      <svg v-if="!showProvisionPassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Confirm Password *</label>
+                  <div class="relative">
+                    <input
+                      v-model="accountForm.confirmPassword"
+                      :type="showProvisionConfirmPassword ? 'text' : 'password'"
+                      required
+                      minlength="8"
+                      placeholder="••••••••"
+                      class="w-full pl-3 pr-9 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                    />
+                    <button
+                      type="button"
+                      @click="showProvisionConfirmPassword = !showProvisionConfirmPassword"
+                      class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 cursor-pointer"
+                    >
+                      <svg v-if="!showProvisionConfirmPassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-5">
+                <button type="button" @click="workerForAccountModal = null" class="px-5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer touch-manipulation">Cancel</button>
+                <button type="submit" :disabled="accountSubmitting" class="px-6 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer touch-manipulation">
+                  {{ accountSubmitting ? 'Creating...' : 'Create Account' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </Teleport>
+
     </template>
   </MainLayout>
 </template>
@@ -703,14 +946,22 @@ const isWorkerExpanded = (workerId) => Boolean(expandedWorkers[workerId]);
 
 // ── Add Personnel Modal ─────────────────────────────────────────────────────
 const nameExtensionOptions = ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
-const showAddModal = ref(false);
+// ── Password Visibility Toggles ─────────────────────────────────────────────
+const showAddPassword = ref(false);
+const showAddConfirmPassword = ref(false);
+
 const submitting = ref(false);
 const addForm = reactive({
   firstName: '',
   middleInitial: '',
   lastName: '',
   nameExtension: '',
-  specialty: ''
+  specialty: '',
+  createAccount: false,
+  email: '',
+  contactNumber: '',
+  password: '',
+  confirmPassword: ''
 });
 
 const openAddModal = () => {
@@ -719,6 +970,13 @@ const openAddModal = () => {
   addForm.lastName = '';
   addForm.nameExtension = '';
   addForm.specialty = store.categories[0]?.name || '';
+  addForm.createAccount = false;
+  addForm.email = '';
+  addForm.contactNumber = '';
+  addForm.password = '';
+  addForm.confirmPassword = '';
+  showAddPassword.value = false;
+  showAddConfirmPassword.value = false;
   showAddModal.value = true;
 };
 
@@ -727,16 +985,82 @@ const submitAddPersonnel = async () => {
     toast.error('Please fill in all required fields.');
     return;
   }
+  if (addForm.createAccount) {
+    if (!addForm.email?.trim() || !addForm.password) {
+      toast.error('Email and password are required to create an account.');
+      return;
+    }
+    if (addForm.password.length < 8) {
+      toast.error('Password must be at least 8 characters long.');
+      return;
+    }
+    if (addForm.password !== addForm.confirmPassword) {
+      toast.error('Passwords do not match.');
+      return;
+    }
+  }
   submitting.value = true;
   try {
     await store.addPersonnel(addForm);
-    toast.success('Personnel added successfully!');
+    toast.success(addForm.createAccount ? 'Personnel & portal account created successfully!' : 'Personnel added successfully!');
     showAddModal.value = false;
   } catch (err) {
     const msg = err?.response?.data?.message || 'Failed to add personnel.';
     toast.error(msg);
   } finally {
     submitting.value = false;
+  }
+};
+
+// ── Provision Account for Existing Worker Modal ──────────────────────────────
+const workerForAccountModal = ref(null);
+const accountSubmitting = ref(false);
+const showProvisionPassword = ref(false);
+const showProvisionConfirmPassword = ref(false);
+const accountForm = reactive({
+  email: '',
+  contactNumber: '',
+  password: '',
+  confirmPassword: ''
+});
+
+const openProvisionAccountModal = (worker) => {
+  workerForAccountModal.value = worker;
+  accountForm.email = '';
+  accountForm.contactNumber = '';
+  accountForm.password = '';
+  accountForm.confirmPassword = '';
+  showProvisionPassword.value = false;
+  showProvisionConfirmPassword.value = false;
+};
+
+const submitProvisionAccount = async () => {
+  if (!accountForm.email?.trim() || !accountForm.password) {
+    toast.error('Email and password are required.');
+    return;
+  }
+  if (accountForm.password.length < 8) {
+    toast.error('Password must be at least 8 characters long.');
+    return;
+  }
+  if (accountForm.password !== accountForm.confirmPassword) {
+    toast.error('Passwords do not match.');
+    return;
+  }
+  accountSubmitting.value = true;
+  try {
+    await store.createPersonnelAccount(workerForAccountModal.value.id, {
+      email: accountForm.email.trim(),
+      password: accountForm.password,
+      contactNumber: accountForm.contactNumber?.trim()
+    });
+    toast.success('Login account created for personnel!');
+    workerForAccountModal.value = null;
+  } catch (err) {
+    const msg = err?.response?.data?.message || 'Failed to create personnel account.';
+    toast.error(msg);
+  } finally {
+    accountSubmitting.value = false;
   }
 };
 
