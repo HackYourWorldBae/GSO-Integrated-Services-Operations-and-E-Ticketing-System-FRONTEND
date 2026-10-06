@@ -282,6 +282,31 @@
           </div>
         </div>
 
+        <!-- Error State Banner -->
+        <div
+          v-else-if="store.errorMessage"
+          class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-rose-50 border border-rose-200 text-rose-900 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 max-w-3xl mx-auto"
+        >
+          <div class="flex items-start gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-rose-950">Unable to load assigned jobs</h4>
+              <p class="text-xs text-rose-700 mt-1 leading-relaxed">{{ store.errorMessage }}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            @click="refreshData"
+            class="px-4 py-2 min-h-[40px] rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-black transition-all shadow-xs shrink-0 cursor-pointer"
+          >
+            Retry Loading
+          </button>
+        </div>
+
         <!-- Empty State -->
         <div
           v-else-if="filteredAssignments.length === 0"
@@ -680,11 +705,19 @@ const sortBy = ref('newest');     // 'newest' | 'date' | 'emergency'
 const selectedTicket = ref(null);
 
 onMounted(async () => {
-  await store.fetchDashboard();
+  try {
+    await store.fetchDashboard();
+  } catch (_) {
+    // Handled by store.errorMessage
+  }
 });
 
 const refreshData = async () => {
-  await store.fetchDashboard();
+  try {
+    await store.fetchDashboard();
+  } catch (_) {
+    // Handled by store.errorMessage
+  }
 };
 
 const workerDisplayName = computed(() => {
