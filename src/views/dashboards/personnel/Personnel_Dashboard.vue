@@ -1,21 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-500/20">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-          </svg>
-        </div>
-        <div class="min-w-0">
-          <h2 class="text-base sm:text-xl font-black text-slate-900 tracking-tight truncate">
-            My Assigned Jobs
-          </h2>
-          <p class="text-[11px] font-bold text-slate-500 truncate hidden sm:block">
-            Field Personnel Portal • Assigned Work Orders &amp; Team Crew
-          </p>
-        </div>
-      </div>
+      <h2 class="text-base sm:text-xl font-black text-slate-900 tracking-tight truncate">
+        My Assigned Jobs
+      </h2>
     </template>
 
     <template #header-actions>
@@ -728,12 +716,20 @@ const workerInitials = computed(() => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 });
 
+const isJobCompleted = (a) => {
+  if (!a || !a.completed_at) return false;
+  if (typeof a.completed_at === 'string' && (a.completed_at.startsWith('0000-00-00') || !a.completed_at.trim())) {
+    return false;
+  }
+  return true;
+};
+
 const emergencyCount = computed(() => {
-  return store.assignments.filter(a => !a.completed_at && a.is_emergency === 1).length;
+  return store.assignments.filter(a => !isJobCompleted(a) && a.is_emergency === 1).length;
 });
 
 const teamJobCount = computed(() => {
-  return store.assignments.filter(a => !a.completed_at && a.team_count > 1).length;
+  return store.assignments.filter(a => !isJobCompleted(a) && a.team_count > 1).length;
 });
 
 const filteredAssignments = computed(() => {
@@ -741,11 +737,11 @@ const filteredAssignments = computed(() => {
 
   // 1. Tab filter
   if (activeTab.value === 'active') {
-    list = list.filter(a => !a.completed_at);
+    list = list.filter(a => !isJobCompleted(a));
   } else if (activeTab.value === 'emergency') {
-    list = list.filter(a => a.is_emergency === 1);
+    list = list.filter(a => a.is_emergency === 1 && !isJobCompleted(a));
   } else if (activeTab.value === 'completed') {
-    list = list.filter(a => !!a.completed_at);
+    list = list.filter(a => isJobCompleted(a));
   }
 
   // 2. Search query filter
