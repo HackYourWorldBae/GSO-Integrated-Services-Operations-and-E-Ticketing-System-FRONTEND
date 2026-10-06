@@ -117,8 +117,8 @@
                 <p class="text-[11px] text-slate-400 font-medium ml-1">Used for login and all request/ticket email updates (including status changes).</p>
               </div>
 
-              <!-- Email Updates Opt-In (wired to email_notifications_enabled) -->
-              <div class="md:col-span-2 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.emailNotificationsEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
+              <!-- Email Updates Opt-In (wired to email_notifications_enabled) — Hidden for personnel / worker accounts -->
+              <div v-if="!isPersonnel" class="md:col-span-2 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.emailNotificationsEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
                 <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-xs" :class="form.emailNotificationsEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-400 text-white'">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -249,7 +249,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
@@ -258,6 +258,11 @@ import { toast } from 'vue3-toastify';
 const authStore = useAuthStore();
 const avatarInputRef = ref(null);
 const avatarPreviewUrl = ref(null);
+
+const isPersonnel = computed(() => {
+  const r = (authStore.user?.role || authStore.role || '').toLowerCase();
+  return r === 'worker' || r === 'personnel';
+});
 
 const form = ref({
   firstName: '',
