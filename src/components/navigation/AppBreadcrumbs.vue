@@ -17,6 +17,7 @@ const breadcrumbs = computed(() => {
   else if (path.startsWith('/dispatcher/fgmu')) rootTo = '/dispatcher/fgmu';
   else if (path.startsWith('/dispatcher/leau')) rootTo = '/dispatcher/leau';
   else if (path.startsWith('/director')) rootTo = '/director';
+  else if (path.startsWith('/personnel') || path.startsWith('/worker')) rootTo = '/personnel/dashboard';
 
   crumbs.push({
     label: 'GSO Portal',
@@ -56,6 +57,8 @@ const breadcrumbs = computed(() => {
     crumbs.push({ label: 'System Overview', to: null });
   } else if (path.includes('/queues')) {
     crumbs.push({ label: path.includes('/ssu') ? 'Incident Queues' : 'Ticket Queues', to: null });
+  } else if (path.includes('/personnel/dashboard') || path.startsWith('/worker') || path === '/personnel') {
+    crumbs.push({ label: 'Assigned works', to: null });
   } else if (path.includes('/personnel')) {
     crumbs.push({ label: 'Personnel Management', to: null });
   } else if (path.includes('/archives')) {
