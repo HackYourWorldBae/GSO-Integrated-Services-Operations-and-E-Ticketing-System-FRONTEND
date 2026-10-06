@@ -222,18 +222,7 @@
               </div>
             </div>
 
-            <!-- Help Callout (Deactivate removed — use GSO office via Suspend) -->
-            <div class="pt-10 border-t border-slate-100">
-               <div class="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                  <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 mt-0.5">
-                    <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                  </div>
-                  <div>
-                    <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">Need to disable your account?</h4>
-                    <p class="text-xs text-slate-600 font-medium mt-1">Contact the GSO office to have your account suspended — this preserves your ticket history while blocking new requests.</p>
-                  </div>
-               </div>
-            </div>
+
           </div>
 
           <div class="p-8 bg-slate-50/50 border-t border-slate-100 flex items-center justify-center">
