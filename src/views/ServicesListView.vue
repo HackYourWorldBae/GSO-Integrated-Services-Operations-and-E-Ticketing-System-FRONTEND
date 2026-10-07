@@ -54,7 +54,9 @@ const ALLOWED_STUDENT_SERVICES = [
 
 const isServiceAllowed = (unitId, serviceName) => {
   if (!isStudentUser.value) return true; // Faculty, staff, and employees have full access
-  // Students are blocked from all FGMU facilities services
+  // Hauling is authorized for student organizations even though it is handled by FGMU
+  if (serviceName === 'Hauling') return true;
+  // Students are blocked from all other FGMU facilities & janitorial services
   if (unitId === 'fgmu') return false;
   // Students are restricted to the 5 authorized services
   return ALLOWED_STUDENT_SERVICES.includes(serviceName);
@@ -84,17 +86,34 @@ const categoryTabs = computed(() => {
   if (!isStudentUser.value) {
     return [
       { id: 'all', label: 'All Services' },
-      { id: 'fgmu', label: 'Facilities & Repairs' },
-      { id: 'leau', label: 'Grounds & Landscaping' },
+      { id: 'facilities', label: 'Facilities & Repairs' },
+      { id: 'janitorial', label: 'Janitorial' },
+      { id: 'hauling', label: 'Hauling' },
+      { id: 'landscaping', label: 'Landscaping' },
+      { id: 'borrowing', label: 'Borrowing Services' },
+      { id: 'ssu', label: 'Security & Incident' }
+    ];
+  }
+
+  // Student accounts: authorized categories first
+  if (!showAllServices.value) {
+    return [
+      { id: 'all', label: 'Authorized Services' },
+      { id: 'hauling', label: 'Hauling' },
+      { id: 'landscaping', label: 'Landscaping' },
+      { id: 'borrowing', label: 'Borrowing Services' },
       { id: 'ssu', label: 'Security & Incident' }
     ];
   }
 
   return [
-    { id: 'all', label: showAllServices.value ? 'All Services' : 'Authorized Services' },
-    { id: 'leau', label: 'Grounds & Landscaping' },
-    { id: 'ssu', label: 'Security & Incident' },
-    { id: 'fgmu', label: showAllServices.value ? 'Facilities & Repairs' : 'Facilities & Repairs' }
+    { id: 'all', label: 'All Services' },
+    { id: 'facilities', label: 'Facilities & Repairs' },
+    { id: 'janitorial', label: 'Janitorial' },
+    { id: 'hauling', label: 'Hauling' },
+    { id: 'landscaping', label: 'Landscaping' },
+    { id: 'borrowing', label: 'Borrowing Services' },
+    { id: 'ssu', label: 'Security & Incident' }
   ];
 });
 
@@ -114,7 +133,7 @@ const serviceKeywords = {
   "Mechanical Works": ["mechanical", "aircon", "air con", "air conditioning", "air conditioner", "air-conditioning", "no cooling", "not cold", "fan", "exhaust fan", "ceiling fan", "motor", "generator", "genset", "engine", "ventilation", "hvac", "refrigerator", "ref", "freezer", "water pump", "pump", "compressor", "chiller", "preventive maintenance", "facilities", "fgmu", "utilities"],
   "Disinfection": ["disinfection", "disinfect", "disinfectant", "sanitize", "sanitation", "sanitizing", "spray", "spraying", "misting", "fogging", "fumigation", "fumigate", "virus", "bacteria", "pest", "pest control", "chemical", "clean", "facilities", "fgmu", "janitorial", "sanitary"],
   "Cleaning/ Grubbing": ["cleaning", "clean", "linis", "grubbing", "grub", "deep clean", "general cleaning", "sweep", "walis", "mop", "trash", "basura", "garbage", "waste", "debris", "clearing", "ligpit", "janitorial", "janitor", "housekeeping", "facilities", "fgmu"],
-  "Hauling": ["hauling", "haul", "hakot", "hakutin", "move", "lipat", "transport", "carry", "buhat", "heavy", "mabigat", "truck", "relocate", "transfer", "deliver", "furniture transfer", "debris hauling", "garbage hauling", "waste hauling", "grounds", "leau", "logistics", "support"],
+  "Hauling": ["hauling", "haul", "hakot", "hakutin", "move", "lipat", "transport", "carry", "buhat", "heavy", "mabigat", "truck", "relocate", "transfer", "deliver", "furniture transfer", "debris hauling", "garbage hauling", "waste hauling", "facilities", "fgmu", "logistics", "support"],
   "Mowing/ Weeding": ["mowing", "mow", "weeding", "weed", "weeds", "damo", "grass", "lawn", "damuhan", "trim grass", "cut grass", "brush", "brush cutter", "mower", "grass cutter", "overgrown grass", "grounds", "leau", "landscaping", "maintenance"],
   "Planting/ Landscaping": ["planting", "tanim", "landscaping", "landscape", "garden", "hardin", "halaman", "flower", "flowers", "bulaklak", "beautification", "pagandahin", "seedling", "seedlings", "punla", "soil", "lupa", "ornamental", "hedge", "nursery", "lawn", "turf", "grounds", "leau", "environmental", "aesthetics"],
   "Pruning/ Cutting": ["pruning", "prune", "cutting", "cut", "putol", "tree", "trees", "puno", "branch", "branches", "sanga", "trim tree", "trimming", "falling branch", "fallen tree", "dangerous tree", "chainsaw", "lagari", "overgrown", "clearing", "grounds", "leau", "landscaping"],
@@ -127,8 +146,8 @@ const serviceKeywords = {
 
 // Generic unit-level aliases: searching these surfaces every service of that unit.
 const unitKeywords = {
-  fgmu: ["fgmu", "facilities", "facility", "building", "buildings", "infrastructure", "repair", "repairs", "maintenance", "fix", "fixing", "broken", "damaged", "sira", "pagawa", "structure", "finishes", "utilities", "mechanical", "janitorial", "disinfection", "cleaning", "grubbing"],
-  leau: ["leau", "grounds", "landscaping", "landscape", "environmental", "aesthetics", "beautification", "outdoor", "garden", "event support", "hauling", "borrowing", "plants", "mowing", "weeding", "pruning"],
+  fgmu: ["fgmu", "facilities", "facility", "building", "buildings", "infrastructure", "repair", "repairs", "maintenance", "fix", "fixing", "broken", "damaged", "sira", "pagawa", "structure", "finishes", "utilities", "mechanical", "janitorial", "disinfection", "cleaning", "grubbing", "hauling", "haul", "hakot"],
+  leau: ["leau", "grounds", "landscaping", "landscape", "environmental", "aesthetics", "beautification", "outdoor", "garden", "event support", "borrowing", "plants", "mowing", "weeding", "pruning"],
   ssu: ["ssu", "security", "safety", "guard", "incident", "report", "emergency"]
 };
 
@@ -137,7 +156,8 @@ const categoryKeywords = {
   "Structure & Finishes": ["structure", "structural", "finishes", "finish", "building", "construction", "renovation", "repair"],
   "Utilities & Mechanical": ["utilities", "utility", "mechanical", "electrical", "plumbing", "systems", "installation"],
   "Janitorial": ["janitorial", "janitor", "disinfection", "cleaning", "grubbing", "sanitation", "clean", "deep clean", "sanitary"],
-  "Landscaping": ["landscaping", "grounds", "outdoor", "environmental", "maintenance", "mowing", "weeding", "planting", "pruning", "hauling", "decoration"],
+  "Hauling": ["hauling", "haul", "hakot", "lipat", "transfer", "relocate", "truck", "buhat", "move", "transport", "carry", "furniture", "equipment", "logistics", "fgmu"],
+  "Landscaping": ["landscaping", "grounds", "outdoor", "environmental", "maintenance", "mowing", "weeding", "planting", "pruning", "decoration"],
   "Borrowing Services": ["borrowing", "borrow", "equipment", "tools", "plants", "rental", "reservation", "hiram"],
   "Janitorial & Landscaping": ["janitorial", "janitor", "landscaping", "grounds", "cleaning", "outdoor", "environmental", "maintenance"],
   "Security Services": ["security", "safety", "incident", "guard", "protection", "report"]
@@ -265,6 +285,12 @@ const subUnits = ref([
         description: "Campus-wide disinfection, sanitization, deep cleaning, and grounds grubbing operations.",
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a1.2 1.2 0 0 1 1.7 0l2.33 2.33a1.2 1.2 0 0 1 0 1.7l-8.06 8.07"/><path d="m7.07 13.89 5.04 5.05"/><path d="m3.12 17.84 4.87-4.87c.39-.39 1.03-.39 1.42 0l2.62 2.63c.39.39.39 1.03 0 1.42l-4.87 4.87a1 1 0 0 1-1.41 0l-2.63-2.62a1 1 0 0 1 0-1.43Z"/></svg>`,
         services: ["Disinfection", "Cleaning/ Grubbing"]
+      },
+      {
+        title: "Hauling",
+        description: "Relocation and hauling of university furniture, equipment, materials, and heavy items.",
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-5h-7v7Z"/><path d="M13 9h4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
+        services: ["Hauling"]
       }
     ]
   },
@@ -286,9 +312,9 @@ const subUnits = ref([
     categories: [
       {
         title: "Landscaping",
-        description: "Grounds beautification, lawn mowing, weeding, planting, tree pruning, waste hauling, and event staging.",
+        description: "Grounds beautification, lawn mowing, weeding, planting, tree pruning, and event staging.",
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`,
-        services: ["Hauling", "Mowing/ Weeding", "Planting/ Landscaping", "Pruning/ Cutting", "Stage & Hall Decoration", "Others"]
+        services: ["Mowing/ Weeding", "Planting/ Landscaping", "Pruning/ Cutting", "Stage & Hall Decoration", "Others"]
       },
       {
         title: "Borrowing Services",
@@ -406,8 +432,17 @@ const filteredSubUnits = computed(() => {
   const queryTokens = tokenizeSearch(debouncedSearchQuery.value);
   const filter = activeCategoryFilter.value;
 
-  // Base list filtered by category tab
-  let units = subUnits.value.filter(unit => filter === 'all' || unit.id === filter);
+  // Base list filtered by category tab or unit ID
+  let units = subUnits.value.filter(unit => {
+    if (filter === 'all') return true;
+    if (filter === 'fgmu' && unit.id === 'fgmu') return true;
+    if (filter === 'leau' && unit.id === 'leau') return true;
+    if (filter === 'ssu' && unit.id === 'ssu') return true;
+    if (['facilities', 'janitorial', 'hauling'].includes(filter) && unit.id === 'fgmu') return true;
+    if (['landscaping', 'borrowing'].includes(filter) && unit.id === 'leau') return true;
+    if (filter === 'security' && unit.id === 'ssu') return true;
+    return false;
+  });
 
   // If student user: sort sub-units so units with enabled services are on top
   if (isStudentUser.value) {
@@ -426,7 +461,24 @@ const filteredSubUnits = computed(() => {
 
   return units
     .map(unit => {
-      const filteredCategories = unit.categories.map(cat => {
+      let candidateCategories = unit.categories;
+
+      // Filter to specific category if a category tab is selected
+      if (filter === 'facilities') {
+        candidateCategories = candidateCategories.filter(c => c.title === 'Structure & Finishes' || c.title === 'Utilities & Mechanical');
+      } else if (filter === 'janitorial') {
+        candidateCategories = candidateCategories.filter(c => c.title === 'Janitorial');
+      } else if (filter === 'hauling') {
+        candidateCategories = candidateCategories.filter(c => c.title === 'Hauling');
+      } else if (filter === 'landscaping') {
+        candidateCategories = candidateCategories.filter(c => c.title === 'Landscaping');
+      } else if (filter === 'borrowing') {
+        candidateCategories = candidateCategories.filter(c => c.title === 'Borrowing Services');
+      } else if (filter === 'security') {
+        candidateCategories = candidateCategories.filter(c => c.title === 'Security Services');
+      }
+
+      const filteredCategories = candidateCategories.map(cat => {
         // For student users: if showAllServices is false, hide services that are not for students
         let availableServices = cat.services;
         if (isStudentUser.value && !showAllServices.value) {
@@ -941,11 +993,11 @@ const handleSubmit = () => {
             </svg>
           </div>
 
-          <!-- Student Filtered to FGMU when showAllServices is false -->
-          <template v-if="isStudentUser && !showAllServices && activeCategoryFilter === 'fgmu'">
-            <h3 class="text-base sm:text-lg font-black text-slate-900 mb-1">Facilities & Repairs (Faculty & Staff Only)</h3>
+          <!-- Student Filtered to Facilities or Janitorial when showAllServices is false -->
+          <template v-if="isStudentUser && !showAllServices && (activeCategoryFilter === 'fgmu' || activeCategoryFilter === 'facilities' || activeCategoryFilter === 'janitorial')">
+            <h3 class="text-base sm:text-lg font-black text-slate-900 mb-1">Facilities &amp; Janitorial (Faculty &amp; Staff Only)</h3>
             <p class="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto mb-5 sm:mb-6 leading-relaxed">
-              Structural and utility repairs in this unit are restricted to university faculty and staff. You can enable <strong>"Show all services"</strong> to view them.
+              Structural, utility, and janitorial services in this unit are restricted to university faculty and staff. You can enable <strong>"Show all services"</strong> to view them.
             </p>
             <div class="flex flex-wrap items-center justify-center gap-2">
               <button

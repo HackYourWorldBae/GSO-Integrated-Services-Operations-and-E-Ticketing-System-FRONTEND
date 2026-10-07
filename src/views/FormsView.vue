@@ -106,7 +106,7 @@ const selectedList = computed(() => {
     });
 });
 
-const FGMU_CATEGORIES = ['Structure & Finishes', 'Utilities & Mechanical', 'Janitorial'];
+const FGMU_CATEGORIES = ['Structure & Finishes', 'Utilities & Mechanical', 'Janitorial', 'Hauling', 'Hauling Services'];
 const LEAU_CATEGORIES = ['Landscaping', 'Borrowing Services', 'Janitorial & Landscaping'];
 const SSU_CATEGORIES = ['Security Services'];
 

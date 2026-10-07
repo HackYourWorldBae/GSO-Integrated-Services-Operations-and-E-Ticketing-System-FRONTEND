@@ -360,7 +360,7 @@
                   <template v-else>
                     <option value="Groundskeeper">Groundskeeper</option>
                     <option value="Landscaper">Landscaper</option>
-                    <option value="Hauler & Event Setup">Hauler & Event Setup</option>
+                    <option value="Stage & Hall Decorator">Stage & Hall Decorator</option>
                     <option value="Tool & Equipment Custodian">Tool & Equipment Custodian</option>
                   </template>
                 </select>

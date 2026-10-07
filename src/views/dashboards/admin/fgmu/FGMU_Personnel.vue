@@ -368,6 +368,7 @@
                     <option value="Welding">Welding</option>
                     <option value="Janitorial">Janitorial</option>
                     <option value="Disinfection / Sanitation">Disinfection / Sanitation</option>
+                    <option value="Hauler / Logistics">Hauler / Logistics</option>
                   </template>
                 </select>
               </div>
