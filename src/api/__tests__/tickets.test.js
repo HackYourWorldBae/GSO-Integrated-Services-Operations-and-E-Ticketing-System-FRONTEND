@@ -29,6 +29,8 @@ import {
   declineTicket,
   recategorizeTicket,
   completeTicket,
+  escalateTicketToDirector,
+  deescalateTicketFromDirector,
 } from '../tickets'
 
 // Level 3 — Component tests: every ticket action the UI performs must reach
@@ -129,6 +131,22 @@ describe('tickets api module', () => {
       service: 'Plumbing & Sanitary Works',
       reason: 'Issue specifies leaking pipe',
       unit_id: 1,
+    })
+  })
+
+  it('escalates ticket to director with justification reason', async () => {
+    apiClient.patch.mockResolvedValueOnce({ data: { status: true } })
+    await escalateTicketToDirector('FGMU-TIC-10-2026', 'Structural wall repair requires executive budget')
+    expect(apiClient.patch).toHaveBeenCalledWith('/tickets/FGMU-TIC-10-2026/escalate-to-director', {
+      reason: 'Structural wall repair requires executive budget',
+    })
+  })
+
+  it('de-escalates ticket from director back to unit head with notes', async () => {
+    apiClient.patch.mockResolvedValueOnce({ data: { status: true } })
+    await deescalateTicketFromDirector('FGMU-TIC-10-2026', 'Routine maintenance only; unit head may proceed')
+    expect(apiClient.patch).toHaveBeenCalledWith('/tickets/FGMU-TIC-10-2026/deescalate', {
+      notes: 'Routine maintenance only; unit head may proceed',
     })
   })
 

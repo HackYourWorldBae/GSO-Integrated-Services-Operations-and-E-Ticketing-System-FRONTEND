@@ -192,9 +192,14 @@ const rawNavGroups = computed(() => {
           }
         ] : [
           {
+            label: 'Pending Approvals',
+            to: `/admin/${unit}/queues`,
+            icon: 'queue'
+          },
+          {
             label: 'Approved Tickets',
             to: `/admin/${unit}/approved-tickets`,
-            icon: 'queue'
+            icon: 'check'
           },
           {
             label: 'Dispatch Tickets',

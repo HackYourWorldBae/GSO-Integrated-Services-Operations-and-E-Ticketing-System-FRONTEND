@@ -9,7 +9,7 @@
           </svg>
           <span class="text">LEAU Home</span>
         </router-link>
-        <router-link to="/director/leau/queues" class="nav-item">
+        <router-link to="/admin/leau/queues" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
@@ -39,13 +39,18 @@
           <router-link v-if="authStore.role === 'director'" to="/director/dashboard" class="p-1 -ml-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" title="Back to Executive Overview">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           </router-link>
-          <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">LEAU Ticket Queues</h2>
+          <router-link v-else to="/admin/leau" class="p-1 -ml-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" title="Back to LEAU Dashboard">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          </router-link>
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">
+            {{ isDirector ? 'LEAU Ticket Queues' : 'LEAU Operations: Approvals & Queues' }}
+          </h2>
           <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider border border-emerald-200">
             {{ activeTabCount }} {{ activeTabLabel }}
           </span>
         </div>
         <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase mt-1">
-          Director Executive Review & Operations
+          {{ isDirector ? 'Director Executive Review & Operations' : 'Unit Head Operations & Approvals' }}
         </p>
       </div>
     </template>
@@ -189,6 +194,36 @@
               <option value="">All Services</option>
               <option v-for="service in serviceCategories" :key="service" :value="service">{{ service }}</option>
             </select>
+            <!-- Escalation Filter Pills (Pending tab only) -->
+            <div v-if="activeTab === 'pending'" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0">
+              <button
+                type="button"
+                @click="selectedEscalationFilter = 'all'; currentPage = 1"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer"
+                :class="selectedEscalationFilter === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+              >
+                All ({{ queueCounts.pending }})
+              </button>
+              <button
+                type="button"
+                @click="selectedEscalationFilter = 'escalated'; currentPage = 1"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1"
+                :class="selectedEscalationFilter === 'escalated' ? 'bg-purple-600 text-white shadow-xs' : 'text-purple-700 hover:text-purple-900'"
+              >
+                <span>⭐ Escalated</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black" :class="selectedEscalationFilter === 'escalated' ? 'bg-purple-800 text-white' : 'bg-purple-200 text-purple-900'">
+                  {{ escalatedPendingCount }}
+                </span>
+              </button>
+              <button
+                type="button"
+                @click="selectedEscalationFilter = 'routine'; currentPage = 1"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer"
+                :class="selectedEscalationFilter === 'routine' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+              >
+                Routine
+              </button>
+            </div>
             <!-- Refresh -->
             <button
               @click="fetchAllQueues"
@@ -273,6 +308,14 @@
                       >
                         Urgent
                       </span>
+                      <span
+                        v-if="ticket.is_escalated_to_director"
+                        class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-2xs"
+                        :title="ticket.escalation_reason ? 'Escalated to Director: ' + ticket.escalation_reason : 'Escalated to Director for Approval'"
+                      >
+                        <svg class="w-2.5 h-2.5 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        Director Review
+                      </span>
                     </div>
                   </td>
 
@@ -337,7 +380,7 @@
                   <!-- Actions -->
                   <td class="px-3 py-3 whitespace-nowrap text-right" @click.stop>
                     <!-- Pending Tab Actions -->
-                    <div v-if="activeTab === 'pending'" class="flex items-center justify-end gap-2">
+                    <div v-if="activeTab === 'pending'" class="flex items-center justify-end gap-1.5 flex-wrap">
                       <button
                         @click="openDetailsModal(ticket)"
                         class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
@@ -349,7 +392,42 @@
                         </svg>
                         <span>Full Info</span>
                       </button>
+
+                      <!-- Return to Unit Head (Director only for escalated tickets) -->
                       <button
+                        v-if="isDirector && ticket.is_escalated_to_director"
+                        @click="openDeescalateModal(ticket)"
+                        class="px-2.5 py-1.5 rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        title="Return request back to Unit Head for routine handling"
+                      >
+                        <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                        <span>Return to Unit</span>
+                      </button>
+
+                      <!-- Request Director Approval (Unit Head only, for non-escalated tickets) -->
+                      <button
+                        v-if="!isDirector && !ticket.is_escalated_to_director"
+                        @click="openEscalateModal(ticket)"
+                        class="px-2.5 py-1.5 rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        title="Request Director Executive Approval for heavy or important tasks"
+                      >
+                        <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                        <span>To Director</span>
+                      </button>
+
+                      <!-- Recall Escalation (Unit Head only, for escalated tickets) -->
+                      <button
+                        v-if="!isDirector && ticket.is_escalated_to_director"
+                        @click="openDeescalateModal(ticket)"
+                        class="px-2.5 py-1.5 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        title="Recall escalation and process directly at Unit Head level"
+                      >
+                        <svg class="h-3.5 w-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                        <span>Recall</span>
+                      </button>
+
+                      <button
+                        v-if="!isDirector"
                         @click="openRecategorizeModal(ticket)"
                         class="px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
                         title="Change Nature of Work / Recategorize Ticket"
@@ -360,6 +438,7 @@
                         <span>Recategorize</span>
                       </button>
                       <button
+                        v-if="!isDirector"
                         @click="openDelayModal(ticket)"
                         class="px-2.5 py-1.5 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
                         title="Delay ticket approval (e.g. awaiting procurement/materials)"
@@ -381,6 +460,7 @@
                       <button
                         @click="initiateApproval(ticket)"
                         class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                        :title="isDirector ? 'Executive Approve' : 'Direct Unit Head Approve'"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -533,6 +613,12 @@
               >
                 Urgent
               </span>
+              <span
+                v-if="ticket.is_escalated_to_director"
+                class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[9px] font-black uppercase tracking-wider shrink-0 inline-flex items-center gap-1 shadow-2xs"
+              >
+                ⭐ Director
+              </span>
             </div>
 
             <!-- Location for Pending, Approved, and Delayed -->
@@ -572,9 +658,14 @@
             <!-- Actions -->
             <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end gap-1.5 flex-wrap" @click.stop>
               <!-- Pending Actions -->
-              <button v-if="activeTab === 'pending'" @click="openDelayModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
-              <button v-if="activeTab === 'pending'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
-              <button v-if="activeTab === 'pending'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
+              <template v-if="activeTab === 'pending'">
+                <button v-if="isDirector && ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Return</button>
+                <button v-if="!isDirector && !ticket.is_escalated_to_director" @click="openEscalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Escalate</button>
+                <button v-if="!isDirector && ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Recall</button>
+                <button v-if="!isDirector" @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
+                <button @click="openDeclineModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+                <button @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
+              </template>
 
               <!-- Delayed Actions -->
               <button v-if="activeTab === 'delayed'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
@@ -639,6 +730,13 @@
                 Approval Delayed
               </span>
               <span
+                v-if="selectedTicketForModal.is_escalated_to_director"
+                class="px-2.5 py-0.5 rounded-md bg-purple-100 border border-purple-300 text-purple-800 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs"
+              >
+                <svg class="w-3 h-3 text-purple-700" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                ⭐ Escalated to Director
+              </span>
+              <span
                 v-if="selectedTicketForModal.is_emergency"
                 class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider animate-pulse"
               >
@@ -659,6 +757,20 @@
 
         <!-- Scrollable Modal Body -->
         <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
+          <!-- Escalation Notice Banner -->
+          <div v-if="selectedTicketForModal.is_escalated_to_director" class="p-4 rounded-2xl bg-purple-50 border border-purple-200 text-purple-900 space-y-1.5">
+            <div class="flex items-center gap-2 font-black text-sm sm:text-base tracking-wide text-purple-900">
+              <svg class="w-5 h-5 text-purple-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <span>Escalated to Director for Executive Approval</span>
+            </div>
+            <p class="text-xs sm:text-sm text-purple-900 font-bold leading-relaxed">
+              Justification: {{ selectedTicketForModal.escalation_reason || 'Executive review requested for heavy or important task.' }}
+            </p>
+            <p v-if="selectedTicketForModal.escalated_by_name" class="text-xs text-purple-700 font-medium">
+              Escalated by {{ selectedTicketForModal.escalated_by_name }} on {{ formatDate(selectedTicketForModal.escalated_at) }}.
+            </p>
+          </div>
+
           <!-- Approval Delay Notice Banner -->
           <div v-if="selectedTicketForModal.is_approval_delayed" class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-1.5">
             <div class="flex items-center gap-2 font-black text-sm sm:text-base tracking-wide text-amber-900">
@@ -863,7 +975,38 @@
             Close Full Info
           </button>
           <div v-if="activeTab === 'pending'" class="flex items-center gap-2">
+            <!-- Director Return to Unit Head -->
             <button
+              v-if="isDirector && selectedTicketForModal.is_escalated_to_director"
+              @click="openDeescalateModal(selectedTicketForModal); closeDetailsModal()"
+              class="px-3.5 py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold hover:bg-purple-100 transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <svg class="h-4 w-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+              <span>Return to Unit</span>
+            </button>
+
+            <!-- Request Director Approval (Unit Head only, for non-escalated tickets) -->
+            <button
+              v-if="!isDirector && !selectedTicketForModal.is_escalated_to_director"
+              @click="openEscalateModal(selectedTicketForModal); closeDetailsModal()"
+              class="px-3.5 py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold hover:bg-purple-100 transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <svg class="h-4 w-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+              <span>Escalate to Director</span>
+            </button>
+
+            <!-- Recall Escalation (Unit Head only, for escalated tickets) -->
+            <button
+              v-if="!isDirector && selectedTicketForModal.is_escalated_to_director"
+              @click="openDeescalateModal(selectedTicketForModal); closeDetailsModal()"
+              class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <svg class="h-4 w-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+              <span>Recall Escalation</span>
+            </button>
+
+            <button
+              v-if="!isDirector"
               @click="openRecategorizeModal(selectedTicketForModal); closeDetailsModal()"
               class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
               title="Change Nature of Work / Recategorize Ticket"
@@ -873,7 +1016,11 @@
               </svg>
               <span>Recategorize</span>
             </button>
-            <button @click="openDelayModal(selectedTicketForModal); closeDetailsModal()" class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1">
+            <button
+              v-if="!isDirector"
+              @click="openDelayModal(selectedTicketForModal); closeDetailsModal()"
+              class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -1135,6 +1282,138 @@
     @close="closeRecategorizeModal"
     @recategorized="handleTicketRecategorized"
   />
+
+  <!-- ======================= ESCALATE TO DIRECTOR MODAL ======================= -->
+  <Teleport to="body">
+    <div v-if="showEscalateModal" class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto" @click.self="closeEscalateModal">
+      <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col my-auto overflow-hidden">
+        <div class="p-5 sm:p-6 pb-4 border-b border-slate-100 flex items-start justify-between gap-3 bg-gradient-to-r from-purple-50/50 to-white">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight">Request Director Approval</h3>
+              <p class="text-xs text-slate-500 font-medium">Ticket <strong class="text-slate-800">#{{ ticketToEscalate?.ticketId }}</strong></p>
+            </div>
+          </div>
+          <button @click="closeEscalateModal" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <div class="p-5 sm:p-6 space-y-4 text-xs sm:text-sm">
+          <div class="p-3.5 rounded-2xl bg-purple-50 border border-purple-200 text-purple-900 leading-relaxed">
+            <p class="font-bold text-xs">Executive Routing Policy:</p>
+            <p class="text-[11px] text-purple-800 mt-0.5">
+              Routine requests should be approved directly by the Unit Head. Escalate to the Director only for heavy electrical/HVAC overhauls, high-cost equipment procurement, campus safety hazards, or executive decisions.
+            </p>
+          </div>
+
+          <!-- Reason Presets -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-black uppercase tracking-wider text-slate-600">Select Justification Preset</label>
+            <div class="grid grid-cols-1 gap-1.5">
+              <button
+                v-for="preset in escalationPresets"
+                :key="preset"
+                type="button"
+                @click="selectedEscalationPreset = preset; if (preset !== 'Other / Custom Justification') escalateReasonInput = preset"
+                class="px-3 py-2 rounded-xl border text-left text-xs font-bold transition-all cursor-pointer"
+                :class="selectedEscalationPreset === preset ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'"
+              >
+                {{ preset }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom Reason Textarea -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-black uppercase tracking-wider text-slate-600">
+              Detailed Justification / Notes <span class="text-rose-500">*</span>
+            </label>
+            <textarea
+              v-model="escalateReasonInput"
+              rows="3"
+              placeholder="Explain why this request requires executive Director approval..."
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/70 flex gap-3 shrink-0">
+          <button @click="closeEscalateModal" class="w-full px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-100 cursor-pointer">
+            Cancel
+          </button>
+          <button
+            @click="submitEscalation"
+            :disabled="isSubmittingEscalate || !escalateReasonInput.trim()"
+            class="w-full px-4 py-2.5 bg-purple-600 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-purple-600/20 hover:bg-purple-500 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-2"
+          >
+            <svg v-if="isSubmittingEscalate" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+            <span>{{ isSubmittingEscalate ? 'Escalating...' : 'Submit to Director' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- ======================= DE-ESCALATE / RETURN MODAL ======================= -->
+  <Teleport to="body">
+    <div v-if="showDeescalateModal" class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto" @click.self="closeDeescalateModal">
+      <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col my-auto overflow-hidden">
+        <div class="p-5 sm:p-6 pb-4 border-b border-slate-100 flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight">
+                {{ isDirector ? 'Return Request to Unit Head' : 'Recall Escalation' }}
+              </h3>
+              <p class="text-xs text-slate-500 font-medium">Ticket <strong class="text-slate-800">#{{ ticketToDeescalate?.ticketId }}</strong></p>
+            </div>
+          </div>
+          <button @click="closeDeescalateModal" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <div class="p-5 sm:p-6 space-y-4 text-xs sm:text-sm">
+          <p class="text-slate-600 leading-relaxed font-medium">
+            {{ isDirector
+              ? 'This ticket will be returned to the Unit Head queue for direct administrative review and approval.'
+              : 'Cancel executive escalation and return this ticket to the Unit Head approval queue for direct processing.'
+            }}
+          </p>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-black uppercase tracking-wider text-slate-600">Notes / Instructions (Optional)</label>
+            <textarea
+              v-model="deescalateNotesInput"
+              rows="3"
+              :placeholder="isDirector ? 'e.g., Routine electrical check approved to proceed at unit level with current supplies.' : 'e.g., Reclaiming ticket to be handled with existing unit manpower.'"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/70 flex gap-3 shrink-0">
+          <button @click="closeDeescalateModal" class="w-full px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-100 cursor-pointer">
+            Cancel
+          </button>
+          <button
+            @click="submitDeescalation"
+            :disabled="isSubmittingDeescalate"
+            class="w-full px-4 py-2.5 bg-amber-600 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-amber-600/20 hover:bg-amber-500 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-2"
+          >
+            <svg v-if="isSubmittingDeescalate" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+            <span>{{ isSubmittingDeescalate ? 'Processing...' : (isDirector ? 'Confirm Return to Unit' : 'Confirm Recall') }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
@@ -1142,6 +1421,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
+import { escalateTicketToDirector, deescalateTicketFromDirector } from '@/api/tickets';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from '@/views/dashboards/director/DirectorSidebar.vue';
@@ -1156,6 +1436,8 @@ import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSecti
 const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
+
+const isDirector = computed(() => authStore.role === 'director');
 
 let handledRouteQueryTicketId = null;
 let isInitialFetch = true;
@@ -1190,6 +1472,7 @@ const queuesData = ref({
 const isLoading = ref(false);
 const searchQuery = ref('');
 const selectedServiceFilter = ref('');
+const selectedEscalationFilter = ref('all'); // 'all' | 'escalated' | 'routine'
 
 // Pagination state
 const currentPage = ref(1);
@@ -1228,6 +1511,10 @@ let durationInterval = null;
 
 const activeTabCount = computed(() => queueCounts.value[activeTab.value] || 0);
 
+const escalatedPendingCount = computed(() => {
+  return (queuesData.value.pending || []).filter(t => t.is_escalated_to_director).length;
+});
+
 const activeTabLabel = computed(() => {
   switch (activeTab.value) {
     case 'pending': return 'Pending Approval';
@@ -1252,6 +1539,14 @@ const serviceCategories = computed(() => {
 const filteredTickets = computed(() => {
   let list = currentTabTickets.value;
 
+  if (activeTab.value === 'pending' && selectedEscalationFilter.value !== 'all') {
+    if (selectedEscalationFilter.value === 'escalated') {
+      list = list.filter(t => t.is_escalated_to_director);
+    } else if (selectedEscalationFilter.value === 'routine') {
+      list = list.filter(t => !t.is_escalated_to_director);
+    }
+  }
+
   if (selectedServiceFilter.value) {
     const target = selectedServiceFilter.value.trim().toLowerCase();
     list = list.filter(t => {
@@ -1270,6 +1565,7 @@ const filteredTickets = computed(() => {
       (t.description && t.description.toLowerCase().includes(q)) ||
       (t.location && t.location.toLowerCase().includes(q)) ||
       (t.office_room && t.office_room.toLowerCase().includes(q)) ||
+      (t.escalation_reason && t.escalation_reason.toLowerCase().includes(q)) ||
       (t.assignment?.personnel_name && t.assignment.personnel_name.toLowerCase().includes(q))
     );
   }
@@ -1301,6 +1597,7 @@ const switchTab = (tab) => {
   activeTab.value = tab;
   currentPage.value = 1;
   searchQuery.value = '';
+  selectedEscalationFilter.value = 'all';
   clearRouteQueryTicket();
 };
 
@@ -1366,6 +1663,11 @@ const mapTicket = (t) => {
     approval_delayed_by: t.approval_delayed_by || null,
     delayed_by_first_name: t.delayed_by_first_name || '',
     delayed_by_last_name: t.delayed_by_last_name || '',
+    is_escalated_to_director: Boolean(Number(t.is_escalated_to_director) === 1 || t.is_escalated_to_director === true),
+    escalation_reason: t.escalation_reason || '',
+    escalated_at: t.escalated_at || null,
+    escalated_by: t.escalated_by || null,
+    escalated_by_name: t.escalated_by_name || (t.escalated_by_first_name ? `${t.escalated_by_first_name} ${t.escalated_by_last_name || ''}`.trim() : ''),
   };
 };
 
@@ -1657,6 +1959,91 @@ const submitDelayApproval = async () => {
   }
 };
 
+// Escalation to Director Modal State
+const showEscalateModal = ref(false);
+const ticketToEscalate = ref(null);
+const selectedEscalationPreset = ref('');
+const escalateReasonInput = ref('');
+const isSubmittingEscalate = ref(false);
+
+const escalationPresets = [
+  'Heavy electrical/HVAC overhaul requiring executive budget',
+  'High-cost equipment or specialized parts procurement',
+  'Campus-wide power/cooling outage or safety hazard',
+  'Important VIP / institutional event sound & lighting requirement',
+  'High-value asset borrowing / long-term loan authorization',
+  'Other / Custom Justification'
+];
+
+const openEscalateModal = (ticket) => {
+  ticketToEscalate.value = ticket;
+  selectedEscalationPreset.value = escalationPresets[0];
+  escalateReasonInput.value = escalationPresets[0];
+  showEscalateModal.value = true;
+};
+
+const closeEscalateModal = () => {
+  showEscalateModal.value = false;
+  ticketToEscalate.value = null;
+  selectedEscalationPreset.value = '';
+  escalateReasonInput.value = '';
+  isSubmittingEscalate.value = false;
+};
+
+const submitEscalation = async () => {
+  if (!ticketToEscalate.value || !escalateReasonInput.value.trim()) return;
+  isSubmittingEscalate.value = true;
+  try {
+    await escalateTicketToDirector(ticketToEscalate.value.id, escalateReasonInput.value.trim());
+    toast.success(`Ticket #${ticketToEscalate.value.ticketId || ticketToEscalate.value.id} escalated to Director.`);
+    closeEscalateModal();
+    if (selectedTicketForModal.value) closeDetailsModal();
+    fetchAllQueues();
+  } catch (error) {
+    const msg = error.response?.data?.messages?.error || error.response?.data?.message || 'Failed to escalate ticket';
+    toast.error(msg);
+  } finally {
+    isSubmittingEscalate.value = false;
+  }
+};
+
+// De-escalate / Return to Unit Head Modal State
+const showDeescalateModal = ref(false);
+const ticketToDeescalate = ref(null);
+const deescalateNotesInput = ref('');
+const isSubmittingDeescalate = ref(false);
+
+const openDeescalateModal = (ticket) => {
+  ticketToDeescalate.value = ticket;
+  deescalateNotesInput.value = '';
+  showDeescalateModal.value = true;
+};
+
+const closeDeescalateModal = () => {
+  showDeescalateModal.value = false;
+  ticketToDeescalate.value = null;
+  deescalateNotesInput.value = '';
+  isSubmittingDeescalate.value = false;
+};
+
+const submitDeescalation = async () => {
+  if (!ticketToDeescalate.value) return;
+  isSubmittingDeescalate.value = true;
+  try {
+    await deescalateTicketFromDirector(ticketToDeescalate.value.id, deescalateNotesInput.value.trim());
+    const actionName = isDirector.value ? 'returned to Unit Head' : 'recalled to Unit Head queue';
+    toast.success(`Ticket #${ticketToDeescalate.value.ticketId || ticketToDeescalate.value.id} ${actionName}.`);
+    closeDeescalateModal();
+    if (selectedTicketForModal.value) closeDetailsModal();
+    fetchAllQueues();
+  } catch (error) {
+    const msg = error.response?.data?.messages?.error || error.response?.data?.message || 'Failed to return ticket';
+    toast.error(msg);
+  } finally {
+    isSubmittingDeescalate.value = false;
+  }
+};
+
 const openExtensionModal = (ticket) => {
   ticketToExtend.value = ticket;
   showExtensionModal.value = true;
@@ -1669,7 +2056,7 @@ const handleTicketExtended = () => {
 
 const handleFocusOrVisibility = () => {
   if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value);
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value);
     if (!isInteracting) {
       fetchAllQueues();
     }
@@ -1680,7 +2067,7 @@ onMounted(() => {
   fetchAllQueues();
   pollingInterval = setInterval(() => {
     if (document.hidden) return;
-    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value);
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value);
     if (!isInteracting) {
       fetchAllQueues();
     }

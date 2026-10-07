@@ -152,6 +152,13 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin', 'staff'], unit: 'FGMU' }
     },
     {
+      path: '/admin/fgmu/queues',
+      alias: ['/admin/fgmu/pending', '/admin/fgmu/pending-approvals'],
+      name: 'fgmu-admin-queues',
+      component: Director_FGMU_TicketQueues,
+      meta: { requiresAuth: true, roles: ['admin', 'staff', 'director', 'superadmin'], unit: 'FGMU' }
+    },
+    {
       path: '/admin/fgmu/approved-tickets',
       name: 'fgmu-approved-tickets',
       component: FGMU_ApprovedTickets,
@@ -217,6 +224,13 @@ const router = createRouter({
       name: 'leau-dashboard',
       component: LEAU_Dashboard,
       meta: { requiresAuth: true, roles: ['admin', 'staff'], unit: 'LEAU' }
+    },
+    {
+      path: '/admin/leau/queues',
+      alias: ['/admin/leau/pending', '/admin/leau/pending-approvals'],
+      name: 'leau-admin-queues',
+      component: Director_LEAU_TicketQueues,
+      meta: { requiresAuth: true, roles: ['admin', 'staff', 'director', 'superadmin'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/approved-tickets',

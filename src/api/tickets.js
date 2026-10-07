@@ -109,4 +109,20 @@ export const recategorizeTicket = (ticketId, serviceType, reason = '', unitId = 
 export const completeTicket = (ticketId) =>
   apiClient.patch(`/tickets/${ticketId}/complete`);
 
+/**
+ * Request Director approval (escalate heavy or important tasks to the Director).
+ * @param {string} ticketId
+ * @param {string} reason
+ */
+export const escalateTicketToDirector = (ticketId, reason) =>
+  apiClient.patch(`/tickets/${ticketId}/escalate-to-director`, { reason });
+
+/**
+ * Return or cancel escalation (return from Director back to Unit Head).
+ * @param {string} ticketId
+ * @param {string} [notes]
+ */
+export const deescalateTicketFromDirector = (ticketId, notes = '') =>
+  apiClient.patch(`/tickets/${ticketId}/deescalate`, { notes });
+
 

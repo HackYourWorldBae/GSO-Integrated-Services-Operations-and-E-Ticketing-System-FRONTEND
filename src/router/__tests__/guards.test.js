@@ -50,7 +50,7 @@ describe('Router Page Guards & RBAC Boundaries', () => {
       expect(getCanonicalHomeRoute('staff', 'FGMU')).toBe('/admin/fgmu');
       expect(getCanonicalHomeRoute('student')).toBe('/user/dashboard');
       expect(getCanonicalHomeRoute('employee')).toBe('/user/dashboard');
-      expect(getCanonicalHomeRoute('worker')).toBe('/user/dashboard');
+      expect(getCanonicalHomeRoute('worker')).toBe('/personnel/dashboard');
     });
   });
 

@@ -305,7 +305,10 @@
           <!-- Bottom 3 Cards Grid -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- 1. Pending (Awaiting Approval) -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md flex flex-col justify-between">
+            <div 
+              @click="router.push('/admin/leau/queues')"
+              class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer hover:border-amber-300 transition-all flex flex-col justify-between"
+            >
               <div class="flex items-center justify-between gap-2 mb-4">
                 <div class="p-3 rounded-xl sm:rounded-2xl bg-amber-50 text-amber-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
