@@ -106,8 +106,8 @@ const selectedList = computed(() => {
     });
 });
 
-const FGMU_CATEGORIES = ['Structure & Finishes', 'Utilities & Mechanical'];
-const LEAU_CATEGORIES = ['Janitorial & Landscaping'];
+const FGMU_CATEGORIES = ['Structure & Finishes', 'Utilities & Mechanical', 'Janitorial'];
+const LEAU_CATEGORIES = ['Landscaping', 'Borrowing Services', 'Janitorial & Landscaping'];
 const SSU_CATEGORIES = ['Security Services'];
 
 const fgmuServices = computed(() => selectedList.value.filter(s => FGMU_CATEGORIES.includes(s.category)));
@@ -121,11 +121,13 @@ const otherServices = computed(() => selectedList.value.filter(s =>
 
 // Borrowing services detection
 const borrowingServices = computed(() => leauServices.value.filter(s => 
+  s.category === 'Borrowing Services' ||
   s.service.toLowerCase().includes('borrowing of plants') ||
   s.service.toLowerCase().includes('borrowing of tools')
 ));
 
 const regularLeauServices = computed(() => leauServices.value.filter(s => 
+  s.category !== 'Borrowing Services' &&
   !s.service.toLowerCase().includes('borrowing of plants') &&
   !s.service.toLowerCase().includes('borrowing of tools')
 ));

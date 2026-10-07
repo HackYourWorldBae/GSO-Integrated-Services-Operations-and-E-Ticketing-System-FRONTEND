@@ -34,7 +34,7 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
           nextTicketTask: p.next_ticket_task || null,
           nextAssignment: p.next_assignment_id ? {
             ticketId: p.next_assignment_id,
-            task: p.next_ticket_task || 'Janitorial & Landscaping Work',
+            task: p.next_ticket_task || 'Landscaping Work',
             date: p.next_implementation_date ? new Date(p.next_implementation_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Scheduled Next'
           } : null,
           assignments: Array.isArray(p.assignments) ? p.assignments : [],
@@ -168,7 +168,7 @@ export const useLeauPersonnelStore = defineStore('leauPersonnel', () => {
     }
   };
 
-  const assignWorker = (workerId, ticketId, implementationDate, ticketTask = 'Janitorial & Landscaping Work', isEmergency = false) => {
+  const assignWorker = (workerId, ticketId, implementationDate, ticketTask = 'Landscaping Work', isEmergency = false) => {
     const worker = personnel.value.find(w => w.id === workerId);
     if (!worker) return;
     if (!Array.isArray(worker.assignments)) {

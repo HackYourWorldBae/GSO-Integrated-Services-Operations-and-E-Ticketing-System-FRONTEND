@@ -6,8 +6,8 @@ export const useServicesStore = defineStore('services', () => {
   const otherSpecifics = ref({});
   const activeTicketIds = ref({});
 
-  const FGMU_CATEGORIES = ['Structure & Finishes', 'Utilities & Mechanical'];
-  const LEAU_CATEGORIES = ['Janitorial & Landscaping'];
+  const FGMU_CATEGORIES = ['Structure & Finishes', 'Utilities & Mechanical', 'Janitorial'];
+  const LEAU_CATEGORIES = ['Landscaping', 'Borrowing Services', 'Janitorial & Landscaping'];
   const SSU_CATEGORIES = ['Security Services'];
 
   const selectedList = computed(() => {

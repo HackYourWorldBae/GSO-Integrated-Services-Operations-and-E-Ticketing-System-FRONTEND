@@ -14,12 +14,12 @@ export const FGMU_SERVICES = [
   'Plumbing & Sanitary Works',
   'Electronics & Communication Works',
   'Mechanical Works',
+  'Disinfection',
+  'Cleaning/ Grubbing',
   'Others'
 ];
 
 export const LEAU_SERVICES = [
-  'Disinfection',
-  'Cleaning/ Grubbing',
   'Hauling',
   'Mowing/ Weeding',
   'Planting/ Landscaping',

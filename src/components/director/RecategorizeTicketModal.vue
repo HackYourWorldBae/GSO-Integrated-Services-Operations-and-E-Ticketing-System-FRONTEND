@@ -120,7 +120,7 @@
               >
                 <span>LEAU Environment</span>
                 <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="activeUnitCode === 'LEAU' ? 'bg-emerald-100 text-emerald-800 font-extrabold' : 'bg-slate-200 text-slate-600'">
-                  Janitorial &amp; Grounds
+                  Landscaping &amp; Grounds
                 </span>
               </button>
             </div>
@@ -167,6 +167,7 @@
               </div>
 
               <!-- Utilities & Mechanical -->
+              <!-- Utilities & Mechanical -->
               <div>
                 <p class="text-[11px] font-extrabold text-slate-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -197,18 +198,83 @@
                   </button>
                 </div>
               </div>
+
+              <!-- Janitorial Services (FGMU) -->
+              <div>
+                <p class="text-[11px] font-extrabold text-slate-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                  Janitorial &amp; Sanitation
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    v-for="svc in fgmuJanitorialServices"
+                    :key="svc"
+                    type="button"
+                    @click="selectService(svc)"
+                    :class="[
+                      'p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between gap-2 cursor-pointer',
+                      selectedService === svc
+                        ? 'border-sky-500 bg-sky-50 text-sky-900 ring-2 ring-sky-500/20 shadow-xs'
+                        : svc === currentServiceType
+                          ? 'border-amber-200 bg-amber-50/40 text-amber-900 opacity-60'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-800'
+                    ]"
+                  >
+                    <span>{{ svc }}</span>
+                    <span v-if="selectedService === svc" class="w-4 h-4 rounded-full bg-sky-600 text-white flex items-center justify-center shrink-0">
+                      <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                    </span>
+                    <span v-else-if="svc === currentServiceType" class="text-[9px] font-black uppercase tracking-wider text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
+                      Current
+                    </span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <!-- LEAU Services -->
             <div v-else class="space-y-3.5">
+              <!-- Landscaping & Grounds -->
               <div>
                 <p class="text-[11px] font-extrabold text-slate-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  Janitorial, Grounds &amp; Environmental Services
+                  Landscaping &amp; Grounds Maintenance
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <button
-                    v-for="svc in leauServicesList"
+                    v-for="svc in leauLandscapingServices"
+                    :key="svc"
+                    type="button"
+                    @click="selectService(svc)"
+                    :class="[
+                      'p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between gap-2 cursor-pointer',
+                      selectedService === svc
+                        ? 'border-sky-500 bg-sky-50 text-sky-900 ring-2 ring-sky-500/20 shadow-xs'
+                        : svc === currentServiceType
+                          ? 'border-amber-200 bg-amber-50/40 text-amber-900 opacity-60'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-800'
+                    ]"
+                  >
+                    <span>{{ svc }}</span>
+                    <span v-if="selectedService === svc" class="w-4 h-4 rounded-full bg-sky-600 text-white flex items-center justify-center shrink-0">
+                      <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                    </span>
+                    <span v-else-if="svc === currentServiceType" class="text-[9px] font-black uppercase tracking-wider text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
+                      Current
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Borrowing Services -->
+              <div>
+                <p class="text-[11px] font-extrabold text-slate-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  Borrowing Services
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    v-for="svc in leauBorrowingServices"
                     :key="svc"
                     type="button"
                     @click="selectService(svc)"
@@ -353,17 +419,23 @@ const fgmuUtilityServices = [
   'Mechanical Works',
 ];
 
-const leauServicesList = [
+const fgmuJanitorialServices = [
   'Disinfection',
   'Cleaning/ Grubbing',
+];
+
+const leauLandscapingServices = [
   'Hauling',
   'Mowing/ Weeding',
   'Planting/ Landscaping',
   'Pruning/ Cutting',
-  'Borrowing of plants',
   'Stage & Hall Decoration',
-  'Borrowing of tools/ equipment',
   'Others',
+];
+
+const leauBorrowingServices = [
+  'Borrowing of plants',
+  'Borrowing of tools/ equipment',
 ];
 
 const quickReasonChips = [

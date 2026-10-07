@@ -366,6 +366,8 @@
                     <option value="Aircon / Refrigeration">Aircon / Refrigeration</option>
                     <option value="Painting / Masonry">Painting / Masonry</option>
                     <option value="Welding">Welding</option>
+                    <option value="Janitorial">Janitorial</option>
+                    <option value="Disinfection / Sanitation">Disinfection / Sanitation</option>
                   </template>
                 </select>
               </div>

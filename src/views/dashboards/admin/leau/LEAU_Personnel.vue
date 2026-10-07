@@ -360,8 +360,8 @@
                   <template v-else>
                     <option value="Groundskeeper">Groundskeeper</option>
                     <option value="Landscaper">Landscaper</option>
-                    <option value="Janitor">Janitor</option>
-                    <option value="Garbage Collector">Garbage Collector</option>
+                    <option value="Hauler & Event Setup">Hauler & Event Setup</option>
+                    <option value="Tool & Equipment Custodian">Tool & Equipment Custodian</option>
                   </template>
                 </select>
               </div>
@@ -554,7 +554,7 @@
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Category Name *</label>
                   <input
                     v-model="newCategoryName"
-                    placeholder="e.g. Groundskeeper, Janitor, Tree Trimmer..."
+                    placeholder="e.g. Groundskeeper, Landscaper, Tree Trimmer..."
                     class="w-full px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   />
                 </div>
