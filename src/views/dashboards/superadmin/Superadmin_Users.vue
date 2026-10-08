@@ -71,12 +71,29 @@
             </button>
           </div>
 
-          <!-- Unit & Status Dropdowns -->
-          <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end shrink-0">
+          <!-- Role, Unit & Status Dropdowns -->
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end shrink-0 flex-wrap sm:flex-nowrap">
+            <select
+              v-model="filters.role"
+              @change="handleFilterChange"
+              class="flex-1 sm:flex-initial px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500 cursor-pointer min-h-[40px] touch-manipulation"
+              title="Filter by Role"
+            >
+              <option value="all">All Roles</option>
+              <option value="worker">Personnel</option>
+              <option value="admin">Admin</option>
+              <option value="staff">Staff</option>
+              <option value="director">Director</option>
+              <option value="employee">Employee</option>
+              <option value="student">Student</option>
+              <option value="superadmin">Superadmin</option>
+            </select>
+
             <select
               v-model="filters.unit_id"
               @change="handleFilterChange"
               class="flex-1 sm:flex-initial px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500 cursor-pointer min-h-[40px] touch-manipulation"
+              title="Filter by Sub-Unit"
             >
               <option value="all">All Units</option>
               <option value="1">FGMU</option>
@@ -89,6 +106,7 @@
               v-model="filters.status"
               @change="handleFilterChange"
               class="flex-1 sm:flex-initial px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:border-purple-500 cursor-pointer min-h-[40px] touch-manipulation"
+              title="Filter by Account Status"
             >
               <option value="all">All Statuses</option>
               <option value="Active">Active</option>
@@ -1089,7 +1107,7 @@ import {
 const authStore = useAuthStore();
 const isCurrentUser = (u) => Boolean(u && authStore.user?.id && authStore.user.id === u.id);
 const isRegisteredUser = (u) => Boolean(u && ['student', 'employee'].includes(u.role));
-const isInternalRole = (role) => ['admin', 'staff', 'director', 'superadmin', 'worker'].includes(role);
+const isInternalRole = (role) => ['admin', 'staff', 'director', 'superadmin', 'worker', 'personnel'].includes(role);
 const isGlobalRole = (role) => ['student', 'employee', 'superadmin', 'director'].includes(role);
 const canViewId = (u) => {
   if (!u) return false;
@@ -1355,6 +1373,7 @@ const filters = reactive({
 const formatRole = (role) => {
   const map = {
     worker: 'Personnel',
+    personnel: 'Personnel',
     admin: 'Admin',
     staff: 'Staff',
     director: 'Director',
@@ -1367,9 +1386,9 @@ const formatRole = (role) => {
 
 const roleOptions = [
   { value: 'all', label: 'All Roles' },
+  { value: 'worker', label: 'Personnel' },
   { value: 'admin', label: 'Admins' },
   { value: 'staff', label: 'Staff' },
-  { value: 'worker', label: 'Personnel' },
   { value: 'director', label: 'Directors' },
   { value: 'employee', label: 'Employees' },
   { value: 'student', label: 'Students' },
@@ -1429,6 +1448,7 @@ const getRoleBadgeClass = (role) => {
     staff: 'bg-sky-100 text-sky-700 border-sky-200',
     director: 'bg-indigo-100 text-indigo-700 border-indigo-200',
     worker: 'bg-amber-100 text-amber-700 border-amber-200',
+    personnel: 'bg-amber-100 text-amber-700 border-amber-200',
     employee: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     student: 'bg-teal-100 text-teal-700 border-teal-200'
   };
