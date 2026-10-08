@@ -157,7 +157,7 @@
                           </span>
                         </div>
                         <span class="text-[11px] text-slate-500 truncate">{{ user.email || 'No email provided' }}</span>
-                        <span v-if="user.contact_number && !isInternalRole(user.role)" class="text-[10px] text-slate-400 font-medium">📞 {{ user.contact_number }}</span>
+                        <span v-if="user.contact_number && (!isInternalRole(user.role) || user.role === 'worker')" class="text-[10px] text-slate-400 font-medium">📞 {{ user.contact_number }}</span>
                       </div>
                     </div>
                   </td>
@@ -166,7 +166,10 @@
                   <td class="py-3.5 px-3">
                     <div class="flex flex-col gap-1 items-start">
                       <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
-                        {{ user.role }}
+                        {{ formatRole(user.role) }}
+                      </span>
+                      <span v-if="user.specialty" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200">
+                        {{ user.specialty }}
                       </span>
                       <span v-if="user.role === 'student' && getStudentTypeLabel(user.student_type)" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-purple-50 text-purple-700 border border-purple-200">
                         {{ getStudentTypeLabel(user.student_type) }}
@@ -385,7 +388,10 @@
               <div class="flex items-center justify-between gap-2 flex-wrap">
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
-                    {{ user.role }}
+                    {{ formatRole(user.role) }}
+                  </span>
+                  <span v-if="user.specialty" class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
+                    {{ user.specialty }}
                   </span>
                   <span v-if="user.role === 'student' && getStudentTypeLabel(user.student_type)" class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
                     {{ getStudentTypeLabel(user.student_type) }}
@@ -453,7 +459,7 @@
                   <div class="flex items-center gap-2 text-[11px] text-slate-500 font-semibold mt-1">
                     <span v-if="user.unit_code">Unit: <strong class="text-slate-800">{{ user.unit_code }}</strong></span>
                     <span v-else class="italic text-slate-400">Global</span>
-                    <span v-if="user.contact_number && !isInternalRole(user.role)">• {{ user.contact_number }}</span>
+                    <span v-if="user.contact_number && (!isInternalRole(user.role) || user.role === 'worker')">• {{ user.contact_number }}</span>
                     <span>• <strong class="text-indigo-600">{{ user.request_count || 0 }} reqs</strong></span>
                   </div>
                 </div>
@@ -708,6 +714,7 @@
                 <select v-model="createForm.role" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer">
                   <option value="admin">Admin (Unit Governance)</option>
                   <option value="staff">Staff (Sub-Unit Personnel)</option>
+                  <option value="worker">Personnel (Field Worker)</option>
                   <option value="director">Director (Executive)</option>
                   <option value="superadmin">Superadmin (Master)</option>
                 </select>
@@ -716,12 +723,17 @@
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Assigned Sub-Unit *</label>
                 <select v-model="createForm.unit_id" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer" :disabled="['superadmin', 'director'].includes(createForm.role)">
-                  <option v-if="!['admin', 'staff'].includes(createForm.role)" :value="null">None (Global / Cross-Campus)</option>
+                  <option v-if="!['admin', 'staff', 'worker'].includes(createForm.role)" :value="null">None (Global / Cross-Campus)</option>
                   <option :value="1">Facilities & Grounds (FGMU)</option>
                   <option :value="2">Landscaping & Aesthetics (LEAU)</option>
                   <option :value="3">Security Services (SSU)</option>
                 </select>
               </div>
+            </div>
+
+            <div v-if="createForm.role === 'worker'">
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Trade / Specialty</label>
+              <input v-model="createForm.specialty" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="e.g. Electrician, Plumber, Groundskeeper" />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -796,6 +808,7 @@
                   <option value="employee">Employee</option>
                   <option value="admin">Admin</option>
                   <option value="staff">Staff</option>
+                  <option value="worker">Personnel (Field Worker)</option>
                   <option value="director">Director</option>
                   <option value="superadmin">Superadmin</option>
                 </select>
@@ -804,12 +817,17 @@
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Sub-Unit *</label>
                 <select v-model="editForm.unit_id" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer" :disabled="['student', 'employee', 'superadmin', 'director'].includes(editForm.role)">
-                  <option v-if="!['admin', 'staff'].includes(editForm.role)" :value="null">None (Global / Cross-Campus)</option>
+                  <option v-if="!['admin', 'staff', 'worker'].includes(editForm.role)" :value="null">None (Global / Cross-Campus)</option>
                   <option :value="1">Facilities & Grounds (FGMU)</option>
                   <option :value="2">Landscaping & Aesthetics (LEAU)</option>
                   <option :value="3">Security Services (SSU)</option>
                 </select>
               </div>
+            </div>
+
+            <div v-if="editForm.role === 'worker'">
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Trade / Specialty</label>
+              <input v-model="editForm.specialty" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="e.g. Electrician, Plumber, Groundskeeper" />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1071,7 +1089,7 @@ import {
 const authStore = useAuthStore();
 const isCurrentUser = (u) => Boolean(u && authStore.user?.id && authStore.user.id === u.id);
 const isRegisteredUser = (u) => Boolean(u && ['student', 'employee'].includes(u.role));
-const isInternalRole = (role) => ['admin', 'staff', 'director', 'superadmin'].includes(role);
+const isInternalRole = (role) => ['admin', 'staff', 'director', 'superadmin', 'worker'].includes(role);
 const isGlobalRole = (role) => ['student', 'employee', 'superadmin', 'director'].includes(role);
 const canViewId = (u) => {
   if (!u) return false;
@@ -1334,10 +1352,24 @@ const filters = reactive({
   status: 'all'
 });
 
+const formatRole = (role) => {
+  const map = {
+    worker: 'Personnel',
+    admin: 'Admin',
+    staff: 'Staff',
+    director: 'Director',
+    employee: 'Employee',
+    student: 'Student',
+    superadmin: 'Superadmin'
+  };
+  return map[role] || (role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Unknown');
+};
+
 const roleOptions = [
   { value: 'all', label: 'All Roles' },
   { value: 'admin', label: 'Admins' },
   { value: 'staff', label: 'Staff' },
+  { value: 'worker', label: 'Personnel' },
   { value: 'director', label: 'Directors' },
   { value: 'employee', label: 'Employees' },
   { value: 'student', label: 'Students' },
@@ -1355,6 +1387,7 @@ const createForm = reactive({
   email: '',
   role: 'admin',
   unit_id: 1,
+  specialty: '',
   password: '',
   confirm_password: '',
   status: 'Active'
@@ -1367,6 +1400,7 @@ const editForm = reactive({
   email: '',
   role: 'admin',
   unit_id: null,
+  specialty: '',
   password: '',
   confirm_password: ''
 });
@@ -1531,8 +1565,8 @@ const submitCreateUser = async () => {
     isSubmitting.value = false;
     return;
   }
-  if (['admin', 'staff'].includes(createForm.role) && !createForm.unit_id) {
-    modalError.value = 'Admin and Staff accounts must be assigned to a sub-unit (FGMU, LEAU, or SSU).';
+  if (['admin', 'staff', 'worker'].includes(createForm.role) && !createForm.unit_id) {
+    modalError.value = 'Admin, Staff, and Personnel accounts must be assigned to a sub-unit (FGMU, LEAU, or SSU).';
     isSubmitting.value = false;
     return;
   }
@@ -1557,6 +1591,7 @@ const submitCreateUser = async () => {
       confirm_password: createForm.confirm_password,
       status: createForm.status,
       unit_id: isGlobalRole(createForm.role) ? null : (createForm.unit_id ? Number(createForm.unit_id) : null),
+      specialty: createForm.role === 'worker' ? (createForm.specialty?.trim() || null) : undefined,
     };
 
     const res = await apiCreateUser(payload);
@@ -1586,6 +1621,7 @@ const openEditModal = (user) => {
   editForm.email = user.email || '';
   editForm.role = user.role || 'admin';
   editForm.unit_id = user.unit_id || null;
+  editForm.specialty = user.specialty || '';
   editForm.password = '';
   editForm.confirm_password = '';
   isEditModalOpen.value = true;
@@ -1602,8 +1638,8 @@ const submitEditUser = async () => {
   try {
     const finalRole = editForm.role;
     const finalUnitId = editForm.unit_id ? Number(editForm.unit_id) : null;
-    if (['admin', 'staff'].includes(finalRole) && !finalUnitId) {
-      modalError.value = 'Admin and Staff accounts must be assigned to a sub-unit (FGMU, LEAU, or SSU).';
+    if (['admin', 'staff', 'worker'].includes(finalRole) && !finalUnitId) {
+      modalError.value = 'Admin, Staff, and Personnel accounts must be assigned to a sub-unit (FGMU, LEAU, or SSU).';
       isSubmitting.value = false;
       return;
     }
@@ -1612,6 +1648,7 @@ const submitEditUser = async () => {
       last_name: editForm.last_name ? editForm.last_name.trim() : undefined,
       role: editForm.role,
       unit_id: isGlobalRole(editForm.role) ? null : (editForm.unit_id ? Number(editForm.unit_id) : null),
+      specialty: editForm.role === 'worker' ? (editForm.specialty?.trim() || null) : undefined,
     };
     if (editForm.password && editForm.password.trim()) {
       if (editForm.password !== editForm.confirm_password) {

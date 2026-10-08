@@ -157,9 +157,9 @@
               <div v-for="(count, rName) in stats.users?.by_role" :key="rName" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100/80 transition-colors">
                 <div class="flex items-center gap-3">
                   <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-xs font-black uppercase text-slate-700 shadow-xs shrink-0">
-                    {{ rName.charAt(0) }}
+                    {{ getRoleInitial(rName) }}
                   </div>
-                  <span class="text-xs sm:text-sm font-bold text-slate-800 capitalize">{{ rName }}</span>
+                  <span class="text-xs sm:text-sm font-bold text-slate-800">{{ formatRoleName(rName) }}</span>
                 </div>
                 <div class="flex items-center gap-3">
                   <span class="text-sm sm:text-base font-black text-slate-900 tabular-nums">{{ count }}</span>
@@ -398,10 +398,30 @@ const stats = ref({
 
 const recentLogs = ref([]);
 
+const formatRoleName = (role) => {
+  const map = {
+    worker: 'Personnel',
+    admin: 'Admin',
+    staff: 'Staff',
+    director: 'Director',
+    employee: 'Employee',
+    student: 'Student',
+    superadmin: 'Superadmin'
+  };
+  return map[role] || (role ? role.charAt(0).toUpperCase() + role.slice(1) : '');
+};
+
+const getRoleInitial = (role) => {
+  if (role === 'worker') return 'P';
+  return role ? role.charAt(0).toUpperCase() : '?';
+};
+
 const getRoleBadgeClass = (role) => {
   const map = {
     superadmin: 'bg-purple-100 text-purple-700',
     admin: 'bg-slate-200 text-slate-800',
+    staff: 'bg-sky-100 text-sky-700',
+    worker: 'bg-amber-100 text-amber-700',
     director: 'bg-indigo-100 text-indigo-700',
     employee: 'bg-emerald-100 text-emerald-700',
     student: 'bg-teal-100 text-teal-700'
@@ -413,6 +433,8 @@ const getRoleDescription = (role) => {
   const map = {
     superadmin: 'Full system & user administration',
     admin: 'Unit governance, approval, dispatch & personnel management',
+    staff: 'Sub-unit operational ticket tracking & scheduling',
+    worker: 'Field execution personnel & technician',
     director: 'University-wide executive analytics',
     employee: 'Faculty/Staff service requester',
     student: 'Student organization/SSG service requester'
