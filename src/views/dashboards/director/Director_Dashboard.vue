@@ -126,70 +126,6 @@
             </div>
           </div>
 
-          <!-- Executive KPI Cards Grid (Consolidated Overview) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            <!-- 1. Total Requests Filed -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-slate-900 text-white shadow-md flex flex-col justify-between gap-4">
-              <div class="flex items-center justify-between gap-2">
-                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
-                  <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                </div>
-                <span
-                  class="px-3 py-1 rounded-full bg-slate-800 text-emerald-400 border border-slate-700/60 text-xs font-black tracking-wider shrink-0 max-w-[150px] truncate text-center"
-                  :title="executiveAnalytics?.filter?.label || 'All-Time'"
-                >
-                  {{ kpiPeriodLabel }}
-                </span>
-              </div>
-              <div>
-                <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-white">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</div>
-                <div class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300 mt-1">Total Requests Filed</div>
-              </div>
-            </div>
-
-            <!-- 2. Resolved & Completed -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4">
-              <div class="flex items-center justify-between gap-2">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center shrink-0">
-                  <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-black tracking-wider shrink-0">Closed</span>
-              </div>
-              <div>
-                <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-emerald-700">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</div>
-                <div class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mt-1">Resolved &amp; Completed</div>
-              </div>
-            </div>
-
-            <!-- 3. Declined / Out of Scope -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4">
-              <div class="flex items-center justify-between gap-2">
-                <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/60 flex items-center justify-center shrink-0">
-                  <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-black tracking-wider shrink-0">Disapproved</span>
-              </div>
-              <div>
-                <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-slate-900">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</div>
-                <div class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mt-1">Declined / Out of Scope</div>
-              </div>
-            </div>
-
-            <!-- 4. Client Satisfaction Rating -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 text-slate-900 shadow-md flex flex-col justify-between gap-4">
-              <div class="flex items-center justify-between gap-2">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center shrink-0">
-                  <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                </div>
-                <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-xs font-black tracking-wider shrink-0">{{ executiveAnalytics?.summary?.overall_ratings?.total_feedbacks || 0 }} Reviews</span>
-              </div>
-              <div>
-                <div class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-slate-900">{{ executiveAnalytics?.summary?.overall_ratings?.overall_avg ? parseFloat(executiveAnalytics.summary.overall_ratings.overall_avg).toFixed(2) : '5.00' }}<span class="text-lg font-bold text-slate-400 ml-1">/5</span></div>
-                <div class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mt-1">Client Satisfaction</div>
-              </div>
-            </div>
-          </div>
-
           <!-- Cross-Unit Performance Matrix Table -->
           <div class="space-y-3 pt-2">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -197,7 +133,7 @@
                 <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M10 4v16M14 4v16" /></svg>
                 <h4 class="text-sm sm:text-base font-black text-slate-900 tracking-tight uppercase tracking-wider">Performance by Sub-Unit</h4>
               </div>
-              <span class="text-xs sm:text-sm font-bold text-slate-500">{{ executiveAnalytics?.filter?.label || 'Current Period' }}</span>
+              <span class="text-xs sm:text-sm font-bold text-slate-500">{{ kpiPeriodLabel }}</span>
             </div>
 
             <!-- Desktop Performance Table -->
