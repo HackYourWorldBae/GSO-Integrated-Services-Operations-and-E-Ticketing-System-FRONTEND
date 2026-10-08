@@ -6,7 +6,7 @@
       </h2>
     </template>
 
-    <template #default>
+    <template #main-content>
       <div class="max-w-7xl mx-auto space-y-5 sm:space-y-6">
 
         <!-- Personnel Profile Banner -->

@@ -286,7 +286,9 @@
           <!-- Universal Breadcrumbs -->
           <AppBreadcrumbs />
 
-          <slot name="main-content"></slot>
+          <slot name="main-content">
+            <slot />
+          </slot>
         </div>
       </main>
 
