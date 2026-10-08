@@ -1,12 +1,12 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex flex-col">
-        <div class="flex items-center gap-2">
-          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">Super Administrator</h2>
-          <span class="px-2.5 py-1 rounded-md bg-purple-100 text-purple-800 text-xs font-black uppercase tracking-wider border border-purple-200">Master Governance</span>
+      <div class="flex flex-col min-w-0">
+        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <h2 class="text-base sm:text-2xl font-black text-slate-900 tracking-tight leading-tight truncate">Super Administrator</h2>
+          <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-purple-100 text-purple-800 text-[10px] sm:text-xs font-black uppercase tracking-wider border border-purple-200 shrink-0 hidden md:inline-block">Master Governance</span>
         </div>
-        <p class="text-xs sm:text-sm font-semibold text-slate-600 hidden sm:block mt-0.5">System Administration, User Lifecycle &amp; Audit Oversight</p>
+        <p class="text-xs sm:text-sm font-semibold text-slate-600 hidden sm:block mt-0.5 truncate">System Administration, User Lifecycle &amp; Audit Oversight</p>
       </div>
     </template>
 

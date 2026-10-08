@@ -1801,23 +1801,64 @@ const goToRegister = () => router.push({ name: 'register' });
    ============================================================ */
 @media (max-width: 480px) {
   .navbar-inner {
-    padding: 0 var(--sp-4);
-    height: 58px;
+    padding: 0 var(--sp-3);
+    height: 56px;
+    gap: var(--sp-2);
+  }
+
+  .navbar-brand {
+    gap: var(--sp-2);
+    min-width: 0;
+    overflow: hidden;
   }
 
   .navbar-logo-ring,
   .navbar-logo-bp {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .navbar-text {
+    min-width: 0;
+    overflow: hidden;
   }
 
   .navbar-title {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .navbar-subtitle {
-    font-size: 0.55rem;
+    font-size: 0.52rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+
+@media (max-width: 380px) {
+  .navbar-inner {
+    padding: 0 var(--sp-2);
+  }
+
+  .navbar-logo-bp {
+    display: none;
+  }
+
+  .navbar-logo-ring {
+    width: 32px;
+    height: 32px;
+  }
+
+  .navbar-title {
+    font-size: 0.64rem;
+  }
+
+  .navbar-subtitle {
+    display: none;
+  }
+}
 
   .hero-heading {
     font-size: clamp(1.75rem, 7.5vw, 2.25rem);

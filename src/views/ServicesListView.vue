@@ -654,18 +654,18 @@ const handleSubmit = () => {
   <div class="min-h-screen w-full bg-slate-50 font-sans">
 
     <!-- ─── NAVBAR ─── -->
-    <nav class="bg-white/95 backdrop-blur-lg border-b border-slate-200 px-4 sm:px-8 py-3 sm:py-4 flex justify-between items-center sticky top-0 z-50">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex shrink-0 items-center justify-center overflow-hidden">
+    <nav class="bg-white/95 backdrop-blur-lg border-b border-slate-200 px-3 sm:px-8 py-2.5 sm:py-4 flex justify-between items-center sticky top-0 z-50 gap-2">
+      <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <div class="w-8 h-8 sm:w-11 sm:h-11 rounded-xl flex shrink-0 items-center justify-center overflow-hidden">
           <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-contain" />
         </div>
-        <div class="flex flex-col">
-          <span class="font-black text-sm sm:text-base text-slate-900 leading-tight tracking-tight">GSO Services</span>
-          <span class="text-[8px] text-emerald-600 font-black tracking-[0.1em] uppercase hidden xs:block">GSO Services E-Ticketing</span>
+        <div class="flex flex-col min-w-0">
+          <span class="font-black text-sm sm:text-base text-slate-900 leading-tight tracking-tight truncate">GSO Services</span>
+          <span class="text-[8px] sm:text-[9px] text-emerald-600 font-black tracking-[0.1em] uppercase hidden xs:block truncate">GSO Services E-Ticketing</span>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 sm:gap-4 relative" id="user-profile-menu">
+      <div class="flex items-center gap-1.5 sm:gap-4 relative shrink-0" id="user-profile-menu">
         <div class="flex items-center gap-2 cursor-pointer select-none" @click="toggleDropdown">
           <div class="hidden sm:flex flex-col text-right">
             <p class="text-slate-900 font-bold text-sm flex items-center gap-1.5 justify-end hover:text-emerald-600 transition-colors">
@@ -674,12 +674,12 @@ const handleSubmit = () => {
             </p>
             <span class="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 uppercase">{{ userRole }}</span>
           </div>
-          <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center font-bold text-sm shrink-0">
+          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center font-bold text-xs sm:text-sm shrink-0">
             {{ userName ? userName.charAt(0).toUpperCase() : 'U' }}
           </div>
         </div>
 
-        <div v-show="isDropdownOpen" class="absolute top-14 right-0 mt-1 w-52 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-50 origin-top-right animate-dropdown-fade">
+        <div v-show="isDropdownOpen" class="absolute top-12 sm:top-14 right-0 mt-1 w-52 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-50 origin-top-right animate-dropdown-fade">
           <div class="p-3.5 border-b border-slate-100 bg-slate-50/50">
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Account</p>
             <p class="text-sm font-bold text-slate-900 truncate">{{ userName }}</p>

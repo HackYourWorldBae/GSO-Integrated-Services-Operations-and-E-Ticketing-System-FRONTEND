@@ -295,17 +295,17 @@ const handleFinalSubmit = async () => {
   <div class="min-h-screen bg-[#F8FAFC] font-sans text-slate-900 pb-20">
     
     <!-- Navbar -->
-    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 px-3 sm:px-8 py-3 sm:py-5 flex justify-between items-center sticky top-0 z-50">
-      <div class="flex items-center gap-3 sm:gap-4">
-        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex shrink-0 items-center justify-center overflow-hidden">
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 px-2.5 sm:px-8 py-2.5 sm:py-5 flex justify-between items-center sticky top-0 z-50 gap-2">
+      <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+        <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-xl flex shrink-0 items-center justify-center overflow-hidden">
           <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-contain" />
         </div>
-        <div class="flex flex-col whitespace-nowrap">
-          <span class="font-black text-base sm:text-lg text-slate-900 leading-tight tracking-tight">Service Intake</span>
-          <span class="text-[8px] text-emerald-600 font-black tracking-[0.1em] uppercase">GSO Services E-Ticketing</span>
+        <div class="flex flex-col min-w-0">
+          <span class="font-black text-sm sm:text-lg text-slate-900 leading-tight tracking-tight truncate">Service Intake</span>
+          <span class="text-[8px] sm:text-[9px] text-emerald-600 font-black tracking-[0.1em] uppercase truncate">GSO Services E-Ticketing</span>
         </div>
       </div>
-      <button @click="goBack" class="group flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-slate-500 hover:text-emerald-700 font-bold text-xs sm:text-sm transition-all duration-300">
+      <button @click="goBack" class="group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-slate-500 hover:text-emerald-700 font-bold text-xs sm:text-sm transition-all duration-300 shrink-0 min-h-[36px] sm:min-h-[44px]">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
         <span class="hidden sm:inline">Back to Selection</span><span class="sm:hidden">Back</span>
       </button>

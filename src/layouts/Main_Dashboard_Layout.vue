@@ -84,42 +84,42 @@
       </Transition>
 
       <!-- Top Navbar -->
-      <header class="min-h-20 pt-safe bg-white border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0">
-        <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+      <header class="min-h-16 sm:min-h-20 pt-safe bg-white border-b border-slate-200 flex items-center justify-between px-2.5 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0 gap-1.5 sm:gap-4">
+        <div class="flex items-center gap-1.5 sm:gap-4 flex-1 min-w-0">
           <!-- Sidebar Toggle Button (Desktop & Mobile) -->
           <button 
             @click="handleToggle" 
-            class="p-2.5 sm:p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none shadow-sm active:scale-95 shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            class="p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none shadow-xs active:scale-95 shrink-0 min-w-[38px] min-h-[38px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
             title="Toggle Sidebar"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform duration-500" :class="{ 'rotate-180': !isSidebarOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-500" :class="{ 'rotate-180': !isSidebarOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
           
           <!-- Page Title -->
-          <div class="flex items-center min-w-0">
+          <div class="flex items-center min-w-0 flex-1 overflow-hidden">
             <slot name="header-title">
-              <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight truncate">Dashboard Overview</h2>
+              <h2 class="text-base sm:text-2xl font-black text-slate-900 tracking-tight truncate">Dashboard Overview</h2>
             </slot>
           </div>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+        <div class="flex items-center gap-1 sm:gap-3 shrink-0">
           <slot name="header-actions">
             <!-- Sound Alert Toggle (Dashboard Audio Notification Chimes) -->
             <button
               type="button"
               @click="toggleSound"
               :title="soundActive ? 'Notification sound enabled (Click to mute)' : 'Notification sound muted (Click to unmute)'"
-              class="relative p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none border border-slate-200 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
+              class="relative p-2 sm:p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none border border-slate-200 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
             >
               <!-- Sound On -->
-              <svg v-if="soundActive" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-if="soundActive" xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 sm:h-5 sm:w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z" />
               </svg>
               <!-- Sound Off -->
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 sm:h-5 sm:w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
               </svg>
@@ -129,17 +129,17 @@
             <div class="relative" id="layout-notification-menu">
               <button 
                 @click="toggleNotification" 
-                class="relative p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-200 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
+                class="relative p-2 sm:p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-200 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
                 :title="unreadNotificationCount > 0 ? `${unreadNotificationCount} unread notification${unreadNotificationCount > 1 ? 's' : ''}` : 'Notifications'"
                 aria-label="Notifications"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:animate-swing" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 group-hover:animate-swing" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 <!-- Number of Notifications Badge -->
                 <span 
                   v-if="unreadNotificationCount > 0" 
-                  class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 bg-rose-600 text-white text-[11px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-transform duration-200 pointer-events-none"
+                  class="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 min-w-[18px] sm:min-w-[20px] h-4.5 sm:h-5 px-1 bg-rose-600 text-white text-[10px] sm:text-[11px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-xs transition-transform duration-200 pointer-events-none"
                 >
                   {{ unreadNotificationCount > 99 ? '99+' : unreadNotificationCount }}
                 </span>
@@ -156,7 +156,7 @@
               <Transition name="slide-up">
                 <div 
                   v-if="isNotificationOpen" 
-                  class="fixed inset-x-3 max-w-sm mx-auto top-[calc(5rem+env(safe-area-inset-top,0px)+0.5rem)] sm:absolute sm:top-full sm:right-0 sm:left-auto sm:inset-x-auto sm:mx-0 sm:mt-3 sm:w-[22rem] sm:max-w-none bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden z-50 origin-top sm:origin-top-right flex flex-col max-h-[calc(100dvh-7rem)] sm:max-h-[500px]"
+                  class="fixed inset-x-2.5 max-w-sm mx-auto top-[calc(4.5rem+env(safe-area-inset-top,0px))] sm:absolute sm:top-full sm:right-0 sm:left-auto sm:inset-x-auto sm:mx-0 sm:mt-3 sm:w-[22rem] sm:max-w-none bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden z-50 origin-top sm:origin-top-right flex flex-col max-h-[calc(100dvh-5.5rem)] sm:max-h-[500px]"
                 >
                   <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
                     <div class="flex items-center gap-2">
@@ -228,9 +228,9 @@
             <div class="relative" id="layout-user-menu">
               <button 
                 @click="toggleDropdown" 
-                class="flex items-center gap-2 p-1.5 pr-2 sm:pr-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-emerald-500/40 text-slate-900 transition-all select-none min-h-[44px] cursor-pointer"
+                class="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 pr-1.5 sm:pr-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-emerald-500/40 text-slate-900 transition-all select-none min-h-[36px] sm:min-h-[44px] cursor-pointer"
               >
-                <div class="w-9 h-9 rounded-xl overflow-hidden bg-emerald-500/10 text-emerald-700 flex items-center justify-center font-black text-sm shrink-0 border border-emerald-500/20">
+                <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-xl overflow-hidden bg-emerald-500/10 text-emerald-700 flex items-center justify-center font-black text-xs sm:text-sm shrink-0 border border-emerald-500/20">
                   <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar" class="w-full h-full object-cover" />
                   <span v-else>{{ userName ? userName.charAt(0).toUpperCase() : 'U' }}</span>
                 </div>
@@ -1006,5 +1006,46 @@ const handleLogout = () => {
 }
 .animate-swing {
   animation: swing 0.5s ease-in-out;
+}
+
+/* Responsive Navbar Slotted Title Safety */
+header :deep(.flex-col) {
+  min-width: 0;
+  overflow: hidden;
+}
+
+header :deep(h2) {
+  font-size: 0.95rem;
+  line-height: 1.25rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  header :deep(h2) {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  header :deep(h2) {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+header :deep(p) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 540px) {
+  header :deep(p) {
+    display: none !important;
+  }
 }
 </style>
