@@ -62,8 +62,8 @@
         <!-- ═══ Unified Compact Toolbar: Tabs + Search + Filter ═══ -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
           <!-- Top row: Stage Tabs -->
-          <div :class="['grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 border-b border-slate-100', isPendingOnlyMode ? 'lg:grid-cols-2' : 'lg:grid-cols-4']">
-            <!-- Tab 1: Pending Approval -->
+          <div :class="['grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 border-b border-slate-100', isPendingOnlyMode ? 'lg:grid-cols-2' : 'lg:grid-cols-3']">
+            <!-- Tab 1: Pending / Escalated Approval -->
             <button
               @click="switchTab('pending')"
               :class="[
@@ -87,7 +87,7 @@
               </span>
             </button>
 
-            <!-- Tab: Approval Delayed -->
+            <!-- Tab 2: Approval Delayed -->
             <button
               @click="switchTab('delayed')"
               :class="[
@@ -100,7 +100,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span class="truncate">Approval Delayed</span>
+              <span class="truncate">2. Approval Delayed</span>
               <span
                 :class="[
                   'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
@@ -111,55 +111,85 @@
               </span>
             </button>
 
-            <!-- Tab 2: Approved (Awaiting Dispatch) -->
-            <button
-              v-if="!isPendingOnlyMode"
-              @click="switchTab('approved')"
-              :class="[
-                'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
-                activeTab === 'approved'
-                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-              ]"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span class="truncate">2. Approved (Awaiting Dispatch)</span>
-              <span
+            <!-- Tab 3: Dropdown Switch Tab for Ticket Lists (Approved, Dispatched, Active, Borrowing) -->
+            <div v-if="!isPendingOnlyMode" ref="dropdownContainerRef" class="relative">
+              <button
+                @click="toggleTicketListDropdown"
+                type="button"
                 :class="[
-                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
-                  activeTab === 'approved' ? 'bg-white text-amber-950 font-black' : 'bg-blue-100 text-blue-950'
+                  'w-full flex items-center justify-between gap-2 px-3 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+                  isDropdownTabActive
+                    ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                 ]"
               >
-                {{ queueCounts.approved }}
-              </span>
-            </button>
+                <div class="flex items-center gap-2 min-w-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  <span class="truncate">3. {{ currentDropdownItem?.shortLabel || 'Ticket Lists' }}</span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span
+                    :class="[
+                      'px-2 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[22px] text-center shadow-xs transition-all',
+                      isDropdownTabActive ? 'bg-white text-amber-950 font-black' : 'bg-amber-100 text-amber-950'
+                    ]"
+                  >
+                    {{ currentDropdownCount }}
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 transition-transform duration-200"
+                    :class="{ 'rotate-180': isListsDropdownOpen }"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </button>
 
-            <!-- Tab 3: Dispatched & In Progress -->
-            <button
-              v-if="!isPendingOnlyMode"
-              @click="switchTab('active')"
-              :class="[
-                'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
-                activeTab === 'active'
-                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-              ]"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span class="truncate">3. Dispatched & In Progress</span>
-              <span
-                :class="[
-                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
-                  activeTab === 'active' ? 'bg-white text-amber-950 font-black' : 'bg-emerald-100 text-emerald-950'
-                ]"
+              <!-- Floating Dropdown Menu -->
+              <div
+                v-if="isListsDropdownOpen"
+                class="absolute right-0 top-full mt-1.5 w-full sm:w-80 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 p-1.5 animate-scale-up space-y-1"
               >
-                {{ queueCounts.active }}
-              </span>
-            </button>
+                <div class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Select Ticket List
+                </div>
+                <button
+                  v-for="opt in ticketListOptions"
+                  :key="opt.key"
+                  type="button"
+                  @click="selectTicketList(opt.key)"
+                  :class="[
+                    'w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all cursor-pointer group',
+                    activeTab === opt.key
+                      ? 'bg-amber-50 text-amber-950 border border-amber-200'
+                      : 'hover:bg-slate-50 text-slate-700'
+                  ]"
+                >
+                  <div class="min-w-0 pr-2">
+                    <p class="text-xs font-bold leading-tight" :class="activeTab === opt.key ? 'text-amber-950' : 'text-slate-800'">
+                      {{ opt.label }}
+                    </p>
+                    <p class="text-[10px] text-slate-400 font-medium truncate mt-0.5">
+                      {{ opt.description }}
+                    </p>
+                  </div>
+                  <span
+                    :class="[
+                      'px-2 py-0.5 rounded-md text-xs font-black shrink-0',
+                      activeTab === opt.key ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-700 group-hover:bg-slate-200'
+                    ]"
+                  >
+                    {{ opt.count }}
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Bottom row: Search + Filter + Refresh -->
@@ -255,9 +285,13 @@
                 <tr class="bg-slate-50 border-b border-slate-200">
                   <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
                   <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
-                  <th v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
-                  <th v-if="activeTab === 'delayed'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Delay Reason</th>
-                  <th v-if="activeTab === 'pending' || activeTab === 'delayed'" class="px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">Files</th>
+                  <th v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed' || activeTab === 'dispatched'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
+                  <th v-if="activeTab === 'delayed'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-amber-700">Delay Reason</th>
+                  <th v-if="activeTab === 'pending'" class="px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">Files</th>
+                  <th v-if="activeTab === 'dispatched'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Scheduled Date & Staff</th>
+                  <th v-if="activeTab === 'borrowing'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Item Requested</th>
+                  <th v-if="activeTab === 'borrowing'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Date Needed & Return</th>
+                  <th v-if="activeTab === 'borrowing'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Borrowing Status</th>
                   <th v-if="activeTab === 'active'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Elapsed Duration</th>
                   <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
                 </tr>
@@ -265,7 +299,7 @@
               <tbody class="divide-y divide-slate-100">
                 <!-- Loading State -->
                 <tr v-if="isLoading && currentTabTickets.length === 0">
-                  <td colspan="7" class="py-16 text-center">
+                  <td colspan="9" class="py-16 text-center">
                     <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                       <svg class="animate-spin h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -278,7 +312,7 @@
 
                 <!-- Empty State -->
                 <tr v-else-if="paginatedTickets.length === 0">
-                  <td colspan="7" class="py-16 text-center">
+                  <td colspan="9" class="py-16 text-center">
                     <div class="max-w-sm mx-auto flex flex-col items-center">
                       <div class="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -324,6 +358,14 @@
                       >
                         Director Review
                       </span>
+                      <span
+                        v-if="isCollabTicket(ticket)"
+                        class="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 border border-indigo-200 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-2xs"
+                        title="Cross-Unit Collaboration Ticket"
+                      >
+                        <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <span>Collab</span>
+                      </span>
                     </div>
                   </td>
 
@@ -337,8 +379,8 @@
                     </div>
                   </td>
 
-                  <!-- Location (Pending, Approved, Delayed) -->
-                  <td v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed'" class="px-3 py-2.5 whitespace-nowrap">
+                  <!-- Location (Pending, Approved, Delayed, Dispatched) -->
+                  <td v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed' || activeTab === 'dispatched'" class="px-3 py-2.5 whitespace-nowrap">
                     <div class="text-xs font-semibold text-slate-700">{{ ticket.location || 'Main Campus' }}</div>
                     <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
                   </td>
@@ -355,8 +397,8 @@
                     </div>
                   </td>
 
-                  <!-- Pending & Delayed: Files -->
-                  <td v-if="activeTab === 'pending' || activeTab === 'delayed'" class="px-2 py-2.5 text-center">
+                  <!-- Pending: Files -->
+                  <td v-if="activeTab === 'pending'" class="px-2 py-2.5 text-center">
                     <span
                       v-if="ticket.attachments && ticket.attachments.length > 0"
                       class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200 hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer"
@@ -366,6 +408,44 @@
                       {{ ticket.attachments.length }}
                     </span>
                     <span v-else class="text-[10px] text-slate-300">—</span>
+                  </td>
+
+                  <!-- Dispatched: Scheduled Date & Personnel -->
+                  <td v-if="activeTab === 'dispatched'" class="px-3 py-2.5 whitespace-nowrap">
+                    <div class="text-xs font-bold text-slate-800">
+                      {{ formatDate(ticket.assignment?.implementation_date || ticket.implementation_date) }}
+                    </div>
+                    <div class="text-[10px] text-slate-500 font-medium">
+                      {{ getAssignedWorkers(ticket).length ? `${getAssignedWorkers(ticket).length} worker(s) assigned` : (ticket.assignment?.personnel_name || 'Dispatched') }}
+                    </div>
+                  </td>
+
+                  <!-- Borrowing: Item Requested -->
+                  <td v-if="activeTab === 'borrowing'" class="px-3 py-2.5">
+                    <div class="text-xs font-black text-slate-900 truncate max-w-[200px]">
+                      {{ ticket.item_requested || ticket.item_name_requested || 'Equipment / Plant' }}
+                      <span v-if="ticket.item_model || ticket.item_model_requested" class="font-semibold text-slate-500">({{ ticket.item_model || ticket.item_model_requested }})</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500 font-medium">
+                      Qty: <span class="font-bold text-slate-800">{{ ticket.quantity || ticket.quantity_needed || 1 }} unit(s)</span>
+                    </div>
+                  </td>
+
+                  <!-- Borrowing: Schedule & Return -->
+                  <td v-if="activeTab === 'borrowing'" class="px-3 py-2.5 whitespace-nowrap">
+                    <div class="text-xs font-semibold text-slate-800">
+                      Needed: {{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}
+                    </div>
+                    <div class="text-[10px] text-slate-500 font-medium">
+                      Return: {{ formatDate(ticket.expected_return_date || ticket.borrowing?.expected_return_date) }}
+                    </div>
+                  </td>
+
+                  <!-- Borrowing: Status -->
+                  <td v-if="activeTab === 'borrowing'" class="px-3 py-2.5 whitespace-nowrap">
+                    <span :class="['px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border inline-flex items-center gap-1 shadow-2xs', borrowingStatusBadgeClass(ticket.borrowing_status || ticket.status)]">
+                      {{ formatBorrowingStatus(ticket.borrowing_status || ticket.status) }}
+                    </span>
                   </td>
 
                   <!-- Active: Elapsed Duration & Target Days -->
@@ -551,6 +631,34 @@
                       </button>
                     </div>
 
+                    <!-- Dispatched Tab Actions -->
+                    <div v-else-if="activeTab === 'dispatched'" class="flex items-center justify-end gap-2">
+                      <button
+                        @click="openDetailsModal(ticket)"
+                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>Full Info</span>
+                      </button>
+                    </div>
+
+                    <!-- Borrowing Tab Actions -->
+                    <div v-else-if="activeTab === 'borrowing'" class="flex items-center justify-end gap-2">
+                      <button
+                        @click="openDetailsModal(ticket)"
+                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>Full Info</span>
+                      </button>
+                    </div>
+
                     <!-- Active Tab Actions: Details + Grant Extension -->
                     <div v-else-if="activeTab === 'active'" class="flex items-center justify-end gap-2">
                       <button
@@ -643,22 +751,31 @@
                 </span>
                 <span class="text-xs font-semibold text-slate-800 truncate">{{ ticket.requestedBy }}</span>
               </div>
-              <span
-                v-if="ticket.is_emergency"
-                class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider shrink-0"
-              >
-                Urgent
-              </span>
-              <span
-                v-if="ticket.is_escalated_to_director"
-                class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[9px] font-black uppercase tracking-wider shrink-0 inline-flex items-center shadow-2xs"
-              >
-                Director Review
-              </span>
+              <div class="flex items-center gap-1 shrink-0 flex-wrap justify-end">
+                <span
+                  v-if="ticket.is_emergency"
+                  class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider"
+                >
+                  Urgent
+                </span>
+                <span
+                  v-if="ticket.is_escalated_to_director"
+                  class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[9px] font-black uppercase tracking-wider inline-flex items-center shadow-2xs"
+                >
+                  Director Review
+                </span>
+                <span
+                  v-if="isCollabTicket(ticket)"
+                  class="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 border border-indigo-200 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-2xs"
+                >
+                  <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                  <span>Collab</span>
+                </span>
+              </div>
             </div>
 
-            <!-- Location for Pending, Approved, and Delayed -->
-            <div v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed'" class="mt-2 flex items-center justify-between text-xs text-slate-600">
+            <!-- Location for Pending, Approved, Delayed, and Dispatched -->
+            <div v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed' || activeTab === 'dispatched'" class="mt-2 flex items-center justify-between text-xs text-slate-600">
               <div class="flex items-center gap-1.5 truncate">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -669,6 +786,28 @@
               <span v-if="ticket.attachments && ticket.attachments.length > 0" class="text-[10px] font-bold text-slate-400 shrink-0">
                 {{ ticket.attachments.length }} files
               </span>
+            </div>
+
+            <!-- Dispatched info for Dispatched tab -->
+            <div v-if="activeTab === 'dispatched'" class="mt-2 p-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+              <div class="flex items-center justify-between text-slate-700">
+                <span class="font-bold">Scheduled: {{ formatDate(ticket.assignment?.implementation_date || ticket.implementation_date) }}</span>
+                <span class="text-[10px] text-slate-500">{{ getAssignedWorkers(ticket).length ? `${getAssignedWorkers(ticket).length} worker(s)` : (ticket.assignment?.personnel_name || 'Dispatched') }}</span>
+              </div>
+            </div>
+
+            <!-- Borrowing info for Borrowing tab -->
+            <div v-if="activeTab === 'borrowing'" class="mt-2 p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/80 text-xs space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-bold text-slate-900 truncate">{{ ticket.item_requested || ticket.item_name_requested }} ({{ ticket.quantity || ticket.quantity_needed || 1 }}x)</span>
+                <span :class="['px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border shrink-0', borrowingStatusBadgeClass(ticket.borrowing_status || ticket.status)]">
+                  {{ formatBorrowingStatus(ticket.borrowing_status || ticket.status) }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-600">
+                <span>Needed: {{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}</span>
+                <span>Return: {{ formatDate(ticket.expected_return_date || ticket.borrowing?.expected_return_date) }}</span>
+              </div>
             </div>
 
             <!-- Delayed Notice for Delayed tab -->
@@ -792,6 +931,13 @@
                 Escalated to Director
               </span>
               <span
+                v-if="isCollabTicket(selectedTicketForModal)"
+                class="px-2.5 py-0.5 rounded-md bg-indigo-100 border border-indigo-300 text-indigo-800 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs"
+              >
+                <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                Cross-Unit Collab
+              </span>
+              <span
                 v-if="selectedTicketForModal.is_emergency"
                 class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider animate-pulse"
               >
@@ -812,6 +958,17 @@
 
         <!-- Scrollable Modal Body -->
         <div class="p-5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 custom-scrollbar text-xs flex-1">
+          <!-- Collab Notice Banner -->
+          <div v-if="isCollabTicket(selectedTicketForModal)" class="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-900 space-y-1.5">
+            <div class="flex items-center gap-2 font-black text-sm sm:text-base tracking-wide text-indigo-900">
+              <svg class="w-5 h-5 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              <span>Cross-Unit Collaboration Request</span>
+            </div>
+            <p class="text-xs sm:text-sm text-indigo-800 font-medium leading-relaxed">
+              This request involves cross-unit support and collaboration between GSO operational units.
+            </p>
+          </div>
+
           <!-- Escalation Notice Banner -->
           <div v-if="selectedTicketForModal.is_escalated_to_director" class="p-4 rounded-2xl bg-purple-50 border border-purple-200 text-purple-900 space-y-1.5">
             <div class="flex items-center gap-2 font-black text-sm sm:text-base tracking-wide text-purple-900">
@@ -1497,6 +1654,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { escalateTicketToDirector, deescalateTicketFromDirector } from '@/api/tickets';
+import { getBorrowingQueue } from '@/api/borrowing';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from '@/views/dashboards/director/DirectorSidebar.vue';
@@ -1518,7 +1676,7 @@ const isPendingOnlyMode = computed(() => !isDirector.value || route.path.startsW
 watch(
   isPendingOnlyMode,
   (pendingOnly) => {
-    if (pendingOnly && (activeTab.value === 'approved' || activeTab.value === 'active')) {
+    if (pendingOnly && ['approved', 'dispatched', 'active', 'borrowing'].includes(activeTab.value)) {
       activeTab.value = 'pending';
     }
   },
@@ -1543,16 +1701,128 @@ const closeDetailsModal = () => {
   clearRouteQueryTicket();
 };
 
-// 4-Stage Tab Lifecycle: Pending -> Delayed (if held) -> Approved -> Active
-const activeTab = ref('pending'); // 'pending' | 'delayed' | 'approved' | 'active'
-const queueCounts = ref({ pending: 0, delayed: 0, approved: 0, active: 0 });
+// 3 Primary Stage Tabs: Pending -> Delayed -> Dropdown Ticket List (Approved / Dispatched / Active / Borrowing)
+const activeTab = ref('pending'); // 'pending' | 'delayed' | 'approved' | 'dispatched' | 'active' | 'borrowing'
+const queueCounts = ref({ pending: 0, delayed: 0, approved: 0, dispatched: 0, active: 0, borrowing: 0 });
+
+// Dropdown Ticket List Selection
+const selectedTicketListKey = ref('approved');
+const isListsDropdownOpen = ref(false);
+const dropdownContainerRef = ref(null);
+
+const isDropdownTabActive = computed(() => {
+  return ['approved', 'dispatched', 'active', 'borrowing'].includes(activeTab.value);
+});
+
+const ticketListOptions = computed(() => [
+  {
+    key: 'approved',
+    label: 'Approved (Awaiting Dispatch)',
+    shortLabel: 'Approved (Dispatch)',
+    description: 'Awaiting personnel assignment & dispatch',
+    count: queueCounts.value.approved || 0,
+  },
+  {
+    key: 'dispatched',
+    label: 'Approved (Dispatched)',
+    shortLabel: 'Approved (Dispatched)',
+    description: 'Scheduled implementation awaiting work',
+    count: queueCounts.value.dispatched || 0,
+  },
+  {
+    key: 'active',
+    label: 'Active Tickets',
+    shortLabel: 'Active Tickets',
+    description: 'Work ongoing / in-progress with live tracking',
+    count: queueCounts.value.active || 0,
+  },
+  {
+    key: 'borrowing',
+    label: 'Borrowing Requests',
+    shortLabel: 'Borrowing Requests',
+    description: 'Equipment & plant borrowing queue',
+    count: queueCounts.value.borrowing || 0,
+  },
+]);
+
+const currentDropdownItem = computed(() => {
+  const currentKey = ['approved', 'dispatched', 'active', 'borrowing'].includes(activeTab.value)
+    ? activeTab.value
+    : selectedTicketListKey.value;
+  return ticketListOptions.value.find(opt => opt.key === currentKey) || ticketListOptions.value[0];
+});
+
+const currentDropdownCount = computed(() => currentDropdownItem.value?.count ?? 0);
+
+const toggleTicketListDropdown = () => {
+  if (!isDropdownTabActive.value) {
+    activeTab.value = selectedTicketListKey.value || 'approved';
+    isListsDropdownOpen.value = true;
+  } else {
+    isListsDropdownOpen.value = !isListsDropdownOpen.value;
+  }
+};
+
+const selectTicketList = (key) => {
+  selectedTicketListKey.value = key;
+  activeTab.value = key;
+  isListsDropdownOpen.value = false;
+  currentPage.value = 1;
+  searchQuery.value = '';
+};
+
+const handleDocumentClick = (e) => {
+  if (dropdownContainerRef.value && !dropdownContainerRef.value.contains(e.target)) {
+    isListsDropdownOpen.value = false;
+  }
+};
+
+// Collaboration helper: checks if ticket is a cross-unit collaboration
+const isCollabTicket = (ticket) => {
+  if (!ticket) return false;
+  if (ticket.is_collab || ticket.is_collaboration) return true;
+  if (ticket.collaborating_unit_code || ticket.collaborating_unit_id) return true;
+  if (Array.isArray(ticket.collaborations) && ticket.collaborations.length > 0) return true;
+  if (ticket.collaboration_status) return true;
+  if (Array.isArray(ticket.collab_assignments) && ticket.collab_assignments.length > 0) return true;
+  if (Array.isArray(ticket.other_unit_assignments) && ticket.other_unit_assignments.length > 0) return true;
+  const s = String(ticket.service || ticket.service_type || ticket.title || '').toLowerCase();
+  return s.includes('collab') || s.includes('joint');
+};
+
+// Borrowing status helpers
+const borrowingStatusBadgeClass = (status) => {
+  switch (String(status || '').toLowerCase()) {
+    case 'pending_director':
+      return 'bg-purple-50 text-purple-700 border-purple-200';
+    case 'approved_director':
+      return 'bg-blue-50 text-blue-700 border-blue-200';
+    case 'ready_for_pickup':
+      return 'bg-amber-50 text-amber-700 border-amber-200';
+    case 'picked_up':
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    case 'overdue':
+      return 'bg-rose-50 text-rose-700 border-rose-200';
+    case 'returned':
+      return 'bg-slate-50 text-slate-700 border-slate-200';
+    default:
+      return 'bg-slate-50 text-slate-700 border-slate-200';
+  }
+};
+
+const formatBorrowingStatus = (status) => {
+  if (!status) return 'Pending';
+  return String(status).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+};
 
 // Queues data cache
 const queuesData = ref({
   pending: [],
   delayed: [],
   approved: [],
+  dispatched: [],
   active: [],
+  borrowing: [],
 });
 
 const isLoading = ref(false);
@@ -1606,7 +1876,9 @@ const activeTabLabel = computed(() => {
     case 'pending': return isDirector.value ? 'Escalated for Executive Approval' : 'Pending Approval';
     case 'delayed': return 'Approval Delayed';
     case 'approved': return 'Approved (Awaiting Dispatch)';
-    case 'active': return 'Dispatched & In Progress';
+    case 'dispatched': return 'Approved (Dispatched)';
+    case 'active': return 'Active Tickets';
+    case 'borrowing': return 'Borrowing Requests';
     default: return 'Tickets';
   }
 });
@@ -1662,6 +1934,9 @@ const filteredTickets = computed(() => {
       (t.location && t.location.toLowerCase().includes(q)) ||
       (t.office_room && t.office_room.toLowerCase().includes(q)) ||
       (t.escalation_reason && t.escalation_reason.toLowerCase().includes(q)) ||
+      (t.item_requested && t.item_requested.toLowerCase().includes(q)) ||
+      (t.item_name_requested && t.item_name_requested.toLowerCase().includes(q)) ||
+      (t.borrowing_status && t.borrowing_status.toLowerCase().includes(q)) ||
       (t.assignment?.personnel_name && t.assignment.personnel_name.toLowerCase().includes(q))
     );
   }
@@ -1767,14 +2042,56 @@ const mapTicket = (t) => {
   };
 };
 
+// Map borrowing request helper
+const mapBorrowingTicket = (r) => {
+  const borrowerName = r.borrower_name || r.user_name || r.requester_name || 'Borrower';
+  return {
+    ...r,
+    id: r.ticket_id || r.id,
+    ticketId: r.ticket_id || r.id,
+    requestedBy: borrowerName,
+    requesterName: borrowerName,
+    email: r.email || r.borrower_email || '',
+    contact: r.contact || r.contact_number || r.contact_no || '',
+    contact_number: r.contact || r.contact_number || r.contact_no || '',
+    student_id_number: r.student_id_number || r.borrower_id_number || '',
+    location: r.college_building || r.office_name || r.department || r.location || 'LEAU Center',
+    office_room: r.office_room || r.room || '',
+    service: 'Borrowing Request',
+    service_type: 'Borrowing Request',
+    title: r.item_name_requested ? `Borrow: ${r.item_name_requested}` : 'Equipment Borrowing Request',
+    description: r.purpose_project || r.purpose || 'Borrowing of LEAU tools/equipment/plants',
+    item_requested: r.item_name_requested || r.item_name || 'Equipment',
+    item_name_requested: r.item_name_requested || r.item_name || 'Equipment',
+    item_model: r.item_model_requested || r.item_model || '',
+    item_model_requested: r.item_model_requested || r.item_model || '',
+    quantity: r.assigned_quantity || r.quantity_needed || 1,
+    quantity_needed: r.quantity_needed || 1,
+    assigned_quantity: r.assigned_quantity || null,
+    date_needed: r.date_needed,
+    expected_return_date: r.expected_return_date,
+    purpose_project: r.purpose_project || r.purpose || '',
+    borrowing_status: r.status,
+    status: r.status,
+    is_borrowing: true,
+    borrowing: r,
+    is_emergency: false,
+    is_escalated_to_director: false,
+    date: r.created_at || r.submitted_at
+      ? new Date(r.created_at || r.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : 'N/A',
+  };
+};
+
 const fetchAllQueues = async () => {
   isLoading.value = true;
   try {
-    const [pendingRes, delayedRes, dispatchRes, activeRes] = await Promise.allSettled([
+    const [pendingRes, delayedRes, dispatchRes, activeRes, borrowingRes] = await Promise.allSettled([
       api.get('tickets/queue/LEAU'),
       api.get('tickets/delayed-approval/LEAU'),
       api.get('tickets/dispatch/LEAU'),
       api.get('tickets/active/LEAU'),
+      getBorrowingQueue({ per_page: 500 }),
     ]);
 
     if (pendingRes.status === 'fulfilled' && pendingRes.value.data?.data?.tickets) {
@@ -1796,8 +2113,17 @@ const fetchAllQueues = async () => {
     }
 
     if (activeRes.status === 'fulfilled' && activeRes.value.data?.data?.tickets) {
-      queuesData.value.active = activeRes.value.data.data.tickets.map(mapTicket);
+      const allActive = activeRes.value.data.data.tickets.map(mapTicket);
+      queuesData.value.dispatched = allActive.filter(t => Number(t.current_step) === 4 || t.status === 'scheduled');
+      queuesData.value.active = allActive.filter(t => Number(t.current_step) !== 4 && t.status !== 'scheduled');
+      queueCounts.value.dispatched = queuesData.value.dispatched.length;
       queueCounts.value.active = queuesData.value.active.length;
+    }
+
+    if (borrowingRes.status === 'fulfilled') {
+      const bList = borrowingRes.value.data?.data?.borrowing_requests || [];
+      queuesData.value.borrowing = bList.map(mapBorrowingTicket);
+      queueCounts.value.borrowing = queuesData.value.borrowing.length;
     }
 
     updateLiveWorkingDurations();
@@ -1859,8 +2185,12 @@ const checkRouteQueryTicket = () => {
 
     if (queuesData.value.active?.some(t => String(t.id) === String(match.id))) {
       activeTab.value = isPendingOnlyMode.value ? 'pending' : 'active';
+    } else if (queuesData.value.dispatched?.some(t => String(t.id) === String(match.id))) {
+      activeTab.value = isPendingOnlyMode.value ? 'pending' : 'dispatched';
     } else if (queuesData.value.approved?.some(t => String(t.id) === String(match.id))) {
       activeTab.value = isPendingOnlyMode.value ? 'pending' : 'approved';
+    } else if (queuesData.value.borrowing?.some(t => String(t.id) === String(match.id))) {
+      activeTab.value = isPendingOnlyMode.value ? 'pending' : 'borrowing';
     } else if (queuesData.value.delayed?.some(t => String(t.id) === String(match.id))) {
       activeTab.value = 'delayed';
     } else if (queuesData.value.pending?.some(t => String(t.id) === String(match.id))) {
@@ -2179,11 +2509,13 @@ onMounted(() => {
   durationInterval = setInterval(updateLiveWorkingDurations, 60000);
   window.addEventListener('focus', handleFocusOrVisibility);
   document.addEventListener('visibilitychange', handleFocusOrVisibility);
+  document.addEventListener('click', handleDocumentClick);
 });
 
 onUnmounted(() => {
   window.removeEventListener('focus', handleFocusOrVisibility);
   document.removeEventListener('visibilitychange', handleFocusOrVisibility);
+  document.removeEventListener('click', handleDocumentClick);
   if (pollingInterval) clearInterval(pollingInterval);
   if (durationInterval) clearInterval(durationInterval);
 });
