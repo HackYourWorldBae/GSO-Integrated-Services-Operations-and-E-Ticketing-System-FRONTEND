@@ -13,7 +13,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          <span class="text">Ticket Queues</span>
+          <span class="text">Pending Approvals</span>
         </router-link>
         <router-link to="/admin/fgmu/personnel" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -43,7 +43,7 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           </router-link>
           <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">
-            {{ isDirector ? 'FGMU Ticket Queues' : 'FGMU Operations: Approvals & Queues' }}
+            {{ isDirector ? 'FGMU Ticket Queues' : 'FGMU Pending Approvals' }}
           </h2>
           <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider border border-emerald-200">
             {{ activeTabCount }} {{ activeTabLabel }}
@@ -61,7 +61,7 @@
         <!-- ═══ Unified Compact Toolbar: Tabs + Search + Filter ═══ -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
           <!-- Top row: Stage Tabs -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 p-1.5 border-b border-slate-100">
+          <div :class="['grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 border-b border-slate-100', isPendingOnlyMode ? 'lg:grid-cols-2' : 'lg:grid-cols-4']">
             <!-- Tab 1: Pending Approval -->
             <button
               @click="switchTab('pending')"
@@ -75,7 +75,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span class="truncate">1. Pending Approval</span>
+              <span class="truncate">{{ isPendingOnlyMode ? 'Pending Approval' : '1. Pending Approval' }}</span>
               <span
                 :class="[
                   'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
@@ -112,6 +112,7 @@
 
             <!-- Tab 3: Approved (Awaiting Dispatch) -->
             <button
+              v-if="!isPendingOnlyMode"
               @click="switchTab('approved')"
               :class="[
                 'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
@@ -136,6 +137,7 @@
 
             <!-- Tab 4: Dispatched & In Progress -->
             <button
+              v-if="!isPendingOnlyMode"
               @click="switchTab('active')"
               :class="[
                 'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
@@ -1401,6 +1403,17 @@ const route = useRoute();
 const router = useRouter();
 
 const isDirector = computed(() => authStore.role === 'director');
+const isPendingOnlyMode = computed(() => !isDirector.value || route.path.startsWith('/admin'));
+
+watch(
+  isPendingOnlyMode,
+  (pendingOnly) => {
+    if (pendingOnly && (activeTab.value === 'approved' || activeTab.value === 'active')) {
+      activeTab.value = 'pending';
+    }
+  },
+  { immediate: true }
+);
 
 let handledRouteQueryTicketId = null;
 let isInitialFetch = true;
@@ -1709,9 +1722,9 @@ const checkRouteQueryTicket = () => {
     selectedTicketForModal.value = match;
 
     if (queuesData.value.active?.some(t => String(t.id) === String(match.id))) {
-      activeTab.value = 'active';
+      activeTab.value = isPendingOnlyMode.value ? 'pending' : 'active';
     } else if (queuesData.value.approved?.some(t => String(t.id) === String(match.id))) {
-      activeTab.value = 'approved';
+      activeTab.value = isPendingOnlyMode.value ? 'pending' : 'approved';
     } else if (queuesData.value.delayed?.some(t => String(t.id) === String(match.id))) {
       activeTab.value = 'delayed';
     } else if (queuesData.value.pending?.some(t => String(t.id) === String(match.id))) {
