@@ -1327,41 +1327,34 @@
   <!-- ======================= ESCALATE TO DIRECTOR MODAL ======================= -->
   <Teleport to="body">
     <div v-if="showEscalateModal" class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto" @click.self="closeEscalateModal">
-      <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col my-auto overflow-hidden">
+      <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col my-auto overflow-hidden">
         <div class="p-5 sm:p-6 pb-4 border-b border-slate-100 flex items-start justify-between gap-3 bg-gradient-to-r from-purple-50/50 to-white">
           <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+            <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
             </div>
             <div>
-              <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight">Request Director Approval</h3>
-              <p class="text-xs text-slate-500 font-medium">Ticket <strong class="text-slate-800">#{{ ticketToEscalate?.ticketId }}</strong></p>
+              <h3 class="text-lg sm:text-xl font-black text-slate-900 leading-tight">Request Director Approval</h3>
+              <p class="text-sm sm:text-base text-slate-600 font-semibold mt-0.5">Ticket <strong class="text-slate-900 font-bold">#{{ ticketToEscalate?.ticketId }}</strong></p>
             </div>
           </div>
-          <button @click="closeEscalateModal" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer">
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          <button @click="closeEscalateModal" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Close modal">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
 
-        <div class="p-5 sm:p-6 space-y-4 text-xs sm:text-sm">
-          <div class="p-3.5 rounded-2xl bg-purple-50 border border-purple-200 text-purple-900 leading-relaxed">
-            <p class="font-bold text-xs">Executive Routing Policy:</p>
-            <p class="text-[11px] text-purple-800 mt-0.5">
-              Routine requests should be approved directly by the Unit Head. Escalate to the Director only for heavy structural repairs, high-cost materials, campus safety hazards, or executive decisions.
-            </p>
-          </div>
-
+        <div class="p-5 sm:p-6 space-y-5">
           <!-- Reason Presets -->
-          <div class="space-y-1.5">
-            <label class="block text-xs font-black uppercase tracking-wider text-slate-600">Select Justification Preset</label>
-            <div class="grid grid-cols-1 gap-1.5">
+          <div class="space-y-2">
+            <label class="block text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-800">Select Justification Preset</label>
+            <div class="grid grid-cols-1 gap-2">
               <button
                 v-for="preset in escalationPresets"
                 :key="preset"
                 type="button"
                 @click="selectedEscalationPreset = preset; if (preset !== 'Other / Custom Justification') escalateReasonInput = preset"
-                class="px-3 py-2 rounded-xl border text-left text-xs font-bold transition-all cursor-pointer"
-                :class="selectedEscalationPreset === preset ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'"
+                class="px-4 py-3 sm:py-3.5 rounded-xl border text-left text-sm sm:text-base font-bold transition-all cursor-pointer min-h-[48px] flex items-center"
+                :class="selectedEscalationPreset === preset ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'"
               >
                 {{ preset }}
               </button>
@@ -1369,29 +1362,29 @@
           </div>
 
           <!-- Custom Reason Textarea -->
-          <div class="space-y-1.5">
-            <label class="block text-xs font-black uppercase tracking-wider text-slate-600">
+          <div class="space-y-2">
+            <label class="block text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-800">
               Detailed Justification / Notes <span class="text-rose-500">*</span>
             </label>
             <textarea
               v-model="escalateReasonInput"
               rows="3"
               placeholder="Explain why this request requires executive Director approval..."
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+              class="w-full px-4 py-3 sm:py-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm sm:text-base font-medium leading-relaxed focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 placeholder:text-slate-400"
             ></textarea>
           </div>
         </div>
 
         <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/70 flex gap-3 shrink-0">
-          <button @click="closeEscalateModal" class="w-full px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-100 cursor-pointer">
+          <button @click="closeEscalateModal" class="w-full px-5 py-3 sm:py-3.5 bg-white border border-slate-200 text-slate-700 text-sm sm:text-base font-bold rounded-xl hover:bg-slate-100 cursor-pointer min-h-[48px]">
             Cancel
           </button>
           <button
             @click="submitEscalation"
             :disabled="isSubmittingEscalate || !escalateReasonInput.trim()"
-            class="w-full px-4 py-2.5 bg-purple-600 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-purple-600/20 hover:bg-purple-500 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-2"
+            class="w-full px-5 py-3 sm:py-3.5 bg-purple-600 text-white text-sm sm:text-base font-black uppercase tracking-wider rounded-xl shadow-lg shadow-purple-600/20 hover:bg-purple-500 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-2 min-h-[48px]"
           >
-            <svg v-if="isSubmittingEscalate" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+            <svg v-if="isSubmittingEscalate" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
             <span>{{ isSubmittingEscalate ? 'Escalating...' : 'Submit to Director' }}</span>
           </button>
         </div>
