@@ -692,10 +692,12 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { usePersonnelDashboardStore } from '@/stores/personnelDashboard';
 import { useAuthStore } from '@/stores/auth';
 
+const route = useRoute();
 const store = usePersonnelDashboardStore();
 const authStore = useAuthStore();
 
@@ -704,20 +706,21 @@ const activeTab = ref('active'); // 'active' | 'emergency' | 'completed' | 'all'
 const sortBy = ref('newest');     // 'newest' | 'date' | 'emergency'
 const selectedTicket = ref(null);
 
-onMounted(async () => {
+const loadDashboard = async () => {
   try {
-    await store.fetchDashboard();
+    const qPid = route.query.personnel_id ? String(route.query.personnel_id).trim() : null;
+    await store.fetchDashboard(qPid);
   } catch (_) {
     // Handled by store.errorMessage
   }
+};
+
+onMounted(async () => {
+  await loadDashboard();
 });
 
 const refreshData = async () => {
-  try {
-    await store.fetchDashboard();
-  } catch (_) {
-    // Handled by store.errorMessage
-  }
+  await loadDashboard();
 };
 
 const workerDisplayName = computed(() => {
@@ -753,11 +756,12 @@ const workerInitials = computed(() => {
 });
 
 const isJobCompleted = (a) => {
-  if (!a || !a.completed_at) return false;
-  if (typeof a.completed_at === 'string' && (a.completed_at.startsWith('0000-00-00') || !a.completed_at.trim())) {
-    return false;
+  if (!a) return false;
+  if (a.completed_at && typeof a.completed_at === 'string' && !a.completed_at.startsWith('0000-00-00') && a.completed_at.trim()) {
+    return true;
   }
-  return true;
+  const s = String(a.ticket_status || a.assignment_status || '').toLowerCase().trim();
+  return ['completed', 'resolved', 'closed', 'cancelled'].includes(s);
 };
 
 const emergencyCount = computed(() => {
