@@ -451,12 +451,13 @@
                       </button>
                       <button
                         @click="openDeclineModal(ticket)"
-                        class="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 transition-all cursor-pointer"
+                        class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
                         title="Decline Request"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
+                        <span>Decline</span>
                       </button>
                       <button
                         @click="initiateApproval(ticket)"
@@ -481,12 +482,13 @@
                       </button>
                       <button
                         @click="openDeclineModal(ticket)"
-                        class="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 transition-all cursor-pointer"
+                        class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
                         title="Decline Request"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
+                        <span>Decline</span>
                       </button>
                       <button
                         @click="initiateApproval(ticket)"
