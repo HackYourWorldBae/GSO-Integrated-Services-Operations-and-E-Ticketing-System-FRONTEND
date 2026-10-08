@@ -227,8 +227,7 @@
               </button>
             </div>
             <!-- Executive Status Badge (Pending tab for Director) -->
-            <div v-else-if="activeTab === 'pending' && isDirector" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold shrink-0">
-              <svg class="w-3.5 h-3.5 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <div v-else-if="activeTab === 'pending' && isDirector" class="inline-flex items-center px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold shrink-0">
               <span>Escalated for Executive Approval</span>
             </div>
             <!-- Refresh -->
@@ -317,10 +316,9 @@
                       </span>
                       <span
                         v-if="ticket.is_escalated_to_director"
-                        class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-2xs"
+                        class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[9px] font-black uppercase tracking-wider inline-flex items-center shadow-2xs"
                         :title="ticket.escalation_reason ? 'Escalated to Director: ' + ticket.escalation_reason : 'Escalated to Director for Approval'"
                       >
-                        <svg class="w-2.5 h-2.5 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         Director Review
                       </span>
                     </div>
@@ -647,9 +645,9 @@
               </span>
               <span
                 v-if="ticket.is_escalated_to_director"
-                class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[9px] font-black uppercase tracking-wider shrink-0 inline-flex items-center gap-1 shadow-2xs"
+                class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[9px] font-black uppercase tracking-wider shrink-0 inline-flex items-center shadow-2xs"
               >
-                ⭐ Director
+                Director Review
               </span>
             </div>
 
@@ -783,10 +781,9 @@
               </span>
               <span
                 v-if="selectedTicketForModal.is_escalated_to_director"
-                class="px-2.5 py-0.5 rounded-md bg-purple-100 border border-purple-300 text-purple-800 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs"
+                class="px-2.5 py-0.5 rounded-md bg-purple-100 border border-purple-300 text-purple-800 text-[10px] font-black uppercase tracking-wider flex items-center shadow-2xs"
               >
-                <svg class="w-3 h-3 text-purple-700" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                ⭐ Escalated to Director
+                Escalated to Director
               </span>
               <span
                 v-if="selectedTicketForModal.is_emergency"
@@ -812,7 +809,6 @@
           <!-- Escalation Notice Banner -->
           <div v-if="selectedTicketForModal.is_escalated_to_director" class="p-4 rounded-2xl bg-purple-50 border border-purple-200 text-purple-900 space-y-1.5">
             <div class="flex items-center gap-2 font-black text-sm sm:text-base tracking-wide text-purple-900">
-              <svg class="w-5 h-5 text-purple-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
               <span>Escalated to Director for Executive Approval</span>
             </div>
             <p class="text-xs sm:text-sm text-purple-900 font-bold leading-relaxed">
