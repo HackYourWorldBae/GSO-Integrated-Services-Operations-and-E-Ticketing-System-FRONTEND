@@ -212,7 +212,7 @@
                 class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1"
                 :class="selectedEscalationFilter === 'escalated' ? 'bg-purple-600 text-white shadow-xs' : 'text-purple-700 hover:text-purple-900'"
               >
-                <span>⭐ Escalated</span>
+                <span>Escalated</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black" :class="selectedEscalationFilter === 'escalated' ? 'bg-purple-800 text-white' : 'bg-purple-200 text-purple-900'">
                   {{ escalatedPendingCount }}
                 </span>
