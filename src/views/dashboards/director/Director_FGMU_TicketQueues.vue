@@ -75,7 +75,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span class="truncate">{{ isPendingOnlyMode ? 'Pending Approval' : '1. Pending Approval' }}</span>
+              <span class="truncate">{{ isPendingOnlyMode ? 'Pending Approval' : (isDirector ? '1. Escalated Approvals' : '1. Pending Approval') }}</span>
               <span
                 :class="[
                   'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
@@ -196,8 +196,8 @@
               <option value="">All Services</option>
               <option v-for="service in serviceCategories" :key="service" :value="service">{{ service }}</option>
             </select>
-            <!-- Escalation Filter Pills (Pending tab only) -->
-            <div v-if="activeTab === 'pending'" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0">
+            <!-- Escalation Filter Pills (Pending tab only, for Unit Head) -->
+            <div v-if="activeTab === 'pending' && !isDirector" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0">
               <button
                 type="button"
                 @click="selectedEscalationFilter = 'all'; currentPage = 1"
@@ -225,6 +225,11 @@
               >
                 Routine
               </button>
+            </div>
+            <!-- Executive Status Badge (Pending tab for Director) -->
+            <div v-else-if="activeTab === 'pending' && isDirector" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold shrink-0">
+              <svg class="w-3.5 h-3.5 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <span>Escalated for Executive Approval</span>
             </div>
             <!-- Refresh -->
             <button
@@ -279,7 +284,9 @@
                         </svg>
                       </div>
                       <p class="text-sm font-bold text-slate-700">No Tickets in {{ activeTabLabel }}</p>
-                      <p class="text-xs text-slate-400 mt-1">There are no records matching your current filter criteria.</p>
+                      <p class="text-xs text-slate-400 mt-1">
+                        {{ isDirector && activeTab === 'pending' ? 'No tickets currently escalated for Director approval.' : 'There are no records matching your current filter criteria.' }}
+                      </p>
                     </div>
                   </td>
                 </tr>
@@ -609,7 +616,9 @@
 
           <div v-else-if="paginatedTickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
             <p class="text-sm font-bold text-slate-600">No Tickets in {{ activeTabLabel }}</p>
-            <p class="text-xs text-slate-400 mt-1">No matching records found.</p>
+            <p class="text-xs text-slate-400 mt-1">
+              {{ isDirector && activeTab === 'pending' ? 'No tickets currently escalated for Director approval.' : 'No matching records found.' }}
+            </p>
           </div>
 
           <div
@@ -1469,7 +1478,7 @@ const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 
-const isDirector = computed(() => authStore.role === 'director');
+const isDirector = computed(() => authStore.role === 'director' || route.path.startsWith('/director'));
 const isPendingOnlyMode = computed(() => !isDirector.value || route.path.startsWith('/admin'));
 
 watch(
@@ -1557,7 +1566,7 @@ const activeTabCount = computed(() => queueCounts.value[activeTab.value] || 0);
 
 const activeTabLabel = computed(() => {
   switch (activeTab.value) {
-    case 'pending': return 'Pending Approval';
+    case 'pending': return isDirector.value ? 'Escalated for Executive Approval' : 'Pending Approval';
     case 'delayed': return 'Approval Delayed';
     case 'approved': return 'Approved (Awaiting Dispatch)';
     case 'active': return 'Dispatched & In Progress';
@@ -1565,7 +1574,13 @@ const activeTabLabel = computed(() => {
   }
 });
 
-const currentTabTickets = computed(() => queuesData.value[activeTab.value] || []);
+const currentTabTickets = computed(() => {
+  const list = queuesData.value[activeTab.value] || [];
+  if (isDirector.value && activeTab.value === 'pending') {
+    return list.filter(t => t.is_escalated_to_director);
+  }
+  return list;
+});
 
 const serviceCategories = computed(() => {
   const set = new Set(FGMU_SERVICES);
@@ -1579,11 +1594,15 @@ const serviceCategories = computed(() => {
 const filteredTickets = computed(() => {
   let list = currentTabTickets.value;
 
-  if (activeTab.value === 'pending' && selectedEscalationFilter.value !== 'all') {
-    if (selectedEscalationFilter.value === 'escalated') {
+  if (activeTab.value === 'pending') {
+    if (isDirector.value) {
       list = list.filter(t => t.is_escalated_to_director);
-    } else if (selectedEscalationFilter.value === 'routine') {
-      list = list.filter(t => !t.is_escalated_to_director);
+    } else if (selectedEscalationFilter.value !== 'all') {
+      if (selectedEscalationFilter.value === 'escalated') {
+        list = list.filter(t => t.is_escalated_to_director);
+      } else if (selectedEscalationFilter.value === 'routine') {
+        list = list.filter(t => !t.is_escalated_to_director);
+      }
     }
   }
 
@@ -1712,7 +1731,10 @@ const fetchAllQueues = async () => {
     ]);
 
     if (pendingRes.status === 'fulfilled' && pendingRes.value.data?.data?.tickets) {
-      queuesData.value.pending = pendingRes.value.data.data.tickets.map(mapTicket);
+      const allPending = pendingRes.value.data.data.tickets.map(mapTicket);
+      queuesData.value.pending = isDirector.value
+        ? allPending.filter(t => t.is_escalated_to_director)
+        : allPending;
       queueCounts.value.pending = queuesData.value.pending.length;
     }
 
