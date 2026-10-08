@@ -261,6 +261,39 @@
             <div v-else-if="activeTab === 'pending' && isDirector" class="inline-flex items-center px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold shrink-0">
               <span>Escalated for Executive Approval</span>
             </div>
+            <!-- Borrowing Sub-filter Pills (Borrowing tab: Active tickets only) -->
+            <div v-else-if="activeTab === 'borrowing'" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0 flex-wrap">
+              <button
+                type="button"
+                @click="selectedBorrowingFilter = 'all'; currentPage = 1"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer"
+                :class="selectedBorrowingFilter === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+              >
+                All Active ({{ borrowingActiveCount }})
+              </button>
+              <button
+                type="button"
+                @click="selectedBorrowingFilter = 'pickups'; currentPage = 1"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1"
+                :class="selectedBorrowingFilter === 'pickups' ? 'bg-amber-600 text-white shadow-xs' : 'text-amber-800 hover:text-amber-950'"
+              >
+                <span>Pending Pickups</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black" :class="selectedBorrowingFilter === 'pickups' ? 'bg-amber-800 text-white' : 'bg-amber-200 text-amber-900'">
+                  {{ borrowingPickupsCount }}
+                </span>
+              </button>
+              <button
+                type="button"
+                @click="selectedBorrowingFilter = 'returns'; currentPage = 1"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1"
+                :class="selectedBorrowingFilter === 'returns' ? 'bg-emerald-600 text-white shadow-xs' : 'text-emerald-800 hover:text-emerald-950'"
+              >
+                <span>Awaiting Return</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black" :class="selectedBorrowingFilter === 'returns' ? 'bg-emerald-800 text-white' : 'bg-emerald-200 text-emerald-900'">
+                  {{ borrowingReturnsCount }}
+                </span>
+              </button>
+            </div>
             <!-- Refresh -->
             <button
               @click="fetchAllQueues"
@@ -321,7 +354,11 @@
                       </div>
                       <p class="text-sm font-bold text-slate-700">No Tickets in {{ activeTabLabel }}</p>
                       <p class="text-xs text-slate-400 mt-1">
-                        {{ isDirector && activeTab === 'pending' ? 'No tickets currently escalated for Director approval.' : 'There are no records matching your current filter criteria.' }}
+                        {{ isDirector && activeTab === 'pending'
+                          ? 'No tickets currently escalated for Director approval.'
+                          : (activeTab === 'borrowing'
+                              ? 'No active borrowing requests (pending pickups or awaiting return).'
+                              : 'There are no records matching your current filter criteria.') }}
                       </p>
                     </div>
                   </td>
@@ -729,7 +766,11 @@
           <div v-else-if="paginatedTickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
             <p class="text-sm font-bold text-slate-600">No Tickets in {{ activeTabLabel }}</p>
             <p class="text-xs text-slate-400 mt-1">
-              {{ isDirector && activeTab === 'pending' ? 'No tickets currently escalated for Director approval.' : 'No matching records found.' }}
+              {{ isDirector && activeTab === 'pending'
+                ? 'No tickets currently escalated for Director approval.'
+                : (activeTab === 'borrowing'
+                    ? 'No active borrowing requests (pending pickups or awaiting return).'
+                    : 'No matching records found.') }}
             </p>
           </div>
 
@@ -1740,7 +1781,7 @@ const ticketListOptions = computed(() => [
     key: 'borrowing',
     label: 'Borrowing Requests',
     shortLabel: 'Borrowing Requests',
-    description: 'Equipment & plant borrowing queue',
+    description: 'Pending pickups & awaiting return (active)',
     count: queueCounts.value.borrowing || 0,
   },
 ]);
@@ -1769,6 +1810,7 @@ const selectTicketList = (key) => {
   isListsDropdownOpen.value = false;
   currentPage.value = 1;
   searchQuery.value = '';
+  selectedBorrowingFilter.value = 'all';
 };
 
 const handleDocumentClick = (e) => {
@@ -1790,13 +1832,13 @@ const isCollabTicket = (ticket) => {
   return s.includes('collab') || s.includes('joint');
 };
 
-// Borrowing status helpers
+// Borrowing status helpers (Active statuses: Pending Pickups & Awaiting Return)
 const borrowingStatusBadgeClass = (status) => {
   switch (String(status || '').toLowerCase()) {
-    case 'pending_director':
-      return 'bg-purple-50 text-purple-700 border-purple-200';
     case 'approved_director':
       return 'bg-blue-50 text-blue-700 border-blue-200';
+    case 'inventory_assigned':
+      return 'bg-sky-50 text-sky-700 border-sky-200';
     case 'ready_for_pickup':
       return 'bg-amber-50 text-amber-700 border-amber-200';
     case 'picked_up':
@@ -1811,9 +1853,32 @@ const borrowingStatusBadgeClass = (status) => {
 };
 
 const formatBorrowingStatus = (status) => {
-  if (!status) return 'Pending';
+  const s = String(status || '').toLowerCase();
+  if (s === 'ready_for_pickup') return 'Ready for Pickup';
+  if (s === 'inventory_assigned') return 'Inventory Assigned';
+  if (s === 'approved_director') return 'Approved (Prepping)';
+  if (s === 'picked_up') return 'In Use (Awaiting Return)';
+  if (s === 'overdue') return 'Overdue Return';
+  if (s === 'returned') return 'Returned';
   return String(status).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 };
+
+// Borrowing sub-filter state for Active Borrowing list
+const selectedBorrowingFilter = ref('all'); // 'all' | 'pickups' | 'returns'
+
+const borrowingActiveCount = computed(() => (queuesData.value.borrowing || []).length);
+
+const borrowingPickupsCount = computed(() => {
+  return (queuesData.value.borrowing || []).filter(t => 
+    ['ready_for_pickup', 'inventory_assigned', 'approved_director'].includes(String(t.status || t.borrowing_status).toLowerCase())
+  ).length;
+});
+
+const borrowingReturnsCount = computed(() => {
+  return (queuesData.value.borrowing || []).filter(t => 
+    ['picked_up', 'overdue'].includes(String(t.status || t.borrowing_status).toLowerCase())
+  ).length;
+});
 
 // Queues data cache
 const queuesData = ref({
@@ -1915,6 +1980,18 @@ const filteredTickets = computed(() => {
     }
   }
 
+  if (activeTab.value === 'borrowing' && selectedBorrowingFilter.value !== 'all') {
+    if (selectedBorrowingFilter.value === 'pickups') {
+      list = list.filter(t => 
+        ['ready_for_pickup', 'inventory_assigned', 'approved_director'].includes(String(t.status || t.borrowing_status).toLowerCase())
+      );
+    } else if (selectedBorrowingFilter.value === 'returns') {
+      list = list.filter(t => 
+        ['picked_up', 'overdue'].includes(String(t.status || t.borrowing_status).toLowerCase())
+      );
+    }
+  }
+
   if (selectedServiceFilter.value) {
     const target = selectedServiceFilter.value.trim().toLowerCase();
     list = list.filter(t => {
@@ -1969,6 +2046,7 @@ const switchTab = (tab) => {
   currentPage.value = 1;
   searchQuery.value = '';
   selectedEscalationFilter.value = 'all';
+  selectedBorrowingFilter.value = 'all';
   clearRouteQueryTicket();
 };
 
@@ -2122,7 +2200,12 @@ const fetchAllQueues = async () => {
 
     if (borrowingRes.status === 'fulfilled') {
       const bList = borrowingRes.value.data?.data?.borrowing_requests || [];
-      queuesData.value.borrowing = bList.map(mapBorrowingTicket);
+      // Only active tickets: pending pickups and awaiting return (excludes history / logs: returned, cancelled)
+      const activeBorrowingList = bList.filter(r => {
+        const s = String(r.status || '').toLowerCase();
+        return ['ready_for_pickup', 'inventory_assigned', 'approved_director', 'picked_up', 'overdue'].includes(s);
+      });
+      queuesData.value.borrowing = activeBorrowingList.map(mapBorrowingTicket);
       queueCounts.value.borrowing = queuesData.value.borrowing.length;
     }
 
