@@ -461,6 +461,18 @@
                         <span>Decline</span>
                       </button>
                       <button
+                        v-if="!isDirector && ticket.is_escalated_to_director"
+                        disabled
+                        class="px-3.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-80 select-none shadow-2xs"
+                        title="This ticket has been escalated and is awaiting the Director's executive approval."
+                      >
+                        <svg class="h-3.5 w-3.5 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Awaiting Director's Approval</span>
+                      </button>
+                      <button
+                        v-else
                         @click="initiateApproval(ticket)"
                         class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
                         :title="isDirector ? 'Executive Approve' : 'Direct Unit Head Approve'"
@@ -496,6 +508,18 @@
                         <span>Decline</span>
                       </button>
                       <button
+                        v-if="!isDirector && ticket.is_escalated_to_director"
+                        disabled
+                        class="px-3.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-80 select-none shadow-2xs"
+                        title="This ticket has been escalated and is awaiting the Director's executive approval."
+                      >
+                        <svg class="h-3.5 w-3.5 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Awaiting Director's Approval</span>
+                      </button>
+                      <button
+                        v-else
                         @click="initiateApproval(ticket)"
                         class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
                         title="Direct Approve"
@@ -668,12 +692,32 @@
                 <button v-if="!isDirector && ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Recall</button>
                 <button v-if="!isDirector" @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
                 <button @click="openDeclineModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
-                <button @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
+                <button
+                  v-if="!isDirector && ticket.is_escalated_to_director"
+                  disabled
+                  class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80"
+                >
+                  Awaiting Director's Approval
+                </button>
+                <button
+                  v-else
+                  @click="initiateApproval(ticket)"
+                  class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer"
+                >
+                  Approve
+                </button>
               </template>
 
               <!-- Delayed Actions -->
               <button v-if="activeTab === 'delayed'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
-              <button v-if="activeTab === 'delayed'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
+              <button
+                v-if="!isDirector && ticket.is_escalated_to_director"
+                disabled
+                class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80"
+              >
+                Awaiting Director's Approval
+              </button>
+              <button v-else-if="activeTab === 'delayed'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
 
               <!-- Active Actions -->
               <button v-if="activeTab === 'active'" @click="openExtensionModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Extend</button>
@@ -1033,7 +1077,21 @@
             <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
               Decline Request
             </button>
-            <button @click="initiateApproval(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-amber-600/20 transition-all cursor-pointer">
+            <button
+              v-if="!isDirector && selectedTicketForModal.is_escalated_to_director"
+              disabled
+              class="px-5 py-2.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80 flex items-center gap-1.5"
+            >
+              <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Awaiting Director's Approval</span>
+            </button>
+            <button
+              v-else
+              @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
+              class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-amber-600/20 transition-all cursor-pointer"
+            >
               Approve Request
             </button>
           </div>
@@ -1041,7 +1099,21 @@
             <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
               Decline
             </button>
-            <button @click="initiateApproval(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-amber-600/20 transition-all cursor-pointer">
+            <button
+              v-if="!isDirector && selectedTicketForModal.is_escalated_to_director"
+              disabled
+              class="px-5 py-2.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80 flex items-center gap-1.5"
+            >
+              <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Awaiting Director's Approval</span>
+            </button>
+            <button
+              v-else
+              @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
+              class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-amber-600/20 transition-all cursor-pointer"
+            >
               Approve
             </button>
           </div>
@@ -1853,6 +1925,10 @@ const openDetailsModal = async (ticket) => {
 };
 
 const initiateApproval = (ticket) => {
+  if (!isDirector.value && ticket?.is_escalated_to_director) {
+    toast.warning("This ticket has been escalated and is awaiting the Director's executive approval.");
+    return;
+  }
   ticketToApprove.value = ticket;
   isEmergencyApproval.value = Boolean(ticket?.is_emergency || ticket?.urgency === 'Emergency' || ticket?.urgency === 'High');
   showConfirmModal.value = true;
