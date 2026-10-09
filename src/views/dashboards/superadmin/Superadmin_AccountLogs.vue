@@ -196,7 +196,7 @@
                   <!-- Timestamp -->
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-xs font-bold text-slate-900">{{ formatDate(log.created_at) }}</div>
-                    <div class="text-xs font-medium text-slate-500">{{ formatTime(log.created_at) }}</div>
+                    <div class="text-xs font-medium text-slate-500">{{ formatTime(log.created_at) }} PHT</div>
                   </td>
 
                   <!-- Severity -->
@@ -309,7 +309,7 @@
                   {{ log.severity }}
                 </span>
                 <span class="text-xs text-slate-500 font-semibold">
-                  {{ formatDate(log.created_at) }} • {{ formatTime(log.created_at) }}
+                  {{ formatDate(log.created_at) }} • {{ formatTime(log.created_at) }} PHT
                 </span>
               </div>
 
@@ -516,7 +516,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { fetchAccountActivityLogs } from '@/api/superadmin';
-import { parseDateLocal } from '@/utils/workCalendar';
 
 const loading = ref(false);
 const logs = ref([]);
@@ -632,25 +631,68 @@ const formatIp = (ip) => {
   return ip.substring(0, Math.min(ip.length, 6)) + '***';
 };
 
+/**
+ * Safely parse audit log timestamp strings into Date objects.
+ * Accurately handles ISO-8601 strings and standard SQL datetime strings
+ * originating from the GSO system (Asia/Manila, UTC+8).
+ */
+const parseAuditTimestamp = (dateStr) => {
+  if (!dateStr) return null;
+  if (dateStr instanceof Date) return isNaN(dateStr.getTime()) ? null : dateStr;
+
+  const str = String(dateStr).trim();
+  if (!str) return null;
+
+  // Case 1: ISO string with explicit timezone indicator (e.g. 'Z', '+08:00', '-05:00')
+  if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(str)) {
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // Case 2: SQL datetime string without timezone (YYYY-MM-DD HH:mm:ss or YYYY-MM-DDTHH:mm:ss)
+  // Backend database and application operate in Philippine Standard Time (Asia/Manila, UTC+8)
+  const sqlMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (sqlMatch) {
+    const [, y, m, d, h, min, s] = sqlMatch;
+    const isoString = `${y}-${m}-${d}T${h}:${min}:${s || '00'}+08:00`;
+    const parsed = new Date(isoString);
+    if (!isNaN(parsed.getTime())) return parsed;
+  }
+
+  const fallback = new Date(str);
+  return isNaN(fallback.getTime()) ? null : fallback;
+};
+
 const formatDate = (dateStr) => {
   if (!dateStr) return 'N/A';
-  const d = parseDateLocal(dateStr);
+  const d = parseAuditTimestamp(dateStr);
   if (!d || isNaN(d.getTime())) return String(dateStr);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return d.toLocaleDateString('en-US', {
+    timeZone: 'Asia/Manila',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 };
 
 const formatTime = (dateStr) => {
   if (!dateStr) return '';
-  const d = parseDateLocal(dateStr);
+  const d = parseAuditTimestamp(dateStr);
   if (!d || isNaN(d.getTime())) return '';
-  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  return d.toLocaleTimeString('en-US', {
+    timeZone: 'Asia/Manila',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
 };
 
 const formatFullDateTime = (dateStr) => {
   if (!dateStr) return 'N/A';
-  const d = parseDateLocal(dateStr);
+  const d = parseAuditTimestamp(dateStr);
   if (!d || isNaN(d.getTime())) return String(dateStr);
-  return d.toLocaleString('en-US', {
+  return `${d.toLocaleString('en-US', {
+    timeZone: 'Asia/Manila',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -658,7 +700,7 @@ const formatFullDateTime = (dateStr) => {
     minute: '2-digit',
     second: '2-digit',
     hour12: true,
-  });
+  })} (PHT)`;
 };
 
 const getInitials = (first, last) => {
