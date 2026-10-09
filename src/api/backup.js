@@ -16,19 +16,24 @@ export const fetchBackups = () =>
 /**
  * Trigger an on-demand database backup and sync to Google Drive.
  * Route: POST /api/v1/superadmin/backups
- * @param {Object} [payload] - { notes: string }
+ * @param {Object} [payload] - { notes: string, category?: string }
  */
 export const createBackup = (payload = {}) =>
-  apiClient.post('/superadmin/backups', payload);
+  apiClient.post('/superadmin/backups', payload, {
+    timeout: 300000 // 5 minute timeout for full database dump, zip packaging, and cloud upload
+  });
 
 /**
- * Restore database from an existing backup entry.
+ * Restore database from an existing backup entry from selected storage.
  * Route: POST /api/v1/superadmin/backups/{id}/restore
  * @param {number|string} backupId
  * @param {string} confirmation - Must be 'CONFIRM RESTORE'
+ * @param {string} [source='auto'] - 'local' | 'google_drive' | 'auto'
  */
-export const restoreBackup = (backupId, confirmation) =>
-  apiClient.post(`/superadmin/backups/${backupId}/restore`, { confirmation });
+export const restoreBackup = (backupId, confirmation, source = 'auto') =>
+  apiClient.post(`/superadmin/backups/${backupId}/restore`, { confirmation, source }, {
+    timeout: 300000 // 5 minute timeout for cloud download, zip extraction, and database restoration
+  });
 
 /**
  * Restore database from an uploaded SQL file.
@@ -42,13 +47,14 @@ export const restoreFromUpload = (formData) =>
   });
 
 /**
- * Download a local backup .sql file.
+ * Download a local backup .sql or .zip file.
  * Route: GET /api/v1/superadmin/backups/{id}/download
  * @param {number|string} backupId
  */
 export const downloadBackup = (backupId) =>
   apiClient.get(`/superadmin/backups/${backupId}/download`, {
-    responseType: 'blob'
+    responseType: 'blob',
+    timeout: 300000 // 5 minute timeout
   });
 
 /**
@@ -57,7 +63,9 @@ export const downloadBackup = (backupId) =>
  * @param {number|string} backupId
  */
 export const syncBackupToGoogleDrive = (backupId) =>
-  apiClient.post(`/superadmin/backups/${backupId}/sync-gdrive`);
+  apiClient.post(`/superadmin/backups/${backupId}/sync-gdrive`, {}, {
+    timeout: 300000 // 5 minute timeout
+  });
 
 /**
  * Permanently delete a backup locally and from Google Drive.

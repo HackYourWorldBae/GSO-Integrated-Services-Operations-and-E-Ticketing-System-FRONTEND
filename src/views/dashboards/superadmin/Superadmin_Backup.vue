@@ -391,10 +391,87 @@
           </div>
         </div>
 
+        <!-- ======================================================== -->
+        <!-- Disaster Recovery & Backup Operations Audit Trail        -->
+        <!-- ======================================================== -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+          <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-base font-extrabold text-slate-900">Backup &amp; Disaster Recovery Activity Logs</h3>
+                <span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider border border-purple-200">
+                  {{ recentLogs.length }} Operations
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">Live chronological audit trail of all snapshots, cloud synchronizations, restorations, and purges</p>
+            </div>
+            
+            <router-link
+              to="/superadmin/logs"
+              class="self-start sm:self-auto px-3.5 py-2 rounded-xl border border-slate-200 text-purple-700 hover:text-purple-900 hover:bg-purple-50 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <span>View Full Operations Audit Trail</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </router-link>
+          </div>
+
+          <!-- Empty State -->
+          <div v-if="recentLogs.length === 0" class="p-8 text-center">
+            <p class="text-xs text-slate-400 font-medium">No backup or disaster recovery operations recorded yet.</p>
+          </div>
+
+          <!-- Logs Table -->
+          <div v-else class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50/75 border-b border-slate-200/60 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th class="py-3 px-6">Timestamp</th>
+                  <th class="py-3 px-4">Event Type</th>
+                  <th class="py-3 px-4">Initiated By</th>
+                  <th class="py-3 px-6">Details &amp; Outcome</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-xs">
+                <tr v-for="log in recentLogs" :key="log.id" class="hover:bg-slate-50/60 transition-colors">
+                  <td class="py-3 px-6 font-mono text-slate-600 whitespace-nowrap">
+                    {{ formatDate(log.created_at) }}
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <span
+                      class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border inline-flex items-center gap-1"
+                      :class="{
+                        'bg-emerald-100 text-emerald-800 border-emerald-200': log.event_type === 'SYSTEM_BACKUP_CREATED',
+                        'bg-amber-100 text-amber-800 border-amber-200': log.event_type === 'SYSTEM_RESTORE_EXECUTED',
+                        'bg-blue-100 text-blue-800 border-blue-200': log.event_type === 'SYSTEM_BACKUP_SYNCED',
+                        'bg-rose-100 text-rose-800 border-rose-200': log.event_type === 'SYSTEM_BACKUP_DELETED'
+                      }"
+                    >
+                      {{
+                        log.event_type === 'SYSTEM_BACKUP_CREATED' ? 'Snapshot Created' :
+                        log.event_type === 'SYSTEM_RESTORE_EXECUTED' ? 'System Restored' :
+                        log.event_type === 'SYSTEM_BACKUP_SYNCED' ? 'Drive Synced' :
+                        log.event_type === 'SYSTEM_BACKUP_DELETED' ? 'Snapshot Deleted' : log.event_type
+                      }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 font-semibold text-slate-700 whitespace-nowrap">
+                    {{ log.actor_name || 'System / Admin' }}
+                  </td>
+                  <td class="py-3 px-6 text-slate-600">
+                    <p class="leading-relaxed">{{ log.details }}</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
 
       <!-- ======================================================== -->
-      <!-- MODAL 1: Two-Step Safe Restore Confirmation Modal       -->
+      <!-- MODAL 1: Safe Restore with Storage Selection Modal      -->
       <!-- ======================================================== -->
       <Teleport to="body">
         <div 
@@ -413,21 +490,81 @@
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-black text-slate-900 tracking-tight">Database Restoration Warning</h3>
-                <p class="text-xs text-red-600 font-bold uppercase tracking-wider">Destructive State Rollback</p>
+                <h3 class="text-lg font-black text-slate-900 tracking-tight">System State Restoration</h3>
+                <p class="text-xs text-red-600 font-bold uppercase tracking-wider">Disaster Recovery Rollback</p>
               </div>
             </div>
 
             <div class="bg-red-50 border border-red-200/80 rounded-2xl p-4 text-xs text-red-900 space-y-2 leading-relaxed">
               <p>
-                You are about to roll back the entire MySQL database to the state recorded in snapshot:
+                You are about to restore the system state from snapshot:
               </p>
               <div class="p-2.5 bg-white/80 rounded-xl border border-red-200 font-mono text-[11px] font-bold text-slate-800 break-all">
                 {{ selectedBackupForRestore.file_name }}
               </div>
               <p class="font-bold text-red-700">
-                Any tickets, accounts, logs, or attachments created after this snapshot will be permanently overwritten.
+                Warning: Current database tables and records will be replaced with data from this snapshot.
               </p>
+            </div>
+
+            <!-- Storage Source Selection -->
+            <div class="space-y-2">
+              <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                Select Storage Source to Fetch Backup:
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <!-- Local Onsite Storage Card -->
+                <div
+                  @click="selectedBackupForRestore.local_exists ? restoreStorageSource = 'local' : null"
+                  class="p-3.5 rounded-2xl border transition-all flex items-start gap-3 select-none"
+                  :class="{
+                    'border-emerald-500 bg-emerald-50/70 ring-2 ring-emerald-500/20 cursor-pointer shadow-xs': restoreStorageSource === 'local' && selectedBackupForRestore.local_exists,
+                    'border-slate-200 bg-white hover:border-slate-300 cursor-pointer': restoreStorageSource !== 'local' && selectedBackupForRestore.local_exists,
+                    'border-slate-200/60 bg-slate-50 opacity-50 cursor-not-allowed': !selectedBackupForRestore.local_exists
+                  }"
+                >
+                  <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-1">
+                      <span class="text-xs font-bold text-slate-900">Local Onsite</span>
+                      <span v-if="restoreStorageSource === 'local' && selectedBackupForRestore.local_exists" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">
+                      {{ selectedBackupForRestore.local_exists ? 'Fastest, read from server disk' : 'Local file missing' }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Google Drive Cloud Card -->
+                <div
+                  @click="selectedBackupForRestore.google_drive_status === 'uploaded' ? restoreStorageSource = 'google_drive' : null"
+                  class="p-3.5 rounded-2xl border transition-all flex items-start gap-3 select-none"
+                  :class="{
+                    'border-blue-500 bg-blue-50/70 ring-2 ring-blue-500/20 cursor-pointer shadow-xs': restoreStorageSource === 'google_drive' && selectedBackupForRestore.google_drive_status === 'uploaded',
+                    'border-slate-200 bg-white hover:border-slate-300 cursor-pointer': restoreStorageSource !== 'google_drive' && selectedBackupForRestore.google_drive_status === 'uploaded',
+                    'border-slate-200/60 bg-slate-50 opacity-50 cursor-not-allowed': selectedBackupForRestore.google_drive_status !== 'uploaded'
+                  }"
+                >
+                  <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-1">
+                      <span class="text-xs font-bold text-slate-900">Google Drive</span>
+                      <span v-if="restoreStorageSource === 'google_drive' && selectedBackupForRestore.google_drive_status === 'uploaded'" class="w-2 h-2 rounded-full bg-blue-500"></span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">
+                      {{ selectedBackupForRestore.google_drive_status === 'uploaded' ? 'Download fresh copy from Drive' : 'Not synced to Drive' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Maintenance Precaution Alert if Inactive -->
@@ -482,7 +619,7 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>{{ isRestoring ? 'Restoring Database...' : 'Execute Restoration' }}</span>
+                <span>{{ isRestoring ? 'Restoring System...' : (restoreStorageSource === 'google_drive' ? 'Restore from Google Drive' : 'Restore from Local Storage') }}</span>
               </button>
             </div>
           </div>
@@ -1071,7 +1208,7 @@
       </Teleport>
 
       <!-- ======================================================== -->
-      <!-- MODAL 5: Create Backup with Category Selection Modal    -->
+      <!-- MODAL 5: Create Unified Full System Snapshot Modal       -->
       <!-- ======================================================== -->
       <Teleport to="body">
         <div 
@@ -1085,14 +1222,14 @@
           >
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-extrabold text-slate-900">Generate Backup Snapshot</h3>
-                  <p class="text-xs text-slate-500">Select archive category and storage options</p>
+                  <h3 class="text-base font-extrabold text-slate-900">Create Full System Snapshot</h3>
+                  <p class="text-xs text-purple-700 font-bold uppercase tracking-wider">Unified Disaster Recovery Backup</p>
                 </div>
               </div>
               <button @click="showCreateBackupModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
@@ -1102,102 +1239,43 @@
               </button>
             </div>
 
-            <!-- Category Selector Radio Cards -->
-            <div class="space-y-3">
-              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                Select Backup Category <span class="text-rose-500">*</span>
-              </label>
-
-              <!-- Option 1: Database Only -->
-              <div
-                @click="backupForm.category = 'database'"
-                :class="backupForm.category === 'database' ? 'border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-500/20' : 'border-slate-200 hover:border-slate-300 bg-white'"
-                class="p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5"
-              >
-                <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7zm0 4h16M8 4v4m8-4v4" />
-                  </svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between">
-                    <h4 class="text-xs font-bold text-slate-900">Database Only (.sql)</h4>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">Fast</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                    Captures all MySQL schema, user accounts, tickets, assignments, logs, and settings.
-                  </p>
-                </div>
+            <!-- Unified Snapshot Scope Box -->
+            <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-4 text-xs text-purple-950 space-y-2.5">
+              <div class="flex items-center gap-2 font-bold text-purple-900">
+                <svg class="w-4 h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Complete Database &amp; Media Assets Snapshot</span>
               </div>
-
-              <!-- Option 2: Media Files Only -->
-              <div
-                @click="backupForm.category = 'media'"
-                :class="backupForm.category === 'media' ? 'border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-500/20' : 'border-slate-200 hover:border-slate-300 bg-white'"
-                class="p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5"
-              >
-                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between">
-                    <h4 class="text-xs font-bold text-slate-900">All Uploaded Media (.zip)</h4>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Assets</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                    Packages evidentiary ticket attachments, accomplishment reports, ID cards, and user avatars into a zip archive.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Option 3: Full System Bundle -->
-              <div
-                @click="backupForm.category = 'full'"
-                :class="backupForm.category === 'full' ? 'border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-500/20' : 'border-slate-200 hover:border-slate-300 bg-white'"
-                class="p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5"
-              >
-                <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0 mt-0.5">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between">
-                    <h4 class="text-xs font-bold text-slate-900">Full System Snapshot (.zip)</h4>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-bold">Comprehensive</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                    Complete bundle containing the entire database SQL dump + all uploaded media folders + manifest.json.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Google Drive Auto-Separation Notice -->
-            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-start gap-3">
-              <svg class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <span class="font-bold text-slate-800">Google Drive Cloud Organization:</span>
-                <p class="text-[11px] text-slate-500 mt-0.5">
-                  When synced to Google Drive, <strong>Database</strong> and <strong>Full</strong> backups are placed in the <code class="font-mono text-blue-600 bg-blue-50 px-1 py-0.5 rounded">Databases/</code> folder, while <strong>Media</strong> archives are placed in <code class="font-mono text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded">Media/</code>.
-                </p>
-              </div>
+              <p class="leading-relaxed text-purple-900/90">
+                To eliminate partial restore conflicts, all backups are created as a complete snapshot package containing:
+              </p>
+              <ul class="space-y-1.5 pl-1 font-medium text-purple-900/90">
+                <li class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
+                  <span><strong>Full MySQL Database:</strong> Schema, users, tickets, assignments, logs, and settings.</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
+                  <span><strong>All Uploaded Media:</strong> Evidentiary ticket attachments, photos, documents (<code class="bg-purple-100/80 px-1 py-0.5 rounded text-[11px] font-mono">writable/uploads/</code>).</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
+                  <span><strong>Cloud Parity:</strong> Automatically synced to Google Drive in the <code class="bg-purple-100/80 px-1 py-0.5 rounded text-[11px] font-mono">Databases/</code> folder.</span>
+                </li>
+              </ul>
             </div>
 
             <!-- Notes field -->
             <div class="space-y-1.5">
               <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                Snapshot Description / Notes
+                Snapshot Description / Notes (Optional)
               </label>
               <input
                 v-model="backupForm.notes"
                 type="text"
-                placeholder="e.g. Pre-maintenance backup before database update"
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none"
+                placeholder="e.g. Regular pre-demo system backup"
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none"
               />
             </div>
 
@@ -1214,13 +1292,13 @@
                 @click="handleGenerateBackup"
                 :disabled="isCreatingBackup"
                 type="button"
-                class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                class="px-6 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
               >
                 <svg v-if="isCreatingBackup" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>{{ isCreatingBackup ? 'Generating...' : 'Start Backup Process' }}</span>
+                <span>{{ isCreatingBackup ? 'Generating Full Snapshot...' : 'Start Full Snapshot Now' }}</span>
               </button>
             </div>
           </div>
@@ -1297,17 +1375,21 @@ const maintenanceForm = ref({
   countdown_seconds: 30
 });
 
-// Create Backup Category Modal State
+// Create Backup Modal State
 const showCreateBackupModal = ref(false);
 const backupForm = ref({
-  category: 'database',
+  category: 'full',
   notes: ''
 });
 
 // Restore Modal State
 const selectedBackupForRestore = ref(null);
 const restoreConfirmationInput = ref('');
+const restoreStorageSource = ref('local'); // 'local' | 'google_drive' | 'auto'
 const isRestoring = ref(false);
+
+// Disaster Recovery Operations Logs State
+const recentLogs = ref([]);
 
 // Google Drive Config Modal State
 const showDriveModal = ref(false);
@@ -1439,16 +1521,16 @@ const handleGenerateBackup = async () => {
   isCreatingBackup.value = true;
   try {
     const res = await createBackup({
-      category: backupForm.value.category,
+      category: 'full',
       notes: backupForm.value.notes.trim() || undefined
     });
     if (res.data?.status) {
       showCreateBackupModal.value = false;
-      toast.success(res.data.message || 'Backup snapshot created successfully!');
+      toast.success(res.data.message || 'Full system snapshot created and synced successfully!');
       await loadBackups();
     }
   } catch (err) {
-    toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to generate backup.'));
+    toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to generate full snapshot.'));
   } finally {
     isCreatingBackup.value = false;
   }
@@ -1461,6 +1543,7 @@ const loadBackups = async () => {
     if (res.data?.status) {
       backups.value = res.data.data.backups || [];
       stats.value = res.data.data.stats || {};
+      recentLogs.value = res.data.data.recent_logs || [];
       googleDrive.value = res.data.data.google_drive || {};
       driveForm.value.folderId = googleDrive.value.folder_id || '';
       oauthForm.value.folderId = googleDrive.value.folder_id || '';
@@ -1550,6 +1633,14 @@ const handleDelete = async (item) => {
 const openRestoreModal = (item) => {
   selectedBackupForRestore.value = item;
   restoreConfirmationInput.value = '';
+  // Default to Local if present on disk, otherwise Google Drive
+  if (item.local_exists) {
+    restoreStorageSource.value = 'local';
+  } else if (item.google_drive_status === 'uploaded') {
+    restoreStorageSource.value = 'google_drive';
+  } else {
+    restoreStorageSource.value = 'auto';
+  }
 };
 
 const closeRestoreModal = () => {
@@ -1566,12 +1657,16 @@ const executeRestore = async () => {
 
   isRestoring.value = true;
   try {
-    const res = await restoreBackup(selectedBackupForRestore.value.id, 'CONFIRM RESTORE');
+    const res = await restoreBackup(
+      selectedBackupForRestore.value.id,
+      'CONFIRM RESTORE',
+      restoreStorageSource.value
+    );
     if (res.data?.status) {
       closeRestoreModal();
       await Swal.fire({
         title: 'Restoration Successful!',
-        text: res.data.message || 'Database has been restored to the selected snapshot.',
+        text: res.data.message || 'System state has been restored to the selected snapshot.',
         icon: 'success',
         confirmButtonColor: '#059669'
       });

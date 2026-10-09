@@ -45,7 +45,7 @@ describe('Backup API Module', () => {
     expect(res.data.data.backups).toHaveLength(1)
   })
 
-  it('triggers on-demand database backup via POST /superadmin/backups', async () => {
+  it('triggers on-demand database backup via POST /superadmin/backups with extended timeout', async () => {
     apiClient.post.mockResolvedValueOnce({
       data: {
         status: true,
@@ -56,11 +56,13 @@ describe('Backup API Module', () => {
 
     const payload = { notes: 'Pre-maintenance snapshot' }
     const res = await createBackup(payload)
-    expect(apiClient.post).toHaveBeenCalledWith('/superadmin/backups', payload)
+    expect(apiClient.post).toHaveBeenCalledWith('/superadmin/backups', payload, {
+      timeout: 300000
+    })
     expect(res.data.status).toBe(true)
   })
 
-  it('restores database snapshot with typed confirmation', async () => {
+  it('restores database snapshot with typed confirmation and storage source', async () => {
     apiClient.post.mockResolvedValueOnce({
       data: {
         status: true,
@@ -68,9 +70,12 @@ describe('Backup API Module', () => {
       }
     })
 
-    const res = await restoreBackup(1, 'CONFIRM RESTORE')
+    const res = await restoreBackup(1, 'CONFIRM RESTORE', 'google_drive')
     expect(apiClient.post).toHaveBeenCalledWith('/superadmin/backups/1/restore', {
-      confirmation: 'CONFIRM RESTORE'
+      confirmation: 'CONFIRM RESTORE',
+      source: 'google_drive'
+    }, {
+      timeout: 300000
     })
     expect(res.data.status).toBe(true)
   })
@@ -98,7 +103,7 @@ describe('Backup API Module', () => {
     expect(res.data.status).toBe(true)
   })
 
-  it('requests backup download with blob responseType', async () => {
+  it('requests backup download with blob responseType and extended timeout', async () => {
     apiClient.get.mockResolvedValueOnce({
       data: new Blob(['-- SQL DUMP CONTENT']),
       headers: { 'content-type': 'application/sql' }
@@ -106,11 +111,12 @@ describe('Backup API Module', () => {
 
     await downloadBackup(5)
     expect(apiClient.get).toHaveBeenCalledWith('/superadmin/backups/5/download', {
-      responseType: 'blob'
+      responseType: 'blob',
+      timeout: 300000
     })
   })
 
-  it('triggers manual sync to Google Drive via POST /superadmin/backups/{id}/sync-gdrive', async () => {
+  it('triggers manual sync to Google Drive via POST /superadmin/backups/{id}/sync-gdrive with extended timeout', async () => {
     apiClient.post.mockResolvedValueOnce({
       data: {
         status: true,
@@ -119,7 +125,9 @@ describe('Backup API Module', () => {
     })
 
     const res = await syncBackupToGoogleDrive(3)
-    expect(apiClient.post).toHaveBeenCalledWith('/superadmin/backups/3/sync-gdrive')
+    expect(apiClient.post).toHaveBeenCalledWith('/superadmin/backups/3/sync-gdrive', {}, {
+      timeout: 300000
+    })
     expect(res.data.status).toBe(true)
   })
 
