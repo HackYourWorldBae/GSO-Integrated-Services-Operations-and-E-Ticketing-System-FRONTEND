@@ -44,10 +44,30 @@
           </div>
 
           <!-- Actions & Modals Trigger -->
-          <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+          <div class="flex items-center gap-2 w-full sm:w-auto shrink-0 flex-wrap sm:flex-nowrap">
+            <!-- Action Button: Archive Inactive Users (6+ months without requests or logins) -->
+            <button
+              @click="openArchiveInactiveModal"
+              class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-black uppercase tracking-wider shadow-xs transition-all flex items-center justify-center gap-2 active:scale-95 min-h-[44px] touch-manipulation cursor-pointer"
+              title="Archive users who have not requested or logged in for 6 months"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
+              <span>Archive Inactive</span>
+              <span
+                v-if="inactiveCount > 0"
+                class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-amber-200 text-amber-900 border border-amber-300 ml-0.5"
+                :title="`${inactiveCount} account(s) inactive for 6+ months`"
+              >
+                {{ inactiveCount }}
+              </span>
+            </button>
+
+            <!-- Provision User Button -->
             <button
               @click="openCreateModal"
-              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2 active:scale-95 min-h-[44px] touch-manipulation shrink-0"
+              class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2 active:scale-95 min-h-[44px] touch-manipulation shrink-0 cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -72,7 +92,7 @@
             </button>
           </div>
 
-          <!-- Role, Unit & Status Dropdowns -->
+          <!-- Role, Unit, Status Dropdowns & Option to Show Delete Button -->
           <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end shrink-0 flex-wrap sm:flex-nowrap">
             <select
               v-model="filters.role"
@@ -113,9 +133,46 @@
               <option value="Active">Active</option>
               <option value="Pending">Pending</option>
               <option value="Suspended">Suspended</option>
+              <option value="Archived">Archived</option>
               <option value="Rejected">Rejected</option>
             </select>
+
+            <!-- Option to Show / Hide Delete Buttons -->
+            <button
+              type="button"
+              @click="showDeleteActions = !showDeleteActions"
+              class="px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 min-h-[40px] touch-manipulation cursor-pointer border shrink-0"
+              :class="showDeleteActions 
+                ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-xs' 
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'"
+              :title="showDeleteActions ? 'Hide permanent deletion buttons' : 'Show permanent deletion buttons'"
+            >
+              <svg v-if="!showDeleteActions" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-600 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>{{ showDeleteActions ? 'Hide Delete' : 'Show Delete' }}</span>
+            </button>
           </div>
+        </div>
+
+        <!-- Deletion Mode Active Banner -->
+        <div v-if="showDeleteActions" class="p-3 bg-rose-50 border border-rose-200 rounded-2xl flex items-center justify-between gap-3 text-xs text-rose-800 shadow-2xs animate-fade-in">
+          <div class="flex items-center gap-2">
+            <svg class="h-4 w-4 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span class="font-medium"><strong>Deletion mode enabled:</strong> Delete buttons are unlocked on user accounts. Exercise caution as deletions are permanent.</span>
+          </div>
+          <button
+            type="button"
+            @click="showDeleteActions = false"
+            class="px-2.5 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold text-[11px] transition-colors shrink-0 cursor-pointer"
+          >
+            Lock & Hide
+          </button>
         </div>
 
         <!-- User Accounts Table / Responsive Card Stack -->
@@ -149,6 +206,7 @@
                   <th class="pb-3 px-3">Unit Affiliation</th>
                   <th class="pb-3 px-3">Verification</th>
                   <th class="pb-3 px-3">Status</th>
+                  <th class="pb-3 px-3">Session</th>
                   <th class="pb-3 px-3 text-center">Requests</th>
                   <th class="pb-3 px-3">Joined</th>
                   <th class="pb-3 px-3 text-right">Actions</th>
@@ -247,6 +305,13 @@
                         {{ user.status || 'Active' }}
                       </span>
                       <span
+                        v-if="user.is_inactive_candidate"
+                        class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1"
+                        title="Inactive: No service requests or login activity recorded for 6+ months"
+                      >
+                        6+ Mo Inactive
+                      </span>
+                      <span
                         v-if="isUserLocked(user)"
                         class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1 animate-pulse"
                         title="Account temporarily locked due to failed login attempts"
@@ -255,6 +320,62 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                         Locked
+                      </span>
+                    </div>
+                  </td>
+
+                  <!-- Live Session Tracking Column -->
+                  <td class="py-3.5 px-3">
+                    <div class="flex flex-col gap-1 items-start">
+                      <!-- Active Now / Online -->
+                      <span 
+                        v-if="user.session_status === 'online'" 
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        title="User is currently authenticated and actively using the system"
+                      >
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span>Active Now</span>
+                      </span>
+
+                      <!-- Idle -->
+                      <span 
+                        v-else-if="user.session_status === 'idle'" 
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200"
+                        :title="`Session active. ${user.session_label}`"
+                      >
+                        <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                        <span>{{ user.session_label }}</span>
+                      </span>
+
+                      <!-- Recent Session -->
+                      <span 
+                        v-else-if="user.session_status === 'recent'" 
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-slate-100 text-slate-600 border border-slate-200"
+                        :title="`Recent session. ${user.session_label}`"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span>{{ user.session_label }}</span>
+                      </span>
+
+                      <!-- Offline -->
+                      <span 
+                        v-else 
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-50 text-slate-400 border border-slate-200/60"
+                        :title="user.resolved_last_login_at ? `Last login: ${new Date(user.resolved_last_login_at).toLocaleString()}` : 'No recorded login session'"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                        <span>Offline</span>
+                      </span>
+
+                      <!-- Subtext: Relative login time -->
+                      <span v-if="user.resolved_last_login_at && user.session_status !== 'online'" class="text-[9px] text-slate-400 font-medium pl-1 truncate max-w-[130px]">
+                        Last: {{ formatRelativeDate(user.resolved_last_login_at) }}
+                      </span>
+                      <span v-else-if="!user.resolved_last_login_at" class="text-[9px] text-slate-300 italic pl-1">
+                        Never logged in
                       </span>
                     </div>
                   </td>
@@ -351,14 +472,39 @@
                           >
                             Suspend
                           </button>
+                          <button
+                            @click="openStatusModal(user, 'Archived')"
+                            class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors cursor-pointer border border-amber-200/60"
+                            title="Archive Account (Revokes sessions, blocks login, preserves records)"
+                          >
+                            Archive
+                          </button>
                         </template>
 
-                        <!-- If Suspended / Inactive -->
+                        <!-- If Suspended -->
                         <template v-else-if="user.status === 'Suspended'">
                           <button
                             @click="openStatusModal(user, 'Active')"
                             class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition-colors cursor-pointer border border-emerald-200/60"
                             title="Reactivate Account (Restore portal access)"
+                          >
+                            Reactivate
+                          </button>
+                          <button
+                            @click="openStatusModal(user, 'Archived')"
+                            class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors cursor-pointer border border-amber-200/60"
+                            title="Archive Account"
+                          >
+                            Archive
+                          </button>
+                        </template>
+
+                        <!-- If Archived -->
+                        <template v-else-if="user.status === 'Archived'">
+                          <button
+                            @click="openStatusModal(user, 'Active')"
+                            class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition-colors cursor-pointer border border-emerald-200/60"
+                            title="Reactivate Account (Restore full portal access)"
                           >
                             Reactivate
                           </button>
@@ -375,10 +521,11 @@
                           </button>
                         </template>
 
-                        <!-- Strict Multistep Delete -->
+                        <!-- Strict Multistep Delete (Hidden by default, shown when option is enabled) -->
                         <button
+                          v-if="showDeleteActions"
                           @click="openStrictDeleteModal(user)"
-                          class="px-2 py-1.5 rounded-lg bg-slate-50 hover:bg-rose-50 hover:text-rose-600 text-slate-500 font-bold text-xs transition-colors cursor-pointer border border-slate-200 hover:border-rose-200"
+                          class="px-2 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer border border-rose-200"
                           title="Strict Multistep Permanent Deletion"
                         >
                           Delete
@@ -392,7 +539,7 @@
                 </tr>
 
                 <tr v-if="users.length === 0">
-                  <td colspan="7" class="py-12 text-center text-slate-400 font-bold">
+                  <td colspan="9" class="py-12 text-center text-slate-400 font-bold">
                     No user accounts found matching your filters.
                   </td>
                 </tr>
@@ -441,6 +588,30 @@
                   </span>
                 </div>
                 <div class="flex items-center gap-1.5 flex-wrap">
+                  <!-- Mobile Live Session Badge -->
+                  <span
+                    v-if="user.session_status === 'online'"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  >
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Online</span>
+                  </span>
+                  <span
+                    v-else-if="user.session_status === 'idle'"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200"
+                  >
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    <span>Idle</span>
+                  </span>
+
+                  <span
+                    v-if="user.is_inactive_candidate"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300"
+                    title="Inactive for 6+ months"
+                  >
+                    6+ Mo Inactive
+                  </span>
+
                   <span
                     v-if="isUserLocked(user)"
                     class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1 animate-pulse"
@@ -558,7 +729,15 @@
                       Suspend
                     </button>
                     <button
-                      v-else-if="user.status === 'Suspended'"
+                      v-if="user.status === 'Active' || user.status === 'Suspended'"
+                      type="button"
+                      @click="openStatusModal(user, 'Archived')"
+                      class="py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
+                    >
+                      Archive
+                    </button>
+                    <button
+                      v-if="user.status === 'Suspended' || user.status === 'Archived'"
                       type="button"
                       @click="openStatusModal(user, 'Active')"
                       class="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
@@ -566,10 +745,12 @@
                       Reactivate
                     </button>
 
+                    <!-- Delete button in mobile: only shown if showDeleteActions is true -->
                     <button
+                      v-if="showDeleteActions"
                       type="button"
                       @click="openStrictDeleteModal(user)"
-                      class="py-2 px-3 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 border border-slate-200 text-xs font-bold transition-colors ml-auto min-h-[40px] touch-manipulation cursor-pointer"
+                      class="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-colors ml-auto min-h-[40px] touch-manipulation cursor-pointer"
                     >
                       Delete
                     </button>
@@ -1082,6 +1263,144 @@
         @deactivate-instead="handleSuspendFromDeleteModal"
         @confirm-delete="handleStrictDeleteConfirm"
       />
+
+      <!-- Archive Inactive Users Modal -->
+      <div
+        v-if="isArchiveModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
+        @click.self="closeArchiveInactiveModal"
+      >
+        <div class="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
+          <!-- Modal Header -->
+          <div class="px-6 py-5 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100 flex items-start justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-base font-black text-slate-900 tracking-tight">Archive Inactive Users</h3>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Accounts with no logins or service ticket requests for 6+ months</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              @click="closeArchiveInactiveModal"
+              :disabled="isArchivingLoading"
+              class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-white/80 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="p-6 space-y-4">
+            <!-- Informational Policy Banner -->
+            <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900 space-y-1.5">
+              <div class="flex items-center gap-2 font-bold text-amber-950">
+                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Inactivity Archive Policy (180+ Days)</span>
+              </div>
+              <p class="leading-relaxed text-slate-700">
+                Users who have not requested a service ticket or logged in for 6 months will have their active sessions revoked and portal access disabled. All historical tickets, work logs, and accountability records remain permanently intact. Accounts can be reactivated at any time.
+              </p>
+            </div>
+
+            <!-- Scanning / Loading State -->
+            <div v-if="isFetchingCandidates" class="py-12 flex flex-col items-center justify-center gap-2 text-slate-400">
+              <svg class="animate-spin h-7 w-7 text-amber-500" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span class="text-xs font-bold text-slate-500">Scanning for accounts inactive for 6+ months...</span>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else-if="inactiveCandidates.length === 0" class="py-10 text-center space-y-2">
+              <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h4 class="text-sm font-bold text-slate-900">All Accounts Are Active</h4>
+              <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                No user accounts meet the 6-month inactivity criteria. All non-archived users have active logins or recent ticket submissions.
+              </p>
+            </div>
+
+            <!-- Candidate Accounts List -->
+            <div v-else class="space-y-3">
+              <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+                <span>Accounts to be Archived ({{ inactiveCandidates.length }})</span>
+                <span class="text-[11px] text-amber-800 font-bold bg-amber-100/70 px-2 py-0.5 rounded-md border border-amber-200">
+                  6+ Months Inactive
+                </span>
+              </div>
+
+              <div class="max-h-60 overflow-y-auto custom-scrollbar border border-slate-200 rounded-2xl divide-y divide-slate-100 bg-slate-50/50">
+                <div
+                  v-for="cand in inactiveCandidates"
+                  :key="cand.id"
+                  class="p-3 flex items-center justify-between gap-3 hover:bg-white transition-colors"
+                >
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 font-bold flex items-center justify-center text-xs shrink-0 border border-amber-200">
+                      {{ cand.first_name ? cand.first_name.charAt(0).toUpperCase() : 'U' }}
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-slate-900 truncate">{{ cand.first_name }} {{ cand.last_name }}</span>
+                        <span class="text-[9px] font-black uppercase px-1.5 py-0.2 rounded border bg-slate-100 text-slate-600">
+                          {{ cand.role }}
+                        </span>
+                      </div>
+                      <div class="text-[11px] text-slate-500 truncate">{{ cand.email || 'No email' }}</div>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-200 whitespace-nowrap">
+                      ~{{ cand.inactive_months }} mo inactive
+                    </span>
+                    <div class="text-[9px] text-slate-400 mt-0.5">
+                      {{ cand.resolved_last_login_at ? 'Last login: ' + new Date(cand.resolved_last_login_at).toLocaleDateString() : 'Never logged in' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              @click="closeArchiveInactiveModal"
+              :disabled="isArchivingLoading"
+              class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              v-if="inactiveCandidates.length > 0"
+              @click="handleArchiveInactiveConfirm"
+              :disabled="isArchivingLoading"
+              class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              <svg v-if="isArchivingLoading" class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ isArchivingLoading ? 'Archiving Accounts...' : `Archive ${inactiveCandidates.length} Inactive User(s)` }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
       </Teleport>
     </template>
   </MainLayout>
@@ -1102,7 +1421,9 @@ import {
   verifyUser as apiVerifyUser,
   rejectVerification as apiRejectVerification,
   updateUserStatus as apiUpdateUserStatus,
-  unlockUser as apiUnlockUser
+  unlockUser as apiUnlockUser,
+  archiveInactiveUsers as apiArchiveInactiveUsers,
+  fetchInactiveSummary as apiFetchInactiveSummary
 } from '@/api/superadmin';
 
 const authStore = useAuthStore();
@@ -1146,6 +1467,66 @@ const fetchError = ref('');
 const inspectingUser = ref(null);
 const isInspectModalOpen = ref(false);
 const isActionLoading = ref(false);
+
+// Option to show/hide permanent delete action buttons (hidden by default for safety)
+const showDeleteActions = ref(false);
+
+// Inactive user management states (6+ months threshold)
+const inactiveCount = ref(0);
+const inactiveCandidates = ref([]);
+const isArchiveModalOpen = ref(false);
+const isFetchingCandidates = ref(false);
+const isArchivingLoading = ref(false);
+
+const formatRelativeDate = (dateStr) => {
+  if (!dateStr) return 'Never';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return 'Never';
+  const now = new Date();
+  const diffSec = Math.floor((now - d) / 1000);
+  if (diffSec < 60) return 'Just now';
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+  const days = Math.floor(diffSec / 86400);
+  if (days < 30) return `${days}d ago`;
+  if (days < 365) return `${Math.floor(days / 30)}mo ago`;
+  return `${Math.floor(days / 365)}y ago`;
+};
+
+const openArchiveInactiveModal = async () => {
+  isArchiveModalOpen.value = true;
+  isFetchingCandidates.value = true;
+  try {
+    const res = await apiFetchInactiveSummary();
+    const payload = res.data?.data || res.data || {};
+    inactiveCandidates.value = payload.candidates || [];
+    inactiveCount.value = Number(payload.count ?? inactiveCandidates.value.length);
+  } catch (err) {
+    toast.error('Failed to load inactive user account candidates.');
+  } finally {
+    isFetchingCandidates.value = false;
+  }
+};
+
+const closeArchiveInactiveModal = () => {
+  if (isArchivingLoading.value) return;
+  isArchiveModalOpen.value = false;
+};
+
+const handleArchiveInactiveConfirm = async () => {
+  if (isArchivingLoading.value) return;
+  isArchivingLoading.value = true;
+  try {
+    const res = await apiArchiveInactiveUsers();
+    toast.success(res.data?.message || 'Inactive user accounts have been successfully archived.');
+    isArchiveModalOpen.value = false;
+    await fetchUsers();
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Failed to archive inactive users.');
+  } finally {
+    isArchivingLoading.value = false;
+  }
+};
 
 const isUserVerified = (u) => {
   if (!u) return false;
@@ -1246,6 +1627,12 @@ const openStatusModal = (user, newStatus) => {
     confirmModal.title = 'Suspend User Account';
     confirmModal.message = `Are you sure you want to suspend ${fullName} (${roleName})?\n\n• All active sessions will be terminated immediately.\n• The user will be BLOCKED from logging into the portal.\n• An "Account Suspended" notice will be displayed upon login attempt.`;
     confirmModal.confirmText = 'Suspend Account';
+    confirmModal.cancelText = 'Cancel';
+    confirmModal.type = 'danger';
+  } else if (newStatus === 'Archived') {
+    confirmModal.title = 'Archive User Account';
+    confirmModal.message = `Are you sure you want to archive ${fullName} (${roleName})?\n\n• All active sessions will be terminated immediately.\n• The user will be BLOCKED from logging into the portal.\n• Historical service tickets, equipment borrowing logs, and audit records will remain safely preserved for institutional compliance.`;
+    confirmModal.confirmText = 'Archive Account';
     confirmModal.cancelText = 'Cancel';
     confirmModal.type = 'danger';
   } else if (newStatus === 'Active') {
@@ -1461,6 +1848,7 @@ const getStatusBadgeClass = (status) => {
     Active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     Pending: 'bg-amber-50 text-amber-700 border-amber-200',
     Suspended: 'bg-rose-50 text-rose-700 border-rose-200',
+    Archived: 'bg-slate-100 text-slate-700 border-slate-300',
     Rejected: 'bg-rose-50 text-rose-700 border-rose-200'
   };
   // Legacy 'Deactivated' rows (migrated to Suspended) render as Suspended
@@ -1547,6 +1935,9 @@ const fetchUsers = async () => {
     const payload = res.data?.data || res.data;
     if (payload) {
       users.value = payload.users || res.data?.users || [];
+      if (typeof payload.inactive_count !== 'undefined') {
+        inactiveCount.value = Number(payload.inactive_count);
+      }
       const pg = payload.pagination || res.data?.pagination;
       if (pg) {
         pagination.total = pg.total ?? 0;

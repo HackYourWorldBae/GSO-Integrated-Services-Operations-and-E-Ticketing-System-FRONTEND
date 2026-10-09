@@ -42,12 +42,20 @@ BEGIN
             ALTER TABLE `users` ADD COLUMN `lockout_until` DATETIME NULL DEFAULT NULL AFTER `failed_login_attempts`;
         END IF;
 
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'last_login_at') THEN
+            ALTER TABLE `users` ADD COLUMN `last_login_at` DATETIME NULL DEFAULT NULL AFTER `lockout_until`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = current_db AND table_name = 'users' AND index_name = 'idx_users_last_login') THEN
+            ALTER TABLE `users` ADD INDEX `idx_users_last_login` (`last_login_at`);
+        END IF;
+
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'email_notifications_enabled') THEN
             ALTER TABLE `users` ADD COLUMN `email_notifications_enabled` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Per-account opt-in for ticket/request email updates' AFTER `is_verified`;
         END IF;
 
-        ALTER TABLE `users` MODIFY COLUMN `role` ENUM('student','employee','admin','staff','director','superadmin') NOT NULL DEFAULT 'student';
-        ALTER TABLE `users` MODIFY COLUMN `status` ENUM('Active','Pending','Rejected','Suspended') NOT NULL DEFAULT 'Active';
+        ALTER TABLE `users` MODIFY COLUMN `role` ENUM('student','employee','admin','staff','director','superadmin','worker') NOT NULL DEFAULT 'student';
+        ALTER TABLE `users` MODIFY COLUMN `status` ENUM('Active','Pending','Rejected','Suspended','Archived') NOT NULL DEFAULT 'Active';
     END IF;
 
     -- 2. Personnel Table Upgrades
@@ -168,7 +176,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     contact_number VARCHAR(30) NULL,
-    role ENUM('student', 'employee', 'admin', 'staff', 'director', 'superadmin') DEFAULT 'student',
+    role ENUM('student', 'employee', 'admin', 'staff', 'director', 'superadmin', 'worker') DEFAULT 'student',
     unit_id INT UNSIGNED NULL,
     student_id_number VARCHAR(50) NULL,
     student_type VARCHAR(50) NULL,
@@ -178,16 +186,18 @@ CREATE TABLE IF NOT EXISTS users (
     id_card_image TEXT NULL,
     id_selfie_image TEXT NULL,
     avatar_path VARCHAR(255) NULL,
-    status ENUM('Active', 'Pending', 'Rejected', 'Suspended') NOT NULL DEFAULT 'Active',
+    status ENUM('Active', 'Pending', 'Rejected', 'Suspended', 'Archived') NOT NULL DEFAULT 'Active',
     is_verified TINYINT(1) NOT NULL DEFAULT 1,
     email_notifications_enabled TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Per-account opt-in for ticket/request email updates (SSU alerts, dispatch, etc.)',
     failed_login_attempts INT UNSIGNED NOT NULL DEFAULT 0,
     lockout_until DATETIME NULL DEFAULT NULL,
+    last_login_at DATETIME NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE SET NULL,
     INDEX idx_users_role (role),
-    INDEX idx_users_status (status)
+    INDEX idx_users_status (status),
+    INDEX idx_users_last_login (last_login_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Personnel Table

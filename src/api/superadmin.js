@@ -82,14 +82,31 @@ export const rejectVerification = (userId, reason = '') =>
   apiClient.patch(`/superadmin/users/${userId}/reject`, { reason });
 
 /**
- * Change a user's operational status (Active, Suspended, Rejected).
+ * Change a user's operational status (Active, Suspended, Rejected, Archived).
  * Route: PATCH /api/v1/superadmin/users/{id}/status
  * @param {string} userId - UUID of the user
- * @param {'Active'|'Suspended'|'Rejected'} status
+ * @param {'Active'|'Suspended'|'Rejected'|'Archived'} status
  * @returns {Promise<import('axios').AxiosResponse>}
  */
 export const updateUserStatus = (userId, status) =>
   apiClient.patch(`/superadmin/users/${userId}/status`, { status });
+
+/**
+ * Bulk archive inactive users (no requests or logins for 6+ months).
+ * Route: POST /api/v1/superadmin/users/archive-inactive
+ * @param {Object} [data]
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
+export const archiveInactiveUsers = (data = {}) =>
+  apiClient.post('/superadmin/users/archive-inactive', data);
+
+/**
+ * Fetch preview summary and candidate accounts eligible for 6-month inactivity archive.
+ * Route: GET /api/v1/superadmin/users/inactive-summary
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
+export const fetchInactiveSummary = () =>
+  apiClient.get('/superadmin/users/inactive-summary');
 
 /**
  * Manually unlock an account locked due to excessive failed login attempts.

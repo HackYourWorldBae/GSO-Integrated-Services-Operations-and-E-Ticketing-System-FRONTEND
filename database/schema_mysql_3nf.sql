@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     contact_number VARCHAR(30),
-    role ENUM('student', 'employee', 'admin', 'staff', 'director', 'superadmin') NOT NULL DEFAULT 'student',
+    role ENUM('student', 'employee', 'admin', 'staff', 'director', 'superadmin', 'worker') NOT NULL DEFAULT 'student',
     unit_id INT UNSIGNED NULL, -- NULL for students/general employees, FK for unit admins/staff
     student_id_number VARCHAR(50) NULL UNIQUE,
     student_type VARCHAR(50) NULL,
@@ -47,16 +47,18 @@ CREATE TABLE IF NOT EXISTS users (
     id_card_image TEXT NULL,
     id_selfie_image TEXT NULL,
     avatar_path VARCHAR(255) NULL,
-    status ENUM('Active', 'Pending', 'Rejected', 'Suspended') NOT NULL DEFAULT 'Active',
+    status ENUM('Active', 'Pending', 'Rejected', 'Suspended', 'Archived') NOT NULL DEFAULT 'Active',
     is_verified TINYINT(1) NOT NULL DEFAULT 1,
     email_notifications_enabled TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Per-account opt-in for ticket/request email updates (SSU alerts, dispatch, etc.)',
     failed_login_attempts INT UNSIGNED NOT NULL DEFAULT 0,
     lockout_until DATETIME NULL DEFAULT NULL,
+    last_login_at DATETIME NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_users_unit FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE SET NULL,
     INDEX idx_users_role (role),
-    INDEX idx_users_status (status)
+    INDEX idx_users_status (status),
+    INDEX idx_users_last_login (last_login_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Personnel Table (Field Staff, Plumbers, Electricians, Gardeners)
@@ -612,6 +614,20 @@ CREATE TABLE IF NOT EXISTS account_activity_logs (
     INDEX idx_act_logs_created (created_at),
     CONSTRAINT fk_act_logs_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT fk_act_logs_target FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- User Sessions (One Active Session Per User & Real-Time Presence)
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id VARCHAR(36) PRIMARY KEY,
+    user_id VARCHAR(36) NOT NULL,
+    session_id VARCHAR(64) NOT NULL,
+    ip_address VARCHAR(45) NULL,
+    user_agent VARCHAR(255) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_activity TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_user_sessions_user (user_id),
+    INDEX idx_user_sessions_sid (session_id),
+    CONSTRAINT fk_user_sessions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- System Settings
