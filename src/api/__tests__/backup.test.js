@@ -13,6 +13,7 @@ import {
   fetchBackups,
   createBackup,
   restoreBackup,
+  restoreLatestBackup,
   restoreFromUpload,
   downloadBackup,
   syncBackupToGoogleDrive,
@@ -74,6 +75,24 @@ describe('Backup API Module', () => {
     expect(apiClient.post).toHaveBeenCalledWith('/superadmin/backups/1/restore', {
       confirmation: 'CONFIRM RESTORE',
       source: 'google_drive'
+    }, {
+      timeout: 300000
+    })
+    expect(res.data.status).toBe(true)
+  })
+
+  it('restores latest snapshot via POST /superadmin/backups/restore-latest', async () => {
+    apiClient.post.mockResolvedValueOnce({
+      data: {
+        status: true,
+        message: 'Latest snapshot restored successfully.'
+      }
+    })
+
+    const res = await restoreLatestBackup('CONFIRM RESTORE', 'auto')
+    expect(apiClient.post).toHaveBeenCalledWith('/superadmin/backups/restore-latest', {
+      confirmation: 'CONFIRM RESTORE',
+      source: 'auto'
     }, {
       timeout: 300000
     })

@@ -146,6 +146,20 @@
               <span>Upload Archive / Dump</span>
             </button>
 
+            <!-- Quick Restore Latest Snapshot Button -->
+            <button
+              v-if="backups.length > 0"
+              @click="openRestoreModal(backups[0])"
+              type="button"
+              class="px-4 py-2.5 rounded-xl border border-purple-300 bg-purple-50/90 hover:bg-purple-100 text-purple-900 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+              title="Quickly recover the most recent full system snapshot"
+            >
+              <svg class="w-4 h-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Restore Latest Snapshot</span>
+            </button>
+
             <!-- Create Full Backup Now Button -->
             <button
               @click="openCreateBackupModal"
@@ -243,7 +257,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-sm">
-                <tr v-for="item in backups" :key="item.id" class="hover:bg-slate-50/60 transition-colors">
+                <tr v-for="(item, index) in backups" :key="item.id" class="hover:bg-slate-50/60 transition-colors">
                   <!-- File Info -->
                   <td class="py-4 px-6">
                     <div class="flex items-center gap-3">
@@ -255,6 +269,12 @@
                       <div>
                         <div class="font-bold text-slate-900 font-mono text-xs flex items-center gap-2 flex-wrap">
                           <span>{{ item.file_name }}</span>
+                          <span
+                            v-if="index === 0"
+                            class="px-2 py-0.5 rounded text-[10px] font-sans font-black uppercase tracking-wider bg-emerald-600 text-white shadow-xs"
+                          >
+                            LATEST
+                          </span>
                           <span
                             class="px-2 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border"
                             :class="{
@@ -499,42 +519,58 @@
               <p>
                 You are about to restore the system state from snapshot:
               </p>
-              <div class="p-2.5 bg-white/80 rounded-xl border border-red-200 font-mono text-[11px] font-bold text-slate-800 break-all">
-                {{ selectedBackupForRestore.file_name }}
+              <div class="p-2.5 bg-white/80 rounded-xl border border-red-200 font-mono text-[11px] font-bold text-slate-800 break-all flex items-center justify-between">
+                <span>{{ selectedBackupForRestore.file_name }}</span>
+                <span v-if="backups[0]?.id === selectedBackupForRestore.id" class="px-2 py-0.5 rounded text-[10px] font-sans font-black bg-emerald-600 text-white uppercase tracking-wider">LATEST</span>
               </div>
               <p class="font-bold text-red-700">
-                Warning: Current database tables and records will be replaced with data from this snapshot.
+                Notice: The system will automatically extract and restore all database tables and uploaded media assets (<code class="bg-red-100 px-1 py-0.5 rounded font-mono text-[10px]">writable/uploads/</code>).
               </p>
             </div>
 
             <!-- Storage Source Selection -->
             <div class="space-y-2">
               <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">
-                Select Storage Source to Fetch Backup:
+                Select Storage Source to Fetch Snapshot:
               </label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <!-- Auto Prefer Latest Card -->
+                <div
+                  @click="restoreStorageSource = 'auto'"
+                  class="p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2 select-none cursor-pointer"
+                  :class="{
+                    'border-purple-500 bg-purple-50/80 ring-2 ring-purple-500/20 shadow-xs': restoreStorageSource === 'auto',
+                    'border-slate-200 bg-white hover:border-slate-300': restoreStorageSource !== 'auto'
+                  }"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">Auto (Latest)</span>
+                    <span v-if="restoreStorageSource === 'auto'" class="w-2 h-2 rounded-full bg-purple-600"></span>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-slate-900 block">Auto-Resolve</span>
+                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">Compares timestamps; always restores the newest version.</p>
+                  </div>
+                </div>
+
                 <!-- Local Onsite Storage Card -->
                 <div
                   @click="selectedBackupForRestore.local_exists ? restoreStorageSource = 'local' : null"
-                  class="p-3.5 rounded-2xl border transition-all flex items-start gap-3 select-none"
+                  class="p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2 select-none"
                   :class="{
                     'border-emerald-500 bg-emerald-50/70 ring-2 ring-emerald-500/20 cursor-pointer shadow-xs': restoreStorageSource === 'local' && selectedBackupForRestore.local_exists,
                     'border-slate-200 bg-white hover:border-slate-300 cursor-pointer': restoreStorageSource !== 'local' && selectedBackupForRestore.local_exists,
                     'border-slate-200/60 bg-slate-50 opacity-50 cursor-not-allowed': !selectedBackupForRestore.local_exists
                   }"
                 >
-                  <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-                    </svg>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">Onsite Disk</span>
+                    <span v-if="restoreStorageSource === 'local' && selectedBackupForRestore.local_exists" class="w-2 h-2 rounded-full bg-emerald-500"></span>
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center justify-between gap-1">
-                      <span class="text-xs font-bold text-slate-900">Local Onsite</span>
-                      <span v-if="restoreStorageSource === 'local' && selectedBackupForRestore.local_exists" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">
-                      {{ selectedBackupForRestore.local_exists ? 'Fastest, read from server disk' : 'Local file missing' }}
+                  <div>
+                    <span class="text-xs font-bold text-slate-900 block">Local Server</span>
+                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">
+                      {{ selectedBackupForRestore.local_exists ? 'Fastest, read from local disk' : 'Local file missing' }}
                     </p>
                   </div>
                 </div>
@@ -542,24 +578,20 @@
                 <!-- Google Drive Cloud Card -->
                 <div
                   @click="selectedBackupForRestore.google_drive_status === 'uploaded' ? restoreStorageSource = 'google_drive' : null"
-                  class="p-3.5 rounded-2xl border transition-all flex items-start gap-3 select-none"
+                  class="p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2 select-none"
                   :class="{
                     'border-blue-500 bg-blue-50/70 ring-2 ring-blue-500/20 cursor-pointer shadow-xs': restoreStorageSource === 'google_drive' && selectedBackupForRestore.google_drive_status === 'uploaded',
                     'border-slate-200 bg-white hover:border-slate-300 cursor-pointer': restoreStorageSource !== 'google_drive' && selectedBackupForRestore.google_drive_status === 'uploaded',
                     'border-slate-200/60 bg-slate-50 opacity-50 cursor-not-allowed': selectedBackupForRestore.google_drive_status !== 'uploaded'
                   }"
                 >
-                  <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">Cloud Parity</span>
+                    <span v-if="restoreStorageSource === 'google_drive' && selectedBackupForRestore.google_drive_status === 'uploaded'" class="w-2 h-2 rounded-full bg-blue-500"></span>
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center justify-between gap-1">
-                      <span class="text-xs font-bold text-slate-900">Google Drive</span>
-                      <span v-if="restoreStorageSource === 'google_drive' && selectedBackupForRestore.google_drive_status === 'uploaded'" class="w-2 h-2 rounded-full bg-blue-500"></span>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">
+                  <div>
+                    <span class="text-xs font-bold text-slate-900 block">Google Drive</span>
+                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">
                       {{ selectedBackupForRestore.google_drive_status === 'uploaded' ? 'Download fresh copy from Drive' : 'Not synced to Drive' }}
                     </p>
                   </div>
@@ -1261,7 +1293,11 @@
                 </li>
                 <li class="flex items-center gap-2">
                   <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-                  <span><strong>Cloud Parity:</strong> Automatically synced to Google Drive in the <code class="bg-purple-100/80 px-1 py-0.5 rounded text-[11px] font-mono">Databases/</code> folder.</span>
+                  <span><strong>Cloud Parity:</strong> Automatically synced to your Google Drive main folder (direct snapshot storage with no subfolders).</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
+                  <span><strong>Direct Restoration:</strong> Automatic archive extraction restoring schema, rows, and media assets with latest-version priority.</span>
                 </li>
               </ul>
             </div>
@@ -1633,14 +1669,8 @@ const handleDelete = async (item) => {
 const openRestoreModal = (item) => {
   selectedBackupForRestore.value = item;
   restoreConfirmationInput.value = '';
-  // Default to Local if present on disk, otherwise Google Drive
-  if (item.local_exists) {
-    restoreStorageSource.value = 'local';
-  } else if (item.google_drive_status === 'uploaded') {
-    restoreStorageSource.value = 'google_drive';
-  } else {
-    restoreStorageSource.value = 'auto';
-  }
+  // Default to Auto-Resolve to always prefer the latest snapshot version
+  restoreStorageSource.value = 'auto';
 };
 
 const closeRestoreModal = () => {

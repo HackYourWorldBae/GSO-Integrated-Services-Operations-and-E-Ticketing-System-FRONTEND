@@ -36,6 +36,17 @@ export const restoreBackup = (backupId, confirmation, source = 'auto') =>
   });
 
 /**
+ * Restore the latest snapshot from selected storage (Local or Google Drive).
+ * Route: POST /api/v1/superadmin/backups/restore-latest
+ * @param {string} confirmation - Must be 'CONFIRM RESTORE'
+ * @param {string} [source='auto'] - 'local' | 'google_drive' | 'auto'
+ */
+export const restoreLatestBackup = (confirmation, source = 'auto') =>
+  apiClient.post('/superadmin/backups/restore-latest', { confirmation, source }, {
+    timeout: 300000 // 5 minute timeout
+  });
+
+/**
  * Restore database from an uploaded SQL file.
  * Route: POST /api/v1/superadmin/backups/restore-upload
  * @param {FormData} formData - Contains backup_file and confirmation
