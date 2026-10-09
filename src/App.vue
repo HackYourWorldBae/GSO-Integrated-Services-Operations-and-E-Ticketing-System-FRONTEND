@@ -4,6 +4,7 @@ import { RouterView } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useIdleTimeout } from '@/composables/useIdleTimeout';
 import IdleTimeoutModal from '@/components/IdleTimeoutModal.vue';
+import MaintenanceEvictionModal from '@/components/MaintenanceEvictionModal.vue';
 
 const authStore = useAuthStore();
 const { isWarningVisible, remainingSeconds, stayLoggedIn, logoutNow } = useIdleTimeout();
@@ -31,5 +32,11 @@ onUnmounted(() => {
     :remaining-seconds="remainingSeconds"
     @stay-logged-in="stayLoggedIn"
     @logout="logoutNow"
+  />
+  <MaintenanceEvictionModal
+    :is-open="authStore.showMaintenanceModal"
+    :remaining-seconds="authStore.maintenanceCountdown"
+    :message="authStore.maintenanceMessage"
+    @logout="authStore.executeEvictionLogout"
   />
 </template>

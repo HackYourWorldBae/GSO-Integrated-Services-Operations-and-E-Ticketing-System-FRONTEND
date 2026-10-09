@@ -96,6 +96,31 @@
           </div>
 
           <div class="flex items-center flex-wrap gap-2.5 w-full md:w-auto">
+            <!-- Maintenance Mode Status & Precaution Button -->
+            <button
+              v-if="maintenance.active"
+              @click="confirmDeactivateMaintenance"
+              :disabled="isUpdatingMaintenance"
+              type="button"
+              class="px-4 py-2.5 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs animate-pulse"
+              title="Click to turn off emergency maintenance and allow user logins"
+            >
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+              <span>Maintenance ACTIVE (Turn Off)</span>
+            </button>
+            <button
+              v-else
+              @click="openMaintenancePrecautionModal"
+              type="button"
+              class="px-4 py-2.5 rounded-xl border border-amber-300 bg-amber-50/80 hover:bg-amber-100 text-amber-900 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+              title="Activate website maintenance mode with live user countdown & eviction"
+            >
+              <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>Website in Maintenance</span>
+            </button>
+
             <!-- Configure Google Drive Button -->
             <button
               @click="openDriveConfigModal"
@@ -109,7 +134,7 @@
               <span>Drive Settings</span>
             </button>
 
-            <!-- Upload SQL Dump Button -->
+            <!-- Upload SQL / ZIP Dump Button -->
             <button
               @click="openUploadModal"
               type="button"
@@ -118,12 +143,12 @@
               <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
-              <span>Upload .SQL Dump</span>
+              <span>Upload Archive / Dump</span>
             </button>
 
             <!-- Create Full Backup Now Button -->
             <button
-              @click="handleCreateBackup"
+              @click="openCreateBackupModal"
               :disabled="isCreatingBackup"
               type="button"
               class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
@@ -135,7 +160,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span>{{ isCreatingBackup ? 'Generating Backup...' : 'Create Backup Now' }}</span>
+              <span>{{ isCreatingBackup ? 'Generating Backup...' : 'Create Backup Snapshot' }}</span>
             </button>
           </div>
         </div>
@@ -228,13 +253,23 @@
                         </svg>
                       </div>
                       <div>
-                        <div class="font-bold text-slate-900 font-mono text-xs flex items-center gap-2">
+                        <div class="font-bold text-slate-900 font-mono text-xs flex items-center gap-2 flex-wrap">
                           <span>{{ item.file_name }}</span>
-                          <span class="px-2 py-0.5 rounded text-[10px] font-sans font-semibold uppercase tracking-wider" :class="item.backup_type === 'manual' ? 'bg-slate-100 text-slate-700' : 'bg-blue-100 text-blue-700'">
+                          <span
+                            class="px-2 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border"
+                            :class="{
+                              'bg-purple-100 text-purple-700 border-purple-200': item.backup_category === 'full',
+                              'bg-emerald-100 text-emerald-700 border-emerald-200': item.backup_category === 'media',
+                              'bg-blue-100 text-blue-700 border-blue-200': !item.backup_category || item.backup_category === 'database'
+                            }"
+                          >
+                            {{ item.backup_category === 'full' ? 'Full System' : (item.backup_category === 'media' ? 'Media Zip' : 'Database Dump') }}
+                          </span>
+                          <span class="px-2 py-0.5 rounded text-[10px] font-sans font-semibold uppercase tracking-wider bg-slate-100 text-slate-700">
                             {{ item.backup_type }}
                           </span>
                         </div>
-                        <p class="text-xs text-slate-500 mt-0.5">{{ item.notes || 'Full database snapshot' }}</p>
+                        <p class="text-xs text-slate-500 mt-0.5">{{ item.notes || 'System backup snapshot' }}</p>
                       </div>
                     </div>
                   </td>
@@ -393,6 +428,26 @@
               <p class="font-bold text-red-700">
                 Any tickets, accounts, logs, or attachments created after this snapshot will be permanently overwritten.
               </p>
+            </div>
+
+            <!-- Maintenance Precaution Alert if Inactive -->
+            <div v-if="!maintenance.active" class="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-xs text-amber-950 space-y-2">
+              <div class="flex items-center gap-2 font-bold text-amber-900">
+                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>Recommended: Activate Website Maintenance First</span>
+              </div>
+              <p class="leading-relaxed">
+                Emergency Maintenance Mode is currently <strong>Inactive</strong>. Active users logged into the system could submit tickets or modify data concurrently during database restoration.
+              </p>
+              <button
+                type="button"
+                @click="openMaintenancePrecautionModal"
+                class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs cursor-pointer shadow-xs"
+              >
+                Activate Website Maintenance First
+              </button>
             </div>
 
             <div class="space-y-2">
@@ -822,8 +877,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-extrabold text-slate-900">Upload &amp; Restore .SQL Dump</h3>
-                  <p class="text-xs text-slate-500">Restore database from an offline or external snapshot</p>
+                  <h3 class="text-base font-extrabold text-slate-900">Upload &amp; Restore Archive</h3>
+                  <p class="text-xs text-slate-500">Restore database SQL dumps or full system .ZIP snapshots</p>
                 </div>
               </div>
               <button @click="showUploadModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
@@ -834,14 +889,34 @@
             </div>
 
             <div class="space-y-4">
+              <!-- Maintenance Precaution Alert if Inactive -->
+              <div v-if="!maintenance.active" class="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-xs text-amber-950 space-y-2">
+                <div class="flex items-center gap-2 font-bold text-amber-900">
+                  <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span>Recommended: Activate Website Maintenance First</span>
+                </div>
+                <p class="leading-relaxed">
+                  Emergency Maintenance Mode is currently <strong>Inactive</strong>. It is strongly recommended to turn on maintenance mode to notify and evict active users before restoring files.
+                </p>
+                <button
+                  type="button"
+                  @click="openMaintenancePrecautionModal"
+                  class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs cursor-pointer shadow-xs"
+                >
+                  Activate Website Maintenance First
+                </button>
+              </div>
+
               <div>
                 <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                  Select .SQL File
+                  Select Backup Archive (.SQL or .ZIP)
                 </label>
                 <input
                   type="file"
                   ref="uploadSqlFileInput"
-                  accept=".sql"
+                  accept=".sql,.zip,application/zip,application/x-zip-compressed"
                   class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-emerald-600 cursor-pointer"
                   @change="handleUploadFileChange"
                 />
@@ -849,7 +924,7 @@
 
               <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900">
                 <p class="font-bold">Caution:</p>
-                <p class="mt-0.5">Uploading will immediately execute the SQL dump into your active database. Type confirmation below.</p>
+                <p class="mt-0.5">Uploading will immediately execute the SQL dump into your active database and/or extract media assets into <code class="bg-amber-100 px-1 py-0.5 rounded text-[10px] font-mono">writable/uploads/</code>. Type confirmation below.</p>
               </div>
 
               <div>
@@ -890,6 +965,268 @@
         </div>
       </Teleport>
 
+      <!-- ======================================================== -->
+      <!-- MODAL 4: Website in Maintenance Precaution Modal        -->
+      <!-- ======================================================== -->
+      <Teleport to="body">
+        <div 
+          v-if="showMaintenancePrecautionModal" 
+          class="fixed inset-0 z-[150] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 sm:py-10 pointer-events-auto overflow-y-auto animate-fade-in"
+          @click.self="showMaintenancePrecautionModal = false"
+        >
+          <div 
+            class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-scale-up max-h-[calc(100dvh-3rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto pointer-events-auto"
+            @click.stop
+          >
+            <!-- Header -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0">
+                  <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold text-slate-900">Website in Maintenance</h3>
+                  <p class="text-xs text-amber-700 font-bold uppercase tracking-wider">Emergency Precaution Controls</p>
+                </div>
+              </div>
+              <button @click="showMaintenancePrecautionModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Precautionary Explanations -->
+            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-2 leading-relaxed">
+              <p class="font-bold text-amber-900">
+                What happens when Maintenance Mode is activated?
+              </p>
+              <ul class="list-disc list-inside space-y-1 text-slate-700 font-medium">
+                <li><strong>Active User Notification:</strong> All logged-in users (Staff, Students, Employees, Workers, Admins, Directors) will receive an instant emergency notification modal.</li>
+                <li><strong>Automated Countdown Eviction:</strong> Users will see a live countdown timer before being securely logged out automatically.</li>
+                <li><strong>Public Login Lockout:</strong> Any attempt to sign in will display an Emergency Maintenance Notice explaining that operations are paused.</li>
+                <li><strong>Superadmin Exemption:</strong> You retain full Superadmin access to execute backups, restores, or database updates.</li>
+              </ul>
+            </div>
+
+            <!-- Maintenance Notice Message -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                Public Announcement Notice
+              </label>
+              <textarea
+                v-model="maintenanceForm.message"
+                rows="3"
+                placeholder="The website is currently undergoing emergency database restoration and maintenance. Please check back shortly."
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none resize-none leading-relaxed"
+              ></textarea>
+            </div>
+
+            <!-- Countdown Seconds Selector -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                Eviction Countdown Duration
+              </label>
+              <div class="grid grid-cols-4 gap-2">
+                <button
+                  v-for="dur in [15, 30, 60, 120]"
+                  :key="dur"
+                  type="button"
+                  @click="maintenanceForm.countdown_seconds = dur"
+                  :class="maintenanceForm.countdown_seconds === dur ? 'bg-amber-600 text-white font-black shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+                  class="py-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
+                >
+                  {{ dur }}s
+                </button>
+              </div>
+              <p class="text-[11px] text-slate-400">Seconds given to active users to read the notice before automatic logout.</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-2">
+              <button
+                @click="showMaintenancePrecautionModal = false"
+                type="button"
+                class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                @click="handleActivateMaintenance"
+                :disabled="isUpdatingMaintenance"
+                type="button"
+                class="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+              >
+                <svg v-if="isUpdatingMaintenance" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isUpdatingMaintenance ? 'Activating...' : 'Activate Maintenance Mode' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
+      <!-- ======================================================== -->
+      <!-- MODAL 5: Create Backup with Category Selection Modal    -->
+      <!-- ======================================================== -->
+      <Teleport to="body">
+        <div 
+          v-if="showCreateBackupModal" 
+          class="fixed inset-0 z-[150] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 sm:py-10 pointer-events-auto overflow-y-auto animate-fade-in"
+          @click.self="showCreateBackupModal = false"
+        >
+          <div 
+            class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-scale-up max-h-[calc(100dvh-3rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto pointer-events-auto"
+            @click.stop
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold text-slate-900">Generate Backup Snapshot</h3>
+                  <p class="text-xs text-slate-500">Select archive category and storage options</p>
+                </div>
+              </div>
+              <button @click="showCreateBackupModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Category Selector Radio Cards -->
+            <div class="space-y-3">
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                Select Backup Category <span class="text-rose-500">*</span>
+              </label>
+
+              <!-- Option 1: Database Only -->
+              <div
+                @click="backupForm.category = 'database'"
+                :class="backupForm.category === 'database' ? 'border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-500/20' : 'border-slate-200 hover:border-slate-300 bg-white'"
+                class="p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5"
+              >
+                <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7zm0 4h16M8 4v4m8-4v4" />
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-slate-900">Database Only (.sql)</h4>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">Fast</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                    Captures all MySQL schema, user accounts, tickets, assignments, logs, and settings.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Option 2: Media Files Only -->
+              <div
+                @click="backupForm.category = 'media'"
+                :class="backupForm.category === 'media' ? 'border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-500/20' : 'border-slate-200 hover:border-slate-300 bg-white'"
+                class="p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5"
+              >
+                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-slate-900">All Uploaded Media (.zip)</h4>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Assets</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                    Packages evidentiary ticket attachments, accomplishment reports, ID cards, and user avatars into a zip archive.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Option 3: Full System Bundle -->
+              <div
+                @click="backupForm.category = 'full'"
+                :class="backupForm.category === 'full' ? 'border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-500/20' : 'border-slate-200 hover:border-slate-300 bg-white'"
+                class="p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5"
+              >
+                <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-slate-900">Full System Snapshot (.zip)</h4>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-bold">Comprehensive</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                    Complete bundle containing the entire database SQL dump + all uploaded media folders + manifest.json.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Google Drive Auto-Separation Notice -->
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-start gap-3">
+              <svg class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <span class="font-bold text-slate-800">Google Drive Cloud Organization:</span>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                  When synced to Google Drive, <strong>Database</strong> and <strong>Full</strong> backups are placed in the <code class="font-mono text-blue-600 bg-blue-50 px-1 py-0.5 rounded">Databases/</code> folder, while <strong>Media</strong> archives are placed in <code class="font-mono text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded">Media/</code>.
+                </p>
+              </div>
+            </div>
+
+            <!-- Notes field -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                Snapshot Description / Notes
+              </label>
+              <input
+                v-model="backupForm.notes"
+                type="text"
+                placeholder="e.g. Pre-maintenance backup before database update"
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none"
+              />
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-2">
+              <button
+                @click="showCreateBackupModal = false"
+                type="button"
+                class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                @click="handleGenerateBackup"
+                :disabled="isCreatingBackup"
+                type="button"
+                class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+              >
+                <svg v-if="isCreatingBackup" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isCreatingBackup ? 'Generating...' : 'Start Backup Process' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
     </template>
   </MainLayout>
 </template>
@@ -910,6 +1247,7 @@ import {
   updateGoogleDriveConfig,
   getGoogleOAuthUrl
 } from '@/api/backup';
+import { fetchMaintenanceStatus, updateMaintenanceStatus } from '@/api/superadmin';
 import { toast } from 'vue3-toastify';
 import Swal from 'sweetalert2';
 
@@ -945,6 +1283,27 @@ const isLoading = ref(false);
 const isCreatingBackup = ref(false);
 const isSyncingDriveId = ref(null);
 
+// Emergency Maintenance Mode State
+const maintenance = ref({
+  active: false,
+  message: '',
+  countdown_seconds: 30,
+  activated_at: null
+});
+const showMaintenancePrecautionModal = ref(false);
+const isUpdatingMaintenance = ref(false);
+const maintenanceForm = ref({
+  message: 'The website is currently undergoing emergency database restoration and maintenance. Please check back shortly.',
+  countdown_seconds: 30
+});
+
+// Create Backup Category Modal State
+const showCreateBackupModal = ref(false);
+const backupForm = ref({
+  category: 'database',
+  notes: ''
+});
+
 // Restore Modal State
 const selectedBackupForRestore = ref(null);
 const restoreConfirmationInput = ref('');
@@ -979,7 +1338,7 @@ const driveForm = ref({
 const detectedServiceAccountEmail = computed(() => googleDrive.value.service_account_email || '');
 const detectedAccountEmail = computed(() => googleDrive.value.account_email || '');
 
-// Upload SQL Dump Modal State
+// Upload SQL / ZIP Dump Modal State
 const showUploadModal = ref(false);
 const uploadSqlFileInput = ref(null);
 const selectedUploadFile = ref(null);
@@ -1000,8 +1359,100 @@ onMounted(async () => {
     router.replace({ path: route.path });
   }
 
-  await loadBackups();
+  await Promise.all([loadBackups(), loadMaintenanceStatus()]);
 });
+
+const loadMaintenanceStatus = async () => {
+  try {
+    const res = await fetchMaintenanceStatus();
+    if (res.data?.status && res.data.data?.maintenance) {
+      maintenance.value = res.data.data.maintenance;
+      if (res.data.data.maintenance.message) {
+        maintenanceForm.value.message = res.data.data.maintenance.message;
+      }
+      if (res.data.data.maintenance.countdown_seconds) {
+        maintenanceForm.value.countdown_seconds = res.data.data.maintenance.countdown_seconds;
+      }
+    }
+  } catch {
+    // Non-blocking
+  }
+};
+
+const openMaintenancePrecautionModal = () => {
+  showMaintenancePrecautionModal.value = true;
+};
+
+const handleActivateMaintenance = async () => {
+  isUpdatingMaintenance.value = true;
+  try {
+    const res = await updateMaintenanceStatus({
+      active: true,
+      message: maintenanceForm.value.message,
+      countdown_seconds: maintenanceForm.value.countdown_seconds
+    });
+    if (res.data?.status) {
+      showMaintenancePrecautionModal.value = false;
+      maintenance.value = res.data.data.maintenance;
+      toast.success('Emergency maintenance activated. Active users are now being notified and evicted.');
+    }
+  } catch (err) {
+    toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to activate maintenance mode.'));
+  } finally {
+    isUpdatingMaintenance.value = false;
+  }
+};
+
+const confirmDeactivateMaintenance = async () => {
+  const result = await Swal.fire({
+    title: 'Deactivate Maintenance Mode?',
+    text: 'Regular users across all roles will immediately be allowed to sign back in.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#059669',
+    cancelButtonColor: '#64748b',
+    confirmButtonText: 'Yes, Deactivate Now'
+  });
+
+  if (result.isConfirmed) {
+    isUpdatingMaintenance.value = true;
+    try {
+      const res = await updateMaintenanceStatus({ active: false });
+      if (res.data?.status) {
+        maintenance.value = res.data.data.maintenance;
+        toast.success('Maintenance mode deactivated. System restored to normal operations.');
+      }
+    } catch (err) {
+      toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to deactivate maintenance mode.'));
+    } finally {
+      isUpdatingMaintenance.value = false;
+    }
+  }
+};
+
+const openCreateBackupModal = () => {
+  backupForm.value.notes = '';
+  showCreateBackupModal.value = true;
+};
+
+const handleGenerateBackup = async () => {
+  isCreatingBackup.value = true;
+  try {
+    const res = await createBackup({
+      category: backupForm.value.category,
+      notes: backupForm.value.notes.trim() || undefined
+    });
+    if (res.data?.status) {
+      showCreateBackupModal.value = false;
+      toast.success(res.data.message || 'Backup snapshot created successfully!');
+      await loadBackups();
+    }
+  } catch (err) {
+    toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to generate backup.'));
+  } finally {
+    isCreatingBackup.value = false;
+  }
+};
 
 const loadBackups = async () => {
   isLoading.value = true;
@@ -1031,25 +1482,15 @@ const loadBackups = async () => {
 // Backup Actions
 // ---------------------------------------------------------
 const handleCreateBackup = async () => {
-  isCreatingBackup.value = true;
-  try {
-    const res = await createBackup({ notes: 'On-demand manual snapshot' });
-    if (res.data?.status) {
-      toast.success(res.data.message || 'Database snapshot created successfully!');
-      await loadBackups();
-    }
-  } catch (err) {
-    toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to generate database backup.'));
-  } finally {
-    isCreatingBackup.value = false;
-  }
+  openCreateBackupModal();
 };
 
 const handleDownload = async (item) => {
   try {
     toast.info('Preparing backup file download...');
     const response = await downloadBackup(item.id);
-    const blob = new Blob([response.data], { type: 'application/sql' });
+    const mimeType = item.file_name?.endsWith('.zip') ? 'application/zip' : 'application/sql';
+    const blob = new Blob([response.data], { type: mimeType });
     const downloadUrl = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = downloadUrl;

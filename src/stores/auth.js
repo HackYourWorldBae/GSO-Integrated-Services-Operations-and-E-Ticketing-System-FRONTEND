@@ -108,6 +108,73 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   // ---------------------------------------------------------------------------
+  // Emergency System Maintenance & Eviction State
+  // ---------------------------------------------------------------------------
+  const isMaintenanceActive  = ref(false);
+  const maintenanceMessage   = ref('');
+  const maintenanceCountdown = ref(30);
+  const showMaintenanceModal = ref(false);
+  let maintenanceTickerId    = null;
+
+  const triggerMaintenanceEviction = (details = {}) => {
+    // Superadmin is exempt from eviction so they can maintain the system
+    if (role.value === 'superadmin') {
+      return;
+    }
+
+    isMaintenanceActive.value = true;
+    maintenanceMessage.value  = details?.message || 'Emergency maintenance is active. All user sessions are being safely logged out.';
+
+    // If modal is already ticking, don't restart ticker unless not running
+    if (showMaintenanceModal.value && maintenanceTickerId) {
+      return;
+    }
+
+    let initialSeconds = Number(details?.countdown_seconds) || 30;
+    if (details?.activated_at) {
+      const activatedMs = new Date(details.activated_at).getTime();
+      if (!isNaN(activatedMs)) {
+        const elapsed = Math.floor((Date.now() - activatedMs) / 1000);
+        if (elapsed > 0 && elapsed < initialSeconds) {
+          initialSeconds = Math.max(5, initialSeconds - elapsed);
+        }
+      }
+    }
+
+    maintenanceCountdown.value = Math.max(5, initialSeconds);
+    showMaintenanceModal.value = true;
+
+    if (maintenanceTickerId) {
+      clearInterval(maintenanceTickerId);
+    }
+
+    maintenanceTickerId = setInterval(() => {
+      if (maintenanceCountdown.value > 1) {
+        maintenanceCountdown.value -= 1;
+      } else {
+        maintenanceCountdown.value = 0;
+        executeEvictionLogout();
+      }
+    }, 1000);
+  };
+
+  const stopMaintenanceTicker = () => {
+    if (maintenanceTickerId) {
+      clearInterval(maintenanceTickerId);
+      maintenanceTickerId = null;
+    }
+  };
+
+  const executeEvictionLogout = async () => {
+    stopMaintenanceTicker();
+    showMaintenanceModal.value = false;
+    await logout();
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login?maintenance=1';
+    }
+  };
+
+  // ---------------------------------------------------------------------------
   // Proactive Session Heartbeat & Verification
   // ---------------------------------------------------------------------------
 
@@ -149,12 +216,27 @@ export const useAuthStore = defineStore('auth', () => {
       if (typeof res.data?.data?.is_verified !== 'undefined' && user.value) {
         user.value.is_verified = res.data.data.is_verified;
       }
+
+      // Check maintenance mode returned in check-session
+      if (res.data?.data?.maintenance_mode) {
+        if (role.value !== 'superadmin') {
+          triggerMaintenanceEviction(res.data.data.maintenance_details);
+        }
+      } else if (showMaintenanceModal.value) {
+        stopMaintenanceTicker();
+        showMaintenanceModal.value = false;
+        isMaintenanceActive.value = false;
+      }
     } catch (error) {
       const status = error.response?.status;
       const code   = error.response?.data?.code;
 
       if (status === 401 && code === 'SESSION_SUPERSEDED') {
         stopSessionHeartbeat();
+      } else if (status === 503 && (code === 'MAINTENANCE_MODE_ACTIVE' || error.response?.data?.maintenance_mode)) {
+        if (role.value !== 'superadmin') {
+          triggerMaintenanceEviction(error.response?.data?.maintenance);
+        }
       }
     } finally {
       isCheckingSession = false;
@@ -166,6 +248,12 @@ export const useAuthStore = defineStore('auth', () => {
       if (!window.__gso_session_superseded && isAuthenticated.value) {
         verifySession();
       }
+    }
+  };
+
+  const handleMaintenanceBroadcast = (e) => {
+    if (role.value !== 'superadmin') {
+      triggerMaintenanceEviction(e.detail?.maintenance || e.detail?.data?.maintenance);
     }
   };
 
@@ -182,13 +270,14 @@ export const useAuthStore = defineStore('auth', () => {
       verifySession();
     }, 1500);
 
-    // Poll every 45 seconds while session is active (focus/visibility change sync immediately)
+    // Poll every 30 seconds while session is active (focus/visibility change sync immediately)
     heartbeatIntervalId = setInterval(() => {
       verifySession();
-    }, 45000);
+    }, 30000);
 
     window.addEventListener('focus', handleWindowFocusOrVisible);
     document.addEventListener('visibilitychange', handleWindowFocusOrVisible);
+    window.addEventListener('auth:maintenance-mode', handleMaintenanceBroadcast);
   };
 
   /**
@@ -202,6 +291,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (typeof window !== 'undefined') {
       window.removeEventListener('focus', handleWindowFocusOrVisible);
       document.removeEventListener('visibilitychange', handleWindowFocusOrVisible);
+      window.removeEventListener('auth:maintenance-mode', handleMaintenanceBroadcast);
     }
   };
 
@@ -249,6 +339,7 @@ export const useAuthStore = defineStore('auth', () => {
       const message = resData.message || 'Login failed. Please try again.';
       const status = err.response?.status;
 
+      const isMaintenance = Boolean(status === 503 || extraData.maintenance_mode || resData.code === 'MAINTENANCE_MODE_ACTIVE');
       const isSuspended = Boolean(extraData.is_suspended || errors.is_suspended || message.toLowerCase().includes('suspended'));
       const isLocked = Boolean(status === 429 || extraData.is_locked || errors.is_locked);
       const remainingSeconds = Number(extraData.remaining_seconds || errors.remaining_seconds || 0);
@@ -258,6 +349,8 @@ export const useAuthStore = defineStore('auth', () => {
       return {
         success: false,
         message,
+        isMaintenance,
+        maintenance: extraData.maintenance_details || extraData.maintenance || null,
         isSuspended,
         isLocked,
         remainingSeconds,
@@ -387,6 +480,13 @@ export const useAuthStore = defineStore('auth', () => {
     verifySession,
     startSessionHeartbeat,
     stopSessionHeartbeat,
+    isMaintenanceActive,
+    maintenanceMessage,
+    maintenanceCountdown,
+    showMaintenanceModal,
+    triggerMaintenanceEviction,
+    executeEvictionLogout,
+    stopMaintenanceTicker,
     _setAuth,
   };
 }, {

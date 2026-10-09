@@ -22,6 +22,7 @@ import {
   forgotPassword,
   verifyResetToken,
   resetPassword,
+  fetchPublicMaintenanceStatus,
 } from '../auth'
 
 // Level 3 — Component tests: authentication flows must exchange credentials
@@ -115,6 +116,13 @@ describe('auth api module', () => {
       new_password: 'NewPassword123!',
       confirm_password: 'NewPassword123!',
     })
+  })
+
+  it('fetches public maintenance status from /auth/maintenance-status', async () => {
+    apiClient.get.mockResolvedValueOnce({ data: { status: true, data: { maintenance: { active: false } } } })
+    const res = await fetchPublicMaintenanceStatus()
+    expect(apiClient.get).toHaveBeenCalledWith('/auth/maintenance-status')
+    expect(res.data.status).toBe(true)
   })
 })
 

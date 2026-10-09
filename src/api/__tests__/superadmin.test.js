@@ -24,6 +24,8 @@ import {
   unlockUser,
   fetchAuditLogs,
   fetchAccountActivityLogs,
+  fetchMaintenanceStatus,
+  updateMaintenanceStatus,
 } from '../superadmin'
 
 describe('superadmin api module', () => {
@@ -111,5 +113,19 @@ describe('superadmin api module', () => {
     apiClient.get.mockResolvedValueOnce({ data: { status: true } })
     await fetchAccountActivityLogs({ page: 1 })
     expect(apiClient.get).toHaveBeenCalledWith('/superadmin/account-activity-logs', { params: { page: 1 } })
+  })
+
+  it('fetches system maintenance status', async () => {
+    apiClient.get.mockResolvedValueOnce({ data: { status: true, data: { maintenance: { active: true } } } })
+    const res = await fetchMaintenanceStatus()
+    expect(apiClient.get).toHaveBeenCalledWith('/superadmin/maintenance')
+    expect(res.data.status).toBe(true)
+  })
+
+  it('updates system maintenance status', async () => {
+    const payload = { active: true, message: 'Emergency backup in progress', countdown_seconds: 30 }
+    apiClient.post.mockResolvedValueOnce({ data: { status: true } })
+    await updateMaintenanceStatus(payload)
+    expect(apiClient.post).toHaveBeenCalledWith('/superadmin/maintenance', payload)
   })
 })

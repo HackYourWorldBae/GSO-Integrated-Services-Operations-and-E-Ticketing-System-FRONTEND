@@ -192,6 +192,9 @@ apiClient.interceptors.response.use(
       } else if (status === 429) {
         // Dispatch global event when API throttling / rate limit is hit
         window.dispatchEvent(new CustomEvent('api:rate-limited', { detail: error }));
+      } else if (status === 503 && (errorCode === 'MAINTENANCE_MODE_ACTIVE' || error.response?.data?.maintenance_mode)) {
+        // Dispatch global event when site enters emergency maintenance mode
+        window.dispatchEvent(new CustomEvent('auth:maintenance-mode', { detail: error.response?.data }));
       }
     }
 

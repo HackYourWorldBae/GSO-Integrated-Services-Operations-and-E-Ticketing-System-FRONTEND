@@ -134,3 +134,21 @@ export const fetchAuditLogs = (params = {}) =>
  */
 export const fetchAccountActivityLogs = (params = {}) =>
   apiClient.get('/superadmin/account-activity-logs', { params });
+
+/**
+ * Fetch current system maintenance status and parameters.
+ * Route: GET /api/v1/superadmin/maintenance
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
+export const fetchMaintenanceStatus = () =>
+  apiClient.get('/superadmin/maintenance');
+
+/**
+ * Toggle or update system maintenance mode.
+ * Route: POST /api/v1/superadmin/maintenance
+ * @param {{ active: boolean, message?: string, countdown_seconds?: number }} payload
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
+export const updateMaintenanceStatus = (payload) =>
+  apiClient.post('/superadmin/maintenance', payload);
+

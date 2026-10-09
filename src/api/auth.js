@@ -80,4 +80,11 @@ export const verifyResetToken = (email, token) =>
 export const resetPassword = (payload) =>
   apiClient.post('/auth/reset-password', payload);
 
+/**
+ * Fetch public maintenance status.
+ * Used by unauthenticated visitors on login screen.
+ */
+export const fetchPublicMaintenanceStatus = () =>
+  apiClient.get('/auth/maintenance-status');
+
 
