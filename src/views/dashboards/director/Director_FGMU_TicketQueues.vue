@@ -46,15 +46,15 @@
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
           <!-- Top row: Stage Tabs -->
           <!-- Top row: Stage Tabs (Flat, Accessible, Single-Click for Senior Administrators) -->
-          <div :class="['grid gap-1.5 p-1.5 border-b border-slate-100', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5']">
+          <div :class="['grid gap-2 p-2 border-b border-slate-200 bg-slate-50/50 rounded-t-2xl', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5']">
             <!-- Tab 1: Pending / Escalated Approval -->
             <button
               @click="switchTab('pending')"
               :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500',
                 activeTab === 'pending'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
+                  ? 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20'
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
               <span class="truncate">{{ isPendingOnlyMode ? 'Pending Approval' : (isDirector ? 'Escalated Approvals' : 'Pending Approval') }}</span>
@@ -64,10 +64,10 @@
             <button
               @click="switchTab('delayed')"
               :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
                 activeTab === 'delayed'
-                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
+                  ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20'
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
               <span class="truncate">Approval Delayed</span>
@@ -78,10 +78,10 @@
               v-if="!isPendingOnlyMode"
               @click="switchTab('approved')"
               :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500',
                 activeTab === 'approved'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
+                  ? 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20'
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
               <span class="truncate">Approved (Ready)</span>
@@ -92,10 +92,10 @@
               v-if="!isPendingOnlyMode"
               @click="switchTab('dispatched')"
               :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500',
                 activeTab === 'dispatched'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
+                  ? 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20'
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
               <span class="truncate">Scheduled</span>
@@ -106,10 +106,10 @@
               v-if="!isPendingOnlyMode"
               @click="switchTab('active')"
               :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500',
                 activeTab === 'active'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
+                  ? 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20'
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
               <span class="truncate">In Progress</span>
