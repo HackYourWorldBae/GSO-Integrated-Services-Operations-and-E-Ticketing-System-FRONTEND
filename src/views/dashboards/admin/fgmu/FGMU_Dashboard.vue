@@ -42,33 +42,10 @@
         
         <!-- Outcome & Throughput Overview (Top 3 Cards + Timeframe Filter + Daily Breakdown) -->
         <div class="space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
-            <div class="flex flex-wrap items-center gap-3">
-              <div>
-                <h3 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                  <span class="w-2.5 h-5 rounded-full bg-slate-900 shrink-0"></span>
-                  Throughput &amp; Volume Analytics
-                </h3>
-                <p class="text-xs sm:text-sm text-slate-600 font-medium">Outcome metrics filtered by timeframe for {{ currentYear }}</p>
-              </div>
-
-              <!-- Today's Daily Pulse Quick Filter Button -->
-              <button 
-                type="button"
-                @click="selectToday" 
-                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-all cursor-pointer shadow-xs"
-                :class="selectedPeriod === 'day' && selectedDate === todayDateString ? 'ring-2 ring-emerald-500 ring-offset-1 bg-emerald-100/90' : ''"
-                title="Click to view Today's Daily analytics"
-              >
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Today: <strong class="tabular-nums">{{ stats.daily_total ?? 0 }}</strong> Requests &bull; <strong class="tabular-nums">{{ stats.daily_resolved ?? 0 }}</strong> Completed</span>
-              </button>
-            </div>
-
-            <!-- Filter Controls for Current Year & Daily -->
-            <div class="flex flex-wrap items-center gap-2">
-              <!-- Period Type Tabs -->
-              <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 shadow-inner">
+          <!-- Filter Controls for Current Year & Daily -->
+          <div class="flex flex-wrap items-center justify-end gap-2 px-1">
+            <!-- Period Type Tabs -->
+            <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 shadow-inner">
                 <button
                   v-for="p in periodOptions"
                   :key="p.key"
@@ -139,7 +116,6 @@
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </div>
               </div>
-            </div>
           </div>
 
           <!-- Top 3 Cards Grid -->
