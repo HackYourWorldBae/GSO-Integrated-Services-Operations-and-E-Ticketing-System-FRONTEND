@@ -80,11 +80,19 @@ defineEmits(['confirm', 'cancel']);
           </div>
         </div>
 
-        <p v-if="message" class="text-slate-600 text-sm font-medium mb-4 leading-relaxed whitespace-pre-line">{{ message }}</p>
+        <p v-if="message" class="text-slate-700 text-sm sm:text-base font-medium mb-4 leading-relaxed whitespace-pre-line">{{ message }}</p>
 
         <!-- Slot for custom contents like reason input or user badge -->
-        <div v-if="$slots.default" class="mb-6">
+        <div v-if="$slots.default" class="mb-5">
           <slot></slot>
+        </div>
+
+        <!-- Senior Reassurance Guidance Footnote -->
+        <div class="mb-5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-2.5 text-xs text-slate-600 font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>This action is safely tracked in official records and can be referenced in Archives.</span>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-2">
@@ -92,7 +100,7 @@ defineEmits(['confirm', 'cancel']);
             type="button" 
             :disabled="isLoading"
             @click="$emit('cancel')" 
-            class="px-5 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            class="px-5 py-2.5 min-h-[44px] rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
           >
             {{ cancelText }}
           </button>
@@ -101,14 +109,14 @@ defineEmits(['confirm', 'cancel']);
             :disabled="isLoading"
             @click="$emit('confirm')" 
             :class="[
-              'px-6 py-2.5 rounded-xl font-bold text-xs text-white shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer',
+              'px-6 py-2.5 min-h-[44px] rounded-xl font-black text-sm text-white shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer',
               type === 'danger' ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/20' :
               type === 'warning' ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20' :
               type === 'purple' ? 'bg-purple-600 hover:bg-purple-700 shadow-purple-600/20' :
               'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
             ]"
           >
-            <svg v-if="isLoading" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+            <svg v-if="isLoading" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>

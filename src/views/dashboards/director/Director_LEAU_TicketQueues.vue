@@ -50,8 +50,8 @@
             <span class="md:hidden">{{ activeTabCount }}</span>
           </span>
         </div>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase mt-0.5 sm:mt-1 truncate hidden sm:block">
-          {{ isDirector ? 'Director Executive Review & Operations' : 'Unit Head Operations & Approvals' }}
+        <p class="text-xs text-amber-700 font-bold uppercase tracking-wider mt-0.5 sm:mt-1 truncate hidden sm:block">
+          {{ isDirector ? 'Director Executive Review • Landscaping & Environmental Action (LEAU)' : 'Unit Head Operations & Approvals • Landscaping & Environmental Action (LEAU)' }}
         </p>
       </div>
     </template>
@@ -61,22 +61,22 @@
 
         <!-- ═══ Unified Compact Toolbar: Tabs + Search + Filter ═══ -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
-          <!-- Top row: Stage Tabs -->
-          <div :class="['grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 border-b border-slate-100', isPendingOnlyMode ? 'lg:grid-cols-2' : 'lg:grid-cols-3']">
+          <!-- Top row: Stage Tabs (Flat, Accessible, Single-Click for Senior Administrators) -->
+          <div :class="['grid gap-1.5 p-1.5 border-b border-slate-100', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6']">
             <!-- Tab 1: Pending / Escalated Approval -->
             <button
               @click="switchTab('pending')"
               :class="[
-                'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
                 activeTab === 'pending'
                   ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
               ]"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span class="truncate">{{ isPendingOnlyMode ? 'Pending Approval' : (isDirector ? '1. Escalated Approvals' : '1. Pending Approval') }}</span>
+              <span class="truncate">{{ isPendingOnlyMode ? '1. Pending Approval' : (isDirector ? '1. Escalated Approvals' : '1. Pending Approval') }}</span>
               <span
                 :class="[
                   'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
@@ -91,10 +91,10 @@
             <button
               @click="switchTab('delayed')"
               :class="[
-                'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
                 activeTab === 'delayed'
                   ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
               ]"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,89 +107,109 @@
                   activeTab === 'delayed' ? 'bg-white text-amber-950 font-black' : 'bg-amber-100 text-amber-950'
                 ]"
               >
-                {{ queueCounts.delayed }}
+                {{ queueCounts.delayed || 0 }}
               </span>
             </button>
 
-            <!-- Tab 3: Dropdown Switch Tab for Ticket Lists (Approved, Dispatched, Active, Borrowing) -->
-            <div v-if="!isPendingOnlyMode" ref="dropdownContainerRef" class="relative">
-              <button
-                @click="toggleTicketListDropdown"
-                type="button"
+            <!-- Tab 3: Approved (Awaiting Dispatch) -->
+            <button
+              v-if="!isPendingOnlyMode"
+              @click="switchTab('approved')"
+              :class="[
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                activeTab === 'approved'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
+              ]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <span class="truncate">3. Approved (Ready)</span>
+              <span
                 :class="[
-                  'w-full flex items-center justify-between gap-2 px-3 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer',
-                  isDropdownTabActive
-                    ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
+                  activeTab === 'approved' ? 'bg-white text-amber-950 font-black' : 'bg-amber-100 text-amber-950'
                 ]"
               >
-                <div class="flex items-center gap-2 min-w-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                  <span class="truncate">3. {{ currentDropdownItem?.shortLabel || 'Ticket Lists' }}</span>
-                </div>
-                <div class="flex items-center gap-1.5 shrink-0">
-                  <span
-                    :class="[
-                      'px-2 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[22px] text-center shadow-xs transition-all',
-                      isDropdownTabActive ? 'bg-white text-amber-950 font-black' : 'bg-amber-100 text-amber-950'
-                    ]"
-                  >
-                    {{ currentDropdownCount }}
-                  </span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 transition-transform duration-200"
-                    :class="{ 'rotate-180': isListsDropdownOpen }"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </button>
+                {{ queueCounts.approved || 0 }}
+              </span>
+            </button>
 
-              <!-- Floating Dropdown Menu -->
-              <div
-                v-if="isListsDropdownOpen"
-                class="absolute right-0 top-full mt-1.5 w-full sm:w-80 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 p-1.5 animate-scale-up space-y-1"
+            <!-- Tab 4: Dispatched / Scheduled -->
+            <button
+              v-if="!isPendingOnlyMode"
+              @click="switchTab('dispatched')"
+              :class="[
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                activeTab === 'dispatched'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
+              ]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span class="truncate">4. Scheduled</span>
+              <span
+                :class="[
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
+                  activeTab === 'dispatched' ? 'bg-white text-amber-950 font-black' : 'bg-blue-100 text-blue-950'
+                ]"
               >
-                <div class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
-                  Select Ticket List
-                </div>
-                <button
-                  v-for="opt in ticketListOptions"
-                  :key="opt.key"
-                  type="button"
-                  @click="selectTicketList(opt.key)"
-                  :class="[
-                    'w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all cursor-pointer group',
-                    activeTab === opt.key
-                      ? 'bg-amber-50 text-amber-950 border border-amber-200'
-                      : 'hover:bg-slate-50 text-slate-700'
-                  ]"
-                >
-                  <div class="min-w-0 pr-2">
-                    <p class="text-xs font-bold leading-tight" :class="activeTab === opt.key ? 'text-amber-950' : 'text-slate-800'">
-                      {{ opt.label }}
-                    </p>
-                    <p class="text-[10px] text-slate-400 font-medium truncate mt-0.5">
-                      {{ opt.description }}
-                    </p>
-                  </div>
-                  <span
-                    :class="[
-                      'px-2 py-0.5 rounded-md text-xs font-black shrink-0',
-                      activeTab === opt.key ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-700 group-hover:bg-slate-200'
-                    ]"
-                  >
-                    {{ opt.count }}
-                  </span>
-                </button>
-              </div>
-            </div>
+                {{ queueCounts.dispatched || 0 }}
+              </span>
+            </button>
+
+            <!-- Tab 5: Borrowing Queue -->
+            <button
+              v-if="!isPendingOnlyMode"
+              @click="switchTab('borrowing')"
+              :class="[
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                activeTab === 'borrowing'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
+              ]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              <span class="truncate">5. Borrowing</span>
+              <span
+                :class="[
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
+                  activeTab === 'borrowing' ? 'bg-white text-amber-950 font-black' : 'bg-amber-100 text-amber-950'
+                ]"
+              >
+                {{ queueCounts.borrowing || 0 }}
+              </span>
+            </button>
+
+            <!-- Tab 6: Active Work Orders -->
+            <button
+              v-if="!isPendingOnlyMode"
+              @click="switchTab('active')"
+              :class="[
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                activeTab === 'active'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
+              ]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span class="truncate">6. In Progress</span>
+              <span
+                :class="[
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
+                  activeTab === 'active' ? 'bg-white text-amber-950 font-black' : 'bg-emerald-100 text-emerald-950'
+                ]"
+              >
+                {{ queueCounts.active || 0 }}
+              </span>
+            </button>
           </div>
 
           <!-- Bottom row: Search + Filter + Refresh -->
@@ -315,18 +335,18 @@
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-slate-50 border-b border-slate-200">
-                  <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
-                  <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
-                  <th v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed' || activeTab === 'dispatched'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
-                  <th v-if="activeTab === 'delayed'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-amber-700">Delay Reason</th>
-                  <th v-if="activeTab === 'pending'" class="px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">Files</th>
-                  <th v-if="activeTab === 'dispatched'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Scheduled Date & Staff</th>
-                  <th v-if="activeTab === 'borrowing'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Item Requested</th>
-                  <th v-if="activeTab === 'borrowing'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Date Needed & Return</th>
-                  <th v-if="activeTab === 'borrowing'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Borrowing Status</th>
-                  <th v-if="activeTab === 'active'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Elapsed Duration</th>
-                  <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
+                <tr class="bg-slate-100 border-b border-slate-300 text-xs sm:text-sm font-black uppercase tracking-wider">
+                  <th class="px-4 py-3 text-slate-700">Ticket Ref</th>
+                  <th class="px-3 py-3 text-slate-700">Requester</th>
+                  <th v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed' || activeTab === 'dispatched'" class="px-3 py-3 text-slate-700">Location</th>
+                  <th v-if="activeTab === 'delayed'" class="px-3 py-3 text-amber-800">Delay Reason</th>
+                  <th v-if="activeTab === 'pending'" class="px-2 py-3 text-slate-700 text-center">Files</th>
+                  <th v-if="activeTab === 'dispatched'" class="px-3 py-3 text-slate-700">Scheduled Date &amp; Staff</th>
+                  <th v-if="activeTab === 'borrowing'" class="px-3 py-3 text-slate-700">Item Requested</th>
+                  <th v-if="activeTab === 'borrowing'" class="px-3 py-3 text-slate-700">Date Needed &amp; Return</th>
+                  <th v-if="activeTab === 'borrowing'" class="px-3 py-3 text-slate-700">Borrowing Status</th>
+                  <th v-if="activeTab === 'active'" class="px-3 py-3 text-slate-700">Elapsed Duration</th>
+                  <th class="px-3 py-3 text-slate-700 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -504,103 +524,38 @@
 
                   <!-- Actions -->
                   <td class="px-3 py-3 whitespace-nowrap text-right" @click.stop>
-                    <!-- Pending Tab Actions -->
-                    <div v-if="activeTab === 'pending'" class="flex items-center justify-end gap-1.5 flex-wrap">
+                    <!-- Pending Tab Actions: Senior-Friendly Streamlined (Option A) -->
+                    <div v-if="activeTab === 'pending'" class="flex items-center justify-end gap-2 flex-wrap">
                       <button
                         @click="openDetailsModal(ticket)"
-                        class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="View Full Ticket Information"
+                        class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-amber-500 hover:bg-amber-50 text-slate-800 hover:text-amber-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer select-none"
+                        title="View Full Ticket Details, Attachments & Secondary Actions"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        <span>Full Info</span>
+                        <span>View Details</span>
                       </button>
 
-                      <!-- Return to Unit Head (Director only for escalated tickets) -->
-                      <button
-                        v-if="isDirector && ticket.is_escalated_to_director"
-                        @click="openDeescalateModal(ticket)"
-                        class="px-2.5 py-1.5 rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="Return request back to Unit Head for routine handling"
-                      >
-                        <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-                        <span>Return to Unit</span>
-                      </button>
-
-                      <!-- Request Director Approval (Unit Head only, for non-escalated tickets) -->
-                      <button
-                        v-if="!isDirector && !ticket.is_escalated_to_director"
-                        @click="openEscalateModal(ticket)"
-                        class="px-2.5 py-1.5 rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="Request Director Executive Approval for heavy or important tasks"
-                      >
-                        <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                        <span>To Director</span>
-                      </button>
-
-                      <!-- Recall Escalation (Unit Head only, for escalated tickets) -->
-                      <button
+                      <span
                         v-if="!isDirector && ticket.is_escalated_to_director"
-                        @click="openDeescalateModal(ticket)"
-                        class="px-2.5 py-1.5 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="Recall escalation and process directly at Unit Head level"
-                      >
-                        <svg class="h-3.5 w-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-                        <span>Recall</span>
-                      </button>
-
-                      <button
-                        v-if="!isDirector"
-                        @click="openRecategorizeModal(ticket)"
-                        class="px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="Change Nature of Work / Recategorize Ticket"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span>Recategorize</span>
-                      </button>
-                      <button
-                        v-if="!isDirector"
-                        @click="openDelayModal(ticket)"
-                        class="px-2.5 py-1.5 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="Delay ticket approval (e.g. awaiting procurement/materials)"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>Delay</span>
-                      </button>
-                      <button
-                        @click="openDeclineModal(ticket)"
-                        class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="Decline Request"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        <span>Decline</span>
-                      </button>
-                      <button
-                        v-if="!isDirector && ticket.is_escalated_to_director"
-                        disabled
-                        class="px-3.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-80 select-none shadow-2xs"
+                        class="px-3.5 py-2 min-h-[44px] rounded-xl border border-purple-200 bg-purple-50 text-purple-800 text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-2xs select-none"
                         title="This ticket has been escalated and is awaiting the Director's executive approval."
                       >
-                        <svg class="h-3.5 w-3.5 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-4 w-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>Awaiting Director's Approval</span>
-                      </button>
+                        <span>With Director</span>
+                      </span>
+
                       <button
                         v-else
                         @click="initiateApproval(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                        class="px-4 py-2 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                         :title="isDirector ? 'Executive Approve' : 'Direct Unit Head Approve'"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                         </svg>
                         <span>Approve</span>
@@ -611,10 +566,10 @@
                     <div v-else-if="activeTab === 'delayed'" class="flex items-center justify-end gap-2">
                       <button
                         @click="openDetailsModal(ticket)"
-                        class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        class="px-3 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-800 hover:text-amber-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
                         title="View Full Ticket Information"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
@@ -622,32 +577,31 @@
                       </button>
                       <button
                         @click="openDeclineModal(ticket)"
-                        class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        class="px-3 py-2 min-h-[44px] rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
                         title="Decline Request"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         <span>Decline</span>
                       </button>
-                      <button
+                      <span
                         v-if="!isDirector && ticket.is_escalated_to_director"
-                        disabled
-                        class="px-3.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-80 select-none shadow-2xs"
+                        class="px-3 py-2 min-h-[44px] rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs sm:text-sm font-bold flex items-center gap-1.5 opacity-80 select-none shadow-2xs"
                         title="This ticket has been escalated and is awaiting the Director's executive approval."
                       >
-                        <svg class="h-3.5 w-3.5 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-4 w-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>Awaiting Director's Approval</span>
-                      </button>
+                        <span>With Director</span>
+                      </span>
                       <button
                         v-else
                         @click="initiateApproval(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                        class="px-4 py-2 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                         title="Direct Approve"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                         </svg>
                         <span>Approve</span>
@@ -658,9 +612,9 @@
                     <div v-else-if="activeTab === 'approved'" class="flex items-center justify-end gap-2">
                       <button
                         @click="openDetailsModal(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-amber-400 hover:bg-amber-50 text-slate-800 hover:text-amber-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
@@ -672,9 +626,9 @@
                     <div v-else-if="activeTab === 'dispatched'" class="flex items-center justify-end gap-2">
                       <button
                         @click="openDetailsModal(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-amber-400 hover:bg-amber-50 text-slate-800 hover:text-amber-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
@@ -686,9 +640,9 @@
                     <div v-else-if="activeTab === 'borrowing'" class="flex items-center justify-end gap-2">
                       <button
                         @click="openDetailsModal(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-amber-400 hover:bg-amber-50 text-slate-800 hover:text-amber-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
@@ -700,20 +654,20 @@
                     <div v-else-if="activeTab === 'active'" class="flex items-center justify-end gap-2">
                       <button
                         @click="openExtensionModal(ticket)"
-                        class="px-3 py-1.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                        class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
                         title="Grant timeline extension due to unforeseen circumstances"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>Extend</span>
                       </button>
                       <button
                         @click="openDetailsModal(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-amber-400 hover:bg-amber-50 text-slate-800 hover:text-amber-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
                         title="View Full Details"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
