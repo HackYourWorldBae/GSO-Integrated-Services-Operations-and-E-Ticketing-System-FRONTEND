@@ -328,13 +328,12 @@
           </div>
 
           <!-- Operational Insights (Service Distribution & SLA Health) -->
-          <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 pt-2">
-            <!-- Left: Service Workload Share by Sub-Unit -->
-            <div class="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm flex flex-col">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+          <div class="space-y-6 pt-2">
+            <!-- Service Workload Share by Sub-Unit -->
+            <div class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm flex flex-col">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div class="flex items-center gap-2">
-                  <svg class="w-5 h-5 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
-                  <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Top Service Categories</h4>
+                  <h4 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Top Service Categories</h4>
                 </div>
 
                 <!-- Sub-unit Filter Tabs -->
@@ -344,7 +343,7 @@
                     :key="tab.key"
                     type="button"
                     @click="activeServiceTab = tab.key"
-                    class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[30px] touch-manipulation flex items-center gap-1.5"
+                    class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[32px] touch-manipulation flex items-center gap-1.5"
                     :class="activeServiceTab === tab.key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
                   >
                     <span>{{ tab.label }}</span>
@@ -364,27 +363,27 @@
                 <div
                   v-for="group in displayedServiceGroups"
                   :key="group.code"
-                  class="p-4 rounded-xl border space-y-3"
+                  class="p-4 sm:p-5 rounded-xl border space-y-3"
                   :class="group.code === 'FGMU' ? 'bg-blue-50/40 border-blue-100' : group.code === 'LEAU' ? 'bg-emerald-50/40 border-emerald-100' : 'bg-amber-50/40 border-amber-100'"
                 >
                   <!-- Unit Header Bar -->
-                  <div class="flex items-center justify-between pb-2 border-b" :class="group.code === 'FGMU' ? 'border-blue-200/60' : group.code === 'LEAU' ? 'border-emerald-200/60' : 'border-amber-200/60'">
+                  <div class="flex items-center justify-between pb-2.5 border-b" :class="group.code === 'FGMU' ? 'border-blue-200/60' : group.code === 'LEAU' ? 'border-emerald-200/60' : 'border-amber-200/60'">
                     <div class="flex items-center gap-2">
                       <span
-                        class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider"
+                        class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider"
                         :class="group.code === 'FGMU' ? 'bg-blue-600 text-white' : group.code === 'LEAU' ? 'bg-emerald-600 text-white' : 'bg-amber-600 text-white'"
                       >
                         {{ group.code }}
                       </span>
-                      <span class="text-xs font-black text-slate-800">{{ group.name }}</span>
+                      <span class="text-xs sm:text-sm font-black text-slate-800">{{ group.name }}</span>
                     </div>
-                    <span class="text-xs font-bold text-slate-600 tabular-nums">
+                    <span class="text-xs sm:text-sm font-bold text-slate-600 tabular-nums">
                       {{ group.total }} request{{ group.total !== 1 ? 's' : '' }}
                     </span>
                   </div>
 
                   <!-- Services List -->
-                  <div class="space-y-2.5">
+                  <div class="space-y-3">
                     <div v-for="item in group.services" :key="item.name" class="space-y-1">
                       <div class="flex items-center justify-between gap-2">
                         <span class="text-xs sm:text-sm font-semibold text-slate-800 truncate">{{ item.name }}</span>
@@ -392,7 +391,7 @@
                           {{ item.count }} <span class="text-slate-500 font-normal">({{ item.percent }}%)</span>
                         </span>
                       </div>
-                      <div class="w-full h-1.5 bg-white/80 rounded-full overflow-hidden border border-slate-200/60">
+                      <div class="w-full h-2 bg-white/80 rounded-full overflow-hidden border border-slate-200/60">
                         <div
                           class="h-full rounded-full transition-all duration-500"
                           :class="group.code === 'FGMU' ? 'bg-blue-500' : group.code === 'LEAU' ? 'bg-emerald-500' : 'bg-amber-500'"
@@ -416,7 +415,7 @@
                     </div>
                     <span class="tabular-nums text-slate-600 font-black text-xs sm:text-sm ml-2 shrink-0">{{ item.count }} <span class="text-slate-500 font-semibold">({{ item.percent }}%)</span></span>
                   </div>
-                  <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                     <div
                       class="h-full rounded-full transition-all duration-500"
                       :class="idx % 3 === 0 ? 'bg-blue-500' : idx % 3 === 1 ? 'bg-emerald-500' : 'bg-rose-400'"
@@ -428,57 +427,57 @@
               <p v-else class="text-xs sm:text-sm text-slate-500 font-medium py-6 text-center">No categories recorded for this period.</p>
             </div>
 
-            <!-- Right: SLA Compliance & Quality Dimensions -->
-            <div class="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm">
-              <div class="flex items-center gap-2">
-                <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Service Completion &amp; Quality</h4>
+            <!-- Service Completion Rate & Ratings -->
+            <div class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-5 shadow-sm">
+              <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+                <h4 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Service Completion Rate &amp; Ratings</h4>
               </div>
 
               <!-- 4 Health Tiles -->
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <div class="p-3.5 bg-sky-50/70 rounded-xl border border-sky-200/60 text-center">
-                  <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.early_finished ?? 0 }}</span>
-                  <span class="text-xs font-black text-sky-700 block">{{ executiveAnalytics?.completion_health?.early_finished_percent ?? 0 }}%</span>
-                  <span class="text-xs font-black text-sky-800 uppercase tracking-wider block mt-0.5">Early</span>
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div class="p-4 sm:p-5 bg-sky-50/70 rounded-xl border border-sky-200/60 text-center">
+                  <span class="text-2xl sm:text-3xl font-black text-sky-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.early_finished ?? 0 }}</span>
+                  <span class="text-xs sm:text-sm font-black text-sky-700 block">{{ executiveAnalytics?.completion_health?.early_finished_percent ?? 0 }}%</span>
+                  <span class="text-xs sm:text-sm font-black text-sky-800 uppercase tracking-wider block mt-1">Early</span>
                 </div>
-                <div class="p-3.5 bg-emerald-50/70 rounded-xl border border-emerald-200/60 text-center">
-                  <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.on_time ?? 0 }}</span>
-                  <span class="text-xs font-black text-emerald-700 block">{{ executiveAnalytics?.completion_health?.on_time_percent ?? 0 }}%</span>
-                  <span class="text-xs font-black text-emerald-800 uppercase tracking-wider block mt-0.5">On-Time</span>
+                <div class="p-4 sm:p-5 bg-emerald-50/70 rounded-xl border border-emerald-200/60 text-center">
+                  <span class="text-2xl sm:text-3xl font-black text-emerald-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.on_time ?? 0 }}</span>
+                  <span class="text-xs sm:text-sm font-black text-emerald-700 block">{{ executiveAnalytics?.completion_health?.on_time_percent ?? 0 }}%</span>
+                  <span class="text-xs sm:text-sm font-black text-emerald-800 uppercase tracking-wider block mt-1">On-Time</span>
                 </div>
-                <div class="p-3.5 bg-amber-50/70 rounded-xl border border-amber-200/60 text-center">
-                  <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.beyond_time ?? 0 }}</span>
-                  <span class="text-xs font-black text-amber-700 block">{{ executiveAnalytics?.completion_health?.beyond_time_percent ?? 0 }}%</span>
-                  <span class="text-xs font-black text-amber-800 uppercase tracking-wider block mt-0.5">Overdue</span>
+                <div class="p-4 sm:p-5 bg-amber-50/70 rounded-xl border border-amber-200/60 text-center">
+                  <span class="text-2xl sm:text-3xl font-black text-amber-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.beyond_time ?? 0 }}</span>
+                  <span class="text-xs sm:text-sm font-black text-amber-700 block">{{ executiveAnalytics?.completion_health?.beyond_time_percent ?? 0 }}%</span>
+                  <span class="text-xs sm:text-sm font-black text-amber-800 uppercase tracking-wider block mt-1">Overdue</span>
                 </div>
-                <div class="p-3.5 bg-slate-100/70 rounded-xl border border-slate-200/60 text-center">
-                  <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.not_completed ?? 0 }}</span>
-                  <span class="text-xs font-black text-slate-600 block">{{ executiveAnalytics?.completion_health?.not_completed_percent ?? 0 }}%</span>
-                  <span class="text-xs font-black text-slate-700 uppercase tracking-wider block mt-0.5">Incomplete</span>
+                <div class="p-4 sm:p-5 bg-slate-100/70 rounded-xl border border-slate-200/60 text-center">
+                  <span class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums block">{{ executiveAnalytics?.completion_health?.not_completed ?? 0 }}</span>
+                  <span class="text-xs sm:text-sm font-black text-slate-600 block">{{ executiveAnalytics?.completion_health?.not_completed_percent ?? 0 }}%</span>
+                  <span class="text-xs sm:text-sm font-black text-slate-700 uppercase tracking-wider block mt-1">Incomplete</span>
                 </div>
               </div>
 
               <!-- Rating Breakdown Dimensions -->
-              <div class="pt-3 border-t border-slate-100 space-y-2.5">
-                <span class="text-xs font-black text-slate-500 uppercase tracking-wider block">Client Rating Breakdown</span>
-                <div class="grid grid-cols-3 gap-2">
-                  <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1">
+              <div class="pt-4 border-t border-slate-100 space-y-3">
+                <span class="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-wider block">Client Rating Breakdown</span>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div class="p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1.5">
                     <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-black text-slate-600 uppercase">Quality</span>
+                      <span class="text-xs sm:text-sm font-black text-slate-600 uppercase">Quality</span>
                     </div>
-                    <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_quality ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
+                    <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_quality ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
                   </div>
-                  <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1">
+                  <div class="p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1.5">
                     <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-black text-slate-600 uppercase">Efficiency</span>
+                      <span class="text-xs sm:text-sm font-black text-slate-600 uppercase">Efficiency</span>
                     </div>
-                    <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
+                    <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
                   </div>
-                  <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1">
+                  <div class="p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1.5">
                     <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-black text-slate-600 uppercase">Timeliness</span>
+                      <span class="text-xs sm:text-sm font-black text-slate-600 uppercase">Timeliness</span>
                     </div>
-                    <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
+                    <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.summary?.overall_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.summary.overall_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
                   </div>
                 </div>
               </div>
