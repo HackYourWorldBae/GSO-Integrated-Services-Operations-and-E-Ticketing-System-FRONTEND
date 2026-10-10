@@ -56,8 +56,8 @@
 
     <template #header-title>
       <div class="flex items-center gap-2">
-        <span class="text-xs px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 font-black uppercase tracking-wider border border-rose-200">SSU</span>
         <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Security Personnel Management</h2>
+        <span class="text-xs px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 font-black uppercase tracking-wider border border-rose-200">SSU</span>
       </div>
     </template>
 

@@ -1,16 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-emerald-400 shadow-2xs shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7zm0 4h16M8 4v4m8-4v4" />
-          </svg>
-        </div>
-        <div class="flex flex-col">
-          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight leading-snug mb-0.5">Database Backup &amp; Disaster Recovery</h2>
-          <p class="text-[10px] text-emerald-700 font-bold tracking-[0.15em] uppercase">Onsite Local Storage &amp; Google Drive Cloud Vault</p>
-        </div>
+      <div class="flex flex-col">
+        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight leading-snug mb-0.5">Database Backup &amp; Disaster Recovery</h2>
+        <p class="text-[10px] text-emerald-700 font-bold tracking-[0.15em] uppercase">Onsite Local Storage &amp; Google Drive Cloud Vault</p>
       </div>
     </template>
 

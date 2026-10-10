@@ -36,12 +36,6 @@
     <template #header-title>
       <div class="flex flex-col min-w-0">
         <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
-          <router-link v-if="authStore.role === 'director'" to="/director/dashboard" class="p-1 -ml-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors shrink-0" title="Back to Executive Overview">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-          </router-link>
-          <router-link v-else to="/admin/fgmu" class="p-1 -ml-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors shrink-0" title="Back to FGMU Dashboard">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-          </router-link>
           <h2 class="text-sm sm:text-xl font-bold text-slate-900 tracking-tight leading-none truncate">
             {{ isDirector ? 'FGMU Ticket Overview' : 'FGMU Pending Approvals' }}
           </h2>

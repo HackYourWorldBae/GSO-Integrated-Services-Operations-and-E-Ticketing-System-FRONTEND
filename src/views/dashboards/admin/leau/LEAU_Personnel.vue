@@ -2,8 +2,8 @@
   <MainLayout>
     <template #header-title>
       <div class="flex items-center gap-2">
-        <span class="text-xs px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-black uppercase tracking-wider">LEAU</span>
         <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Personnel Management</h2>
+        <span class="text-xs px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-black uppercase tracking-wider">LEAU</span>
       </div>
     </template>
 

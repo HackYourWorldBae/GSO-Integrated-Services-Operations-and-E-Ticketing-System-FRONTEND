@@ -1,16 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-700 shadow-2xs shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-        </div>
-        <div class="flex flex-col">
-          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">My Service Requests</h2>
-          <p class="text-xs text-emerald-600 font-extrabold tracking-wider uppercase">{{ unitCode }} Admin Internal &amp; Cross-Unit Requests</p>
-        </div>
+      <div class="flex flex-col">
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">My Service Requests</h2>
+        <p class="text-xs text-emerald-600 font-extrabold tracking-wider uppercase">{{ unitCode }} Admin Internal &amp; Cross-Unit Requests</p>
       </div>
     </template>
 
