@@ -155,22 +155,22 @@ const itemNamePlaceholder = computed(() => {
             <p v-if="formsStore.v$.leauBorrowingState.item_name.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Item/s name is required</p>
           </div>
 
-          <!-- Quantity Needed (Optional) -->
+          <!-- Quantity Needed (Mandatory) -->
           <div class="space-y-2 relative pb-5">
             <label class="text-xs font-bold uppercase tracking-wider ml-1" :class="formsStore.v$.leauBorrowingState.quantity_needed.$error ? 'text-red-500' : 'text-slate-700'">
-              Quantity Needed <span class="text-xs font-normal text-slate-400 normal-case">(Optional)</span>
+              Quantity Needed <span class="text-rose-500">*</span>
             </label>
             <input
               v-model.number="borrowingState.quantity_needed"
               type="number"
               min="1"
-              max="100"
-              placeholder="e.g., 5 (leave blank if unsure)"
+              max="1000"
+              placeholder="e.g., 5"
               @blur="formsStore.v$.leauBorrowingState.quantity_needed.$touch()"
               class="w-full min-h-[48px] h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white text-base sm:text-sm font-bold outline-none transition-all shadow-xs text-center"
               :class="formsStore.v$.leauBorrowingState.quantity_needed.$error ? 'border-red-500 focus:border-red-500 text-red-900' : 'focus:border-amber-500'"
             />
-            <p v-if="formsStore.v$.leauBorrowingState.quantity_needed.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Quantity must be at least 1</p>
+            <p v-if="formsStore.v$.leauBorrowingState.quantity_needed.$error" class="text-xs font-bold text-red-500 absolute bottom-0 left-1 animate-fade-in">Quantity is required (min 1)</p>
           </div>
 
           <!-- State the Purpose in Detail -->

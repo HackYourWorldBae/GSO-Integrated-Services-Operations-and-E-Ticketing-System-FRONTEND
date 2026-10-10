@@ -5,8 +5,12 @@ import { required, minLength } from '@vuelidate/validators';
 
 const getFormattedToday = () => new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-// Quantity is optional; when provided it must be at least 1.
-const optionalQuantity = (v) => v === '' || v === null || v === undefined || (Number(v) >= 1);
+// Quantity is mandatory and must be an integer >= 1.
+const validQuantity = (v) => {
+  if (v === '' || v === null || v === undefined) return false;
+  const num = Number(v);
+  return !isNaN(num) && Number.isInteger(num) && num >= 1;
+};
 
 const createUnitFormState = () => ({
   sectionA: {
@@ -22,7 +26,7 @@ const createUnitFormState = () => ({
 });
 
 const createBorrowingFormState = () => ({
-  // Item Details (item name only; quantity is optional and defaults to 1)
+  // Item Details
   item_name: '',
   quantity_needed: '',
   purpose_project: '',
@@ -93,7 +97,7 @@ export const useFormsStore = defineStore('forms', () => {
     },
     leauBorrowingState: {
       item_name: { required },
-      quantity_needed: { optionalQuantity },
+      quantity_needed: { required, validQuantity },
       purpose_project: { required, minLength: minLength(10) },
       date_needed: { required },
       expected_return_date: { required },
