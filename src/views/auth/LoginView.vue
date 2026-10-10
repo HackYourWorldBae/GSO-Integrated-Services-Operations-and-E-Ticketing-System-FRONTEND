@@ -11,6 +11,7 @@ const authStore = useAuthStore();
 // State
 const identifier               = ref('');
 const password                 = ref('');
+const showPassword             = ref(false);
 const isLoading                = ref(false);
 const errorMessage             = ref('');
 const isAccountSuspended       = ref(false);
@@ -374,7 +375,7 @@ const handleLogin = async () => {
 
         <div class="relative group/input text-left">
           <div class="flex items-center justify-between mb-1.5 ml-0.5 pr-0.5">
-            <label class="block text-slate-700 text-xs font-bold">Password</label>
+            <label for="password_input" class="block text-slate-700 text-xs font-bold">Password</label>
             <router-link to="/forgot-password" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors p-1 -m-1">Forgot?</router-link>
           </div>
           <div class="relative">
@@ -384,13 +385,29 @@ const handleLogin = async () => {
               </svg>
             </div>
             <input 
+              id="password_input"
               v-model="password"
-              type="password" 
+              :type="showPassword ? 'text' : 'password'" 
               required
               :disabled="isAccountLocked"
-              class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-200 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed min-h-[48px]"
+              class="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-200 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed min-h-[48px]"
               placeholder="••••••••"
             />
+            <button
+              type="button"
+              @click="showPassword = !showPassword"
+              :disabled="isAccountLocked"
+              :aria-label="showPassword ? 'Hide password' : 'Show password'"
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-emerald-600 focus:text-emerald-600 focus:outline-none transition-colors duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <svg v-if="!showPassword" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg v-else class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+              </svg>
+            </button>
           </div>
         </div>
 
