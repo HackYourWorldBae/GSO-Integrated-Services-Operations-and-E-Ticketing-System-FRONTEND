@@ -16,30 +16,10 @@
     <template #main-content>
       <div class="space-y-6 sm:space-y-8 animate-fade-in p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto pb-12">
 
-        <!-- Top Header & Breadcrumb -->
+        <!-- Top Header -->
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
-            <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-2">
-              <router-link to="/director/dashboard" class="hover:text-emerald-700 transition-colors flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                <span>Executive Overview</span>
-              </router-link>
-              <span class="text-slate-300">/</span>
-              <span class="text-emerald-700 font-bold">Material Logs and Report</span>
-            </div>
-
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-700 shadow-2xs shrink-0">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-              <div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Materials &amp; Supplies Used</h1>
-              </div>
-            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Materials &amp; Supplies Used</h1>
           </div>
 
           <!-- Document Export Action -->
