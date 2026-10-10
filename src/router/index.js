@@ -483,7 +483,7 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['superadmin'] }
     },
 
-    // Director Dashboards & Ticket Queues Oversight
+    // Director Dashboards & Unit Ticket Overview
     {
       path: '/director',
       redirect: '/director/dashboard'

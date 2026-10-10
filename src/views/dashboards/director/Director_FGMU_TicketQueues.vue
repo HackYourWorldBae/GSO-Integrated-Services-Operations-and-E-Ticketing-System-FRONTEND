@@ -43,7 +43,7 @@
             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           </router-link>
           <h2 class="text-sm sm:text-xl font-bold text-slate-900 tracking-tight leading-none truncate">
-            {{ isDirector ? 'FGMU Ticket Queues' : 'FGMU Pending Approvals' }}
+            {{ isDirector ? 'FGMU Ticket Overview' : 'FGMU Pending Approvals' }}
           </h2>
           <span class="px-1.5 sm:px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider border border-emerald-200 shrink-0">
             <span class="hidden md:inline">{{ activeTabCount }} {{ activeTabLabel }}</span>

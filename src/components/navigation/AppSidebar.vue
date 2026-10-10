@@ -279,17 +279,17 @@ const rawNavGroups = computed(() => {
         ]
       },
       {
-        title: 'Unit Ticket Queues',
+        title: 'Unit Ticket Overview',
         items: [
           {
-            label: 'FGMU Ticket Queues',
+            label: 'FGMU Ticket Overview',
             to: '/director/fgmu/queues',
             exact: true,
             icon: 'tools',
             permission: 'tickets.view_all'
           },
           {
-            label: 'LEAU Ticket Queues',
+            label: 'LEAU Ticket Overview',
             to: '/director/leau/queues',
             exact: true,
             icon: 'leaf',
