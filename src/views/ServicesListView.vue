@@ -13,9 +13,6 @@ const userName = computed(() => authStore.fullName || 'User');
 const userRole = computed(() => authStore.capitalizedRole);
 const isDropdownOpen = ref(false);
 const selectedServices = reactive({});
-const otherSpecifics = reactive({});
-const tempCustom = reactive({});
-const customDescriptions = reactive({});
 
 const dashboardHomeRoute = computed(() => {
   const r = (authStore.user?.role || authStore.role || '').toLowerCase();
@@ -140,8 +137,7 @@ const serviceKeywords = {
   "Borrowing of plants": ["borrow plants", "hiram halaman", "borrow", "hiram", "pahiram", "plant rental", "rent plants", "potted plants", "paso", "decoration plants", "ornamental plants", "event plants", "plant display", "plants for event", "grounds", "leau", "borrowing", "rental"],
   "Stage & Hall Decoration": ["stage", "entablado", "stage decoration", "hall", "hall decoration", "decorate", "decoration", "decor", "event setup", "venue setup", "backdrop", "skirting", "drapes", "program", "ceremony", "graduation", "event", "events", "fiesta", "pageant", "seminar setup", "grounds", "leau", "aesthetics"],
   "Borrowing of tools/ equipment": ["borrow tools", "hiram gamit", "borrow", "hiram", "pahiram", "borrowing", "rental", "equipment", "equipments", "tools", "gamit", "ladder", "hagdan", "wheelbarrow", "kariton", "karitilya", "shovel", "pala", "rake", "kalaykay", "hoe", "spade", "grass cutter borrow", "equipment rental", "grounds", "leau", "support"],
-  "Incident Report": ["incident", "incidente", "security", "sekyu", "theft", "nakaw", "nanakaw", "stolen", "lost", "nawawala", "missing", "accident", "aksidente", "trespass", "trespassing", "intruder", "unauthorized", "damage", "sira", "vandalism", "blotter", "guard", "gwardya", "safety", "kaligtasan", "complaint", "reklamo", "harassment", "emergency", "report", "ssu"],
-  "Others": ["others", "other", "custom", "miscellaneous", "general", "general repair", "maintenance", "not listed", "not sure", "assistance", "request", "facilities", "grounds", "security", "fgmu", "leau", "ssu"]
+  "Incident Report": ["incident", "incidente", "security", "sekyu", "theft", "nakaw", "nanakaw", "stolen", "lost", "nawawala", "missing", "accident", "aksidente", "trespass", "trespassing", "intruder", "unauthorized", "damage", "sira", "vandalism", "blotter", "guard", "gwardya", "safety", "kaligtasan", "complaint", "reklamo", "harassment", "emergency", "report", "ssu"]
 };
 
 // Generic unit-level aliases: searching these surfaces every service of that unit.
@@ -241,12 +237,10 @@ const getServiceIcon = (service) => {
 
     // SSU – Security Services
     "Incident Report":
-      `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 11v4"/><path d="M12 18h.01"/></svg>`,
-
-    "Others":
-      `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>`
+      `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 11v4"/><path d="M12 18h.01"/></svg>`
   };
-  return icons[service] || icons["Others"];
+  const defaultIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`;
+  return icons[service] || defaultIcon;
 };
 
 // --- SUB-UNIT DATA ---
@@ -272,13 +266,13 @@ const subUnits = ref([
         title: "Structure & Finishes",
         description: "Repair and renovation of building structures and surface finishes.",
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
-        services: ["Concrete Works", "Masonry Works", "Welding & Tinsmith Works", "Carpentry & Joinery", "Glass & Glazing Works", "Painting Works", "Others"]
+        services: ["Concrete Works", "Masonry Works", "Welding & Tinsmith Works", "Carpentry & Joinery", "Glass & Glazing Works", "Painting Works"]
       },
       {
         title: "Utilities & Mechanical",
         description: "Installation, repair, and maintenance of electrical, plumbing, and mechanical systems.",
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a2 2 0 0 1-2.79-2.79L14.7 6.3Z"/><path d="m20 13 2 2"/><path d="m5 22 5-5"/><path d="M17 14.7c-.35 2.2-2.15 4-4.35 4.35L8.5 22.25c-1.12.37-2.12-.63-1.75-1.75l3.2-4.15c.35-2.2 2.15-4 4.35-4.35l4.15-3.2c1.12-.37 2.12.63 1.75 1.75l-3.2 4.15Z"/></svg>`,
-        services: ["Electrical Work", "Plumbing & Sanitary Works", "Electronics & Communication Works", "Mechanical Works", "Others"]
+        services: ["Electrical Work", "Plumbing & Sanitary Works", "Electronics & Communication Works", "Mechanical Works"]
       },
       {
         title: "Janitorial",
@@ -314,7 +308,7 @@ const subUnits = ref([
         title: "Landscaping",
         description: "Grounds beautification, lawn mowing, weeding, planting, tree pruning, and event staging.",
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`,
-        services: ["Mowing/ Weeding", "Planting/ Landscaping", "Pruning/ Cutting", "Stage & Hall Decoration", "Others"]
+        services: ["Mowing/ Weeding", "Planting/ Landscaping", "Pruning/ Cutting", "Stage & Hall Decoration"]
       },
       {
         title: "Borrowing Services",
@@ -344,7 +338,7 @@ const subUnits = ref([
         title: "Security Services",
         description: "Official incident report documentation and campus safety services.",
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>`,
-        services: ["Incident Report", "Others"]
+        services: ["Incident Report"]
       }
     ]
   }
@@ -540,8 +534,6 @@ onMounted(() => {
     cat.services.forEach(s => {
       selectedServices[`${cat.title}-${s}`] = false;
     });
-    otherSpecifics[cat.title] = '';
-    tempCustom[cat.title] = { title: '', description: '' };
   });
 });
 
@@ -577,52 +569,6 @@ const toggleService = (unitId, catTitle, service) => {
   selectedServices[key] = !selectedServices[key];
 };
 
-// --- CUSTOM SERVICE ---
-const confirmCustomService = (unitId, catTitle) => {
-  if (isStudentUser.value && unitId !== 'ssu') {
-    toast.error('Student accounts cannot create custom service tickets in Facilities or Ground Management.');
-    return;
-  }
-  const custom = tempCustom[catTitle];
-  if (!custom.title.trim()) {
-    alert("Please provide a title for your custom service.");
-    return;
-  }
-  const category = serviceCategories.value.find(c => c.title === catTitle);
-  if (category) {
-    const title = custom.title.trim();
-    const othersIdx = category.services.indexOf('Others');
-    if (!category.services.includes(title)) {
-      if (othersIdx !== -1) category.services.splice(othersIdx, 0, title);
-      else category.services.push(title);
-    }
-    selectedServices[`${catTitle}-${title}`] = true;
-    customDescriptions[`${catTitle}-${title}`] = custom.description.trim();
-    selectedServices[`${catTitle}-Others`] = false;
-    tempCustom[catTitle] = { title: '', description: '' };
-  }
-};
-
-const cancelCustomService = (catTitle) => {
-  selectedServices[`${catTitle}-Others`] = false;
-  tempCustom[catTitle] = { title: '', description: '' };
-};
-
-const removeCustomService = (catTitle, service) => {
-  openConfirmModal({
-    title: 'Remove Custom Service',
-    message: `Remove the custom service "${service}"?`,
-    confirmText: 'Remove',
-    type: 'danger',
-    onConfirm: () => {
-      const cat = serviceCategories.value.find(c => c.title === catTitle);
-      if (cat) cat.services = cat.services.filter(s => s !== service);
-      delete selectedServices[`${catTitle}-${service}`];
-      delete customDescriptions[`${catTitle}-${service}`];
-    }
-  });
-};
-
 // --- SUBMIT ---
 const handleSubmit = () => {
   const hasSelection = Object.values(selectedServices).some(v => v === true);
@@ -644,8 +590,6 @@ const handleSubmit = () => {
   }
 
   localStorage.setItem('selectedServices', JSON.stringify(selectedServices));
-  localStorage.setItem('otherSpecifics', JSON.stringify(otherSpecifics));
-  localStorage.setItem('customDescriptions', JSON.stringify(customDescriptions));
   router.push('/services/forms');
 };
 </script>
@@ -902,20 +846,8 @@ const handleSubmit = () => {
                         v-html="getServiceIcon(service)"
                       ></div>
 
-                      <!-- Remove button (custom services only) -->
-                      <button
-                        type="button"
-                        v-if="customDescriptions[`${category.title}-${service}`]"
-                        @click.stop="removeCustomService(category.title, service)"
-                        class="absolute top-2 left-2 w-6 h-6 rounded-full bg-red-50 text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white z-10"
-                        title="Remove custom service"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
-                      </button>
-
                       <div class="flex flex-col items-center gap-1">
                         <span class="text-[11px] sm:text-xs font-bold leading-tight line-clamp-2">{{ service }}</span>
-                        <p v-if="customDescriptions[`${category.title}-${service}`]" class="text-[9px] sm:text-[10px] opacity-70 line-clamp-2 max-w-[90%]">{{ customDescriptions[`${category.title}-${service}`] }}</p>
                       </div>
 
                       <!-- Restricted Lock Badge or Check Indicator -->
@@ -938,44 +870,6 @@ const handleSubmit = () => {
                     </div>
 
                   </template>
-                </div>
-
-                <!-- "Others" custom input panel -->
-                <div v-if="selectedServices[`${category.title}-Others`]" class="animate-fade-in pt-3 sm:pt-4">
-                  <div class="bg-white rounded-2xl sm:rounded-[1.75rem] border-2 border-emerald-500/20 shadow-sm p-4 sm:p-8 space-y-4 max-w-2xl">
-                    <div class="flex items-center gap-3">
-                      <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                      </div>
-                      <div>
-                        <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-tight">Custom Service</h4>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Create a specific service for {{ category.title }}</p>
-                      </div>
-                    </div>
-                    <div class="space-y-3 sm:space-y-4 pt-1">
-                      <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Service Title</label>
-                        <input
-                          v-model="tempCustom[category.title].title"
-                          type="text"
-                          placeholder="e.g. Deep Cleaning"
-                          class="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-slate-900 text-base sm:text-sm font-bold outline-none transition-all min-h-[48px]"
-                        />
-                      </div>
-                      <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Specify Requirements</label>
-                        <textarea
-                          v-model="tempCustom[category.title].description"
-                          placeholder="Provide detailed instructions for the GSO team..."
-                          class="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-slate-900 text-base sm:text-sm font-medium outline-none transition-all min-h-[90px] resize-none"
-                        ></textarea>
-                      </div>
-                      <div class="flex justify-end gap-2 sm:gap-3 pt-1">
-                        <button type="button" @click="cancelCustomService(category.title)" class="min-h-[44px] px-4 sm:px-6 py-2.5 sm:py-3 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-600 font-bold rounded-xl border border-slate-200 text-xs sm:text-sm transition-colors">Cancel</button>
-                        <button type="button" @click="confirmCustomService(unit.id, category.title)" class="min-h-[44px] px-4 sm:px-6 py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold rounded-xl shadow text-xs sm:text-sm transition-colors">Confirm Service</button>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
               </div>

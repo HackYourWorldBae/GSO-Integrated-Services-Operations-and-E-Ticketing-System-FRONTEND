@@ -441,7 +441,6 @@ const fgmuStructureServices = [
   'Carpentry & Joinery',
   'Glass & Glazing Works',
   'Painting Works',
-  'Others',
 ];
 
 const fgmuUtilityServices = [
@@ -465,7 +464,6 @@ const leauLandscapingServices = [
   'Planting/ Landscaping',
   'Pruning/ Cutting',
   'Stage & Hall Decoration',
-  'Others',
 ];
 
 const leauBorrowingServices = [

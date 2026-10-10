@@ -22,8 +22,6 @@ import { LOCATIONS, resolveLocationForUser } from '@/constants/locations';
 // --- STATE ---
 const user = ref(null);
 const selectedServicesRaw = ref({});
-const otherSpecifics = ref({});
-const customDescriptions = ref({});
 const isSubmitting = ref(false);
 
 const locations = LOCATIONS;
@@ -59,12 +57,7 @@ onMounted(async () => {
   formsStore.ssuIncidentState.reportedBy.printedName = fullName;
 
   const storedServices = localStorage.getItem('selectedServices');
-  const storedOthers = localStorage.getItem('otherSpecifics');
-  const storedCustomDesc = localStorage.getItem('customDescriptions');
-  
   if (storedServices) selectedServicesRaw.value = JSON.parse(storedServices);
-  if (storedOthers) otherSpecifics.value = JSON.parse(storedOthers);
-  if (storedCustomDesc) customDescriptions.value = JSON.parse(storedCustomDesc);
   
   // Student Account Role Authorization Guard (RSO / SSG accounts)
   const userRole = (user.value?.role || authStore.role || '').toLowerCase();
@@ -100,8 +93,7 @@ const selectedList = computed(() => {
       const service = idx !== -1 ? key.substring(idx + 1) : '';
       return { 
         category, 
-        service,
-        description: customDescriptions.value[key] || ''
+        service
       };
     });
 });
@@ -113,11 +105,6 @@ const SSU_CATEGORIES = ['Security Services'];
 const fgmuServices = computed(() => selectedList.value.filter(s => FGMU_CATEGORIES.includes(s.category)));
 const leauServices = computed(() => selectedList.value.filter(s => LEAU_CATEGORIES.includes(s.category)));
 const ssuServices = computed(() => selectedList.value.filter(s => SSU_CATEGORIES.includes(s.category)));
-const otherServices = computed(() => selectedList.value.filter(s => 
-  !FGMU_CATEGORIES.includes(s.category) && 
-  !LEAU_CATEGORIES.includes(s.category) &&
-  !SSU_CATEGORIES.includes(s.category)
-));
 
 // Borrowing services detection
 const borrowingServices = computed(() => leauServices.value.filter(s => 
@@ -138,7 +125,6 @@ const hasRegularLEAU = computed(() => regularLeauServices.value.length > 0);
 const hasBorrowing = computed(() => borrowingServices.value.length > 0);
 const hasSSU = computed(() => ssuServices.value.length > 0);
 const hasIncidentReport = computed(() => ssuServices.value.length > 0);
-const hasOthers = computed(() => otherServices.value.length > 0);
 
 // File handlers have been moved to individual form components
 
@@ -181,7 +167,6 @@ const handleFinalSubmit = async () => {
     ssu: hasSSU.value ? { 
       incidentReport: hasIncidentReport.value ? formsStore.ssuIncidentState : null
     } : null,
-    others: hasOthers.value ? otherServices.value : null,
     submittedAt: new Date().toISOString()
   };
   
@@ -269,8 +254,6 @@ const handleFinalSubmit = async () => {
     }
     formsStore.clearForms();
     localStorage.removeItem('selectedServices');
-    localStorage.removeItem('otherSpecifics');
-    localStorage.removeItem('customDescriptions');
 
     const role = (authStore.user?.role || authStore.role || '').toLowerCase();
     if (role === 'admin') {
@@ -378,15 +361,6 @@ const handleFinalSubmit = async () => {
         v-if="hasIncidentReport" 
         :services="ssuServices" 
       />
-
-      <!-- OTHERS PLACEHOLDER -->
-      <div v-if="hasOthers" class="p-6 sm:p-12 bg-white rounded-2xl sm:rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center slide-up delay-200 opacity-70">
-        <h4 class="text-base sm:text-xl font-black text-slate-500 tracking-tight">Additional Unit Details Needed</h4>
-        <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Pending Additional Forms</p>
-        <div class="mt-4 flex flex-wrap justify-center gap-2">
-           <span v-for="item in otherServices" :key="item.service" class="px-3 py-1.5 bg-slate-50 rounded-xl text-[10px] font-black text-slate-500 border border-slate-200">{{ item.service }}</span>
-        </div>
-      </div>
 
       <!-- FINAL SUBMISSION STICKY BAR -->
       <div class="flex justify-center pt-4 sm:pt-8 sticky bottom-3 sm:bottom-6 px-1 z-30 pb-safe">
