@@ -122,10 +122,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- 1. Total Requests / Daily Total Requests -->
             <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md flex flex-col justify-between">
-              <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-3 rounded-xl sm:rounded-2xl bg-slate-900 text-white shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
+              <div class="flex items-center mb-4">
                 <span class="text-xs font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">
                   {{ stats.filter?.label || (selectedPeriod === 'day' ? 'Daily' : 'All Time') }}
                 </span>
@@ -143,10 +140,7 @@
 
             <!-- 2. Resolved Tickets / Daily Completed Jobs -->
             <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md flex flex-col justify-between">
-              <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-3 rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                </div>
+              <div class="flex items-center mb-4">
                 <span class="text-xs font-black text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">
                   {{ selectedPeriod === 'day' ? 'Daily Completed' : 'Completed' }}
                 </span>
@@ -167,10 +161,7 @@
               @click="router.push('/admin/fgmu/archives')" 
               class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer flex flex-col justify-between"
             >
-              <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-3 rounded-xl sm:rounded-2xl bg-rose-50 text-rose-600 shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
-                </div>
+              <div class="flex items-center mb-4">
                 <span class="text-xs font-black text-rose-700 bg-rose-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">
                   {{ selectedPeriod === 'day' ? 'Daily Declined' : 'Declined' }}
                 </span>
@@ -285,10 +276,7 @@
               @click="router.push('/admin/fgmu/queues')"
               class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer hover:border-amber-300 transition-all flex flex-col justify-between"
             >
-              <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-3 rounded-xl sm:rounded-2xl bg-amber-50 text-amber-600 shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
+              <div class="flex items-center mb-4">
                 <span class="text-xs font-black text-amber-700 bg-amber-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">Pending</span>
               </div>
               <div>
@@ -302,10 +290,7 @@
               @click="router.push('/admin/fgmu/dispatched')"
               class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer flex flex-col justify-between"
             >
-              <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-3 rounded-xl sm:rounded-2xl bg-blue-50 text-blue-600 shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                </div>
+              <div class="flex items-center mb-4">
                 <span class="text-xs font-black text-blue-700 bg-blue-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">Dispatched</span>
               </div>
               <div>
@@ -319,10 +304,7 @@
               @click="router.push('/admin/fgmu/active-tickets')"
               class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer flex flex-col justify-between"
             >
-              <div class="flex items-center justify-between gap-2 mb-4">
-                <div class="p-3 rounded-xl sm:rounded-2xl bg-emerald-100 text-emerald-800 shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                </div>
+              <div class="flex items-center mb-4">
                 <span class="text-xs font-black text-emerald-800 bg-emerald-200/80 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">Active</span>
               </div>
               <div>
