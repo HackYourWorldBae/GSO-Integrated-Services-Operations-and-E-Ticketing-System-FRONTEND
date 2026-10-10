@@ -1,12 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none mb-1">LEAU Operations</h2>
-        <p class="text-xs text-emerald-600 font-black tracking-wider uppercase">
-          {{ isBorrowingMode ? 'Dispatch Tickets — Assign Inventory & Set Ready for Pickup' : 'Dispatch Tickets & Scheduling' }}
-        </p>
-      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
+        LEAU Operations
+      </h2>
     </template>
 
     <template #main-content>

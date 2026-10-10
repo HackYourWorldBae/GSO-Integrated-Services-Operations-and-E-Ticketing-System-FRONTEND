@@ -1,10 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight leading-snug mb-0.5">Superadmin Account Settings</h2>
-        <p class="text-[10px] text-emerald-700 font-bold tracking-[0.15em] uppercase">Root System Administrator &amp; Security Controls</p>
-      </div>
+      <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight truncate">
+        Superadmin Account Settings
+      </h2>
     </template>
 
     <template #main-content>

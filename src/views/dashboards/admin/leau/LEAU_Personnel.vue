@@ -1,10 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex items-center gap-2">
-        <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Personnel Management</h2>
-        <span class="text-xs px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-black uppercase tracking-wider">LEAU</span>
-      </div>
+      <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight truncate">
+        Personnel Management
+      </h2>
     </template>
 
     <template #main-content>

@@ -34,10 +34,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none mb-1">Requestor Dashboard</h2>
-        <p class="text-xs sm:text-sm font-semibold text-slate-600">Welcome back, {{ userName }}</p>
-      </div>
+      <h2 class="text-xl sm:text-3xl font-black text-slate-900 tracking-tight truncate">
+        Requestor Dashboard
+      </h2>
     </template>
 
     <template #main-content>

@@ -1,16 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex flex-col min-w-0">
-        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
-          <h2 class="text-sm sm:text-xl font-bold text-slate-900 tracking-tight leading-none truncate">User Accounts</h2>
-          <span class="px-1.5 sm:px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider border border-purple-200 shrink-0">
-            <span class="hidden sm:inline">{{ pagination.total }} Accounts</span>
-            <span class="sm:hidden">{{ pagination.total }}</span>
-          </span>
-        </div>
-        <p class="text-xs font-medium text-slate-500 hidden sm:block mt-0.5 truncate">Provision, edit roles, transfer units, and manage account statuses</p>
-      </div>
+      <h2 class="text-sm sm:text-xl font-bold text-slate-900 tracking-tight truncate">
+        User Accounts
+      </h2>
     </template>
 
     <template #main-content>

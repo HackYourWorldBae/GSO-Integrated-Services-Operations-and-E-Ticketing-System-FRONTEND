@@ -1,10 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex flex-col min-w-0">
-        <h2 class="text-sm sm:text-xl font-extrabold text-slate-900 tracking-tight leading-none mb-0.5 sm:mb-1 truncate">{{ unitCode }} Settings</h2>
-        <p class="text-[10px] text-emerald-700 font-bold tracking-[0.15em] uppercase truncate hidden sm:block">{{ unitFullName }}</p>
-      </div>
+      <h2 class="text-sm sm:text-xl font-extrabold text-slate-900 tracking-tight truncate">
+        {{ unitCode }} Settings
+      </h2>
     </template>
 
     <template #main-content>

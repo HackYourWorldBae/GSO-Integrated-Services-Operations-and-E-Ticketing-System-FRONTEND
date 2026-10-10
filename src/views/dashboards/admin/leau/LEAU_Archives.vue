@@ -31,10 +31,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">Completed Tickets Archives</h2>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">LEAU Archiving</p>
-      </div>
+      <h2 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+        Completed Tickets Archives
+      </h2>
     </template>
 
     <template #main-content>

@@ -55,10 +55,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">SSU Dashboard</h2>
-        <p class="text-xs text-rose-600 font-extrabold tracking-wider uppercase">Security Services Unit Control</p>
-      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
+        SSU Dashboard
+      </h2>
     </template>
 
     <template #main-content>

@@ -1,18 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex flex-col min-w-0">
-        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
-          <h2 class="text-sm sm:text-xl font-bold text-slate-900 tracking-tight leading-none truncate">Identity Verification</h2>
-          <span class="px-1.5 sm:px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-wider border border-amber-300 shrink-0">
-            <span class="hidden sm:inline">{{ filteredPendingUsers.length }} Pending</span>
-            <span class="sm:hidden">{{ filteredPendingUsers.length }}</span>
-          </span>
-        </div>
-        <p class="text-xs font-medium text-slate-500 hidden sm:block mt-0.5 truncate">
-          Review uploaded student and employee identification documents to verify identity and unlock requestor privileges
-        </p>
-      </div>
+      <h2 class="text-sm sm:text-xl font-bold text-slate-900 tracking-tight truncate">
+        Identity Verification
+      </h2>
     </template>
 
     <template #main-content>

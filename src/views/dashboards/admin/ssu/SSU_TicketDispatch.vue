@@ -55,17 +55,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <div class="flex items-center gap-2">
-          <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">SSU Operations</h2>
-          <span class="px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 text-[10px] font-black uppercase tracking-wider border border-rose-200">
-            Dispatch &amp; Scheduling
-          </span>
-        </div>
-        <p class="text-[10px] text-rose-600 font-extrabold tracking-[0.2em] uppercase mt-1">
-          Safety &amp; Security Services Unit
-        </p>
-      </div>
+      <h2 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+        SSU Operations
+      </h2>
     </template>
 
     <template #main-content>

@@ -659,9 +659,8 @@ const handleSubmit = () => {
         <div class="w-8 h-8 sm:w-11 sm:h-11 rounded-xl flex shrink-0 items-center justify-center overflow-hidden">
           <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-contain" />
         </div>
-        <div class="flex flex-col min-w-0">
-          <span class="font-black text-sm sm:text-base text-slate-900 leading-tight tracking-tight truncate">GSO Services</span>
-          <span class="text-[8px] sm:text-[9px] text-emerald-600 font-black tracking-[0.1em] uppercase hidden xs:block truncate">GSO Services E-Ticketing</span>
+        <div class="flex items-center min-w-0">
+          <span class="font-black text-sm sm:text-base text-slate-900 tracking-tight truncate">GSO Services</span>
         </div>
       </div>
 

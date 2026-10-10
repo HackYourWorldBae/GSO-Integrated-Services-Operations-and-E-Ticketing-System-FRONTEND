@@ -5,10 +5,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">LEAU Analytics</h2>
-        <p class="text-[10px] text-emerald-600 font-extrabold tracking-[0.2em] uppercase">Landscaping & Environmental Aesthetics Oversight</p>
-      </div>
+      <h2 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+        LEAU Analytics
+      </h2>
     </template>
 
     <template #main-content>

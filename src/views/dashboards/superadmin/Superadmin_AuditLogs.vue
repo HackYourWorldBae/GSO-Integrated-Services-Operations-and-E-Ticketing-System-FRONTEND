@@ -1,15 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex flex-col">
-        <div class="flex items-center gap-2">
-          <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">System Audit Trail & Operations Logs</h2>
-          <span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider border border-purple-200">
-            {{ pagination.total }} Events
-          </span>
-        </div>
-        <p class="text-xs font-medium text-slate-500 hidden sm:block mt-0.5">Immutable chronological record of all ticket actions, dispatches, cancellations, and status changes</p>
-      </div>
+      <h2 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+        System Audit Trail & Operations Logs
+      </h2>
     </template>
 
     <template #main-content>

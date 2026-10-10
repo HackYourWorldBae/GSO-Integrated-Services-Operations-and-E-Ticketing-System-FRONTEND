@@ -5,10 +5,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mb-1">Director's Dashboard</h2>
-        <p class="text-xs text-emerald-700 font-extrabold tracking-wider uppercase">Executive Unit Oversight &amp; Reports</p>
-      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
+        Director's Dashboard
+      </h2>
     </template>
 
     <template #main-content>

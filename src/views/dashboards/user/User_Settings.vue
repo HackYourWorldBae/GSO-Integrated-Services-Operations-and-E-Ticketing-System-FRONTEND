@@ -34,10 +34,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">Account & Security</h2>
-        <p class="text-xs font-medium text-slate-500">Manage your profile and personal information</p>
-      </div>
+      <h2 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+        Account & Security
+      </h2>
     </template>
 
     <template #main-content>

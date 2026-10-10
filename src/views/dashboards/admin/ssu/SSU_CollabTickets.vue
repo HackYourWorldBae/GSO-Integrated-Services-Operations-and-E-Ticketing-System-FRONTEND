@@ -55,17 +55,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <div class="flex items-center gap-2">
-          <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">SSU Collab Tickets</h2>
-          <span class="px-2.5 py-0.5 rounded-md bg-indigo-100 text-indigo-800 text-[10px] font-black uppercase tracking-wider border border-indigo-200">
-            Cross-Unit Operations
-          </span>
-        </div>
-        <p class="text-[10px] text-rose-600 font-extrabold tracking-[0.2em] uppercase mt-1">
-          Safety &amp; Security Services Unit
-        </p>
-      </div>
+      <h2 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+        SSU Collab Tickets
+      </h2>
     </template>
 
     <template #main-content>

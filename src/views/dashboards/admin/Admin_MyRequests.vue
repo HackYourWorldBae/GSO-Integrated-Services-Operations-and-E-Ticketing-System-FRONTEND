@@ -1,10 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">My Service Requests</h2>
-        <p class="text-xs text-emerald-600 font-extrabold tracking-wider uppercase">{{ unitCode }} Admin Internal &amp; Cross-Unit Requests</p>
-      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
+        My Service Requests
+      </h2>
     </template>
 
     <template #main-content>

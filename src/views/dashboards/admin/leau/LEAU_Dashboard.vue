@@ -31,10 +31,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">LEAU Dashboard</h2>
-        <p class="text-xs text-emerald-600 font-extrabold tracking-wider uppercase">Landscaping &amp; Environmental Aesthetics Unit</p>
-      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
+        LEAU Dashboard
+      </h2>
     </template>
 
     <template #main-content>

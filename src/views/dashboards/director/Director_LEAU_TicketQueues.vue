@@ -34,20 +34,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col min-w-0">
-        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
-          <h2 class="text-sm sm:text-xl font-bold text-slate-900 tracking-tight leading-none truncate">
-            {{ isDirector ? 'LEAU Ticket Overview' : 'LEAU Pending Approvals' }}
-          </h2>
-          <span class="px-1.5 sm:px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider border border-emerald-200 shrink-0">
-            <span class="hidden md:inline">{{ activeTabCount }} {{ activeTabLabel }}</span>
-            <span class="md:hidden">{{ activeTabCount }}</span>
-          </span>
-        </div>
-        <p class="text-xs text-amber-700 font-bold uppercase tracking-wider mt-0.5 sm:mt-1 truncate hidden sm:block">
-          {{ isDirector ? 'Director Executive Review • Landscaping & Environmental Action (LEAU)' : 'Unit Head Operations & Approvals • Landscaping & Environmental Action (LEAU)' }}
-        </p>
-      </div>
+      <h2 class="text-sm sm:text-xl font-bold text-slate-900 tracking-tight truncate">
+        {{ isDirector ? 'LEAU Ticket Overview' : 'LEAU Pending Approvals' }}
+      </h2>
     </template>
 
     <template #main-content>

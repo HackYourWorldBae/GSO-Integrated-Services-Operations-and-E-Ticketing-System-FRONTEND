@@ -34,10 +34,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex flex-col">
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none mb-1">Completed Tickets</h2>
-        <p class="text-sm font-semibold text-slate-600">View your past and resolved requests</p>
-      </div>
+      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight truncate">
+        Completed Tickets
+      </h2>
     </template>
 
     <template #main-content>

@@ -300,9 +300,8 @@ const handleFinalSubmit = async () => {
         <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-xl flex shrink-0 items-center justify-center overflow-hidden">
           <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-contain" />
         </div>
-        <div class="flex flex-col min-w-0">
-          <span class="font-black text-sm sm:text-lg text-slate-900 leading-tight tracking-tight truncate">Service Intake</span>
-          <span class="text-[8px] sm:text-[9px] text-emerald-600 font-black tracking-[0.1em] uppercase truncate">GSO Services E-Ticketing</span>
+        <div class="flex items-center min-w-0">
+          <span class="font-black text-sm sm:text-lg text-slate-900 tracking-tight truncate">Service Intake</span>
         </div>
       </div>
       <button @click="goBack" class="group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-slate-500 hover:text-emerald-700 font-bold text-xs sm:text-sm transition-all duration-300 shrink-0 min-h-[36px] sm:min-h-[44px]">
