@@ -182,10 +182,34 @@ html.comfort-view textarea {
   min-height: 44px !important;
 }
 
-/* Thicker border definitions for card boundaries */
-html.comfort-view .border-slate-100,
-html.comfort-view .border-slate-200,
-html.comfort-view .border-slate-200\/80 {
+/* Container borders in Comfort View: Apply tactile, defined borders strictly to structural containers */
+html.comfort-view .bg-white.rounded-2xl.border,
+html.comfort-view .bg-white.rounded-3xl.border,
+html.comfort-view .bg-white.rounded-xl.border,
+html.comfort-view .rounded-2xl.border:not(header):not(h1):not(h2):not(h3):not(h4):not(th),
+html.comfort-view .rounded-3xl.border:not(header):not(h1):not(h2):not(h3):not(h4):not(th) {
   border-color: #cbd5e1 !important;
   border-width: 1.5px !important;
+}
+
+/* Explicitly prevent borders on all text headers, titles, and table headers in Comfort View */
+html.comfort-view h1,
+html.comfort-view h2,
+html.comfort-view h3,
+html.comfort-view h4,
+html.comfort-view h5,
+html.comfort-view h6,
+html.comfort-view header h1,
+html.comfort-view header h2,
+html.comfort-view header h3,
+html.comfort-view th {
+  border: none !important;
+}
+
+/* Top navigation header: Keep only subtle bottom divider, no top/side container borders */
+html.comfort-view header {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 1px solid #cbd5e1 !important;
 }
