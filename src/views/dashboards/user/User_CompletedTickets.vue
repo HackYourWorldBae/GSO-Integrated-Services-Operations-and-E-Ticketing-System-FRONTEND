@@ -635,8 +635,8 @@
                   </div>
 
                   <!-- Step Content -->
-                  <div class="flex-1 min-w-0 pt-0.5">
-                    <div class="flex items-center gap-2 mb-0.5">
+                  <div class="flex-1 min-w-0 pt-1 pb-1">
+                    <div class="flex items-center gap-2">
                       <h4 :class="['font-bold text-sm leading-tight', selectedTimelineTicket.currentStep >= (index + 1) ? 'text-slate-900' : 'text-slate-400']">
                         {{ step.label }}
                       </h4>
@@ -644,7 +644,6 @@
                         Completed
                       </span>
                     </div>
-                    <p class="text-xs text-slate-500 leading-relaxed">{{ step.description }}</p>
                   </div>
                 </div>
               </div>

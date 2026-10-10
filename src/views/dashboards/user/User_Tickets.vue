@@ -812,8 +812,8 @@
                         </div>
 
                         <!-- Step content -->
-                        <div :class="['flex-1 min-w-0 pt-0.5 pb-1', !isStepCompleted(selectedTicket, index) && !isStepActive(selectedTicket, index) ? 'opacity-40' : '']">
-                          <div class="flex items-center gap-2 mb-0.5">
+                        <div :class="['flex-1 min-w-0 pt-1 pb-1', !isStepCompleted(selectedTicket, index) && !isStepActive(selectedTicket, index) ? 'opacity-40' : '']">
+                          <div class="flex items-center gap-2">
                             <h4 :class="['font-bold text-sm leading-tight', isStepCompleted(selectedTicket, index) || isStepActive(selectedTicket, index) ? 'text-slate-900' : 'text-slate-400']">
                               {{ step.label }}
                             </h4>
@@ -824,7 +824,10 @@
                               Completed
                             </span>
                           </div>
-                          <p class="text-xs text-slate-500 leading-relaxed">{{ getStepDescription(selectedTicket, step, index) }}</p>
+                          <!-- Only show subtext if ticket was declined with an explanation -->
+                          <p v-if="step.label === 'Ticket Declined'" class="text-xs text-rose-600 font-semibold leading-relaxed mt-1">
+                            {{ getStepDescription(selectedTicket, step, index) }}
+                          </p>
 
                           <!-- ---- FGMU/LEAU: View Digital Ticket (Step 2) ---- -->
                           <template v-if="(selectedTicket.unit === 'FGMU' || selectedTicket.unit === 'LEAU') && index === 1">

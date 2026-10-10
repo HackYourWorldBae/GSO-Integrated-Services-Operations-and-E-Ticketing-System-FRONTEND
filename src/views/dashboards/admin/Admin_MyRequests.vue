@@ -526,11 +526,12 @@
                         </div>
 
                         <!-- Step Content -->
-                        <div class="flex-1 min-w-0 pb-1">
+                        <div class="flex-1 min-w-0 py-0.5">
                           <h5 class="text-sm font-black text-slate-900 leading-tight">
                             {{ step.label }}
                           </h5>
-                          <p class="text-xs text-slate-500 font-medium mt-0.5 leading-relaxed">
+                          <!-- Only show subtext if ticket was declined with an explanation -->
+                          <p v-if="step.label === 'Ticket Declined'" class="text-xs text-rose-600 font-semibold leading-relaxed mt-1">
                             {{ getStepDescription(selectedTicket, step, sIdx) }}
                           </p>
                         </div>
