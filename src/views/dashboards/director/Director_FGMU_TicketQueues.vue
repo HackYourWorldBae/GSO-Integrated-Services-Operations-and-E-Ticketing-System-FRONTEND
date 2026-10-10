@@ -51,48 +51,26 @@
             <button
               @click="switchTab('pending')"
               :class="[
-                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                'w-full flex items-center justify-center px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
                 activeTab === 'pending'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
                   : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span class="truncate">{{ isPendingOnlyMode ? '1. Pending Approval' : (isDirector ? '1. Escalated Approvals' : '1. Pending Approval') }}</span>
-              <span
-                :class="[
-                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
-                  activeTab === 'pending' ? 'bg-white text-emerald-950 font-black' : 'bg-emerald-100 text-emerald-950'
-                ]"
-              >
-                {{ queueCounts.pending }}
-              </span>
+              <span class="truncate">{{ isPendingOnlyMode ? 'Pending Approval' : (isDirector ? 'Escalated Approvals' : 'Pending Approval') }}</span>
             </button>
 
             <!-- Tab 2: Approval Delayed -->
             <button
               @click="switchTab('delayed')"
               :class="[
-                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                'w-full flex items-center justify-center px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
                 activeTab === 'delayed'
                   ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
                   : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span class="truncate">2. Approval Delayed</span>
-              <span
-                :class="[
-                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
-                  activeTab === 'delayed' ? 'bg-white text-amber-950 font-black' : 'bg-amber-100 text-amber-950'
-                ]"
-              >
-                {{ queueCounts.delayed || 0 }}
-              </span>
+              <span class="truncate">Approval Delayed</span>
             </button>
 
             <!-- Tab 3: Approved (Awaiting Dispatch) -->
@@ -100,24 +78,13 @@
               v-if="!isPendingOnlyMode"
               @click="switchTab('approved')"
               :class="[
-                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                'w-full flex items-center justify-center px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
                 activeTab === 'approved'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
                   : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              <span class="truncate">3. Approved (Ready)</span>
-              <span
-                :class="[
-                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
-                  activeTab === 'approved' ? 'bg-white text-emerald-950 font-black' : 'bg-emerald-100 text-emerald-950'
-                ]"
-              >
-                {{ queueCounts.approved || 0 }}
-              </span>
+              <span class="truncate">Approved (Ready)</span>
             </button>
 
             <!-- Tab 4: Dispatched / Scheduled -->
@@ -125,24 +92,13 @@
               v-if="!isPendingOnlyMode"
               @click="switchTab('dispatched')"
               :class="[
-                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                'w-full flex items-center justify-center px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
                 activeTab === 'dispatched'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
                   : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span class="truncate">4. Scheduled</span>
-              <span
-                :class="[
-                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
-                  activeTab === 'dispatched' ? 'bg-white text-emerald-950 font-black' : 'bg-blue-100 text-blue-950'
-                ]"
-              >
-                {{ queueCounts.dispatched || 0 }}
-              </span>
+              <span class="truncate">Scheduled</span>
             </button>
 
             <!-- Tab 5: Active Work Orders -->
@@ -150,24 +106,13 @@
               v-if="!isPendingOnlyMode"
               @click="switchTab('active')"
               :class="[
-                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
+                'w-full flex items-center justify-center px-3 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px]',
                 activeTab === 'active'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
                   : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span class="truncate">5. In Progress</span>
-              <span
-                :class="[
-                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none shrink-0 min-w-[24px] text-center shadow-xs transition-all',
-                  activeTab === 'active' ? 'bg-white text-emerald-950 font-black' : 'bg-emerald-100 text-emerald-950'
-                ]"
-              >
-                {{ queueCounts.active || 0 }}
-              </span>
+              <span class="truncate">In Progress</span>
             </button>
           </div>
 
