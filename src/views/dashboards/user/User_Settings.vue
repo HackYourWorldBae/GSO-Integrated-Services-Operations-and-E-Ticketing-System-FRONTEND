@@ -104,16 +104,16 @@
 
               <!-- Email -->
               <div class="space-y-3 md:col-span-2">
-                <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">Email Address</label>
+                <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">{{ isPersonnel ? 'Username' : 'Email Address' }}</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500 text-slate-400">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <input v-model="form.email" type="email" class="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-[1.25rem] text-sm font-bold text-slate-700 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none" placeholder="user@university.edu">
+                  <input v-model="form.email" :type="isPersonnel ? 'text' : 'email'" class="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-[1.25rem] text-sm font-bold text-slate-700 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none" :placeholder="isPersonnel ? 'Enter username' : 'user@university.edu'">
                 </div>
-                <p class="text-[11px] text-slate-400 font-medium ml-1">Used for login and all request/ticket email updates (including status changes).</p>
+                <p class="text-[11px] text-slate-400 font-medium ml-1">{{ isPersonnel ? 'Used for signing in to the personnel dashboard.' : 'Used for login and all request/ticket email updates (including status changes).' }}</p>
               </div>
 
               <!-- Email Updates Opt-In (wired to email_notifications_enabled) — Hidden for personnel / worker accounts -->

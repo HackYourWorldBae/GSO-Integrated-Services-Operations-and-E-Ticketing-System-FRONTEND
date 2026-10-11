@@ -354,7 +354,7 @@ const handleLogin = async () => {
         
         <div class="relative group/input text-left">
           <label class="block text-slate-700 text-xs font-bold mb-1.5 ml-0.5">
-            Email or Employee / Student ID
+            Email, Username, or Employee / Student ID
           </label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
@@ -368,7 +368,7 @@ const handleLogin = async () => {
               required
               :disabled="isAccountLocked"
               class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-200 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed min-h-[48px]"
-              placeholder="e.g. 2301219 or name@bsu.edu.ph"
+              placeholder="e.g. 2301219, username, or name@bsu.edu.ph"
             />
           </div>
         </div>

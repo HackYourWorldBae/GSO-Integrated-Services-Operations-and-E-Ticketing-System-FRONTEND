@@ -110,9 +110,9 @@ export const useSsuPersonnelStore = defineStore('ssuPersonnel', () => {
     nameExtension,
     specialty,
     createAccount = false,
+    username = '',
     email = '',
     password = '',
-    contactNumber = ''
   }) => {
     const nameParts = [firstName.trim()];
     if (middleInitial?.trim()) nameParts.push(middleInitial.trim().replace(/\.?$/, '.'));
@@ -131,11 +131,8 @@ export const useSsuPersonnelStore = defineStore('ssuPersonnel', () => {
 
     if (createAccount) {
       payload.create_account = true;
-      payload.email = email.trim();
+      payload.username = (username || email).trim();
       payload.password = password;
-      if (contactNumber?.trim()) {
-        payload.contact_number = contactNumber.trim();
-      }
     }
 
     const response = await api.post('personnel', payload);
@@ -143,11 +140,10 @@ export const useSsuPersonnelStore = defineStore('ssuPersonnel', () => {
     return response.data;
   };
 
-  const createPersonnelAccount = async (personnelId, { email, password, contactNumber }) => {
+  const createPersonnelAccount = async (personnelId, { username, email, password }) => {
     const payload = {
-      email: email.trim(),
+      username: (username || email).trim(),
       password,
-      contact_number: contactNumber?.trim() || null,
     };
     const response = await api.post(`personnel/${personnelId}/create-account`, payload);
     await fetchPersonnel();

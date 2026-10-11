@@ -480,22 +480,13 @@
               <!-- Expanded Account Form Fields -->
               <div v-if="addForm.createAccount" class="pt-3 border-t border-slate-200/70 space-y-3 animate-fade-in">
                 <div>
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Email / Portal Username *</label>
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Username *</label>
                   <input
-                    v-model="addForm.email"
-                    type="email"
+                    v-model="addForm.username"
+                    type="text"
                     :required="addForm.createAccount"
-                    placeholder="e.g. name@bsu.edu.ph"
-                    class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Mobile Contact Number (Optional)</label>
-                  <input
-                    v-model="addForm.contactNumber"
-                    type="tel"
-                    placeholder="e.g. 09123456789"
+                    placeholder="e.g. juandelacruz"
+                    autocomplete="username"
                     class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white"
                   />
                 </div>
@@ -814,22 +805,13 @@
 
             <form @submit.prevent="submitProvisionAccount" class="space-y-4">
               <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Email / Portal Username *</label>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Username *</label>
                 <input
-                  v-model="accountForm.email"
-                  type="email"
+                  v-model="accountForm.username"
+                  type="text"
                   required
-                  placeholder="e.g. name@bsu.edu.ph"
-                  class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Mobile Contact Number (Optional)</label>
-                <input
-                  v-model="accountForm.contactNumber"
-                  type="tel"
-                  placeholder="e.g. 09123456789"
+                  placeholder="e.g. juandelacruz"
+                  autocomplete="username"
                   class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white"
                 />
               </div>
@@ -989,8 +971,7 @@ const addForm = reactive({
   nameExtension: '',
   specialty: '',
   createAccount: false,
-  email: '',
-  contactNumber: '',
+  username: '',
   password: '',
   confirmPassword: ''
 });
@@ -1002,8 +983,7 @@ const openAddModal = () => {
   addForm.nameExtension = '';
   addForm.specialty = store.categories[0]?.name || 'Campus Security & Patrol';
   addForm.createAccount = false;
-  addForm.email = '';
-  addForm.contactNumber = '';
+  addForm.username = '';
   addForm.password = '';
   addForm.confirmPassword = '';
   showAddPassword.value = false;
@@ -1017,8 +997,8 @@ const submitAddPersonnel = async () => {
     return;
   }
   if (addForm.createAccount) {
-    if (!addForm.email?.trim() || !addForm.password) {
-      toast.error('Email and password are required to create an account.');
+    if (!addForm.username?.trim() || !addForm.password) {
+      toast.error('Username and password are required to create an account.');
       return;
     }
     if (addForm.password.length < 8) {
@@ -1050,16 +1030,14 @@ const accountSubmitting = ref(false);
 const showProvisionPassword = ref(false);
 const showProvisionConfirmPassword = ref(false);
 const accountForm = reactive({
-  email: '',
-  contactNumber: '',
+  username: '',
   password: '',
   confirmPassword: ''
 });
 
 const openProvisionAccountModal = (worker) => {
   workerForAccountModal.value = worker;
-  accountForm.email = '';
-  accountForm.contactNumber = '';
+  accountForm.username = '';
   accountForm.password = '';
   accountForm.confirmPassword = '';
   showProvisionPassword.value = false;
@@ -1067,7 +1045,7 @@ const openProvisionAccountModal = (worker) => {
 };
 
 const submitProvisionAccount = async () => {
-  if (!accountForm.email?.trim() || !accountForm.password) {
+  if (!accountForm.username?.trim() || !accountForm.password) {
     toast.error('Email and password are required.');
     return;
   }
@@ -1082,9 +1060,8 @@ const submitProvisionAccount = async () => {
   accountSubmitting.value = true;
   try {
     await store.createPersonnelAccount(workerForAccountModal.value.id, {
-      email: accountForm.email.trim(),
+      username: accountForm.username.trim(),
       password: accountForm.password,
-      contactNumber: accountForm.contactNumber?.trim()
     });
     toast.success('Login account created for security personnel!');
     workerForAccountModal.value = null;
