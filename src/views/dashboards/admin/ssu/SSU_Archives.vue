@@ -104,7 +104,7 @@
           <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-separate border-spacing-y-4 min-w-[800px]">
               <thead>
-                <tr class="border-b border-slate-100">
+                <tr class="border-b border-slate-200">
                   <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6">Ticket ID</th>
                   <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Service</th>
                   <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Requester</th>

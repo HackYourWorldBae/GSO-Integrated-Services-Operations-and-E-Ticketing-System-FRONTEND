@@ -127,7 +127,7 @@
           </div>
 
           <!-- Ticket list -->
-          <div v-else class="divide-y divide-slate-100">
+          <div v-else class="divide-y divide-slate-200">
             <div
               v-for="update in recentUpdates"
               :key="update.ticketId"

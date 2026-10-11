@@ -241,7 +241,7 @@
                   <th class="py-3.5 px-6 text-center">Date Used</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 text-sm">
+              <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-sm">
                 <!-- Loading State -->
                 <tr v-if="isLoading">
                   <td colspan="9" class="py-10 text-center">

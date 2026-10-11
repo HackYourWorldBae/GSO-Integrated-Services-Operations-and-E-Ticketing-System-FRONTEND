@@ -144,7 +144,7 @@
                     <th class="py-3 px-5 text-center">Rating ★</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 text-sm">
+                <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-sm">
                   <!-- FGMU -->
                   <tr class="hover:bg-slate-50/80 transition-colors border-l-2 border-l-transparent hover:border-l-blue-400">
                     <td class="py-3.5 px-5">

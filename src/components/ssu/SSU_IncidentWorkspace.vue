@@ -127,7 +127,7 @@
               <th class="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 text-xs">
+          <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-xs">
             <!-- Loading Skeletons -->
             <tr v-if="loading && paginatedTickets.length === 0">
               <td :colspan="activeQueue === 'investigating' ? 4 : 3" class="py-16 text-center">

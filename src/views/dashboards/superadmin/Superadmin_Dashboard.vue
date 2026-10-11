@@ -296,7 +296,7 @@
                   <th class="pb-3 px-3">Details</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 text-sm">
+              <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-sm">
                 <tr v-for="log in recentLogs" :key="log.id" class="hover:bg-slate-50/60 transition-colors">
                   <td class="py-3 px-3 text-slate-600 font-medium whitespace-nowrap">
                     {{ formatLogDateTime(log.created_at) }}

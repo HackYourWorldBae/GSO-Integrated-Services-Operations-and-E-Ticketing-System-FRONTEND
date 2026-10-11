@@ -193,7 +193,7 @@
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 text-xs">
+          <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-xs">
             
             <!-- Loading State -->
             <tr v-if="loading && tickets.length === 0">
@@ -363,7 +363,7 @@
     </div>
 
     <!-- ═══ Mobile Cards View (Matching Director Queues) ═══ -->
-    <div class="md:hidden space-y-2">
+    <div class="md:hidden space-y-3.5">
       <!-- Loading State -->
       <div v-if="loading && tickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
         <svg class="animate-spin h-5 w-5 text-emerald-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24">

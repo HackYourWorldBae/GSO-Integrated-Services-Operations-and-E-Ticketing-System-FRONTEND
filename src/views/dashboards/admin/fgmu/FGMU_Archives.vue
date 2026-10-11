@@ -82,7 +82,7 @@
           <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-separate border-spacing-y-4 min-w-[800px]">
               <thead>
-                <tr class="border-b border-slate-100">
+                <tr class="border-b border-slate-200">
                   <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6">Ticket ID</th>
                   <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Service</th>
                   <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Requester</th>
@@ -443,7 +443,7 @@
                           <th class="py-2.5 px-3 text-right">Amount</th>
                         </tr>
                       </thead>
-                      <tbody class="divide-y divide-slate-100">
+                      <tbody class="divide-y divide-slate-200 border-b border-slate-200">
                         <tr v-for="(mat, mIdx) in selectedTicket.materials" :key="mIdx" class="hover:bg-slate-50/50">
                           <td class="py-2 px-3 font-semibold text-slate-800">{{ mat.material_name || mat.name }}</td>
                           <td class="py-2 px-3 text-center font-medium text-slate-600">{{ mat.quantity }} {{ mat.unit_measurement || mat.unit || '' }}</td>

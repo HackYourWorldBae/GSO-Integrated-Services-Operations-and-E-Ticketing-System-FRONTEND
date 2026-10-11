@@ -472,7 +472,7 @@
             Or pick directly from approved tickets awaiting dispatch:
           </template>
         </p>
-        <div class="space-y-2">
+        <div class="space-y-2.5">
           <button
             v-for="ticket in dispatchQueue"
             :key="ticket.id"

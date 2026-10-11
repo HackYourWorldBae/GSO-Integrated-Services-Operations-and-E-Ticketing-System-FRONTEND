@@ -110,7 +110,7 @@
                       <th class="py-3 px-2 w-10 text-center"></th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-slate-100">
+                  <tbody class="divide-y divide-slate-200 border-b border-slate-200">
                     <tr v-for="(item, idx) in materials" :key="idx" class="hover:bg-slate-50/70 transition-colors">
                       <td class="py-2.5 px-3 text-center font-bold text-slate-400">{{ idx + 1 }}</td>
                       <td class="py-2.5 px-3">

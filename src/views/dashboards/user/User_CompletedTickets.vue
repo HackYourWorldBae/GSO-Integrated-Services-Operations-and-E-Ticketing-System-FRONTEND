@@ -57,7 +57,7 @@
           <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-separate border-spacing-y-4 min-w-[700px]">
               <thead>
-                <tr class="border-b border-slate-100">
+                <tr class="border-b border-slate-200">
                   <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-6">Ticket ID</th>
                   <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-4">Service</th>
                   <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-4">Status</th>

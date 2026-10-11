@@ -77,7 +77,7 @@
                   <th class="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500 text-right">View</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
+              <tbody class="divide-y divide-slate-200 border-b border-slate-200">
                 <!-- Loading State -->
                 <tr v-if="loading && logs.length === 0">
                   <td colspan="6" class="py-16 text-center">

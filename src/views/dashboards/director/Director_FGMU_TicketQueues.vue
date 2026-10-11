@@ -215,7 +215,7 @@
                   <th class="px-3 py-3 text-slate-700 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
+              <tbody class="divide-y divide-slate-200 border-b border-slate-200">
                 <!-- Loading State -->
                 <tr v-if="isLoading && currentTabTickets.length === 0">
                   <td colspan="7" class="py-16 text-center">
@@ -526,7 +526,7 @@
         </div>
 
         <!-- ======================= MOBILE CARDS VIEW ======================= -->
-        <div class="md:hidden space-y-2">
+        <div class="md:hidden space-y-3.5">
           <div v-if="isLoading && currentTabTickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
             <svg class="animate-spin h-5 w-5 text-emerald-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

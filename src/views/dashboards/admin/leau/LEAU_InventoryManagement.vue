@@ -184,7 +184,7 @@
                   <th class="px-5 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 text-xs">
+              <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-xs">
                 <tr
                   v-for="item in paginatedInventory"
                   :key="item.id"

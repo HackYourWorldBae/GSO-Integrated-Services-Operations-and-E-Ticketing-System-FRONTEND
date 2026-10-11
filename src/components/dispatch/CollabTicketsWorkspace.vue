@@ -157,7 +157,7 @@
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 text-xs">
+          <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-xs">
             <tr v-if="loading && tickets.length === 0">
               <td :colspan="showDurations ? 6 : 4" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
@@ -358,7 +358,7 @@
     </div>
 
     <!-- ═══ Mobile Cards ═══ -->
-    <div class="md:hidden space-y-2">
+    <div class="md:hidden space-y-3.5">
       <div v-if="loading && tickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
         <p class="text-xs font-bold text-slate-400">Loading collab tickets...</p>
       </div>
