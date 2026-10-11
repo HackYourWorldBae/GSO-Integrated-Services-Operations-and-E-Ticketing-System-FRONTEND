@@ -17,16 +17,25 @@ export const usePersonnelDashboardStore = defineStore('personnelDashboard', () =
   const isLoading       = ref(false);
   const errorMessage    = ref(null);
 
+  const isJobCompleted = (a) => {
+    if (!a) return false;
+    if (a.completed_at && typeof a.completed_at === 'string' && !a.completed_at.startsWith('0000-00-00') && a.completed_at.trim()) {
+      return true;
+    }
+    const s = String(a.ticket_status || a.assignment_status || '').toLowerCase().trim();
+    return ['completed', 'resolved', 'closed', 'cancelled'].includes(s);
+  };
+
   const activeAssignments = computed(() => {
-    return assignments.value.filter(a => !a.completed_at);
+    return assignments.value.filter(a => !isJobCompleted(a));
   });
 
   const completedAssignments = computed(() => {
-    return assignments.value.filter(a => !!a.completed_at);
+    return assignments.value.filter(a => isJobCompleted(a));
   });
 
   const emergencyAssignments = computed(() => {
-    return assignments.value.filter(a => !a.completed_at && a.is_emergency === 1);
+    return assignments.value.filter(a => !isJobCompleted(a) && a.is_emergency === 1);
   });
 
   const fetchDashboard = async (personnelId = null) => {
@@ -65,6 +74,7 @@ export const usePersonnelDashboardStore = defineStore('personnelDashboard', () =
     activeAssignments,
     completedAssignments,
     emergencyAssignments,
+    isJobCompleted,
     fetchDashboard,
   };
 });

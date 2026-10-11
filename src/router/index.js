@@ -62,6 +62,7 @@ const Director_Settings = () => import('../views/dashboards/director/Director_Se
 const Admin_Settings = () => import('../views/dashboards/admin/Admin_Settings.vue');
 const Admin_MyRequests = () => import('../views/dashboards/admin/Admin_MyRequests.vue');
 const Personnel_Dashboard = () => import('../views/dashboards/personnel/Personnel_Dashboard.vue');
+const Personnel_History = () => import('../views/dashboards/personnel/Personnel_History.vue');
 
 const router = createRouter({
   history: typeof window !== 'undefined' && typeof window.history !== 'undefined'
@@ -137,6 +138,13 @@ const router = createRouter({
       path: '/personnel/dashboard',
       name: 'personnel-dashboard',
       component: Personnel_Dashboard,
+      meta: { requiresAuth: true, roles: ['worker', 'admin', 'director', 'superadmin'] }
+    },
+    {
+      path: '/personnel/history',
+      alias: ['/personnel/completed-jobs', '/worker/history'],
+      name: 'personnel-history',
+      component: Personnel_History,
       meta: { requiresAuth: true, roles: ['worker', 'admin', 'director', 'superadmin'] }
     },
     {
