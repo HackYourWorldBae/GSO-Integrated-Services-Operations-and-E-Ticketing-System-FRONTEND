@@ -690,7 +690,16 @@ const handleNotificationClick = async (notif) => {
       }
     }
   } else if (role === 'director') {
-    if (isCompleted) {
+    const isOwnRequest = fullText.includes('your request') || 
+      fullText.includes('your service request') || 
+      fullText.includes('evaluation required') || 
+      fullText.includes('rate the service') || 
+      fullText.includes('rate your') ||
+      fullText.includes('your ticket');
+
+    if (isOwnRequest) {
+      targetPath = '/director/my-requests';
+    } else if (isCompleted) {
       if (unitCode === 'ssu') targetPath = '/admin/ssu/archives';
       else if (unitCode === 'leau') targetPath = '/admin/leau/archives';
       else targetPath = '/admin/fgmu/archives';

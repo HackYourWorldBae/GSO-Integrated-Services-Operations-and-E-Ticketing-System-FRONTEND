@@ -13,6 +13,54 @@
     <template #main-content>
       <div class="space-y-6 sm:space-y-8 animate-fade-in pb-12 max-w-[1600px] mx-auto">
         <!-- ================================================================= -->
+        <!-- EXECUTIVE OFFICE INTERNAL REQUESTING QUICK BAR                    -->
+        <!-- ================================================================= -->
+        <div class="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-900 via-slate-900 to-slate-900 text-white border border-emerald-800/40 shadow-md relative overflow-hidden">
+          <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+            <div class="space-y-1.5 max-w-2xl">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-black uppercase tracking-wider">
+                  Internal Service Intake
+                </span>
+                <span v-if="myActiveRequestsCount > 0" class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[10px] font-black uppercase tracking-wider animate-pulse">
+                  {{ myActiveRequestsCount }} Active Request{{ myActiveRequestsCount > 1 ? 's' : '' }}
+                </span>
+              </div>
+              <h3 class="text-lg sm:text-xl font-black text-white tracking-tight">
+                Director's Office Service Requests
+              </h3>
+              <p class="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+                Submit and track internal GSO requests for facility repairs, electrical, carpentry, groundskeeping, hauling, or equipment needed by the Office of the Director.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+              <router-link
+                to="/services"
+                class="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 active:scale-95 transition-all cursor-pointer min-h-[44px]"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Request Service</span>
+              </router-link>
+
+              <router-link
+                to="/director/my-requests"
+                class="w-full sm:w-auto px-4 sm:px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 border border-white/20 active:scale-95 transition-all cursor-pointer min-h-[44px]"
+              >
+                <span>View My Requests</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                </svg>
+              </router-link>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
         <!-- EXECUTIVE ANALYTICS SUMMARY & OFFICIAL REPORTS SECTION           -->
         <!-- ================================================================= -->
         <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-md space-y-6 sm:space-y-8">
@@ -25,12 +73,40 @@
               </h3>
             </div>
 
-            <!-- PDF Action Button -->
-            <div class="flex items-center gap-3 shrink-0 w-full sm:w-auto">
+            <!-- Action Toolbar: Request Service, My Requests & PDF Export -->
+            <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0 w-full xl:w-auto">
+              <router-link
+                to="/services"
+                class="flex-1 sm:flex-none px-4 sm:px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm shadow-emerald-600/20 hover:shadow-md active:scale-[0.98] cursor-pointer min-h-[44px] touch-manipulation whitespace-nowrap"
+                title="Create an internal service request"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Request Service</span>
+              </router-link>
+
+              <router-link
+                to="/director/my-requests"
+                class="flex-1 sm:flex-none px-4 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-2xs active:scale-[0.98] cursor-pointer min-h-[44px] touch-manipulation whitespace-nowrap"
+                title="View my internal service requests"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <span>My Requests</span>
+                <span
+                  v-if="myActiveRequestsCount > 0"
+                  class="ml-1 px-2 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300"
+                >
+                  {{ myActiveRequestsCount }}
+                </span>
+              </router-link>
+
               <button
                 @click="handleDownloadReport"
                 :disabled="isGeneratingPdf || !executiveAnalytics"
-                class="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-900 hover:bg-emerald-800 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] touch-manipulation"
+                class="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-900 hover:bg-emerald-800 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] touch-manipulation whitespace-nowrap"
                 title="Generate and download official PDF report"
               >
                 <svg v-if="isGeneratingPdf" class="animate-spin h-4 w-4 text-emerald-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -501,9 +577,20 @@ import api from '@/api/client';
 // Executive Analytics State
 const executiveAnalytics = ref(null);
 const isGeneratingPdf = ref(false);
+const myActiveRequestsCount = ref(0);
 let isAlive = true;
 let analyticsRequestSeq = 0;
 let analyticsAbort = null;
+
+const fetchMyRequestsCount = async () => {
+  try {
+    const res = await api.get('tickets/my-requests');
+    const list = res.data?.data?.tickets || [];
+    myActiveRequestsCount.value = list.filter(t => !['completed', 'closed'].includes(t.status)).length;
+  } catch {
+    // Non-critical, silent fallback
+  }
+};
 
 
 
@@ -665,6 +752,7 @@ const handleDownloadReport = async () => {
 onMounted(() => {
   isAlive = true;
   fetchExecutiveAnalytics();
+  fetchMyRequestsCount();
 });
 
 onUnmounted(() => {

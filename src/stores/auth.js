@@ -94,7 +94,7 @@ export const useAuthStore = defineStore('auth', () => {
         ].includes(featureKey);
       }
       if (role.value === 'director') {
-        return ['reports.view', 'tickets.view_all', 'tickets.verify_close'].includes(featureKey);
+        return ['reports.view', 'tickets.view_all', 'tickets.verify_close', 'tickets.create'].includes(featureKey);
       }
       if (role.value === 'student' || role.value === 'employee') {
         return isVerified ? ['tickets.create'].includes(featureKey) : false;

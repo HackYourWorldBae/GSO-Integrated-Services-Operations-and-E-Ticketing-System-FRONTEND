@@ -259,9 +259,9 @@ const handleFinalSubmit = async () => {
     if (role === 'admin') {
       const unitMap = { 1: 'fgmu', 2: 'leau', 3: 'ssu' };
       const u = (authStore.user?.unit_code || unitMap[authStore.user?.unit_id] || 'fgmu').toLowerCase();
-      router.push(`/admin/${u}`);
+      router.push(`/admin/${u}/my-requests`);
     } else if (role === 'director') {
-      router.push('/director/dashboard');
+      router.push('/director/my-requests');
     } else {
       router.push('/user/dashboard');
     }

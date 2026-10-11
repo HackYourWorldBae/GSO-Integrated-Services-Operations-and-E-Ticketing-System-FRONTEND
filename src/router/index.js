@@ -501,6 +501,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['director', 'superadmin'], permission: 'reports.view' }
     },
     {
+      path: '/director/my-requests',
+      name: 'director-my-requests',
+      component: Admin_MyRequests,
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'], permission: 'tickets.create' }
+    },
+    {
       path: '/director/fgmu/queues',
       alias: ['/director/queues/fgmu'],
       name: 'director-fgmu-ticket-queues',
@@ -726,6 +732,15 @@ export const checkRouteAccess = (to, from, next) => {
     }
 
     const authStore = useAuthStore();
+    if (!authStore.user && user) {
+      authStore.user = user;
+    }
+    if (!authStore.role && role) {
+      authStore.role = role;
+    }
+    if ((!authStore.permissions || authStore.permissions.length === 0) && user?.permissions) {
+      authStore.permissions = user.permissions;
+    }
     const normalizedRole = String(role).toLowerCase();
 
     // 2.1 Identity Verification Gate for Ticket Intake

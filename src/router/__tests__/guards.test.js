@@ -33,6 +33,7 @@ describe('Router Page Guards & RBAC Boundaries', () => {
       ...extra,
     };
     globalThis.sessionStorage.setItem('token', 'mock-jwt-token');
+    globalThis.sessionStorage.setItem('permissions', JSON.stringify(user.permissions));
     globalThis.sessionStorage.setItem('auth', JSON.stringify({
       user,
       role,
@@ -204,6 +205,16 @@ describe('Router Page Guards & RBAC Boundaries', () => {
       const next = vi.fn();
       checkRouteAccess({ path: '/superadmin/dashboard', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
       expect(next).toHaveBeenCalledWith('/director/dashboard');
+    });
+
+    it('allows Director to access /director/my-requests and service intake catalog', () => {
+      const nextMine = vi.fn();
+      checkRouteAccess({ path: '/director/my-requests', meta: { requiresAuth: true, roles: ['director', 'superadmin'], permission: 'tickets.create' } }, {}, nextMine);
+      expect(nextMine).toHaveBeenCalledWith();
+
+      const nextServices = vi.fn();
+      checkRouteAccess({ path: '/services', meta: { requiresAuth: true, roles: ['student', 'employee', 'admin', 'director'], permission: 'tickets.create' } }, {}, nextServices);
+      expect(nextServices).toHaveBeenCalledWith();
     });
 
     it('redirects Director away from end-user dashboard to executive dashboard', () => {

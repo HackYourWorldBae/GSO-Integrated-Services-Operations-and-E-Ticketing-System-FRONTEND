@@ -16,6 +16,19 @@
       </router-link>
     </div>
 
+    <!-- Service Request -->
+    <div>
+      <p class="px-4 text-xs font-black text-slate-500 uppercase tracking-wider mb-2.5">Service Request</p>
+      <nav class="space-y-1">
+        <router-link to="/director/my-requests" exact-active-class="router-link-active" active-class="" class="nav-item group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-emerald-500 group-hover:text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <span class="text truncate">My Service Requests</span>
+        </router-link>
+      </nav>
+    </div>
+
     <!-- Unit Ticket Overview -->
     <div>
       <p class="px-4 text-xs font-black text-slate-500 uppercase tracking-wider mb-2.5">Unit Ticket Overview</p>

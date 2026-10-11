@@ -26,6 +26,18 @@ const dashboardHomeRoute = computed(() => {
   return '/user/dashboard';
 });
 
+const myRequestsRoute = computed(() => {
+  const r = (authStore.user?.role || authStore.role || '').toLowerCase();
+  if (r === 'admin') {
+    const unitMap = { 1: 'fgmu', 2: 'leau', 3: 'ssu' };
+    const u = (authStore.user?.unit_code || unitMap[authStore.user?.unit_id] || 'fgmu').toLowerCase();
+    return `/admin/${u}/my-requests`;
+  }
+  if (r === 'director') return '/director/my-requests';
+  if (r === 'superadmin') return '/superadmin/queues';
+  return '/user/tickets';
+});
+
 // --- STUDENT ROLE SERVICE RESTRICTION RULES & STATE ---
 const isStudentUser = computed(() => {
   const r = (authStore.user?.role || authStore.role || '').toLowerCase();
@@ -631,6 +643,10 @@ const handleSubmit = () => {
             <router-link :to="dashboardHomeRoute" class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
               Dashboard Overview
+            </router-link>
+            <router-link :to="myRequestsRoute" class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+              My Service Requests
             </router-link>
             <button @click="handleLogout" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-all mt-1">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>

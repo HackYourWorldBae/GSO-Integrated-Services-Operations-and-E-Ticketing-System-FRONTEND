@@ -279,6 +279,17 @@ const rawNavGroups = computed(() => {
         ]
       },
       {
+        title: 'Service Request',
+        items: [
+          {
+            label: 'My Service Requests',
+            to: '/director/my-requests',
+            exact: true,
+            icon: 'queue'
+          }
+        ]
+      },
+      {
         title: 'Unit Ticket Overview',
         items: [
           {

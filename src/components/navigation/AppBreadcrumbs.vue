@@ -71,6 +71,8 @@ const breadcrumbs = computed(() => {
     crumbs.push({ label: 'Scheduled Tickets', to: null });
   } else if (path.includes('/completed-tickets')) {
     crumbs.push({ label: 'Completed Tickets', to: null });
+  } else if (path.includes('/my-requests')) {
+    crumbs.push({ label: 'My Service Requests', to: null });
   } else if (path.includes('/tickets')) {
     crumbs.push({ label: 'My Tickets', to: null });
   } else if (path.includes('/edit-profile') || path.includes('/settings')) {
