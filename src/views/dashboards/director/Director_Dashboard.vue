@@ -25,36 +25,8 @@
               </h3>
             </div>
 
-            <!-- Action Toolbar: Request Service, My Requests & PDF Export -->
-            <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0 w-full xl:w-auto">
-              <router-link
-                to="/services"
-                class="flex-1 sm:flex-none px-4 sm:px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm shadow-emerald-600/20 hover:shadow-md active:scale-[0.98] cursor-pointer min-h-[44px] touch-manipulation whitespace-nowrap"
-                title="Create an internal service request"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Request Service</span>
-              </router-link>
-
-              <router-link
-                to="/director/my-requests"
-                class="flex-1 sm:flex-none px-4 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-2xs active:scale-[0.98] cursor-pointer min-h-[44px] touch-manipulation whitespace-nowrap"
-                title="View my internal service requests"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                <span>My Requests</span>
-                <span
-                  v-if="myActiveRequestsCount > 0"
-                  class="ml-1 px-2 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300"
-                >
-                  {{ myActiveRequestsCount }}
-                </span>
-              </router-link>
-
+            <!-- Action Toolbar: PDF Export -->
+            <div class="flex items-center gap-3 shrink-0 w-full xl:w-auto">
               <button
                 @click="handleDownloadReport"
                 :disabled="isGeneratingPdf || !executiveAnalytics"
@@ -529,20 +501,9 @@ import api from '@/api/client';
 // Executive Analytics State
 const executiveAnalytics = ref(null);
 const isGeneratingPdf = ref(false);
-const myActiveRequestsCount = ref(0);
 let isAlive = true;
 let analyticsRequestSeq = 0;
 let analyticsAbort = null;
-
-const fetchMyRequestsCount = async () => {
-  try {
-    const res = await api.get('tickets/my-requests');
-    const list = res.data?.data?.tickets || [];
-    myActiveRequestsCount.value = list.filter(t => !['completed', 'closed'].includes(t.status)).length;
-  } catch {
-    // Non-critical, silent fallback
-  }
-};
 
 
 
@@ -704,7 +665,6 @@ const handleDownloadReport = async () => {
 onMounted(() => {
   isAlive = true;
   fetchExecutiveAnalytics();
-  fetchMyRequestsCount();
 });
 
 onUnmounted(() => {
