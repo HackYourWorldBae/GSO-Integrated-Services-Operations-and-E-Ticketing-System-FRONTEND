@@ -236,15 +236,14 @@
           </div>
         </div>
 
-        <!-- Live Operations & Queue Status (Bottom 3 Cards) -->
+        <!-- Live Workload & Operations Status (Bottom 3 Cards) -->
         <div class="space-y-4">
           <div class="flex items-center justify-between px-1">
             <div>
               <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
                 <span class="w-2 h-4 rounded-full bg-amber-600"></span>
-                Live Operations &amp; Queue Status
+                Live Workload &amp; Operations Status
               </h3>
-              <p class="text-[11px] text-slate-400 font-medium">Real-time in-flight tickets awaiting action or currently under service</p>
             </div>
           </div>
 
