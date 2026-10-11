@@ -325,7 +325,7 @@
                 <div class="relative inline-flex items-center gap-1.5 flex-wrap">
                   <div
                     :class="[
-                      'font-mono text-sm font-bold px-3 py-1 rounded-lg border inline-flex items-center transition-all duration-150 shadow-2xs',
+                      'font-mono text-base font-black px-3 py-1 rounded-lg border inline-flex items-center transition-all duration-150 shadow-2xs',
                       themeMonoBadge
                     ]"
                   >
@@ -483,7 +483,7 @@
         <!-- Top Row: Ref & Target Date Badge -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-2">
-            <span :class="['font-mono text-sm font-bold px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs', themeMonoBadge]">
+            <span :class="['font-mono text-base font-black px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs', themeMonoBadge]">
               #{{ ticket.id }}
             </span>
             <span v-if="ticket.is_emergency" class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200">

@@ -491,7 +491,7 @@
               <div class="flex items-center gap-2 mb-1">
                 <span
                   :class="[
-                    'text-xs font-black px-2 py-0.5 rounded-md border',
+                    'font-mono text-base font-black px-2.5 py-0.5 rounded-lg border shadow-2xs',
                     unitCode.toUpperCase() === 'SSU'
                       ? 'text-indigo-700 bg-indigo-50 border-indigo-200'
                       : unitCode.toUpperCase() === 'LEAU'

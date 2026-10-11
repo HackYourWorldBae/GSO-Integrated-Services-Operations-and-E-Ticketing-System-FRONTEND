@@ -105,7 +105,7 @@
                       <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 text-xs font-black uppercase tracking-wider border border-slate-200">
                         {{ ticket.unit }}
                       </span>
-                      <span class="font-mono font-black text-xs text-slate-500">#{{ ticket.ticketId }}</span>
+                      <span class="font-mono font-black text-base text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-200">#{{ ticket.ticketId }}</span>
                       <span v-if="ticket.service" class="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200">
                         {{ ticket.service }}
                       </span>

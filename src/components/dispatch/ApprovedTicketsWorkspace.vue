@@ -247,7 +247,7 @@
                 <div class="relative inline-flex items-center gap-1.5 flex-wrap">
                   <div
                     :class="[
-                      'font-mono text-sm font-bold px-3 py-1 rounded-lg border inline-flex items-center transition-all duration-150 shadow-2xs',
+                      'font-mono text-base font-black px-3 py-1 rounded-lg border inline-flex items-center transition-all duration-150 shadow-2xs',
                       themeMonoBadge
                     ]"
                   >
@@ -396,7 +396,7 @@
           <div class="flex items-center gap-2 min-w-0">
             <span
               :class="[
-                'font-mono text-sm font-bold px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs',
+                'font-mono text-base font-black px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs',
                 themeMonoBadge
               ]"
             >

@@ -348,7 +348,7 @@
                   </p>
                   <p class="text-xs text-slate-500 truncate">{{ log.email || 'Automated Process' }}</p>
                 </div>
-                <span v-if="log.ticket_id" class="px-2.5 py-1 rounded-md font-mono text-xs font-black text-purple-800 bg-purple-100 border border-purple-200 shrink-0">
+                <span v-if="log.ticket_id" class="px-2.5 py-1 rounded-lg font-mono text-sm font-black text-purple-800 bg-purple-100 border border-purple-200 shrink-0">
                   #{{ log.ticket_id }}
                 </span>
               </div>
