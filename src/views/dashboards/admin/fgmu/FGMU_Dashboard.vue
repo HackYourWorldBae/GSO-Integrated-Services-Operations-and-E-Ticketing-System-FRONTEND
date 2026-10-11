@@ -183,11 +183,8 @@
               <div>
                 <h4 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
                   <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  Daily Performance &amp; Activity Tracker (Last 7 Days)
+                  Daily Activity Tracker (Last 7 Days)
                 </h4>
-                <p class="text-xs text-slate-500 font-medium mt-0.5">
-                  Click any day below to filter throughput analytics for that specific date
-                </p>
               </div>
               <span class="text-[10px] font-black text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto">
                 7-Day Overview
