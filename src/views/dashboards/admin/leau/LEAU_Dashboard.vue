@@ -249,20 +249,15 @@
           </div>
         </div>
 
-        <!-- Live Operations & Queue Status (Bottom 3 Cards) -->
+        <!-- Live Workload & Operations Status (Bottom 3 Cards) -->
         <div class="space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
+          <div class="flex items-center justify-between px-1">
             <div>
               <h3 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
                 <span class="w-2.5 h-5 rounded-full bg-teal-600 shrink-0"></span>
-                Active Operations &amp; Workload
+                Live Workload &amp; Operations Status
               </h3>
-              <p class="text-xs sm:text-sm text-slate-600 font-medium">Real-time active pipeline and dispatch queue</p>
             </div>
-            <span class="self-start sm:self-auto text-xs font-black text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 shrink-0">
-              <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
-              Live Pipeline
-            </span>
           </div>
 
           <!-- Bottom 3 Cards Grid -->
