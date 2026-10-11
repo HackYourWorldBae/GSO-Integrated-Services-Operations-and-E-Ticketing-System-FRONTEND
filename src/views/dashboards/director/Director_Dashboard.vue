@@ -13,54 +13,6 @@
     <template #main-content>
       <div class="space-y-6 sm:space-y-8 animate-fade-in pb-12 max-w-[1600px] mx-auto">
         <!-- ================================================================= -->
-        <!-- EXECUTIVE OFFICE INTERNAL REQUESTING QUICK BAR                    -->
-        <!-- ================================================================= -->
-        <div class="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-900 via-slate-900 to-slate-900 text-white border border-emerald-800/40 shadow-md relative overflow-hidden">
-          <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
-          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
-            <div class="space-y-1.5 max-w-2xl">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-black uppercase tracking-wider">
-                  Internal Service Intake
-                </span>
-                <span v-if="myActiveRequestsCount > 0" class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[10px] font-black uppercase tracking-wider animate-pulse">
-                  {{ myActiveRequestsCount }} Active Request{{ myActiveRequestsCount > 1 ? 's' : '' }}
-                </span>
-              </div>
-              <h3 class="text-lg sm:text-xl font-black text-white tracking-tight">
-                Director's Office Service Requests
-              </h3>
-              <p class="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
-                Submit and track internal GSO requests for facility repairs, electrical, carpentry, groundskeeping, hauling, or equipment needed by the Office of the Director.
-              </p>
-            </div>
-
-            <div class="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-wrap sm:flex-nowrap">
-              <router-link
-                to="/services"
-                class="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 active:scale-95 transition-all cursor-pointer min-h-[44px]"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Request Service</span>
-              </router-link>
-
-              <router-link
-                to="/director/my-requests"
-                class="w-full sm:w-auto px-4 sm:px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 border border-white/20 active:scale-95 transition-all cursor-pointer min-h-[44px]"
-              >
-                <span>View My Requests</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
-              </router-link>
-            </div>
-          </div>
-        </div>
-
-        <!-- ================================================================= -->
         <!-- EXECUTIVE ANALYTICS SUMMARY & OFFICIAL REPORTS SECTION           -->
         <!-- ================================================================= -->
         <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-md space-y-6 sm:space-y-8">
