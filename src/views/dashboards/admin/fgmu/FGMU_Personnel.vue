@@ -224,7 +224,7 @@
                   >
                     <div class="flex items-center justify-between gap-2">
                       <div class="flex items-center gap-1.5">
-                        <span class="font-mono text-sm font-black text-slate-900">#{{ ticket.ticket_id }}</span>
+                        <span class="font-black text-base text-slate-900 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded-lg tabular-nums">#{{ ticket.ticket_id }}</span>
                         <span v-if="ticket.is_emergency" class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider">
                           Urgent
                         </span>

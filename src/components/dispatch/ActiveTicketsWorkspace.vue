@@ -382,7 +382,7 @@
                 <div class="relative inline-flex items-center gap-1.5 flex-wrap">
                   <div
                     :class="[
-                      'font-mono text-base font-black px-3 py-1 rounded-lg border inline-flex items-center transition-all duration-150 shadow-2xs',
+                      'text-base font-black px-3 py-1 rounded-lg border inline-flex items-center transition-all duration-150 shadow-2xs tabular-nums',
                       themeMonoBadge
                     ]"
                   >
@@ -663,7 +663,7 @@
         <!-- Top Row: Ref & Elapsed / Status Badge -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-2">
-            <span :class="['font-mono text-base font-black px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs', themeMonoBadge]">
+            <span :class="['text-base font-black px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs tabular-nums', themeMonoBadge]">
               #{{ ticket.id }}
             </span>
             <span v-if="ticket.is_emergency" class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200">
@@ -1799,11 +1799,7 @@ const themeBarColor = computed(() => {
   return isLEAU.value ? 'bg-amber-500' : 'bg-emerald-500';
 });
 
-const themeMonoBadge = computed(() => {
-  return isLEAU.value
-    ? 'bg-amber-50 text-amber-800 border-amber-200/80 group-hover:border-amber-400 group-hover:bg-amber-100/80'
-    : 'bg-emerald-50 text-emerald-800 border-emerald-200/80 group-hover:border-emerald-400 group-hover:bg-emerald-100/80';
-});
+const themeMonoBadge = computed(() => 'bg-slate-100 text-slate-900 border-slate-300 group-hover:border-slate-400 group-hover:bg-slate-200/90');
 
 const themeStatusBadge = computed(() => {
   return isLEAU.value ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';

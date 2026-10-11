@@ -141,7 +141,7 @@
 
                   <!-- Ticket Reference -->
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <span v-if="log.ticket_id" class="font-mono text-sm font-black text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded border border-purple-100">
+                    <span v-if="log.ticket_id" class="text-base font-black text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-300 tabular-nums shadow-2xs">
                       #{{ log.ticket_id }}
                     </span>
                     <span v-else class="text-slate-400 text-xs">—</span>

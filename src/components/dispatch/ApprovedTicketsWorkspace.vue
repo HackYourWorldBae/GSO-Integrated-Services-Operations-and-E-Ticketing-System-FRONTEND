@@ -247,7 +247,7 @@
                 <div class="relative inline-flex items-center gap-1.5 flex-wrap">
                   <div
                     :class="[
-                      'font-mono text-base font-black px-3 py-1 rounded-lg border inline-flex items-center transition-all duration-150 shadow-2xs',
+                      'text-base font-black px-3 py-1 rounded-lg border inline-flex items-center transition-all duration-150 shadow-2xs tabular-nums',
                       themeMonoBadge
                     ]"
                   >
@@ -396,7 +396,7 @@
           <div class="flex items-center gap-2 min-w-0">
             <span
               :class="[
-                'font-mono text-base font-black px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs',
+                'text-base font-black px-2.5 py-0.5 rounded-lg border transition-colors shrink-0 shadow-2xs tabular-nums',
                 themeMonoBadge
               ]"
             >
@@ -736,10 +736,7 @@ const themeHoverRow = computed(() => isLeau.value ? 'hover:bg-amber-50/50 hover:
 const themeBarColor = computed(() => isLeau.value ? 'bg-amber-500' : 'bg-emerald-500');
 const themeText = computed(() => isLeau.value ? 'text-amber-700' : 'text-emerald-700');
 const themeStatusBadge = computed(() => isLeau.value ? 'bg-amber-50 text-amber-800 border-amber-200/60' : 'bg-emerald-50 text-emerald-800 border-emerald-200/60');
-const themeMonoBadge = computed(() => isLeau.value
-  ? 'text-amber-700 bg-amber-50 border-amber-100 group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600'
-  : 'text-emerald-700 bg-emerald-50 border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600'
-);
+const themeMonoBadge = computed(() => 'bg-slate-100 text-slate-900 border-slate-300 group-hover:bg-slate-200/90 group-hover:border-slate-400');
 const themeInfoButtonHover = computed(() => isLeau.value ? 'hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800' : 'hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800');
 const themeMobileBorderHover = computed(() => isLeau.value ? 'hover:border-amber-400' : 'hover:border-emerald-400');
 const themeAttachmentHover = computed(() => isLeau.value ? 'hover:border-amber-500 hover:bg-amber-50/40' : 'hover:border-emerald-500 hover:bg-emerald-50/40');

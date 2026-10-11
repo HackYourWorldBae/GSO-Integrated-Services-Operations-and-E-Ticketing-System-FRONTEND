@@ -316,7 +316,7 @@
                   <td class="px-4 py-2.5 whitespace-nowrap relative">
                     <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
                     <div class="relative inline-flex items-center gap-1.5 flex-wrap">
-                      <div class="font-mono text-base font-black text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-100 inline-flex items-center group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all duration-150 shadow-2xs">
+                      <div class="text-base font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg border border-slate-300 inline-flex items-center group-hover:bg-slate-200/90 group-hover:border-slate-400 transition-all duration-150 shadow-2xs tabular-nums">
                         #{{ ticket.ticketId }}
                       </div>
                       <span
@@ -658,7 +658,7 @@
             <!-- Header row: ID + requester -->
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2 min-w-0">
-                <span class="font-mono text-base font-black text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-100 group-hover:bg-amber-600 group-hover:text-white transition-colors shrink-0 shadow-2xs">
+                <span class="text-base font-black text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-300 group-hover:bg-slate-200/90 group-hover:border-slate-400 transition-colors shrink-0 shadow-2xs tabular-nums">
                   #{{ ticket.ticketId }}
                 </span>
                 <span class="text-xs font-semibold text-slate-800 truncate">{{ ticket.requestedBy }}</span>

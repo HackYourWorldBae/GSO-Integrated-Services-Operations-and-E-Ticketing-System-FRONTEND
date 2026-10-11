@@ -101,7 +101,7 @@
               <td class="px-4 py-2.5 whitespace-nowrap relative">
                 <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
                 <div class="relative inline-flex items-center gap-1.5 flex-wrap">
-                  <span class="font-mono text-base font-black px-3 py-1 rounded-lg border bg-amber-50 text-amber-800 border-amber-200 inline-flex items-center group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all duration-150 shadow-2xs">
+                  <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-3 py-1 rounded-lg inline-flex items-center group-hover:bg-slate-200/90 group-hover:border-slate-400 transition-all duration-150 shadow-2xs tabular-nums">
                     #{{ req.ticket_id }}
                   </span>
                   <span
@@ -246,7 +246,7 @@
         <!-- Top Row: Ref Mono Badge & Status -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="font-mono text-base font-black px-2.5 py-0.5 rounded-lg border bg-amber-50 text-amber-800 border-amber-200 shadow-2xs">
+            <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg shadow-2xs tabular-nums">
               #{{ req.ticket_id }}
             </span>
             <span

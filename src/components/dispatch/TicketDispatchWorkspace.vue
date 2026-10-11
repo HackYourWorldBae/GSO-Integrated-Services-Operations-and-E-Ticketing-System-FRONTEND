@@ -489,16 +489,7 @@
           >
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <span
-                  :class="[
-                    'font-mono text-base font-black px-2.5 py-0.5 rounded-lg border shadow-2xs',
-                    unitCode.toUpperCase() === 'SSU'
-                      ? 'text-indigo-700 bg-indigo-50 border-indigo-200'
-                      : unitCode.toUpperCase() === 'LEAU'
-                        ? 'text-amber-800 bg-amber-50 border-amber-200'
-                        : 'text-emerald-800 bg-emerald-50 border-emerald-200'
-                  ]"
-                >
+                <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg shadow-2xs tabular-nums">
                   #{{ ticket.id }}
                 </span>
                 <span v-if="ticket.requesting_unit_code || ticket.unit_code" class="text-[10px] font-bold text-slate-500 uppercase">

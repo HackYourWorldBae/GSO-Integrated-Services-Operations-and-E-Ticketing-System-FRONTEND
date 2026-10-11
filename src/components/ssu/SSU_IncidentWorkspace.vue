@@ -177,7 +177,7 @@
               <td class="px-4 py-3.5 align-middle w-44">
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span
-                    class="font-mono text-base font-black px-3 py-1 rounded-lg border bg-slate-50 text-slate-800 border-slate-200 shadow-2xs group-hover:border-slate-300 transition-colors whitespace-nowrap"
+                    class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-3 py-1 rounded-lg shadow-2xs group-hover:border-slate-400 group-hover:bg-slate-200/90 transition-colors whitespace-nowrap tabular-nums"
                   >
                     {{ ticket.ticketId }}
                   </span>
@@ -387,7 +387,7 @@
         <!-- Top Row: Ref & Urgency -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="font-mono text-base font-black px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 border border-slate-200">
+            <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg tabular-nums shadow-2xs">
               {{ ticket.ticketId }}
             </span>
             <span

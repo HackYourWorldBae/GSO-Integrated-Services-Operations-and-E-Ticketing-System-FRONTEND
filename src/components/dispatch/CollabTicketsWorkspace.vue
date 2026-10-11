@@ -191,7 +191,7 @@
               <td class="px-4 py-2.5 whitespace-nowrap relative">
                 <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-indigo-500"></span>
                 <div class="relative inline-flex items-center gap-1.5 flex-wrap">
-                  <div class="font-mono text-base font-black px-3 py-1 rounded-lg border inline-flex items-center shadow-2xs text-indigo-700 bg-indigo-50 border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600">
+                  <div class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-3 py-1 rounded-lg inline-flex items-center shadow-2xs group-hover:bg-slate-200/90 group-hover:border-slate-400 tabular-nums">
                     #{{ ticket.id }}
                   </div>
                   <span v-if="ticket.is_emergency" class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200">Emergency</span>
@@ -374,7 +374,7 @@
       >
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-2 min-w-0">
-            <span class="font-mono text-base font-black px-2.5 py-0.5 rounded-lg border text-indigo-700 bg-indigo-50 border-indigo-100 shrink-0">#{{ ticket.id }}</span>
+            <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg shrink-0 shadow-2xs tabular-nums">#{{ ticket.id }}</span>
             <span :class="['px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border', ticket.is_outgoing ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-indigo-50 text-indigo-800 border-indigo-200']">
               {{ ticket.is_outgoing ? 'Outgoing' : 'Incoming' }}
             </span>

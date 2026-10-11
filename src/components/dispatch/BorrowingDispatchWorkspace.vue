@@ -235,7 +235,7 @@
             class="p-4 rounded-2xl border border-slate-200 hover:border-amber-400 hover:shadow-md transition-all cursor-pointer bg-slate-50/50 hover:bg-white space-y-2.5 group"
           >
             <div class="flex items-center justify-between gap-2">
-              <span class="font-mono text-base font-black px-2.5 py-0.5 rounded-lg border bg-white text-slate-800 border-slate-200 shadow-2xs">
+              <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg shadow-2xs tabular-nums">
                 #{{ t.id }}
               </span>
               <span
