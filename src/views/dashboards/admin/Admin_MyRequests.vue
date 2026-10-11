@@ -10,22 +10,7 @@
       <div class="space-y-6 animate-fade-in relative pb-12">
         <!-- ===================== FILTERS & ACTIONS BAR ===================== -->
         <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
-          <div class="flex flex-col md:flex-row md:items-center gap-3.5">
-            <!-- Search -->
-            <div class="relative flex-1">
-              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </span>
-              <input
-                type="text"
-                v-model="searchQuery"
-                placeholder="Search by ID, service, or unit..."
-                class="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none min-h-[44px]"
-              />
-            </div>
-
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
             <!-- Status Filter Tabs -->
             <div class="flex items-center gap-2 flex-wrap">
               <button
@@ -53,7 +38,7 @@
             <!-- New Request Action Button -->
             <button
               @click="$router.push('/services')"
-              class="flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-sm shadow-emerald-600/20 transition-all active:scale-95 text-sm sm:text-base whitespace-nowrap min-h-[44px] cursor-pointer"
+              class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-sm shadow-emerald-600/20 transition-all active:scale-95 text-sm sm:text-base whitespace-nowrap min-h-[44px] cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
@@ -73,7 +58,7 @@
           </div>
           <p class="text-lg font-black text-slate-900 mb-1">No service requests found</p>
           <p class="text-sm text-slate-500 font-medium mb-6">
-            {{ searchQuery || statusFilter !== 'all' ? 'Try adjusting your search query or status filter.' : 'You have not submitted any service requests yet.' }}
+            {{ statusFilter !== 'all' ? 'Try adjusting your status filter.' : 'You have not submitted any service requests yet.' }}
           </p>
           <button @click="$router.push('/services')" class="px-6 py-3 bg-emerald-600 text-white font-black rounded-xl text-sm sm:text-base hover:bg-emerald-700 transition-colors min-h-[44px] cursor-pointer">
             Create Service Request
@@ -715,7 +700,6 @@ import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import { debounce } from '@/utils/debounce';
 import { parseDateLocal } from '@/utils/workCalendar';
 import { useAuthStore } from '@/stores/auth';
 import { useNetworkStatus } from '@/utils/networkMonitor';
@@ -748,21 +732,10 @@ let ticketsAbort = null;
 let pollingInterval = null;
 let unregisterReconnected = null;
 
-// Search & Filtering
-const searchQuery = ref('');
-const debouncedSearchQuery = ref('');
+// Status Filtering & Pagination
 const statusFilter = ref('all');
 const currentPage = ref(1);
 const perPage = ref(8);
-
-const updateDebouncedSearch = debounce((val) => {
-  debouncedSearchQuery.value = val;
-}, 200);
-
-watch(searchQuery, (val) => {
-  updateDebouncedSearch(val);
-  currentPage.value = 1;
-});
 
 watch(statusFilter, () => {
   currentPage.value = 1;
@@ -882,17 +855,6 @@ const filteredTickets = computed(() => {
     list = list.filter(t => t.status === 'resolved');
   } else if (statusFilter.value === 'completed') {
     list = list.filter(t => ['completed', 'closed'].includes(t.status));
-  }
-
-  const query = debouncedSearchQuery.value.trim().toLowerCase();
-  if (query) {
-    list = list.filter(t =>
-      String(t.ticketId || '').toLowerCase().includes(query) ||
-      String(t.service || '').toLowerCase().includes(query) ||
-      String(t.unit || '').toLowerCase().includes(query) ||
-      String(t.title || '').toLowerCase().includes(query) ||
-      String(t.description || '').toLowerCase().includes(query)
-    );
   }
 
   return list;
@@ -1276,19 +1238,21 @@ const handleRouteTicket = () => {
 
   highlightedTicket.value = target;
   statusFilter.value = 'all';
-  searchQuery.value = target;
-  debouncedSearchQuery.value = target;
 
-  const match = tickets.value.find(t =>
+  const matchIndex = tickets.value.findIndex(t =>
     String(t.ticketId || t.id).toLowerCase() === String(target).toLowerCase()
   );
 
-  if (match && !selectedTicket.value) {
-    if (isFeedbackEligible(match) && !match.isClosed) {
-      ratingTicketId.value = match.ticketId;
-      resetForm();
-    } else {
-      openTimeline(match);
+  if (matchIndex !== -1) {
+    currentPage.value = Math.floor(matchIndex / perPage.value) + 1;
+    const match = tickets.value[matchIndex];
+    if (match && !selectedTicket.value) {
+      if (isFeedbackEligible(match) && !match.isClosed) {
+        ratingTicketId.value = match.ticketId;
+        resetForm();
+      } else {
+        openTimeline(match);
+      }
     }
   }
 
