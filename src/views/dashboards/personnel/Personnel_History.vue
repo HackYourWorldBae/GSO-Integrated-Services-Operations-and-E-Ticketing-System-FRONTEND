@@ -26,27 +26,10 @@
           <div class="absolute -left-12 -bottom-12 w-64 h-64 rounded-full bg-teal-500/10 blur-2xl pointer-events-none"></div>
 
           <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
-            <div class="flex items-start sm:items-center gap-4 min-w-0">
-              <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-sky-500 to-teal-400 text-white font-black text-xl sm:text-2xl flex items-center justify-center shrink-0 shadow-lg shadow-sky-950/40 border-2 border-white/20">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-
-              <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-2 mb-1">
-                  <h3 class="text-lg sm:text-2xl font-black text-white tracking-tight truncate">
-                    Job Completion Archive
-                  </h3>
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-400/40 shadow-xs">
-                    Verified Records
-                  </span>
-                </div>
-
-                <p class="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
-                  Historical archive of all resolved, serviced, and completed work orders for <strong class="text-white">{{ workerDisplayName }}</strong>.
-                </p>
-              </div>
+            <div class="min-w-0">
+              <h3 class="text-lg sm:text-2xl font-black text-white tracking-tight truncate">
+                Job Completion Archive
+              </h3>
             </div>
 
             <!-- Completed Counter Pill on Banner -->
@@ -615,22 +598,7 @@ const refreshData = async () => {
   await loadHistory();
 };
 
-const workerDisplayName = computed(() => {
-  if (store.personnel?.name) return store.personnel.name;
-  return authStore.fullName || 'Responding Personnel';
-});
 
-const soloCompletedCount = computed(() => {
-  return store.completedAssignments.filter(a => (a.team_count || 1) <= 1).length;
-});
-
-const jointCompletedCount = computed(() => {
-  return store.completedAssignments.filter(a => (a.team_count || 1) > 1).length;
-});
-
-const emergencyCompletedCount = computed(() => {
-  return store.completedAssignments.filter(a => a.is_emergency === 1).length;
-});
 
 // Available years from completed jobs
 const availableYears = computed(() => {
