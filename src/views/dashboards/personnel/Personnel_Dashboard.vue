@@ -324,60 +324,270 @@
           <button
             v-if="searchQuery"
             type="button"
-            @click="searchQuery = ''"
+            @click="searchQuery = ''; currentPage = 1"
             class="mt-4 px-4 py-2 rounded-xl text-xs font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all cursor-pointer min-h-[44px]"
           >
             Clear Search Filter
           </button>
         </div>
 
-        <!-- Assigned Tasks List (Clean Ticket List Layout) -->
-        <div v-else class="space-y-3.5">
-          <div
-            v-for="ticket in filteredAssignments"
-            :key="ticket.assignment_id || ticket.ticket_id"
-            @click="openTicketDetails(ticket)"
-            @keydown.enter="openTicketDetails(ticket)"
-            tabindex="0"
-            role="button"
-            :aria-label="'View details for ticket #' + ticket.ticket_id"
-            class="group relative bg-white border border-slate-200/90 hover:border-emerald-400 rounded-2xl p-4 sm:p-5 transition-all duration-200 hover:shadow-md active:scale-[0.995] cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-emerald-500/30 touch-manipulation"
-          >
-            <!-- Left accent color bar according to status / priority -->
-            <div
-              class="absolute left-0 inset-y-0 w-1.5 rounded-l-2xl"
-              :class="getTicketAccentClass(ticket)"
-            ></div>
+        <!-- Assigned Tasks Content (Administrative Layout & Pagination) -->
+        <div v-else class="space-y-4">
+          <!-- ═══ DESKTOP TABULAR VIEW (Matching Administrative Dashboards) ═══ -->
+          <div class="hidden md:block bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
+                    <th class="px-3 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester / Client</th>
+                    <th class="px-3 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
+                    <th class="px-3 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Task / Service</th>
+                    <th class="px-3 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Schedule &amp; Team</th>
+                    <th class="px-3 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Status</th>
+                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 border-b border-slate-200 text-xs">
+                  <tr
+                    v-for="ticket in paginatedAssignments"
+                    :key="ticket.assignment_id || ticket.ticket_id"
+                    :id="'ticket-' + ticket.ticket_id"
+                    class="hover:bg-emerald-50/50 hover:shadow-xs transition-all duration-150 group cursor-pointer relative"
+                    @click="openTicketDetails(ticket)"
+                  >
+                    <!-- Ticket Reference with Left Accent Line -->
+                    <td class="px-4 py-3 whitespace-nowrap relative">
+                      <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
+                      <div class="relative inline-flex items-center gap-1.5 flex-wrap">
+                        <div class="text-sm font-black px-2.5 py-1 rounded-lg border bg-slate-100 text-slate-800 border-slate-200 group-hover:bg-slate-200/90 group-hover:border-slate-300 transition-all duration-150 shadow-2xs tabular-nums">
+                          #{{ ticket.ticket_id }}
+                        </div>
+                        <span
+                          v-if="ticket.is_emergency"
+                          class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200 flex items-center gap-0.5 shadow-2xs animate-pulse"
+                        >
+                          <span>🔥</span> Urgent
+                        </span>
+                        <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[9px] font-black uppercase tracking-wider">
+                          {{ ticket.unit_code }}
+                        </span>
+                        <span
+                          v-if="ticket.is_project && ticket.project_title"
+                          class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[9px] font-black uppercase tracking-wider truncate max-w-[120px]"
+                          :title="ticket.project_title"
+                        >
+                          📁 {{ ticket.project_title }}
+                        </span>
+                      </div>
+                    </td>
 
-            <div class="pl-2.5 sm:pl-3 space-y-3">
-              <!-- Top Row: ID, Badges, Schedule & Status -->
-              <div class="flex items-center justify-between gap-2 flex-wrap">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="px-2.5 py-1 rounded-lg text-xs font-black font-mono bg-slate-100 text-slate-800 border border-slate-200">
-                    #{{ ticket.ticket_id }}
-                  </span>
-                  <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/60">
-                    {{ ticket.unit_code }}
-                  </span>
-                  <span
-                    v-if="ticket.is_emergency"
-                    class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white flex items-center gap-1 shadow-xs animate-pulse"
+                    <!-- Requester / Client -->
+                    <td class="px-3 py-3">
+                      <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
+                          {{ getMemberInitials(ticket.requestor_name) }}
+                        </div>
+                        <div class="min-w-0">
+                          <span class="text-xs font-semibold text-slate-800 truncate block max-w-[130px]">{{ ticket.requestor_name }}</span>
+                          <span v-if="ticket.requestor_contact" class="text-[10px] text-slate-400 block">{{ ticket.requestor_contact }}</span>
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Location -->
+                    <td class="px-3 py-3 whitespace-nowrap">
+                      <div class="text-xs font-semibold text-slate-700">{{ ticket.location }}</div>
+                      <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : 'General Area' }}</div>
+                    </td>
+
+                    <!-- Task / Service -->
+                    <td class="px-3 py-3">
+                      <div class="min-w-0 max-w-xs space-y-0.5">
+                        <div class="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition-colors truncate">
+                          {{ ticket.service_type }}
+                        </div>
+                        <div class="text-[11px] text-slate-500 line-clamp-1">
+                          {{ ticket.description }}
+                        </div>
+                        <div v-if="ticket.dispatcher_notes || ticket.task_notes" class="inline-flex items-center gap-1 text-[10px] text-amber-800 font-medium bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60 truncate max-w-full">
+                          <span class="text-amber-600 font-bold shrink-0">📝</span>
+                          <span class="truncate">{{ ticket.dispatcher_notes || ticket.task_notes }}</span>
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Schedule & Team -->
+                    <td class="px-3 py-3 whitespace-nowrap">
+                      <div class="text-xs font-bold text-slate-800">
+                        {{ formatDate(ticket.implementation_date || ticket.target_completion_date) }}
+                      </div>
+                      <div class="mt-0.5">
+                        <span
+                          :class="[
+                            'inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold',
+                            ticket.team_count > 1 ? 'bg-indigo-50 text-indigo-700 border border-indigo-100' : 'bg-slate-100 text-slate-600'
+                          ]"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          {{ ticket.team_count > 1 ? `Joint Crew (${ticket.team_count})` : 'Solo' }}
+                        </span>
+                      </div>
+                    </td>
+
+                    <!-- Status -->
+                    <td class="px-3 py-3 whitespace-nowrap">
+                      <span
+                        :class="[
+                          'px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border shrink-0',
+                          ticket.completed_at
+                            ? 'bg-sky-50 text-sky-700 border-sky-200'
+                            : ticket.ticket_status === 'in_progress'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        ]"
+                      >
+                        {{ ticket.completed_at ? 'Completed' : (ticket.status_label || ticket.ticket_status) }}
+                      </span>
+                    </td>
+
+                    <!-- Actions Column with Full Info Button -->
+                    <td class="px-4 py-3 whitespace-nowrap text-right" @click.stop>
+                      <button
+                        type="button"
+                        @click="openTicketDetails(ticket)"
+                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                        title="View Full Task Information"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>Full Info</span>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Desktop Pagination Bar -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+              <div class="flex items-center gap-3">
+                <div>
+                  Showing <strong class="text-slate-800">{{ paginationRange.start }}</strong> to <strong class="text-slate-800">{{ paginationRange.end }}</strong> of <strong class="text-slate-800">{{ filteredAssignments.length }}</strong> tasks
+                </div>
+                <div class="flex items-center gap-1.5 ml-2 border-l border-slate-200 pl-3">
+                  <span class="text-slate-400">Per page:</span>
+                  <select
+                    v-model.number="perPage"
+                    @change="currentPage = 1"
+                    class="px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                   >
-                    <span>🔥</span> EMERGENCY
-                  </span>
-                  <span
-                    v-if="ticket.is_project && ticket.project_title"
-                    class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200 truncate max-w-[200px]"
+                    <option :value="5">5</option>
+                    <option :value="10">10</option>
+                    <option :value="20">20</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  @click="changePage(1)"
+                  :disabled="currentPage === 1"
+                  class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                  title="First Page"
+                >
+                  «
+                </button>
+                <button
+                  type="button"
+                  @click="changePage(currentPage - 1)"
+                  :disabled="currentPage === 1"
+                  class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                >
+                  ‹ Prev
+                </button>
+
+                <div class="flex items-center gap-1">
+                  <button
+                    v-for="page in displayedPages"
+                    :key="page"
+                    type="button"
+                    @click="changePage(page)"
+                    class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer"
+                    :class="currentPage === page ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs font-black' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'"
                   >
-                    📁 {{ ticket.project_title }}
-                  </span>
+                    {{ page }}
+                  </button>
                 </div>
 
-                <!-- Status Badge & Date -->
-                <div class="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  @click="changePage(currentPage + 1)"
+                  :disabled="currentPage === totalPages"
+                  class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                >
+                  Next ›
+                </button>
+                <button
+                  type="button"
+                  @click="changePage(totalPages)"
+                  :disabled="currentPage === totalPages"
+                  class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                  title="Last Page"
+                >
+                  »
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ MOBILE CARDS VIEW (Matching Administrative Dashboards) ═══ -->
+          <div class="md:hidden space-y-3.5">
+            <div
+              v-for="ticket in paginatedAssignments"
+              :key="'mob-' + (ticket.assignment_id || ticket.ticket_id)"
+              :id="'mob-ticket-' + ticket.ticket_id"
+              @click="openTicketDetails(ticket)"
+              class="group relative bg-white border border-slate-200/90 hover:border-emerald-400 rounded-2xl p-4 transition-all duration-200 hover:shadow-md cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-emerald-500/30 touch-manipulation"
+            >
+              <!-- Accent bar -->
+              <div
+                class="absolute left-0 inset-y-0 w-1.5 rounded-l-2xl"
+                :class="getTicketAccentClass(ticket)"
+              ></div>
+
+              <div class="pl-2 space-y-3">
+                <!-- Top Row: ID, Badges, Status -->
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-black font-mono bg-slate-100 text-slate-800 border border-slate-200">
+                      #{{ ticket.ticket_id }}
+                    </span>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                      {{ ticket.unit_code }}
+                    </span>
+                    <span
+                      v-if="ticket.is_emergency"
+                      class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white flex items-center gap-1 shadow-xs animate-pulse"
+                    >
+                      <span>🔥</span> Urgent
+                    </span>
+                    <span
+                      v-if="ticket.is_project && ticket.project_title"
+                      class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200 truncate max-w-[150px]"
+                    >
+                      📁 {{ ticket.project_title }}
+                    </span>
+                  </div>
+
                   <span
                     :class="[
-                      'px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border shrink-0',
+                      'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shrink-0',
                       ticket.completed_at
                         ? 'bg-sky-50 text-sky-700 border-sky-200'
                         : ticket.ticket_status === 'in_progress'
@@ -387,71 +597,104 @@
                   >
                     {{ ticket.completed_at ? 'Completed' : (ticket.status_label || ticket.ticket_status) }}
                   </span>
-                  <span class="text-xs font-bold text-slate-500 hidden sm:inline">
-                    Schedule: {{ formatDate(ticket.implementation_date || ticket.target_completion_date) }}
-                  </span>
                 </div>
-              </div>
 
-              <!-- Main Title & Description Preview -->
-              <div class="space-y-1">
-                <h4 class="text-base sm:text-lg font-black text-slate-900 group-hover:text-emerald-700 transition-colors leading-snug">
-                  {{ ticket.service_type }}
-                </h4>
-                <p class="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
-                  {{ ticket.description }}
-                </p>
-              </div>
-
-              <!-- Dispatcher Note Indicator (if present) -->
-              <div v-if="ticket.dispatcher_notes || ticket.task_notes" class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-900 flex items-start gap-2">
-                <span class="text-amber-500 font-bold shrink-0">📝</span>
-                <div class="min-w-0">
-                  <span class="font-black text-amber-950 uppercase tracking-wider text-[10px] mr-1">Note:</span>
-                  <span class="font-medium leading-relaxed">{{ ticket.dispatcher_notes || ticket.task_notes }}</span>
+                <!-- Service & Description -->
+                <div class="space-y-1">
+                  <h4 class="text-base font-black text-slate-900 group-hover:text-emerald-700 transition-colors leading-snug">
+                    {{ ticket.service_type }}
+                  </h4>
+                  <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                    {{ ticket.description }}
+                  </p>
                 </div>
-              </div>
 
-              <!-- Bottom Meta Grid: Location, Client, Crew, Action Cue -->
-              <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-slate-600">
-                  <!-- Location -->
-                  <span class="inline-flex items-center gap-1.5 font-bold text-slate-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    </svg>
-                    {{ ticket.location }} <span class="text-slate-400 font-normal">({{ ticket.office_room }})</span>
-                  </span>
+                <!-- Dispatcher Note Indicator -->
+                <div v-if="ticket.dispatcher_notes || ticket.task_notes" class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-900 flex items-start gap-2">
+                  <span class="text-amber-500 font-bold shrink-0">📝</span>
+                  <div class="min-w-0">
+                    <span class="font-black text-amber-950 uppercase tracking-wider text-[10px] mr-1">Note:</span>
+                    <span class="font-medium leading-relaxed">{{ ticket.dispatcher_notes || ticket.task_notes }}</span>
+                  </div>
+                </div>
 
-                  <!-- Client -->
-                  <span class="inline-flex items-center gap-1.5 text-slate-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    Client: <strong class="text-slate-700">{{ ticket.requestor_name }}</strong>
-                  </span>
+                <!-- Meta Info Grid -->
+                <div class="pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs text-slate-600">
+                  <div>
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Location</span>
+                    <span class="font-semibold text-slate-800 truncate block">{{ ticket.location }} ({{ ticket.office_room }})</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Schedule</span>
+                    <span class="font-semibold text-slate-800 truncate block">{{ formatDate(ticket.implementation_date || ticket.target_completion_date) }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Client</span>
+                    <span class="font-semibold text-slate-800 truncate block">{{ ticket.requestor_name }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Crew</span>
+                    <span class="font-semibold text-slate-800 truncate block">{{ ticket.team_count > 1 ? `Joint (${ticket.team_count})` : 'Solo' }}</span>
+                  </div>
+                </div>
 
-                  <!-- Crew / Team Pill -->
-                  <span
-                    :class="[
-                      'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold',
-                      ticket.team_count > 1 ? 'bg-indigo-50 text-indigo-700 border border-indigo-100' : 'bg-slate-100 text-slate-600'
-                    ]"
+                <!-- Action Row with Full Info Button -->
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-end" @click.stop>
+                  <button
+                    type="button"
+                    @click="openTicketDetails(ticket)"
+                    class="w-full px-4 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer active:scale-95 touch-manipulation"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    {{ ticket.team_count > 1 ? `Joint Crew (${ticket.team_count})` : 'Solo Responder' }}
-                  </span>
+                    <span>Full Info</span>
+                  </button>
                 </div>
+              </div>
+            </div>
 
-                <!-- Right Side Action Cue: View Details -->
-                <div class="inline-flex items-center gap-1 font-black text-slate-700 group-hover:text-emerald-700 shrink-0 self-end sm:self-center">
-                  <span>View Full Info</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                  </svg>
+            <!-- Mobile Pagination Bar -->
+            <div class="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col gap-3 text-xs text-slate-500 shadow-xs">
+              <div class="flex items-center justify-between font-medium">
+                <div>
+                  Showing <strong class="text-slate-800">{{ paginationRange.start }}</strong> to <strong class="text-slate-800">{{ paginationRange.end }}</strong> of <strong class="text-slate-800">{{ filteredAssignments.length }}</strong>
                 </div>
+                <div class="flex items-center gap-1">
+                  <span class="text-slate-400">Rows:</span>
+                  <select
+                    v-model.number="perPage"
+                    @change="currentPage = 1"
+                    class="px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-bold"
+                  >
+                    <option :value="5">5</option>
+                    <option :value="10">10</option>
+                    <option :value="20">20</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  @click="changePage(currentPage - 1)"
+                  :disabled="currentPage === 1"
+                  class="flex-1 py-2 min-h-[40px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold touch-manipulation flex items-center justify-center cursor-pointer"
+                >
+                  ‹ Prev
+                </button>
+                <span class="px-3 py-2 font-bold text-slate-700 min-w-[70px] text-center">
+                  {{ currentPage }} / {{ totalPages }}
+                </span>
+                <button
+                  type="button"
+                  @click="changePage(currentPage + 1)"
+                  :disabled="currentPage === totalPages"
+                  class="flex-1 py-2 min-h-[40px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold touch-manipulation flex items-center justify-center cursor-pointer"
+                >
+                  Next ›
+                </button>
               </div>
             </div>
           </div>
@@ -466,6 +709,7 @@
         <div
           v-if="selectedTicket"
           class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
+          @click.self="selectedTicket = null"
         >
           <div
             class="pointer-events-auto bg-white rounded-3xl w-full max-w-2xl p-5 sm:p-7 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar space-y-5"
@@ -473,22 +717,30 @@
             <!-- Modal Header -->
             <div class="flex items-start justify-between gap-3 pb-4 border-b border-slate-100">
               <div class="min-w-0">
-                <div class="flex items-center gap-2 mb-1">
+                <div class="flex flex-wrap items-center gap-2 mb-1.5">
                   <span class="px-2.5 py-0.5 rounded-lg text-xs font-black font-mono bg-slate-100 text-slate-800 border border-slate-200">
                     #{{ selectedTicket.ticket_id }}
+                  </span>
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                    {{ selectedTicket.unit_code }}
                   </span>
                   <span
                     :class="[
                       'px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border',
                       selectedTicket.completed_at
                         ? 'bg-sky-50 text-sky-700 border-sky-200'
-                        : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : selectedTicket.ticket_status === 'in_progress'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                     ]"
                   >
-                    {{ selectedTicket.completed_at ? 'Completed' : selectedTicket.status_label }}
+                    {{ selectedTicket.completed_at ? 'Completed' : (selectedTicket.status_label || selectedTicket.ticket_status) }}
                   </span>
-                  <span v-if="selectedTicket.is_emergency" class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white">
-                    🔥 Emergency
+                  <span v-if="selectedTicket.is_emergency" class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white flex items-center gap-1">
+                    🔥 Urgent
+                  </span>
+                  <span v-if="selectedTicket.is_project && selectedTicket.project_title" class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200 truncate max-w-[200px]">
+                    📁 {{ selectedTicket.project_title }}
                   </span>
                 </div>
                 <h3 class="text-lg sm:text-xl font-black text-slate-900 leading-tight">
@@ -621,7 +873,7 @@
                 @click="selectedTicket = null"
                 class="px-5 py-2.5 min-h-[44px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition-all shadow-xs cursor-pointer touch-manipulation"
               >
-                Close Job Summary
+                Close Task Info
               </button>
             </div>
           </div>
@@ -633,7 +885,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { usePersonnelDashboardStore } from '@/stores/personnelDashboard';
@@ -644,9 +896,13 @@ const store = usePersonnelDashboardStore();
 const authStore = useAuthStore();
 
 const searchQuery = ref('');
-const activeTab = ref('active'); // 'active' | 'emergency' | 'completed' | 'all'
+const activeTab = ref('active'); // 'active' | 'emergency' | 'all'
 const sortBy = ref('newest');     // 'newest' | 'date' | 'emergency'
 const selectedTicket = ref(null);
+
+// Pagination State
+const currentPage = ref(1);
+const perPage = ref(10);
 
 const loadDashboard = async () => {
   try {
@@ -722,8 +978,6 @@ const filteredAssignments = computed(() => {
     list = list.filter(a => !isJobCompleted(a));
   } else if (activeTab.value === 'emergency') {
     list = list.filter(a => a.is_emergency === 1 && !isJobCompleted(a));
-  } else if (activeTab.value === 'completed') {
-    list = list.filter(a => isJobCompleted(a));
   }
 
   // 2. Search query filter
@@ -753,6 +1007,49 @@ const filteredAssignments = computed(() => {
     // Default: newest assigned
     return (b.assignment_id || 0) - (a.assignment_id || 0);
   });
+});
+
+// Pagination Computeds
+const totalPages = computed(() => {
+  return Math.ceil(filteredAssignments.value.length / perPage.value) || 1;
+});
+
+const paginatedAssignments = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredAssignments.value.slice(start, start + perPage.value);
+});
+
+const paginationRange = computed(() => {
+  const total = filteredAssignments.value.length;
+  if (total === 0) return { start: 0, end: 0 };
+  const start = (currentPage.value - 1) * perPage.value + 1;
+  const end = Math.min(currentPage.value * perPage.value, total);
+  return { start, end };
+});
+
+const displayedPages = computed(() => {
+  const pages = [];
+  const maxPagesToShow = 5;
+  let startPage = Math.max(1, currentPage.value - Math.floor(maxPagesToShow / 2));
+  let endPage = Math.min(totalPages.value, startPage + maxPagesToShow - 1);
+  if (endPage - startPage + 1 < maxPagesToShow) {
+    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  }
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
+
+// Reset page when filter inputs change
+watch([searchQuery, activeTab, sortBy], () => {
+  currentPage.value = 1;
 });
 
 const getMemberInitials = (name) => {
