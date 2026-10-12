@@ -280,9 +280,9 @@
                         </div>
                         <span
                           v-if="ticket.is_emergency"
-                          class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200 flex items-center gap-0.5 shadow-2xs animate-pulse"
+                          class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200 inline-flex items-center shadow-2xs animate-pulse"
                         >
-                          <span>🔥</span> Urgent
+                          Urgent
                         </span>
                         <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[9px] font-black uppercase tracking-wider">
                           {{ ticket.unit_code }}
@@ -488,9 +488,9 @@
                     </span>
                     <span
                       v-if="ticket.is_emergency"
-                      class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white flex items-center gap-1 shadow-xs animate-pulse"
+                      class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white inline-flex items-center shadow-xs animate-pulse"
                     >
-                      <span>🔥</span> Urgent
+                      Urgent
                     </span>
                     <span
                       v-if="ticket.is_project && ticket.project_title"
@@ -651,8 +651,8 @@
                   >
                     {{ selectedTicket.completed_at ? 'Completed' : (selectedTicket.status_label || selectedTicket.ticket_status) }}
                   </span>
-                  <span v-if="selectedTicket.is_emergency" class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white flex items-center gap-1">
-                    🔥 Urgent
+                  <span v-if="selectedTicket.is_emergency" class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white inline-flex items-center">
+                    Urgent
                   </span>
                   <span v-if="selectedTicket.is_project && selectedTicket.project_title" class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200 truncate max-w-[200px]">
                     📁 {{ selectedTicket.project_title }}

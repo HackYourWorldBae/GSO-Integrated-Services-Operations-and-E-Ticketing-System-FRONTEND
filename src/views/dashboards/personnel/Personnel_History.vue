@@ -215,7 +215,7 @@
                   <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-sky-500 group-hover:shadow-md transition-all">
                     <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg inline-block tabular-nums shadow-2xs">#{{ ticket.ticket_id }}</span>
                     <div class="mt-1 flex items-center gap-1 flex-wrap">
-                      <span v-if="ticket.is_emergency" class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase">🔥 Urgent</span>
+                      <span v-if="ticket.is_emergency" class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase">Urgent</span>
                       <span v-if="ticket.unit_code" class="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 text-[9px] font-black uppercase">{{ ticket.unit_code }}</span>
                     </div>
                   </td>
@@ -435,7 +435,7 @@
                     Completed Job
                   </span>
                   <span v-if="selectedTicket.is_emergency" class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white">
-                    🔥 Emergency
+                    Emergency
                   </span>
                 </div>
                 <h3 class="text-lg sm:text-xl font-black text-slate-900 leading-tight">
