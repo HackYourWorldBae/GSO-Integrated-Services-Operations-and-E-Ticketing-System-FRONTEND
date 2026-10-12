@@ -41,7 +41,8 @@ const breadcrumbs = computed(() => {
   } else if (path.startsWith('/director')) {
     crumbs.push({ label: 'Director Portal', to: '/director' });
   } else if (path.startsWith('/user')) {
-    crumbs.push({ label: 'Requestor', to: '/user/dashboard' });
+    const isWorker = ['worker', 'personnel'].includes(String(authStore.user?.role || authStore.role || '').toLowerCase());
+    crumbs.push({ label: isWorker ? 'Personnel' : 'Requestor', to: isWorker ? '/personnel/dashboard' : '/user/dashboard' });
   } else if (path.startsWith('/services')) {
     crumbs.push({ label: 'Service Catalog', to: '/services' });
   } else if (path.startsWith('/projects')) {
