@@ -23,23 +23,10 @@
               </div>
 
               <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-2 mb-1">
+                <div class="mb-1">
                   <h3 class="text-lg sm:text-2xl font-black text-white tracking-tight truncate">
                     {{ workerDisplayName }}
                   </h3>
-                  <!-- Status Pill -->
-                  <span
-                    :class="[
-                      'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-xs',
-                      workerStatus === 'Available'
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40'
-                        : workerStatus === 'Working'
-                          ? 'bg-amber-500/20 text-amber-300 border-amber-400/40'
-                          : 'bg-rose-500/20 text-rose-300 border-rose-400/40'
-                    ]"
-                  >
-                    {{ workerStatus }}
-                  </span>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-y-1 gap-x-3 text-xs text-slate-300 font-semibold">
@@ -51,13 +38,6 @@
                   </span>
                   <span class="text-slate-500">•</span>
                   <span>{{ workerUnitName }}</span>
-                  <span class="text-slate-500 hidden sm:inline">•</span>
-                  <span class="inline-flex items-center gap-1 text-[11px] text-teal-300/90 font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                    Mobile Device Access
-                  </span>
                 </div>
               </div>
             </div>
@@ -938,11 +918,42 @@ const workerStatus = computed(() => {
 });
 
 const workerUnitName = computed(() => {
-  const uId = store.personnel?.unit_id || authStore.unitId;
+  // 1. Explicit unit_name from store.personnel
+  if (store.personnel?.unit_name) {
+    const code = store.personnel.unit_code ? ` (${store.personnel.unit_code})` : '';
+    return store.personnel.unit_name.includes('(') ? store.personnel.unit_name : `${store.personnel.unit_name}${code}`;
+  }
+
+  // 2. Explicit unit_code from store.personnel or authStore
+  const code = String(store.personnel?.unit_code || authStore.user?.unit_code || '').toUpperCase().trim();
+  if (code === 'FGMU') return 'Facilities & Grounds Management Unit (FGMU)';
+  if (code === 'LEAU') return 'Landscaping & Environmental Aesthetics Unit (LEAU)';
+  if (code === 'SSU') return 'Security Services Unit (SSU)';
+
+  // 3. Numeric or string unit_id from personnel or authStore
+  const rawId = store.personnel?.unit_id ?? authStore.unitId ?? authStore.user?.unit_id;
+  const uId = rawId !== null && rawId !== undefined && rawId !== '' ? Number(rawId) : null;
   if (uId === 1) return 'Facilities & Grounds Management Unit (FGMU)';
   if (uId === 2) return 'Landscaping & Environmental Aesthetics Unit (LEAU)';
   if (uId === 3) return 'Security Services Unit (SSU)';
-  return 'General Services Office (GSO)';
+
+  // 4. Fallback to assigned tickets unit info
+  if (store.assignments?.length > 0) {
+    const firstTicket = store.assignments[0];
+    if (firstTicket.unit_name) {
+      const uCode = firstTicket.unit_code ? ` (${firstTicket.unit_code})` : '';
+      return firstTicket.unit_name.includes('(') ? firstTicket.unit_name : `${firstTicket.unit_name}${uCode}`;
+    }
+    if (firstTicket.unit_code) {
+      const tCode = String(firstTicket.unit_code).toUpperCase().trim();
+      if (tCode === 'FGMU') return 'Facilities & Grounds Management Unit (FGMU)';
+      if (tCode === 'LEAU') return 'Landscaping & Environmental Aesthetics Unit (LEAU)';
+      if (tCode === 'SSU') return 'Security Services Unit (SSU)';
+    }
+  }
+
+  // 5. Default sub-unit fallback (FGMU is the primary operational sub-unit)
+  return 'Facilities & Grounds Management Unit (FGMU)';
 });
 
 const workerInitials = computed(() => {
