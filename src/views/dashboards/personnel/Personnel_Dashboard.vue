@@ -148,18 +148,8 @@
               />
             </div>
 
-            <!-- Sort By Dropdown & Refresh Button -->
-            <div class="flex items-center gap-2 shrink-0">
-              <label class="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0">Sort By:</label>
-              <select
-                v-model="sortBy"
-                class="px-3 py-2 min-h-[44px] rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-              >
-                <option value="newest">Recently Assigned</option>
-                <option value="date">Implementation Date</option>
-                <option value="emergency">Emergency Priority First</option>
-              </select>
-
+            <!-- Refresh Button -->
+            <div class="flex items-center shrink-0">
               <button
                 type="button"
                 @click="refreshData"
@@ -235,17 +225,6 @@
                 </span>
               </button>
             </div>
-
-            <!-- Direct link to History Page -->
-            <router-link
-              to="/personnel/history"
-              class="px-4 py-2 min-h-[44px] rounded-xl font-bold bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 transition-all flex items-center gap-2 touch-manipulation shrink-0"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Completed Jobs History ({{ store.completedCount }}) &rarr;</span>
-            </router-link>
           </div>
         </div>
 
@@ -877,7 +856,6 @@ const authStore = useAuthStore();
 
 const searchQuery = ref('');
 const activeTab = ref('active'); // 'active' | 'emergency' | 'all'
-const sortBy = ref('newest');     // 'newest' | 'date' | 'emergency'
 const selectedTicket = ref(null);
 
 // Pagination State
@@ -1005,18 +983,38 @@ const filteredAssignments = computed(() => {
     });
   }
 
-  // 3. Sorting
+  // 3. Automatic Sorting: Emergency on top, nearest implementation date from top to bottom
   return [...list].sort((a, b) => {
-    if (sortBy.value === 'emergency') {
-      if (b.is_emergency !== a.is_emergency) return (b.is_emergency || 0) - (a.is_emergency || 0);
+    // 1st Priority: Emergency priority on top
+    const emergA = Number(a.is_emergency) ? 1 : 0;
+    const emergB = Number(b.is_emergency) ? 1 : 0;
+    if (emergB !== emergA) {
+      return emergB - emergA;
     }
-    if (sortBy.value === 'date') {
-      const dateA = a.implementation_date || a.target_completion_date || '';
-      const dateB = b.implementation_date || b.target_completion_date || '';
-      if (dateA && dateB) return dateA.localeCompare(dateB);
+
+    // 2nd Priority: Nearest implementation date from top to bottom (ascending)
+    const rawDateA = String(a.implementation_date || a.target_completion_date || '').trim();
+    const rawDateB = String(b.implementation_date || b.target_completion_date || '').trim();
+
+    if (rawDateA && rawDateB) {
+      const timeA = new Date(rawDateA).getTime();
+      const timeB = new Date(rawDateB).getTime();
+      if (!isNaN(timeA) && !isNaN(timeB)) {
+        if (timeA !== timeB) return timeA - timeB;
+      } else {
+        const cmp = rawDateA.localeCompare(rawDateB);
+        if (cmp !== 0) return cmp;
+      }
+    } else if (rawDateA && !rawDateB) {
+      return -1; // Scheduled dates appear before unscheduled
+    } else if (!rawDateA && rawDateB) {
+      return 1;
     }
-    // Default: newest assigned
-    return (b.assignment_id || 0) - (a.assignment_id || 0);
+
+    // 3rd Priority: Fallback to newest assignment ID
+    const idA = Number(a.assignment_id || a.ticket_id || 0);
+    const idB = Number(b.assignment_id || b.ticket_id || 0);
+    return idB - idA;
   });
 });
 
@@ -1059,7 +1057,7 @@ const changePage = (page) => {
 };
 
 // Reset page when filter inputs change
-watch([searchQuery, activeTab, sortBy], () => {
+watch([searchQuery, activeTab], () => {
   currentPage.value = 1;
 });
 
