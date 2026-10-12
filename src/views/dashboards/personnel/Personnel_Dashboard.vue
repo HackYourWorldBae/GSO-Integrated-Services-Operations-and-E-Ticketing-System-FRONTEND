@@ -42,92 +42,48 @@
               </div>
             </div>
 
-            <!-- Header Quick Badge -->
-            <div class="flex items-center gap-2.5 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 self-start md:self-auto shrink-0">
-              <div class="text-right">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-300 block">Current Workload</span>
-                <span class="text-base font-black text-white leading-none">
-                  {{ store.activeCount }} {{ store.activeCount === 1 ? 'Active Job' : 'Active Jobs' }}
-                </span>
+            <!-- Worker Stats: Assigned Jobs & Emergency Jobs Assigned -->
+            <div class="flex flex-wrap items-center gap-2.5 self-start md:self-auto shrink-0">
+              <!-- Assigned Jobs -->
+              <div class="flex items-center gap-2.5 bg-white/10 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-white/10 shadow-xs">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-black text-sm border border-emerald-400/30 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+                <div>
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-300 block">Assigned Jobs</span>
+                  <span class="text-base font-black text-white leading-none">
+                    {{ store.activeCount }}
+                  </span>
+                </div>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-black text-sm border border-emerald-400/30">
-                {{ store.activeCount }}
+
+              <!-- Emergency Jobs Assigned -->
+              <div
+                class="flex items-center gap-2.5 backdrop-blur-md px-3.5 py-2 rounded-2xl border shadow-xs transition-all"
+                :class="emergencyCount > 0 ? 'bg-rose-500/20 border-rose-400/40' : 'bg-white/10 border-white/10'"
+              >
+                <div
+                  class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm border shrink-0"
+                  :class="emergencyCount > 0 ? 'bg-rose-500/30 text-rose-200 border-rose-400/50 animate-pulse' : 'bg-white/10 text-slate-300 border-white/20'"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div>
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-300 block">Emergency Jobs</span>
+                  <span
+                    class="text-base font-black leading-none"
+                    :class="emergencyCount > 0 ? 'text-rose-200' : 'text-white'"
+                  >
+                    {{ emergencyCount }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Quick Summary Metric Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <!-- Active Jobs -->
-          <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-emerald-300 hover:shadow-md transition-all">
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">Active Jobs</span>
-              <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-            </div>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none">
-              {{ store.activeCount }}
-            </div>
-            <p class="text-[11px] font-semibold text-slate-500 mt-1">Pending &amp; in-progress work</p>
-          </div>
-
-          <!-- Emergency / Urgent -->
-          <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-rose-300 hover:shadow-md transition-all">
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">Emergency</span>
-              <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-            </div>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none" :class="{ 'text-rose-600': emergencyCount > 0 }">
-              {{ emergencyCount }}
-            </div>
-            <p class="text-[11px] font-semibold text-slate-500 mt-1">Urgent immediate action tasks</p>
-          </div>
-
-          <!-- Team Collaborations -->
-          <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all">
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">Team Jobs</span>
-              <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-            </div>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none">
-              {{ teamJobCount }}
-            </div>
-            <p class="text-[11px] font-semibold text-slate-500 mt-1">Multi-personnel crew tasks</p>
-          </div>
-
-          <!-- Completed History Card -->
-          <router-link
-            to="/personnel/history"
-            class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-sky-300 hover:shadow-md transition-all group cursor-pointer block"
-          >
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400 group-hover:text-sky-600 transition-colors">Completed</span>
-              <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none">
-              {{ store.completedCount }}
-            </div>
-            <p class="text-[11px] font-semibold text-slate-500 mt-1 flex items-center justify-between">
-              <span>Finished assignments</span>
-              <span class="text-sky-600 font-bold group-hover:underline">View History &rarr;</span>
-            </p>
-          </router-link>
         </div>
 
         <!-- Filter Bar & Search Controls -->
@@ -953,10 +909,6 @@ const isJobCompleted = (a) => {
 
 const emergencyCount = computed(() => {
   return store.assignments.filter(a => !isJobCompleted(a) && a.is_emergency === 1).length;
-});
-
-const teamJobCount = computed(() => {
-  return store.assignments.filter(a => !isJobCompleted(a) && a.team_count > 1).length;
 });
 
 const filteredAssignments = computed(() => {
