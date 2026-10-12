@@ -1,20 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex items-center gap-2 min-w-0">
-        <router-link
-          to="/personnel/dashboard"
-          class="text-slate-400 hover:text-slate-700 transition-colors p-1 -ml-1 rounded-lg hover:bg-slate-100 shrink-0"
-          title="Back to Active Jobs"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-          </svg>
-        </router-link>
-        <h2 class="text-base sm:text-xl font-black text-slate-900 tracking-tight truncate">
-          Completed Jobs History
-        </h2>
-      </div>
+      <h2 class="text-base sm:text-xl font-black text-slate-900 tracking-tight truncate">
+        Completed Jobs History
+      </h2>
     </template>
 
     <template #main-content>
