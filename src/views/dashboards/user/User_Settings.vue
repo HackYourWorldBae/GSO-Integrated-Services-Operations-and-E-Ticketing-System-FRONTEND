@@ -111,9 +111,9 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <input v-model="form.email" :type="isPersonnel ? 'text' : 'email'" class="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-[1.25rem] text-sm font-bold text-slate-700 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none" :placeholder="isPersonnel ? 'Enter username' : 'user@university.edu'">
+                  <input v-model="form.email" :type="isPersonnel ? 'text' : 'email'" class="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-[1.25rem] text-sm font-bold text-slate-700 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none" :placeholder="isPersonnel ? 'Enter username (e.g. juan_delacruz)' : 'user@university.edu'" :autocomplete="isPersonnel ? 'username' : 'email'">
                 </div>
-                <p class="text-[11px] text-slate-400 font-medium ml-1">{{ isPersonnel ? 'Used for signing in to the personnel dashboard.' : 'Used for login and all request/ticket email updates (including status changes).' }}</p>
+                <p class="text-[11px] text-slate-400 font-medium ml-1">{{ isPersonnel ? 'Used for signing in to the personnel dashboard (3-50 characters: letters, numbers, dots, hyphens, or underscores).' : 'Used for login and all request/ticket email updates (including status changes).' }}</p>
               </div>
 
               <!-- Email Updates Opt-In (wired to email_notifications_enabled) — Hidden for personnel / worker accounts -->
@@ -248,7 +248,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
@@ -275,16 +275,24 @@ const form = ref({
 const showPassword = ref(false);
 const isSaving = ref(false);
 
-onMounted(() => {
-  const user = authStore.user;
-  if (user) {
-    form.value.firstName = user.first_name || '';
-    form.value.lastName  = user.last_name  || '';
-    form.value.email     = user.email      || '';
-    form.value.emailNotificationsEnabled = user.email_notifications_enabled === 0 || user.email_notifications_enabled === '0' ? false : true;
-    if (user.avatar_path) {
+const populateFormData = (user) => {
+  if (!user) return;
+  form.value.firstName = user.first_name || '';
+  form.value.lastName  = user.last_name  || '';
+  form.value.email     = (isPersonnel.value ? (user.username || user.email) : user.email) || '';
+  form.value.emailNotificationsEnabled = user.email_notifications_enabled === 0 || user.email_notifications_enabled === '0' ? false : true;
+  if (user.avatar_path) {
       avatarPreviewUrl.value = `/api/v1/auth/avatar/${user.id}?t=${Date.now()}`;
-    }
+  }
+};
+
+onMounted(() => {
+  populateFormData(authStore.user);
+});
+
+watch(() => authStore.user, (user) => {
+  if (user && !form.value.firstName && !form.value.email) {
+    populateFormData(user);
   }
 });
 
@@ -335,10 +343,26 @@ const handleSave = async () => {
     }
   }
 
-  const emailChanged = (form.value.email || '').trim().toLowerCase() !== (authStore.user?.email || '').trim().toLowerCase();
-  if (emailChanged && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((form.value.email || '').trim())) {
-    toast.error('Please enter a valid email address.');
-    return;
+  const currentIdentifier = (isPersonnel.value
+    ? (authStore.user?.username || authStore.user?.email || '')
+    : (authStore.user?.email || '')).trim().toLowerCase();
+  const enteredIdentifier = (form.value.email || '').trim();
+  const identifierChanged = enteredIdentifier.toLowerCase() !== currentIdentifier;
+
+  if (isPersonnel.value) {
+    if (!enteredIdentifier) {
+      toast.error('Please enter a username.');
+      return;
+    }
+    if (enteredIdentifier.length < 3 || enteredIdentifier.length > 50 || !/^[a-zA-Z0-9._-]+$/.test(enteredIdentifier)) {
+      toast.error('Username must be 3-50 characters long and contain only letters, numbers, dots, hyphens, or underscores.');
+      return;
+    }
+  } else {
+    if (identifierChanged && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(enteredIdentifier)) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
   }
 
   isSaving.value = true;
@@ -348,14 +372,20 @@ const handleSave = async () => {
       last_name:  form.value.lastName,
       email_notifications_enabled: form.value.emailNotificationsEnabled ? 1 : 0,
     };
-    if (emailChanged) {
-      payload.email = form.value.email.trim().toLowerCase();
+    if (identifierChanged) {
+      if (isPersonnel.value) {
+        payload.username = enteredIdentifier;
+        payload.email    = enteredIdentifier;
+      } else {
+        payload.email    = enteredIdentifier.toLowerCase();
+      }
     }
     const result = await authStore.updateProfile(payload);
     
     if (form.value.password) {
       await api.post('/auth/change-password', {
         new_password: form.value.password,
+        confirm_password: form.value.confirmPassword,
         new_password_confirm: form.value.confirmPassword,
       });
       form.value.password = '';
@@ -363,7 +393,7 @@ const handleSave = async () => {
     }
 
     if (result.success) {
-      toast.success('Profile updated successfully!');
+      toast.success(isPersonnel.value ? 'Personnel account settings updated successfully!' : 'Profile updated successfully!');
     } else {
       toast.error(result.message || 'Failed to update profile.');
     }
