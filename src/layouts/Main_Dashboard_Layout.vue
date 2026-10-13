@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-[100dvh] w-full bg-slate-50 font-sans flex overflow-hidden text-slate-900">
+  <div class="min-h-[100dvh] w-full bg-slate-100/90 font-sans flex overflow-hidden text-slate-900">
     <!-- Mobile Sidebar Dark Overlay -->
     <Transition name="fade">
       <div 
@@ -12,7 +12,7 @@
     <!-- Sidebar -->
     <aside 
       :class="[
-        'fixed md:relative flex flex-col transition-[width,transform] duration-200 ease-out z-50 h-[100dvh] border-r border-slate-200 shadow-xl bg-white overflow-hidden', 
+        'fixed md:relative flex flex-col transition-[width,transform] duration-200 ease-out z-50 h-[100dvh] border-r border-slate-300/80 shadow-xl bg-white overflow-hidden', 
         isSidebarOpen ? 'w-72 border-r' : 'w-0 border-none',
         isMobileSidebarOpen ? 'translate-x-0 w-72 max-w-[85vw] border-r' : '-translate-x-full md:translate-x-0'
       ]"
@@ -84,12 +84,12 @@
       </Transition>
 
       <!-- Top Navbar -->
-      <header class="min-h-16 sm:min-h-20 pt-safe bg-white border-b border-slate-200 flex items-center justify-between px-2.5 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0 gap-1.5 sm:gap-4">
+      <header class="min-h-16 sm:min-h-20 pt-safe bg-white border-b border-slate-300/80 shadow-2xs flex items-center justify-between px-2.5 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0 gap-1.5 sm:gap-4">
         <div class="flex items-center gap-1.5 sm:gap-4 flex-1 min-w-0">
           <!-- Sidebar Toggle Button (Desktop & Mobile) -->
           <button 
             @click="handleToggle" 
-            class="p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none shadow-xs active:scale-95 shrink-0 min-w-[38px] min-h-[38px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
+            class="p-2 sm:p-2.5 rounded-xl bg-slate-100/80 border border-slate-300 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 transition-all focus:outline-none shadow-xs active:scale-95 shrink-0 min-w-[38px] min-h-[38px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
             title="Toggle Sidebar"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-500" :class="{ 'rotate-180': !isSidebarOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,7 +117,7 @@
                 'relative px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl transition-all border min-h-[36px] sm:min-h-[44px] flex items-center gap-1.5 sm:gap-2 cursor-pointer font-bold text-xs sm:text-sm select-none',
                 isComfortView
                   ? 'bg-emerald-700 text-white border-emerald-800 shadow-md ring-2 ring-emerald-500/50'
-                  : 'bg-slate-50 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 border-slate-200'
+                  : 'bg-slate-100 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 border-slate-300'
               ]"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 sm:h-5 sm:w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,7 +133,7 @@
               type="button"
               @click="toggleSound"
               :title="soundActive ? 'Notification sound enabled (Click to mute)' : 'Notification sound muted (Click to unmute)'"
-              class="relative p-2 sm:p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none border border-slate-200 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
+              class="relative p-2 sm:p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none border border-slate-300 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
             >
               <!-- Sound On -->
               <svg v-if="soundActive" xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 sm:h-5 sm:w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,7 +150,7 @@
             <div class="relative" id="layout-notification-menu">
               <button 
                 @click="toggleNotification" 
-                class="relative p-2 sm:p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-200 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
+                class="relative p-2 sm:p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-300 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
                 :title="unreadNotificationCount > 0 ? `${unreadNotificationCount} unread notification${unreadNotificationCount > 1 ? 's' : ''}` : 'Notifications'"
                 aria-label="Notifications"
               >
@@ -249,7 +249,7 @@
             <div class="relative" id="layout-user-menu">
               <button 
                 @click="toggleDropdown" 
-                class="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 pr-1.5 sm:pr-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-emerald-500/40 text-slate-900 transition-all select-none min-h-[36px] sm:min-h-[44px] cursor-pointer"
+                class="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 pr-1.5 sm:pr-3 rounded-xl bg-slate-100 border border-slate-300 hover:border-emerald-500/60 text-slate-900 transition-all select-none min-h-[36px] sm:min-h-[44px] cursor-pointer"
               >
                 <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-xl overflow-hidden bg-emerald-500/10 text-emerald-700 flex items-center justify-center font-black text-xs sm:text-sm shrink-0 border border-emerald-500/20">
                   <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar" class="w-full h-full object-cover" />

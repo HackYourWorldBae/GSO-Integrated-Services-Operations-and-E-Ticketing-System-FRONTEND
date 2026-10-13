@@ -87,7 +87,7 @@
         </div>
 
         <!-- Filter Bar & Search Controls -->
-        <div class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-3.5">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-300 shadow-sm space-y-4">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <!-- Search Input -->
             <div class="relative flex-1 min-w-0">
@@ -100,7 +100,7 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search jobs by Ticket ID, service, location, or crew member name..."
-                class="w-full pl-10 pr-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/60 focus:bg-white transition-all"
+                class="w-full pl-10 pr-4 py-2.5 min-h-[44px] rounded-xl border border-slate-300 text-xs sm:text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50/80 focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
@@ -110,7 +110,7 @@
                 type="button"
                 @click="refreshData"
                 :disabled="store.isLoading"
-                class="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer active:scale-95 disabled:opacity-50 shrink-0"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-black text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all cursor-pointer active:scale-95 disabled:opacity-50 shrink-0 shadow-2xs"
                 title="Refresh assignments"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600 transition-transform" :class="{ 'animate-spin': store.isLoading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -122,16 +122,16 @@
           </div>
 
           <!-- Tab Pills -->
-          <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs sm:text-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200 text-xs sm:text-sm">
             <div class="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 @click="activeTab = 'active'"
                 :class="[
-                  'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation',
+                  'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation border shadow-2xs',
                   activeTab === 'active'
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    ? 'bg-emerald-600 border-emerald-700 text-white shadow-sm'
+                    : 'bg-slate-100 border-slate-300/80 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
                 ]"
               >
                 <span>Active Jobs</span>
@@ -147,10 +147,10 @@
                 type="button"
                 @click="activeTab = 'emergency'"
                 :class="[
-                  'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation',
+                  'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation border shadow-2xs',
                   activeTab === 'emergency'
-                    ? 'bg-rose-600 text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    ? 'bg-rose-600 border-rose-700 text-white shadow-sm'
+                    : 'bg-slate-100 border-slate-300/80 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
                 ]"
               >
                 <span>Emergency / Urgent</span>
@@ -166,10 +166,10 @@
                 type="button"
                 @click="activeTab = 'all'"
                 :class="[
-                  'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation',
+                  'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation border shadow-2xs',
                   activeTab === 'all'
-                    ? 'bg-slate-800 text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    ? 'bg-slate-900 border-slate-950 text-white shadow-sm'
+                    : 'bg-slate-100 border-slate-300/80 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
                 ]"
               >
                 <span>All Work Orders</span>
@@ -249,33 +249,46 @@
         <!-- Assigned Tasks Content (Administrative Layout & Pagination) -->
         <div v-else class="space-y-4">
           <!-- ═══ DESKTOP TABULAR VIEW (Matching Administrative Dashboards) ═══ -->
-          <div class="hidden md:block bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+          <div class="hidden md:block bg-white rounded-2xl sm:rounded-3xl border border-slate-300 shadow-sm overflow-hidden">
+            <!-- Distinct Container Section Header -->
+            <div class="bg-gradient-to-r from-slate-50 via-slate-100/60 to-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20"></span>
+                <h3 class="text-xs font-black uppercase tracking-wider text-slate-800">
+                  Assigned Work Orders Queue
+                </h3>
+              </div>
+              <div class="text-[11px] font-bold text-slate-500">
+                Displaying <span class="text-slate-900 font-black">{{ paginationRange.start }} - {{ paginationRange.end }}</span> of <span class="text-slate-900 font-black">{{ filteredAssignments.length }}</span> jobs
+              </div>
+            </div>
+
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse">
                 <thead>
-                  <tr class="bg-slate-50 border-b border-slate-200">
-                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
-                    <th class="px-3 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester / Client</th>
-                    <th class="px-3 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
-                    <th class="px-3 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Task / Service</th>
-                    <th class="px-3 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Schedule &amp; Team</th>
-                    <th class="px-3 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Status</th>
-                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
+                  <tr class="bg-slate-100/90 border-b-2 border-slate-200 text-slate-600 font-black">
+                    <th class="px-4 py-3.5 text-[11px] font-black uppercase tracking-wider text-slate-600">Ticket Ref</th>
+                    <th class="px-3 py-3.5 text-[11px] font-black uppercase tracking-wider text-slate-600">Requester / Client</th>
+                    <th class="px-3 py-3.5 text-[11px] font-black uppercase tracking-wider text-slate-600">Location</th>
+                    <th class="px-3 py-3.5 text-[11px] font-black uppercase tracking-wider text-slate-600">Task / Service</th>
+                    <th class="px-3 py-3.5 text-[11px] font-black uppercase tracking-wider text-slate-600">Schedule &amp; Team</th>
+                    <th class="px-3 py-3.5 text-[11px] font-black uppercase tracking-wider text-slate-600">Status</th>
+                    <th class="px-4 py-3.5 text-[11px] font-black uppercase tracking-wider text-slate-600 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 border-b border-slate-200 text-xs">
+                <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-xs">
                   <tr
                     v-for="ticket in paginatedAssignments"
                     :key="ticket.assignment_id || ticket.ticket_id"
                     :id="'ticket-' + ticket.ticket_id"
-                    class="hover:bg-emerald-50/50 hover:shadow-xs transition-all duration-150 group cursor-pointer relative"
+                    class="even:bg-slate-50/40 hover:bg-emerald-50/70 hover:shadow-2xs transition-all duration-150 group cursor-pointer relative"
                     @click="openTicketDetails(ticket)"
                   >
                     <!-- Ticket Reference with Left Accent Line -->
                     <td class="px-4 py-3 whitespace-nowrap relative">
                       <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
                       <div class="relative inline-flex items-center gap-1.5 flex-wrap">
-                        <div class="text-sm font-black px-2.5 py-1 rounded-lg border bg-slate-100 text-slate-800 border-slate-200 group-hover:bg-slate-200/90 group-hover:border-slate-300 transition-all duration-150 shadow-2xs tabular-nums">
+                        <div class="text-sm font-black px-2.5 py-1 rounded-lg border bg-slate-100 text-slate-900 border-slate-300 group-hover:bg-white group-hover:border-slate-400 transition-all duration-150 shadow-2xs tabular-nums">
                           #{{ ticket.ticket_id }}
                         </div>
                         <span
@@ -300,7 +313,7 @@
                     <!-- Requester / Client -->
                     <td class="px-3 py-3">
                       <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
+                        <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] font-bold flex items-center justify-center shrink-0">
                           {{ getMemberInitials(ticket.requestor_name) }}
                         </div>
                         <div class="min-w-0">
@@ -389,17 +402,17 @@
             </div>
 
             <!-- Desktop Pagination Bar -->
-            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <div class="px-6 py-4 bg-gradient-to-r from-slate-50 via-slate-100/60 to-slate-50 border-t-2 border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 font-semibold">
               <div class="flex items-center gap-3">
                 <div>
-                  Showing <strong class="text-slate-800">{{ paginationRange.start }}</strong> to <strong class="text-slate-800">{{ paginationRange.end }}</strong> of <strong class="text-slate-800">{{ filteredAssignments.length }}</strong> tasks
+                  Showing <strong class="text-slate-900">{{ paginationRange.start }}</strong> to <strong class="text-slate-900">{{ paginationRange.end }}</strong> of <strong class="text-slate-900">{{ filteredAssignments.length }}</strong> tasks
                 </div>
-                <div class="flex items-center gap-1.5 ml-2 border-l border-slate-200 pl-3">
-                  <span class="text-slate-400">Per page:</span>
+                <div class="flex items-center gap-1.5 ml-2 border-l border-slate-300 pl-3">
+                  <span class="text-slate-500 font-bold">Per page:</span>
                   <select
                     v-model.number="perPage"
                     @change="currentPage = 1"
-                    class="px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                    class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-2xs"
                   >
                     <option :value="5">5</option>
                     <option :value="10">10</option>
@@ -413,7 +426,7 @@
                   type="button"
                   @click="changePage(1)"
                   :disabled="currentPage === 1"
-                  class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                  class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors shadow-2xs"
                   title="First Page"
                 >
                   «
@@ -422,7 +435,7 @@
                   type="button"
                   @click="changePage(currentPage - 1)"
                   :disabled="currentPage === 1"
-                  class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                  class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors shadow-2xs"
                 >
                   ‹ Prev
                 </button>
@@ -433,8 +446,8 @@
                     :key="page"
                     type="button"
                     @click="changePage(page)"
-                    class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer"
-                    :class="currentPage === page ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs font-black' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'"
+                    class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                    :class="currentPage === page ? 'bg-emerald-600 border-emerald-700 text-white shadow-xs font-black' : 'border-slate-300 bg-white hover:bg-slate-100 text-slate-800'"
                   >
                     {{ page }}
                   </button>
@@ -444,7 +457,7 @@
                   type="button"
                   @click="changePage(currentPage + 1)"
                   :disabled="currentPage === totalPages"
-                  class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                  class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors shadow-2xs"
                 >
                   Next ›
                 </button>
@@ -452,7 +465,7 @@
                   type="button"
                   @click="changePage(totalPages)"
                   :disabled="currentPage === totalPages"
-                  class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                  class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors shadow-2xs"
                   title="Last Page"
                 >
                   »
@@ -468,7 +481,7 @@
               :key="'mob-' + (ticket.assignment_id || ticket.ticket_id)"
               :id="'mob-ticket-' + ticket.ticket_id"
               @click="openTicketDetails(ticket)"
-              class="group relative bg-white border border-slate-200/90 hover:border-emerald-400 rounded-2xl p-4 transition-all duration-200 hover:shadow-md cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-emerald-500/30 touch-manipulation"
+              class="group relative bg-white border border-slate-300 hover:border-emerald-500 rounded-2xl p-4 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-emerald-500/30 touch-manipulation"
             >
               <!-- Accent bar -->
               <div
@@ -480,7 +493,7 @@
                 <!-- Top Row: ID, Badges, Status -->
                 <div class="flex items-center justify-between gap-2 flex-wrap">
                   <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="px-2.5 py-1 rounded-lg text-xs font-black font-mono bg-slate-100 text-slate-800 border border-slate-200">
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-black font-mono bg-slate-100 text-slate-900 border border-slate-300 shadow-2xs">
                       #{{ ticket.ticket_id }}
                     </span>
                     <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/60">
@@ -558,7 +571,7 @@
                   <button
                     type="button"
                     @click="openTicketDetails(ticket)"
-                    class="w-full px-4 py-2 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer active:scale-95 touch-manipulation"
+                    class="w-full px-4 py-2 min-h-[40px] rounded-xl border border-slate-300 bg-slate-50 hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer active:scale-95 touch-manipulation"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -571,17 +584,17 @@
             </div>
 
             <!-- Mobile Pagination Bar -->
-            <div class="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col gap-3 text-xs text-slate-500 shadow-xs">
+            <div class="p-4 bg-white rounded-2xl border border-slate-300 flex flex-col gap-3 text-xs text-slate-600 shadow-sm">
               <div class="flex items-center justify-between font-medium">
                 <div>
-                  Showing <strong class="text-slate-800">{{ paginationRange.start }}</strong> to <strong class="text-slate-800">{{ paginationRange.end }}</strong> of <strong class="text-slate-800">{{ filteredAssignments.length }}</strong>
+                  Showing <strong class="text-slate-900">{{ paginationRange.start }}</strong> to <strong class="text-slate-900">{{ paginationRange.end }}</strong> of <strong class="text-slate-900">{{ filteredAssignments.length }}</strong>
                 </div>
                 <div class="flex items-center gap-1">
-                  <span class="text-slate-400">Rows:</span>
+                  <span class="text-slate-500 font-bold">Rows:</span>
                   <select
                     v-model.number="perPage"
                     @change="currentPage = 1"
-                    class="px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-bold"
+                    class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs font-bold shadow-2xs"
                   >
                     <option :value="5">5</option>
                     <option :value="10">10</option>
@@ -595,18 +608,18 @@
                   type="button"
                   @click="changePage(currentPage - 1)"
                   :disabled="currentPage === 1"
-                  class="flex-1 py-2 min-h-[40px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold touch-manipulation flex items-center justify-center cursor-pointer"
+                  class="flex-1 py-2 min-h-[40px] rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold touch-manipulation flex items-center justify-center cursor-pointer shadow-2xs"
                 >
                   ‹ Prev
                 </button>
-                <span class="px-3 py-2 font-bold text-slate-700 min-w-[70px] text-center">
+                <span class="px-3 py-2 font-black text-slate-800 min-w-[70px] text-center">
                   {{ currentPage }} / {{ totalPages }}
                 </span>
                 <button
                   type="button"
                   @click="changePage(currentPage + 1)"
                   :disabled="currentPage === totalPages"
-                  class="flex-1 py-2 min-h-[40px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold touch-manipulation flex items-center justify-center cursor-pointer"
+                  class="flex-1 py-2 min-h-[40px] rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold touch-manipulation flex items-center justify-center cursor-pointer shadow-2xs"
                 >
                   Next ›
                 </button>
@@ -627,13 +640,13 @@
           @click.self="selectedTicket = null"
         >
           <div
-            class="pointer-events-auto bg-white rounded-3xl w-full max-w-2xl p-5 sm:p-7 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar space-y-5"
+            class="pointer-events-auto bg-white rounded-3xl w-full max-w-2xl p-5 sm:p-7 shadow-2xl border border-slate-300 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar space-y-5"
           >
             <!-- Modal Header -->
-            <div class="flex items-start justify-between gap-3 pb-4 border-b border-slate-100">
+            <div class="flex items-start justify-between gap-3 pb-4 border-b-2 border-slate-200">
               <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-black font-mono bg-slate-100 text-slate-800 border border-slate-200">
+                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-black font-mono bg-slate-100 text-slate-900 border border-slate-300 shadow-2xs">
                     #{{ selectedTicket.ticket_id }}
                   </span>
                   <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/60">
@@ -666,7 +679,7 @@
               <button
                 type="button"
                 @click="selectedTicket = null"
-                class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer shrink-0 touch-manipulation"
+                class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 border border-slate-300 flex items-center justify-center transition-colors cursor-pointer shrink-0 touch-manipulation shadow-2xs"
                 title="Close modal"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -679,37 +692,37 @@
             <div class="space-y-4">
               <!-- Description -->
               <div class="space-y-1">
-                <label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Request Description</label>
-                <p class="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
+                <label class="text-[10px] font-black uppercase tracking-wider text-slate-500">Request Description</label>
+                <p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-300">
                   {{ selectedTicket.description }}
                 </p>
               </div>
 
               <!-- Location & Schedule Grid -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 text-xs">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Work Location</span>
-                  <span class="font-bold text-slate-800 block text-sm">{{ selectedTicket.location }}</span>
-                  <span class="text-slate-500">Room / Office: <strong>{{ selectedTicket.office_room }}</strong></span>
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-300 space-y-1 text-xs">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block">Work Location</span>
+                  <span class="font-bold text-slate-900 block text-sm">{{ selectedTicket.location }}</span>
+                  <span class="text-slate-600">Room / Office: <strong class="text-slate-800">{{ selectedTicket.office_room }}</strong></span>
                 </div>
 
-                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 text-xs">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Schedule &amp; Target</span>
-                  <span class="font-bold text-slate-800 block text-sm">
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-300 space-y-1 text-xs">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block">Schedule &amp; Target</span>
+                  <span class="font-bold text-slate-900 block text-sm">
                     {{ formatDate(selectedTicket.implementation_date || selectedTicket.target_completion_date) }}
                   </span>
-                  <span class="text-slate-500">Estimated Duration: <strong>{{ selectedTicket.working_days }} working days</strong></span>
+                  <span class="text-slate-600">Estimated Duration: <strong class="text-slate-800">{{ selectedTicket.working_days }} working days</strong></span>
                 </div>
               </div>
 
               <!-- Requestor Contact Info -->
-              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 text-xs">
+              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-300 flex items-center justify-between gap-3 text-xs">
                 <div>
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Requesting Client</span>
-                  <span class="font-bold text-slate-800 text-sm">{{ selectedTicket.requestor_name }}</span>
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block">Requesting Client</span>
+                  <span class="font-bold text-slate-900 text-sm">{{ selectedTicket.requestor_name }}</span>
                 </div>
                 <div v-if="selectedTicket.requestor_contact" class="text-right">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Contact Number</span>
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block">Contact Number</span>
                   <a :href="'tel:' + selectedTicket.requestor_contact" class="font-bold text-emerald-700 hover:underline">
                     📞 {{ selectedTicket.requestor_contact }}
                   </a>
@@ -717,9 +730,9 @@
               </div>
 
               <!-- Dispatcher Direct Instructions -->
-              <div v-if="selectedTicket.dispatcher_notes || selectedTicket.task_notes" class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+              <div v-if="selectedTicket.dispatcher_notes || selectedTicket.task_notes" class="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-300 text-xs text-amber-950 space-y-1">
                 <span class="text-[10px] font-black uppercase tracking-wider text-amber-950 block">Dispatcher Instructions &amp; Task Notes:</span>
-                <p class="font-medium leading-relaxed">{{ selectedTicket.dispatcher_notes || selectedTicket.task_notes }}</p>
+                <p class="font-semibold leading-relaxed">{{ selectedTicket.dispatcher_notes || selectedTicket.task_notes }}</p>
               </div>
 
               <!-- ======================================================== -->
@@ -743,15 +756,15 @@
                     :class="[
                       'p-3 rounded-2xl border flex items-start gap-3 transition-all',
                       member.is_you
-                        ? 'bg-emerald-50/80 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs'
-                        : 'bg-white border-slate-200 shadow-2xs'
+                        ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs'
+                        : 'bg-slate-50 border-slate-300 shadow-2xs'
                     ]"
                   >
                     <!-- Initials circle -->
                     <div
                       :class="[
                         'w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs shrink-0',
-                        member.is_you ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+                        member.is_you ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-200 border border-slate-300 text-slate-800'
                       ]"
                     >
                       {{ getMemberInitials(member.personnel_name) }}
@@ -772,7 +785,7 @@
                       <span class="text-[10px] text-slate-400 block truncate">
                         {{ member.unit_code ? `Unit: ${member.unit_code}` : '' }}
                       </span>
-                      <p v-if="member.task_notes" class="text-[10px] text-amber-700 font-semibold italic mt-1 pt-1 border-t border-slate-100">
+                      <p v-if="member.task_notes" class="text-[10px] text-amber-700 font-semibold italic mt-1 pt-1 border-t border-slate-200">
                         Task: {{ member.task_notes }}
                       </p>
                     </div>
@@ -782,7 +795,7 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <div class="pt-4 border-t-2 border-slate-200 flex items-center justify-end gap-3">
               <button
                 type="button"
                 @click="selectedTicket = null"

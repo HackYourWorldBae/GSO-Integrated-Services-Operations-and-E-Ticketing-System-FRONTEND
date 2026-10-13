@@ -31,7 +31,7 @@ body {
   min-height: 100dvh;
   touch-action: manipulation;
   color: #0f172a;
-  background-color: #f8fafc;
+  background-color: #f1f5f9;
 }
 
 /* Eliminate iOS Safari automatic zoom-in when focusing inputs with font-size < 16px */
@@ -212,4 +212,35 @@ html.comfort-view header {
   border-left: none !important;
   border-right: none !important;
   border-bottom: 1px solid #cbd5e1 !important;
+}
+
+/* ==========================================================================
+   Operational Eye-Comfort & Defined Container Contrast System
+   - Soft neutral canvas prevents stark white glare & visual fatigue
+   - Crisp, tactile container boundaries (#cbd5e1 / slate-300) for distinct sections
+   - Subtle ambient elevation for visual depth
+   ========================================================================== */
+
+/* Enhanced tactile borders & ambient depth on structural containers */
+.bg-white.rounded-2xl.border,
+.bg-white.rounded-3xl.border,
+.bg-white.rounded-\[2rem\].border,
+.bg-white.rounded-\[2\.5rem\].border {
+  border-color: #cbd5e1; /* slate-300: High definition boundary */
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 3px 10px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* Clear contrast on table headers for enterprise readability */
+table thead th {
+  letter-spacing: 0.05em;
+  color: #475569;
+}
+
+/* High-contrast tactile border for form inputs to clearly distinguish from background */
+input[type="text"]:not([class*="border-"]),
+input[type="email"]:not([class*="border-"]),
+input[type="password"]:not([class*="border-"]),
+input[type="search"]:not([class*="border-"]),
+select:not([class*="border-"]) {
+  border-color: #cbd5e1;
 }

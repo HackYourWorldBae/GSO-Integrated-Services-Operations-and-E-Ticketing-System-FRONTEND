@@ -37,7 +37,7 @@
         </div>
 
         <!-- Search and Filters (Matching Administrator Archives) -->
-        <div class="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-300 shadow-sm flex flex-col md:flex-row gap-4 items-center">
           <div class="flex-1 w-full relative">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -46,13 +46,13 @@
               v-model="searchQuery"
               type="text"
               placeholder="Search completed jobs by Ticket ID, service, location, or requester..."
-              class="w-full pl-12 pr-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-semibold"
+              class="w-full pl-12 pr-4 py-3 min-h-[44px] bg-slate-50/80 border border-slate-300 rounded-2xl text-base sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-semibold shadow-2xs"
             />
           </div>
           <div class="flex flex-wrap md:flex-nowrap gap-3 w-full md:w-auto">
             <select
               v-model="yearFilter"
-              class="w-full md:w-36 px-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer"
+              class="w-full md:w-36 px-4 py-3 min-h-[44px] bg-slate-50/80 border border-slate-300 rounded-2xl text-base sm:text-sm text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
             >
               <option value="all">All Years</option>
               <option v-for="yr in availableYears" :key="yr" :value="yr">
@@ -61,7 +61,7 @@
             </select>
             <select
               v-model="unitFilter"
-              class="w-full md:w-40 px-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer"
+              class="w-full md:w-40 px-4 py-3 min-h-[44px] bg-slate-50/80 border border-slate-300 rounded-2xl text-base sm:text-sm text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
             >
               <option value="all">All Units</option>
               <option value="FGMU">FGMU</option>
@@ -70,7 +70,7 @@
             </select>
             <select
               v-model="crewTypeFilter"
-              class="w-full md:w-40 px-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer"
+              class="w-full md:w-40 px-4 py-3 min-h-[44px] bg-slate-50/80 border border-slate-300 rounded-2xl text-base sm:text-sm text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
             >
               <option value="all">All Crews</option>
               <option value="solo">Solo Only</option>
@@ -80,7 +80,7 @@
               type="button"
               @click="refreshData"
               :disabled="store.isLoading"
-              class="w-full md:w-auto px-5 py-3 min-h-[44px] bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl transition-all text-sm whitespace-nowrap cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center gap-2"
+              class="w-full md:w-auto px-5 py-3 min-h-[44px] bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all text-sm whitespace-nowrap cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center gap-2 border border-slate-950 shadow-sm"
               title="Refresh history"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300" :class="{ 'animate-spin': store.isLoading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -162,19 +162,32 @@
         </div>
 
         <!-- Tickets List (Data Table & Mobile Card Stack Matching Administrator Archives) -->
-        <div class="rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200 p-4 sm:p-6 md:p-8 overflow-hidden shadow-sm">
+        <div class="rounded-2xl sm:rounded-3xl bg-white border border-slate-300 overflow-hidden shadow-sm">
+          <!-- Distinct Container Section Header -->
+          <div class="bg-gradient-to-r from-slate-50 via-slate-100/60 to-slate-50 px-5 sm:px-6 py-3.5 border-b border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-500 ring-4 ring-sky-500/20"></span>
+              <h3 class="text-xs font-black uppercase tracking-wider text-slate-800">
+                Archived Work Orders Record
+              </h3>
+            </div>
+            <div class="text-[11px] font-bold text-slate-500">
+              Displaying <span class="text-slate-900 font-black">{{ paginationRange.start }} - {{ paginationRange.end }}</span> of <span class="text-slate-900 font-black">{{ filteredCompletedJobs.length }}</span> records
+            </div>
+          </div>
+
           <!-- Desktop Table (hidden md:block) -->
-          <div class="hidden md:block overflow-x-auto">
+          <div class="hidden md:block overflow-x-auto p-4 sm:p-6">
             <table class="w-full text-left border-separate border-spacing-y-4 min-w-[800px]">
               <thead>
                 <tr class="border-b border-slate-200">
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6">Ticket ID</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Service</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Requester</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Location</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Status</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Completed</th>
-                  <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 text-right">Actions</th>
+                  <th class="pb-3 text-[11px] font-black text-slate-600 uppercase tracking-wider px-6">Ticket ID</th>
+                  <th class="pb-3 text-[11px] font-black text-slate-600 uppercase tracking-wider px-4">Service</th>
+                  <th class="pb-3 text-[11px] font-black text-slate-600 uppercase tracking-wider px-4">Requester</th>
+                  <th class="pb-3 text-[11px] font-black text-slate-600 uppercase tracking-wider px-4">Location</th>
+                  <th class="pb-3 text-[11px] font-black text-slate-600 uppercase tracking-wider px-4">Status</th>
+                  <th class="pb-3 text-[11px] font-black text-slate-600 uppercase tracking-wider px-4">Completed</th>
+                  <th class="pb-3 text-[11px] font-black text-slate-600 uppercase tracking-wider px-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -184,48 +197,48 @@
                   class="group transition-all duration-200 cursor-pointer"
                   @click="openTicketDetails(ticket)"
                 >
-                  <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-sky-500 group-hover:shadow-md transition-all">
+                  <td class="py-5 px-6 bg-slate-50/80 border-y border-l border-slate-300 rounded-l-2xl group-hover:bg-white group-hover:border-sky-500 group-hover:shadow-md transition-all">
                     <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg inline-block tabular-nums shadow-2xs">#{{ ticket.ticket_id }}</span>
                     <div class="mt-1 flex items-center gap-1 flex-wrap">
                       <span v-if="ticket.is_emergency" class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase">Urgent</span>
                       <span v-if="ticket.unit_code" class="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 text-[9px] font-black uppercase">{{ ticket.unit_code }}</span>
                     </div>
                   </td>
-                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-sky-500 transition-all">
+                  <td class="py-5 px-4 bg-slate-50/80 border-y border-slate-300 group-hover:bg-white group-hover:border-sky-500 transition-all">
                     <div class="truncate max-w-[150px] sm:max-w-xs text-sm font-bold text-slate-900" :title="ticket.service_type">{{ ticket.service_type }}</div>
                     <div class="text-[11px] text-slate-500 line-clamp-1 truncate max-w-xs">{{ ticket.description }}</div>
                   </td>
-                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-sky-500 transition-all">
+                  <td class="py-5 px-4 bg-slate-50/80 border-y border-slate-300 group-hover:bg-white group-hover:border-sky-500 transition-all">
                     <div class="flex items-center gap-2">
-                      <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
+                      <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] font-bold flex items-center justify-center shrink-0">
                         {{ getMemberInitials(ticket.requestor_name) }}
                       </div>
                       <div class="min-w-0">
                         <span class="text-xs font-semibold text-slate-800 truncate block max-w-[130px]">{{ ticket.requestor_name }}</span>
-                        <span v-if="ticket.requestor_contact" class="text-[10px] text-slate-400 block">{{ ticket.requestor_contact }}</span>
+                        <span v-if="ticket.requestor_contact" class="text-[10px] text-slate-500 block">{{ ticket.requestor_contact }}</span>
                       </div>
                     </div>
                   </td>
-                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-sky-500 transition-all whitespace-nowrap">
-                    <div class="text-xs font-semibold text-slate-700">{{ ticket.location }}</div>
-                    <div class="text-[10px] text-slate-400">{{ ticket.office_room ? (ticket.office_room.startsWith('Rm') ? ticket.office_room : 'Rm ' + ticket.office_room) : 'General Area' }}</div>
+                  <td class="py-5 px-4 bg-slate-50/80 border-y border-slate-300 group-hover:bg-white group-hover:border-sky-500 transition-all whitespace-nowrap">
+                    <div class="text-xs font-semibold text-slate-800">{{ ticket.location }}</div>
+                    <div class="text-[10px] text-slate-500">{{ ticket.office_room ? (ticket.office_room.startsWith('Rm') ? ticket.office_room : 'Rm ' + ticket.office_room) : 'General Area' }}</div>
                   </td>
-                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-sky-500 transition-all">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap bg-sky-50 text-sky-700 border-sky-200 inline-flex items-center gap-1">
+                  <td class="py-5 px-4 bg-slate-50/80 border-y border-slate-300 group-hover:bg-white group-hover:border-sky-500 transition-all">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap bg-sky-50 text-sky-700 border-sky-300 inline-flex items-center gap-1 shadow-2xs">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                       </svg>
                       Completed
                     </span>
                   </td>
-                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-sky-500 transition-all whitespace-nowrap">
-                    <span class="text-xs font-bold text-slate-600">{{ formatDate(ticket.completed_at || ticket.implementation_date) }}</span>
+                  <td class="py-5 px-4 bg-slate-50/80 border-y border-slate-300 group-hover:bg-white group-hover:border-sky-500 transition-all whitespace-nowrap">
+                    <span class="text-xs font-bold text-slate-700">{{ formatDate(ticket.completed_at || ticket.implementation_date) }}</span>
                   </td>
-                  <td class="py-5 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-sky-500 group-hover:shadow-md transition-all text-right" @click.stop>
+                  <td class="py-5 px-6 bg-slate-50/80 border-y border-r border-slate-300 rounded-r-2xl group-hover:bg-white group-hover:border-sky-500 group-hover:shadow-md transition-all text-right" @click.stop>
                     <button
                       type="button"
                       @click="openTicketDetails(ticket)"
-                      class="px-4 py-2 bg-white border border-slate-200 text-slate-600 hover:text-sky-600 hover:bg-sky-50 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-sm active:scale-95 inline-flex items-center gap-2 cursor-pointer"
+                      class="px-4 py-2 bg-white border border-slate-300 text-slate-700 hover:text-sky-700 hover:bg-sky-50 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-2xs active:scale-95 inline-flex items-center gap-2 cursor-pointer"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -236,8 +249,8 @@
                   </td>
                 </tr>
                 <tr v-if="filteredCompletedJobs.length === 0">
-                  <td colspan="7" class="p-12 text-center bg-slate-50 border border-slate-200 rounded-[2rem]">
-                    <div class="w-16 h-16 bg-white border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                  <td colspan="7" class="p-12 text-center bg-slate-50 border border-slate-300 rounded-2xl">
+                    <div class="w-16 h-16 bg-white border border-slate-300 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                       </svg>
@@ -251,40 +264,40 @@
           </div>
 
           <!-- Mobile Card Stack (block md:hidden) -->
-          <div class="block md:hidden space-y-3.5">
+          <div class="block md:hidden p-4 space-y-3.5">
             <div
               v-for="ticket in paginatedCompletedJobs"
               :key="'m-' + (ticket.assignment_id || ticket.ticket_id)"
               @click="openTicketDetails(ticket)"
-              class="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-sky-400 shadow-2xs space-y-3 cursor-pointer transition-all active:scale-[0.99]"
+              class="p-4 rounded-2xl bg-white border border-slate-300 hover:border-sky-500 shadow-sm space-y-3 cursor-pointer transition-all active:scale-[0.99]"
             >
               <div class="flex items-start justify-between gap-2">
                 <div>
-                  <span class="text-sm font-black text-slate-900">#{{ ticket.ticket_id }}</span>
-                  <p class="text-xs font-bold text-slate-800 line-clamp-1 mt-0.5">
+                  <span class="text-sm font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg inline-block tabular-nums shadow-2xs">#{{ ticket.ticket_id }}</span>
+                  <p class="text-xs font-bold text-slate-800 line-clamp-1 mt-1.5">
                     {{ ticket.service_type }}
                   </p>
                 </div>
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap shrink-0 bg-sky-50 text-sky-700 border-sky-200">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap shrink-0 bg-sky-50 text-sky-700 border-sky-300 shadow-2xs">
                   Completed
                 </span>
               </div>
 
-              <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 text-slate-500">
+              <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-200 text-slate-600">
                 <div>
                   <span class="text-[10px] uppercase font-bold text-slate-400 block">Requester</span>
-                  <span class="font-bold text-slate-700 truncate block">{{ ticket.requestor_name }}</span>
+                  <span class="font-bold text-slate-800 truncate block">{{ ticket.requestor_name }}</span>
                 </div>
                 <div>
                   <span class="text-[10px] uppercase font-bold text-slate-400 block">Completed</span>
-                  <span class="font-bold text-slate-700 block">{{ formatDate(ticket.completed_at || ticket.implementation_date) }}</span>
+                  <span class="font-bold text-slate-800 block">{{ formatDate(ticket.completed_at || ticket.implementation_date) }}</span>
                 </div>
               </div>
 
               <button
                 type="button"
                 @click.stop="openTicketDetails(ticket)"
-                class="w-full min-h-[44px] py-2.5 bg-slate-50 hover:bg-sky-50 border border-slate-200 text-slate-700 hover:text-sky-700 text-xs font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-[0.99]"
+                class="w-full min-h-[44px] py-2.5 bg-slate-50 hover:bg-sky-50 border border-slate-300 text-slate-800 hover:text-sky-800 text-xs font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-[0.99] shadow-2xs"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -294,25 +307,25 @@
               </button>
             </div>
 
-            <div v-if="filteredCompletedJobs.length === 0" class="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl">
-              <div class="w-12 h-12 bg-white border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-xs">
+            <div v-if="filteredCompletedJobs.length === 0" class="p-8 text-center bg-slate-50 border border-slate-300 rounded-2xl">
+              <div class="w-12 h-12 bg-white border border-slate-300 rounded-full flex items-center justify-center mx-auto mb-3 shadow-xs">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
               </div>
               <h3 class="text-base font-black text-slate-900 mb-0.5">No Archived Tickets Found</h3>
-              <p class="text-xs text-slate-500">Try adjusting your search or filters.</p>
+              <p class="text-xs text-slate-500 font-medium">Try adjusting your search or filters.</p>
             </div>
           </div>
 
           <!-- Pagination Toolbar -->
-          <div v-if="filteredCompletedJobs.length > 0" class="mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3 text-xs text-slate-500">
-              <span>Rows per page:</span>
+          <div v-if="filteredCompletedJobs.length > 0" class="px-5 sm:px-6 py-4 bg-gradient-to-r from-slate-50 via-slate-100/60 to-slate-50 border-t-2 border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 text-xs text-slate-600 font-semibold">
+              <span class="text-slate-500 font-bold">Rows per page:</span>
               <select
                 v-model.number="perPage"
                 @change="currentPage = 1"
-                class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 text-xs font-bold focus:outline-none focus:border-sky-500 cursor-pointer"
+                class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs font-bold focus:outline-none focus:border-sky-500 cursor-pointer shadow-2xs"
               >
                 <option :value="5">5</option>
                 <option :value="10">10</option>
@@ -321,9 +334,9 @@
                 <option :value="50">50</option>
               </select>
               <span>
-                Showing <strong class="text-slate-800">{{ paginationRange.start }}</strong> to
-                <strong class="text-slate-800">{{ paginationRange.end }}</strong> of
-                <strong class="text-slate-800">{{ filteredCompletedJobs.length }}</strong> tickets
+                Showing <strong class="text-slate-900">{{ paginationRange.start }}</strong> to
+                <strong class="text-slate-900">{{ paginationRange.end }}</strong> of
+                <strong class="text-slate-900">{{ filteredCompletedJobs.length }}</strong> tickets
               </span>
             </div>
 
@@ -332,7 +345,7 @@
                 type="button"
                 @click="changePage(1)"
                 :disabled="currentPage === 1"
-                class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors shadow-2xs"
                 title="First Page"
               >
                 «
@@ -341,7 +354,7 @@
                 type="button"
                 @click="changePage(currentPage - 1)"
                 :disabled="currentPage === 1"
-                class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors shadow-2xs"
               >
                 ‹ Prev
               </button>
@@ -352,8 +365,8 @@
                   :key="page"
                   type="button"
                   @click="changePage(page)"
-                  class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer"
-                  :class="currentPage === page ? 'bg-sky-600 border-sky-600 text-white shadow-xs font-black' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'"
+                  class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                  :class="currentPage === page ? 'bg-sky-600 border-sky-700 text-white shadow-xs font-black' : 'border-slate-300 bg-white hover:bg-slate-100 text-slate-800'"
                 >
                   {{ page }}
                 </button>
@@ -363,7 +376,7 @@
                 type="button"
                 @click="changePage(currentPage + 1)"
                 :disabled="currentPage === totalPages"
-                class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors shadow-2xs"
               >
                 Next ›
               </button>
@@ -371,7 +384,7 @@
                 type="button"
                 @click="changePage(totalPages)"
                 :disabled="currentPage === totalPages"
-                class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors"
+                class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold cursor-pointer transition-colors shadow-2xs"
                 title="Last Page"
               >
                 »
@@ -391,16 +404,16 @@
           class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
         >
           <div
-            class="pointer-events-auto bg-white rounded-3xl w-full max-w-2xl p-5 sm:p-7 shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar space-y-5"
+            class="pointer-events-auto bg-white rounded-3xl w-full max-w-2xl p-5 sm:p-7 shadow-2xl border border-slate-300 animate-scale-up my-auto max-h-[92vh] overflow-y-auto custom-scrollbar space-y-5"
           >
             <!-- Modal Header -->
-            <div class="flex items-start justify-between gap-3 pb-4 border-b border-slate-100">
+            <div class="flex items-start justify-between gap-3 pb-4 border-b-2 border-slate-200">
               <div class="min-w-0">
                 <div class="flex items-center gap-2 mb-1 flex-wrap">
-                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-black font-mono bg-slate-100 text-slate-800 border border-slate-200">
+                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-black font-mono bg-slate-100 text-slate-900 border border-slate-300 shadow-2xs">
                     #{{ selectedTicket.ticket_id }}
                   </span>
-                  <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200 inline-flex items-center gap-1">
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200 inline-flex items-center gap-1 shadow-2xs">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
@@ -418,7 +431,7 @@
               <button
                 type="button"
                 @click="selectedTicket = null"
-                class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer shrink-0 touch-manipulation"
+                class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 border border-slate-300 flex items-center justify-center transition-colors cursor-pointer shrink-0 touch-manipulation shadow-2xs"
                 title="Close modal"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -431,37 +444,37 @@
             <div class="space-y-4">
               <!-- Description -->
               <div class="space-y-1">
-                <label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Request Description</label>
-                <p class="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
+                <label class="text-[10px] font-black uppercase tracking-wider text-slate-500">Request Description</label>
+                <p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-300">
                   {{ selectedTicket.description }}
                 </p>
               </div>
 
               <!-- Location & Completion Schedule Grid -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 text-xs">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Work Location</span>
-                  <span class="font-bold text-slate-800 block text-sm">{{ selectedTicket.location }}</span>
-                  <span class="text-slate-500">Room / Office: <strong>{{ selectedTicket.office_room }}</strong></span>
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-300 space-y-1 text-xs">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block">Work Location</span>
+                  <span class="font-bold text-slate-900 block text-sm">{{ selectedTicket.location }}</span>
+                  <span class="text-slate-600">Room / Office: <strong class="text-slate-800">{{ selectedTicket.office_room }}</strong></span>
                 </div>
 
-                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 text-xs">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Completed On</span>
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-300 space-y-1 text-xs">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block">Completed On</span>
                   <span class="font-bold text-sky-700 block text-sm">
                     {{ formatDate(selectedTicket.completed_at || selectedTicket.implementation_date) }}
                   </span>
-                  <span class="text-slate-500">Working Duration: <strong>{{ selectedTicket.working_days }} day(s)</strong></span>
+                  <span class="text-slate-600">Working Duration: <strong class="text-slate-800">{{ selectedTicket.working_days }} day(s)</strong></span>
                 </div>
               </div>
 
               <!-- Requesting Client Details -->
-              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 text-xs">
+              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-300 flex items-center justify-between gap-3 text-xs">
                 <div>
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Requesting Client</span>
-                  <span class="font-bold text-slate-800 text-sm">{{ selectedTicket.requestor_name }}</span>
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block">Requesting Client</span>
+                  <span class="font-bold text-slate-900 text-sm">{{ selectedTicket.requestor_name }}</span>
                 </div>
                 <div v-if="selectedTicket.requestor_contact" class="text-right">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Contact Number</span>
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block">Contact Number</span>
                   <a :href="'tel:' + selectedTicket.requestor_contact" class="font-bold text-emerald-700 hover:underline">
                     📞 {{ selectedTicket.requestor_contact }}
                   </a>
@@ -469,9 +482,9 @@
               </div>
 
               <!-- Dispatcher Notes (if any) -->
-              <div v-if="selectedTicket.dispatcher_notes || selectedTicket.task_notes" class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+              <div v-if="selectedTicket.dispatcher_notes || selectedTicket.task_notes" class="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-300 text-xs text-amber-950 space-y-1">
                 <span class="text-[10px] font-black uppercase tracking-wider text-amber-950 block">Dispatcher Instructions &amp; Task Notes:</span>
-                <p class="font-medium leading-relaxed">{{ selectedTicket.dispatcher_notes || selectedTicket.task_notes }}</p>
+                <p class="font-semibold leading-relaxed">{{ selectedTicket.dispatcher_notes || selectedTicket.task_notes }}</p>
               </div>
 
               <!-- Assigned Crew / Team section -->
@@ -493,14 +506,14 @@
                     :class="[
                       'p-3 rounded-2xl border flex items-start gap-3 transition-all',
                       member.is_you
-                        ? 'bg-sky-50/80 border-sky-300 ring-2 ring-sky-500/20 shadow-xs'
-                        : 'bg-white border-slate-200 shadow-2xs'
+                        ? 'bg-sky-50 border-sky-300 ring-2 ring-sky-500/20 shadow-xs'
+                        : 'bg-slate-50 border-slate-300 shadow-2xs'
                     ]"
                   >
                     <div
                       :class="[
                         'w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs shrink-0',
-                        member.is_you ? 'bg-sky-600 text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+                        member.is_you ? 'bg-sky-600 text-white shadow-xs' : 'bg-slate-200 border border-slate-300 text-slate-800'
                       ]"
                     >
                       {{ getMemberInitials(member.personnel_name) }}
@@ -521,7 +534,7 @@
                       <span class="text-[10px] text-slate-400 block truncate">
                         {{ member.unit_code ? `Unit: ${member.unit_code}` : '' }}
                       </span>
-                      <p v-if="member.task_notes" class="text-[10px] text-amber-700 font-semibold italic mt-1 pt-1 border-t border-slate-100">
+                      <p v-if="member.task_notes" class="text-[10px] text-amber-700 font-semibold italic mt-1 pt-1 border-t border-slate-200">
                         Task: {{ member.task_notes }}
                       </p>
                     </div>
@@ -531,7 +544,7 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <div class="pt-4 border-t-2 border-slate-200 flex items-center justify-end gap-3">
               <button
                 type="button"
                 @click="selectedTicket = null"
