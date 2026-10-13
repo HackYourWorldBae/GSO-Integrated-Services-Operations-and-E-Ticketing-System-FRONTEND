@@ -42,22 +42,22 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in relative pb-12">
         <!-- Search and Filters -->
-        <div class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border border-slate-300 shadow-sm flex flex-col md:flex-row gap-4 items-center">
           <div class="flex-1 w-full relative">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input v-model="searchQuery" type="text" placeholder="Search Ticket ID (e.g. FGMU-TIC-42)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all min-h-[44px]" />
+            <input v-model="searchQuery" type="text" placeholder="Search Ticket ID (e.g. FGMU-TIC-42)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-base sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all min-h-[44px] shadow-2xs" />
           </div>
         </div>
 
         <!-- Tickets List Container -->
-        <div class="rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200 p-4 sm:p-6 md:p-8 overflow-hidden shadow-sm mt-6">
+        <div class="rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-300 p-4 sm:p-6 md:p-8 overflow-hidden shadow-sm mt-6">
           <!-- Desktop Table (Hidden on Mobile) -->
           <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-separate border-spacing-y-4 min-w-[700px]">
               <thead>
-                <tr class="border-b border-slate-200">
+                <tr class="border-b-2 border-slate-200">
                   <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-6">Ticket ID</th>
                   <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-4">Service</th>
                   <th class="pb-4 text-xs font-black text-slate-600 uppercase tracking-wider px-4">Status</th>
@@ -67,21 +67,21 @@
               </thead>
               <tbody>
                 <tr v-for="ticket in paginatedTickets" :key="ticket.id" class="group transition-all duration-200">
-                  <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all">
+                  <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-300 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all">
                     <span class="text-sm font-black text-slate-900 font-mono">#{{ ticket.ticketId }}</span>
                   </td>
-                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
+                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-300 group-hover:bg-white group-hover:border-emerald-500 transition-all">
                     <div class="truncate max-w-[160px] sm:max-w-xs text-base font-bold text-slate-900" :title="ticket.service_type || ticket.service || ticket.title">{{ ticket.service_type || ticket.service || ticket.title }}</div>
                   </td>
-                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
+                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-300 group-hover:bg-white group-hover:border-emerald-500 transition-all">
                     <span :class="['px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
                       {{ ticket.statusLabel }}
                     </span>
                   </td>
-                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
+                  <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-300 group-hover:bg-white group-hover:border-emerald-500 transition-all">
                     <span class="text-sm font-bold text-slate-600">{{ ticket.date }}</span>
                   </td>
-                  <td class="py-5 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all text-right">
+                  <td class="py-5 px-6 bg-slate-50/60 border-y border-r border-slate-300 rounded-r-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all text-right">
                     <div class="inline-flex items-center justify-end gap-2">
                       <button @click="openTimeline(ticket)" class="px-4 py-2.5 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all text-xs active:scale-95 inline-flex items-center gap-1.5 cursor-pointer shadow-xs min-h-[38px]">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,12 +119,12 @@
             <div
               v-for="ticket in paginatedTickets"
               :key="'m-' + ticket.id"
-              class="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200 hover:border-emerald-400 hover:bg-white transition-all shadow-xs space-y-3"
+              class="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-300 hover:border-emerald-500 hover:bg-white transition-all shadow-sm space-y-3"
             >
               <!-- Card Top: ID + Unit + Status -->
               <div class="flex items-center justify-between gap-2 flex-wrap">
                 <div class="flex items-center gap-1.5">
-                  <span class="px-2.5 py-0.5 rounded-md bg-slate-200 text-slate-800 text-xs font-black uppercase tracking-wider">
+                  <span class="px-2.5 py-0.5 rounded-md bg-slate-200 border border-slate-300 text-slate-900 text-xs font-black uppercase tracking-wider">
                     {{ ticket.unit }}
                   </span>
                   <span class="text-sm font-mono font-black text-slate-900">#{{ ticket.ticketId }}</span>

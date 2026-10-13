@@ -216,31 +216,70 @@ html.comfort-view header {
 
 /* ==========================================================================
    Operational Eye-Comfort & Defined Container Contrast System
-   - Soft neutral canvas prevents stark white glare & visual fatigue
+   - Soft neutral canvas (#f1f5f9) prevents stark white glare & visual fatigue
    - Crisp, tactile container boundaries (#cbd5e1 / slate-300) for distinct sections
-   - Subtle ambient elevation for visual depth
+   - Subtle ambient elevation (shadow-sm / shadow-2xs) for visual depth
+   - High contrast table headers and ergonomic form controls
    ========================================================================== */
 
+/* Elevate all pale borders across all dashboards and views */
+.border-slate-200,
+.border-slate-200\/80,
+.border-slate-200\/70,
+.border-slate-200\/60,
+.border-slate-200\/50,
+.border-slate-100 {
+  border-color: #cbd5e1 !important;
+}
+
+.divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+.divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #cbd5e1 !important;
+}
+
 /* Enhanced tactile borders & ambient depth on structural containers */
+.bg-white.border,
+.bg-white.rounded-xl.border,
 .bg-white.rounded-2xl.border,
 .bg-white.rounded-3xl.border,
 .bg-white.rounded-\[2rem\].border,
 .bg-white.rounded-\[2\.5rem\].border {
-  border-color: #cbd5e1; /* slate-300: High definition boundary */
+  border-color: #cbd5e1 !important;
   box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 3px 10px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* Subtle elevation on hover for interactive cards */
+.bg-white.border.cursor-pointer:hover,
+.bg-white.rounded-2xl.border.cursor-pointer:hover,
+.bg-white.rounded-3xl.border.cursor-pointer:hover {
+  border-color: #94a3b8 !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
 }
 
 /* Clear contrast on table headers for enterprise readability */
 table thead th {
   letter-spacing: 0.05em;
-  color: #475569;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
 }
 
 /* High-contrast tactile border for form inputs to clearly distinguish from background */
-input[type="text"]:not([class*="border-"]),
-input[type="email"]:not([class*="border-"]),
-input[type="password"]:not([class*="border-"]),
-input[type="search"]:not([class*="border-"]),
-select:not([class*="border-"]) {
+input[type="text"]:not([class*="border-transparent"]),
+input[type="email"]:not([class*="border-transparent"]),
+input[type="password"]:not([class*="border-transparent"]),
+input[type="search"]:not([class*="border-transparent"]),
+input[type="date"]:not([class*="border-transparent"]),
+select:not([class*="border-transparent"]),
+textarea:not([class*="border-transparent"]) {
   border-color: #cbd5e1;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
+  border-color: #10b981 !important;
 }

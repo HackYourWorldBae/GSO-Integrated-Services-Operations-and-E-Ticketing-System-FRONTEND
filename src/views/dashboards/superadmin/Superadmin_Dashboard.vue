@@ -182,28 +182,27 @@
 
             <div class="space-y-4">
               <!-- FGMU -->
-              <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3">
+              <div class="p-4 rounded-2xl border border-slate-300 bg-slate-50/70 space-y-3 shadow-2xs">
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2.5">
-                    <span class="w-3 h-3 rounded-full bg-slate-700 shrink-0"></span>
                     <h5 class="text-sm sm:text-base font-black text-slate-900">Facilities &amp; Grounds (FGMU)</h5>
                   </div>
                   <router-link to="/admin/fgmu" class="text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 shrink-0">Inspect Queue →</router-link>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-300 shadow-2xs">
                     <span class="text-xs text-slate-600 font-bold uppercase tracking-wider block">Total</span>
                     <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ stats.tickets?.by_unit?.FGMU?.total || 0 }}</span>
                   </div>
-                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-300 shadow-2xs">
                     <span class="text-xs text-amber-700 font-bold uppercase tracking-wider block">Active</span>
                     <span class="text-base sm:text-lg font-black text-amber-700 tabular-nums">{{ stats.tickets?.by_unit?.FGMU?.active || 0 }}</span>
                   </div>
-                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-300 shadow-2xs">
                     <span class="text-xs text-emerald-700 font-bold uppercase tracking-wider block">Completed</span>
                     <span class="text-base sm:text-lg font-black text-emerald-700 tabular-nums">{{ stats.tickets?.by_unit?.FGMU?.completed || 0 }}</span>
                   </div>
-                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-300 shadow-2xs">
                     <span class="text-xs text-rose-700 font-bold uppercase tracking-wider block">Declined</span>
                     <span class="text-base sm:text-lg font-black text-rose-700 tabular-nums">{{ stats.tickets?.by_unit?.FGMU?.declined || 0 }}</span>
                   </div>
@@ -211,28 +210,27 @@
               </div>
 
               <!-- LEAU -->
-              <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3">
+              <div class="p-4 rounded-2xl border border-slate-300 bg-slate-50/70 space-y-3 shadow-2xs">
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2.5">
-                    <span class="w-3 h-3 rounded-full bg-emerald-600 shrink-0"></span>
                     <h5 class="text-sm sm:text-base font-black text-slate-900">Landscaping &amp; Aesthetics (LEAU)</h5>
                   </div>
                   <router-link to="/admin/leau" class="text-xs sm:text-sm font-bold text-emerald-700 hover:text-emerald-800 shrink-0">Inspect Queue →</router-link>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-300 shadow-2xs">
                     <span class="text-xs text-slate-600 font-bold uppercase tracking-wider block">Total</span>
                     <span class="text-base sm:text-lg font-black text-slate-900 tabular-nums">{{ stats.tickets?.by_unit?.LEAU?.total || 0 }}</span>
                   </div>
-                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-300 shadow-2xs">
                     <span class="text-xs text-amber-700 font-bold uppercase tracking-wider block">Active</span>
                     <span class="text-base sm:text-lg font-black text-amber-700 tabular-nums">{{ stats.tickets?.by_unit?.LEAU?.active || 0 }}</span>
                   </div>
-                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-300 shadow-2xs">
                     <span class="text-xs text-emerald-700 font-bold uppercase tracking-wider block">Completed</span>
                     <span class="text-base sm:text-lg font-black text-emerald-700 tabular-nums">{{ stats.tickets?.by_unit?.LEAU?.completed || 0 }}</span>
                   </div>
-                  <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-300 shadow-2xs">
                     <span class="text-xs text-rose-700 font-bold uppercase tracking-wider block">Declined</span>
                     <span class="text-base sm:text-lg font-black text-rose-700 tabular-nums">{{ stats.tickets?.by_unit?.LEAU?.declined || 0 }}</span>
                   </div>
@@ -240,10 +238,9 @@
               </div>
 
               <!-- SSU -->
-              <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3">
+              <div class="p-4 rounded-2xl border border-slate-300 bg-slate-50/70 space-y-3 shadow-2xs">
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2.5">
-                    <span class="w-3 h-3 rounded-full bg-stone-700 shrink-0"></span>
                     <h5 class="text-sm sm:text-base font-black text-slate-900">Security Services Unit (SSU)</h5>
                   </div>
                   <router-link to="/admin/ssu" class="text-xs sm:text-sm font-bold text-stone-700 hover:text-stone-900 shrink-0">Inspect Queue →</router-link>

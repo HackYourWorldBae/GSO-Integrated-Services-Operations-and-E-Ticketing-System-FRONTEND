@@ -43,7 +43,7 @@
       <div class="space-y-5 sm:space-y-8 animate-fade-in">
 
         <!-- Identity Verification Pending Notice -->
-        <div v-if="!isUserVerified" class="rounded-2xl border border-amber-200/90 bg-gradient-to-r from-amber-50/90 via-orange-50/80 to-amber-50/90 p-4 sm:p-6 shadow-sm">
+        <div v-if="!isUserVerified" class="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50/80 to-amber-50 p-4 sm:p-6 shadow-sm">
           <div class="flex items-start gap-3.5">
             <div class="p-2.5 sm:p-3 rounded-xl bg-amber-100 text-amber-800 shrink-0 mt-0.5">
               <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -100,14 +100,13 @@
         </div>
 
         <!-- Recent Activity — Ticket Status Updates -->
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-          <!-- Section header -->
-          <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="bg-white border border-slate-300 rounded-2xl shadow-sm overflow-hidden">
+          <!-- Section header (No dots) -->
+          <div class="bg-gradient-to-r from-slate-50 via-slate-100/60 to-slate-50 px-4 sm:px-6 py-3.5 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-              <div class="w-1.5 h-5 sm:h-6 rounded-full bg-emerald-500"></div>
-              <h3 class="text-sm sm:text-lg font-black text-slate-900">Ticket Status Updates</h3>
+              <h3 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Ticket Status Updates</h3>
             </div>
-            <router-link to="/user/tickets" class="min-h-[40px] px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50/60 active:bg-emerald-100/60 transition-colors inline-flex items-center gap-1.5">
+            <router-link to="/user/tickets" class="min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 active:bg-slate-200 transition-colors inline-flex items-center gap-1.5 shadow-2xs">
               <span>View All</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
@@ -164,20 +163,21 @@
                     </span>
                   </div>
 
-                  <div class="flex items-center gap-2 mt-1 text-xs sm:text-sm text-slate-500">
-                    <span>Ticket <span class="font-bold text-slate-700 font-mono">#{{ update.ticketId }}</span></span>
-                    <span class="text-slate-300">•</span>
-                    <span class="font-medium text-slate-500">{{ update.time }}</span>
+                  <div class="flex items-center gap-2 mt-1.5 text-xs sm:text-sm text-slate-500">
+                    <span class="text-xs">Ticket</span>
+                    <span class="px-2 py-0.5 rounded-md font-mono font-black text-xs text-slate-900 bg-slate-100 border border-slate-300 shadow-2xs">#{{ update.ticketId }}</span>
+                    <span class="text-slate-400">•</span>
+                    <span class="font-medium text-slate-600">{{ update.time }}</span>
                   </div>
 
-                  <div v-if="update.is_recategorized" class="mt-2 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50/80 border border-sky-200/70 text-sky-900 text-xs">
-                    <span class="font-semibold text-slate-500">Service adjusted to:</span>
-                    <span class="font-bold text-sky-800">{{ update.service }}</span>
+                  <div v-if="update.is_recategorized" class="mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-sky-50 border border-sky-300 text-sky-950 text-xs">
+                    <span class="font-semibold text-slate-600">Service adjusted to:</span>
+                    <span class="font-bold text-sky-900">{{ update.service }}</span>
                     <span v-if="update.original_service_type" class="text-slate-400 line-through text-[11px]">({{ update.original_service_type }})</span>
                   </div>
 
-                  <div v-if="update.status === 'resolved' && (update.unit === 'FGMU' || update.unit === 'LEAU')" class="mt-2.5 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200/80 text-amber-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-amber-600" viewBox="0 0 20 20" fill="currentColor">
+                  <div v-if="update.status === 'resolved' && (update.unit === 'FGMU' || update.unit === 'LEAU')" class="mt-2.5 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 border border-amber-300 text-amber-950">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-amber-700" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                     </svg>
                     <p class="text-xs font-bold">Action Required: Tap here to rate and close</p>

@@ -253,7 +253,6 @@
             <!-- Distinct Container Section Header -->
             <div class="bg-gradient-to-r from-slate-50 via-slate-100/60 to-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
               <div class="flex items-center gap-2.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20"></span>
                 <h3 class="text-xs font-black uppercase tracking-wider text-slate-800">
                   Assigned Work Orders Queue
                 </h3>

@@ -120,9 +120,9 @@
           <!-- Top 3 Cards Grid -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- 1. Total Requests / Daily Total Requests -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md flex flex-col justify-between">
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
-                <span class="text-xs font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">
+                <span class="text-xs font-black text-slate-900 bg-slate-100 border border-slate-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
                   {{ stats.filter?.label || (selectedPeriod === 'day' ? 'Daily' : 'All Time') }}
                 </span>
               </div>
@@ -138,9 +138,9 @@
             </div>
 
             <!-- 2. Resolved Tickets / Daily Completed Jobs -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md flex flex-col justify-between">
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
-                <span class="text-xs font-black text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">
+                <span class="text-xs font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
                   {{ selectedPeriod === 'day' ? 'Daily Completed' : 'Completed' }}
                 </span>
               </div>
@@ -158,10 +158,10 @@
             <!-- 3. Declined Requests / Daily Declined Requests -->
             <div 
               @click="router.push('/admin/fgmu/archives')" 
-              class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer flex flex-col justify-between"
+              class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm cursor-pointer hover:border-slate-400 hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div class="flex items-center mb-4">
-                <span class="text-xs font-black text-rose-700 bg-rose-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">
+                <span class="text-xs font-black text-rose-800 bg-rose-100 border border-rose-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
                   {{ selectedPeriod === 'day' ? 'Daily Declined' : 'Declined' }}
                 </span>
               </div>
@@ -178,11 +178,10 @@
           </div>
 
           <!-- 7-Day Recent Daily Performance Activity Breakdown -->
-          <div v-if="stats.daily_breakdown && stats.daily_breakdown.length > 0" class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-slate-100 pb-3">
+          <div v-if="stats.daily_breakdown && stats.daily_breakdown.length > 0" class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-slate-200 pb-3">
               <div>
                 <h4 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                   Daily Activity Tracker (Last 7 Days)
                 </h4>
               </div>

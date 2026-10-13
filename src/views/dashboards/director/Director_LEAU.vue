@@ -165,11 +165,10 @@
           </div>
 
           <!-- 7-Day Recent Daily Performance Activity Breakdown -->
-          <div v-if="stats.daily_breakdown && stats.daily_breakdown.length > 0" class="p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-slate-100 pb-3">
+          <div v-if="stats.daily_breakdown && stats.daily_breakdown.length > 0" class="p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-slate-200 pb-3">
               <div>
                 <h4 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-teal-500"></span>
                   Daily Activity Tracker (Last 7 Days)
                 </h4>
               </div>
