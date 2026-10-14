@@ -711,12 +711,21 @@ const handleNotificationClick = async (notif) => {
         targetPath = '/admin/ssu/archives';
       } else if (fullText.includes('collab') || fullText.includes('joint')) {
         targetPath = '/admin/ssu/collab-tickets';
-      } else if (isApproved) {
-        targetPath = '/admin/ssu/assign-workers';
-      } else if (isActive || isDispatched || fullText.includes('investigat')) {
+      } else if (
+        fullText.includes('review') ||
+        fullText.includes('submitted') ||
+        fullText.includes('incident') ||
+        fullText.includes('awaiting') ||
+        notif.status === 'pending' ||
+        notif.status === 'submitted'
+      ) {
+        targetPath = '/admin/ssu/submitted-tickets';
+      } else if (isActive || fullText.includes('investigat')) {
         targetPath = '/admin/ssu/investigating-tickets';
-      } else {
+      } else if (isDispatched || isApproved) {
         targetPath = '/admin/ssu/assign-workers';
+      } else {
+        targetPath = '/admin/ssu/submitted-tickets';
       }
     } else if (unitCode === 'leau') {
       if (isCompleted) {

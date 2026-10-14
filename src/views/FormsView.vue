@@ -56,11 +56,29 @@ onMounted(async () => {
   // SSU Auto-fill
   formsStore.ssuIncidentState.reportedBy.printedName = fullName;
 
+  // Borrowing Auto-fill (Both FGMU Tools and LEAU Plants)
+  const userRole = (user.value?.role || authStore.role || '').toLowerCase();
+  const defaultBorrowerId = user.value?.student_id_number || user.value?.employee_id || (userRole === 'admin' ? `${(user.value?.unit_code || authStore.user?.unit_code || 'GSO').toUpperCase()}-ADMIN` : (user.value?.id ? `ID-${String(user.value.id).slice(0, 8)}` : ''));
+  const departmentMajor = user.value?.college || user.value?.department || user.value?.unit_code || '';
+
+  // FGMU Tools Borrowing
+  formsStore.fgmuBorrowingState.borrower_name = fullName;
+  formsStore.fgmuBorrowingState.borrower_contact = contact;
+  formsStore.fgmuBorrowingState.borrower_email = user.value?.email || '';
+  formsStore.fgmuBorrowingState.borrower_id_number = defaultBorrowerId;
+  formsStore.fgmuBorrowingState.department_major = departmentMajor;
+
+  // LEAU Plants Borrowing
+  formsStore.leauBorrowingState.borrower_name = fullName;
+  formsStore.leauBorrowingState.borrower_contact = contact;
+  formsStore.leauBorrowingState.borrower_email = user.value?.email || '';
+  formsStore.leauBorrowingState.borrower_id_number = defaultBorrowerId;
+  formsStore.leauBorrowingState.department_major = departmentMajor;
+
   const storedServices = localStorage.getItem('selectedServices');
   if (storedServices) selectedServicesRaw.value = JSON.parse(storedServices);
   
   // Student Account Role Authorization Guard (RSO / SSG accounts)
-  const userRole = (user.value?.role || authStore.role || '').toLowerCase();
   if (userRole === 'student') {
     const ALLOWED_STUDENT_SERVICES = [
       'Incident Report',
@@ -127,7 +145,9 @@ const leauBorrowingServices = computed(() => borrowingServices.value.filter(s =>
 const hasFGMU = computed(() => fgmuServices.value.length > 0);
 const hasLEAU = computed(() => regularLeauServices.value.length > 0);
 const hasRegularLEAU = computed(() => regularLeauServices.value.length > 0);
-const hasBorrowing = computed(() => borrowingServices.value.length > 0);
+const hasFgmuBorrowing = computed(() => fgmuBorrowingServices.value.length > 0);
+const hasLeauBorrowing = computed(() => leauBorrowingServices.value.length > 0);
+const hasBorrowing = computed(() => hasFgmuBorrowing.value || hasLeauBorrowing.value);
 const hasSSU = computed(() => ssuServices.value.length > 0);
 const hasIncidentReport = computed(() => ssuServices.value.length > 0);
 
@@ -137,17 +157,42 @@ const hasIncidentReport = computed(() => ssuServices.value.length > 0);
 const goBack = () => router.back();
 
 const handleFinalSubmit = async () => {
+  // Commit any typed item drafts that haven't been added yet
+  if (hasFgmuBorrowing.value && formsStore.fgmuBorrowingState.item_input_draft?.trim()) {
+    formsStore.commitDraftItem?.(formsStore.fgmuBorrowingState);
+  }
+  if (hasLeauBorrowing.value && formsStore.leauBorrowingState.item_input_draft?.trim()) {
+    formsStore.commitDraftItem?.(formsStore.leauBorrowingState);
+  }
+
   formsStore.v$.$touch();
   let isValid = true;
   
   if (hasFGMU.value && formsStore.v$.fgmuState.$error) isValid = false;
   if (hasRegularLEAU.value && formsStore.v$.leauState.$error) isValid = false;
-  if (hasBorrowing.value && formsStore.v$.leauBorrowingState.$error) isValid = false;
+  if (hasFgmuBorrowing.value && formsStore.v$.fgmuBorrowingState.$error) isValid = false;
+  if (hasLeauBorrowing.value && formsStore.v$.leauBorrowingState.$error) isValid = false;
   if (hasIncidentReport.value && formsStore.v$.ssuIncidentState.$error) isValid = false;
 
   if (!isValid) {
     toast.error('Please fill in all required fields correctly.');
     return;
+  }
+
+  // Validate schedule logic for FGMU borrowing requests
+  if (hasFgmuBorrowing.value && formsStore.fgmuBorrowingState.date_needed && formsStore.fgmuBorrowingState.expected_return_date) {
+    if (formsStore.fgmuBorrowingState.expected_return_date < formsStore.fgmuBorrowingState.date_needed) {
+      toast.error('FGMU Borrowing: Expected return date must be on or after the pickup date.');
+      return;
+    }
+  }
+
+  // Validate schedule logic for LEAU borrowing requests
+  if (hasLeauBorrowing.value && formsStore.leauBorrowingState.date_needed && formsStore.leauBorrowingState.expected_return_date) {
+    if (formsStore.leauBorrowingState.expected_return_date < formsStore.leauBorrowingState.date_needed) {
+      toast.error('LEAU Borrowing: Expected return date must be on or after the pickup date.');
+      return;
+    }
   }
 
   isSubmitting.value = true;
@@ -163,13 +208,40 @@ const handleFinalSubmit = async () => {
   // Build the payload (don't send File objects in JSON)
   const fgmuDetails = hasFGMU.value ? { ...formsStore.fgmuState.sectionA, ticket_title: formsStore.fgmuState.sectionA.job_description } : null;
   const leauDetails = hasRegularLEAU.value ? { ...formsStore.leauState.sectionA, ticket_title: formsStore.leauState.sectionA.job_description } : null;
-  const borrowingDetails = hasBorrowing.value ? { ...formsStore.leauBorrowingState } : null;
+
+  const userRole = (user.value?.role || authStore.role || '').toLowerCase();
+  const defaultBorrowerId = user.value?.student_id_number ||
+    user.value?.employee_id ||
+    (userRole === 'admin' ? `${(user.value?.unit_code || authStore.user?.unit_code || 'GSO').toUpperCase()}-ADMIN` : (user.value?.id ? `ID-${String(user.value.id).slice(0, 8)}` : 'STAFF-01'));
+  const defaultContact = user.value?.contact_no || user.value?.contact_number || user.value?.phone || 'N/A';
+  const fullName = user.value?.full_name || `${user.value?.first_name || ''} ${user.value?.last_name || ''}`.trim() || 'John Requestor';
+  const borrowerType = (userRole === 'student') ? 'student' : (user.value?.employee_type?.toLowerCase().includes('faculty') ? 'faculty' : 'staff');
+
+  const fgmuBorrowingDetails = hasFgmuBorrowing.value ? {
+    ...formsStore.fgmuBorrowingState,
+    borrower_name: formsStore.fgmuBorrowingState.borrower_name || fullName,
+    borrower_id_number: formsStore.fgmuBorrowingState.borrower_id_number || defaultBorrowerId,
+    borrower_email: formsStore.fgmuBorrowingState.borrower_email || user.value?.email || 'requestor@gso.local',
+    borrower_contact: formsStore.fgmuBorrowingState.borrower_contact || defaultContact,
+    department_major: formsStore.fgmuBorrowingState.department_major || user.value?.college || user.value?.department || user.value?.unit_code || 'General Services Office',
+    borrower_type: borrowerType
+  } : null;
+
+  const leauBorrowingDetails = hasLeauBorrowing.value ? {
+    ...formsStore.leauBorrowingState,
+    borrower_name: formsStore.leauBorrowingState.borrower_name || fullName,
+    borrower_id_number: formsStore.leauBorrowingState.borrower_id_number || defaultBorrowerId,
+    borrower_email: formsStore.leauBorrowingState.borrower_email || user.value?.email || 'requestor@gso.local',
+    borrower_contact: formsStore.leauBorrowingState.borrower_contact || defaultContact,
+    department_major: formsStore.leauBorrowingState.department_major || user.value?.college || user.value?.department || user.value?.unit_code || 'General Services Office',
+    borrower_type: borrowerType
+  } : null;
 
   const finalRequest = {
     fgmu: hasFGMU.value ? { details: fgmuDetails, services: fgmuServices.value } : null,
     leau: hasRegularLEAU.value ? { details: leauDetails, services: regularLeauServices.value } : null,
-    fgmuBorrowing: fgmuBorrowingServices.value.length > 0 ? { details: borrowingDetails, services: fgmuBorrowingServices.value } : null,
-    leauBorrowing: leauBorrowingServices.value.length > 0 ? { details: borrowingDetails, services: leauBorrowingServices.value } : null,
+    fgmuBorrowing: hasFgmuBorrowing.value ? { details: fgmuBorrowingDetails, services: fgmuBorrowingServices.value } : null,
+    leauBorrowing: hasLeauBorrowing.value ? { details: leauBorrowingDetails, services: leauBorrowingServices.value } : null,
     ssu: hasSSU.value ? { 
       incidentReport: hasIncidentReport.value ? formsStore.ssuIncidentState : null
     } : null,
@@ -227,20 +299,20 @@ const handleFinalSubmit = async () => {
     for (const tId of createdTickets) {
       let result = { ok: true, skipped: true };
       if (tId.startsWith('FGMU')) {
-        const hasFgmuBorrow = fgmuBorrowingServices.value.length > 0;
+        const hasFgmuBorrow = hasFgmuBorrowing.value;
         if (hasFGMU.value && hasFgmuBorrow) {
           const allFgmuAttachments = [
             ...formsStore.fgmuState.attachments,
-            ...formsStore.leauBorrowingState.attachments
+            ...formsStore.fgmuBorrowingState.attachments
           ];
           result = await uploadFiles(tId, allFgmuAttachments);
         } else if (hasFGMU.value) {
           result = await uploadFiles(tId, formsStore.fgmuState.attachments);
         } else if (hasFgmuBorrow) {
-          result = await uploadFiles(tId, formsStore.leauBorrowingState.attachments);
+          result = await uploadFiles(tId, formsStore.fgmuBorrowingState.attachments);
         }
       } else if (tId.startsWith('LEAU')) {
-        const hasLeauBorrow = leauBorrowingServices.value.length > 0;
+        const hasLeauBorrow = hasLeauBorrowing.value;
         if (hasRegularLEAU.value && hasLeauBorrow) {
           const allLeauAttachments = [
             ...formsStore.leauState.attachments,
@@ -280,7 +352,13 @@ const handleFinalSubmit = async () => {
     }
   } catch (error) {
     console.error('Submission error:', error);
-    toast.error(error.response?.data?.message || "An error occurred while submitting. Please try again.");
+    const apiErrors = error.response?.data?.errors;
+    if (apiErrors && typeof apiErrors === 'object') {
+      const messages = Object.values(apiErrors).flat().join(', ');
+      toast.error(messages || error.response?.data?.message || "An error occurred while submitting.");
+    } else {
+      toast.error(error.response?.data?.message || "An error occurred while submitting. Please try again.");
+    }
   } finally {
     isSubmitting.value = false;
   }
@@ -355,10 +433,19 @@ const handleFinalSubmit = async () => {
         :locations="locations" 
       />
 
-      <!-- LEAU BORROWING FORM SECTION (for Borrowing of Plants / Tools & Equipment) -->
+      <!-- FGMU BORROWING FORM SECTION (Tools & Equipment) -->
       <LEAUBorrowingForm 
-        v-if="hasBorrowing" 
-        :services="borrowingServices" 
+        v-if="hasFgmuBorrowing" 
+        unit="FGMU"
+        :services="fgmuBorrowingServices" 
+        :locations="locations" 
+      />
+
+      <!-- LEAU BORROWING FORM SECTION (Plants) -->
+      <LEAUBorrowingForm 
+        v-if="hasLeauBorrowing" 
+        unit="LEAU"
+        :services="leauBorrowingServices" 
         :locations="locations" 
       />
 

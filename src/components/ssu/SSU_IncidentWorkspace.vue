@@ -1404,6 +1404,7 @@ const checkRouteHighlight = () => {
 
   if (match) {
     highlightedTicketId.value = match.id;
+    openDetailsModal(match);
     setTimeout(() => {
       const el = document.getElementById('ticket-' + match.id);
       if (el) {
@@ -1412,6 +1413,17 @@ const checkRouteHighlight = () => {
     }, 250);
   }
 };
+
+watch(
+  () => [route.query.ticketId, route.query.highlight, route.query._t],
+  () => {
+    if (allTickets.value.length > 0) {
+      checkRouteHighlight();
+    } else {
+      fetchQueues();
+    }
+  }
+);
 
 // ── Polling & Lifecycle ────────────────────────────────────────────────────
 let pollingTimer = null;

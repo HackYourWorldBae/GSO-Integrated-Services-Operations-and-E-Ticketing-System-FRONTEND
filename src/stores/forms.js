@@ -12,6 +12,9 @@ const validQuantity = (v) => {
   return !isNaN(num) && Number.isInteger(num) && num >= 1;
 };
 
+// Terms agreement must be explicitly checked
+const mustBeTrue = (v) => v === true;
+
 const createUnitFormState = () => ({
   sectionA: {
     date: getFormattedToday(),
@@ -26,7 +29,18 @@ const createUnitFormState = () => ({
 });
 
 const createBorrowingFormState = () => ({
-  // Item Details
+  // Borrower Info
+  borrower_name: '',
+  borrower_id_number: '',
+  borrower_email: '',
+  borrower_contact: '',
+  department_major: '',
+
+  // Multi-item list: array of { id, name, quantity }
+  items: [],
+  item_input_draft: '',
+
+  // Item Details (synced from items or set directly)
   item_name: '',
   quantity_needed: '',
   purpose_project: '',
@@ -62,12 +76,44 @@ const createSsuIncidentState = () => ({
 export const useFormsStore = defineStore('forms', () => {
   const fgmuState = ref(createUnitFormState());
   const leauState = ref(createUnitFormState());
+  const fgmuBorrowingState = ref(createBorrowingFormState());
   const leauBorrowingState = ref(createBorrowingFormState());
   const ssuIncidentState = ref(createSsuIncidentState());
+
+  const syncBorrowingItems = (state) => {
+    if (!state) return;
+    if (Array.isArray(state.items) && state.items.length > 0) {
+      state.item_name = state.items
+        .map(i => `${(i.name || '').trim()} (${parseInt(i.quantity, 10) || 1})`)
+        .filter(s => s.length > 3)
+        .join(', ');
+      state.quantity_needed = state.items.reduce((acc, i) => acc + (parseInt(i.quantity, 10) || 1), 0);
+    }
+  };
+
+  const commitDraftItem = (state) => {
+    if (!state) return;
+    const draft = (state.item_input_draft || '').trim();
+    if (!draft) return;
+    if (!Array.isArray(state.items)) state.items = [];
+    const match = state.items.find(i => i.name.toLowerCase() === draft.toLowerCase());
+    if (match) {
+      match.quantity = (parseInt(match.quantity, 10) || 1) + 1;
+    } else {
+      state.items.push({
+        id: Date.now() + Math.random(),
+        name: draft,
+        quantity: 1
+      });
+    }
+    state.item_input_draft = '';
+    syncBorrowingItems(state);
+  };
 
   const clearForms = () => {
     fgmuState.value = createUnitFormState();
     leauState.value = createUnitFormState();
+    fgmuBorrowingState.value = createBorrowingFormState();
     leauBorrowingState.value = createBorrowingFormState();
     ssuIncidentState.value = createSsuIncidentState();
     v$.value.$reset();
@@ -95,13 +141,21 @@ export const useFormsStore = defineStore('forms', () => {
         job_description: { required, minLength: minLength(10) }
       }
     },
+    fgmuBorrowingState: {
+      item_name: { required },
+      quantity_needed: { required, validQuantity },
+      purpose_project: { required, minLength: minLength(3) },
+      date_needed: { required },
+      expected_return_date: { required },
+      terms_agreed: { mustBeTrue }
+    },
     leauBorrowingState: {
       item_name: { required },
       quantity_needed: { required, validQuantity },
-      purpose_project: { required, minLength: minLength(10) },
+      purpose_project: { required, minLength: minLength(3) },
       date_needed: { required },
       expected_return_date: { required },
-      terms_agreed: { required }
+      terms_agreed: { mustBeTrue }
     },
     ssuIncidentState: {
       incidents: { incidentTypeRequired },
@@ -115,6 +169,7 @@ export const useFormsStore = defineStore('forms', () => {
   const v$ = useVuelidate(rules, { 
     fgmuState, 
     leauState,
+    fgmuBorrowingState,
     leauBorrowingState,
     ssuIncidentState 
   });
@@ -122,8 +177,11 @@ export const useFormsStore = defineStore('forms', () => {
   return {
     fgmuState,
     leauState,
+    fgmuBorrowingState,
     leauBorrowingState,
     ssuIncidentState,
+    syncBorrowingItems,
+    commitDraftItem,
     clearForms,
     v$,
     /**
@@ -136,7 +194,7 @@ export const useFormsStore = defineStore('forms', () => {
   };
 
   function sanitizeAttachments() {
-    for (const state of [fgmuState.value, leauState.value, leauBorrowingState.value]) {
+    for (const state of [fgmuState.value, leauState.value, fgmuBorrowingState.value, leauBorrowingState.value]) {
       if (state && Array.isArray(state.attachments)) {
         const valid = state.attachments.filter((f) => f instanceof File);
         if (valid.length !== state.attachments.length) {
@@ -153,6 +211,7 @@ export const useFormsStore = defineStore('forms', () => {
     omit: [
       'fgmuState.attachments',
       'leauState.attachments',
+      'fgmuBorrowingState.attachments',
       'leauBorrowingState.attachments',
     ],
   },
