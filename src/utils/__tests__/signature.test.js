@@ -88,4 +88,60 @@ describe('Signature Utilities (signatureUtils.js)', () => {
       expect(res).toEqual({ director: null, dispatcher: null });
     });
   });
+
+  describe('buildFgmuTemplateData dynamic signature placeholders', () => {
+    it('correctly maps Director role when approved by Director', async () => {
+      const { buildFgmuTemplateData } = await import('../fgmuDocxGenerator');
+      const ticket = {
+        id: 101,
+        status: 'processing',
+        unit_code: 'FGMU',
+        reviewed_at: '2026-10-14 10:30:00',
+        reviewed_by_user: {
+          id: 1,
+          name: 'Dr. Director Executive',
+          role: 'director',
+        },
+        dispatched_by_user: {
+          id: 2,
+          name: 'Engr. Unit Head',
+          role: 'admin',
+        },
+        assignment: {
+          assigned_at: '2026-10-14 11:00:00',
+        },
+      };
+
+      const data = buildFgmuTemplateData(ticket);
+      expect(data.Approved_by).toBe('Dr. Director Executive');
+      expect(data['Unit&Role']).toBe('Director');
+      expect(data['Unit&amp;Role']).toBe('Director');
+      expect(data.Approval_Date).toBe('Oct 14, 2026');
+      expect(data.Issued_by).toBe('Engr. Unit Head');
+      expect(data.Unit).toBe('FGMU');
+    });
+
+    it('correctly maps Unit Head role when approved by Unit Head', async () => {
+      const { buildFgmuTemplateData } = await import('../fgmuDocxGenerator');
+      const ticket = {
+        id: 102,
+        status: 'approved',
+        unit_code: 'FGMU',
+        reviewed_at: '2026-10-14 09:00:00',
+        reviewed_by_user: {
+          id: 5,
+          name: 'Engr. Mario Santos',
+          role: 'admin',
+        },
+        dispatched_by_user: null,
+      };
+
+      const data = buildFgmuTemplateData(ticket);
+      expect(data.Approved_by).toBe('Engr. Mario Santos');
+      expect(data['Unit&Role']).toBe('FGMU Head');
+      expect(data['Unit&amp;Role']).toBe('FGMU Head');
+      expect(data.Approval_Date).toBe('Oct 14, 2026');
+    });
+  });
 });
+

@@ -1,5 +1,7 @@
 import { generateDocxBlob, generateDocx } from '@/utils/docxGenerator';
 import api from '@/api/client';
+import { fetchDocumentSignatures } from '@/utils/signatureUtils';
+import { loadImageAsPngDataUrl } from '@/utils/imageUtils';
 
 /**
  * Format a Date object or ISO date string into standard document date format (e.g. "Sep 15, 2026").
@@ -38,21 +40,25 @@ export const formatDocDate = (dateVal) => {
  *  {Room}
  *  {Fund}
  *  {Requestor}
+ *  {contact_no}
  *  {Working_days}
  *  {Date_started}
  *  {Date Completed}
  *  {Job_particulars}
- *  {Personnel_1}
- *  {Personnel_2}
- *  {Personnel_3}
- *  {Personnel_4}
+ *  {Personnel_1} .. {Personnel_10}
+ *  {Approved_by}
+ *  {Unit&Role} / {Unit&amp;Role}
+ *  {Approval_Date}
+ *  {Issued_by}
+ *  {Unit}
  *  {Remarks}
  *
  * @param {Object} ticket - Enriched ticket object (or wrapped in { ticket })
  * @param {Object} [feedbackData] - Optional feedback submission object
+ * @param {Object} [signaturesMeta] - Optional signatures metadata from /auth/document-signatures
  * @returns {Object} Template data mapping
  */
-export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
+export const buildFgmuTemplateData = (ticket = {}, feedbackData = null, signaturesMeta = null) => {
   // Defensively unwrap if wrapped in { ticket: ... }
   const t = ticket.ticket || ticket || {};
   const details = t.details || {};
@@ -112,8 +118,6 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     ''
   ).trim();
 
-  // The requester name is kept clean without phone number appended,
-  // matching the new {contact_no} placeholder in the template.
   const requestor = baseRequestor;
 
   // 6. Target Working Days Duration
@@ -188,8 +192,6 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
   }
 
   // 9. Dispatcher & Task Remarks
-  // Only include explicit remarks if provided by the user/dispatcher/client.
-  // Do NOT pre-fill with default boilerplate so remarks are not encoded prematurely.
   const remarks = (
     feedback.remarks ||
     t.remarks ||
@@ -199,6 +201,46 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
 
   const ticketRef = String(t.ticket_number || t.reference_number || t.ticketRef || t.ticketId || t.id || '0000');
   const jrNo = details.jr_no || t.jr_no || ticketRef;
+
+  // 10. Unit Code
+  const isLeau = t.unit_code === 'LEAU' || t.unit === 'LEAU' || t.unit_id === 2 || (typeof t.id === 'string' && t.id.includes('LEAU'));
+  const unitCode = isLeau ? 'LEAU' : 'FGMU';
+
+  // 11. Approver Identification (Approved By)
+  // Check enriched user, or fallback to ticket fields / signatures metadata
+  const revUser = t.reviewed_by_user || null;
+  const isDirectorApprover = (revUser?.role === 'director')
+    || (t.reviewer_role === 'director')
+    || (!revUser && !t.reviewer_name && !!signaturesMeta?.director);
+
+  const approverName = (
+    revUser?.name ||
+    t.reviewer_name ||
+    t.approved_by ||
+    (isDirectorApprover ? signaturesMeta?.director?.name : signaturesMeta?.dispatcher?.name) ||
+    (signaturesMeta?.director?.name || '')
+  ).trim();
+
+  // Role placeholder {Unit&Role}
+  // If the one who approved is the director -> "Director" (template renders GSO-{Unit&Role} -> GSO-Director)
+  // If unit head approved -> "${unitCode} Head" (template renders GSO-{Unit&Role} -> GSO-FGMU Head)
+  const unitAndRole = isDirectorApprover ? 'Director' : `${unitCode} Head`;
+
+  // Approval Date {Approval_Date}
+  const isApprovedOrLater = ['approved', 'processing', 'resolved', 'closed'].includes(t.status) || !!t.reviewed_at || !!assignment.assigned_at;
+  const rawApprovalDate = t.reviewed_at || t.approved_at || assignment.assigned_at || (isApprovedOrLater ? (t.created_at || new Date()) : null);
+  const approvalDate = rawApprovalDate ? formatDocDate(rawApprovalDate) : '';
+
+  // 12. Issuer Identification (JR Issued By)
+  // "same for the issued by which is mostly the unit head... (issued by happens after dispatch)"
+  const dispUser = t.dispatched_by_user || null;
+  const issuerName = (
+    dispUser?.name ||
+    t.dispatcher_name ||
+    signaturesMeta?.dispatcher?.name ||
+    (dispUser?.role === 'director' ? (signaturesMeta?.director?.name || '') : '') ||
+    ''
+  ).trim();
 
   return {
     Date: dateFiling,
@@ -230,18 +272,89 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
     JR_no: jrNo,
     ticketId: String(t.ticketId || t.id || '0000'),
     ticketRef: ticketRef,
+    unitCode: unitCode,
+
+    // Dynamic Approval Placeholders
+    Approved_by: approverName,
+    approved_by: approverName,
+    'Approved_by': approverName,
+    'Unit&Role': unitAndRole,
+    'Unit&amp;Role': unitAndRole,
+    'Unit & Role': unitAndRole,
+    'unit_and_role': unitAndRole,
+    UnitAndRole: unitAndRole,
+    Approval_Date: approvalDate,
+    approval_date: approvalDate,
+    'Approval_Date': approvalDate,
+
+    // Dynamic Issuer Placeholders
+    Issued_by: issuerName,
+    issued_by: issuerName,
+    'Issued_by': issuerName,
+    Unit: unitCode,
+    unit: unitCode,
+    'Unit': unitCode,
   };
 };
 
 /**
  * Generates the FGMU Job Request Form Docx file as a Blob by filling public/templates/FGMU Job Request Form.docx.
+ * Automatically injects digital signatures slightly above the approved by and issued by placeholders.
+ *
  * @param {Object} ticket - Ticket data
  * @param {Object} [feedbackData] - User feedback data
  * @returns {Promise<Blob>}
  */
 export const generateFgmuJobRequestFormDocxBlob = async (ticket, feedbackData = null) => {
-  const templateData = buildFgmuTemplateData(ticket, feedbackData);
-  return await generateDocxBlob('/templates/FGMU Job Request Form.docx', templateData);
+  const t = ticket.ticket || ticket || {};
+  const isLeau = t.unit_code === 'LEAU' || t.unit === 'LEAU' || t.unit_id === 2 || (typeof t.id === 'string' && t.id.includes('LEAU'));
+  const unitCode = isLeau ? 'LEAU' : 'FGMU';
+
+  let signaturesMeta = null;
+  try {
+    signaturesMeta = await fetchDocumentSignatures(unitCode);
+  } catch (err) {
+    console.warn('Could not fetch signatures metadata for docx generation:', err);
+  }
+
+  const templateData = buildFgmuTemplateData(t, feedbackData, signaturesMeta);
+
+  // Load signature images if available
+  const images = {};
+  const revUser = t.reviewed_by_user || null;
+  const dispUser = t.dispatched_by_user || null;
+
+  // 1. Approver Signature
+  const isDirectorApprover = (revUser?.role === 'director')
+    || (t.reviewer_role === 'director')
+    || (!revUser && !t.reviewer_name && !!signaturesMeta?.director);
+
+  const approverSigUrl = revUser?.signature_url
+    || (isDirectorApprover ? signaturesMeta?.director?.signature_url : signaturesMeta?.dispatcher?.signature_url)
+    || (signaturesMeta?.director?.signature_url || null);
+
+  if (approverSigUrl && templateData.Approved_by) {
+    try {
+      images.approved = await loadImageAsPngDataUrl(approverSigUrl);
+    } catch (e) {
+      console.warn('Could not load approver signature image for docx:', e);
+    }
+  }
+
+  // 2. Issuer Signature
+  const issuerSigUrl = dispUser?.signature_url
+    || signaturesMeta?.dispatcher?.signature_url
+    || (dispUser?.role === 'director' ? (signaturesMeta?.director?.signature_url || null) : null);
+
+  if (issuerSigUrl && templateData.Issued_by) {
+    try {
+      images.issued = await loadImageAsPngDataUrl(issuerSigUrl);
+    } catch (e) {
+      console.warn('Could not load issuer signature image for docx:', e);
+    }
+  }
+
+  return await generateDocxBlob('/templates/FGMU Job Request Form.docx', templateData, { images });
 };
 
 // Alias for backwards compatibility
@@ -277,11 +390,9 @@ export const attachFgmuJobRequestForm = async (ticket, feedbackData = null) => {
  * @param {Object} [feedbackData] - Feedback data
  */
 export const downloadFgmuJobRequestForm = async (ticket, feedbackData = null) => {
-  const ticketId = ticket.ticketId || ticket.id || 'document';
-  const templateData = buildFgmuTemplateData(ticket, feedbackData);
-  await generateDocx(
-    '/templates/FGMU Job Request Form.docx',
-    templateData,
-    `FGMU Job Request Form - #${ticketId}.docx`
-  );
+  const t = ticket.ticket || ticket || {};
+  const ticketId = t.ticketId || t.id || 'document';
+  const blob = await generateFgmuJobRequestFormDocxBlob(t, feedbackData);
+  const { saveAs } = await import('file-saver');
+  saveAs(blob, `FGMU Job Request Form - #${ticketId}.docx`);
 };

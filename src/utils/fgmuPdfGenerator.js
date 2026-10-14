@@ -17,228 +17,15 @@
 import api from '@/api/client';
 import { loadImageAsPngDataUrl } from '@/utils/imageUtils';
 import { getPdfMake } from '@/utils/pdfmakeInit';
-import { generateDocxBlob, generateDocx } from '@/utils/docxGenerator';
-import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
+import { generateDocx } from '@/utils/docxGenerator';
+import {
+  buildFgmuTemplateData,
+  generateFgmuJobRequestFormDocxBlob,
+  formatDocDate,
+} from '@/utils/fgmuDocxGenerator';
 import { fetchDocumentSignatures } from '@/utils/signatureUtils';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Date Formatting
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Format a Date object or date string into human-readable form (e.g. "Sep 15, 2026").
- * @param {string|Date|null} dateVal
- * @returns {string}
- */
-export const formatDocDate = (dateVal) => {
-  if (!dateVal) return '';
-  if (typeof dateVal === 'string') {
-    const ymdMatch = dateVal.trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (ymdMatch) {
-      const [_, y, m, d] = ymdMatch;
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const monthIdx = parseInt(m, 10) - 1;
-      if (monthIdx >= 0 && monthIdx < 12) {
-        return `${monthNames[monthIdx]} ${parseInt(d, 10)}, ${y}`;
-      }
-    }
-  }
-  const parsed = new Date(typeof dateVal === 'string' ? dateVal.replace(' ', 'T') : dateVal);
-  if (isNaN(parsed.getTime())) return String(dateVal);
-  return parsed.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Template Data Builder (reused from docx generator — same logic)
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Maps ticket and feedback records into a flat template data object.
- * @param {Object} ticket
- * @param {Object|null} feedbackData
- * @returns {Object}
- */
-export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
-  const t = ticket.ticket || ticket || {};
-  const details    = t.details    || {};
-  const assignment = t.assignment || (Array.isArray(t.assignments) && t.assignments[0]) || {};
-  const feedback   = feedbackData || t.feedback || {};
-
-  const dateFiling    = formatDocDate(t.submitted_at || t.created_at || t.date || new Date());
-  const dateStarted   = formatDocDate(
-    assignment.implementation_date ||
-    assignment.dispatched_at ||
-    t.implementationDate ||
-    t.implementation_date ||
-    t.scheduled_date ||
-    t.project_target_date ||
-    assignment.assigned_at ||
-    t.submitted_at ||
-    t.created_at ||
-    ''
-  );
-  
-  // Only show Date Completed if ticket is actually resolved or closed
-  const isCompleted = t.status === 'closed' || t.status === 'resolved' || t.status === 'completed' || !!t.completed_at;
-  const dateCompleted = isCompleted ? formatDocDate(t.completed_at || t.updated_at) : '—';
-
-  const building     = details.college_building || t.college_building || t.location || details.location || 'Campus Facility';
-  const room         = details.office_room       || t.office_room || t.officeRoom || details.room || 'N/A';
-  const fund         = details.source_of_fund    || t.source_of_fund || t.sourceOfFund || details.fund || 'N/A';
-  
-  const userFullName = t.user ? `${t.user.first_name || ''} ${t.user.last_name || ''}`.trim() : '';
-  const directFullName = (t.first_name || t.last_name) ? `${t.first_name || ''} ${t.last_name || ''}`.trim() : '';
-  const baseRequestor = (
-    t.requestedBy ||
-    t.requested_by ||
-    t.requester ||
-    details.requesting_personnel ||
-    details.end_user ||
-    userFullName ||
-    directFullName ||
-    t.user_name ||
-    'End User'
-  ).trim();
-
-  const contactNo = (
-    t.contact_number ||
-    t.requester_contact ||
-    details.contact_number ||
-    details.contact_no ||
-    t.details?.contact_number ||
-    t.details?.contact_no ||
-    t.user?.contact_number ||
-    t.user?.requester_contact ||
-    ''
-  ).trim();
-
-  // The requester name is kept clean without phone number appended
-  const requestor = baseRequestor;
-
-  const workingDays  = String(
-    t.working_days ||
-    t.project_working_days ||
-    assignment.working_days ||
-    t.workingDays ||
-    t.total_working_days ||
-    t.eodb_days ||
-    '1'
-  );
-  
-  let jobParticulars = (
-    t.job_description ||
-    t.description ||
-    t.title ||
-    t.project_title ||
-    t.service_type ||
-    t.service ||
-    'General maintenance and repair service.'
-  ).trim();
-
-  const serviceCategory = t.service || t.service_type || t.type;
-  if (serviceCategory && serviceCategory !== 'General' && !jobParticulars.toLowerCase().includes(serviceCategory.toLowerCase())) {
-    jobParticulars = `[${serviceCategory}]\n${jobParticulars}`;
-  }
-
-  // Personnel extraction — supports assignments array, personnel array, or comma-separated name string
-  let rawWorkers = [];
-  if (Array.isArray(t.assignments) && t.assignments.length > 0) {
-    t.assignments.forEach(a => {
-      const name = a.personnel_name || a.assigned_to_name || a.worker_name || a.name || '';
-      if (name) rawWorkers.push(...name.split(/[,;\n]+/));
-    });
-  }
-  if (Array.isArray(t.my_unit_assignments) && t.my_unit_assignments.length > 0) {
-    t.my_unit_assignments.forEach(a => {
-      const name = a.worker_name || a.personnel_name || a.name || '';
-      if (name) rawWorkers.push(...name.split(/[,;\n]+/));
-    });
-  }
-  if (Array.isArray(t.other_unit_assignments) && t.other_unit_assignments.length > 0) {
-    t.other_unit_assignments.forEach(a => {
-      const name = a.worker_name || a.personnel_name || a.name || '';
-      if (name) rawWorkers.push(...name.split(/[,;\n]+/));
-    });
-  }
-  if (Array.isArray(t.personnel) && t.personnel.length > 0) {
-    t.personnel.forEach(p => {
-      const name = typeof p === 'string' ? p : (p.name || p.personnel_name || '');
-      if (name) rawWorkers.push(...name.split(/[,;\n]+/));
-    });
-  }
-  const fallbackWorkers = assignment.personnel_name || assignment.worker_name || t.assignedWorker || t.assigned_worker || t.assigned_personnel || '';
-  if (fallbackWorkers && typeof fallbackWorkers === 'string') {
-    rawWorkers.push(...fallbackWorkers.split(/[,;\n]+/));
-  }
-
-  const personnelNames = Array.from(new Set(rawWorkers.map(n => n.trim()))).filter(name => {
-    const lower = name.toLowerCase();
-    return lower && lower !== 'unassigned' && lower !== 'n/a' && lower !== 'none';
-  });
-
-  const personnelData = {};
-  for (let i = 1; i <= 10; i++) {
-    const pName = personnelNames[i - 1] || '';
-    personnelData[`Personnel_${i}`] = pName;
-    personnelData[`personnel_${i}`] = pName;
-    personnelData[`Personnel${i}`] = pName;
-  }
-
-  const isLeau = t.unit_code === 'LEAU' || t.unit === 'LEAU' || t.unit_id === 2 || (typeof t.id === 'string' && t.id.includes('LEAU'));
-  const unitCode = isLeau ? 'LEAU' : 'FGMU';
-  const unitFullName = isLeau
-    ? 'Landscaping & Environmental Aesthetics Unit (LEAU)'
-    : 'Facilities & Grounds Maintenance Unit (FGMU)';
-  const ticketRef = String(t.ticket_number || t.reference_number || t.ticketRef || t.ticketId || t.id || '0000');
-  const jrNo = details.jr_no || t.jr_no || ticketRef;
-
-  // Only include explicit remarks if provided by the user/dispatcher/client.
-  // Do NOT pre-fill with default boilerplate so remarks are not encoded prematurely.
-  const remarks = (
-    feedback.remarks ||
-    t.remarks ||
-    details.remarks ||
-    ''
-  ).trim();
-
-  return {
-    ticketId:        String(t.ticketId || t.id || '0000').padStart(4, '0'),
-    ticketRef:       ticketRef,
-    unitCode:        unitCode,
-    unitFullName:    unitFullName,
-    Date:            dateFiling,
-    Building:        building,
-    Room:            room,
-    Fund:            fund,
-    Requestor:       requestor,
-    requestor:       requestor,
-    Requester:       requestor,
-    requester:       requestor,
-    contact_no:      contactNo,
-    Contact_no:      contactNo,
-    'contact_no':    contactNo,
-    contact_number:  contactNo,
-    Working_days:    workingDays,
-    'Working_days':  workingDays,
-    ' Working_days ': workingDays,
-    Date_started:    dateStarted,
-    'Date_started':  dateStarted,
-    ' Date_started ': dateStarted,
-    'Date Completed': dateCompleted,
-    Date_completed:  dateCompleted,
-    Job_particulars: jobParticulars,
-    ...personnelData,
-    Remarks:         remarks,
-    remarks:         remarks,
-    JR_No:           jrNo,
-    'JR No.':        jrNo,
-    JR_no:           jrNo,
-  };
-};
+export { buildFgmuTemplateData, generateFgmuJobRequestFormDocxBlob, formatDocDate };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // pdfmake Document Definition Builder
@@ -438,18 +225,23 @@ const buildDocDefinition = (data, logoDataUrl, signaturesMeta = {}, signatureIma
       // ── Signature Block ───────────────────────────────────────────────────
       {
         columns: [
-          signatureLine('Requesting Party', 'End-User / Department Representative', null, data.Requestor),
           signatureLine(
-            `${data.unitCode} Dispatcher / In-Charge`,
-            `GSO-${data.unitCode} Staff`,
-            signatureImages.dispatcher || null,
-            signaturesMeta?.dispatcher?.name || null
+            'Requesting Party',
+            'End-User / Authorized Representative',
+            null,
+            data.Requestor
           ),
           signatureLine(
-            'GSO Director / Authorized Rep.',
-            'Office of the GSO Director',
-            signatureImages.director || null,
-            signaturesMeta?.director?.name || null
+            `GSO-${data.UnitAndRole || data['Unit&Role'] || 'Director'}`,
+            data.Approval_Date ? `Approved: ${data.Approval_Date}` : 'Approved by',
+            signatureImages.approver || signatureImages.director || null,
+            data.Approved_by || signaturesMeta?.director?.name || null
+          ),
+          signatureLine(
+            `GSO-${data.Unit || data.unitCode} Head`,
+            'JR Issued by (Dispatch In-Charge)',
+            signatureImages.issuer || signatureImages.dispatcher || null,
+            data.Issued_by || signaturesMeta?.dispatcher?.name || null
           ),
         ],
         columnGap: 20,
@@ -484,36 +276,65 @@ async function getLogoDataUrl() {
   return cachedLogoDataUrl;
 }
 
+/** Helper to resolve signature images for PDF generator */
+async function resolveSignatureImages(ticket, data, signaturesMeta) {
+  const t = ticket.ticket || ticket || {};
+  const signatureImages = {};
+  const revUser = t.reviewed_by_user || null;
+  const dispUser = t.dispatched_by_user || null;
+
+  // 1. Approver Signature
+  const isDirectorApprover = (revUser?.role === 'director')
+    || (t.reviewer_role === 'director')
+    || (!revUser && !t.reviewer_name && !!signaturesMeta?.director);
+
+  const approverSigUrl = revUser?.signature_url
+    || (isDirectorApprover ? signaturesMeta?.director?.signature_url : signaturesMeta?.dispatcher?.signature_url)
+    || (signaturesMeta?.director?.signature_url || null);
+
+  if (approverSigUrl && data.Approved_by) {
+    try {
+      signatureImages.approver = await loadImageAsPngDataUrl(approverSigUrl);
+    } catch (e) {
+      console.warn('Could not load approver signature for PDF:', e);
+    }
+  }
+
+  // 2. Issuer Signature
+  const issuerSigUrl = dispUser?.signature_url
+    || signaturesMeta?.dispatcher?.signature_url
+    || (dispUser?.role === 'director' ? (signaturesMeta?.director?.signature_url || null) : null);
+
+  if (issuerSigUrl && data.Issued_by) {
+    try {
+      signatureImages.issuer = await loadImageAsPngDataUrl(issuerSigUrl);
+    } catch (e) {
+      console.warn('Could not load issuer signature for PDF:', e);
+    }
+  }
+
+  return signatureImages;
+}
+
 /**
- * Generates the FGMU Job Request Form as a PDF Blob by filling
- * public/templates/FGMU Job Request Form.docx and converting it to PDF.
+ * Generates the FGMU Job Request Form as a PDF Blob.
  * @param {Object} ticket
  * @param {Object|null} feedbackData
  * @returns {Promise<Blob>}
  */
 export const generateFgmuJobRequestFormBlob = async (ticket, feedbackData = null) => {
-  const data = buildFgmuTemplateData(ticket, feedbackData);
+  const t = ticket.ticket || ticket || {};
+  const isLeau = t.unit_code === 'LEAU' || t.unit === 'LEAU' || t.unit_id === 2 || (typeof t.id === 'string' && t.id.includes('LEAU'));
+  const unitCode = isLeau ? 'LEAU' : 'FGMU';
+
   const [pdfMake, logoDataUrl, signaturesMeta] = await Promise.all([
     getPdfMake(),
     getLogoDataUrl().catch(() => null),
-    fetchDocumentSignatures(data.unitCode).catch(() => ({ director: null, dispatcher: null })),
+    fetchDocumentSignatures(unitCode).catch(() => ({ director: null, dispatcher: null })),
   ]);
 
-  const signatureImages = {};
-  if (signaturesMeta?.director?.signature_url) {
-    try {
-      signatureImages.director = await loadImageAsPngDataUrl(signaturesMeta.director.signature_url);
-    } catch (e) {
-      console.warn('Could not load director signature for PDF:', e);
-    }
-  }
-  if (signaturesMeta?.dispatcher?.signature_url) {
-    try {
-      signatureImages.dispatcher = await loadImageAsPngDataUrl(signaturesMeta.dispatcher.signature_url);
-    } catch (e) {
-      console.warn('Could not load dispatcher signature for PDF:', e);
-    }
-  }
+  const data = buildFgmuTemplateData(t, feedbackData, signaturesMeta);
+  const signatureImages = await resolveSignatureImages(t, data, signaturesMeta);
 
   const docDef = buildDocDefinition(data, logoDataUrl, signaturesMeta, signatureImages);
   const pdfDoc = pdfMake.createPdf(docDef);
@@ -534,40 +355,28 @@ export const generateFgmuJobRequestFormBlob = async (ticket, feedbackData = null
   });
 };
 
-export { generateFgmuJobRequestFormDocxBlob };
-
 /**
  * Triggers a browser PDF download for the FGMU Job Request Form.
  * @param {Object} ticket
  * @param {Object|null} feedbackData
  */
 export const downloadFgmuJobRequestForm = async (ticket, feedbackData = null) => {
-  const ticketId = ticket.ticketId || ticket.id || 'document';
-  const data = buildFgmuTemplateData(ticket, feedbackData);
+  const t = ticket.ticket || ticket || {};
+  const ticketId = t.ticketId || t.id || 'document';
+  const isLeau = t.unit_code === 'LEAU' || t.unit === 'LEAU' || t.unit_id === 2 || (typeof t.id === 'string' && t.id.includes('LEAU'));
+  const unitCode = isLeau ? 'LEAU' : 'FGMU';
+
   const [pdfMake, logoDataUrl, signaturesMeta] = await Promise.all([
     getPdfMake(),
     getLogoDataUrl().catch(() => null),
-    fetchDocumentSignatures(data.unitCode).catch(() => ({ director: null, dispatcher: null })),
+    fetchDocumentSignatures(unitCode).catch(() => ({ director: null, dispatcher: null })),
   ]);
 
-  const signatureImages = {};
-  if (signaturesMeta?.director?.signature_url) {
-    try {
-      signatureImages.director = await loadImageAsPngDataUrl(signaturesMeta.director.signature_url);
-    } catch (e) {
-      console.warn('Could not load director signature for PDF:', e);
-    }
-  }
-  if (signaturesMeta?.dispatcher?.signature_url) {
-    try {
-      signatureImages.dispatcher = await loadImageAsPngDataUrl(signaturesMeta.dispatcher.signature_url);
-    } catch (e) {
-      console.warn('Could not load dispatcher signature for PDF:', e);
-    }
-  }
+  const data = buildFgmuTemplateData(t, feedbackData, signaturesMeta);
+  const signatureImages = await resolveSignatureImages(t, data, signaturesMeta);
 
   const docDef  = buildDocDefinition(data, logoDataUrl, signaturesMeta, signatureImages);
-  const filename = `${data.unitCode || 'FGMU'} Job Request Form - #${ticketId}.pdf`;
+  const filename = `${unitCode} Job Request Form - #${ticketId}.pdf`;
   pdfMake.createPdf(docDef).download(filename);
 };
 
@@ -577,13 +386,11 @@ export const downloadFgmuJobRequestForm = async (ticket, feedbackData = null) =>
  * @param {Object|null} feedbackData
  */
 export const downloadFgmuJobRequestFormDocx = async (ticket, feedbackData = null) => {
-  const ticketId = ticket.ticketId || ticket.id || 'document';
-  const templateData = buildFgmuTemplateData(ticket, feedbackData);
-  await generateDocx(
-    '/templates/FGMU Job Request Form.docx',
-    templateData,
-    `FGMU Job Request Form - #${ticketId}.docx`
-  );
+  const t = ticket.ticket || ticket || {};
+  const ticketId = t.ticketId || t.id || 'document';
+  const blob = await generateFgmuJobRequestFormDocxBlob(t, feedbackData);
+  const { saveAs } = await import('file-saver');
+  saveAs(blob, `FGMU Job Request Form - #${ticketId}.docx`);
 };
 
 /**
@@ -592,28 +399,18 @@ export const downloadFgmuJobRequestFormDocx = async (ticket, feedbackData = null
  * @param {Object|null} feedbackData
  */
 export const printFgmuJobRequestForm = async (ticket, feedbackData = null) => {
-  const data = buildFgmuTemplateData(ticket, feedbackData);
+  const t = ticket.ticket || ticket || {};
+  const isLeau = t.unit_code === 'LEAU' || t.unit === 'LEAU' || t.unit_id === 2 || (typeof t.id === 'string' && t.id.includes('LEAU'));
+  const unitCode = isLeau ? 'LEAU' : 'FGMU';
+
   const [pdfMake, logoDataUrl, signaturesMeta] = await Promise.all([
     getPdfMake(),
     getLogoDataUrl().catch(() => null),
-    fetchDocumentSignatures(data.unitCode).catch(() => ({ director: null, dispatcher: null })),
+    fetchDocumentSignatures(unitCode).catch(() => ({ director: null, dispatcher: null })),
   ]);
 
-  const signatureImages = {};
-  if (signaturesMeta?.director?.signature_url) {
-    try {
-      signatureImages.director = await loadImageAsPngDataUrl(signaturesMeta.director.signature_url);
-    } catch (e) {
-      console.warn('Could not load director signature for PDF:', e);
-    }
-  }
-  if (signaturesMeta?.dispatcher?.signature_url) {
-    try {
-      signatureImages.dispatcher = await loadImageAsPngDataUrl(signaturesMeta.dispatcher.signature_url);
-    } catch (e) {
-      console.warn('Could not load dispatcher signature for PDF:', e);
-    }
-  }
+  const data = buildFgmuTemplateData(t, feedbackData, signaturesMeta);
+  const signatureImages = await resolveSignatureImages(t, data, signaturesMeta);
 
   const docDef = buildDocDefinition(data, logoDataUrl, signaturesMeta, signatureImages);
   pdfMake.createPdf(docDef).print();
@@ -646,10 +443,11 @@ export const openFgmuJobRequestFormInNewTab = async (ticket, feedbackData = null
  * @returns {Promise<Object>} API response
  */
 export const attachFgmuJobRequestForm = async (ticket, feedbackData = null) => {
-  const ticketId = ticket.ticketId || ticket.id;
+  const t = ticket.ticket || ticket || {};
+  const ticketId = t.ticketId || t.id;
   if (!ticketId) throw new Error('Ticket ID is required to attach document.');
 
-  const docxBlob = await generateFgmuJobRequestFormDocxBlob(ticket, feedbackData);
+  const docxBlob = await generateFgmuJobRequestFormDocxBlob(t, feedbackData);
 
   const formData = new FormData();
   formData.append('attachments[]', docxBlob, `FGMU Job Request Form - #${ticketId}.docx`);
@@ -658,4 +456,3 @@ export const attachFgmuJobRequestForm = async (ticket, feedbackData = null) => {
     headers: { 'Content-Type': undefined },
   });
 };
-
