@@ -92,18 +92,26 @@
                   <button
                     type="button"
                     @click="lineWidth = 2"
-                    class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer"
+                    class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors"
                     :class="lineWidth === 2 ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
                   >
                     Fine
                   </button>
                   <button
                     type="button"
-                    @click="lineWidth = 3.5"
-                    class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer"
-                    :class="lineWidth === 3.5 ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                    @click="lineWidth = 3"
+                    class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors"
+                    :class="lineWidth === 3 ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
                   >
                     Medium
+                  </button>
+                  <button
+                    type="button"
+                    @click="lineWidth = 4.5"
+                    class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors"
+                    :class="lineWidth === 4.5 ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                  >
+                    Bold
                   </button>
                 </div>
               </div>
@@ -136,23 +144,20 @@
             </div>
 
             <!-- Canvas Container -->
-            <div class="relative w-full h-56 sm:h-64 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/70 overflow-hidden shadow-inner touch-none cursor-crosshair">
+            <div class="relative w-full h-56 sm:h-64 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/70 overflow-hidden shadow-inner touch-none cursor-crosshair select-none">
               <canvas
                 ref="canvasRef"
-                class="w-full h-full block"
-                @mousedown="startDrawing"
-                @mousemove="draw"
-                @mouseup="stopDrawing"
-                @mouseleave="stopDrawing"
-                @touchstart.prevent="startTouchDrawing"
-                @touchmove.prevent="drawTouch"
-                @touchend.prevent="stopDrawing"
+                class="w-full h-full block touch-none"
+                @pointerdown="startDrawing"
+                @pointermove="draw"
+                @pointerup="stopDrawing"
+                @pointercancel="stopDrawing"
               ></canvas>
 
               <!-- Watermark Guide Line -->
               <div
                 v-if="strokes.length === 0"
-                class="absolute inset-x-8 bottom-12 pointer-events-none flex flex-col items-center justify-center opacity-60"
+                class="absolute inset-x-8 bottom-12 pointer-events-none flex flex-col items-center justify-center opacity-60 select-none"
               >
                 <div class="w-full border-b border-slate-300 border-dashed mb-1.5"></div>
                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
@@ -233,19 +238,50 @@
                 </div>
               </div>
 
+              <!-- Ink Tone Selector for Upload -->
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between flex-wrap gap-2 text-xs">
+                <span class="font-bold text-slate-700">Signature Ink Tone:</span>
+                <div class="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    @click="setUploadInkStyle('original')"
+                    class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                    :class="uploadInkStyle === 'original' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'"
+                  >
+                    Natural Ink
+                  </button>
+                  <button
+                    type="button"
+                    @click="setUploadInkStyle('black')"
+                    class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                    :class="uploadInkStyle === 'black' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'"
+                  >
+                    Deep Black
+                  </button>
+                  <button
+                    type="button"
+                    @click="setUploadInkStyle('blue')"
+                    class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                    :class="uploadInkStyle === 'blue' ? 'bg-blue-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'"
+                  >
+                    Navy Blue
+                  </button>
+                </div>
+              </div>
+
               <!-- Sensitivity Adjustment Slider -->
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
                 <div class="flex items-center justify-between text-xs font-bold text-slate-700">
                   <label for="sensitivity-slider" class="flex items-center gap-1.5 cursor-pointer">
-                    <span>Background Removal Strength:</span>
+                    <span>Background Cleanup Level:</span>
                     <span class="text-emerald-700 font-black">{{ Math.round(removalSensitivity * 100) }}%</span>
                   </label>
-                  <span class="text-[10px] text-slate-400">Slide if paper shadows appear</span>
+                  <span class="text-[10px] text-slate-400">Higher level cleans faint shadows</span>
                 </div>
                 <input
                   id="sensitivity-slider"
                   type="range"
-                  min="0.65"
+                  min="0.55"
                   max="0.95"
                   step="0.02"
                   v-model.number="removalSensitivity"
@@ -313,17 +349,24 @@ const isSaving = ref(false);
 // Canvas & Drawing State
 const canvasRef = ref(null);
 const inkColor = ref('#0f172a');
-const lineWidth = ref(2);
+const lineWidth = ref(3);
 const isDrawing = ref(false);
 const strokes = ref([]);
-let currentStroke = [];
+let currentStroke = null;
+let currentWidth = 3;
 
 // Image Upload State
 const fileInputRef = ref(null);
 const isDragging = ref(false);
 const uploadedRawImage = ref(null);
 const processedSignatureDataUrl = ref(null);
-const removalSensitivity = ref(0.85);
+const removalSensitivity = ref(0.80);
+const uploadInkStyle = ref('original'); // 'original' | 'black' | 'blue'
+
+const setUploadInkStyle = (style) => {
+  uploadInkStyle.value = style;
+  reprocessUploadedImage();
+};
 
 const hasValidSignature = computed(() => {
   if (activeMode.value === 'draw') {
@@ -363,9 +406,10 @@ watch(() => props.isOpen, (open) => {
 
 const resetState = () => {
   strokes.value = [];
-  currentStroke = [];
+  currentStroke = null;
   uploadedRawImage.value = null;
   processedSignatureDataUrl.value = null;
+  uploadInkStyle.value = 'original';
   activeMode.value = 'draw';
 };
 
@@ -375,7 +419,7 @@ const handleClose = () => {
 };
 
 // -------------------------------------------------------------
-// Drawing Logic
+// Smooth Drawing Logic (Quadratic Bezier Interpolation + Dynamic Tapering)
 // -------------------------------------------------------------
 const getCanvasPos = (event) => {
   const canvas = canvasRef.value;
@@ -388,49 +432,113 @@ const getCanvasPos = (event) => {
 };
 
 const startDrawing = (event) => {
+  const canvas = canvasRef.value;
+  if (!canvas) return;
+
+  try {
+    if (event.pointerId !== undefined && typeof canvas.setPointerCapture === 'function') {
+      canvas.setPointerCapture(event.pointerId);
+    }
+  } catch (err) {}
+
   isDrawing.value = true;
   const pos = getCanvasPos(event);
+  const now = performance.now();
+  currentWidth = lineWidth.value;
+
   currentStroke = {
     color: inkColor.value,
-    width: lineWidth.value,
-    points: [pos],
+    baseWidth: lineWidth.value,
+    points: [{ ...pos, time: now, width: currentWidth }],
   };
   strokes.value.push(currentStroke);
 
-  const ctx = canvasRef.value.getContext('2d');
-  ctx.strokeStyle = inkColor.value;
-  ctx.lineWidth = lineWidth.value;
+  const ctx = canvas.getContext('2d');
   ctx.beginPath();
   ctx.moveTo(pos.x, pos.y);
 };
 
 const draw = (event) => {
-  if (!isDrawing.value || !canvasRef.value) return;
+  if (!isDrawing.value || !canvasRef.value || !currentStroke) return;
+
   const pos = getCanvasPos(event);
-  currentStroke.points.push(pos);
+  const now = performance.now();
+  const points = currentStroke.points;
+  const prevPoint = points[points.length - 1];
+
+  // Ignore negligible sub-pixel jitters for buttery smoothness
+  const dist = Math.hypot(pos.x - prevPoint.x, pos.y - prevPoint.y);
+  if (dist < 1.2) return;
+
+  const dt = Math.max(1, now - (prevPoint.time || now));
+  const velocity = Math.min(3, dist / dt);
+
+  // Pressure support (stylus pen / tablet)
+  let targetWidth = lineWidth.value;
+  if (event.pressure && event.pressure > 0.05) {
+    targetWidth = lineWidth.value * (0.6 + event.pressure * 0.8);
+  } else {
+    // Dynamic calligraphy velocity tapering: fast strokes taper gently up to 25%
+    targetWidth = lineWidth.value * (1 - Math.min(0.25, velocity * 0.1));
+  }
+
+  // Smooth width with exponential moving average
+  currentWidth = currentWidth * 0.65 + targetWidth * 0.35;
+
+  const newPoint = { ...pos, time: now, width: currentWidth };
+  points.push(newPoint);
 
   const ctx = canvasRef.value.getContext('2d');
   ctx.strokeStyle = currentStroke.color;
-  ctx.lineWidth = currentStroke.width;
-  ctx.lineTo(pos.x, pos.y);
-  ctx.stroke();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  if (points.length >= 3) {
+    const p0 = points[points.length - 3];
+    const p1 = points[points.length - 2];
+    const p2 = points[points.length - 1];
+
+    const mid1 = { x: (p0.x + p1.x) / 2, y: (p0.y + p1.y) / 2 };
+    const mid2 = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+
+    ctx.beginPath();
+    ctx.moveTo(mid1.x, mid1.y);
+    ctx.quadraticCurveTo(p1.x, p1.y, mid2.x, mid2.y);
+    ctx.lineWidth = currentWidth;
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    ctx.lineTo(points[1].x, points[1].y);
+    ctx.lineWidth = currentWidth;
+    ctx.stroke();
+  }
 };
 
-const stopDrawing = () => {
+const stopDrawing = (event) => {
+  if (!isDrawing.value) return;
   isDrawing.value = false;
-};
 
-// Touch events for mobile & stylus
-const startTouchDrawing = (event) => {
-  if (!event.touches?.[0]) return;
-  const touch = event.touches[0];
-  startDrawing({ clientX: touch.clientX, clientY: touch.clientY });
-};
+  const canvas = canvasRef.value;
+  if (canvas && event?.pointerId !== undefined && typeof canvas.releasePointerCapture === 'function') {
+    try {
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+    } catch (err) {}
+  }
 
-const drawTouch = (event) => {
-  if (!event.touches?.[0]) return;
-  const touch = event.touches[0];
-  draw({ clientX: touch.clientX, clientY: touch.clientY });
+  // Single tap / dot support: draw a clean circle
+  if (currentStroke && currentStroke.points.length <= 2 && canvas) {
+    const ctx = canvas.getContext('2d');
+    const p = currentStroke.points[0];
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, Math.max(1.5, (currentStroke.baseWidth || 3) / 2), 0, Math.PI * 2);
+    ctx.fillStyle = currentStroke.color;
+    ctx.fill();
+  }
+
+  currentStroke = null;
 };
 
 const undoLastStroke = () => {
@@ -441,7 +549,7 @@ const undoLastStroke = () => {
 
 const clearCanvas = () => {
   strokes.value = [];
-  currentStroke = [];
+  currentStroke = null;
   const canvas = canvasRef.value;
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -457,15 +565,44 @@ const redrawAllStrokes = () => {
   ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
 
   strokes.value.forEach((stroke) => {
-    if (!stroke.points || stroke.points.length === 0) return;
-    ctx.strokeStyle = stroke.color;
-    ctx.lineWidth = stroke.width;
-    ctx.beginPath();
-    ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
-    for (let i = 1; i < stroke.points.length; i++) {
-      ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+    const pts = stroke.points;
+    if (!pts || pts.length === 0) return;
+
+    if (pts.length <= 2) {
+      // Tap or dot
+      ctx.beginPath();
+      ctx.arc(pts[0].x, pts[0].y, Math.max(1.5, (stroke.baseWidth || 3) / 2), 0, Math.PI * 2);
+      ctx.fillStyle = stroke.color;
+      ctx.fill();
+      return;
     }
-    ctx.stroke();
+
+    ctx.strokeStyle = stroke.color;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    for (let i = 1; i < pts.length; i++) {
+      const p0 = pts[i - 1];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+
+      ctx.lineWidth = p1.width || stroke.baseWidth || 3;
+
+      if (p2) {
+        const mid1 = { x: (p0.x + p1.x) / 2, y: (p0.y + p1.y) / 2 };
+        const mid2 = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+        ctx.beginPath();
+        ctx.moveTo(mid1.x, mid1.y);
+        ctx.quadraticCurveTo(p1.x, p1.y, mid2.x, mid2.y);
+        ctx.stroke();
+      } else {
+        const mid1 = { x: (p0.x + p1.x) / 2, y: (p0.y + p1.y) / 2 };
+        ctx.beginPath();
+        ctx.moveTo(mid1.x, mid1.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
+      }
+    }
   });
 };
 
@@ -514,7 +651,8 @@ const reprocessUploadedImage = () => {
   try {
     processedSignatureDataUrl.value = removeSignatureBackground(
       uploadedRawImage.value,
-      removalSensitivity.value
+      removalSensitivity.value,
+      uploadInkStyle.value
     );
   } catch (err) {
     console.error('Failed to auto-remove signature background:', err);
@@ -525,6 +663,7 @@ const reprocessUploadedImage = () => {
 const resetUploadedImage = () => {
   uploadedRawImage.value = null;
   processedSignatureDataUrl.value = null;
+  uploadInkStyle.value = 'original';
   if (fileInputRef.value) fileInputRef.value.value = '';
 };
 
@@ -545,8 +684,8 @@ const handleSaveSignature = async () => {
     // Create trimmed copy
     const tempImg = new Image();
     tempImg.onload = () => {
-      // Background removal also automatically crops empty margins
-      finalDataUrl = removeSignatureBackground(tempImg, 0.98);
+      // Auto-crop empty margins and preserve drawing ink
+      finalDataUrl = removeSignatureBackground(tempImg, 0.95, inkColor.value === '#1e3a8a' ? 'blue' : 'black');
       uploadSignaturePayload(finalDataUrl);
     };
     tempImg.src = canvas.toDataURL('image/png');
