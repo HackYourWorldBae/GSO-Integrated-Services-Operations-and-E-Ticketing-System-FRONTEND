@@ -717,7 +717,10 @@ const handleAvatarFileChange = async (event) => {
 const currentSignatureUrl = computed(() => {
   const user = authStore.user;
   if (!user || (!user.signature_path && !user.signature_url)) return null;
-  return user.signature_url || `/api/v1/auth/signature/${user.id}?t=${signatureTimestamp.value}`;
+  const raw = user.signature_url || `/api/v1/auth/signature/${user.id}`;
+  if (raw.startsWith('data:')) return raw;
+  const clean = raw.split('?')[0];
+  return `${clean}?t=${signatureTimestamp.value}`;
 });
 
 const onSignatureSaved = (url) => {

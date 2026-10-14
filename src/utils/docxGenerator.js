@@ -7,7 +7,7 @@ import { saveAs } from 'file-saver';
  * 914400 EMUs = 1 inch.
  * Default 1.5in x 0.5in fits official signature boxes without overflowing rows.
  */
-function createInlineDrawingXml(relId, widthEmu = 1371600, heightEmu = 457200, docPrId = 1) {
+function createInlineDrawingXml(relId, widthEmu = 600000, heightEmu = 180000, docPrId = 1) {
   return `<w:drawing xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
     <wp:inline distT="0" distB="0" distL="0" distR="0">
       <wp:extent cx="${widthEmu}" cy="${heightEmu}"/>
@@ -73,7 +73,7 @@ export function injectSignaturesIntoZip(zip, images = {}) {
   let docXml  = zip.file('word/document.xml')?.asText() || '';
   let newRels = '';
 
-  // 1. Signature: Approved By
+  // 1. Signature: Approved By (proportional compact box above name)
   if (images.approved) {
     const bytes = toUint8Array(images.approved);
     if (bytes) {
@@ -81,7 +81,7 @@ export function injectSignaturesIntoZip(zip, images = {}) {
       if (!relsXml.includes('rIdSigApproved')) {
         newRels += `<Relationship Id="rIdSigApproved" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/sig_approved.png"/>`;
       }
-      const drawing = `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r>${createInlineDrawingXml('rIdSigApproved', 1200000, 400000, 101)}</w:r></w:p>`;
+      const drawing = `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="0" w:line="120" w:lineRule="exact"/><w:rPr><w:sz w:val="2"/><w:szCs w:val="2"/></w:rPr></w:pPr><w:r>${createInlineDrawingXml('rIdSigApproved', 600000, 180000, 101)}</w:r></w:p>`;
       const match = docXml.match(/<w:p[^>]*>(?:(?!<\/w:p>).)*?Approved_by(?:(?!<\/w:p>).)*?<\/w:p>/s);
       if (match) {
         docXml = docXml.replace(match[0], drawing + match[0]);
@@ -89,7 +89,7 @@ export function injectSignaturesIntoZip(zip, images = {}) {
     }
   }
 
-  // 2. Signature: Issued By
+  // 2. Signature: Issued By (proportional compact box above name)
   if (images.issued) {
     const bytes = toUint8Array(images.issued);
     if (bytes) {
@@ -97,7 +97,7 @@ export function injectSignaturesIntoZip(zip, images = {}) {
       if (!relsXml.includes('rIdSigIssued')) {
         newRels += `<Relationship Id="rIdSigIssued" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/sig_issued.png"/>`;
       }
-      const drawing = `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r>${createInlineDrawingXml('rIdSigIssued', 1200000, 400000, 102)}</w:r></w:p>`;
+      const drawing = `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="0" w:line="120" w:lineRule="exact"/><w:rPr><w:sz w:val="2"/><w:szCs w:val="2"/></w:rPr></w:pPr><w:r>${createInlineDrawingXml('rIdSigIssued', 600000, 180000, 102)}</w:r></w:p>`;
       const match = docXml.match(/<w:p[^>]*>(?:(?!<\/w:p>).)*?Issued_by(?:(?!<\/w:p>).)*?<\/w:p>/s);
       if (match) {
         docXml = docXml.replace(match[0], drawing + match[0]);

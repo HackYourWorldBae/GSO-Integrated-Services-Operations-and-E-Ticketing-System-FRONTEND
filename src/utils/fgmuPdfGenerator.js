@@ -54,12 +54,12 @@ const buildDocDefinition = (data, logoDataUrl, signaturesMeta = {}, signatureIma
     if (signatureImage) {
       items.push({
         image: signatureImage,
-        fit: [120, 36],
+        fit: [70, 20],
         alignment: 'center',
-        margin: [0, -10, 0, 4],
+        margin: [0, 0, 0, 2],
       });
     } else {
-      items.push({ text: ' ', fontSize: 28 }); // Blank space for manual signing
+      items.push({ text: ' ', fontSize: 18 }); // Blank space for manual signing
     }
 
     items.push({ canvas: [{ type: 'line', x1: 10, y1: 0, x2: 155, y2: 0, lineWidth: 0.8, lineColor: '#1e293b' }] });

@@ -708,12 +708,18 @@ const uploadSignaturePayload = async (dataUrl) => {
     });
 
     if (res.data?.data?.user) {
-      authStore.user = res.data.data.user;
+      authStore.user = {
+        ...res.data.data.user,
+        signature_url: dataUrl,
+      };
+    } else if (authStore.user) {
+      authStore.user.signature_url = dataUrl;
+      authStore.user.signature_path = 'saved';
     }
 
     clearSignatureCache();
     toast.success('Official digital signature saved successfully!');
-    emit('saved', res.data?.data?.signature_url || dataUrl);
+    emit('saved', dataUrl);
     handleClose();
   } catch (err) {
     console.error('Failed to save signature:', err);
