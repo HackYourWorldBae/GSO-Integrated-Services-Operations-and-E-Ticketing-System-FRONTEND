@@ -466,17 +466,31 @@
                         <span>With Director</span>
                       </span>
 
-                      <button
-                        v-else
-                        @click="initiateApproval(ticket)"
-                        class="px-4 py-2 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                        :title="isDirector ? 'Executive Approve' : 'Direct Unit Head Approve'"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>Approve</span>
-                      </button>
+                      <template v-else>
+                        <!-- Delay Approval: For Director (on escalated approvals) and Unit Head (on routine pending) -->
+                        <button
+                          v-if="(isDirector && ticket.is_escalated_to_director) || (!isDirector && !ticket.is_escalated_to_director)"
+                          @click="openDelayModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="Delay Approval (e.g. Awaiting procurement of materials, budget clearance, or site assessment)"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>Delay</span>
+                        </button>
+
+                        <button
+                          @click="initiateApproval(ticket)"
+                          class="px-4 py-2 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                          :title="isDirector ? 'Executive Approve' : 'Direct Unit Head Approve'"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Approve</span>
+                        </button>
+                      </template>
                     </div>
 
                     <!-- Delayed Tab Actions -->
@@ -749,7 +763,7 @@
                 <button v-if="isDirector && ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Return</button>
                 <button v-if="!isDirector && !ticket.is_escalated_to_director" @click="openEscalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Escalate</button>
                 <button v-if="!isDirector && ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Recall</button>
-                <button v-if="!isDirector" @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
+                <button v-if="(isDirector && ticket.is_escalated_to_director) || (!isDirector && !ticket.is_escalated_to_director)" @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
                 <button @click="openDeclineModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
                 <button
                   v-if="!isDirector && ticket.is_escalated_to_director"
@@ -1040,7 +1054,7 @@
                   {{ selectedTicketForModal.service }}
                 </span>
                 <button
-                  v-if="activeTab === 'pending'"
+                  v-if="activeTab === 'pending' && !isDirector && !selectedTicketForModal.is_escalated_to_director"
                   type="button"
                   @click="openRecategorizeModal(selectedTicketForModal); closeDetailsModal()"
                   class="px-2.5 py-1 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-800 border border-sky-200 text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
@@ -1129,7 +1143,7 @@
             </button>
 
             <button
-              v-if="!isDirector"
+              v-if="!isDirector && !selectedTicketForModal.is_escalated_to_director"
               @click="openRecategorizeModal(selectedTicketForModal); closeDetailsModal()"
               class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
               title="Change Nature of Work / Recategorize Ticket"
@@ -1140,7 +1154,7 @@
               <span>Recategorize</span>
             </button>
             <button
-              v-if="!isDirector"
+              v-if="(isDirector && selectedTicketForModal.is_escalated_to_director) || (!isDirector && !selectedTicketForModal.is_escalated_to_director)"
               @click="openDelayModal(selectedTicketForModal); closeDetailsModal()"
               class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1"
             >

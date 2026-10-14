@@ -155,7 +155,7 @@
                     </span>
 
                     <!-- Recategorized badge -->
-                    <span v-if="ticket.is_recategorized" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border bg-sky-50 text-sky-800 border-sky-300 shadow-2xs" title="Nature of work was adjusted by the Director">
+                    <span v-if="ticket.is_recategorized" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border bg-sky-50 text-sky-800 border-sky-300 shadow-2xs" title="Nature of work was adjusted by Administration">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                       </svg>
@@ -211,16 +211,16 @@
                     </div>
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2 mb-1 flex-wrap">
-                        <span class="text-xs sm:text-sm font-black text-sky-950 uppercase tracking-wide">Nature of Work Adjusted by Director</span>
+                        <span class="text-xs sm:text-sm font-black text-sky-950 uppercase tracking-wide">Nature of Work Adjusted by Administration</span>
                         <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-sky-200 text-sky-900 border border-sky-300 uppercase tracking-wider">
                           Notice
                         </span>
                       </div>
                       <p class="text-sm text-sky-950 font-semibold leading-relaxed">
-                        The Director reviewed your problem description and updated the nature of work from <strong class="line-through text-slate-500">{{ ticket.original_service_type || 'previous service' }}</strong> to <strong class="text-sky-900 underline decoration-sky-400 decoration-2 underline-offset-2">{{ ticket.service }}</strong> to ensure the proper team and resources are assigned.
+                        The administration reviewed your problem description and updated the nature of work from <strong class="line-through text-slate-500">{{ ticket.original_service_type || 'previous service' }}</strong> to <strong class="text-sky-900 underline decoration-sky-400 decoration-2 underline-offset-2">{{ ticket.service }}</strong> to ensure the proper team and resources are assigned.
                       </p>
                       <p v-if="ticket.recategorization_reason" class="text-sm text-sky-900 font-medium mt-1 italic">
-                        <span class="font-bold not-italic text-xs uppercase tracking-wider text-sky-950">Director's Note:</span> "{{ ticket.recategorization_reason }}"
+                        <span class="font-bold not-italic text-xs uppercase tracking-wider text-sky-950">Admin Note:</span> "{{ ticket.recategorization_reason }}"
                       </p>
                       <p v-if="ticket.recategorized_at" class="text-xs text-sky-700 font-medium mt-1">
                         Updated on {{ formatDateTime(ticket.recategorized_at) }}
@@ -727,7 +727,7 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1 flex-wrap">
-                          <span class="text-[10px] font-black text-sky-900 uppercase tracking-widest">Nature of Work Adjusted by Director</span>
+                          <span class="text-[10px] font-black text-sky-900 uppercase tracking-widest">Nature of Work Adjusted by Administration</span>
                           <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-sky-200 text-sky-900 border border-sky-300 uppercase tracking-wider">
                             Updated
                           </span>
@@ -736,7 +736,7 @@
                           Adjusted from <strong class="line-through text-slate-500">{{ selectedTicket.original_service_type || 'previous service' }}</strong> to <strong class="text-sky-900">{{ selectedTicket.service }}</strong> to match your problem description.
                         </p>
                         <p v-if="selectedTicket.recategorization_reason" class="text-xs text-sky-900 font-medium mt-1 italic">
-                          <span class="font-bold not-italic text-[10px] uppercase tracking-wider text-sky-950">Director's Note:</span> "{{ selectedTicket.recategorization_reason }}"
+                          <span class="font-bold not-italic text-[10px] uppercase tracking-wider text-sky-950">Admin Note:</span> "{{ selectedTicket.recategorization_reason }}"
                         </p>
                         <p v-if="selectedTicket.recategorized_at" class="text-[11px] text-sky-700 font-medium mt-1">
                           Updated on {{ formatDateTime(selectedTicket.recategorized_at) }}

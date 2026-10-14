@@ -86,44 +86,37 @@
             </div>
           </div>
 
-          <!-- Unit Selector Tabs (Allowing cross-unit reclassification if necessary) -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <label class="text-[10px] font-black uppercase tracking-wider text-slate-500">Service Category / Operating Unit</label>
-              <span class="text-[10px] font-bold text-slate-400">Unit: {{ activeUnitCode }}</span>
+          <!-- Scoped Operating Unit Service Catalog Indicator -->
+          <div
+            v-if="activeUnitCode === 'FGMU'"
+            class="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200/90 flex items-center justify-between gap-3 shadow-2xs"
+          >
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0"></span>
+              <div>
+                <p class="text-xs font-black text-blue-950 uppercase tracking-wide">FGMU Facilities Services Catalog</p>
+                <p class="text-[11px] text-blue-800 font-medium">Facilities &amp; Grounds Management Unit</p>
+              </div>
             </div>
-            <div class="flex rounded-xl bg-slate-100 p-1 border border-slate-200">
-              <button
-                type="button"
-                @click="activeUnitCode = 'FGMU'"
-                :class="[
-                  'flex-1 py-2 px-3 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5',
-                  activeUnitCode === 'FGMU'
-                    ? 'bg-white text-slate-900 shadow-xs border border-slate-200/80'
-                    : 'text-slate-600 hover:text-slate-900'
-                ]"
-              >
-                <span>FGMU Facilities</span>
-                <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="activeUnitCode === 'FGMU' ? 'bg-blue-100 text-blue-800 font-extrabold' : 'bg-slate-200 text-slate-600'">
-                  Structure &amp; Utilities
-                </span>
-              </button>
-              <button
-                type="button"
-                @click="activeUnitCode = 'LEAU'"
-                :class="[
-                  'flex-1 py-2 px-3 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5',
-                  activeUnitCode === 'LEAU'
-                    ? 'bg-white text-slate-900 shadow-xs border border-slate-200/80'
-                    : 'text-slate-600 hover:text-slate-900'
-                ]"
-              >
-                <span>LEAU Environment</span>
-                <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="activeUnitCode === 'LEAU' ? 'bg-emerald-100 text-emerald-800 font-extrabold' : 'bg-slate-200 text-slate-600'">
-                  Landscaping &amp; Grounds
-                </span>
-              </button>
+            <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-100 text-blue-900 border border-blue-300 shrink-0">
+              FGMU Only
+            </span>
+          </div>
+
+          <div
+            v-else
+            class="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/90 flex items-center justify-between gap-3 shadow-2xs"
+          >
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 shrink-0"></span>
+              <div>
+                <p class="text-xs font-black text-emerald-950 uppercase tracking-wide">LEAU Environmental Services Catalog</p>
+                <p class="text-[11px] text-emerald-800 font-medium">Landscaping &amp; Environmental Affairs Unit</p>
+              </div>
             </div>
+            <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-300 shrink-0">
+              LEAU Only
+            </span>
           </div>
 
           <!-- Service Grid -->
@@ -430,7 +423,11 @@ const props = defineProps({
 const emit = defineEmits(['close', 'recategorized']);
 
 const isSubmitting = ref(false);
-const activeUnitCode = ref(props.currentUnit || 'FGMU');
+const activeUnitCode = computed(() => {
+  const u = (props.currentUnit || props.ticket?.unit_code || props.ticket?.unit || 'FGMU').toUpperCase();
+  return u === 'LEAU' ? 'LEAU' : 'FGMU';
+});
+
 const selectedService = ref('');
 const reasonInput = ref('');
 
@@ -471,14 +468,27 @@ const leauBorrowingServices = [
   'Borrowing of tools/ equipment',
 ];
 
-const quickReasonChips = [
+const fgmuQuickReasonChips = [
   'Problem specifies plumbing / pipe leaks',
   'Description indicates electrical issue',
   'Requires structural carpentry / masonry',
   'Janitorial cleaning / hauling needed',
-  'Campus grounds / mowing maintenance',
+  'Mechanical / AC system servicing',
   'Misclassified by requester intake',
 ];
+
+const leauQuickReasonChips = [
+  'Campus grounds / mowing maintenance',
+  'Planting / landscaping service required',
+  'Tree pruning / branch cutting needed',
+  'Stage / Hall decoration requested',
+  'Borrowing of plants / equipment',
+  'Misclassified by requester intake',
+];
+
+const quickReasonChips = computed(() => {
+  return activeUnitCode.value === 'LEAU' ? leauQuickReasonChips : fgmuQuickReasonChips;
+});
 
 const currentServiceType = computed(() => {
   return props.ticket?.service_type || props.ticket?.service || '';
@@ -500,9 +510,6 @@ watch(
       const initialSvc = newTicket.service_type || newTicket.service || '';
       selectedService.value = initialSvc;
       reasonInput.value = '';
-
-      const u = (newTicket.unit_code || newTicket.unit || props.currentUnit || 'FGMU').toUpperCase();
-      activeUnitCode.value = u === 'LEAU' ? 'LEAU' : 'FGMU';
     }
   },
   { immediate: true }
@@ -515,8 +522,6 @@ watch(
       const initialSvc = props.ticket.service_type || props.ticket.service || '';
       selectedService.value = initialSvc;
       reasonInput.value = '';
-      const u = (props.ticket.unit_code || props.ticket.unit || props.currentUnit || 'FGMU').toUpperCase();
-      activeUnitCode.value = u === 'LEAU' ? 'LEAU' : 'FGMU';
     }
   }
 );

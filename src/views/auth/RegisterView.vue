@@ -373,7 +373,7 @@ const validateClient = () => {
     }
   } else {
     if (!/^[A-Za-z0-9\-]{4,15}$/.test(idNum)) {
-      fieldErrors.value.student_id_number = 'Employee ID Number must be 4 to 15 alphanumeric characters (e.g. EMP-9876).';
+      fieldErrors.value.student_id_number = 'Employee ID Number must be 4 to 15 alphanumeric characters (typically 6 digits, e.g. 102456).';
     }
   }
 
@@ -1119,8 +1119,12 @@ const handleRegister = async () => {
               >
                 {{ form.student_id_number.length }}/7 digits
               </span>
-              <span v-else class="text-[11px] text-slate-400 font-medium">
-                Alphanumeric
+              <span 
+                v-else
+                :class="form.student_id_number.length === 6 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-slate-500 bg-slate-100 border-slate-200'"
+                class="text-[10px] font-bold px-1.5 py-0.5 rounded border transition-colors"
+              >
+                {{ form.student_id_number.length ? (form.student_id_number.length === 6 ? '6 digits (Standard)' : `${form.student_id_number.length} chars`) : 'Typically 6 digits' }}
               </span>
             </div>
             <input 
@@ -1132,14 +1136,14 @@ const handleRegister = async () => {
               @input="handleStudentIdInput"
               :class="fieldErrors.student_id_number ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
               class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-semibold tracking-wider placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
-              :placeholder="form.role === 'student' ? 'e.g. 2301219' : 'e.g. EMP-9876'"
+              :placeholder="form.role === 'student' ? 'e.g. 2301219' : 'e.g. 102456'"
             />
             <p v-if="fieldErrors.student_id_number" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
               {{ fieldErrors.student_id_number }}
             </p>
             <p v-else class="mt-1 text-[11px] text-slate-400">
-              {{ form.role === 'student' ? 'Strict 7-digit institutional student ID (numbers only).' : 'Institutional employee or faculty ID code.' }}
+              {{ form.role === 'student' ? 'Strict 7-digit institutional student ID (numbers only).' : 'Most BSU employee IDs are 6 digits (e.g. 102456). Alphanumeric codes are also accepted.' }}
             </p>
           </div>
 

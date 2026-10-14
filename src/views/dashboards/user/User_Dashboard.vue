@@ -155,7 +155,7 @@
                       <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(update.status)"></span>
                       {{ update.statusLabel || update.status }}
                     </span>
-                    <span v-if="update.is_recategorized" class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wide bg-sky-50 text-sky-700 border border-sky-200 shrink-0" title="Nature of work was recategorized by Director">
+                    <span v-if="update.is_recategorized" class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wide bg-sky-50 text-sky-700 border border-sky-200 shrink-0" title="Nature of work was recategorized by Administration">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                       </svg>
