@@ -187,6 +187,104 @@
               </div>
             </div>
 
+            <!-- Official Digital Signature Section -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Official Digital Signature</h4>
+                  <p class="text-xs text-slate-500 font-medium ml-1">
+                    Applied automatically to {{ unitCode }} Job Orders, Request Slips, and archived documents.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  @click="showSignatureModal = true"
+                  class="px-3.5 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-emerald-50 hover:border-emerald-500 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer touch-manipulation min-h-[36px]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                  <span>{{ currentSignatureUrl ? 'Change Signature' : 'Add Signature' }}</span>
+                </button>
+              </div>
+
+              <!-- Signature Preview Card -->
+              <div
+                v-if="currentSignatureUrl"
+                class="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4"
+              >
+                <div class="flex items-center gap-4 w-full sm:w-auto">
+                  <div
+                    class="w-36 h-20 rounded-xl border border-slate-300 bg-white flex items-center justify-center p-2 relative shadow-xs shrink-0 overflow-hidden"
+                    :style="{
+                      backgroundImage: 'radial-gradient(#cbd5e1 0.75px, transparent 0.75px)',
+                      backgroundSize: '12px 12px'
+                    }"
+                  >
+                    <img
+                      :src="currentSignatureUrl"
+                      alt="Official Signature"
+                      class="max-h-full max-w-full object-contain filter drop-shadow-xs"
+                    />
+                  </div>
+                  <div class="space-y-1">
+                    <div class="flex items-center gap-1.5">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider border border-emerald-200">
+                        <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                        Signature Active
+                      </span>
+                    </div>
+                    <p class="text-xs font-bold text-slate-700">Official signee on {{ unitCode }} job orders</p>
+                    <p class="text-[11px] text-slate-400 font-medium">Auto-rendered above your designated signature line</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 self-end sm:self-center">
+                  <button
+                    type="button"
+                    @click="showSignatureModal = true"
+                    class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all cursor-pointer min-h-[36px]"
+                  >
+                    Update
+                  </button>
+                  <button
+                    type="button"
+                    @click="handleRemoveSignature"
+                    :disabled="isRemovingSignature"
+                    class="px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-all cursor-pointer min-h-[36px]"
+                  >
+                    {{ isRemovingSignature ? 'Removing...' : 'Remove' }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div
+                v-else
+                @click="showSignatureModal = true"
+                class="p-6 rounded-2xl border-2 border-dashed border-slate-300 hover:border-emerald-400 bg-slate-50/50 hover:bg-emerald-50/20 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all cursor-pointer group"
+              >
+                <div class="flex items-center gap-3.5 text-center sm:text-left flex-col sm:flex-row">
+                  <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-slate-400 group-hover:text-emerald-600 group-hover:border-emerald-300 flex items-center justify-center shadow-xs transition-colors shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h5 class="text-xs font-black text-slate-800 uppercase tracking-wider group-hover:text-emerald-900 transition-colors">
+                      No official signature registered
+                    </h5>
+                    <p class="text-xs text-slate-500 font-medium">
+                      Draw on screen or upload a photo of your signature with auto-background removal.
+                    </p>
+                  </div>
+                </div>
+                <span class="px-4 py-2 rounded-xl bg-white border border-slate-200 group-hover:border-emerald-500 text-slate-700 group-hover:text-emerald-700 text-xs font-bold shadow-2xs transition-all shrink-0">
+                  + Add Signature
+                </span>
+              </div>
+            </div>
+
             <!-- Unit Assignment Callout -->
             <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3.5">
               <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
@@ -222,6 +320,12 @@
             </button>
           </div>
         </div>
+
+        <!-- Signature Pad & Upload Modal -->
+        <SignatureManagerModal
+          v-model:isOpen="showSignatureModal"
+          @saved="onSignatureSaved"
+        />
       </div>
     </template>
   </MainLayout>
@@ -232,13 +336,18 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import SignatureManagerModal from '@/components/common/SignatureManagerModal.vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+import { clearSignatureCache } from '@/utils/signatureUtils';
 
 const route = useRoute();
 const authStore = useAuthStore();
 const avatarInputRef = ref(null);
 const avatarPreviewUrl = ref(null);
+const showSignatureModal = ref(false);
+const isRemovingSignature = ref(false);
+const signatureTimestamp = ref(Date.now());
 
 const form = ref({
   firstName: '',
@@ -323,6 +432,41 @@ const handleAvatarFileChange = async (event) => {
   } catch (err) {
     console.error('Failed to upload avatar:', err);
     toast.error(err.response?.data?.message || 'Failed to upload avatar image.');
+  }
+};
+
+const currentSignatureUrl = computed(() => {
+  const user = authStore.user;
+  if (!user || (!user.signature_path && !user.signature_url)) return null;
+  return user.signature_url || `/api/v1/auth/signature/${user.id}?t=${signatureTimestamp.value}`;
+});
+
+const onSignatureSaved = (url) => {
+  signatureTimestamp.value = Date.now();
+  if (authStore.user) {
+    authStore.user.signature_url = url;
+    authStore.user.signature_path = 'saved';
+  }
+};
+
+const handleRemoveSignature = async () => {
+  if (!confirm('Are you sure you want to remove your official digital signature?')) return;
+  isRemovingSignature.value = true;
+  try {
+    const res = await api.delete('/auth/signature');
+    if (res.data?.data?.user) {
+      authStore.user = res.data.data.user;
+    } else if (authStore.user) {
+      authStore.user.signature_path = null;
+      authStore.user.signature_url = null;
+    }
+    clearSignatureCache();
+    toast.success('Official signature removed.');
+  } catch (err) {
+    console.error('Failed to remove signature:', err);
+    toast.error('Failed to remove signature.');
+  } finally {
+    isRemovingSignature.value = false;
   }
 };
 

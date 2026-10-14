@@ -19,6 +19,7 @@ import { loadImageAsPngDataUrl } from '@/utils/imageUtils';
 import { getPdfMake } from '@/utils/pdfmakeInit';
 import { generateDocxBlob, generateDocx } from '@/utils/docxGenerator';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
+import { fetchDocumentSignatures } from '@/utils/signatureUtils';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Date Formatting
@@ -247,9 +248,11 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null) => {
  * Builds the pdfmake docDefinition for the Job Request Form.
  * @param {Object} data   - Output of buildFgmuTemplateData()
  * @param {string} logoDataUrl - PNG data URL of the BSU logo
+ * @param {Object} [signaturesMeta={}] - Official names of signees
+ * @param {Object} [signatureImages={}] - PNG data URLs of digital signatures
  * @returns {Object} pdfmake docDefinition
  */
-const buildDocDefinition = (data, logoDataUrl) => {
+const buildDocDefinition = (data, logoDataUrl, signaturesMeta = {}, signatureImages = {}) => {
   /** Helper: a labeled underlined 4-cell field row */
   const fieldRow = (label1, value1, label2 = '', value2 = '') => [
     { text: label1, bold: true, noWrap: true, border: [false, false, false, false], fontSize: 9, color: '#475569' },
@@ -258,16 +261,36 @@ const buildDocDefinition = (data, logoDataUrl) => {
     { text: value2 || '', border: [false, false, false, true], fontSize: 10, borderColor: ['', '', '', '#64748b'] },
   ];
 
-  /** Helper: blank signature line */
-  const signatureLine = (label, sublabel) => ({
-    stack: [
-      { text: ' ', fontSize: 28 }, // Signature space
-      { canvas: [{ type: 'line', x1: 10, y1: 0, x2: 155, y2: 0, lineWidth: 0.8, lineColor: '#1e293b' }] },
-      { text: label,    fontSize: 8,  bold: true,  alignment: 'center', margin: [0, 3, 0, 0], color: '#1e293b' },
-      { text: sublabel, fontSize: 7.5, alignment: 'center', color: '#64748b' },
-    ],
-    margin: [0, 0, 0, 0],
-  });
+  /** Helper: signature line with optional digital signature image */
+  const signatureLine = (label, sublabel, signatureImage = null, signeeName = null) => {
+    const items = [];
+    if (signatureImage) {
+      items.push({
+        image: signatureImage,
+        fit: [120, 36],
+        alignment: 'center',
+        margin: [0, -10, 0, 4],
+      });
+    } else {
+      items.push({ text: ' ', fontSize: 28 }); // Blank space for manual signing
+    }
+
+    items.push({ canvas: [{ type: 'line', x1: 10, y1: 0, x2: 155, y2: 0, lineWidth: 0.8, lineColor: '#1e293b' }] });
+
+    if (signeeName) {
+      items.push({ text: signeeName.toUpperCase(), fontSize: 8.5, bold: true, alignment: 'center', margin: [0, 3, 0, 0], color: '#0f172a' });
+      items.push({ text: label, fontSize: 7.5, bold: true, alignment: 'center', color: '#475569' });
+    } else {
+      items.push({ text: label, fontSize: 8, bold: true, alignment: 'center', margin: [0, 3, 0, 0], color: '#1e293b' });
+    }
+
+    items.push({ text: sublabel, fontSize: 7, alignment: 'center', color: '#64748b' });
+
+    return {
+      stack: items,
+      margin: [0, 0, 0, 0],
+    };
+  };
 
   return {
     pageSize:    'LETTER',
@@ -415,9 +438,19 @@ const buildDocDefinition = (data, logoDataUrl) => {
       // ── Signature Block ───────────────────────────────────────────────────
       {
         columns: [
-          signatureLine('Requesting Party', 'End-User / Department Representative'),
-          signatureLine(`${data.unitCode} Dispatcher / In-Charge`, `GSO-${data.unitCode} Staff`),
-          signatureLine('GSO Director / Authorized Rep.', 'Office of the GSO Director'),
+          signatureLine('Requesting Party', 'End-User / Department Representative', null, data.Requestor),
+          signatureLine(
+            `${data.unitCode} Dispatcher / In-Charge`,
+            `GSO-${data.unitCode} Staff`,
+            signatureImages.dispatcher || null,
+            signaturesMeta?.dispatcher?.name || null
+          ),
+          signatureLine(
+            'GSO Director / Authorized Rep.',
+            'Office of the GSO Director',
+            signatureImages.director || null,
+            signaturesMeta?.director?.name || null
+          ),
         ],
         columnGap: 20,
       },
@@ -459,13 +492,30 @@ async function getLogoDataUrl() {
  * @returns {Promise<Blob>}
  */
 export const generateFgmuJobRequestFormBlob = async (ticket, feedbackData = null) => {
-  const [pdfMake, data, logoDataUrl] = await Promise.all([
+  const data = buildFgmuTemplateData(ticket, feedbackData);
+  const [pdfMake, logoDataUrl, signaturesMeta] = await Promise.all([
     getPdfMake(),
-    buildFgmuTemplateData(ticket, feedbackData),
     getLogoDataUrl().catch(() => null),
+    fetchDocumentSignatures(data.unitCode).catch(() => ({ director: null, dispatcher: null })),
   ]);
 
-  const docDef = buildDocDefinition(data, logoDataUrl);
+  const signatureImages = {};
+  if (signaturesMeta?.director?.signature_url) {
+    try {
+      signatureImages.director = await loadImageAsPngDataUrl(signaturesMeta.director.signature_url);
+    } catch (e) {
+      console.warn('Could not load director signature for PDF:', e);
+    }
+  }
+  if (signaturesMeta?.dispatcher?.signature_url) {
+    try {
+      signatureImages.dispatcher = await loadImageAsPngDataUrl(signaturesMeta.dispatcher.signature_url);
+    } catch (e) {
+      console.warn('Could not load dispatcher signature for PDF:', e);
+    }
+  }
+
+  const docDef = buildDocDefinition(data, logoDataUrl, signaturesMeta, signatureImages);
   const pdfDoc = pdfMake.createPdf(docDef);
 
   if (typeof pdfDoc.getBlob === 'function') {
@@ -493,12 +543,30 @@ export { generateFgmuJobRequestFormDocxBlob };
  */
 export const downloadFgmuJobRequestForm = async (ticket, feedbackData = null) => {
   const ticketId = ticket.ticketId || ticket.id || 'document';
-  const [pdfMake, data, logoDataUrl] = await Promise.all([
+  const data = buildFgmuTemplateData(ticket, feedbackData);
+  const [pdfMake, logoDataUrl, signaturesMeta] = await Promise.all([
     getPdfMake(),
-    buildFgmuTemplateData(ticket, feedbackData),
     getLogoDataUrl().catch(() => null),
+    fetchDocumentSignatures(data.unitCode).catch(() => ({ director: null, dispatcher: null })),
   ]);
-  const docDef  = buildDocDefinition(data, logoDataUrl);
+
+  const signatureImages = {};
+  if (signaturesMeta?.director?.signature_url) {
+    try {
+      signatureImages.director = await loadImageAsPngDataUrl(signaturesMeta.director.signature_url);
+    } catch (e) {
+      console.warn('Could not load director signature for PDF:', e);
+    }
+  }
+  if (signaturesMeta?.dispatcher?.signature_url) {
+    try {
+      signatureImages.dispatcher = await loadImageAsPngDataUrl(signaturesMeta.dispatcher.signature_url);
+    } catch (e) {
+      console.warn('Could not load dispatcher signature for PDF:', e);
+    }
+  }
+
+  const docDef  = buildDocDefinition(data, logoDataUrl, signaturesMeta, signatureImages);
   const filename = `${data.unitCode || 'FGMU'} Job Request Form - #${ticketId}.pdf`;
   pdfMake.createPdf(docDef).download(filename);
 };
@@ -524,12 +592,30 @@ export const downloadFgmuJobRequestFormDocx = async (ticket, feedbackData = null
  * @param {Object|null} feedbackData
  */
 export const printFgmuJobRequestForm = async (ticket, feedbackData = null) => {
-  const [pdfMake, data, logoDataUrl] = await Promise.all([
+  const data = buildFgmuTemplateData(ticket, feedbackData);
+  const [pdfMake, logoDataUrl, signaturesMeta] = await Promise.all([
     getPdfMake(),
-    buildFgmuTemplateData(ticket, feedbackData),
     getLogoDataUrl().catch(() => null),
+    fetchDocumentSignatures(data.unitCode).catch(() => ({ director: null, dispatcher: null })),
   ]);
-  const docDef = buildDocDefinition(data, logoDataUrl);
+
+  const signatureImages = {};
+  if (signaturesMeta?.director?.signature_url) {
+    try {
+      signatureImages.director = await loadImageAsPngDataUrl(signaturesMeta.director.signature_url);
+    } catch (e) {
+      console.warn('Could not load director signature for PDF:', e);
+    }
+  }
+  if (signaturesMeta?.dispatcher?.signature_url) {
+    try {
+      signatureImages.dispatcher = await loadImageAsPngDataUrl(signaturesMeta.dispatcher.signature_url);
+    } catch (e) {
+      console.warn('Could not load dispatcher signature for PDF:', e);
+    }
+  }
+
+  const docDef = buildDocDefinition(data, logoDataUrl, signaturesMeta, signatureImages);
   pdfMake.createPdf(docDef).print();
 };
 
