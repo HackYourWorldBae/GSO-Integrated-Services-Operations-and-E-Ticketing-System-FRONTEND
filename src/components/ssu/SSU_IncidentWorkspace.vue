@@ -20,7 +20,12 @@
             </span>
           </div>
           <span class="text-xs text-slate-400 font-medium hidden lg:inline">
-            {{ activeQueue === 'submitted' ? 'Review new incident reports and initiate investigation.' : 'Manage open investigation cases, communicate recommendations, and resolve.' }}
+            <template v-if="isDirector">
+              {{ activeQueue === 'submitted' ? 'Review submitted incident reports across campus.' : 'Review active cases currently under security investigation.' }}
+            </template>
+            <template v-else>
+              {{ activeQueue === 'submitted' ? 'Review new incident reports and initiate investigation.' : 'Manage open investigation cases, communicate recommendations, and resolve.' }}
+            </template>
           </span>
         </div>
 
@@ -220,7 +225,9 @@
                 </div>
                 <div v-else class="p-2.5 rounded-xl bg-amber-50/70 border border-dashed border-amber-200 text-center">
                   <span class="text-[10px] font-bold text-amber-700 block">No notation recorded</span>
-                  <span class="text-[9px] text-amber-600 block mt-0.5">Required before resolving</span>
+                  <span class="text-[9px] text-amber-600 block mt-0.5">
+                    {{ isDirector ? 'Awaiting SSU notation' : 'Required before resolving' }}
+                  </span>
                 </div>
               </td>
 
@@ -228,113 +235,132 @@
               <td class="px-4 py-3.5 align-middle text-right whitespace-nowrap w-[1%]">
                 <div class="flex items-center justify-end gap-1.5">
 
-                  <!-- Action Set A: Submitted Tickets Queue -->
-                  <template v-if="activeQueue === 'submitted'">
-                    <!-- Set to Under Investigation -->
+                  <!-- Director Dashboard View: ONLY Full Info Button -->
+                  <template v-if="isDirector">
                     <button
                       type="button"
-                      @click="openInvestigateModal(ticket)"
-                      class="px-3 py-2 min-h-[38px] rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
-                      title="Flag as Under Investigation"
+                      @click="openDetailsModal(ticket)"
+                      class="px-3.5 py-1.5 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:border-rose-300 hover:bg-rose-50 text-slate-700 hover:text-rose-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95 touch-manipulation"
+                      title="View Full Case Details"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
-                      <span>Investigate</span>
-                    </button>
-
-                    <!-- Dispatch Personnel -->
-                    <router-link
-                      :to="`/admin/ssu/assign-workers?ticket=${ticket.ticketId || ticket.id}`"
-                      class="px-3 py-2 min-h-[38px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
-                      title="Dispatch Personnel to Case"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                      <span>Dispatch</span>
-                    </router-link>
-
-                    <!-- Add Notation (on submitted tickets) -->
-                    <button
-                      type="button"
-                      @click="openNotationModal(ticket)"
-                      class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
-                      :title="ticket.hasNotation ? 'Update Notation' : 'Add Recommendation / Notation'"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                      <span>{{ ticket.hasNotation ? 'Edit Note' : 'Add Note' }}</span>
-                    </button>
-
-                    <!-- Dismiss / Decline -->
-                    <button
-                      type="button"
-                      @click="openDismissModal(ticket)"
-                      class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
-                      title="Dismiss Report"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      <span>Dismiss</span>
+                      <span>Full Info</span>
                     </button>
                   </template>
 
-                  <!-- Action Set B: Under Investigation Queue (STRICT: Notation or Resolve ONLY) -->
+                  <!-- SSU Admin Operational Actions -->
                   <template v-else>
-                    <!-- Dispatch Personnel -->
-                    <router-link
-                      :to="`/admin/ssu/assign-workers?ticket=${ticket.ticketId || ticket.id}`"
-                      class="px-3 py-2 min-h-[38px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
-                      title="Dispatch Personnel to Case"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                      <span>Dispatch</span>
-                    </router-link>
+                    <!-- Action Set A: Submitted Tickets Queue -->
+                    <template v-if="activeQueue === 'submitted'">
+                      <!-- Set to Under Investigation -->
+                      <button
+                        type="button"
+                        @click="openInvestigateModal(ticket)"
+                        class="px-3 py-2 min-h-[38px] rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                        title="Flag as Under Investigation"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <span>Investigate</span>
+                      </button>
 
-                    <!-- Add / Update Notation -->
+                      <!-- Dispatch Personnel -->
+                      <router-link
+                        :to="`/admin/ssu/assign-workers?ticket=${ticket.ticketId || ticket.id}`"
+                        class="px-3 py-2 min-h-[38px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                        title="Dispatch Personnel to Case"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span>Dispatch</span>
+                      </router-link>
+
+                      <!-- Add Notation (on submitted tickets) -->
+                      <button
+                        type="button"
+                        @click="openNotationModal(ticket)"
+                        class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                        :title="ticket.hasNotation ? 'Update Notation' : 'Add Recommendation / Notation'"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>{{ ticket.hasNotation ? 'Edit Note' : 'Add Note' }}</span>
+                      </button>
+
+                      <!-- Dismiss / Decline -->
+                      <button
+                        type="button"
+                        @click="openDismissModal(ticket)"
+                        class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                        title="Dismiss Report"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span>Dismiss</span>
+                      </button>
+                    </template>
+
+                    <!-- Action Set B: Under Investigation Queue (STRICT: Notation or Resolve ONLY) -->
+                    <template v-else>
+                      <!-- Dispatch Personnel -->
+                      <router-link
+                        :to="`/admin/ssu/assign-workers?ticket=${ticket.ticketId || ticket.id}`"
+                        class="px-3 py-2 min-h-[38px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                        title="Dispatch Personnel to Case"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span>Dispatch</span>
+                      </router-link>
+
+                      <!-- Add / Update Notation -->
+                      <button
+                        type="button"
+                        @click="openNotationModal(ticket)"
+                        class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                        :title="ticket.hasNotation ? 'Update Notation' : 'Add Recommendation / Notation'"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>{{ ticket.hasNotation ? 'Update Notation' : 'Add Notation' }}</span>
+                      </button>
+
+                      <!-- Mark as Resolved -->
+                      <button
+                        type="button"
+                        @click="initiateResolve(ticket)"
+                        class="px-3.5 py-2 min-h-[38px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                        title="Mark as Resolved & Archive"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Resolve</span>
+                      </button>
+                    </template>
+
+                    <!-- View Full Info Modal Trigger -->
                     <button
                       type="button"
-                      @click="openNotationModal(ticket)"
-                      class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
-                      :title="ticket.hasNotation ? 'Update Notation' : 'Add Recommendation / Notation'"
+                      @click="openDetailsModal(ticket)"
+                      class="p-2 min-h-[38px] min-w-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 transition-all flex items-center justify-center cursor-pointer touch-manipulation"
+                      title="View Full Case Details"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
-                      <span>{{ ticket.hasNotation ? 'Update Notation' : 'Add Notation' }}</span>
-                    </button>
-
-                    <!-- Mark as Resolved -->
-                    <button
-                      type="button"
-                      @click="initiateResolve(ticket)"
-                      class="px-3.5 py-2 min-h-[38px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
-                      title="Mark as Resolved & Archive"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>Resolve</span>
                     </button>
                   </template>
-
-                  <!-- View Full Info Modal Trigger -->
-                  <button
-                    type="button"
-                    @click="openDetailsModal(ticket)"
-                    class="p-2 min-h-[38px] min-w-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 transition-all flex items-center justify-center cursor-pointer touch-manipulation"
-                    title="View Full Case Details"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  </button>
 
                 </div>
               </td>
@@ -416,76 +442,95 @@
         <div v-if="activeQueue === 'investigating'" class="p-2.5 rounded-xl bg-blue-50/90 border border-blue-200 space-y-1">
           <p class="text-[10px] font-black text-blue-700 uppercase tracking-wider">Notation to Reporter</p>
           <p class="text-xs text-blue-900 font-medium italic">
-            {{ ticket.hasNotation ? `"${ticket.notation}"` : 'No notation added yet (Required to resolve).' }}
+            {{ ticket.hasNotation ? `"${ticket.notation}"` : (isDirector ? 'No notation recorded yet.' : 'No notation added yet (Required to resolve).') }}
           </p>
         </div>
 
         <!-- Actions -->
         <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2">
-          <!-- Submitted Queue Mobile Actions -->
-          <template v-if="activeQueue === 'submitted'">
+          <!-- Director Mobile View: ONLY Full Info button -->
+          <template v-if="isDirector">
             <button
               type="button"
-              @click="openInvestigateModal(ticket)"
-              class="flex-1 px-3 py-2.5 min-h-[44px] rounded-xl bg-violet-600 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
+              @click="openDetailsModal(ticket)"
+              class="w-full px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 bg-white hover:border-rose-300 hover:bg-rose-50 text-slate-700 hover:text-rose-800 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer touch-manipulation active:scale-95"
+              title="View Full Case Details"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <span>Full Info</span>
+            </button>
+          </template>
+
+          <!-- SSU Admin Operations Actions -->
+          <template v-else>
+            <!-- Submitted Queue Mobile Actions -->
+            <template v-if="activeQueue === 'submitted'">
+              <button
+                type="button"
+                @click="openInvestigateModal(ticket)"
+                class="flex-1 px-3 py-2.5 min-h-[44px] rounded-xl bg-violet-600 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span>Investigate</span>
+              </button>
+              <button
+                type="button"
+                @click="openNotationModal(ticket)"
+                class="px-3 py-2.5 min-h-[44px] rounded-xl bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
+              >
+                <span>{{ ticket.hasNotation ? 'Edit Note' : 'Add Note' }}</span>
+              </button>
+              <button
+                type="button"
+                @click="openDismissModal(ticket)"
+                class="px-3 py-2.5 min-h-[44px] rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
+              >
+                <span>Dismiss</span>
+              </button>
+            </template>
+
+            <!-- Under Investigation Mobile Actions -->
+            <template v-else>
+              <button
+                type="button"
+                @click="openNotationModal(ticket)"
+                class="flex-1 px-3 py-2.5 min-h-[44px] rounded-xl bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
+              >
+                <span>{{ ticket.hasNotation ? 'Edit Notation' : 'Add Notation' }}</span>
+              </button>
+              <button
+                type="button"
+                @click="initiateResolve(ticket)"
+                class="flex-1 px-3 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
+              >
+                <span>Resolve</span>
+              </button>
+            </template>
+
+            <router-link
+              :to="`/admin/ssu/assign-workers?ticket=${ticket.ticketId || ticket.id}`"
+              class="px-3 py-2.5 min-h-[44px] rounded-xl bg-sky-50 text-sky-700 border border-sky-300 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
+              title="Dispatch personnel to this incident"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <span>Investigate</span>
-            </button>
+              <span>Dispatch</span>
+            </router-link>
+
             <button
               type="button"
-              @click="openNotationModal(ticket)"
-              class="px-3 py-2.5 min-h-[44px] rounded-xl bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
+              @click="openDetailsModal(ticket)"
+              class="px-3 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-slate-600 text-xs font-bold touch-manipulation active:scale-95"
             >
-              <span>{{ ticket.hasNotation ? 'Edit Note' : 'Add Note' }}</span>
-            </button>
-            <button
-              type="button"
-              @click="openDismissModal(ticket)"
-              class="px-3 py-2.5 min-h-[44px] rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
-            >
-              <span>Dismiss</span>
+              Details
             </button>
           </template>
-
-          <!-- Under Investigation Mobile Actions -->
-          <template v-else>
-            <button
-              type="button"
-              @click="openNotationModal(ticket)"
-              class="flex-1 px-3 py-2.5 min-h-[44px] rounded-xl bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
-            >
-              <span>{{ ticket.hasNotation ? 'Edit Notation' : 'Add Notation' }}</span>
-            </button>
-            <button
-              type="button"
-              @click="initiateResolve(ticket)"
-              class="flex-1 px-3 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
-            >
-              <span>Resolve</span>
-            </button>
-          </template>
-
-          <router-link
-            :to="`/admin/ssu/assign-workers?ticket=${ticket.ticketId || ticket.id}`"
-            class="px-3 py-2.5 min-h-[44px] rounded-xl bg-sky-50 text-sky-700 border border-sky-300 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
-            title="Dispatch personnel to this incident"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <span>Dispatch</span>
-          </router-link>
-
-          <button
-            type="button"
-            @click="openDetailsModal(ticket)"
-            class="px-3 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-slate-600 text-xs font-bold touch-manipulation active:scale-95"
-          >
-            Details
-          </button>
         </div>
       </div>
 
@@ -852,6 +897,7 @@
               <div class="flex items-center justify-between gap-2 mb-2">
                 <p class="text-[10px] font-black uppercase text-blue-700 tracking-wider">Staff Recommendation / Notation</p>
                 <button
+                  v-if="!isDirector"
                   type="button"
                   @click="openNotationModal(detailsModal.ticket); closeDetailsModal()"
                   class="text-[10px] font-black text-blue-600 hover:text-blue-800 uppercase tracking-wider px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer"
@@ -867,7 +913,9 @@
               </svg>
               <div>
                 <p class="text-xs font-bold text-amber-800">No recommendation recorded yet</p>
-                <p class="text-[11px] text-amber-700 mt-0.5">A notation is required before this incident can be resolved.</p>
+                <p class="text-[11px] text-amber-700 mt-0.5">
+                  {{ isDirector ? 'No notation has been communicated by SSU yet.' : 'A notation is required before this incident can be resolved.' }}
+                </p>
               </div>
             </div>
 
@@ -895,7 +943,7 @@
 
           <!-- Modal Footer -->
           <div class="p-5 sm:p-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
-            <div class="flex items-center gap-2">
+            <div v-if="!isDirector" class="flex items-center gap-2">
               <button
                 v-if="!detailsModal.ticket?.hasNotation"
                 type="button"
@@ -923,6 +971,7 @@
               type="button"
               @click="closeDetailsModal"
               class="px-5 py-2.5 min-h-[44px] rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer touch-manipulation"
+              :class="{ 'ml-auto': isDirector }"
             >
               Close
             </button>
@@ -988,16 +1037,29 @@ import { useRouter, useRoute } from 'vue-router';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 import { debounce } from '@/utils/debounce';
+import { useAuthStore } from '@/stores/auth';
 
 const props = defineProps({
   activeQueue: {
     type: String,
     default: 'submitted', // 'submitted' | 'investigating'
+  },
+  isDirector: {
+    type: Boolean,
+    default: undefined,
   }
 });
 
 const router = useRouter();
 const route  = useRoute();
+const authStore = useAuthStore();
+
+const isDirector = computed(() => {
+  if (typeof props.isDirector === 'boolean') {
+    return props.isDirector;
+  }
+  return authStore.role === 'director' || authStore.role === 'superadmin' || route.path.startsWith('/director');
+});
 
 // ── State ──────────────────────────────────────────────────────────────────
 const loading            = ref(false);

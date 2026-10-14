@@ -64,7 +64,43 @@
     </template>
 
     <template #main-content>
-      <SSU_IncidentWorkspace :active-queue="currentTab" @update:activeQueue="onTabChange" />
+      <!-- Director Stage Switcher Tabs -->
+      <div v-if="isDirector" class="mb-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1.5 bg-white border border-slate-200 rounded-2xl shadow-xs">
+          <button
+            type="button"
+            @click="onTabChange('submitted')"
+            :class="[
+              'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99]',
+              currentTab === 'submitted'
+                ? 'bg-amber-600 text-white shadow-sm shadow-amber-600/20'
+                : 'bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60'
+            ]"
+          >
+            <span class="w-2 h-2 rounded-full" :class="currentTab === 'submitted' ? 'bg-white' : 'bg-amber-500'"></span>
+            <span>Submitted Reports</span>
+          </button>
+          <button
+            type="button"
+            @click="onTabChange('investigating')"
+            :class="[
+              'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99]',
+              currentTab === 'investigating'
+                ? 'bg-violet-700 text-white shadow-sm shadow-violet-700/20'
+                : 'bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60'
+            ]"
+          >
+            <span class="w-2 h-2 rounded-full" :class="currentTab === 'investigating' ? 'bg-white' : 'bg-violet-500'"></span>
+            <span>Under Investigation</span>
+          </button>
+        </div>
+      </div>
+
+      <SSU_IncidentWorkspace
+        :active-queue="currentTab"
+        :is-director="isDirector"
+        @update:activeQueue="onTabChange"
+      />
     </template>
   </MainLayout>
 </template>
@@ -81,7 +117,7 @@ const authStore = useAuthStore();
 const route  = useRoute();
 const router = useRouter();
 
-const isDirector = computed(() => authStore.role === 'director' || authStore.role === 'superadmin');
+const isDirector = computed(() => authStore.role === 'director' || authStore.role === 'superadmin' || route.path.startsWith('/director'));
 
 const currentTab = computed(() => {
   return route.query.tab === 'investigating' ? 'investigating' : 'submitted';
