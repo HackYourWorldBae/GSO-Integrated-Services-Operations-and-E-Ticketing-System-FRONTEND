@@ -43,7 +43,7 @@ describe('Router Page Guards & RBAC Boundaries', () => {
 
   describe('getCanonicalHomeRoute', () => {
     it('returns appropriate home routes for all roles and unit associations', () => {
-      expect(getCanonicalHomeRoute('superadmin')).toBe('/superadmin/dashboard');
+      expect(getCanonicalHomeRoute('superadmin')).toBe('/superadmin/users');
       expect(getCanonicalHomeRoute('director')).toBe('/director/dashboard');
       expect(getCanonicalHomeRoute('admin', 'FGMU')).toBe('/admin/fgmu');
       expect(getCanonicalHomeRoute('admin', 'LEAU')).toBe('/admin/leau');
@@ -110,7 +110,7 @@ describe('Router Page Guards & RBAC Boundaries', () => {
 
     it('blocks student from accessing superadmin portal', () => {
       const next = vi.fn();
-      checkRouteAccess({ path: '/superadmin/dashboard', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
+      checkRouteAccess({ path: '/superadmin/users', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
       expect(next).toHaveBeenCalledWith('/user/dashboard');
     });
   });
@@ -158,7 +158,7 @@ describe('Router Page Guards & RBAC Boundaries', () => {
     it('blocks unit admins from accessing Superadmin views', () => {
       setSession('admin', 'FGMU', 1);
       const next = vi.fn();
-      checkRouteAccess({ path: '/superadmin/dashboard', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
+      checkRouteAccess({ path: '/superadmin/users', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
       expect(next).toHaveBeenCalledWith('/admin/fgmu');
     });
 
@@ -207,7 +207,7 @@ describe('Router Page Guards & RBAC Boundaries', () => {
 
     it('blocks Director from Superadmin portal', () => {
       const next = vi.fn();
-      checkRouteAccess({ path: '/superadmin/dashboard', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
+      checkRouteAccess({ path: '/superadmin/users', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
       expect(next).toHaveBeenCalledWith('/director/dashboard');
     });
 
@@ -235,7 +235,7 @@ describe('Router Page Guards & RBAC Boundaries', () => {
 
     it('allows Superadmin to access Superadmin portal and other workspaces', () => {
       const next = vi.fn();
-      checkRouteAccess({ path: '/superadmin/dashboard', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
+      checkRouteAccess({ path: '/superadmin/users', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
       expect(next).toHaveBeenCalledWith();
 
       const nextUsers = vi.fn();

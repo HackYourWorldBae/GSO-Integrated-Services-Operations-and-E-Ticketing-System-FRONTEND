@@ -52,7 +52,6 @@ const FGMU_Archives = () => import('../views/dashboards/admin/fgmu/FGMU_Archives
 const LEAU_Archives = () => import('../views/dashboards/admin/leau/LEAU_Archives.vue');
 const SSU_Archives = () => import('../views/dashboards/admin/ssu/SSU_Archives.vue');
 const User_CompletedTickets = () => import('../views/dashboards/user/User_CompletedTickets.vue');
-const Superadmin_Dashboard = () => import('../views/dashboards/superadmin/Superadmin_Dashboard.vue');
 const Superadmin_Users = () => import('../views/dashboards/superadmin/Superadmin_Users.vue');
 const Superadmin_VerificationQueue = () => import('../views/dashboards/superadmin/Superadmin_VerificationQueue.vue');
 const Superadmin_AuditLogs = () => import('../views/dashboards/superadmin/Superadmin_AuditLogs.vue');
@@ -470,13 +469,11 @@ const router = createRouter({
     // Superadmin Portal
     {
       path: '/superadmin',
-      redirect: '/superadmin/dashboard'
+      redirect: '/superadmin/users'
     },
     {
       path: '/superadmin/dashboard',
-      name: 'superadmin-dashboard',
-      component: Superadmin_Dashboard,
-      meta: { requiresAuth: true, roles: ['superadmin'] }
+      redirect: '/superadmin/users'
     },
     {
       path: '/superadmin/users',
@@ -671,7 +668,7 @@ const router = createRouter({
 export const getCanonicalHomeRoute = (userRole, userUnit) => {
   const r = String(userRole || '').toLowerCase();
   if (r === 'superadmin') {
-    return '/superadmin/dashboard';
+    return '/superadmin/users';
   }
   if (r === 'director') {
     return '/director/dashboard';

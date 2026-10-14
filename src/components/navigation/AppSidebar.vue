@@ -63,11 +63,8 @@ const isItemActive = (item) => {
   }
 
   // Superadmin distinct route matching
-  if (targetPath === '/superadmin/dashboard') {
-    return currentPath === '/superadmin/dashboard' || currentPath === '/superadmin';
-  }
   if (targetPath === '/superadmin/users') {
-    return currentPath === '/superadmin/users';
+    return currentPath === '/superadmin/users' || currentPath === '/superadmin' || currentPath === '/superadmin/dashboard';
   }
   if (targetPath === '/superadmin/queues') {
     return ['/superadmin/queues', '/superadmin/verification', '/superadmin/verification-queue', '/superadmin/user-queues'].includes(currentPath);

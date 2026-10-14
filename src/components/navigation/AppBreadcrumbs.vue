@@ -54,8 +54,6 @@ const breadcrumbs = computed(() => {
     crumbs.push({ label: 'User Account Management', to: null });
   } else if (path.includes('/superadmin/logs')) {
     crumbs.push({ label: 'Audit Trail & Operations Logs', to: null });
-  } else if (path.includes('/superadmin/dashboard')) {
-    crumbs.push({ label: 'System Overview', to: null });
   } else if (path.includes('/queues')) {
     crumbs.push({ label: path.includes('/ssu') ? 'Incident Queues' : 'Ticket Queues', to: null });
   } else if (path.includes('/personnel/history') || path.includes('/completed-jobs')) {

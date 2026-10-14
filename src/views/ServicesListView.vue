@@ -22,7 +22,7 @@ const dashboardHomeRoute = computed(() => {
     return `/admin/${u}`;
   }
   if (r === 'director') return '/director/dashboard';
-  if (r === 'superadmin') return '/superadmin/dashboard';
+  if (r === 'superadmin') return '/superadmin/users';
   return '/user/dashboard';
 });
 
