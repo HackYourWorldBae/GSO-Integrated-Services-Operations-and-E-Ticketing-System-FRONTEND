@@ -89,10 +89,23 @@ export function playNotificationSound(force = false) {
 
     const now = ctx.currentTime;
 
-    // Master Gain
+    // Master Gain (calibrated for clear audibility without harsh distortion or clipping)
     const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0.18, now);
-    masterGain.connect(ctx.destination);
+    masterGain.gain.setValueAtTime(0.45, now);
+
+    // Gentle compression to provide warm acoustic presence and eliminate clipping
+    if (typeof ctx.createDynamicsCompressor === 'function') {
+      const compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.setValueAtTime(-12, now);
+      compressor.knee.setValueAtTime(10, now);
+      compressor.ratio.setValueAtTime(3, now);
+      compressor.attack.setValueAtTime(0.005, now);
+      compressor.release.setValueAtTime(0.15, now);
+      masterGain.connect(compressor);
+      compressor.connect(ctx.destination);
+    } else {
+      masterGain.connect(ctx.destination);
+    }
 
     // Note 1: 587.33 Hz (D5) - mellow harmonic base
     const osc1 = ctx.createOscillator();
@@ -101,7 +114,7 @@ export function playNotificationSound(force = false) {
     osc1.frequency.setValueAtTime(587.33, now);
 
     gain1.gain.setValueAtTime(0.001, now);
-    gain1.gain.exponentialRampToValueAtTime(0.7, now + 0.02);
+    gain1.gain.exponentialRampToValueAtTime(0.75, now + 0.02);
     gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
 
     osc1.connect(gain1);
@@ -117,14 +130,14 @@ export function playNotificationSound(force = false) {
     osc2.frequency.setValueAtTime(880.00, now + 0.09);
 
     gain2.gain.setValueAtTime(0.001, now + 0.09);
-    gain2.gain.exponentialRampToValueAtTime(0.85, now + 0.11);
-    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+    gain2.gain.exponentialRampToValueAtTime(0.88, now + 0.11);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.65);
 
     osc2.connect(gain2);
     gain2.connect(masterGain);
 
     osc2.start(now + 0.09);
-    osc2.stop(now + 0.58);
+    osc2.stop(now + 0.68);
   } catch (e) {
     // Non-fatal audio playback error (e.g. muted tab or unsupported platform)
     console.debug('Dashboard notification audio played or skipped:', e);
