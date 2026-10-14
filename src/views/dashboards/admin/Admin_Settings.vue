@@ -8,6 +8,37 @@
 
     <template #main-content>
       <div class="max-w-4xl mx-auto space-y-8 animate-fade-in pb-12">
+        <!-- Acting Unit Head Coverage Active Banner -->
+        <div
+          v-if="authStore.isActingHead"
+          class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 text-white shadow-md border border-amber-500/50 flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-amber-400 text-amber-950 font-black flex items-center justify-center shrink-0 shadow-xs">
+              ★
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-white">Acting Unit Head Mode Active</h4>
+              <p class="text-xs text-amber-100 font-medium mt-0.5">
+                You are currently managing <strong>{{ unitCode }}</strong> on behalf of the Unit Head as <strong>Director {{ authStore.fullName }}</strong>. All actions are logged under your Director audit log.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            @click="handleRevertToDirector"
+            :disabled="isReverting"
+            class="px-4 py-2.5 bg-white hover:bg-amber-50 text-amber-950 text-xs font-black rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0 w-full sm:w-auto"
+          >
+            <svg v-if="!isReverting" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span v-else class="animate-spin h-3.5 w-3.5 border-2 border-amber-900 border-t-transparent rounded-full"></span>
+            <span>{{ isReverting ? 'Returning...' : 'Return to Director Dashboard' }}</span>
+          </button>
+        </div>
+
         <!-- Profile Form Card -->
         <div class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
           <div class="p-5 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
@@ -333,7 +364,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import SignatureManagerModal from '@/components/common/SignatureManagerModal.vue';
@@ -341,6 +372,7 @@ import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import { clearSignatureCache } from '@/utils/signatureUtils';
 
+const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const avatarInputRef = ref(null);
@@ -348,6 +380,26 @@ const avatarPreviewUrl = ref(null);
 const showSignatureModal = ref(false);
 const isRemovingSignature = ref(false);
 const signatureTimestamp = ref(Date.now());
+const isReverting = ref(false);
+
+const handleRevertToDirector = async () => {
+  if (isReverting.value) return;
+  isReverting.value = true;
+  try {
+    const res = await authStore.revertToDirector();
+    if (res.success) {
+      toast.success(res.message);
+      router.push(res.redirectUrl || '/director/dashboard');
+    } else {
+      toast.error(res.message || 'Failed to return to Director dashboard.');
+    }
+  } catch (err) {
+    console.error('Failed to revert to director dashboard:', err);
+    toast.error('An error occurred while returning to Director dashboard.');
+  } finally {
+    isReverting.value = false;
+  }
+};
 
 const form = ref({
   firstName: '',

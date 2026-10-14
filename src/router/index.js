@@ -805,9 +805,15 @@ export const checkRouteAccess = (to, from, next) => {
     }
 
     // 2.3 Director Domain Guard (/director/*)
-    // ONLY Director and Superadmin are allowed to access director portal views
+    // ONLY Director and Superadmin (or Director in Acting Unit Head mode) are allowed to access director portal views
     if (normalizedPath.startsWith('/director')) {
-      if (normalizedRole !== 'director' && normalizedRole !== 'superadmin') {
+      const isDirectorAuthority =
+        normalizedRole === 'director' ||
+        normalizedRole === 'superadmin' ||
+        Boolean(user?.is_acting_head) ||
+        user?.original_role === 'director';
+
+      if (!isDirectorAuthority) {
         console.warn(`[Router Guard] Access denied to ${to.path}. Role '${role}' lacks executive director privileges.`);
         return redirectToHome();
       }
@@ -863,7 +869,11 @@ export const checkRouteAccess = (to, from, next) => {
 
     // 3. Route Meta Roles Check (if route specifies explicit roles)
     if (to.meta?.roles && Array.isArray(to.meta.roles)) {
-      if (normalizedRole !== 'superadmin' && !to.meta.roles.includes(normalizedRole)) {
+      const isRoleAllowed =
+        to.meta.roles.includes(normalizedRole) ||
+        (Boolean(user?.is_acting_head) && to.meta.roles.includes('director'));
+
+      if (normalizedRole !== 'superadmin' && !isRoleAllowed) {
         console.warn(`[Router Guard] Access denied to ${to.path}. Required roles: ${to.meta.roles.join(', ')}. Current role: ${role}`);
         return redirectToHome();
       }

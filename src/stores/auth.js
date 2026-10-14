@@ -6,6 +6,8 @@ import {
   getMe,
   updateProfile as apiUpdateProfile,
   checkSessionApi,
+  assumeUnitHeadApi,
+  revertUnitHeadApi,
 } from '@/api/auth';
 
 /**
@@ -57,6 +59,9 @@ export const useAuthStore = defineStore('auth', () => {
   const college = computed(() => user.value?.college || '');
 
   const unitId = computed(() => user.value?.unit_id ?? null);
+  const isActingHead = computed(() => Boolean(user.value?.is_acting_head));
+  const actingUnitCode = computed(() => user.value?.acting_unit_code || null);
+  const actingUnitName = computed(() => user.value?.acting_unit_name || null);
   // Legacy alias — Deactivated has been retired (migrated to Suspended). Keep for
   // backward-compat with cached payloads; always false for current data.
   const isDeactivated = computed(() => false);
@@ -444,6 +449,76 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  /**
+   * Assume sub-unit head dashboard coverage as Acting Unit Head.
+   * Terminates active session of the unit head and registers delegated director session.
+   * @param {string} unitCode - 'FGMU' | 'LEAU' | 'SSU'
+   */
+  const assumeUnitHead = async (unitCode) => {
+    try {
+      const response = await assumeUnitHeadApi(unitCode);
+      const data     = response.data?.data || {};
+      const userData = data.user;
+      const jwtToken = data.access_token;
+      const userPerms = userData?.permissions || [];
+
+      user.value        = userData;
+      role.value        = userData?.role || 'admin';
+      permissions.value = userPerms;
+      token.value       = jwtToken;
+
+      if (jwtToken) {
+        sessionStorage.setItem('token', jwtToken);
+      }
+      sessionStorage.setItem('permissions', JSON.stringify(userPerms));
+
+      startSessionHeartbeat();
+
+      return {
+        success: true,
+        message: response.data?.message || `Assumed ${unitCode} head dashboard successfully.`,
+        redirectUrl: data.redirect_url || `/admin/${unitCode.toLowerCase()}`,
+      };
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to switch to unit head dashboard.';
+      return { success: false, message };
+    }
+  };
+
+  /**
+   * Revert from Acting Unit Head back to Executive Director dashboard.
+   */
+  const revertToDirector = async () => {
+    try {
+      const response = await revertUnitHeadApi();
+      const data     = response.data?.data || {};
+      const userData = data.user;
+      const jwtToken = data.access_token;
+      const userPerms = userData?.permissions || [];
+
+      user.value        = userData;
+      role.value        = userData?.role || 'director';
+      permissions.value = userPerms;
+      token.value       = jwtToken;
+
+      if (jwtToken) {
+        sessionStorage.setItem('token', jwtToken);
+      }
+      sessionStorage.setItem('permissions', JSON.stringify(userPerms));
+
+      startSessionHeartbeat();
+
+      return {
+        success: true,
+        message: response.data?.message || 'Returned to Director dashboard successfully.',
+        redirectUrl: data.redirect_url || '/director/dashboard',
+      };
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to return to Director dashboard.';
+      return { success: false, message };
+    }
+  };
+
   // Internal setter used during re-hydration
   const _setAuth = (userData, userRole, authToken = null, userPermissions = null) => {
     user.value        = userData;
@@ -470,6 +545,9 @@ export const useAuthStore = defineStore('auth', () => {
     organizationName,
     college,
     unitId,
+    isActingHead,
+    actingUnitCode,
+    actingUnitName,
     isDeactivated,
     hasPermission,
     login,
@@ -487,6 +565,8 @@ export const useAuthStore = defineStore('auth', () => {
     triggerMaintenanceEviction,
     executeEvictionLogout,
     stopMaintenanceTicker,
+    assumeUnitHead,
+    revertToDirector,
     _setAuth,
   };
 }, {

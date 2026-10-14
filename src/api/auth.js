@@ -87,4 +87,24 @@ export const resetPassword = (payload) =>
 export const fetchPublicMaintenanceStatus = () =>
   apiClient.get('/auth/maintenance-status');
 
+/**
+ * Fetch sub-unit delegation status and active unit heads (Director oversight).
+ */
+export const getDelegationUnitsApi = () =>
+  apiClient.get('/auth/delegation/units');
+
+/**
+ * Assume sub-unit head dashboard coverage as Acting Unit Head.
+ * Terminates active session of the unit head to enforce single-session security.
+ * @param {string} unitCode - 'FGMU' | 'LEAU' | 'SSU'
+ */
+export const assumeUnitHeadApi = (unitCode) =>
+  apiClient.post('/auth/assume-unit-head', { unit_code: unitCode });
+
+/**
+ * Revert from Acting Unit Head back to Executive Director dashboard.
+ */
+export const revertUnitHeadApi = () =>
+  apiClient.post('/auth/revert-unit-head');
+
 

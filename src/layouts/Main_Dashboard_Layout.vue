@@ -83,6 +83,45 @@
         </div>
       </Transition>
 
+      <!-- Acting Unit Head Mode Global Banner -->
+      <Transition name="slide-down">
+        <div
+          v-if="authStore.isActingHead"
+          class="bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 text-white px-3 sm:px-6 py-2 sm:py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-md z-50 shrink-0 border-b border-amber-500/40"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase bg-amber-400 text-amber-950 shadow-xs shrink-0">
+              <span class="w-2 h-2 rounded-full bg-amber-950 animate-pulse"></span>
+              Acting Unit Head
+            </span>
+            <div class="truncate text-xs sm:text-sm font-bold text-amber-50">
+              Managing <span class="text-white font-extrabold underline decoration-amber-400 decoration-2 underline-offset-2">{{ authStore.actingUnitCode || 'Sub-Unit' }}</span> Dashboard
+              <span class="hidden md:inline font-normal text-amber-200 text-xs ml-1.5">
+                • Operating as Director {{ authStore.fullName }} (All changes recorded under Director audit log)
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0 ml-auto">
+            <button
+              type="button"
+              @click="handleRevertToDirector"
+              :disabled="isRevertingRole"
+              class="px-3.5 py-1.5 min-h-[32px] sm:min-h-[36px] bg-white hover:bg-amber-50 text-amber-950 active:scale-95 rounded-xl font-black text-xs shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg v-if="!isRevertingRole" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <svg v-else class="animate-spin h-3.5 w-3.5 text-amber-900" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ isRevertingRole ? 'Reverting...' : 'Return to Director Dashboard' }}</span>
+            </button>
+          </div>
+        </div>
+      </Transition>
+
       <!-- Top Navbar -->
       <header class="min-h-16 sm:min-h-20 pt-safe bg-white border-b border-slate-300/80 shadow-2xs flex items-center justify-between px-2.5 sm:px-6 md:px-10 z-40 sticky top-0 shrink-0 gap-1.5 sm:gap-4">
         <div class="flex items-center gap-1.5 sm:gap-4 flex-1 min-w-0">
@@ -372,6 +411,24 @@ const isSidebarOpen = ref(true);
 const isMobileSidebarOpen = ref(false);
 const isDropdownOpen = ref(false);
 const isNotificationOpen = ref(false);
+
+// Acting Unit Head Mode Reversion
+const isRevertingRole = ref(false);
+
+const handleRevertToDirector = async () => {
+  if (isRevertingRole.value) return;
+  isRevertingRole.value = true;
+  try {
+    const result = await authStore.revertToDirector();
+    if (result.success) {
+      router.push(result.redirectUrl || '/director/dashboard');
+    }
+  } catch (err) {
+    console.error('Failed to revert to director dashboard:', err);
+  } finally {
+    isRevertingRole.value = false;
+  }
+};
 
 // Network Fault Tolerance & Status Monitoring
 const { isOnline: isNetworkOnline, isChecking: isCheckingNetwork, checkHealth: checkNetworkHealth, onReconnected } = useNetworkStatus();

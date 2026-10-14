@@ -323,6 +323,221 @@
           </div>
         </div>
 
+        <!-- Sub-Unit Head Delegation & Coverage (Acting Unit Head Switcher) -->
+        <div class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+          <div class="p-4 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shadow-xs shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="text-lg font-black text-slate-900 tracking-tight">Sub-Unit Head Coverage & Switcher</h3>
+                  <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-wider rounded-md border border-amber-200">
+                    Acting Unit Head Mode
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">
+                  Temporarily take charge of any sub-unit head dashboard when unit heads are on leave or unavailable
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg border border-slate-700">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                Single-Session Security
+              </span>
+            </div>
+          </div>
+
+          <div class="p-4 sm:p-8 md:p-12 space-y-6">
+            <!-- Informational Notice Banner -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-3.5">
+              <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="space-y-1 text-xs text-amber-900">
+                <h4 class="font-black text-amber-950 uppercase tracking-wider text-[11px]">How Sub-Unit Coverage Works</h4>
+                <p class="leading-relaxed">
+                  <strong>Single-Session Enforcement:</strong> When you assume charge of a sub-unit, any active dashboard session of that unit head will be automatically terminated.
+                </p>
+                <p class="leading-relaxed">
+                  <strong>Verifiable Audit Trail:</strong> All ticket approvals, dispatch assignments, notations, and status updates performed will be permanently recorded under <strong>Director {{ authStore.fullName }}</strong>.
+                </p>
+              </div>
+            </div>
+
+            <!-- Active Acting Head Status Banner (if currently in-charge) -->
+            <div
+              v-if="authStore.isActingHead"
+              class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md border border-amber-500/50"
+            >
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-400 text-amber-950 flex items-center justify-center font-black text-base shrink-0 shadow-xs">
+                  {{ authStore.actingUnitCode || '★' }}
+                </div>
+                <div>
+                  <h4 class="text-sm font-black tracking-tight text-white">
+                    Currently Acting as {{ authStore.actingUnitCode }} Head
+                  </h4>
+                  <p class="text-xs text-amber-100 font-medium mt-0.5">
+                    Your session is actively routed to {{ authStore.actingUnitName || authStore.actingUnitCode }}. All actions record under Director audit trail.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                <router-link
+                  :to="`/admin/${(authStore.actingUnitCode || 'fgmu').toLowerCase()}`"
+                  class="flex-1 sm:flex-initial px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl border border-white/20 transition-all text-center"
+                >
+                  Go to Dashboard
+                </router-link>
+                <button
+                  type="button"
+                  @click="handleRevertCoverage"
+                  :disabled="isReverting"
+                  class="flex-1 sm:flex-initial px-4 py-2 bg-white hover:bg-amber-50 text-amber-950 text-xs font-black rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <svg v-if="!isReverting" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  <span v-else class="animate-spin h-3.5 w-3.5 border-2 border-amber-900 border-t-transparent rounded-full"></span>
+                  <span>{{ isReverting ? 'Returning...' : 'Return to Director' }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sub-Units Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <!-- Loading Skeletons -->
+              <template v-if="isLoadingUnits">
+                <div v-for="i in 3" :key="i" class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 animate-pulse space-y-4">
+                  <div class="h-6 bg-slate-200 rounded-lg w-24"></div>
+                  <div class="h-4 bg-slate-200 rounded-lg w-3/4"></div>
+                  <div class="h-10 bg-slate-200 rounded-xl w-full"></div>
+                </div>
+              </template>
+
+              <!-- Unit Cards -->
+              <template v-else>
+                <div
+                  v-for="unit in delegationUnits"
+                  :key="unit.unit_code"
+                  :class="[
+                    'p-5 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all flex flex-col justify-between gap-5 relative overflow-hidden',
+                    unit.is_currently_acting
+                      ? 'border-amber-400 bg-amber-50/30 shadow-md ring-2 ring-amber-400/20'
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-md'
+                  ]"
+                >
+                  <div class="space-y-3.5">
+                    <!-- Unit Header -->
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-xl bg-slate-900 text-white font-black text-xs flex items-center justify-center tracking-wider">
+                          {{ unit.unit_code }}
+                        </span>
+                        <div>
+                          <h4 class="text-sm font-black text-slate-900 leading-tight">{{ unit.unit_code }}</h4>
+                          <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Sub-Unit Head</span>
+                        </div>
+                      </div>
+
+                      <!-- Currently Acting Badge -->
+                      <span
+                        v-if="unit.is_currently_acting"
+                        class="px-2 py-0.5 bg-amber-100 text-amber-900 text-[10px] font-black uppercase tracking-wider rounded-md border border-amber-300 flex items-center gap-1"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-600 animate-ping"></span>
+                        Active
+                      </span>
+                    </div>
+
+                    <!-- Unit Name & Description -->
+                    <p class="text-xs font-bold text-slate-700 line-clamp-1" :title="unit.unit_name">
+                      {{ unit.unit_name }}
+                    </p>
+                    <p class="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
+                      {{ unit.description || 'Sub-unit operations, service requests, and staff dispatch management.' }}
+                    </p>
+
+                    <!-- Assigned Unit Head Info -->
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs">
+                      <div class="flex items-center justify-between gap-1 text-[11px]">
+                        <span class="text-slate-400 font-medium">Assigned Head:</span>
+                        <span
+                          v-if="unit.is_session_active"
+                          class="inline-flex items-center gap-1 text-emerald-700 font-bold"
+                          title="Unit Head is currently logged in"
+                        >
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          In Session
+                        </span>
+                        <span
+                          v-else
+                          class="inline-flex items-center gap-1 text-slate-400 font-medium"
+                          title="No active session"
+                        >
+                          <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                          Offline / Away
+                        </span>
+                      </div>
+
+                      <p class="font-bold text-slate-800 truncate">
+                        {{ unit.head_user ? unit.head_user.name : 'Unassigned Head' }}
+                      </p>
+                      <p class="text-[11px] text-slate-400 truncate">
+                        {{ unit.head_user ? unit.head_user.email : 'No email registered' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Actions -->
+                  <div>
+                    <button
+                      v-if="!unit.is_currently_acting"
+                      type="button"
+                      @click="handleAssumeUnit(unit)"
+                      :disabled="isSwitchingUnit === unit.unit_code"
+                      class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-amber-600 active:scale-98 text-white text-xs font-black tracking-wide shadow-xs hover:shadow transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 min-h-[42px]"
+                    >
+                      <svg v-if="isSwitchingUnit !== unit.unit_code" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                      </svg>
+                      <span v-else class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
+                      <span>{{ isSwitchingUnit === unit.unit_code ? 'Assuming Control...' : `Take Charge of ${unit.unit_code}` }}</span>
+                    </button>
+
+                    <div v-else class="flex items-center gap-2">
+                      <router-link
+                        :to="`/admin/${unit.unit_code.toLowerCase()}`"
+                        class="flex-1 py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-98 text-white text-xs font-black tracking-wide shadow-xs transition-all text-center min-h-[40px] flex items-center justify-center"
+                      >
+                        Open Workspace
+                      </router-link>
+                      <button
+                        type="button"
+                        @click="handleRevertCoverage"
+                        :disabled="isReverting"
+                        class="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-98 text-slate-700 text-xs font-bold transition-all min-h-[40px] cursor-pointer"
+                        title="Return to Executive Director"
+                      >
+                        Return
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
         <!-- Signature Pad & Upload Modal -->
         <SignatureManagerModal
           v-model:isOpen="showSignatureModal"
@@ -335,20 +550,30 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from '@/views/dashboards/director/DirectorSidebar.vue';
 import SignatureManagerModal from '@/components/common/SignatureManagerModal.vue';
 import api from '@/api/client';
+import { getDelegationUnitsApi } from '@/api/auth';
 import { toast } from 'vue3-toastify';
+import Swal from 'sweetalert2';
 import { clearSignatureCache } from '@/utils/signatureUtils';
 
+const router = useRouter();
 const authStore = useAuthStore();
 const avatarInputRef = ref(null);
 const avatarPreviewUrl = ref(null);
 const showSignatureModal = ref(false);
 const isRemovingSignature = ref(false);
 const signatureTimestamp = ref(Date.now());
+
+// Sub-Unit Delegation State
+const delegationUnits = ref([]);
+const isLoadingUnits = ref(false);
+const isSwitchingUnit = ref('');
+const isReverting = ref(false);
 
 const form = ref({
   firstName: '',
@@ -362,7 +587,86 @@ const form = ref({
 const showPassword = ref(false);
 const isSaving = ref(false);
 
+const fetchDelegationUnits = async () => {
+  isLoadingUnits.value = true;
+  try {
+    const res = await getDelegationUnitsApi();
+    delegationUnits.value = res.data?.data?.units || [];
+  } catch (err) {
+    console.error('Failed to load delegation units:', err);
+  } finally {
+    isLoadingUnits.value = false;
+  }
+};
+
+const handleAssumeUnit = async (unit) => {
+  const result = await Swal.fire({
+    title: `Take Charge of ${unit.unit_code} Dashboard?`,
+    html: `
+      <div style="text-align: left; font-size: 13px; line-height: 1.6; color: #334155;">
+        <p style="margin-bottom: 10px;">
+          You are about to assume operational control of the <strong>${unit.unit_name} (${unit.unit_code})</strong> dashboard as <strong>Acting Unit Head</strong>.
+        </p>
+        <div style="background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 12px; padding: 10px 12px; color: #92400e; margin-bottom: 10px;">
+          <strong>⚠️ Single-Session Security:</strong> Any active dashboard session of the unit head will be terminated immediately.
+        </div>
+        <p style="margin-bottom: 0; color: #64748b; font-size: 12px;">
+          All ticket approvals, worker dispatches, inventory modifications, and notations will be recorded in the audit trail under your name (<strong>Director ${authStore.fullName}</strong>).
+        </p>
+      </div>
+    `,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: `Yes, Take Charge of ${unit.unit_code}`,
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#d97706',
+    cancelButtonColor: '#64748b',
+    customClass: {
+      popup: 'rounded-3xl p-6 shadow-2xl border border-slate-100',
+      confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-xs shadow-md',
+      cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-xs',
+    },
+  });
+
+  if (!result.isConfirmed) return;
+
+  isSwitchingUnit.value = unit.unit_code;
+  try {
+    const switchResult = await authStore.assumeUnitHead(unit.unit_code);
+    if (switchResult.success) {
+      toast.success(switchResult.message);
+      router.push(switchResult.redirectUrl || `/admin/${unit.unit_code.toLowerCase()}`);
+    } else {
+      toast.error(switchResult.message || 'Failed to assume unit dashboard.');
+    }
+  } catch (err) {
+    console.error('Error assuming unit head dashboard:', err);
+    toast.error('An unexpected error occurred while switching roles.');
+  } finally {
+    isSwitchingUnit.value = '';
+  }
+};
+
+const handleRevertCoverage = async () => {
+  isReverting.value = true;
+  try {
+    const res = await authStore.revertToDirector();
+    if (res.success) {
+      toast.success('Successfully returned to Executive Director dashboard.');
+      await fetchDelegationUnits();
+    } else {
+      toast.error(res.message || 'Failed to return to Director dashboard.');
+    }
+  } catch (err) {
+    console.error('Error reverting coverage:', err);
+    toast.error('Failed to revert to Director dashboard.');
+  } finally {
+    isReverting.value = false;
+  }
+};
+
 onMounted(() => {
+  fetchDelegationUnits();
   const user = authStore.user;
   if (user) {
     form.value.firstName = user.first_name || '';
