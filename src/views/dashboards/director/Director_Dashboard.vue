@@ -45,6 +45,109 @@
             </div>
           </div>
 
+          <!-- Unit Ticket Overviews Quick Access Hub -->
+          <div class="space-y-3 pb-2">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs sm:text-sm font-black text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Unit Ticket Overviews
+              </h4>
+              <span class="text-xs text-slate-400 font-medium hidden sm:inline">Direct access to operating unit live queues</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
+              <!-- FGMU Ticket Overview -->
+              <router-link
+                to="/director/fgmu/queues"
+                class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 hover:border-blue-400 shadow-xs hover:shadow-md transition-all group flex flex-col justify-between gap-3 min-h-[44px] cursor-pointer"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                    </svg>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60">
+                    FGMU
+                  </span>
+                </div>
+                <div>
+                  <h5 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-blue-700 transition-colors">
+                    FGMU Ticket Overview
+                  </h5>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">
+                    Facilities &amp; Maintenance Queues
+                  </p>
+                </div>
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600">
+                  <span>Open Queues</span>
+                  <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </div>
+              </router-link>
+
+              <!-- LEAU Ticket Overview -->
+              <router-link
+                to="/director/leau/queues"
+                class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-400 shadow-xs hover:shadow-md transition-all group flex flex-col justify-between gap-3 min-h-[44px] cursor-pointer"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                    </svg>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                    LEAU
+                  </span>
+                </div>
+                <div>
+                  <h5 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    LEAU Ticket Overview
+                  </h5>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">
+                    Landscaping &amp; Borrowing Queues
+                  </p>
+                </div>
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600">
+                  <span>Open Queues</span>
+                  <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </div>
+              </router-link>
+
+              <!-- SSU Incident Reports Ticket Overview -->
+              <router-link
+                to="/director/ssu/queues"
+                class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 hover:border-rose-400 shadow-xs hover:shadow-md transition-all group flex flex-col justify-between gap-3 min-h-[44px] cursor-pointer"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200/60 flex items-center justify-center text-rose-600 group-hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200/60">
+                    SSU
+                  </span>
+                </div>
+                <div>
+                  <h5 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-rose-700 transition-colors">
+                    SSU Incident Reports Overview
+                  </h5>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">
+                    Campus Safety &amp; Incident Case Queues
+                  </p>
+                </div>
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-rose-600">
+                  <span>Open Queues</span>
+                  <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </div>
+              </router-link>
+            </div>
+          </div>
+
           <!-- Interactive Period & Timeframe Selector Bar -->
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
             <!-- Period Tabs (Segmented Control) -->
@@ -142,6 +245,7 @@
                     <th class="py-3 px-4 text-center">Resolved</th>
                     <th class="py-3 px-4 text-center">Declined</th>
                     <th class="py-3 px-5 text-center">Rating ★</th>
+                    <th class="py-3 px-4 text-center">Live Queue</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-sm">
@@ -162,6 +266,15 @@
                       <span v-if="executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg">{{ executiveAnalytics.units.FGMU.avg_ratings.overall_avg }}</span>
                       <span v-else class="text-slate-400 text-xs font-medium">—</span>
                     </td>
+                    <td class="py-3.5 px-4 text-center">
+                      <router-link
+                        to="/director/fgmu/queues"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors cursor-pointer min-h-[36px]"
+                      >
+                        <span>Ticket Overview</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                      </router-link>
+                    </td>
                   </tr>
 
                   <!-- LEAU -->
@@ -180,6 +293,15 @@
                     <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">
                       <span v-if="executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg">{{ executiveAnalytics.units.LEAU.avg_ratings.overall_avg }}</span>
                       <span v-else class="text-slate-400 text-xs font-medium">—</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                      <router-link
+                        to="/director/leau/queues"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors cursor-pointer min-h-[36px]"
+                      >
+                        <span>Ticket Overview</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                      </router-link>
                     </td>
                   </tr>
 
@@ -200,6 +322,15 @@
                       <span v-if="executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg">{{ executiveAnalytics.units.SSU.avg_ratings.overall_avg }}</span>
                       <span v-else class="text-slate-400 text-xs font-medium">—</span>
                     </td>
+                    <td class="py-3.5 px-4 text-center">
+                      <router-link
+                        to="/director/ssu/queues"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer min-h-[36px]"
+                      >
+                        <span>Ticket Overview</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                      </router-link>
+                    </td>
                   </tr>
 
                   <!-- Consolidated Total Row -->
@@ -212,6 +343,7 @@
                       <span v-if="executiveAnalytics?.summary?.overall_ratings?.overall_avg">{{ executiveAnalytics.summary.overall_ratings.overall_avg }}</span>
                       <span v-else class="text-slate-400 text-xs font-medium">—</span>
                     </td>
+                    <td class="py-3.5 px-4 text-center text-slate-400 font-bold text-xs">—</td>
                   </tr>
                 </tbody>
               </table>
@@ -244,6 +376,15 @@
                     <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</span>
                   </div>
                 </div>
+                <div class="pt-1">
+                  <router-link
+                    to="/director/fgmu/queues"
+                    class="w-full py-2 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold flex items-center justify-center gap-1 transition-colors min-h-[40px]"
+                  >
+                    <span>View Ticket Overview</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                  </router-link>
+                </div>
               </div>
 
               <!-- LEAU Mobile Card -->
@@ -271,6 +412,15 @@
                     <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</span>
                   </div>
                 </div>
+                <div class="pt-1">
+                  <router-link
+                    to="/director/leau/queues"
+                    class="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold flex items-center justify-center gap-1 transition-colors min-h-[40px]"
+                  >
+                    <span>View Ticket Overview</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                  </router-link>
+                </div>
               </div>
 
               <!-- SSU Mobile Card -->
@@ -297,6 +447,15 @@
                     <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Declined</span>
                     <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</span>
                   </div>
+                </div>
+                <div class="pt-1">
+                  <router-link
+                    to="/director/ssu/queues"
+                    class="w-full py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center justify-center gap-1 transition-colors min-h-[40px]"
+                  >
+                    <span>View Ticket Overview</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                  </router-link>
                 </div>
               </div>
 

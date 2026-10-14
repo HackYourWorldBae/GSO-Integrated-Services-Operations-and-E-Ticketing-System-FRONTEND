@@ -185,10 +185,14 @@ describe('Router Page Guards & RBAC Boundaries', () => {
       expect(nextQueue).toHaveBeenCalledWith();
     });
 
-    it('allows Director to access multi-unit archives and SSU submitted tickets', () => {
+    it('allows Director to access multi-unit archives, SSU queues, and SSU submitted tickets', () => {
       const nextFgmuArch = vi.fn();
       checkRouteAccess({ path: '/admin/fgmu/archives', meta: { requiresAuth: true, roles: ['admin', 'director', 'superadmin'], unit: 'FGMU' } }, {}, nextFgmuArch);
       expect(nextFgmuArch).toHaveBeenCalledWith();
+
+      const nextSsuQueue = vi.fn();
+      checkRouteAccess({ path: '/director/ssu/queues', meta: { requiresAuth: true, roles: ['director', 'superadmin'], unit: 'SSU', permission: 'tickets.view_all' } }, {}, nextSsuQueue);
+      expect(nextSsuQueue).toHaveBeenCalledWith();
 
       const nextSsu = vi.fn();
       checkRouteAccess({ path: '/admin/ssu/submitted-tickets', meta: { requiresAuth: true, roles: ['admin', 'director', 'superadmin'], unit: 'SSU' } }, {}, nextSsu);

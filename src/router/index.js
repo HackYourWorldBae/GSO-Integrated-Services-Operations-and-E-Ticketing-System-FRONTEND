@@ -529,6 +529,13 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['director', 'superadmin'], unit: 'LEAU', permission: 'tickets.view_all' }
     },
     {
+      path: '/director/ssu/queues',
+      alias: ['/director/queues/ssu'],
+      name: 'director-ssu-ticket-queues',
+      component: SSU_IncidentTicketQueues,
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'], unit: 'SSU', permission: 'tickets.view_all' }
+    },
+    {
       path: '/director/fgmu',
       name: 'director-fgmu',
       component: Director_FGMU,
