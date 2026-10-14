@@ -260,7 +260,7 @@
                   <th v-if="activeTab === 'pending'" class="px-2 py-3 text-slate-700 text-center">Files</th>
                   <th v-if="activeTab === 'dispatched'" class="px-3 py-3 text-slate-700">Scheduled Date &amp; Staff</th>
                   <th v-if="activeTab === 'borrowing'" class="px-3 py-3 text-slate-700">Item Requested</th>
-                  <th v-if="activeTab === 'borrowing'" class="px-3 py-3 text-slate-700">Date Needed &amp; Return</th>
+                  <th v-if="activeTab === 'borrowing'" class="px-3 py-3 text-slate-700">Date Needed</th>
                   <th v-if="activeTab === 'borrowing'" class="px-3 py-3 text-slate-700">Borrowing Status</th>
                   <th v-if="activeTab === 'active'" class="px-3 py-3 text-slate-700">Elapsed Duration</th>
                   <th class="px-3 py-3 text-slate-700 text-right">Actions</th>
@@ -400,18 +400,12 @@
                       {{ ticket.item_requested || ticket.item_name_requested || 'Equipment / Plant' }}
                       <span v-if="ticket.item_model || ticket.item_model_requested" class="font-semibold text-slate-500">({{ ticket.item_model || ticket.item_model_requested }})</span>
                     </div>
-                    <div class="text-[10px] text-slate-500 font-medium">
-                      Qty: <span class="font-bold text-slate-800">{{ ticket.quantity || ticket.quantity_needed || 1 }} unit(s)</span>
-                    </div>
                   </td>
 
                   <!-- Borrowing: Schedule & Return -->
                   <td v-if="activeTab === 'borrowing'" class="px-3 py-2.5 whitespace-nowrap">
                     <div class="text-xs font-semibold text-slate-800">
-                      Needed: {{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}
-                    </div>
-                    <div class="text-[10px] text-slate-500 font-medium">
-                      Return: {{ formatDate(ticket.expected_return_date || ticket.borrowing?.expected_return_date) }}
+                      {{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}
                     </div>
                   </td>
 
