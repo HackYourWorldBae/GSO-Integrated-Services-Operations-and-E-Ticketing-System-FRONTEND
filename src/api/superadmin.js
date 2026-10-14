@@ -152,3 +152,12 @@ export const fetchMaintenanceStatus = () =>
 export const updateMaintenanceStatus = (payload) =>
   apiClient.post('/superadmin/maintenance', payload);
 
+/**
+ * Fetch pre-defined / operational specialty categories for a sub-unit.
+ * Route: GET /api/v1/personnel/categories/{unitCode}
+ * @param {string} unitCode - Unit identifier code (FGMU, LEAU, SSU)
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
+export const fetchPersonnelCategories = (unitCode) =>
+  apiClient.get(`/personnel/categories/${unitCode}`);
+

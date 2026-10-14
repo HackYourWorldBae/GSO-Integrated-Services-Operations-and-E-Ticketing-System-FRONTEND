@@ -226,7 +226,7 @@
                             {{ user.student_id_number }}
                           </span>
                         </div>
-                        <span class="text-[11px] text-slate-500 truncate">{{ user.email || 'No email provided' }}</span>
+                        <span class="text-[11px] text-slate-500 truncate">{{ user.role === 'worker' ? (user.username || user.email ? '@' + (user.username || user.email) : 'No username') : (user.email || 'No email provided') }}</span>
                         <span v-if="user.contact_number && (!isInternalRole(user.role) || user.role === 'worker')" class="text-[10px] text-slate-400 font-medium">📞 {{ user.contact_number }}</span>
                       </div>
                     </div>
@@ -638,7 +638,7 @@
                       {{ user.student_id_number }}
                     </span>
                   </div>
-                  <p class="text-xs text-slate-600 font-medium truncate mt-0.5">{{ user.email || 'No email provided' }}</p>
+                  <p class="text-xs text-slate-600 font-medium truncate mt-0.5">{{ user.role === 'worker' ? (user.username || user.email ? '@' + (user.username || user.email) : 'No username') : (user.email || 'No email provided') }}</p>
                   <div class="flex items-center gap-2 text-[11px] text-slate-500 font-semibold mt-1">
                     <span v-if="user.unit_code">Unit: <strong class="text-slate-800">{{ user.unit_code }}</strong></span>
                     <span v-else class="italic text-slate-400">Global</span>
@@ -896,11 +896,6 @@
               </div>
             </div>
 
-            <div>
-              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Email Address *</label>
-              <input v-model="createForm.email" type="email" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="name@bsu.edu.ph" />
-            </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">System Role *</label>
@@ -924,9 +919,43 @@
               </div>
             </div>
 
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
+                {{ createForm.role === 'worker' ? 'Username *' : 'Email Address *' }}
+              </label>
+              <input 
+                v-model="createForm.email" 
+                :type="createForm.role === 'worker' ? 'text' : 'email'" 
+                required 
+                :placeholder="createForm.role === 'worker' ? 'e.g. juandelacruz' : 'name@bsu.edu.ph'"
+                :autocomplete="createForm.role === 'worker' ? 'username' : 'email'"
+                @input="createForm.role === 'worker' ? (createForm.email = createForm.email.toLowerCase().replace(/[^a-zA-Z0-9._-]/g, '')) : null"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" 
+              />
+              <p v-if="createForm.role === 'worker'" class="text-[10px] text-slate-400 font-medium mt-1">
+                Field personnel authenticate using their assigned username.
+              </p>
+            </div>
+
             <div v-if="createForm.role === 'worker'">
-              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Trade / Specialty</label>
-              <input v-model="createForm.specialty" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="e.g. Electrician, Plumber, Groundskeeper" />
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Trade / Specialty *</label>
+              <select 
+                v-model="createForm.specialty" 
+                required 
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer"
+              >
+                <option value="" disabled>Select Pre-Defined Specialty</option>
+                <option 
+                  v-for="spec in getSpecialtiesForUnit(createForm.unit_id)" 
+                  :key="spec" 
+                  :value="spec"
+                >
+                  {{ spec }}
+                </option>
+              </select>
+              <p class="text-[10px] text-slate-400 font-medium mt-1">
+                Pre-defined specialty categories for {{ getUnitName(createForm.unit_id) }}.
+              </p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1019,8 +1048,42 @@
             </div>
 
             <div v-if="editForm.role === 'worker'">
-              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Trade / Specialty</label>
-              <input v-model="editForm.specialty" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="e.g. Electrician, Plumber, Groundskeeper" />
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Username</label>
+              <input 
+                v-model="editForm.email" 
+                type="text" 
+                placeholder="e.g. juandelacruz" 
+                @input="editForm.email = editForm.email.toLowerCase().replace(/[^a-zA-Z0-9._-]/g, '')"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" 
+              />
+              <p class="text-[10px] text-slate-400 font-medium mt-1">Field personnel authenticate using their assigned username.</p>
+            </div>
+
+            <div v-if="editForm.role === 'worker'">
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Trade / Specialty *</label>
+              <select 
+                v-model="editForm.specialty" 
+                required 
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer"
+              >
+                <option value="" disabled>Select Pre-Defined Specialty</option>
+                <option 
+                  v-for="spec in getSpecialtiesForUnit(editForm.unit_id)" 
+                  :key="spec" 
+                  :value="spec"
+                >
+                  {{ spec }}
+                </option>
+                <option 
+                  v-if="editForm.specialty && !getSpecialtiesForUnit(editForm.unit_id).includes(editForm.specialty)" 
+                  :value="editForm.specialty"
+                >
+                  {{ editForm.specialty }} (Current)
+                </option>
+              </select>
+              <p class="text-[10px] text-slate-400 font-medium mt-1">
+                Pre-defined specialty categories for {{ getUnitName(editForm.unit_id) }}.
+              </p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1416,7 +1479,8 @@ import {
   updateUserStatus as apiUpdateUserStatus,
   unlockUser as apiUnlockUser,
   archiveInactiveUsers as apiArchiveInactiveUsers,
-  fetchInactiveSummary as apiFetchInactiveSummary
+  fetchInactiveSummary as apiFetchInactiveSummary,
+  fetchPersonnelCategories as apiFetchPersonnelCategories
 } from '@/api/superadmin';
 
 const authStore = useAuthStore();
@@ -1805,20 +1869,134 @@ const editForm = reactive({
   confirm_password: ''
 });
 
-// Automatically manage sub-unit selection based on selected system role
+const UNIT_CODE_MAP = {
+  1: 'FGMU',
+  2: 'LEAU',
+  3: 'SSU'
+};
+
+const PREDEFINED_SPECIALTIES = {
+  1: [ // FGMU - Facilities & Grounds
+    'General Maintenance',
+    'Carpentry',
+    'Electrical',
+    'Plumbing',
+    'Aircon / Refrigeration',
+    'Painting / Masonry',
+    'Welding',
+    'Janitorial',
+    'Disinfection / Sanitation',
+    'Hauler / Logistics'
+  ],
+  2: [ // LEAU - Landscaping & Aesthetics
+    'Groundskeeper',
+    'Landscaper',
+    'Stage & Hall Decorator',
+    'Tool & Equipment Custodian',
+    'Landscaping & Gardening',
+    'Grass Cutting / Groundskeeping'
+  ],
+  3: [ // SSU - Security Services
+    'Campus Security & Patrol',
+    'Gate / Entry Control',
+    'Surveillance / CCTV',
+    'Emergency Response',
+    'Traffic & Parking Control',
+    'Event & Crowd Control'
+  ]
+};
+
+const unitCategories = ref({
+  1: [],
+  2: [],
+  3: []
+});
+
+const getUnitName = (unitId) => {
+  const id = Number(unitId);
+  if (id === 1) return 'Facilities & Grounds (FGMU)';
+  if (id === 2) return 'Landscaping & Aesthetics (LEAU)';
+  if (id === 3) return 'Security Services (SSU)';
+  return 'Operational Unit';
+};
+
+const fetchCategoriesForUnit = async (unitId) => {
+  const code = UNIT_CODE_MAP[Number(unitId)];
+  if (!code) return;
+  try {
+    const res = await apiFetchPersonnelCategories(code);
+    const cats = res.data?.data?.categories || [];
+    if (Array.isArray(cats)) {
+      unitCategories.value[Number(unitId)] = cats.map(c => typeof c === 'string' ? c : c.name).filter(Boolean);
+    }
+  } catch (err) {
+    // Non-blocking fallback to PREDEFINED_SPECIALTIES
+  }
+};
+
+const getSpecialtiesForUnit = (unitId) => {
+  const id = Number(unitId) || 1;
+  const dynamic = unitCategories.value[id] || [];
+  const predefined = PREDEFINED_SPECIALTIES[id] || [];
+  return Array.from(new Set([...dynamic, ...predefined]));
+};
+
+// Automatically manage sub-unit selection & specialties based on selected system role
 watch(() => createForm.role, (newRole) => {
   if (isGlobalRole(newRole)) {
     createForm.unit_id = null;
+    createForm.specialty = '';
   } else if (!createForm.unit_id) {
     createForm.unit_id = 1;
+  }
+  if (newRole === 'worker') {
+    const unitId = createForm.unit_id || 1;
+    fetchCategoriesForUnit(unitId);
+    const available = getSpecialtiesForUnit(unitId);
+    if (!createForm.specialty || !available.includes(createForm.specialty)) {
+      createForm.specialty = available[0] || '';
+    }
+  }
+});
+
+watch(() => createForm.unit_id, (newUnitId) => {
+  if (newUnitId) {
+    fetchCategoriesForUnit(newUnitId);
+    if (createForm.role === 'worker') {
+      const available = getSpecialtiesForUnit(newUnitId);
+      if (!available.includes(createForm.specialty)) {
+        createForm.specialty = available[0] || '';
+      }
+    }
   }
 });
 
 watch(() => editForm.role, (newRole) => {
   if (isGlobalRole(newRole)) {
     editForm.unit_id = null;
+    editForm.specialty = '';
   } else if (!editForm.unit_id) {
     editForm.unit_id = 1;
+  }
+  if (newRole === 'worker') {
+    const unitId = editForm.unit_id || 1;
+    fetchCategoriesForUnit(unitId);
+    const available = getSpecialtiesForUnit(unitId);
+    if (!editForm.specialty || !available.includes(editForm.specialty)) {
+      editForm.specialty = available[0] || '';
+    }
+  }
+});
+
+watch(() => editForm.unit_id, (newUnitId) => {
+  if (newUnitId) {
+    fetchCategoriesForUnit(newUnitId);
+    if (editForm.role === 'worker') {
+      const available = getSpecialtiesForUnit(newUnitId);
+      if (!editForm.specialty) {
+        editForm.specialty = available[0] || '';
+      }
+    }
   }
 });
 
@@ -1952,14 +2130,20 @@ const openCreateModal = () => {
   createForm.email = '';
   createForm.role = 'admin';
   createForm.unit_id = 1;
+  createForm.specialty = '';
   createForm.password = '';
   createForm.confirm_password = '';
   createForm.status = 'Active';
   isCreateModalOpen.value = true;
+  fetchCategoriesForUnit(1);
+  fetchCategoriesForUnit(2);
+  fetchCategoriesForUnit(3);
 };
 
 const submitCreateUser = async () => {
   isSubmitting.value = true;
+  modalError.value = '';
+
   if (createForm.first_name.trim().length < 2) {
     modalError.value = 'First name must be at least 2 characters.';
     isSubmitting.value = false;
@@ -1975,6 +2159,43 @@ const submitCreateUser = async () => {
     isSubmitting.value = false;
     return;
   }
+
+  if (createForm.role === 'worker') {
+    const username = createForm.email.trim();
+    if (!username) {
+      modalError.value = 'Username is required for personnel accounts.';
+      isSubmitting.value = false;
+      return;
+    }
+    if (username.length < 3) {
+      modalError.value = 'Username must be at least 3 characters long.';
+      isSubmitting.value = false;
+      return;
+    }
+    if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
+      modalError.value = 'Username can only contain letters, numbers, dots, hyphens, and underscores.';
+      isSubmitting.value = false;
+      return;
+    }
+    if (!createForm.specialty || !createForm.specialty.trim()) {
+      modalError.value = 'Please select a trade / specialty category for the personnel.';
+      isSubmitting.value = false;
+      return;
+    }
+  } else {
+    const email = createForm.email.trim();
+    if (!email) {
+      modalError.value = 'Email address is required.';
+      isSubmitting.value = false;
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      modalError.value = 'Please enter a valid email address.';
+      isSubmitting.value = false;
+      return;
+    }
+  }
+
   if (createForm.password.length < 8) {
     modalError.value = 'Password must be at least 8 characters long.';
     isSubmitting.value = false;
@@ -1991,6 +2212,7 @@ const submitCreateUser = async () => {
       first_name: createForm.first_name.trim(),
       last_name: createForm.last_name.trim(),
       email: createForm.email.trim(),
+      username: createForm.role === 'worker' ? createForm.email.trim() : undefined,
       role: createForm.role,
       password: createForm.password,
       confirm_password: createForm.confirm_password,
@@ -2023,12 +2245,15 @@ const openEditModal = (user) => {
   editForm.id = user.id;
   editForm.first_name = user.first_name || '';
   editForm.last_name = user.last_name || '';
-  editForm.email = user.email || '';
+  editForm.email = user.role === 'worker' ? (user.username || user.email || '') : (user.email || '');
   editForm.role = user.role || 'admin';
   editForm.unit_id = user.unit_id || null;
   editForm.specialty = user.specialty || '';
   editForm.password = '';
   editForm.confirm_password = '';
+  if (editForm.unit_id) {
+    fetchCategoriesForUnit(editForm.unit_id);
+  }
   isEditModalOpen.value = true;
 };
 
@@ -2048,12 +2273,38 @@ const submitEditUser = async () => {
       isSubmitting.value = false;
       return;
     }
+
+    if (finalRole === 'worker') {
+      const username = (editForm.email || '').trim();
+      if (!username) {
+        modalError.value = 'Username is required for personnel accounts.';
+        isSubmitting.value = false;
+        return;
+      }
+      if (username.length < 3) {
+        modalError.value = 'Username must be at least 3 characters long.';
+        isSubmitting.value = false;
+        return;
+      }
+      if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
+        modalError.value = 'Username can only contain letters, numbers, dots, hyphens, and underscores.';
+        isSubmitting.value = false;
+        return;
+      }
+      if (!editForm.specialty || !editForm.specialty.trim()) {
+        modalError.value = 'Please select a trade / specialty category for the personnel.';
+        isSubmitting.value = false;
+        return;
+      }
+    }
+
     const payload = {
       first_name: editForm.first_name ? editForm.first_name.trim() : undefined,
       last_name: editForm.last_name ? editForm.last_name.trim() : undefined,
       role: editForm.role,
       unit_id: isGlobalRole(editForm.role) ? null : (editForm.unit_id ? Number(editForm.unit_id) : null),
       specialty: editForm.role === 'worker' ? (editForm.specialty?.trim() || null) : undefined,
+      email: (editForm.role === 'worker' && editForm.email) ? editForm.email.trim() : undefined,
     };
     if (editForm.password && editForm.password.trim()) {
       if (editForm.password !== editForm.confirm_password) {
