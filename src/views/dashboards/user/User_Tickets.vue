@@ -274,13 +274,22 @@
                     </div>
                   </div>
 
-                  <!-- Decline reason inline -->
-                  <div v-if="(ticket.status === 'declined' || ticket.status === 'rejected') && ticket.declineReason" class="mt-3.5 flex items-start gap-3 p-4 bg-rose-50 border border-rose-200 rounded-xl">
+                  <!-- Decline / Cancellation reason inline -->
+                  <div v-if="ticket.declineReason && (ticket.status === 'cancelled' || String(ticket.statusLabel || '').toLowerCase().includes('cancel'))" class="mt-3.5 flex items-start gap-3 p-4 bg-slate-100 border border-slate-300 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p class="text-xs font-black text-slate-700 uppercase tracking-wider mb-0.5">Reason for Cancellation</p>
+                      <p class="text-sm font-semibold text-slate-800 leading-relaxed">{{ ticket.declineReason }}</p>
+                    </div>
+                  </div>
+                  <div v-else-if="(ticket.status === 'declined' || ticket.status === 'rejected') && ticket.declineReason" class="mt-3.5 flex items-start gap-3 p-4 bg-rose-50 border border-rose-200 rounded-xl">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <div>
-                      <p class="text-xs font-black text-rose-700 uppercase tracking-wider mb-0.5">Decline Reason</p>
+                      <p class="text-xs font-black text-rose-700 uppercase tracking-wider mb-0.5">Reason for Decline</p>
                       <p class="text-sm font-semibold text-rose-900 leading-relaxed">{{ ticket.declineReason }}</p>
                     </div>
                   </div>
@@ -1406,7 +1415,8 @@ const mapTicketData = (t) => {
     location: t.location,
     office_room: t.office_room,
     attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
-    declineReason: t.decline_reason || '',
+    declineReason: t.decline_reason || t.cancellation_reason || '',
+    cancellationReason: t.cancellation_reason || (t.status === 'cancelled' ? t.decline_reason : '') || '',
     currentStep: (() => {
       if (isBorrowingService(t)) {
         return getBorrowingCurrentStep(t);
@@ -1823,7 +1833,13 @@ const getSteps = (ticket) => {
 
   if (isBorrowingService(ticket)) {
     let steps = BORROWING_STEPS.map(s => ({ ...s }));
-    if (ticket.status === 'declined' || ticket.status === 'rejected') {
+    if (ticket.status === 'cancelled' || String(ticket.statusLabel || '').toLowerCase().includes('cancel')) {
+      const reason = ticket.cancellationReason || ticket.declineReason || 'Borrowing request cancelled by Requestor.';
+      if (steps.length > 1) {
+        steps[1] = { label: 'Request Cancelled', description: `Reason: ${reason}` };
+        steps = steps.slice(0, 2);
+      }
+    } else if (ticket.status === 'declined' || ticket.status === 'rejected') {
       const reason = ticket.declineReason || 'Borrowing request declined by Director.';
       if (steps.length > 1) {
         steps[1] = { label: 'Ticket Declined', description: `Reason: ${reason}` };
@@ -1846,7 +1862,13 @@ const getSteps = (ticket) => {
     steps[3].description = `Dispatcher assigned personnel and scheduled implementation for ${ticket.implementationDate}${durationText}.${extText}${workerText}`;
   }
 
-  if (ticket.status === 'declined' || ticket.status === 'rejected') {
+  if (ticket.status === 'cancelled' || String(ticket.statusLabel || '').toLowerCase().includes('cancel')) {
+    const reason = ticket.cancellationReason || ticket.declineReason || 'Request cancelled by Requestor.';
+    if (steps.length > 1) {
+      steps[1] = { label: 'Request Cancelled', description: `Reason: ${reason}` };
+      steps = steps.slice(0, 2);
+    }
+  } else if (ticket.status === 'declined' || ticket.status === 'rejected') {
     const reason = ticket.declineReason || 'Request declined by Admin.';
     if (steps.length > 1) {
       steps[1] = { label: 'Ticket Declined', description: `Reason: ${reason}` };

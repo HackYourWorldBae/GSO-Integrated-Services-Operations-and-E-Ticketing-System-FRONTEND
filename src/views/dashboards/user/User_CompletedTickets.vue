@@ -74,7 +74,7 @@
                     <div class="truncate max-w-[160px] sm:max-w-xs text-base font-bold text-slate-900" :title="ticket.service_type || ticket.service || ticket.title">{{ ticket.service_type || ticket.service || ticket.title }}</div>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-300 group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <span :class="['px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
+                    <span :class="['px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : (ticket.status === 'cancelled' || String(ticket.statusLabel || '').toLowerCase().includes('cancel')) ? 'bg-slate-100 text-slate-700 border-slate-300' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
                       {{ ticket.statusLabel }}
                     </span>
                   </td>
@@ -133,7 +133,7 @@
                   <span v-if="ticket.is_recategorized" class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200" title="Nature of work was recategorized by Administration">
                     Recategorized
                   </span>
-                  <span :class="['px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
+                  <span :class="['px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : (ticket.status === 'cancelled' || String(ticket.statusLabel || '').toLowerCase().includes('cancel')) ? 'bg-slate-100 text-slate-700 border-slate-300' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
                     {{ ticket.statusLabel }}
                   </span>
                 </div>
@@ -278,11 +278,13 @@
         <div v-if="showDetailsModal && selectedTicket" class="fixed inset-0 z-[9990] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in pointer-events-auto overflow-y-auto" @click.self="closeDetailsModal">
           <div class="bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar pointer-events-auto my-auto" @click.stop>
             <div class="flex items-center justify-between mb-5 sm:mb-6">
-              <h3 class="text-xl sm:text-2xl font-black text-slate-900">Completed Ticket Details</h3>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900">
+                {{ (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel')) ? 'Cancelled Ticket Details' : ((selectedTicket.status === 'declined' || selectedTicket.status === 'rejected') ? 'Declined Ticket Details' : 'Completed Ticket Details') }}
+              </h3>
               <div class="flex items-center gap-2">
                 <button @click="openTimeline(selectedTicket)" class="px-3 sm:px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer touch-manipulation min-h-[44px]">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                   </svg>
                   <span>Track Progress</span>
                 </button>
@@ -295,14 +297,51 @@
             </div>
           
           <div class="space-y-6">
-            <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+            <div :class="[
+              'flex items-center justify-between p-4 rounded-xl border',
+              (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                ? 'bg-slate-100 border-slate-200'
+                : (selectedTicket.status === 'declined' || selectedTicket.status === 'rejected')
+                  ? 'bg-rose-50 border-rose-100'
+                  : 'bg-emerald-50 border-emerald-100'
+            ]">
               <div>
-                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Status</p>
-                <p class="text-lg font-black text-emerald-700">{{ selectedTicket.statusLabel }}</p>
+                <p :class="[
+                  'text-[10px] font-bold uppercase tracking-widest mb-1',
+                  (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                    ? 'text-slate-500'
+                    : (selectedTicket.status === 'declined' || selectedTicket.status === 'rejected')
+                      ? 'text-rose-600'
+                      : 'text-emerald-600'
+                ]">Status</p>
+                <p :class="[
+                  'text-lg font-black',
+                  (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                    ? 'text-slate-800'
+                    : (selectedTicket.status === 'declined' || selectedTicket.status === 'rejected')
+                      ? 'text-rose-700'
+                      : 'text-emerald-700'
+                ]">{{ selectedTicket.statusLabel }}</p>
               </div>
               <div class="text-right">
-                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Completed Date</p>
-                <p class="text-sm font-bold text-emerald-700">{{ selectedTicket.date }}</p>
+                <p :class="[
+                  'text-[10px] font-bold uppercase tracking-widest mb-1',
+                  (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                    ? 'text-slate-500'
+                    : (selectedTicket.status === 'declined' || selectedTicket.status === 'rejected')
+                      ? 'text-rose-600'
+                      : 'text-emerald-600'
+                ]">
+                  {{ (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel')) ? 'Cancellation Date' : ((selectedTicket.status === 'declined' || selectedTicket.status === 'rejected') ? 'Declined Date' : 'Completed Date') }}
+                </p>
+                <p :class="[
+                  'text-sm font-bold',
+                  (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                    ? 'text-slate-800'
+                    : (selectedTicket.status === 'declined' || selectedTicket.status === 'rejected')
+                      ? 'text-rose-700'
+                      : 'text-emerald-700'
+                ]">{{ selectedTicket.date }}</p>
               </div>
             </div>
 
@@ -431,17 +470,30 @@
                 </div>
               </div>
 
-              <!-- Dedicated Decline Reason Section (If Applicable) -->
+              <!-- Dedicated Decline / Cancellation Reason Section (If Applicable) -->
               <div v-if="selectedTicket.declineReason" class="col-span-2">
-                <p class="text-xs font-bold text-rose-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  Reason for Decline
-                </p>
-                <div class="p-5 bg-rose-50 border-l-4 border-rose-500 rounded-r-xl shadow-sm">
-                  <p class="text-sm font-semibold text-rose-800 leading-relaxed">{{ selectedTicket.declineReason }}</p>
-                </div>
+                <template v-if="selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel')">
+                  <p class="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Reason for Cancellation
+                  </p>
+                  <div class="p-5 bg-slate-50 border-l-4 border-slate-500 rounded-r-xl shadow-xs">
+                    <p class="text-sm font-semibold text-slate-800 leading-relaxed">{{ selectedTicket.declineReason }}</p>
+                  </div>
+                </template>
+                <template v-else>
+                  <p class="text-xs font-bold text-rose-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Reason for Decline
+                  </p>
+                  <div class="p-5 bg-rose-50 border-l-4 border-rose-500 rounded-r-xl shadow-xs">
+                    <p class="text-sm font-semibold text-rose-800 leading-relaxed">{{ selectedTicket.declineReason }}</p>
+                  </div>
+                </template>
               </div>
 
               <!-- Dedicated Feedback/Rating Section (If Applicable) -->
@@ -640,8 +692,15 @@
                       <h4 :class="['font-bold text-sm leading-tight', selectedTimelineTicket.currentStep >= (index + 1) ? 'text-slate-900' : 'text-slate-400']">
                         {{ step.label }}
                       </h4>
-                      <span v-if="index === getSteps(selectedTimelineTicket).length - 1" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700">
-                        Completed
+                      <span v-if="index === getSteps(selectedTimelineTicket).length - 1" :class="[
+                        'px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest',
+                        (selectedTimelineTicket.status === 'cancelled' || String(selectedTimelineTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                          ? 'bg-slate-200 text-slate-800'
+                          : (selectedTimelineTicket.status === 'declined' || selectedTimelineTicket.status === 'rejected')
+                            ? 'bg-rose-100 text-rose-700'
+                            : 'bg-emerald-100 text-emerald-700'
+                      ]">
+                        {{ (selectedTimelineTicket.status === 'cancelled' || String(selectedTimelineTicket.statusLabel || '').toLowerCase().includes('cancel')) ? 'Cancelled' : ((selectedTimelineTicket.status === 'declined' || selectedTimelineTicket.status === 'rejected') ? 'Declined' : 'Completed') }}
                       </span>
                     </div>
                   </div>
@@ -649,15 +708,29 @@
               </div>
             </div>
 
-              <!-- Finalized Card -->
+              <!-- Finalized / Cancelled / Declined Card -->
               <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-3 text-emerald-600">
+                <div v-if="selectedTimelineTicket.status === 'cancelled' || String(selectedTimelineTicket.statusLabel || '').toLowerCase().includes('cancel')" class="w-12 h-12 bg-slate-200 rounded-2xl flex items-center justify-center mb-3 text-slate-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div v-else-if="selectedTimelineTicket.status === 'declined' || selectedTimelineTicket.status === 'rejected'" class="w-12 h-12 bg-rose-100 rounded-2xl flex items-center justify-center mb-3 text-rose-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div v-else class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-3 text-emerald-600">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h4 class="font-black text-slate-900 text-sm mb-1">Ticket Finalized & Archived</h4>
-                <p class="text-xs text-slate-500 leading-relaxed">Thank you for using GSO E-Ticketing. This service request has been completed and archived.</p>
+                <h4 class="font-black text-slate-900 text-sm mb-1">
+                  {{ (selectedTimelineTicket.status === 'cancelled' || String(selectedTimelineTicket.statusLabel || '').toLowerCase().includes('cancel')) ? 'Ticket Cancelled & Archived' : ((selectedTimelineTicket.status === 'declined' || selectedTimelineTicket.status === 'rejected') ? 'Ticket Declined & Archived' : 'Ticket Finalized & Archived') }}
+                </h4>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                  {{ (selectedTimelineTicket.status === 'cancelled' || String(selectedTimelineTicket.statusLabel || '').toLowerCase().includes('cancel')) ? 'This service request was cancelled and archived for record-keeping.' : ((selectedTimelineTicket.status === 'declined' || selectedTimelineTicket.status === 'rejected') ? 'This service request was declined and moved to archives.' : 'Thank you for using GSO E-Ticketing. This service request has been completed and archived.') }}
+                </p>
               </div>
 
               <!-- Mobile Convenient Close Button -->
@@ -790,7 +863,8 @@ onMounted(async () => {
             office_room: t.office_room || t.details?.office_room || 'N/A',
             attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
             isDeclining: false,
-            declineReason: t.decline_reason || '',
+            declineReason: t.decline_reason || t.cancellation_reason || '',
+            cancellationReason: (t.status === 'cancelled' || String(t.status_label || '').toLowerCase().includes('cancel')) ? (t.cancellation_reason || t.decline_reason || '') : '',
             currentStep: isBorrowingService(t)
               ? 7
               : Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 6),
@@ -978,6 +1052,14 @@ const getSteps = (ticket) => {
 
   if (isBorrowingService(ticket)) {
     let steps = BORROWING_STEPS.map(s => ({ ...s }));
+    if (ticket.status === 'cancelled' || String(ticket.status || '').toLowerCase().includes('cancel') || String(ticket.statusLabel || '').toLowerCase().includes('cancel')) {
+      const reason = ticket.declineReason || 'Borrowing request cancelled by user.';
+      if (steps.length > 1) {
+        steps[1] = { label: 'Request Cancelled', description: `Reason: ${reason}` };
+        steps = steps.slice(0, 2);
+      }
+      return steps;
+    }
     if (ticket.status === 'declined' || ticket.status === 'rejected') {
       const reason = ticket.declineReason || 'Borrowing request declined by Director.';
       if (steps.length > 1) {
@@ -1003,6 +1085,15 @@ const getSteps = (ticket) => {
     const extText = ticket.extension_days > 0 ? ` [Extended by +${ticket.extension_days} working day(s) to ${formatDate(ticket.effective_target_date || ticket.target_completion_date)}]` : '';
     const workerText = ticket.assignedWorker && ticket.assignedWorker !== 'Unassigned' ? ` Assigned Personnel: ${ticket.assignedWorker}${ticket.assignedProfession ? ` (${ticket.assignedProfession})` : ''}.` : '';
     steps[3].description = `Dispatcher assigned personnel and scheduled implementation for ${ticket.implementationDate}${durationText}.${extText}${workerText}`;
+  }
+
+  if (ticket.status === 'cancelled' || String(ticket.status || '').toLowerCase().includes('cancel') || String(ticket.statusLabel || '').toLowerCase().includes('cancel')) {
+    const reason = ticket.declineReason || 'Request cancelled by user.';
+    if (steps.length > 1) {
+      steps[1] = { label: 'Request Cancelled', description: `Reason: ${reason}` };
+      steps = steps.slice(0, 2);
+    }
+    return steps;
   }
 
   if (ticket.status === 'declined' || ticket.status === 'rejected') {

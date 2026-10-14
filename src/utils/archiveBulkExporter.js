@@ -160,7 +160,7 @@ export const exportJobRequestFormsZip = async ({
     { label: 'Timeliness Rating', getValue: t => t.feedback?.timeliness_rating ? `${t.feedback.timeliness_rating}/5` : 'N/A' },
     { label: 'Efficiency Rating', getValue: t => t.feedback?.efficiency_rating ? `${t.feedback.efficiency_rating}/5` : 'N/A' },
     { label: 'Feedback Remarks', getValue: t => t.feedback?.remarks || 'None' },
-    { label: 'Decline Reason', getValue: t => t.declineReason || 'N/A' },
+    { label: 'Decline / Cancellation Reason', getValue: t => t.declineReason || t.cancellation_reason || t.cancellationReason || 'N/A' },
     { label: 'Job Particulars / Description', getValue: t => t.description || 'N/A' },
   ];
 

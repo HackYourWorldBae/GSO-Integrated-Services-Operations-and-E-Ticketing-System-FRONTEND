@@ -138,10 +138,13 @@ export function getBorrowingStatusLabel(ticket) {
   const rawLabel = String(ticket.status_label || ticket.statusLabel || '').trim();
 
   // Cancelled or declined states
-  if (['declined', 'rejected'].includes(tStatus) || bStatus === 'cancelled') {
+  if (tStatus === 'cancelled') {
+    return 'Cancelled';
+  }
+  if (['declined', 'rejected'].includes(tStatus)) {
     return 'Declined by Director';
   }
-  if (tStatus === 'cancelled') {
+  if (bStatus === 'cancelled') {
     return 'Cancelled';
   }
 

@@ -103,7 +103,7 @@
                     <span class="text-sm font-bold text-slate-700">{{ ticket.requestedBy }}</span>
                   </td>
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
-                    <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
+                    <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border whitespace-nowrap', (ticket.status === 'declined' || ticket.status === 'rejected') ? 'bg-rose-50 text-rose-600 border-rose-200' : (ticket.status === 'cancelled' || String(ticket.statusLabel || '').toLowerCase().includes('cancel')) ? 'bg-slate-100 text-slate-700 border-slate-300' : 'bg-emerald-50 text-emerald-600 border-emerald-200']">
                       {{ ticket.statusLabel }}
                     </span>
                   </td>
@@ -154,7 +154,9 @@
                     'px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap shrink-0',
                     (ticket.status === 'declined' || ticket.status === 'rejected')
                       ? 'bg-rose-50 text-rose-600 border-rose-200'
-                      : 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                      : (ticket.status === 'cancelled' || String(ticket.statusLabel || '').toLowerCase().includes('cancel'))
+                        ? 'bg-slate-100 text-slate-700 border-slate-300'
+                        : 'bg-emerald-50 text-emerald-600 border-emerald-200'
                   ]"
                 >
                   {{ ticket.statusLabel }}
@@ -288,14 +290,51 @@
           </div>
           
           <div class="space-y-6">
-            <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+            <div :class="[
+              'flex items-center justify-between p-4 rounded-xl border',
+              (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                ? 'bg-slate-100 border-slate-200'
+                : (selectedTicket.status === 'declined' || selectedTicket.status === 'rejected')
+                  ? 'bg-rose-50 border-rose-100'
+                  : 'bg-emerald-50 border-emerald-100'
+            ]">
               <div>
-                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Status</p>
-                <p class="text-lg font-black text-emerald-700">{{ selectedTicket.statusLabel }}</p>
+                <p :class="[
+                  'text-[10px] font-bold uppercase tracking-widest mb-1',
+                  (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                    ? 'text-slate-500'
+                    : (selectedTicket.status === 'declined' || selectedTicket.status === 'rejected')
+                      ? 'text-rose-600'
+                      : 'text-emerald-600'
+                ]">Status</p>
+                <p :class="[
+                  'text-lg font-black',
+                  (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                    ? 'text-slate-800'
+                    : (selectedTicket.status === 'declined' || selectedTicket.status === 'rejected')
+                      ? 'text-rose-700'
+                      : 'text-emerald-700'
+                ]">{{ selectedTicket.statusLabel }}</p>
               </div>
               <div class="text-right">
-                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Completed Date</p>
-                <p class="text-sm font-bold text-emerald-700">{{ selectedTicket.date }}</p>
+                <p :class="[
+                  'text-[10px] font-bold uppercase tracking-widest mb-1',
+                  (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                    ? 'text-slate-500'
+                    : (selectedTicket.status === 'declined' || selectedTicket.status === 'rejected')
+                      ? 'text-rose-600'
+                      : 'text-emerald-600'
+                ]">
+                  {{ (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel')) ? 'Cancellation Date' : ((selectedTicket.status === 'declined' || selectedTicket.status === 'rejected') ? 'Declined Date' : 'Completed Date') }}
+                </p>
+                <p :class="[
+                  'text-sm font-bold',
+                  (selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel'))
+                    ? 'text-slate-800'
+                    : (selectedTicket.status === 'declined' || selectedTicket.status === 'rejected')
+                      ? 'text-rose-700'
+                      : 'text-emerald-700'
+                ]">{{ selectedTicket.date }}</p>
               </div>
             </div>
 
@@ -368,17 +407,30 @@
                 </div>
               </div>
 
-              <!-- Dedicated Decline Reason Section (If Applicable) -->
+              <!-- Dedicated Decline / Cancellation Reason Section (If Applicable) -->
               <div v-if="selectedTicket.declineReason" class="col-span-2">
-                <p class="text-xs font-bold text-rose-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  Reason for Decline
-                </p>
-                <div class="p-5 bg-rose-50 border-l-4 border-rose-500 rounded-r-xl shadow-sm">
-                  <p class="text-sm font-semibold text-rose-800 leading-relaxed">{{ selectedTicket.declineReason }}</p>
-                </div>
+                <template v-if="selectedTicket.status === 'cancelled' || String(selectedTicket.statusLabel || '').toLowerCase().includes('cancel')">
+                  <p class="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Reason for Cancellation
+                  </p>
+                  <div class="p-5 bg-slate-50 border-l-4 border-slate-500 rounded-r-xl shadow-xs">
+                    <p class="text-sm font-semibold text-slate-800 leading-relaxed">{{ selectedTicket.declineReason }}</p>
+                  </div>
+                </template>
+                <template v-else>
+                  <p class="text-xs font-bold text-rose-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Reason for Decline
+                  </p>
+                  <div class="p-5 bg-rose-50 border-l-4 border-rose-500 rounded-r-xl shadow-xs">
+                    <p class="text-sm font-semibold text-rose-800 leading-relaxed">{{ selectedTicket.declineReason }}</p>
+                  </div>
+                </template>
               </div>
 
               <!-- Dedicated Feedback/Rating Section (If Applicable) -->
@@ -617,8 +669,9 @@ const fetchArchives = async () => {
         requestedBy: t.requester || t.requestedBy || t.requested_by || t.details?.end_user || (t.user ? `${t.user.first_name || ''} ${t.user.last_name || ''}`.trim() : '') || (t.first_name || t.last_name ? `${t.first_name || ''} ${t.last_name || ''}`.trim() : '') || 'End User',
         contact_number: t.contact_number || t.requester_contact || t.details?.contact_number || t.details?.contact_no || t.user?.contact_number || 'N/A',
         status: t.status,
-        statusLabel: t.status_label,
-        declineReason: t.decline_reason || '',
+        statusLabel: isBorrowingService(t) ? getBorrowingStatusLabel(t) : t.status_label,
+        declineReason: t.decline_reason || t.cancellation_reason || '',
+        cancellationReason: (t.status === 'cancelled' || String(t.status_label || '').toLowerCase().includes('cancel')) ? (t.cancellation_reason || t.decline_reason || '') : '',
         location: t.location || t.details?.college_building || 'N/A',
         office_room: t.office_room || t.details?.office_room || 'N/A',
         attachments: t.attachments || [],

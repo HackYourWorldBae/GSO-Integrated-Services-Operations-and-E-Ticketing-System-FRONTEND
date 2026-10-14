@@ -293,6 +293,15 @@ describe('borrowing utils', () => {
       expect(getBorrowingStatusLabel({
         status: 'cancelled',
       })).toBe('Cancelled');
+
+      expect(getBorrowingStatusLabel({
+        status: 'cancelled',
+        borrowing: { status: 'cancelled' },
+      })).toBe('Cancelled');
+
+      expect(getBorrowingStatusLabel({
+        borrowing: { status: 'cancelled' },
+      })).toBe('Cancelled');
     });
   });
 });
