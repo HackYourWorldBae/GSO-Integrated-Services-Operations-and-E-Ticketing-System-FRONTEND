@@ -75,6 +75,9 @@ const isItemActive = (item) => {
   if (targetPath === '/superadmin/logs') {
     return currentPath === '/superadmin/logs';
   }
+  if (targetPath === '/director/ssu/queues') {
+    return ['/director/ssu/queues', '/director/queues/ssu', '/admin/ssu/queues/incidents'].includes(currentPath);
+  }
 
   if (item.exact) {
     return currentPath === targetPath;
@@ -304,6 +307,13 @@ const rawNavGroups = computed(() => {
             to: '/director/leau/queues',
             exact: true,
             icon: 'leaf',
+            permission: 'tickets.view_all'
+          },
+          {
+            label: 'SSU Reports Overview',
+            to: '/director/ssu/queues',
+            exact: true,
+            icon: 'shield',
             permission: 'tickets.view_all'
           }
         ]
