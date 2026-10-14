@@ -274,11 +274,15 @@
                     v-else
                     v-for="(ticket, tIdx) in worker.assignments"
                     :key="ticket.id || tIdx"
-                    class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs space-y-1.5 hover:border-slate-300 transition-all"
+                    @click="openTicketModal(ticket, worker)"
+                    class="p-3 rounded-2xl bg-white hover:bg-indigo-50/40 border border-slate-200/90 hover:border-indigo-300 text-xs space-y-1.5 transition-all shadow-2xs hover:shadow-xs cursor-pointer group/ticket touch-manipulation"
+                    title="Click to view full ticket details"
                   >
                     <div class="flex items-center justify-between gap-2">
                       <div class="flex items-center gap-1.5">
-                        <span class="font-black text-base text-slate-900 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded-lg tabular-nums">#{{ ticket.ticket_id }}</span>
+                        <span class="font-black font-mono text-[11px] text-slate-800 bg-slate-100 border border-slate-300 px-1.5 py-0.5 rounded-md tabular-nums shadow-2xs group-hover/ticket:border-indigo-400 group-hover/ticket:text-indigo-700 transition-colors">
+                          #{{ ticket.ticket_id }}
+                        </span>
                         <span v-if="ticket.is_emergency" class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider">
                           Urgent
                         </span>
@@ -286,12 +290,17 @@
                           Project
                         </span>
                       </div>
-                      <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                        {{ ticket.queue_order === 1 ? 'Active Job' : `Queue #${ticket.queue_order}` }}
-                      </span>
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 group-hover/ticket:text-indigo-700 transition-colors">
+                          {{ ticket.queue_order === 1 ? 'Active Job' : `Queue #${ticket.queue_order}` }}
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 group-hover/ticket:text-indigo-600 transition-transform group-hover/ticket:translate-x-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
                     </div>
 
-                    <p class="text-slate-700 font-bold leading-tight">
+                    <p class="text-slate-700 font-bold leading-tight group-hover/ticket:text-slate-900 transition-colors">
                       {{ ticket.task || ticket.project_title || ticket.service_type || 'Security Operations' }}
                     </p>
 
@@ -882,6 +891,16 @@
           </div>
         </div>
       </Teleport>
+
+      <!-- Full Ticket Details Modal -->
+      <TicketDetailsModal
+        v-model:isOpen="showTicketModal"
+        :ticket="selectedTicketForModal"
+        :ticketId="selectedTicketForModal?.ticket_id || selectedTicketForModal?.id"
+        :highlightWorkerId="selectedWorkerForModal?.id"
+        unitCode="SSU"
+      />
+
     </template>
   </MainLayout>
 </template>
@@ -890,6 +909,7 @@
 import { ref, computed, reactive, watch, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import StaffLeaveModal from '@/components/StaffLeaveModal.vue';
+import TicketDetailsModal from '@/components/TicketDetailsModal.vue';
 import { useSsuPersonnelStore } from '@/stores/ssuPersonnel';
 import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue3-toastify';
@@ -948,12 +968,22 @@ const getInitials = (name) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-// ── Assigned Tickets Dropdown ───────────────────────────────────────────────
+// ── Assigned Tickets Dropdown & Modal ───────────────────────────────────────
 const expandedWorkers = reactive({});
 const toggleWorkerTickets = (workerId) => {
   expandedWorkers[workerId] = !expandedWorkers[workerId];
 };
 const isWorkerExpanded = (workerId) => Boolean(expandedWorkers[workerId]);
+
+const showTicketModal = ref(false);
+const selectedTicketForModal = ref(null);
+const selectedWorkerForModal = ref(null);
+
+const openTicketModal = (ticket, worker) => {
+  selectedTicketForModal.value = ticket;
+  selectedWorkerForModal.value = worker;
+  showTicketModal.value = true;
+};
 
 // ── Add Personnel Modal ─────────────────────────────────────────────────────
 const nameExtensionOptions = ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
