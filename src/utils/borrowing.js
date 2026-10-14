@@ -42,10 +42,10 @@ export const BORROWING_STEPS = [
   { label: 'Digital Submission',   description: 'The borrower completes and submits the digital borrowing form.' },
   { label: 'Ticket Creation',      description: 'System generated a Digital Ticket under Pending Director Approval.' },
   { label: 'Director Approval',    description: 'Director reviews and approves the borrowing request.' },
-  { label: 'Inventory Allocation', description: 'LEAU checks and allocates requested inventory item(s).' },
-  { label: 'Ready for Pickup',     description: 'Item(s) prepped and ready for pickup at the LEAU office.' },
+  { label: 'Inventory Allocation', description: 'Unit admin checks and allocates requested inventory item(s).' },
+  { label: 'Ready for Pickup',     description: 'Item(s) prepped and ready for pickup at the unit office.' },
   { label: 'Item Picked Up',       description: 'Item(s) claimed by borrower for the approved borrowing duration.' },
-  { label: 'Returned & Completed', description: 'Item(s) returned to LEAU, inspected, and request finalized.' },
+  { label: 'Returned & Completed', description: 'Item(s) returned, inspected, and request finalized.' },
 ];
 
 /**
@@ -260,11 +260,12 @@ export function canUnassignInventory(borrowingStatus) {
 
 /**
  * Dispatch link for a borrowing ticket.
- * Borrowing is unified into the LEAU Dispatch tickets page, which switches to
+ * Borrowing is unified into the unit's Dispatch tickets page, which switches to
  * inventory assignment when the ticket nature is a borrowing request.
  */
-export function borrowingDispatchLink(ticketId) {
-  return `/admin/leau/assign-workers?ticket=${ticketId}`;
+export function borrowingDispatchLink(ticketId, unitCode = '') {
+  const detectedUnit = (unitCode || (ticketId && String(ticketId).startsWith('FGMU') ? 'fgmu' : 'leau')).toLowerCase();
+  return `/admin/${detectedUnit}/assign-workers?ticket=${ticketId}`;
 }
 
 /**

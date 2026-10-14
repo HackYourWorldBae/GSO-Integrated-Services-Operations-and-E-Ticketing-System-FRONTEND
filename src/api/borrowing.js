@@ -12,13 +12,13 @@ import apiClient from './client';
 export const getBorrowingByTicket = (ticketId) =>
   apiClient.get(`/borrowing/${ticketId}`);
 
-/** Paginated borrowing queue for the LEAU admin dashboard. */
-export const getBorrowingQueue = (params = {}) =>
-  apiClient.get('/borrowing/queue/leau', { params });
+/** Paginated borrowing queue for the admin or director dashboard. */
+export const getBorrowingQueue = (params = {}, unit = 'leau') =>
+  apiClient.get(`/borrowing/queue/${unit || 'leau'}`, { params });
 
 /** Borrowing requests past their expected return date. */
-export const getOverdueBorrowings = () =>
-  apiClient.get('/borrowing/overdue');
+export const getOverdueBorrowings = (unit = '') =>
+  apiClient.get(unit ? `/borrowing/overdue/${unit}` : '/borrowing/overdue');
 
 /** Refresh overdue flags for picked-up requests past their return date. */
 export const markOverdueBorrowings = () =>

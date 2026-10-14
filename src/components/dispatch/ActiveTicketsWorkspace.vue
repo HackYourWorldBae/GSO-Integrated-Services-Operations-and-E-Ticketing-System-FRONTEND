@@ -34,9 +34,9 @@
             </span>
           </button>
 
-          <!-- Tab 2 (LEAU only): Borrowed Requests — picked up + overdue items -->
+          <!-- Tab 2 (LEAU / FGMU): Borrowed Requests — picked up + overdue items -->
           <button
-            v-if="isLEAU"
+            v-if="hasBorrowing"
             type="button"
             @click="switchTab('borrowed')"
             :class="[
@@ -268,10 +268,11 @@
       </div>
     </div>
 
-    <!-- ═══ Borrowed Requests Pane (LEAU only: picked up + overdue) ═══ -->
+    <!-- ═══ Borrowed Requests Pane (picked up + overdue) ═══ -->
     <div v-if="isLeauBorrowed">
       <BorrowingWorkspace
         initial-tab="borrowed"
+        :unit-code="props.unitCode"
         :show-tabs="false"
         :status-filter="['picked_up', 'overdue']"
         layout="table"
@@ -1617,11 +1618,12 @@ const selectedServiceFilter = ref('');
 const currentPage = ref(1);
 const pageSize = ref(10);
 
-// LEAU borrowed-items tab (picked up + overdue), embedded between In Progress
-// and Awaiting Requestor Rating. FGMU has no borrowing workflow.
+// Borrowed-items tab (picked up + overdue), embedded between In Progress
+// and Awaiting Requestor Rating. Available for LEAU & FGMU.
 const borrowedCount = ref(0);
 const borrowedRefreshKey = ref(0);
-const isLeauBorrowed = computed(() => String(props.unitCode || '').toUpperCase() === 'LEAU' && activeTab.value === 'borrowed');
+const hasBorrowing = computed(() => ['LEAU', 'FGMU'].includes(String(props.unitCode || '').toUpperCase()));
+const isLeauBorrowed = computed(() => hasBorrowing.value && activeTab.value === 'borrowed');
 
 // Collab Active tab — joint execution between FGMU and LEAU.
 // Only the requesting unit can complete; counterpart dispatch is read-only here.
@@ -1633,7 +1635,7 @@ const isCollabActiveTab = computed(() => activeTab.value === 'collab');
 
 const switchTab = (tab) => {
   const next = String(tab || '');
-  if (next === 'borrowed' && String(props.unitCode || '').toUpperCase() !== 'LEAU') return;
+  if (next === 'borrowed' && !hasBorrowing.value) return;
   activeTab.value = next === 'borrowed' ? 'borrowed' : next === 'collab' ? 'collab' : (next === 'awaiting_rating' ? 'awaiting_rating' : 'in_progress');
   currentPage.value = 1;
   urgencyFilter.value = 'all';
@@ -1683,9 +1685,10 @@ const refreshActiveAll = async () => {
 };
 
 const fetchBorrowingCount = async () => {
-  if (String(props.unitCode || '').toUpperCase() !== 'LEAU') return;
+  if (!hasBorrowing.value) return;
   try {
-    const res = await getBorrowingQueue({ per_page: 500 });
+    const unit = String(props.unitCode || 'LEAU').toLowerCase();
+    const res = await getBorrowingQueue({ per_page: 500 }, unit);
     const list = res.data?.data?.borrowing_requests || [];
     borrowedCount.value = list.filter(r => ['picked_up', 'overdue'].includes(String(r.status))).length;
   } catch {

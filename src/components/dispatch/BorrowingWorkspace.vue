@@ -544,7 +544,9 @@ const props = defineProps({
   statusFilter: { type: Array, default: null },
   // List layout: 'cards' (default grid) or 'table' (tabular, matching the other
   // ticket-list workspaces on desktop; mobile stays as cards).
-  layout: { type: String, default: 'cards' }
+  layout: { type: String, default: 'cards' },
+  // Unit code: 'LEAU' or 'FGMU'
+  unitCode: { type: String, default: 'LEAU' }
 });
 
 const emit = defineEmits(['view-details', 'status-changed', 'updated']);
@@ -669,13 +671,15 @@ const formatDate = (v) => {
 const isOverdue = (r) => isOverdueBorrowing(r);
 
 const fetchQueue = async () => {
-  const res = await getBorrowingQueue({ per_page: 500 });
+  const unit = (props.unitCode || 'LEAU').toLowerCase();
+  const res = await getBorrowingQueue({ per_page: 500 }, unit);
   requests.value = res.data?.data?.borrowing_requests || [];
 };
 
 const fetchOverdue = async () => {
   try {
-    const res = await getOverdueBorrowings();
+    const unit = (props.unitCode || 'LEAU').toLowerCase();
+    const res = await getOverdueBorrowings(unit);
     overdue.value = res.data?.data?.overdue_requests || [];
   } catch { overdue.value = []; }
 };

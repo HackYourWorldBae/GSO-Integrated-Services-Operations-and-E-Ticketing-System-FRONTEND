@@ -871,7 +871,7 @@ const getInitials = (name) => {
 // Borrowing tickets use the inventory workflow instead of worker assignment.
 const isBorrowingTicket = (ticket) => isBorrowingService(ticket);
 
-const borrowingDispatchLinkFor = (ticket) => borrowingDispatchLink(ticket?.id);
+const borrowingDispatchLinkFor = (ticket) => borrowingDispatchLink(ticket?.id, props.unitCode);
 
 const formatDate = (val) => {
   if (!val) return 'N/A';

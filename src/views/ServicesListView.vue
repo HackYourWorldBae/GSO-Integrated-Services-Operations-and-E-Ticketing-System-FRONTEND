@@ -63,8 +63,9 @@ const ALLOWED_STUDENT_SERVICES = [
 
 const isServiceAllowed = (unitId, serviceName) => {
   if (!isStudentUser.value) return true; // Faculty, staff, and employees have full access
-  // Hauling is authorized for student organizations even though it is handled by FGMU
+  // Hauling and Borrowing of tools/equipment are authorized for student organizations even though handled by FGMU
   if (serviceName === 'Hauling') return true;
+  if (serviceName === 'Borrowing of tools/ equipment') return true;
   // Students are blocked from all other FGMU facilities & janitorial services
   if (unitId === 'fgmu') return false;
   // Students are restricted to the 5 authorized services
@@ -297,6 +298,12 @@ const subUnits = ref([
         description: "Relocation and hauling of university furniture, equipment, materials, and heavy items.",
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-5h-7v7Z"/><path d="M13 9h4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
         services: ["Hauling"]
+      },
+      {
+        title: "Borrowing Services",
+        description: "Reservation and borrowing of institutional tools, maintenance equipment, and materials.",
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a2 2 0 0 1-2.79-2.79L14.7 6.3Z"/><path d="m20 13 2 2"/><path d="m5 22 5-5"/><path d="M17 14.7c-.35 2.2-2.15 4-4.35 4.35L8.5 22.25c-1.12.37-2.12-.63-1.75-1.75l3.2-4.15c.35-2.2 2.15-4 4.35-4.35l4.15-3.2c1.12-.37 2.12.63 1.75 1.75l-3.2 4.15Z"/></svg>`,
+        services: ["Borrowing of tools/ equipment"]
       }
     ]
   },
@@ -304,7 +311,7 @@ const subUnits = ref([
     id: 'leau',
     name: 'LEAU',
     fullName: 'Landscaping and Environmental Aesthetics Unit',
-    description: 'Responsible for campus landscaping, grounds beautification, plant propagation, tree care, event staging, and equipment/plant borrowing services.',
+    description: 'Responsible for campus landscaping, grounds beautification, plant propagation, tree care, event staging, and plant borrowing services.',
     // Emerald — kept as-is, user said this one is good
     headerClass: 'bg-emerald-700',
     accentText: 'text-emerald-300',
@@ -324,9 +331,9 @@ const subUnits = ref([
       },
       {
         title: "Borrowing Services",
-        description: "Reservation and borrowing of ornamental plants, gardening equipment, and institutional maintenance tools.",
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a2 2 0 0 1-2.79-2.79L14.7 6.3Z"/><path d="m20 13 2 2"/><path d="m5 22 5-5"/><path d="M17 14.7c-.35 2.2-2.15 4-4.35 4.35L8.5 22.25c-1.12.37-2.12-.63-1.75-1.75l3.2-4.15c.35-2.2 2.15-4 4.35-4.35l4.15-3.2c1.12-.37 2.12.63 1.75 1.75l-3.2 4.15Z"/></svg>`,
-        services: ["Borrowing of plants", "Borrowing of tools/ equipment"]
+        description: "Reservation and borrowing of potted and ornamental plants for campus events.",
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 4.24-4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="M14 8h8"/><path d="M2 8h8"/><path d="m9.17 14.83-4.24 4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="M12 22v-8"/><circle cx="12" cy="12" r="4"/></svg>`,
+        services: ["Borrowing of plants"]
       }
     ]
   },
@@ -444,7 +451,7 @@ const filteredSubUnits = computed(() => {
     if (filter === 'fgmu' && unit.id === 'fgmu') return true;
     if (filter === 'leau' && unit.id === 'leau') return true;
     if (filter === 'ssu' && unit.id === 'ssu') return true;
-    if (['facilities', 'janitorial', 'hauling'].includes(filter) && unit.id === 'fgmu') return true;
+    if (['facilities', 'janitorial', 'hauling', 'borrowing'].includes(filter) && unit.id === 'fgmu') return true;
     if (['landscaping', 'borrowing'].includes(filter) && unit.id === 'leau') return true;
     if (filter === 'security' && unit.id === 'ssu') return true;
     return false;

@@ -219,10 +219,10 @@ const rawNavGroups = computed(() => {
             to: `/admin/${unit}/active-tickets`,
             icon: 'tools'
           },
-          ...(unit === 'leau' ? [
+          ...(unit === 'leau' || unit === 'fgmu' ? [
             {
               label: 'Inventory Management',
-              to: '/admin/leau/inventory',
+              to: `/admin/${unit}/inventory`,
               icon: 'box'
             }
           ] : [])

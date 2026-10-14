@@ -33,9 +33,9 @@
             </span>
           </button>
 
-          <!-- Tab (LEAU only): Borrowing Requests -->
+          <!-- Tab (LEAU / FGMU): Borrowing Requests -->
           <button
-            v-if="isLEAU"
+            v-if="hasBorrowing"
             type="button"
             @click="switchScheduledTab('borrowing')"
             :class="[
@@ -195,10 +195,11 @@
       </div>
     </div>
 
-    <!-- ═══ Borrowing Requests Pane (LEAU only, awaiting pickup) ═══ -->
+    <!-- ═══ Borrowing Requests Pane (awaiting pickup) ═══ -->
     <div v-if="isLeauBorrowing">
       <BorrowingWorkspace
         initial-tab="awaiting"
+        :unit-code="props.unitCode"
         :show-tabs="false"
         :hide-toolbar="true"
         :search-text="searchQuery"
@@ -1282,15 +1283,16 @@ const activeJobOrderTicket = ref(null);
 
 // Unit Theme Computeds
 const isLEAU = computed(() => props.unitCode?.toUpperCase() === 'LEAU');
+const hasBorrowing = computed(() => ['LEAU', 'FGMU'].includes(props.unitCode?.toUpperCase()));
 
-// Inner stage tabs (director-style): job schedules vs borrowing (LEAU) vs collab.
+// Inner stage tabs (director-style): job schedules vs borrowing vs collab.
 const scheduledTab = ref('jobs');
 const borrowingAwaitingCount = ref(0);
 const collabScheduledCount = ref(0);
 // Live-collab ticket ids — these live ONLY in the Collab tab, never in Job Schedules.
 const collabScheduledIds = ref(new Set());
 const scheduledTabRefreshKey = ref(0);
-const isLeauBorrowing = computed(() => isLEAU.value && scheduledTab.value === 'borrowing');
+const isLeauBorrowing = computed(() => hasBorrowing.value && scheduledTab.value === 'borrowing');
 const isScheduledCollab = computed(() => scheduledTab.value === 'collab');
 
 const clearRouteQueryTicket = () => {
@@ -1442,9 +1444,10 @@ const handleModalBorrowingPickup = (ticket) => {
 };
 
 const fetchBorrowingCount = async () => {
-  if (!isLEAU.value) return;
+  if (!hasBorrowing.value) return;
   try {
-    const res = await getBorrowingQueue({ per_page: 500 });
+    const unit = (props.unitCode || 'LEAU').toLowerCase();
+    const res = await getBorrowingQueue({ per_page: 500 }, unit);
     const list = res.data?.data?.borrowing_requests || [];
     borrowingAwaitingCount.value = list.filter(r => r.status === 'ready_for_pickup' || r.status === 'inventory_assigned').length;
   } catch {

@@ -99,28 +99,33 @@ const selectedList = computed(() => {
 });
 
 const FGMU_CATEGORIES = ['Structure & Finishes', 'Utilities & Mechanical', 'Janitorial', 'Hauling', 'Hauling Services'];
-const LEAU_CATEGORIES = ['Landscaping', 'Borrowing Services', 'Janitorial & Landscaping'];
+const LEAU_CATEGORIES = ['Landscaping', 'Janitorial & Landscaping'];
 const SSU_CATEGORIES = ['Security Services'];
 
-const fgmuServices = computed(() => selectedList.value.filter(s => FGMU_CATEGORIES.includes(s.category)));
-const leauServices = computed(() => selectedList.value.filter(s => LEAU_CATEGORIES.includes(s.category)));
+const isToolBorrowing = (s) =>
+  s.service.toLowerCase().includes('borrowing of tools') ||
+  s.service.toLowerCase().includes('borrowing of equipment');
+
+const isPlantBorrowing = (s) =>
+  s.service.toLowerCase().includes('borrowing of plants');
+
+const isBorrowing = (s) =>
+  s.category === 'Borrowing Services' ||
+  isToolBorrowing(s) ||
+  isPlantBorrowing(s);
+
+const fgmuServices = computed(() => selectedList.value.filter(s => FGMU_CATEGORIES.includes(s.category) && !isBorrowing(s)));
+const regularLeauServices = computed(() => selectedList.value.filter(s => LEAU_CATEGORIES.includes(s.category) && !isBorrowing(s)));
+const leauServices = regularLeauServices;
 const ssuServices = computed(() => selectedList.value.filter(s => SSU_CATEGORIES.includes(s.category)));
 
 // Borrowing services detection
-const borrowingServices = computed(() => leauServices.value.filter(s => 
-  s.category === 'Borrowing Services' ||
-  s.service.toLowerCase().includes('borrowing of plants') ||
-  s.service.toLowerCase().includes('borrowing of tools')
-));
-
-const regularLeauServices = computed(() => leauServices.value.filter(s => 
-  s.category !== 'Borrowing Services' &&
-  !s.service.toLowerCase().includes('borrowing of plants') &&
-  !s.service.toLowerCase().includes('borrowing of tools')
-));
+const borrowingServices = computed(() => selectedList.value.filter(s => isBorrowing(s)));
+const fgmuBorrowingServices = computed(() => borrowingServices.value.filter(s => isToolBorrowing(s)));
+const leauBorrowingServices = computed(() => borrowingServices.value.filter(s => isPlantBorrowing(s) || !isToolBorrowing(s)));
 
 const hasFGMU = computed(() => fgmuServices.value.length > 0);
-const hasLEAU = computed(() => leauServices.value.length > 0);
+const hasLEAU = computed(() => regularLeauServices.value.length > 0);
 const hasRegularLEAU = computed(() => regularLeauServices.value.length > 0);
 const hasBorrowing = computed(() => borrowingServices.value.length > 0);
 const hasSSU = computed(() => ssuServices.value.length > 0);
@@ -158,12 +163,13 @@ const handleFinalSubmit = async () => {
   // Build the payload (don't send File objects in JSON)
   const fgmuDetails = hasFGMU.value ? { ...formsStore.fgmuState.sectionA, ticket_title: formsStore.fgmuState.sectionA.job_description } : null;
   const leauDetails = hasRegularLEAU.value ? { ...formsStore.leauState.sectionA, ticket_title: formsStore.leauState.sectionA.job_description } : null;
-  const leauBorrowingDetails = hasBorrowing.value ? { ...formsStore.leauBorrowingState } : null;
+  const borrowingDetails = hasBorrowing.value ? { ...formsStore.leauBorrowingState } : null;
 
   const finalRequest = {
     fgmu: hasFGMU.value ? { details: fgmuDetails, services: fgmuServices.value } : null,
     leau: hasRegularLEAU.value ? { details: leauDetails, services: regularLeauServices.value } : null,
-    leauBorrowing: hasBorrowing.value ? { details: leauBorrowingDetails, services: borrowingServices.value } : null,
+    fgmuBorrowing: fgmuBorrowingServices.value.length > 0 ? { details: borrowingDetails, services: fgmuBorrowingServices.value } : null,
+    leauBorrowing: leauBorrowingServices.value.length > 0 ? { details: borrowingDetails, services: leauBorrowingServices.value } : null,
     ssu: hasSSU.value ? { 
       incidentReport: hasIncidentReport.value ? formsStore.ssuIncidentState : null
     } : null,
@@ -221,14 +227,21 @@ const handleFinalSubmit = async () => {
     for (const tId of createdTickets) {
       let result = { ok: true, skipped: true };
       if (tId.startsWith('FGMU')) {
-        result = await uploadFiles(tId, formsStore.fgmuState.attachments);
+        const hasFgmuBorrow = fgmuBorrowingServices.value.length > 0;
+        if (hasFGMU.value && hasFgmuBorrow) {
+          const allFgmuAttachments = [
+            ...formsStore.fgmuState.attachments,
+            ...formsStore.leauBorrowingState.attachments
+          ];
+          result = await uploadFiles(tId, allFgmuAttachments);
+        } else if (hasFGMU.value) {
+          result = await uploadFiles(tId, formsStore.fgmuState.attachments);
+        } else if (hasFgmuBorrow) {
+          result = await uploadFiles(tId, formsStore.leauBorrowingState.attachments);
+        }
       } else if (tId.startsWith('LEAU')) {
-        // Check if this is a borrowing ticket (need to match by service type)
-        // For simplicity, upload both regular and borrowing attachments
-        // The backend will handle which attachments belong to which ticket
-        if (hasRegularLEAU.value && hasBorrowing.value) {
-          // Both types exist, need to match by ticket service type
-          // For now, upload all LEAU attachments to all LEAU tickets
+        const hasLeauBorrow = leauBorrowingServices.value.length > 0;
+        if (hasRegularLEAU.value && hasLeauBorrow) {
           const allLeauAttachments = [
             ...formsStore.leauState.attachments,
             ...formsStore.leauBorrowingState.attachments
@@ -236,7 +249,7 @@ const handleFinalSubmit = async () => {
           result = await uploadFiles(tId, allLeauAttachments);
         } else if (hasRegularLEAU.value) {
           result = await uploadFiles(tId, formsStore.leauState.attachments);
-        } else if (hasBorrowing.value) {
+        } else if (hasLeauBorrow) {
           result = await uploadFiles(tId, formsStore.leauBorrowingState.attachments);
         }
       }

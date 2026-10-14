@@ -33,9 +33,13 @@ export const deleteInventoryItem = (id) =>
   apiClient.delete(`/inventory/${id}`);
 
 /** Category options for the filter dropdown. */
-export const getInventoryCategories = () =>
-  apiClient.get('/inventory/categories');
+export const getInventoryCategories = (params = {}) =>
+  Object.keys(params).length
+    ? apiClient.get('/inventory/categories', { params })
+    : apiClient.get('/inventory/categories');
 
 /** Inventory counts for dashboard badges. */
-export const getInventoryStats = () =>
-  apiClient.get('/inventory/stats');
+export const getInventoryStats = (params = {}) =>
+  Object.keys(params).length
+    ? apiClient.get('/inventory/stats', { params })
+    : apiClient.get('/inventory/stats');

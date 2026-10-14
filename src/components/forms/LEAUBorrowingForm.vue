@@ -106,14 +106,33 @@ const itemNamePlaceholder = computed(() => {
   return 'e.g., Shovel, Rake, Ladder, Wheelbarrow';
 });
 
+const unitHeaderTitle = computed(() => {
+  if (hasPlantsBorrowing.value && hasToolsBorrowing.value) {
+    return 'University Borrowing Request (FGMU & LEAU)';
+  }
+  if (hasToolsBorrowing.value) {
+    return 'Facilities & Grounds Management (FGMU)';
+  }
+  return 'Landscaping & Aesthetics (LEAU)';
+});
+
+const unitHeaderSubtitle = computed(() => {
+  if (hasPlantsBorrowing.value && hasToolsBorrowing.value) {
+    return 'Borrowing of Tools & Equipment (FGMU) and Plants (LEAU)';
+  }
+  if (hasToolsBorrowing.value) {
+    return 'Borrowing of Tools & Equipment';
+  }
+  return 'Borrowing of Ornamental & Potted Plants';
+});
 </script>
 
 <template>
   <div v-if="hasBorrowingServices" class="bg-white rounded-2xl sm:rounded-[3rem] border border-slate-200 shadow-2xl shadow-slate-200/40 overflow-hidden slide-up delay-100">
     <div class="bg-slate-900 p-5 sm:p-10 text-white flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4 border-b-4 border-amber-500">
       <div>
-        <h3 class="text-xl sm:text-3xl font-black tracking-tight">Landscaping & Aesthetics <span class="text-amber-500">(LEAU)</span></h3>
-        <p class="text-slate-400 mt-1 text-xs sm:text-base font-medium">Borrowing of Plants / Tools & Equipment</p>
+        <h3 class="text-xl sm:text-3xl font-black tracking-tight">{{ unitHeaderTitle }}</h3>
+        <p class="text-slate-400 mt-1 text-xs sm:text-base font-medium">{{ unitHeaderSubtitle }}</p>
       </div>
     </div>
 

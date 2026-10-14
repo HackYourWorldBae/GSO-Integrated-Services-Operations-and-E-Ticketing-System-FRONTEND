@@ -46,6 +46,7 @@ const User_Settings = () => import('../views/dashboards/user/User_Settings.vue')
 const FGMU_Personnel = () => import('../views/dashboards/admin/fgmu/FGMU_Personnel.vue');
 const LEAU_Personnel = () => import('../views/dashboards/admin/leau/LEAU_Personnel.vue');
 const SSU_Personnel = () => import('../views/dashboards/admin/ssu/SSU_Personnel.vue');
+const FGMU_InventoryManagement = () => import('../views/dashboards/admin/fgmu/FGMU_InventoryManagement.vue');
 const LEAU_InventoryManagement = () => import('../views/dashboards/admin/leau/LEAU_InventoryManagement.vue');
 const FGMU_Archives = () => import('../views/dashboards/admin/fgmu/FGMU_Archives.vue');
 const LEAU_Archives = () => import('../views/dashboards/admin/leau/LEAU_Archives.vue');
@@ -198,6 +199,30 @@ const router = createRouter({
       name: 'fgmu-admin-personnel',
       component: FGMU_Personnel,
       meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU', permission: 'personnel.manage' }
+    },
+    {
+      path: '/admin/fgmu/inventory',
+      name: 'fgmu-admin-inventory',
+      component: FGMU_InventoryManagement,
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU', permission: 'personnel.manage' }
+    },
+    {
+      path: '/admin/fgmu/borrowing-dispatch',
+      name: 'fgmu-borrowing-dispatch',
+      redirect: to => ({ path: '/admin/fgmu/assign-workers', query: to.query }),
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU', permission: 'tickets.dispatch' }
+    },
+    {
+      path: '/admin/fgmu/borrowing',
+      name: 'fgmu-borrowing-queue',
+      redirect: to => {
+        const tab = String(to.query?.tab || '').toLowerCase();
+        if (tab === 'borrowed' || tab === 'overdue') {
+          return { path: '/admin/fgmu/active-tickets', query: { tab: 'borrowed' } };
+        }
+        return { path: '/admin/fgmu/dispatched', query: { tab: 'borrowing' } };
+      },
+      meta: { requiresAuth: true, roles: ['admin'], unit: 'FGMU', permission: 'tickets.dispatch' }
     },
     {
       path: '/admin/fgmu/my-requests',

@@ -2,7 +2,7 @@
   <MainLayout>
     <template #header-title>
       <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight truncate">
-        Inventory Management
+        LEAU Inventory Management (Plants)
       </h2>
     </template>
 
@@ -18,7 +18,7 @@
                 v-model="searchQuery"
                 @input="currentPage = 1"
                 type="text"
-                placeholder="Search inventory by name, model, serial, or location..."
+                placeholder="Search plant inventory by name, species/variety, or location..."
                 class="w-full pl-10 pr-9 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/50 bg-slate-50/50"
               />
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -78,7 +78,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                <span class="truncate">Add Inventory Item</span>
+                <span class="truncate">Add Plant Item</span>
               </button>
             </div>
           </div>
@@ -507,7 +507,7 @@
                 <input
                   v-model="addForm.name"
                   required
-                  placeholder="e.g. Lawn Mower, Garden Shovel, Fertilizer"
+                  placeholder="e.g. Sansevieria (Snake Plant), Palm, Ficus"
                   class="w-full px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
@@ -521,12 +521,7 @@
                     required
                     class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer bg-white"
                   >
-                    <option value="" disabled>Select Category</option>
-                    <option value="tools">Tools</option>
-                    <option value="equipment">Equipment</option>
                     <option value="plants">Plants</option>
-                    <option value="materials">Materials</option>
-                    <option value="others">Others</option>
                   </select>
                 </div>
                 <div>
@@ -670,11 +665,7 @@
               <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Category *</label>
                 <select v-model="editForm.category" required class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer bg-white">
-                  <option value="tools">Tools</option>
-                  <option value="equipment">Equipment</option>
                   <option value="plants">Plants</option>
-                  <option value="materials">Materials</option>
-                  <option value="others">Others</option>
                 </select>
               </div>
               <div>
@@ -817,7 +808,7 @@ const searchQuery = ref('');
 const availabilityFilter = ref('all');
 const categoryFilter = ref('all');
 const inventoryItems = ref([]);
-const categories = ['tools', 'equipment', 'plants', 'materials', 'others'];
+const categories = ['plants'];
 const loading = ref(false);
 const stats = ref({});
 const viewMode = ref('table');
@@ -829,7 +820,7 @@ const submitting = ref(false);
 const addForm = reactive({
   name: '',
   model: '',
-  category: '',
+  category: 'plants',
   serial_number: '',
   quantity_total: 1,
   condition_status: 'good',
@@ -942,7 +933,7 @@ const getAvailabilityLabel = (item) => {
 const fetchInventory = async () => {
   loading.value = true;
   try {
-    const res = await listInventory({ per_page: 500 });
+    const res = await listInventory({ unit: 'leau', per_page: 500 });
     inventoryItems.value = res.data?.data?.items ?? [];
   } catch (err) {
     console.error('Failed to fetch inventory:', err);
@@ -954,7 +945,7 @@ const fetchInventory = async () => {
 
 const fetchStats = async () => {
   try {
-    const res = await getInventoryStats();
+    const res = await getInventoryStats({ unit: 'leau' });
     stats.value = res.data?.data ?? {};
   } catch (err) {
     console.error('Failed to fetch stats:', err);
@@ -970,7 +961,7 @@ const openAddModal = () => {
   showAddAdvanced.value = false;
   addForm.name = '';
   addForm.model = '';
-  addForm.category = '';
+  addForm.category = 'plants';
   addForm.serial_number = '';
   addForm.quantity_total = 1;
   addForm.condition_status = 'good';
@@ -988,6 +979,8 @@ const submitAddInventory = async () => {
   try {
     const payload = {
       ...addForm,
+      unit: 'leau',
+      category: 'plants',
       condition_status: addForm.condition_status || 'good',
       quantity_total: Math.max(1, Number(addForm.quantity_total) || 1),
     };

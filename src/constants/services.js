@@ -16,7 +16,8 @@ export const FGMU_SERVICES = [
   'Mechanical Works',
   'Disinfection',
   'Cleaning/ Grubbing',
-  'Hauling'
+  'Hauling',
+  'Borrowing of tools/ equipment'
 ];
 
 export const LEAU_SERVICES = [
@@ -24,8 +25,7 @@ export const LEAU_SERVICES = [
   'Planting/ Landscaping',
   'Pruning/ Cutting',
   'Borrowing of plants',
-  'Stage & Hall Decoration',
-  'Borrowing of tools/ equipment'
+  'Stage & Hall Decoration'
 ];
 
 export const SSU_SERVICES = [

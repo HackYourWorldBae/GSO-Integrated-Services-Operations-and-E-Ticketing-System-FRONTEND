@@ -310,11 +310,15 @@
           class="px-3 py-2.5 min-h-[44px] rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-base sm:text-xs font-semibold focus:outline-none cursor-pointer shrink-0"
         >
           <option value="all">All Categories</option>
-          <option value="tools">Tools</option>
-          <option value="equipment">Equipment</option>
-          <option value="plants">Plants</option>
-          <option value="materials">Materials</option>
-          <option value="others">Others</option>
+          <template v-if="props.unitCode?.toUpperCase() === 'FGMU'">
+            <option value="tools">Tools</option>
+            <option value="equipment">Equipment</option>
+            <option value="materials">Materials</option>
+            <option value="others">Others</option>
+          </template>
+          <template v-else>
+            <option value="plants">Plants</option>
+          </template>
         </select>
       </div>
 
@@ -487,18 +491,20 @@ const formatBorrowingStatus = (s) => borrowingStatusLabel(s);
 
 const fetchDispatchQueue = async () => {
   try {
-    const res = await api.get('tickets/dispatch/LEAU');
+    const targetCode = (props.unitCode || 'LEAU').toUpperCase();
+    const res = await api.get(`tickets/dispatch/${targetCode}`);
     const raw = res.data?.data?.tickets || res.data?.data || [];
     dispatchQueue.value = Array.isArray(raw) ? raw : [];
   } catch (e) {
-    console.error('Failed to fetch LEAU dispatch queue:', e);
+    console.error(`Failed to fetch ${props.unitCode} dispatch queue:`, e);
   }
 };
 
 const fetchInventory = async () => {
   loadingInventory.value = true;
   try {
-    const res = await listInventory({ per_page: 500 });
+    const targetUnit = (props.unitCode || 'LEAU').toLowerCase();
+    const res = await listInventory({ unit: targetUnit, per_page: 500 });
     inventory.value = res.data?.data?.items || [];
     inventory.value.forEach(i => {
       if (assignQty.value[i.id] === undefined) {
