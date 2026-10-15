@@ -1098,7 +1098,7 @@ const getSteps = (ticket) => {
   }
 
   if (ticket.status === 'declined' || ticket.status === 'rejected') {
-    const reason = ticket.declineReason || 'Request declined by Admin.';
+    const reason = ticket.declineReason || 'Request declined.';
     if (steps.length > 1) {
       steps[1] = { label: 'Ticket Declined', description: `Reason: ${reason}` };
       steps = steps.slice(0, 2);
