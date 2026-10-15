@@ -211,6 +211,7 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null, signatur
   const revUser = t.reviewed_by_user || null;
   const isDirectorApprover = (revUser?.role === 'director')
     || (t.reviewer_role === 'director')
+    || (t.is_escalated_to_director == 1)
     || (!revUser && !t.reviewer_name && !!signaturesMeta?.director);
 
   const approverName = (
@@ -327,11 +328,48 @@ export const generateFgmuJobRequestFormDocxBlob = async (ticket, feedbackData = 
   // 1. Approver Signature
   const isDirectorApprover = (revUser?.role === 'director')
     || (t.reviewer_role === 'director')
+    || (t.is_escalated_to_director == 1)
     || (!revUser && !t.reviewer_name && !!signaturesMeta?.director);
 
-  const approverSigUrl = revUser?.signature_url
-    || (isDirectorApprover ? signaturesMeta?.director?.signature_url : signaturesMeta?.dispatcher?.signature_url)
-    || (signaturesMeta?.director?.signature_url || null);
+  let approverSigUrl = null;
+  if (isDirectorApprover) {
+    // If approved by Director, ONLY use the Director's signature; never fall back to dispatcher
+    if (revUser?.role === 'director' && revUser?.signature_url) {
+      approverSigUrl = revUser.signature_url;
+    } else if (signaturesMeta?.director?.signature_url) {
+      approverSigUrl = signaturesMeta.director.signature_url;
+    }
+  } else {
+    // Approved by Unit Admin / Head
+    if (revUser?.signature_url) {
+      approverSigUrl = revUser.signature_url;
+    } else if (signaturesMeta?.dispatcher?.signature_url) {
+      const isSamePerson = (revUser && signaturesMeta.dispatcher.id && revUser.id === signaturesMeta.dispatcher.id)
+        || (templateData.Approved_by && signaturesMeta.dispatcher.name && templateData.Approved_by.toLowerCase() === signaturesMeta.dispatcher.name.toLowerCase());
+      if (isSamePerson) {
+        approverSigUrl = signaturesMeta.dispatcher.signature_url;
+      }
+    }
+  }
+
+  // 2. Issuer Signature
+  let issuerSigUrl = null;
+  if (dispUser?.signature_url) {
+    issuerSigUrl = dispUser.signature_url;
+  } else if (signaturesMeta?.dispatcher?.signature_url) {
+    issuerSigUrl = signaturesMeta.dispatcher.signature_url;
+  } else if (dispUser?.role === 'director' && signaturesMeta?.director?.signature_url) {
+    issuerSigUrl = signaturesMeta.director.signature_url;
+  }
+
+  // Guard against cross-signee duplication when different authorities sign
+  if (approverSigUrl && issuerSigUrl && approverSigUrl === issuerSigUrl) {
+    const isSamePerson = templateData.Approved_by && templateData.Issued_by
+      && templateData.Approved_by.toLowerCase() === templateData.Issued_by.toLowerCase();
+    if (!isSamePerson) {
+      approverSigUrl = null;
+    }
+  }
 
   if (approverSigUrl && templateData.Approved_by) {
     try {
@@ -340,11 +378,6 @@ export const generateFgmuJobRequestFormDocxBlob = async (ticket, feedbackData = 
       console.warn('Could not load approver signature image for docx:', e);
     }
   }
-
-  // 2. Issuer Signature
-  const issuerSigUrl = dispUser?.signature_url
-    || signaturesMeta?.dispatcher?.signature_url
-    || (dispUser?.role === 'director' ? (signaturesMeta?.director?.signature_url || null) : null);
 
   if (issuerSigUrl && templateData.Issued_by) {
     try {

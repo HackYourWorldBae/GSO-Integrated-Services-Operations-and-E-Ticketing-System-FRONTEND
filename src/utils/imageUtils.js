@@ -7,6 +7,13 @@
  * @returns {Promise<string>} PNG data URL
  */
 export async function loadImageAsPngDataUrl(url) {
+  if (!url) return '';
+  if (typeof url === 'string' && url.startsWith('data:image/png')) {
+    return url;
+  }
+  if (typeof Image === 'undefined') {
+    return url;
+  }
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';

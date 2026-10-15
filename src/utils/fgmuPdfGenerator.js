@@ -234,13 +234,13 @@ const buildDocDefinition = (data, logoDataUrl, signaturesMeta = {}, signatureIma
           signatureLine(
             `GSO-${data.UnitAndRole || data['Unit&Role'] || 'Director'}`,
             data.Approval_Date ? `Approved: ${data.Approval_Date}` : 'Approved by',
-            signatureImages.approver || signatureImages.director || null,
+            signatureImages.approver || null,
             data.Approved_by || signaturesMeta?.director?.name || null
           ),
           signatureLine(
             `GSO-${data.Unit || data.unitCode} Head`,
             'JR Issued by (Dispatch In-Charge)',
-            signatureImages.issuer || signatureImages.dispatcher || null,
+            signatureImages.issuer || null,
             data.Issued_by || signaturesMeta?.dispatcher?.name || null
           ),
         ],
@@ -286,11 +286,48 @@ async function resolveSignatureImages(ticket, data, signaturesMeta) {
   // 1. Approver Signature
   const isDirectorApprover = (revUser?.role === 'director')
     || (t.reviewer_role === 'director')
+    || (t.is_escalated_to_director == 1)
     || (!revUser && !t.reviewer_name && !!signaturesMeta?.director);
 
-  const approverSigUrl = revUser?.signature_url
-    || (isDirectorApprover ? signaturesMeta?.director?.signature_url : signaturesMeta?.dispatcher?.signature_url)
-    || (signaturesMeta?.director?.signature_url || null);
+  let approverSigUrl = null;
+  if (isDirectorApprover) {
+    // If approved by Director, ONLY use the Director's signature; never fall back to dispatcher
+    if (revUser?.role === 'director' && revUser?.signature_url) {
+      approverSigUrl = revUser.signature_url;
+    } else if (signaturesMeta?.director?.signature_url) {
+      approverSigUrl = signaturesMeta.director.signature_url;
+    }
+  } else {
+    // Approved by Unit Admin / Head
+    if (revUser?.signature_url) {
+      approverSigUrl = revUser.signature_url;
+    } else if (signaturesMeta?.dispatcher?.signature_url) {
+      const isSamePerson = (revUser && signaturesMeta.dispatcher.id && revUser.id === signaturesMeta.dispatcher.id)
+        || (data.Approved_by && signaturesMeta.dispatcher.name && data.Approved_by.toLowerCase() === signaturesMeta.dispatcher.name.toLowerCase());
+      if (isSamePerson) {
+        approverSigUrl = signaturesMeta.dispatcher.signature_url;
+      }
+    }
+  }
+
+  // 2. Issuer Signature
+  let issuerSigUrl = null;
+  if (dispUser?.signature_url) {
+    issuerSigUrl = dispUser.signature_url;
+  } else if (signaturesMeta?.dispatcher?.signature_url) {
+    issuerSigUrl = signaturesMeta.dispatcher.signature_url;
+  } else if (dispUser?.role === 'director' && signaturesMeta?.director?.signature_url) {
+    issuerSigUrl = signaturesMeta.director.signature_url;
+  }
+
+  // Guard against cross-signee duplication when different authorities sign
+  if (approverSigUrl && issuerSigUrl && approverSigUrl === issuerSigUrl) {
+    const isSamePerson = data.Approved_by && data.Issued_by
+      && data.Approved_by.toLowerCase() === data.Issued_by.toLowerCase();
+    if (!isSamePerson) {
+      approverSigUrl = null;
+    }
+  }
 
   if (approverSigUrl && data.Approved_by) {
     try {
@@ -299,11 +336,6 @@ async function resolveSignatureImages(ticket, data, signaturesMeta) {
       console.warn('Could not load approver signature for PDF:', e);
     }
   }
-
-  // 2. Issuer Signature
-  const issuerSigUrl = dispUser?.signature_url
-    || signaturesMeta?.dispatcher?.signature_url
-    || (dispUser?.role === 'director' ? (signaturesMeta?.director?.signature_url || null) : null);
 
   if (issuerSigUrl && data.Issued_by) {
     try {

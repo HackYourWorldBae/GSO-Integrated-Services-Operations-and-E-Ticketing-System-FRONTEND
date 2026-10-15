@@ -82,7 +82,8 @@ export function injectSignaturesIntoZip(zip, images = {}) {
         newRels += `<Relationship Id="rIdSigApproved" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/sig_approved.png"/>`;
       }
       const drawing = `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="0" w:line="120" w:lineRule="exact"/><w:rPr><w:sz w:val="2"/><w:szCs w:val="2"/></w:rPr></w:pPr><w:r>${createInlineDrawingXml('rIdSigApproved', 600000, 180000, 101)}</w:r></w:p>`;
-      const match = docXml.match(/<w:p[^>]*>(?:(?!<\/w:p>).)*?Approved_by(?:(?!<\/w:p>).)*?<\/w:p>/s);
+      // Confine match strictly to the non-self-closing <w:p> in the same table cell containing Approved_by
+      const match = docXml.match(/<w:p\b(?![^>]*\/>)[^>]*>(?:(?!<\/?w:(?:p|tc)\b).)*?Approved_by.*?<\/w:p>/s);
       if (match) {
         docXml = docXml.replace(match[0], drawing + match[0]);
       }
@@ -98,7 +99,8 @@ export function injectSignaturesIntoZip(zip, images = {}) {
         newRels += `<Relationship Id="rIdSigIssued" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/sig_issued.png"/>`;
       }
       const drawing = `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="0" w:line="120" w:lineRule="exact"/><w:rPr><w:sz w:val="2"/><w:szCs w:val="2"/></w:rPr></w:pPr><w:r>${createInlineDrawingXml('rIdSigIssued', 600000, 180000, 102)}</w:r></w:p>`;
-      const match = docXml.match(/<w:p[^>]*>(?:(?!<\/w:p>).)*?Issued_by(?:(?!<\/w:p>).)*?<\/w:p>/s);
+      // Confine match strictly to the non-self-closing <w:p> in the same table cell containing Issued_by
+      const match = docXml.match(/<w:p\b(?![^>]*\/>)[^>]*>(?:(?!<\/?w:(?:p|tc)\b).)*?Issued_by.*?<\/w:p>/s);
       if (match) {
         docXml = docXml.replace(match[0], drawing + match[0]);
       }

@@ -142,6 +142,101 @@ describe('Signature Utilities (signatureUtils.js)', () => {
       expect(data['Unit&amp;Role']).toBe('FGMU Head');
       expect(data.Approval_Date).toBe('Oct 14, 2026');
     });
+    it('does not duplicate issued by signature to approved by when approved signature is not set up', async () => {
+      const { generateFgmuJobRequestFormDocxBlob } = await import('../fgmuDocxGenerator');
+      const ticket = {
+        id: 103,
+        status: 'approved',
+        unit_code: 'FGMU',
+        reviewed_at: '2026-10-14 09:00:00',
+        reviewed_by_user: {
+          id: 1,
+          name: 'Engr. Director Boss',
+          role: 'director',
+          signature_url: null, // Director has not set up signature
+        },
+        dispatched_by_user: {
+          id: 2,
+          name: 'Engr. Unit Dispatcher',
+          role: 'admin',
+          signature_url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        },
+      };
+
+      // Mock signaturesMeta where director has no signature but dispatcher does
+      api.get.mockResolvedValueOnce({
+        data: {
+          status: 'success',
+          data: {
+            director: { id: 1, name: 'Engr. Director Boss', signature_url: null },
+            dispatcher: { id: 2, name: 'Engr. Unit Dispatcher', signature_url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' },
+          },
+        },
+      });
+
+      // Mock fetch for the template
+      const fs = await import('fs');
+      const path = await import('path');
+      const templateBuffer = fs.readFileSync(path.resolve(__dirname, '../../../public/templates/FGMU Job Request Form.docx'));
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        arrayBuffer: async () => templateBuffer.buffer.slice(templateBuffer.byteOffset, templateBuffer.byteOffset + templateBuffer.byteLength),
+      });
+
+      const blob = await generateFgmuJobRequestFormDocxBlob(ticket);
+      expect(blob).toBeDefined();
+
+      // Read resulting docx
+      const PizZip = (await import('pizzip')).default;
+      const buffer = await blob.arrayBuffer();
+      const zip = new PizZip(buffer);
+      const docXml = zip.file('word/document.xml').asText();
+
+      // Approved_by should NOT have sig_approved image injected because director signature is null
+      expect(zip.file('word/media/sig_approved.png')).toBeNull();
+      // Issued_by SHOULD have sig_issued image
+      expect(zip.file('word/media/sig_issued.png')).not.toBeNull();
+      expect(docXml).not.toContain('rIdSigApproved');
+      expect(docXml).toContain('rIdSigIssued');
+    });
+
+    it('injects approved signature into Approved by box (Cell 1) and never into JR Received by box (Cell 0)', async () => {
+      const { injectSignaturesIntoZip } = await import('../docxGenerator');
+      const PizZip = (await import('pizzip')).default;
+      const fs = await import('fs');
+      const path = await import('path');
+      const templateBuffer = fs.readFileSync(path.resolve(__dirname, '../../../public/templates/FGMU Job Request Form.docx'));
+
+      const zip = new PizZip(templateBuffer);
+      const dummyPngBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+      injectSignaturesIntoZip(zip, {
+        approved: dummyPngBase64,
+        issued: dummyPngBase64,
+      });
+
+      const docXml = zip.file('word/document.xml').asText();
+
+      // Find Table 1
+      const tables = docXml.match(/<w:tbl\b[^>]*>.*?<\/w:tbl>/gs) || [];
+      const tbl = tables.find(t => t.includes('Approved_by'));
+      expect(tbl).toBeDefined();
+
+      const rows = tbl.match(/<w:tr\b[^>]*>.*?<\/w:tr>/gs) || [];
+      expect(rows.length).toBeGreaterThan(1);
+
+      // In Row 1:
+      // Cell 0: JR Received by cell -> MUST NOT have rIdSigApproved
+      // Cell 1: Approved by cell -> MUST contain rIdSigApproved
+      // Cell 3: Issued by cell -> MUST contain rIdSigIssued
+      const cells = rows[1].match(/<w:tc\b[^>]*>.*?<\/w:tc>/gs) || [];
+      expect(cells.length).toBe(4);
+
+      expect(cells[0]).not.toContain('rIdSigApproved');
+      expect(cells[0]).not.toContain('rIdSigIssued');
+      expect(cells[1]).toContain('rIdSigApproved');
+      expect(cells[3]).toContain('rIdSigIssued');
+    });
   });
 });
 
