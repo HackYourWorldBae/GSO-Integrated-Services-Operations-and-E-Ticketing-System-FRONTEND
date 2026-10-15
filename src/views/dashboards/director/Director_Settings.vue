@@ -55,9 +55,9 @@
 
           <div class="p-4 sm:p-8 md:p-12 space-y-8">
             <!-- Account Details Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8">
               <!-- First Name -->
-              <div class="space-y-2.5">
+              <div class="space-y-2.5 md:col-span-5">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">First Name</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
@@ -75,7 +75,7 @@
               </div>
 
               <!-- Last Name -->
-              <div class="space-y-2.5">
+              <div class="space-y-2.5 md:col-span-5">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Last Name</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
@@ -92,8 +92,40 @@
                 </div>
               </div>
 
-              <!-- Email Address -->
+              <!-- Name Extension -->
               <div class="space-y-2.5 md:col-span-2">
+                <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1 truncate" title="Name Extension / Suffix (e.g. Jr., Sr., III)">Suffix / Ext.</label>
+                <div class="relative group">
+                  <select
+                    v-model="form.nameExtensionSelection"
+                    class="block w-full pl-3 pr-8 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none appearance-none cursor-pointer"
+                  >
+                    <option value="">None</option>
+                    <option v-for="ext in STANDARD_NAME_EXTENSIONS" :key="ext" :value="ext">{{ ext }}</option>
+                    <option value="OTHER">Other...</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Custom Name Extension if OTHER -->
+              <div v-if="form.nameExtensionSelection === 'OTHER'" class="space-y-2.5 md:col-span-12 animate-fade-in">
+                <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Specify Name Extension</label>
+                <input
+                  v-model="form.customExtension"
+                  type="text"
+                  maxlength="20"
+                  placeholder="e.g. Jr., III, IV, etc."
+                  class="block w-full px-4 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                />
+              </div>
+
+              <!-- Email Address -->
+              <div class="space-y-2.5 md:col-span-12">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Email Address</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
@@ -112,7 +144,7 @@
               </div>
 
               <!-- New Password -->
-              <div class="space-y-2.5">
+              <div class="space-y-2.5 md:col-span-6">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">New Password</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
@@ -144,7 +176,7 @@
               </div>
 
               <!-- Confirm Password -->
-              <div class="space-y-2.5">
+              <div class="space-y-2.5 md:col-span-6">
                 <div class="flex items-center justify-between ml-1">
                   <label class="block text-xs font-black text-slate-800 uppercase tracking-widest">Confirm Password</label>
                   <span v-if="form.password && form.confirmPassword" class="text-xs font-bold" :class="form.password === form.confirmPassword ? 'text-emerald-600' : 'text-rose-500'">
@@ -560,6 +592,7 @@ import { getDelegationUnitsApi } from '@/api/auth';
 import { toast } from 'vue3-toastify';
 import Swal from 'sweetalert2';
 import { clearSignatureCache } from '@/utils/signatureUtils';
+import { STANDARD_NAME_EXTENSIONS } from '@/constants/nameExtensions';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -578,6 +611,8 @@ const isReverting = ref(false);
 const form = ref({
   firstName: '',
   lastName: '',
+  nameExtensionSelection: '',
+  customExtension: '',
   email: '',
   emailNotificationsEnabled: true,
   password: '',
@@ -671,6 +706,14 @@ onMounted(() => {
   if (user) {
     form.value.firstName = user.first_name || '';
     form.value.lastName  = user.last_name  || '';
+    const ext = (user.name_extension || '').trim();
+    if (STANDARD_NAME_EXTENSIONS.includes(ext) || ext === '') {
+      form.value.nameExtensionSelection = ext;
+      form.value.customExtension = '';
+    } else {
+      form.value.nameExtensionSelection = 'OTHER';
+      form.value.customExtension = ext;
+    }
     form.value.email     = user.email      || '';
     form.value.emailNotificationsEnabled = user.email_notifications_enabled === 0 || user.email_notifications_enabled === '0' ? false : true;
     if (user.avatar_path) {
@@ -772,9 +815,14 @@ const handleSave = async () => {
 
   isSaving.value = true;
   try {
+    const finalExtension = form.value.nameExtensionSelection === 'OTHER'
+      ? form.value.customExtension.trim()
+      : form.value.nameExtensionSelection.trim();
+
     const payload = {
       first_name: form.value.firstName,
       last_name:  form.value.lastName,
+      name_extension: finalExtension || null,
       email_notifications_enabled: form.value.emailNotificationsEnabled ? 1 : 0,
     };
     if (emailChanged) {

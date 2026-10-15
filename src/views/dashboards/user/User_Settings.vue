@@ -75,9 +75,9 @@
           </div>
 
           <div class="p-8 md:p-12 space-y-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
               <!-- First Name -->
-              <div class="space-y-3">
+              <div class="space-y-3 md:col-span-5">
                 <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">First Name</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500 text-slate-400">
@@ -90,7 +90,7 @@
               </div>
 
               <!-- Last Name -->
-              <div class="space-y-3">
+              <div class="space-y-3 md:col-span-5">
                 <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">Last Name</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500 text-slate-400">
@@ -102,8 +102,40 @@
                 </div>
               </div>
 
-              <!-- Email -->
+              <!-- Name Extension -->
               <div class="space-y-3 md:col-span-2">
+                <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1 truncate" title="Name Extension / Suffix (e.g. Jr., Sr., III)">Suffix / Ext.</label>
+                <div class="relative group">
+                  <select
+                    v-model="form.nameExtensionSelection"
+                    class="block w-full pl-4 pr-8 py-4 bg-slate-50 border border-slate-200 rounded-[1.25rem] text-sm font-bold text-slate-700 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none appearance-none cursor-pointer"
+                  >
+                    <option value="">None</option>
+                    <option v-for="ext in STANDARD_NAME_EXTENSIONS" :key="ext" :value="ext">{{ ext }}</option>
+                    <option value="OTHER">Other...</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Custom Name Extension if OTHER -->
+              <div v-if="form.nameExtensionSelection === 'OTHER'" class="space-y-3 md:col-span-12 animate-fade-in">
+                <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">Specify Name Extension</label>
+                <input
+                  v-model="form.customExtension"
+                  type="text"
+                  maxlength="20"
+                  placeholder="e.g. Jr., III, IV, etc."
+                  class="block w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-[1.25rem] text-sm font-bold text-slate-700 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                />
+              </div>
+
+              <!-- Email -->
+              <div class="space-y-3 md:col-span-12">
                 <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">{{ isPersonnel ? 'Username' : 'Email Address' }}</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500 text-slate-400">
@@ -117,7 +149,7 @@
               </div>
 
               <!-- Email Updates Opt-In (wired to email_notifications_enabled) — Hidden for personnel / worker accounts -->
-              <div v-if="!isPersonnel" class="md:col-span-2 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.emailNotificationsEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
+              <div v-if="!isPersonnel" class="md:col-span-12 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.emailNotificationsEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
                 <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-xs" :class="form.emailNotificationsEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-400 text-white'">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -139,7 +171,7 @@
               </div>
 
               <!-- Student Affiliation Info (For Student Representatives) -->
-              <div v-if="authStore.user?.role === 'student'" class="space-y-2 md:col-span-2 p-4 rounded-2xl bg-purple-50/60 border border-purple-200/80">
+              <div v-if="authStore.user?.role === 'student'" class="space-y-2 md:col-span-12 p-4 rounded-2xl bg-purple-50/60 border border-purple-200/80">
                 <div class="flex items-center justify-between">
                   <label class="block text-xs font-black text-purple-900 uppercase tracking-widest">
                     {{ (authStore.user?.student_type || '').toLowerCase().trim() === 'ssg' ? 'Officer Position' : 'Student Organization Affiliation' }}
@@ -161,7 +193,7 @@
               </div>
 
               <!-- Employee Classification Info -->
-              <div v-if="authStore.user?.role === 'employee'" class="space-y-2 md:col-span-2 p-4 rounded-2xl bg-teal-50/60 border border-teal-200/80">
+              <div v-if="authStore.user?.role === 'employee'" class="space-y-2 md:col-span-12 p-4 rounded-2xl bg-teal-50/60 border border-teal-200/80">
                 <div class="flex items-center justify-between">
                   <label class="block text-xs font-black text-teal-900 uppercase tracking-widest">
                     Faculty / Staff Classification
@@ -180,7 +212,7 @@
               </div>
 
               <!-- Password -->
-              <div class="space-y-3">
+              <div class="space-y-3 md:col-span-6">
                 <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">New Password</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500 text-slate-400">
@@ -203,7 +235,7 @@
               </div>
 
               <!-- Confirm Password -->
-              <div class="space-y-3">
+              <div class="space-y-3 md:col-span-6">
                 <div class="flex items-center justify-between ml-1">
                   <label class="block text-sm font-black text-slate-900 uppercase tracking-widest">Confirm New Password</label>
                   <span v-if="form.password && form.confirmPassword" class="text-xs font-bold" :class="form.password === form.confirmPassword ? 'text-emerald-600' : 'text-rose-500'">
@@ -253,6 +285,7 @@ import { useAuthStore } from '@/stores/auth';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+import { STANDARD_NAME_EXTENSIONS } from '@/constants/nameExtensions';
 
 const authStore = useAuthStore();
 const avatarInputRef = ref(null);
@@ -266,6 +299,8 @@ const isPersonnel = computed(() => {
 const form = ref({
   firstName: '',
   lastName: '',
+  nameExtensionSelection: '',
+  customExtension: '',
   email: '',
   emailNotificationsEnabled: true,
   password: '',
@@ -279,6 +314,14 @@ const populateFormData = (user) => {
   if (!user) return;
   form.value.firstName = user.first_name || '';
   form.value.lastName  = user.last_name  || '';
+  const ext = (user.name_extension || '').trim();
+  if (STANDARD_NAME_EXTENSIONS.includes(ext) || ext === '') {
+    form.value.nameExtensionSelection = ext;
+    form.value.customExtension = '';
+  } else {
+    form.value.nameExtensionSelection = 'OTHER';
+    form.value.customExtension = ext;
+  }
   form.value.email     = (isPersonnel.value ? (user.username || user.email) : user.email) || '';
   form.value.emailNotificationsEnabled = user.email_notifications_enabled === 0 || user.email_notifications_enabled === '0' ? false : true;
   if (user.avatar_path) {
@@ -367,9 +410,14 @@ const handleSave = async () => {
 
   isSaving.value = true;
   try {
+    const finalExtension = form.value.nameExtensionSelection === 'OTHER'
+      ? form.value.customExtension.trim()
+      : form.value.nameExtensionSelection.trim();
+
     const payload = {
       first_name: form.value.firstName,
       last_name:  form.value.lastName,
+      name_extension: finalExtension || null,
       email_notifications_enabled: form.value.emailNotificationsEnabled ? 1 : 0,
     };
     if (identifierChanged) {

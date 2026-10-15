@@ -35,8 +35,15 @@ export const useAuthStore = defineStore('auth', () => {
 
   const fullName = computed(() => {
     if (!user.value) return 'Not Provided';
-    return `${user.value.first_name || ''} ${user.value.last_name || ''}`.trim();
+    const parts = [
+      user.value.first_name,
+      user.value.last_name,
+      user.value.name_extension,
+    ].filter(p => p && String(p).trim().length > 0);
+    return parts.join(' ').trim() || 'Not Provided';
   });
+
+  const nameExtension = computed(() => user.value?.name_extension || '');
 
   const contactNumber = computed(() => user.value?.contact_number || 'Not Provided');
 
@@ -539,6 +546,7 @@ export const useAuthStore = defineStore('auth', () => {
     permissions,
     isAuthenticated,
     fullName,
+    nameExtension,
     contactNumber,
     capitalizedRole,
     studentType,
