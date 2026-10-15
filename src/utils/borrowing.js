@@ -70,6 +70,29 @@ export function isBorrowingService(input) {
     return true;
   }
 
+  // Check borrowing property or root fields for valid borrowing fields first if input is an object
+  if (typeof input === 'object') {
+    if (input.borrowing && typeof input.borrowing === 'object') {
+      const b = input.borrowing;
+      if (
+        b.item_name_requested ||
+        b.item_name ||
+        b.date_needed ||
+        b.expected_return_date ||
+        b.borrowing_request_id ||
+        (b.status && BORROWING_STATUSES.includes(b.status))
+      ) {
+        return true;
+      }
+    }
+    if (
+      input.borrowing_request_id ||
+      (input.item_name_requested && input.borrower_name)
+    ) {
+      return true;
+    }
+  }
+
   let name = '';
   if (typeof input === 'string') {
     name = input;
@@ -84,30 +107,6 @@ export function isBorrowingService(input) {
     normalized.includes('borrow request')
   ) {
     return true;
-  }
-
-  // If a known service or title is explicitly present and does not match borrowing, it is NOT borrowing
-  if (normalized.length > 0) {
-    return false;
-  }
-
-  // Fallback: only if service name/title is empty, inspect borrowing property or root fields for valid borrowing fields
-  if (typeof input === 'object') {
-    if (input.borrowing && typeof input.borrowing === 'object') {
-      const b = input.borrowing;
-      return Boolean(
-        b.item_name_requested ||
-        b.item_name ||
-        b.date_needed ||
-        b.expected_return_date ||
-        b.borrowing_request_id ||
-        (b.status && BORROWING_STATUSES.includes(b.status))
-      );
-    }
-    return Boolean(
-      input.borrowing_request_id ||
-      (input.item_name_requested && input.borrower_name)
-    );
   }
 
   return false;

@@ -332,6 +332,14 @@
                         Director Review
                       </span>
                       <span
+                        v-if="ticket.is_borrowing || isBorrowingService(ticket)"
+                        class="px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 border border-sky-200 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-2xs"
+                        title="Borrowing Request"
+                      >
+                        <svg class="w-3 h-3 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        <span>Borrowing</span>
+                      </span>
+                      <span
                         v-if="isCollabTicket(ticket)"
                         class="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 border border-indigo-200 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-2xs"
                         title="Cross-Unit Collaboration Ticket"
@@ -354,8 +362,18 @@
 
                   <!-- Location (Pending, Approved, Delayed & Dispatched) -->
                   <td v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed' || activeTab === 'dispatched'" class="px-3 py-2.5 whitespace-nowrap">
-                    <div class="text-xs font-semibold text-slate-700">{{ ticket.location || 'Main Campus' }}</div>
-                    <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
+                    <template v-if="ticket.is_borrowing || isBorrowingService(ticket)">
+                      <div class="text-xs font-bold text-slate-900 truncate max-w-[200px]" :title="ticket.item_requested || ticket.item_name_requested || ticket.borrowing?.item_name_requested || 'Tools / Equipment'">
+                        {{ ticket.item_requested || ticket.item_name_requested || ticket.borrowing?.item_name_requested || 'Tools / Equipment' }}
+                      </div>
+                      <div class="text-[10px] text-sky-700 font-semibold">
+                        Qty: {{ ticket.quantity_needed || ticket.borrowing?.quantity_needed || 1 }} &bull; Need: {{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="text-xs font-semibold text-slate-700">{{ ticket.location || 'Main Campus' }}</div>
+                      <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
+                    </template>
                   </td>
 
                   <!-- Delayed: Reason -->
@@ -677,6 +695,14 @@
                 Director Review
               </span>
               <span
+                v-if="ticket.is_borrowing || isBorrowingService(ticket)"
+                class="px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 border border-sky-200 text-[9px] font-black uppercase tracking-wider shrink-0 inline-flex items-center gap-1 shadow-2xs"
+                title="Borrowing Request"
+              >
+                <svg class="w-3 h-3 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                <span>Borrowing</span>
+              </span>
+              <span
                 v-if="isCollabTicket(ticket)"
                 class="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 border border-indigo-200 text-[9px] font-black uppercase tracking-wider shrink-0 inline-flex items-center gap-1 shadow-2xs"
                 title="Cross-Unit Collaboration Ticket"
@@ -688,16 +714,27 @@
 
             <!-- Location for Pending, Approved, Delayed, and Dispatched -->
             <div v-if="activeTab === 'pending' || activeTab === 'approved' || activeTab === 'delayed' || activeTab === 'dispatched'" class="mt-2 flex items-center justify-between text-xs text-slate-600">
-              <div class="flex items-center gap-1.5 truncate">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span class="truncate">{{ ticket.location || 'Main Campus' }}{{ ticket.office_room ? ` (Rm ${ticket.office_room})` : '' }}</span>
-              </div>
-              <span v-if="ticket.attachments && ticket.attachments.length > 0" class="text-[10px] font-bold text-slate-400 shrink-0">
-                {{ ticket.attachments.length }} files
-              </span>
+              <template v-if="ticket.is_borrowing || isBorrowingService(ticket)">
+                <div class="flex items-center gap-1.5 truncate">
+                  <span class="font-bold text-slate-900 truncate">{{ ticket.item_requested || ticket.item_name_requested || ticket.borrowing?.item_name_requested || 'Tools / Equipment' }}</span>
+                  <span class="text-[10px] text-sky-700 font-semibold shrink-0">({{ ticket.quantity_needed || ticket.borrowing?.quantity_needed || 1 }}x)</span>
+                </div>
+                <span class="text-[10px] font-semibold text-slate-500 shrink-0">
+                  Needed: {{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}
+                </span>
+              </template>
+              <template v-else>
+                <div class="flex items-center gap-1.5 truncate">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span class="truncate">{{ ticket.location || 'Main Campus' }}{{ ticket.office_room ? ` (Rm ${ticket.office_room})` : '' }}</span>
+                </div>
+                <span v-if="ticket.attachments && ticket.attachments.length > 0" class="text-[10px] font-bold text-slate-400 shrink-0">
+                  {{ ticket.attachments.length }} files
+                </span>
+              </template>
             </div>
 
             <!-- Dispatched row -->
@@ -1694,6 +1731,9 @@ const handleDocumentClick = (e) => {
 // Borrowing status helpers (Active statuses: Pending Pickups & Awaiting Return)
 const borrowingStatusBadgeClass = (status) => {
   switch (String(status || '').toLowerCase()) {
+    case 'pending_director':
+    case 'pending':
+      return 'bg-purple-50 text-purple-700 border-purple-200';
     case 'approved_director':
       return 'bg-blue-50 text-blue-700 border-blue-200';
     case 'inventory_assigned':
@@ -1713,6 +1753,7 @@ const borrowingStatusBadgeClass = (status) => {
 
 const formatBorrowingStatus = (status) => {
   const s = String(status || '').toLowerCase();
+  if (s === 'pending_director' || s === 'pending') return 'Awaiting Director Review';
   if (s === 'ready_for_pickup') return 'Ready for Pickup';
   if (s === 'inventory_assigned') return 'Inventory Assigned';
   if (s === 'approved_director') return 'Approved (Prepping)';
@@ -1766,7 +1807,7 @@ const isLoading = ref(false);
 const searchQuery = ref('');
 const selectedServiceFilter = ref('');
 const selectedEscalationFilter = ref('all'); // 'all' | 'escalated' | 'routine'
-const escalatedPendingCount = computed(() => queuesData.value.pending.filter(t => t.is_escalated_to_director).length);
+const escalatedPendingCount = computed(() => queuesData.value.pending.filter(t => t.is_escalated_to_director || isBorrowingService(t) || t.is_borrowing).length);
 
 // Pagination state
 const currentPage = ref(1);
@@ -1820,7 +1861,7 @@ const activeTabLabel = computed(() => {
 const currentTabTickets = computed(() => {
   const list = queuesData.value[activeTab.value] || [];
   if (isDirector.value && activeTab.value === 'pending') {
-    return list.filter(t => t.is_escalated_to_director);
+    return list.filter(t => t.is_escalated_to_director || isBorrowingService(t) || t.is_borrowing);
   }
   return list;
 });
@@ -1839,12 +1880,12 @@ const filteredTickets = computed(() => {
 
   if (activeTab.value === 'pending') {
     if (isDirector.value) {
-      list = list.filter(t => t.is_escalated_to_director);
+      list = list.filter(t => t.is_escalated_to_director || isBorrowingService(t) || t.is_borrowing);
     } else if (selectedEscalationFilter.value !== 'all') {
       if (selectedEscalationFilter.value === 'escalated') {
-        list = list.filter(t => t.is_escalated_to_director);
+        list = list.filter(t => t.is_escalated_to_director || isBorrowingService(t) || t.is_borrowing);
       } else if (selectedEscalationFilter.value === 'routine') {
-        list = list.filter(t => !t.is_escalated_to_director);
+        list = list.filter(t => !t.is_escalated_to_director && !isBorrowingService(t) && !t.is_borrowing);
       }
     }
   }
@@ -1958,6 +1999,7 @@ const mapTicket = (t) => {
     location: t.location || t.college_building,
     office_room: t.office_room,
     attachments: t.attachments || [],
+    is_borrowing: isBorrowingService(t),
     borrowing: isBorrowingService(t) ? (t.borrowing || null) : null,
     details: t.details || null,
     item_name_requested: isBorrowingService(t) ? (t.item_name_requested || t.borrowing?.item_name_requested || '') : '',
@@ -2055,7 +2097,7 @@ const fetchAllQueues = async () => {
     if (pendingRes.status === 'fulfilled' && pendingRes.value.data?.data?.tickets) {
       const allPending = pendingRes.value.data.data.tickets.map(mapTicket);
       queuesData.value.pending = isDirector.value
-        ? allPending.filter(t => t.is_escalated_to_director)
+        ? allPending.filter(t => t.is_escalated_to_director || isBorrowingService(t) || t.is_borrowing)
         : allPending;
       queueCounts.value.pending = queuesData.value.pending.length;
     }
@@ -2083,7 +2125,7 @@ const fetchAllQueues = async () => {
       const bList = borrowingRes.value.data?.data?.borrowing_requests || [];
       const activeBorrowingList = bList.filter(r => {
         const s = String(r.status || '').toLowerCase();
-        return ['ready_for_pickup', 'inventory_assigned', 'approved_director', 'picked_up', 'overdue'].includes(s);
+        return ['pending_director', 'pending', 'ready_for_pickup', 'inventory_assigned', 'approved_director', 'picked_up', 'overdue'].includes(s);
       });
       queuesData.value.borrowing = activeBorrowingList.map(mapBorrowingTicket);
       queueCounts.value.borrowing = queuesData.value.borrowing.length;
@@ -2146,7 +2188,11 @@ const checkRouteQueryTicket = () => {
     handledRouteQueryTicketId = String(targetId);
     selectedTicketForModal.value = match;
 
-    if (queuesData.value.active?.some(t => String(t.id) === String(match.id))) {
+    if (queuesData.value.pending?.some(t => String(t.id) === String(match.id))) {
+      activeTab.value = 'pending';
+    } else if (queuesData.value.delayed?.some(t => String(t.id) === String(match.id))) {
+      activeTab.value = 'delayed';
+    } else if (queuesData.value.active?.some(t => String(t.id) === String(match.id))) {
       activeTab.value = isPendingOnlyMode.value ? 'pending' : 'active';
     } else if (queuesData.value.dispatched?.some(t => String(t.id) === String(match.id))) {
       activeTab.value = isPendingOnlyMode.value ? 'pending' : 'dispatched';
@@ -2154,10 +2200,7 @@ const checkRouteQueryTicket = () => {
       activeTab.value = isPendingOnlyMode.value ? 'pending' : 'approved';
     } else if (queuesData.value.borrowing?.some(t => String(t.id) === String(match.id))) {
       activeTab.value = isPendingOnlyMode.value ? 'pending' : 'borrowing';
-    } else if (queuesData.value.delayed?.some(t => String(t.id) === String(match.id))) {
-      activeTab.value = 'delayed';
-    } else if (queuesData.value.pending?.some(t => String(t.id) === String(match.id))) {
-      activeTab.value = 'pending';
+      selectedTicketListKey.value = 'borrowing';
     }
 
     clearRouteQueryTicket();
@@ -2166,10 +2209,29 @@ const checkRouteQueryTicket = () => {
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 250);
   } else {
-    if (!isLoading.value && isInitialFetch) {
-      fetchAllQueues();
-    }
-    searchQuery.value = String(targetId);
+    // Fallback: If not in current queue cache, fetch ticket directly to guarantee modal opens
+    api.get(`tickets/${targetId}`)
+      .then(res => {
+        const rawTicket = res.data?.data?.ticket;
+        if (rawTicket) {
+          const mapped = mapTicket(rawTicket);
+          handledRouteQueryTicketId = String(targetId);
+          openDetailsModal(mapped);
+          if (mapped.status === 'pending') {
+            if (!queuesData.value.pending.some(t => String(t.id) === String(mapped.id))) {
+              queuesData.value.pending.unshift(mapped);
+              queueCounts.value.pending = queuesData.value.pending.length;
+            }
+            activeTab.value = 'pending';
+          }
+          clearRouteQueryTicket();
+        } else {
+          searchQuery.value = String(targetId);
+        }
+      })
+      .catch(() => {
+        searchQuery.value = String(targetId);
+      });
   }
 };
 
@@ -2205,8 +2267,26 @@ const downloadAttachment = async (att) => {
   }
 };
 
-const openDetailsModal = (ticket) => {
+const openDetailsModal = async (ticket) => {
+  if (!ticket) return;
   selectedTicketForModal.value = ticket;
+
+  // For borrowing requests, if borrowing particulars (item name or schedule) aren't fully populated yet, fetch single ticket
+  if (isBorrowingService(ticket) && (!ticket.borrowing || !ticket.borrowing.item_name_requested)) {
+    try {
+      const res = await api.get(`tickets/${ticket.id || ticket.ticketId}`);
+      const freshTicket = res.data?.data?.ticket || res.data?.data;
+      if (freshTicket && selectedTicketForModal.value && String(selectedTicketForModal.value.id || selectedTicketForModal.value.ticketId) === String(ticket.id || ticket.ticketId)) {
+        const mapped = mapTicket(freshTicket);
+        selectedTicketForModal.value = {
+          ...selectedTicketForModal.value,
+          ...mapped,
+        };
+      }
+    } catch (err) {
+      console.warn('Failed to fetch full ticket for borrowing modal:', err);
+    }
+  }
 };
 
 const initiateApproval = (ticket) => {

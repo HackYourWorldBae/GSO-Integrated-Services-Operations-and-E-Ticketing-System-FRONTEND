@@ -692,6 +692,14 @@ const handleNotificationClick = async (notif) => {
   const isDispatched = notif.status === 'processing' || fullText.includes('dispatched') || fullText.includes('assigned') || fullText.includes('scheduled');
   const isApproved = notif.status === 'approved' || fullText.includes('approved');
   const isBorrowing = fullText.includes('borrow') || fullText.includes('pickup') || fullText.includes('inventory');
+  const isPending = notif.status === 'pending' ||
+    notif.status === 'pending_director' ||
+    notif.status === 'submitted' ||
+    fullText.includes('awaiting review') ||
+    fullText.includes('new request') ||
+    fullText.includes('review and approval') ||
+    fullText.includes('pending approval') ||
+    fullText.includes('submitted');
 
   let targetPath = '';
 
@@ -712,12 +720,11 @@ const handleNotificationClick = async (notif) => {
       } else if (fullText.includes('collab') || fullText.includes('joint')) {
         targetPath = '/admin/ssu/collab-tickets';
       } else if (
+        isPending ||
         fullText.includes('review') ||
         fullText.includes('submitted') ||
         fullText.includes('incident') ||
-        fullText.includes('awaiting') ||
-        notif.status === 'pending' ||
-        notif.status === 'submitted'
+        fullText.includes('awaiting')
       ) {
         targetPath = '/admin/ssu/submitted-tickets';
       } else if (isActive || fullText.includes('investigat')) {
@@ -730,8 +737,10 @@ const handleNotificationClick = async (notif) => {
     } else if (unitCode === 'leau') {
       if (isCompleted) {
         targetPath = '/admin/leau/archives';
+      } else if (isPending) {
+        targetPath = '/admin/leau/queues';
       } else if (isBorrowing) {
-        targetPath = isDispatched ? '/admin/leau/dispatched' : '/admin/leau/approved-tickets';
+        targetPath = isDispatched ? '/admin/leau/dispatched' : (isActive ? '/admin/leau/active-tickets' : '/admin/leau/approved-tickets');
       } else if (isApproved) {
         targetPath = '/admin/leau/approved-tickets';
       } else if (isActive) {
@@ -739,12 +748,16 @@ const handleNotificationClick = async (notif) => {
       } else if (isDispatched) {
         targetPath = '/admin/leau/dispatched';
       } else {
-        targetPath = '/admin/leau/approved-tickets';
+        targetPath = '/admin/leau/queues';
       }
     } else {
       // FGMU Admin
       if (isCompleted) {
         targetPath = '/admin/fgmu/archives';
+      } else if (isPending) {
+        targetPath = '/admin/fgmu/queues';
+      } else if (isBorrowing) {
+        targetPath = isDispatched ? '/admin/fgmu/dispatched' : (isActive ? '/admin/fgmu/active-tickets' : '/admin/fgmu/approved-tickets');
       } else if (isApproved) {
         targetPath = '/admin/fgmu/approved-tickets';
       } else if (isActive) {
@@ -752,7 +765,7 @@ const handleNotificationClick = async (notif) => {
       } else if (isDispatched) {
         targetPath = '/admin/fgmu/dispatched';
       } else {
-        targetPath = '/admin/fgmu/approved-tickets';
+        targetPath = '/admin/fgmu/queues';
       }
     }
   } else if (role === 'director') {
@@ -790,8 +803,8 @@ const handleNotificationClick = async (notif) => {
 
   // 6. Navigate to target path passing ticket reference
   const navQuery = { ticketId, highlight: ticketId, _t: Date.now() };
-  if (isBorrowing) {
-    navQuery.tab = 'borrowing';
+  if (isBorrowing && !isPending && (isDispatched || isActive)) {
+    navQuery.tab = isActive ? 'borrowed' : 'borrowing';
   }
   router.push({
     path: targetPath,
