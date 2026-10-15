@@ -684,9 +684,21 @@ const handleNotificationClick = async (notif) => {
     unitCode = u || 'fgmu';
   }
 
-  const isCompleted = notif.is_archived === 1 || 
-    ['completed', 'resolved', 'declined', 'cancelled', 'closed'].includes(notif.status) ||
-    fullText.includes('completed') || fullText.includes('resolved') || fullText.includes('declined') || fullText.includes('cancelled');
+  const isCancelled =
+    notif.status === 'cancelled' ||
+    notif.status === 'canceled' ||
+    fullText.includes('cancelled') ||
+    fullText.includes('canceled') ||
+    fullText.includes('cancellation');
+
+  const isCompleted = isCancelled ||
+    notif.is_archived === 1 || 
+    ['completed', 'resolved', 'declined', 'closed'].includes(notif.status) ||
+    fullText.includes('completed') ||
+    fullText.includes('resolved') ||
+    fullText.includes('declined') ||
+    fullText.includes('closed') ||
+    fullText.includes('archived');
 
   const isActive = notif.status === 'in_progress' || fullText.includes('in progress') || fullText.includes('started');
   const isDispatched = notif.status === 'processing' || fullText.includes('dispatched') || fullText.includes('assigned') || fullText.includes('scheduled');
@@ -703,107 +715,121 @@ const handleNotificationClick = async (notif) => {
 
   let targetPath = '';
 
-  if (role === 'admin') {
+  if (role === 'admin' || role === 'staff') {
     const adminUnit = (authStore.user?.unit_code || '').toLowerCase() || unitCode || 'fgmu';
-    const isOwnRequest = fullText.includes('your request') || 
-      fullText.includes('your service request') || 
-      fullText.includes('evaluation required') || 
-      fullText.includes('rate the service') || 
-      fullText.includes('rate your') ||
-      fullText.includes('your ticket');
 
-    if (isOwnRequest) {
-      targetPath = `/admin/${adminUnit}/my-requests`;
-    } else if (unitCode === 'ssu') {
-      if (isCompleted) {
-        targetPath = '/admin/ssu/archives';
-      } else if (fullText.includes('collab') || fullText.includes('joint')) {
-        targetPath = '/admin/ssu/collab-tickets';
-      } else if (
-        isPending ||
-        fullText.includes('review') ||
-        fullText.includes('submitted') ||
-        fullText.includes('incident') ||
-        fullText.includes('awaiting')
-      ) {
-        targetPath = '/admin/ssu/submitted-tickets';
-      } else if (isActive || fullText.includes('investigat')) {
-        targetPath = '/admin/ssu/investigating-tickets';
-      } else if (isDispatched || isApproved) {
-        targetPath = '/admin/ssu/assign-workers';
-      } else {
-        targetPath = '/admin/ssu/submitted-tickets';
-      }
-    } else if (unitCode === 'leau') {
-      if (isCompleted) {
-        targetPath = '/admin/leau/archives';
-      } else if (isPending) {
-        targetPath = '/admin/leau/queues';
-      } else if (isBorrowing) {
-        targetPath = isDispatched ? '/admin/leau/dispatched' : (isActive ? '/admin/leau/active-tickets' : '/admin/leau/approved-tickets');
-      } else if (isApproved) {
-        targetPath = '/admin/leau/approved-tickets';
-      } else if (isActive) {
-        targetPath = '/admin/leau/active-tickets';
-      } else if (isDispatched) {
-        targetPath = '/admin/leau/dispatched';
-      } else {
-        targetPath = '/admin/leau/queues';
-      }
+    if (isCancelled || (isCompleted && !fullText.includes('rate') && !fullText.includes('evaluation'))) {
+      targetPath = `/admin/${adminUnit}/archives`;
     } else {
-      // FGMU Admin
-      if (isCompleted) {
-        targetPath = '/admin/fgmu/archives';
-      } else if (isPending) {
-        targetPath = '/admin/fgmu/queues';
-      } else if (isBorrowing) {
-        targetPath = isDispatched ? '/admin/fgmu/dispatched' : (isActive ? '/admin/fgmu/active-tickets' : '/admin/fgmu/approved-tickets');
-      } else if (isApproved) {
-        targetPath = '/admin/fgmu/approved-tickets';
-      } else if (isActive) {
-        targetPath = '/admin/fgmu/active-tickets';
-      } else if (isDispatched) {
-        targetPath = '/admin/fgmu/dispatched';
+      const isOwnRequest = fullText.includes('your request') || 
+        fullText.includes('your service request') || 
+        fullText.includes('evaluation required') || 
+        fullText.includes('rate the service') || 
+        fullText.includes('rate your') ||
+        fullText.includes('your ticket');
+
+      if (isOwnRequest) {
+        targetPath = `/admin/${adminUnit}/my-requests`;
+      } else if (unitCode === 'ssu') {
+        if (fullText.includes('collab') || fullText.includes('joint')) {
+          targetPath = '/admin/ssu/collab-tickets';
+        } else if (
+          isPending ||
+          fullText.includes('review') ||
+          fullText.includes('submitted') ||
+          fullText.includes('incident') ||
+          fullText.includes('awaiting')
+        ) {
+          targetPath = '/admin/ssu/submitted-tickets';
+        } else if (isActive || fullText.includes('investigat')) {
+          targetPath = '/admin/ssu/investigating-tickets';
+        } else if (isDispatched || isApproved) {
+          targetPath = '/admin/ssu/assign-workers';
+        } else {
+          targetPath = '/admin/ssu/submitted-tickets';
+        }
+      } else if (unitCode === 'leau') {
+        if (isPending) {
+          targetPath = '/admin/leau/queues';
+        } else if (isBorrowing) {
+          targetPath = isDispatched ? '/admin/leau/dispatched' : (isActive ? '/admin/leau/active-tickets' : '/admin/leau/approved-tickets');
+        } else if (isApproved) {
+          targetPath = '/admin/leau/approved-tickets';
+        } else if (isActive) {
+          targetPath = '/admin/leau/active-tickets';
+        } else if (isDispatched) {
+          targetPath = '/admin/leau/dispatched';
+        } else {
+          targetPath = '/admin/leau/queues';
+        }
       } else {
-        targetPath = '/admin/fgmu/queues';
+        // FGMU Admin
+        if (isPending) {
+          targetPath = '/admin/fgmu/queues';
+        } else if (isBorrowing) {
+          targetPath = isDispatched ? '/admin/fgmu/dispatched' : (isActive ? '/admin/fgmu/active-tickets' : '/admin/fgmu/approved-tickets');
+        } else if (isApproved) {
+          targetPath = '/admin/fgmu/approved-tickets';
+        } else if (isActive) {
+          targetPath = '/admin/fgmu/active-tickets';
+        } else if (isDispatched) {
+          targetPath = '/admin/fgmu/dispatched';
+        } else {
+          targetPath = '/admin/fgmu/queues';
+        }
       }
     }
   } else if (role === 'director') {
-    const isOwnRequest = fullText.includes('your request') || 
-      fullText.includes('your service request') || 
-      fullText.includes('evaluation required') || 
-      fullText.includes('rate the service') || 
-      fullText.includes('rate your') ||
-      fullText.includes('your ticket');
+    if (isCancelled || (isCompleted && !fullText.includes('rate') && !fullText.includes('evaluation'))) {
+      if (unitCode === 'ssu') targetPath = '/admin/ssu/archives';
+      else if (unitCode === 'leau') targetPath = '/admin/leau/archives';
+      else targetPath = '/admin/fgmu/archives';
+    } else {
+      const isOwnRequest = fullText.includes('your request') || 
+        fullText.includes('your service request') || 
+        fullText.includes('evaluation required') || 
+        fullText.includes('rate the service') || 
+        fullText.includes('rate your') ||
+        fullText.includes('your ticket');
 
-    if (isOwnRequest) {
-      targetPath = '/director/my-requests';
-    } else if (isCompleted) {
+      if (isOwnRequest) {
+        targetPath = '/director/my-requests';
+      } else if (unitCode === 'ssu') {
+        targetPath = (isActive || isDispatched || fullText.includes('investigat'))
+          ? '/admin/ssu/investigating-tickets'
+          : (fullText.includes('incident') ? '/admin/ssu/queues/incidents' : '/admin/ssu/submitted-tickets');
+      } else if (unitCode === 'leau') {
+        targetPath = '/director/leau/queues';
+      } else {
+        targetPath = '/director/fgmu/queues';
+      }
+    }
+  } else if (role === 'superadmin') {
+    if (isCancelled || isCompleted) {
       if (unitCode === 'ssu') targetPath = '/admin/ssu/archives';
       else if (unitCode === 'leau') targetPath = '/admin/leau/archives';
       else targetPath = '/admin/fgmu/archives';
     } else if (unitCode === 'ssu') {
-      targetPath = (isActive || isDispatched || fullText.includes('investigat'))
-        ? '/admin/ssu/investigating-tickets'
-        : (fullText.includes('incident') ? '/admin/ssu/queues/incidents' : '/admin/ssu/submitted-tickets');
+      targetPath = '/admin/ssu/submitted-tickets';
     } else if (unitCode === 'leau') {
-      targetPath = '/director/leau/queues';
+      targetPath = '/admin/leau/queues';
+    } else if (unitCode === 'fgmu') {
+      targetPath = '/admin/fgmu/queues';
     } else {
-      targetPath = '/director/fgmu/queues';
+      targetPath = '/superadmin/queues';
     }
-  } else if (role === 'superadmin') {
-    targetPath = '/superadmin/queues';
   } else {
-    // Requestor (student, employee, etc.)
-    const isUserClosed = notif.is_archived === 1 || 
-      ['completed', 'closed', 'declined', 'cancelled'].includes(notif.status) ||
-      fullText.includes('closed') || fullText.includes('archived') || fullText.includes('declined') || fullText.includes('cancelled');
-    targetPath = isUserClosed ? '/user/completed-tickets' : '/user/tickets';
+    // Requestor (student, employee, worker)
+    if (isCancelled || isCompleted) {
+      targetPath = '/user/completed-tickets';
+    } else {
+      targetPath = '/user/tickets';
+    }
   }
 
   // 6. Navigate to target path passing ticket reference
   const navQuery = { ticketId, highlight: ticketId, _t: Date.now() };
-  if (isBorrowing && !isPending && (isDispatched || isActive)) {
+  if (isBorrowing && !isPending && !isCompleted && !isCancelled && (isDispatched || isActive)) {
     navQuery.tab = isActive ? 'borrowed' : 'borrowing';
   }
   router.push({

@@ -926,19 +926,20 @@ const checkRouteTicket = () => {
   if (handledRouteQueryKey === triggerKey) {
     return;
   }
-  const targetStr = String(target).trim().toLowerCase();
-  const match = tickets.value.find(t => 
-    String(t.ticketId).toLowerCase() === targetStr || 
-    String(t.id).toLowerCase() === targetStr ||
-    String(t.ticket_number || '').toLowerCase() === targetStr ||
-    String(t.reference_number || '').toLowerCase() === targetStr ||
-    `${String(t.unit || t.unit_code).toLowerCase()}-tic-${String(t.id).toLowerCase()}` === targetStr
-  );
+  const cleanTarget = String(target).trim().toLowerCase().replace(/^#/, '');
+  const match = tickets.value.find(t => {
+    const tid = String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+    const id = String(t.id || '').toLowerCase().trim().replace(/^#/, '');
+    const num = String(t.ticket_number || '').toLowerCase().trim().replace(/^#/, '');
+    const ref = String(t.reference_number || '').toLowerCase().trim().replace(/^#/, '');
+    const fullCode = `${String(t.unit || t.unit_code || '').toLowerCase()}-tic-${id}`;
+    return tid === cleanTarget || id === cleanTarget || num === cleanTarget || ref === cleanTarget || fullCode === cleanTarget;
+  });
   if (match) {
     handledRouteQueryKey = triggerKey;
     viewDetails(match);
   } else {
-    searchQuery.value = String(target);
+    searchQuery.value = cleanTarget;
   }
 };
 

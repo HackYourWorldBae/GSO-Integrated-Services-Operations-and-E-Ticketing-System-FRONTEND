@@ -586,10 +586,27 @@ const loadHistory = async () => {
   try {
     const qPid = route.query.personnel_id ? String(route.query.personnel_id).trim() : null;
     await store.fetchDashboard(qPid);
+    checkRouteTicket();
   } catch (_) {
     // Handled by store.errorMessage
   }
 };
+
+const checkRouteTicket = () => {
+  const target = route.query.ticketId || route.query.highlight;
+  if (!target || !store.completedAssignments || store.completedAssignments.length === 0) return;
+  const cleanTarget = String(target).trim().toLowerCase().replace(/^#/, '');
+  const match = store.completedAssignments.find(a => {
+    const tid = String(a.ticket_id || '').toLowerCase().trim().replace(/^#/, '');
+    const aid = String(a.assignment_id || '').toLowerCase().trim().replace(/^#/, '');
+    return tid === cleanTarget || aid === cleanTarget || tid.endsWith(`-${cleanTarget}`);
+  });
+  if (match) {
+    openTicketDetails(match);
+  }
+};
+
+watch(() => [route.query.ticketId, route.query.highlight, route.query._t], checkRouteTicket);
 
 onMounted(async () => {
   await loadHistory();
