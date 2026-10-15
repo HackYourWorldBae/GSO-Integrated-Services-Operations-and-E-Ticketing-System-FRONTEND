@@ -18,6 +18,23 @@ BEGIN
 
     -- 1. Users Table Upgrades
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = current_db AND table_name = 'users') THEN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'name_extension') THEN
+            ALTER TABLE `users` ADD COLUMN `name_extension` VARCHAR(20) NULL DEFAULT NULL AFTER `last_name`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'username') THEN
+            ALTER TABLE `users` ADD COLUMN `username` VARCHAR(100) NULL DEFAULT NULL AFTER `name_extension`;
+            UPDATE `users` SET `username` = `email` WHERE `role` = 'worker' AND (`username` IS NULL OR `username` = '');
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = current_db AND table_name = 'users' AND index_name = 'idx_users_username') THEN
+            ALTER TABLE `users` ADD INDEX `idx_users_username` (`username`);
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'signature_path') THEN
+            ALTER TABLE `users` ADD COLUMN `signature_path` VARCHAR(255) NULL DEFAULT NULL AFTER `avatar_path`;
+        END IF;
+
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'users' AND column_name = 'student_type') THEN
             ALTER TABLE `users` ADD COLUMN `student_type` VARCHAR(50) NULL AFTER `student_id_number`;
         END IF;
@@ -62,6 +79,26 @@ BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = current_db AND table_name = 'personnel') THEN
         IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'personnel' AND column_name = 'contact_number') THEN
             ALTER TABLE `personnel` DROP COLUMN `contact_number`;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_db AND table_name = 'personnel' AND column_name = 'user_id') THEN
+            ALTER TABLE `personnel` ADD COLUMN `user_id` VARCHAR(36) NULL DEFAULT NULL AFTER `unit_id`;
+        END IF;
+
+        -- Auto-heal and bind unlinked personnel records to existing worker accounts
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = current_db AND table_name = 'users') THEN
+            UPDATE `personnel` p
+            INNER JOIN `users` u ON (
+                (p.user_id IS NULL OR p.user_id = '')
+                AND (
+                    TRIM(LOWER(p.name)) = TRIM(LOWER(CONCAT(u.first_name, ' ', u.last_name)))
+                    OR TRIM(LOWER(p.name)) = TRIM(LOWER(CONCAT(u.first_name, ' ', u.last_name, ' ', COALESCE(u.name_extension, ''))))
+                    OR TRIM(LOWER(REPLACE(p.name, ' ', ''))) = TRIM(LOWER(REPLACE(CONCAT(u.first_name, u.last_name), ' ', '')))
+                    OR TRIM(LOWER(REPLACE(p.name, ' ', ''))) = TRIM(LOWER(REPLACE(CONCAT(u.first_name, u.last_name, COALESCE(u.name_extension, '')), ' ', '')))
+                )
+                AND u.role IN ('worker', 'personnel', 'employee', 'staff')
+            )
+            SET p.user_id = u.id;
         END IF;
     END IF;
 
@@ -173,6 +210,8 @@ CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(36) PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
+    name_extension VARCHAR(20) NULL DEFAULT NULL,
+    username VARCHAR(100) NULL DEFAULT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     contact_number VARCHAR(30) NULL,
@@ -186,6 +225,7 @@ CREATE TABLE IF NOT EXISTS users (
     id_card_image TEXT NULL,
     id_selfie_image TEXT NULL,
     avatar_path VARCHAR(255) NULL,
+    signature_path VARCHAR(255) NULL DEFAULT NULL,
     status ENUM('Active', 'Pending', 'Rejected', 'Suspended', 'Archived') NOT NULL DEFAULT 'Active',
     is_verified TINYINT(1) NOT NULL DEFAULT 1,
     email_notifications_enabled TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Per-account opt-in for ticket/request email updates (SSU alerts, dispatch, etc.)',
@@ -197,6 +237,7 @@ CREATE TABLE IF NOT EXISTS users (
     FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE SET NULL,
     INDEX idx_users_role (role),
     INDEX idx_users_status (status),
+    INDEX idx_users_username (username),
     INDEX idx_users_last_login (last_login_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

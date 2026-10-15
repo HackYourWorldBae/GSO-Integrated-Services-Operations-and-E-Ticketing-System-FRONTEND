@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(36) PRIMARY KEY, -- CHAR(36) UUID
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
+    name_extension VARCHAR(20) NULL DEFAULT NULL,
+    username VARCHAR(100) NULL DEFAULT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     contact_number VARCHAR(30),
@@ -47,6 +49,7 @@ CREATE TABLE IF NOT EXISTS users (
     id_card_image TEXT NULL,
     id_selfie_image TEXT NULL,
     avatar_path VARCHAR(255) NULL,
+    signature_path VARCHAR(255) NULL DEFAULT NULL,
     status ENUM('Active', 'Pending', 'Rejected', 'Suspended', 'Archived') NOT NULL DEFAULT 'Active',
     is_verified TINYINT(1) NOT NULL DEFAULT 1,
     email_notifications_enabled TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Per-account opt-in for ticket/request email updates (SSU alerts, dispatch, etc.)',
@@ -58,6 +61,7 @@ CREATE TABLE IF NOT EXISTS users (
     CONSTRAINT fk_users_unit FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE SET NULL,
     INDEX idx_users_role (role),
     INDEX idx_users_status (status),
+    INDEX idx_users_username (username),
     INDEX idx_users_last_login (last_login_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
