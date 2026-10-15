@@ -40,8 +40,8 @@ export const BORROWING_TRANSITIONS = {
 
 export const BORROWING_STEPS = [
   { label: 'Digital Submission',   description: 'The borrower completes and submits the digital borrowing form.' },
-  { label: 'Ticket Creation',      description: 'System generated a Digital Ticket under Pending Director Approval.' },
-  { label: 'Director Approval',    description: 'Director reviews and approves the borrowing request.' },
+  { label: 'Ticket Creation',      description: 'System generated a Digital Ticket under Pending Approval.' },
+  { label: 'Approval',             description: 'Request reviewed and approved for processing.' },
   { label: 'Inventory Allocation', description: 'Unit admin checks and allocates requested inventory item(s).' },
   { label: 'Ready for Pickup',     description: 'Item(s) prepped and ready for pickup at the unit office.' },
   { label: 'Item Picked Up',       description: 'Item(s) claimed by borrower for the approved borrowing duration.' },
@@ -116,6 +116,10 @@ export function isBorrowingService(input) {
  * Human-readable label for a borrowing status slug.
  */
 export function borrowingStatusLabel(status) {
+  const s = String(status ?? '').toLowerCase().trim();
+  if (s === 'pending_director' || s === 'pending') {
+    return 'Pending Approval';
+  }
   return String(status ?? '')
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase());
@@ -129,7 +133,7 @@ export function borrowingStatusLabel(status) {
  * @returns {string}
  */
 export function getBorrowingStatusLabel(ticket) {
-  if (!ticket) return 'Pending Director Approval';
+  if (!ticket) return 'Pending Approval';
 
   const b = ticket.borrowing || ticket.details || {};
   const bStatus = String(b.status || ticket.borrowing_status || '').toLowerCase().trim();
@@ -141,7 +145,7 @@ export function getBorrowingStatusLabel(ticket) {
     return 'Cancelled';
   }
   if (['declined', 'rejected'].includes(tStatus)) {
-    return 'Declined by Director';
+    return 'Declined';
   }
   if (bStatus === 'cancelled') {
     return 'Cancelled';
@@ -172,7 +176,7 @@ export function getBorrowingStatusLabel(ticket) {
     return 'Inventory Assigned - Awaiting Pickup Prep';
   }
 
-  // Step 3: Director Approved (explicitly catches and replaces stale "Queued for Dispatch")
+  // Step 3: Approved (explicitly catches and replaces stale "Queued for Dispatch")
   if (
     ['approved', 'approved_director'].includes(tStatus) ||
     bStatus === 'approved_director' ||
@@ -182,12 +186,15 @@ export function getBorrowingStatusLabel(ticket) {
     return 'Approved - Awaiting Inventory Assignment';
   }
 
-  // Step 2: Pending Director Approval
+  // Step 2: Pending Approval
   if (['pending', 'pending_director'].includes(tStatus) || bStatus === 'pending_director') {
-    return 'Pending Director Approval';
+    return 'Pending Approval';
   }
 
-  return rawLabel || 'Pending Director Approval';
+  if (rawLabel && !rawLabel.toLowerCase().includes('director')) {
+    return rawLabel;
+  }
+  return 'Pending Approval';
 }
 
 /**
@@ -274,8 +281,8 @@ export function borrowingDispatchLink(ticketId, unitCode = '') {
  * Calculate the current step index (1-7) for a borrowing ticket.
  *
  * 1: Digital Submission (completed upon submit)
- * 2: Ticket Creation (active while pending director review)
- * 3: Director Approval (active once approved by director)
+ * 2: Ticket Creation (active while pending review)
+ * 3: Approval (active once approved)
  * 4: Inventory Allocation (active once inventory is assigned)
  * 5: Ready for Pickup (active once marked ready for pickup)
  * 6: Item Picked Up (active during borrowing period / overdue)
@@ -328,13 +335,13 @@ export function getBorrowingStepDescription(ticket, step, index, formatDateFn = 
       return step?.description || 'The borrower completes and submits the digital borrowing form.';
     }
     case 1: { // Ticket Creation
-      return 'System generated a Digital Ticket under Pending Director Approval.';
+      return 'System generated a Digital Ticket under Pending Approval.';
     }
-    case 2: { // Director Approval
+    case 2: { // Approval
       if (stepNum >= 3 || ['approved', 'approved_director'].includes(String(ticket?.status || '').toLowerCase()) || ['approved_director', 'inventory_assigned', 'ready_for_pickup', 'picked_up', 'overdue', 'returned'].includes(b.status)) {
-        return 'Approved by the Director. Queued for LEAU inventory assignment.';
+        return 'Request approved. Queued for inventory assignment.';
       }
-      return step?.description || 'Director reviews and approves the borrowing request.';
+      return step?.description || 'Request reviewed and approved for processing.';
     }
     case 3: { // Inventory Allocation
       if (stepNum > 4 || ['inventory_assigned', 'ready_for_pickup', 'picked_up', 'overdue', 'returned'].includes(b.status)) {

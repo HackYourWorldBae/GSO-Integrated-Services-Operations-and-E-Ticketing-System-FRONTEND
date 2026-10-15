@@ -156,7 +156,7 @@ describe('borrowing utils', () => {
     expect(BORROWING_STEPS.map((s) => s.label)).toEqual([
       'Digital Submission',
       'Ticket Creation',
-      'Director Approval',
+      'Approval',
       'Inventory Allocation',
       'Ready for Pickup',
       'Item Picked Up',
@@ -196,7 +196,7 @@ describe('borrowing utils', () => {
     expect(desc0).toContain('3 unit(s)');
 
     const desc2 = getBorrowingStepDescription(ticket, BORROWING_STEPS[2], 2);
-    expect(desc2).toContain('Approved by the Director');
+    expect(desc2).toContain('Request approved');
 
     const desc3 = getBorrowingStepDescription(ticket, BORROWING_STEPS[3], 3);
     expect(desc3).toContain('LEAU allocated 3 unit(s)');
@@ -233,11 +233,11 @@ describe('borrowing utils', () => {
       })).toBe('Approved - Awaiting Inventory Assignment');
     });
 
-    it('maps pending states to Pending Director Approval', () => {
-      expect(getBorrowingStatusLabel(null)).toBe('Pending Director Approval');
-      expect(getBorrowingStatusLabel({})).toBe('Pending Director Approval');
-      expect(getBorrowingStatusLabel({ status: 'pending' })).toBe('Pending Director Approval');
-      expect(getBorrowingStatusLabel({ borrowing: { status: 'pending_director' } })).toBe('Pending Director Approval');
+    it('maps pending states to Pending Approval', () => {
+      expect(getBorrowingStatusLabel(null)).toBe('Pending Approval');
+      expect(getBorrowingStatusLabel({})).toBe('Pending Approval');
+      expect(getBorrowingStatusLabel({ status: 'pending' })).toBe('Pending Approval');
+      expect(getBorrowingStatusLabel({ borrowing: { status: 'pending_director' } })).toBe('Pending Approval');
     });
 
     it('maps inventory_assigned to Inventory Assigned - Awaiting Pickup Prep', () => {
@@ -279,14 +279,14 @@ describe('borrowing utils', () => {
       })).toBe('Returned & Completed');
     });
 
-    it('maps declined and rejected to Declined by Director', () => {
+    it('maps declined and rejected to Declined', () => {
       expect(getBorrowingStatusLabel({
         status: 'declined',
-      })).toBe('Declined by Director');
+      })).toBe('Declined');
 
       expect(getBorrowingStatusLabel({
         status: 'rejected',
-      })).toBe('Declined by Director');
+      })).toBe('Declined');
     });
 
     it('maps cancelled to Cancelled', () => {

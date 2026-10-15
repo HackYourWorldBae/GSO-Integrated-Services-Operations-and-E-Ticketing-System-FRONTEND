@@ -1062,7 +1062,7 @@ const getSteps = (ticket) => {
       return steps;
     }
     if (ticket.status === 'declined' || ticket.status === 'rejected') {
-      const reason = ticket.declineReason || 'Borrowing request declined by Director.';
+      const reason = ticket.declineReason || 'Borrowing request declined.';
       if (steps.length > 1) {
         steps[1] = { label: 'Ticket Declined', description: `Reason: ${reason}` };
         steps = steps.slice(0, 2);
