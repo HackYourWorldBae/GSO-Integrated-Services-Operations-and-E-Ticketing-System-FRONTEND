@@ -371,36 +371,64 @@
                     Acting Unit Head Mode
                   </span>
                 </div>
-                <p class="text-xs text-slate-500 font-medium mt-0.5">
-                  Temporarily take charge of any sub-unit head dashboard when unit heads are on leave or unavailable
-                </p>
               </div>
-            </div>
-
-            <div class="flex items-center gap-2 self-start sm:self-auto">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg border border-slate-700">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                Single-Session Security
-              </span>
             </div>
           </div>
 
           <div class="p-4 sm:p-8 md:p-12 space-y-6">
             <!-- Informational Notice Banner -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-3.5">
-              <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <div class="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 transition-all">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-start sm:items-center gap-3">
+                  <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-black text-amber-950 uppercase tracking-wider text-xs sm:text-sm">How Sub-Unit Coverage Works</h4>
+                    <p class="text-xs sm:text-sm text-amber-800/90 font-medium mt-0.5">
+                      Temporarily take charge of any sub-unit head dashboard when unit heads are on leave or unavailable
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  @click="showCoverageGuide = !showCoverageGuide"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-900 bg-amber-100/90 hover:bg-amber-200/90 active:scale-98 rounded-xl transition-all cursor-pointer border border-amber-300/60 shadow-2xs shrink-0 self-start sm:self-auto"
+                >
+                  <span>{{ showCoverageGuide ? 'Hide Details' : 'Show Details' }}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-4 h-4 transition-transform duration-200"
+                    :class="{ 'rotate-180': showCoverageGuide }"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
               </div>
-              <div class="space-y-1 text-xs text-amber-900">
-                <h4 class="font-black text-amber-950 uppercase tracking-wider text-[11px]">How Sub-Unit Coverage Works</h4>
-                <p class="leading-relaxed">
-                  <strong>Single-Session Enforcement:</strong> When you assume charge of a sub-unit, any active dashboard session of that unit head will be automatically terminated.
-                </p>
-                <p class="leading-relaxed">
-                  <strong>Verifiable Audit Trail:</strong> All ticket approvals, dispatch assignments, notations, and status updates performed will be permanently recorded under <strong>Director {{ authStore.fullName }}</strong>.
-                </p>
+
+              <!-- Collapsible Detailed Description with Bigger Text -->
+              <div
+                v-if="showCoverageGuide"
+                class="mt-4 pt-4 border-t border-amber-200/70 space-y-2.5 text-sm sm:text-base text-amber-950"
+              >
+                <div class="flex items-start gap-2.5">
+                  <span class="inline-block w-2 h-2 rounded-full bg-amber-600 mt-2 shrink-0"></span>
+                  <p class="leading-relaxed">
+                    <strong class="font-bold text-amber-950">Single-Session Enforcement:</strong> When you assume charge of a sub-unit, any active dashboard session of that unit head will be automatically terminated.
+                  </p>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <span class="inline-block w-2 h-2 rounded-full bg-amber-600 mt-2 shrink-0"></span>
+                  <p class="leading-relaxed">
+                    <strong class="font-bold text-amber-950">Verifiable Audit Trail:</strong> All ticket approvals, dispatch assignments, notations, and status updates performed will be permanently recorded under <strong class="font-bold text-amber-950">Director {{ authStore.fullName }}</strong>.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -471,15 +499,9 @@
                   <div class="space-y-3.5">
                     <!-- Unit Header -->
                     <div class="flex items-center justify-between gap-2">
-                      <div class="flex items-center gap-2">
-                        <span class="w-8 h-8 rounded-xl bg-slate-900 text-white font-black text-xs flex items-center justify-center tracking-wider">
-                          {{ unit.unit_code }}
-                        </span>
-                        <div>
-                          <h4 class="text-sm font-black text-slate-900 leading-tight">{{ unit.unit_code }}</h4>
-                          <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Sub-Unit Head</span>
-                        </div>
-                      </div>
+                      <h4 class="text-base font-black text-slate-900 leading-tight tracking-tight">
+                        {{ unit.unit_code }} Sub-Unit
+                      </h4>
 
                       <!-- Currently Acting Badge -->
                       <span
@@ -491,12 +513,9 @@
                       </span>
                     </div>
 
-                    <!-- Unit Name & Description -->
-                    <p class="text-xs font-bold text-slate-700 line-clamp-1" :title="unit.unit_name">
-                      {{ unit.unit_name }}
-                    </p>
-                    <p class="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
-                      {{ unit.description || 'Sub-unit operations, service requests, and staff dispatch management.' }}
+                    <!-- Full Unit Name (Full meaning of abbreviation) -->
+                    <p class="text-xs font-semibold text-slate-600 leading-snug">
+                      {{ formatUnitFullName(unit) }}
                     </p>
 
                     <!-- Assigned Unit Head Info -->
@@ -607,6 +626,16 @@ const delegationUnits = ref([]);
 const isLoadingUnits = ref(false);
 const isSwitchingUnit = ref('');
 const isReverting = ref(false);
+const showCoverageGuide = ref(false);
+
+const formatUnitFullName = (unit) => {
+  if (!unit) return '';
+  const code = (unit.unit_code || unit.code || '').toUpperCase();
+  if (code === 'FGMU') return 'Facilities and Ground Management Unit';
+  if (code === 'LEAU') return 'Landscape and Environment Aesthetics Unit';
+  if (code === 'SSU') return 'Security Services Unit';
+  return unit.unit_name || unit.name || code;
+};
 
 const form = ref({
   firstName: '',
