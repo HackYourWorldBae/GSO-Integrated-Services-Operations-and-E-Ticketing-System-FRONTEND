@@ -1779,7 +1779,8 @@ const dispatchAll = async () => {
         personnel_id: assign.workerId,
         task_notes: taskNotes.value.trim() || selectedTicket.value.service || selectedTicket.value.type || 'Maintenance Task',
         is_emergency: isEmergency.value ? 1 : 0,
-        pause_current: pauseCurrentTask.value ? 1 : 0,
+        pause_current: isEmergency.value ? 1 : (pauseCurrentTask.value ? 1 : 0),
+        extension_days: Math.min(31, Math.max(1, days)),
       };
       if (receiving) {
         // Inherit the joint schedule when the requesting unit already set one.

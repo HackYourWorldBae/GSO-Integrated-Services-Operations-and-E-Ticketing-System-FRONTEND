@@ -35,13 +35,29 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <div class="text-xs">
-              <span class="text-[10px] font-black uppercase tracking-widest text-amber-800 block">Worker Has Active Assignment</span>
-              <p class="font-bold text-slate-800 mt-0.5">
-                Ticket #{{ worker?.assignedTicket || 'Active' }}: {{ worker?.ticketTask || 'Current In-Progress Task' }}
+            <div class="text-xs flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-amber-800 block">Worker Has Active Assignment</span>
+                <span
+                  :class="[
+                    'px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider',
+                    isSoloActiveJob ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                  ]"
+                >
+                  {{ isSoloActiveJob ? 'Solo Job' : `Team Job (${activeJobTeamSize} Staff)` }}
+                </span>
+              </div>
+              <p class="font-bold text-slate-800 mt-1">
+                Ticket #{{ worker?.assignedTicket || worker?.assigned_ticket_id || 'Active' }}: {{ worker?.ticketTask || worker?.ticket_task || 'Current In-Progress Task' }}
               </p>
               <p class="text-slate-600 text-[11px] mt-1">
-                Scheduled: <strong class="text-slate-800">{{ worker?.implementationDate || 'Today' }}</strong>. Since the staff member is taking leave, choose whether to reassign the job or extend its schedule.
+                Scheduled: <strong class="text-slate-800">{{ worker?.implementationDate || worker?.implementation_date || 'Today' }}</strong>.
+                <template v-if="isSoloActiveJob">
+                  Since this worker is solely assigned, selecting <strong class="text-slate-800">Extend Timeline</strong> will push the ticket completion date forward.
+                </template>
+                <template v-else>
+                  As other personnel (<strong>{{ activeJobOtherMembersText }}</strong>) are also assigned, the timeline remains on schedule unless most or all assigned staff are on leave.
+                </template>
               </p>
             </div>
           </div>
@@ -120,7 +136,7 @@
                   <div>
                     <span class="text-xs font-black text-slate-900 block leading-tight">Extend Timeline</span>
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">
-                      Keep staff member assigned and push completion date forward.
+                      Extends solo tickets. Team jobs stay on schedule unless most or all staff are on leave.
                     </p>
                   </div>
                 </div>
@@ -184,9 +200,12 @@
                 class="w-full px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
               />
             </div>
-            <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 font-semibold">
-              New Projected Date: <strong class="text-slate-900">{{ calculatedNewDateDisplay }}</strong>
-              <div class="text-[10px] text-slate-500 font-normal mt-0.5">Calculated for working days only (skipping weekends & holidays).</div>
+            <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 font-semibold space-y-1">
+              <div>New Projected Date: <strong class="text-slate-900">{{ calculatedNewDateDisplay }}</strong></div>
+              <div class="text-[10px] text-slate-500 font-normal">Calculated for working days only (skipping weekends & holidays).</div>
+              <div v-if="!isSoloActiveJob" class="text-[10px] text-amber-800 font-medium pt-1 border-t border-emerald-200/60">
+                ⚡ Note: For team tickets, timeline is kept on schedule for remaining team members unless most or all assigned personnel are on leave.
+              </div>
             </div>
           </div>
 
@@ -238,6 +257,28 @@ const props = defineProps({
 const emit = defineEmits(['close', 'updated']);
 
 const isLeau = computed(() => (props.unitCode || '').toUpperCase() === 'LEAU');
+
+const isSoloActiveJob = computed(() => {
+  if (props.worker?.is_solo_job !== undefined) {
+    return !!props.worker.is_solo_job;
+  }
+  if (props.worker?.assignments?.[0]?.is_solo !== undefined) {
+    return !!props.worker.assignments[0].is_solo;
+  }
+  return true;
+});
+
+const activeJobTeamSize = computed(() => {
+  return props.worker?.team_size || props.worker?.assignments?.[0]?.team_size || 1;
+});
+
+const activeJobOtherMembersText = computed(() => {
+  const others = props.worker?.other_team_members || props.worker?.assignments?.[0]?.other_team_members || [];
+  if (others.length > 0) {
+    return others.join(', ');
+  }
+  return 'other team members';
+});
 
 const leaveAction = ref('reassign');
 const leaveReasonCategory = ref('Sick Leave / Medical Recovery');
