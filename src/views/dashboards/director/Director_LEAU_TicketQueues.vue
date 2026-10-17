@@ -1773,7 +1773,7 @@ const borrowingStatusBadgeClass = (status) => {
 
 const formatBorrowingStatus = (status) => {
   const s = String(status || '').toLowerCase();
-  if (s === 'pending_director' || s === 'pending') return 'Awaiting Director Review';
+  if (s === 'pending_director' || s === 'pending') return 'Pending Approval';
   if (s === 'ready_for_pickup') return 'Ready for Pickup';
   if (s === 'inventory_assigned') return 'Inventory Assigned';
   if (s === 'approved_director') return 'Approved (Prepping)';
@@ -1853,7 +1853,7 @@ let durationInterval = null;
 const activeTabCount = computed(() => queueCounts.value[activeTab.value] || 0);
 
 const escalatedPendingCount = computed(() => {
-  return (queuesData.value.pending || []).filter(t => t.is_escalated_to_director || isBorrowingService(t) || t.is_borrowing).length;
+  return (queuesData.value.pending || []).filter(t => t.is_escalated_to_director).length;
 });
 
 const activeTabLabel = computed(() => {
@@ -1871,7 +1871,7 @@ const activeTabLabel = computed(() => {
 const currentTabTickets = computed(() => {
   const list = queuesData.value[activeTab.value] || [];
   if (isDirector.value && activeTab.value === 'pending') {
-    return list.filter(t => t.is_escalated_to_director || isBorrowingService(t) || t.is_borrowing);
+    return list.filter(t => t.is_escalated_to_director);
   }
   return list;
 });
@@ -1890,12 +1890,12 @@ const filteredTickets = computed(() => {
 
   if (activeTab.value === 'pending') {
     if (isDirector.value) {
-      list = list.filter(t => t.is_escalated_to_director || isBorrowingService(t) || t.is_borrowing);
+      list = list.filter(t => t.is_escalated_to_director);
     } else if (selectedEscalationFilter.value !== 'all') {
       if (selectedEscalationFilter.value === 'escalated') {
-        list = list.filter(t => t.is_escalated_to_director || isBorrowingService(t) || t.is_borrowing);
+        list = list.filter(t => t.is_escalated_to_director);
       } else if (selectedEscalationFilter.value === 'routine') {
-        list = list.filter(t => !t.is_escalated_to_director && !isBorrowingService(t) && !t.is_borrowing);
+        list = list.filter(t => !t.is_escalated_to_director);
       }
     }
   }
@@ -2096,7 +2096,7 @@ const fetchAllQueues = async () => {
     if (pendingRes.status === 'fulfilled' && pendingRes.value.data?.data?.tickets) {
       const allPending = pendingRes.value.data.data.tickets.map(mapTicket);
       queuesData.value.pending = isDirector.value
-        ? allPending.filter(t => t.is_escalated_to_director || isBorrowingService(t) || t.is_borrowing)
+        ? allPending.filter(t => t.is_escalated_to_director)
         : allPending;
       queueCounts.value.pending = queuesData.value.pending.length;
     }
