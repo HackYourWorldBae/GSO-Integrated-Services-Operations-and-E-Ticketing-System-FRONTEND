@@ -616,7 +616,7 @@ import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import { LEAU_SERVICES } from '@/constants/services';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
-import { isBorrowingService } from '@/utils/borrowing';
+import { isBorrowingService, getBorrowingStatusLabel } from '@/utils/borrowing';
 
 const route = useRoute();
 const tickets = ref([]);

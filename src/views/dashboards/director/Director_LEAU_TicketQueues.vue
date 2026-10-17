@@ -1630,6 +1630,15 @@ const router = useRouter();
 const isDirector = computed(() => authStore.role === 'director' || route.path.startsWith('/director'));
 const isPendingOnlyMode = computed(() => !isDirector.value || route.path.startsWith('/admin'));
 
+// 3 Primary Stage Tabs: Pending -> Delayed -> Dropdown Ticket List (Approved / Dispatched / Active / Borrowing)
+const activeTab = ref('pending'); // 'pending' | 'delayed' | 'approved' | 'dispatched' | 'active' | 'borrowing'
+const queueCounts = ref({ pending: 0, delayed: 0, approved: 0, dispatched: 0, active: 0, borrowing: 0 });
+
+// Dropdown Ticket List Selection
+const selectedTicketListKey = ref('approved');
+const isListsDropdownOpen = ref(false);
+const dropdownContainerRef = ref(null);
+
 watch(
   isPendingOnlyMode,
   (pendingOnly) => {
@@ -1657,15 +1666,6 @@ const closeDetailsModal = () => {
   selectedTicketForModal.value = null;
   clearRouteQueryTicket();
 };
-
-// 3 Primary Stage Tabs: Pending -> Delayed -> Dropdown Ticket List (Approved / Dispatched / Active / Borrowing)
-const activeTab = ref('pending'); // 'pending' | 'delayed' | 'approved' | 'dispatched' | 'active' | 'borrowing'
-const queueCounts = ref({ pending: 0, delayed: 0, approved: 0, dispatched: 0, active: 0, borrowing: 0 });
-
-// Dropdown Ticket List Selection
-const selectedTicketListKey = ref('approved');
-const isListsDropdownOpen = ref(false);
-const dropdownContainerRef = ref(null);
 
 const isDropdownTabActive = computed(() => {
   return ['approved', 'dispatched', 'active', 'borrowing'].includes(activeTab.value);
