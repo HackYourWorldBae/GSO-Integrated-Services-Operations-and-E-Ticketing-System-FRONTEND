@@ -520,6 +520,19 @@
                       <span>Extend</span>
                     </button>
 
+                    <!-- Add Note / Update Requestor Action Button -->
+                    <button
+                      type="button"
+                      @click="openNotationModal(ticket)"
+                      class="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1 cursor-pointer"
+                      title="Post update or notation to requestor"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                      </svg>
+                      <span>Update</span>
+                    </button>
+
                     <!-- Adjust Materials Button -->
                     <button
                       type="button"
@@ -764,6 +777,17 @@
               class="flex-1 py-2.5 px-3 min-h-[38px] rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center"
             >
               Extend
+            </button>
+            <button
+              type="button"
+              @click="openNotationModal(ticket)"
+              class="flex-1 py-2.5 px-3 min-h-[38px] rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-black text-center transition-colors cursor-pointer touch-manipulation active:scale-95 flex items-center justify-center gap-1"
+              title="Post update or notation to requestor"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+              </svg>
+              <span>Update</span>
             </button>
             <button
               type="button"
@@ -1465,6 +1489,17 @@
                   Grant Extension
                 </button>
                 <button
+                  type="button"
+                  @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openNotationModal(t); })()"
+                  class="px-4 py-2.5 min-h-[40px] rounded-xl bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 text-xs font-black transition-colors cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+                  title="Post update or notation to requestor"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                  <span>Update / Note</span>
+                </button>
+                <button
                   v-if="!isCollabTicket(selectedTicketForModal) || selectedTicketForModal.is_requesting_unit"
                   type="button"
                   @click="(() => { const t = selectedTicketForModal; selectedTicketForModal = null; openAdjustModal(t); })()"
@@ -1559,6 +1594,15 @@
       @close="showReceiptModal = false"
     />
 
+    <!-- Notation / End-User Update Modal -->
+    <TicketNotationModal
+      :is-open="showNotationModal"
+      :ticket="ticketForNotation"
+      :unit-code="unitCode"
+      @close="showNotationModal = false"
+      @saved="handleNotationSaved"
+    />
+
     <!-- Document Viewer Modal for Job Order & Attachments -->
     <DocumentViewerModal
       :is-open="viewerModal.isOpen"
@@ -1583,6 +1627,7 @@ import CompleteJobMaterialModal from '@/components/CompleteJobMaterialModal.vue'
 import AdjustOngoingMaterialsModal from '@/components/AdjustOngoingMaterialsModal.vue';
 import MaterialReceiptModal from '@/components/MaterialReceiptModal.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
+import TicketNotationModal from '@/components/TicketNotationModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
 import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
@@ -2489,6 +2534,25 @@ const openExtensionModal = (ticket) => {
 
 const handleTicketExtended = () => {
   toast.success(`Extension granted for ticket #${ticketToExtend.value?.id}`);
+  fetchActiveTickets();
+};
+
+// Notation modal state & handler
+const showNotationModal = ref(false);
+const ticketForNotation = ref(null);
+
+const openNotationModal = (ticket) => {
+  ticketForNotation.value = ticket;
+  showNotationModal.value = true;
+};
+
+const handleNotationSaved = (result) => {
+  toast.success(`Update/notation saved for Ticket #${result.ticketId}`);
+  const idx = rawTickets.value.findIndex(t => t.id === result.ticketId);
+  if (idx !== -1) {
+    rawTickets.value[idx].staff_notation = result.notation;
+    rawTickets.value[idx].notation = result.notation;
+  }
   fetchActiveTickets();
 };
 

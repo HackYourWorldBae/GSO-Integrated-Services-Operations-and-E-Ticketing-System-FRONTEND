@@ -196,6 +196,33 @@
               </div>
             </div>
 
+            <!-- Notation Extension Card -->
+            <div
+              v-if="ticket.notation || ticket.hasNotation"
+              class="border-t border-slate-100 p-5 bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-white"
+            >
+              <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-700 shrink-0 shadow-2xs">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" style="width:18px;height:18px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <p class="text-[10px] font-black text-indigo-800 uppercase tracking-widest">
+                      {{ ticket.unit ? `${ticket.unit} Official Notation / Update` : 'Official Ticket Update / Recommendation' }}
+                    </p>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-indigo-100 text-indigo-700 border border-indigo-200 uppercase tracking-widest">
+                      From {{ ticket.unit || 'GSO' }} Staff
+                    </span>
+                  </div>
+                  <p class="text-sm text-slate-800 font-medium leading-relaxed italic bg-white/80 p-3 rounded-xl border border-indigo-100/60 shadow-2xs">
+                    "{{ ticket.notation }}"
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <!-- Expanded Ratings Form Extension -->
             <div v-if="ratingTicketId === ticket.ticketId" class="border-t-2 border-emerald-200/80 p-6 sm:p-8 bg-gradient-to-b from-emerald-50/80 via-emerald-50/40 to-white rounded-b-2xl space-y-6">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-200/60">
@@ -524,6 +551,28 @@
                     </div>
                   </div>
 
+                  <!-- Official Staff Notation / News Update Notice Banner in Modal -->
+                  <div v-if="selectedTicket.notation || selectedTicket.hasNotation" class="p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl flex items-start gap-3 animate-fade-in shadow-xs">
+                    <div class="p-2 bg-indigo-100 rounded-xl text-indigo-700 shrink-0 mt-0.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1 flex-wrap">
+                        <span class="text-[10px] font-black text-indigo-900 uppercase tracking-widest">
+                          {{ selectedTicket.unit ? `${selectedTicket.unit} Official Notation / Update` : 'Official Ticket Update / Recommendation' }}
+                        </span>
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-indigo-200 text-indigo-900 border border-indigo-300 uppercase tracking-wider">
+                          From {{ selectedTicket.unit || 'GSO' }} Staff
+                        </span>
+                      </div>
+                      <p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed italic bg-white/80 p-3 rounded-xl border border-indigo-100 shadow-2xs">
+                        "{{ selectedTicket.notation }}"
+                      </p>
+                    </div>
+                  </div>
+
                   <!-- 2. TICKET INFORMATION CARD -->
                   <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4 shadow-2xs">
                     <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-2">Request Information</h4>
@@ -794,6 +843,10 @@ const mapTicketData = (t) => {
     workingDays: rawWorkingDays ? (rawWorkingDays + extensionDays) : null,
     isClosed: t.status === 'completed' || t.status === 'closed',
     materials: t.materials || [],
+    staff_notation: t.staff_notation || t.ssu_notation || t.notation || '',
+    ssu_notation: t.ssu_notation || t.staff_notation || '',
+    hasNotation: Boolean(t.staff_notation || t.ssu_notation || t.notation),
+    notation: (t.staff_notation || t.ssu_notation || t.notation || '').trim(),
   };
 };
 

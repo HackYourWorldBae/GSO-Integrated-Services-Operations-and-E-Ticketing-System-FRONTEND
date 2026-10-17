@@ -386,6 +386,32 @@
                     <span>Job Order</span>
                   </button>
 
+                  <!-- Reschedule / Adjust Schedule Action Button -->
+                  <button
+                    type="button"
+                    @click="openRescheduleModal(ticket)"
+                    class="px-2.5 py-1.5 rounded-xl border border-blue-200/80 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1 cursor-pointer"
+                    title="Reschedule implementation date or adjust working days"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Reschedule</span>
+                  </button>
+
+                  <!-- Add Note / Update Requestor Action Button -->
+                  <button
+                    type="button"
+                    @click="openNotationModal(ticket)"
+                    class="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1 cursor-pointer"
+                    title="Post update or notation to requestor"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                    </svg>
+                    <span>Update</span>
+                  </button>
+
                   <!-- Re-generate Document Button -->
                   <button
                     type="button"
@@ -523,6 +549,30 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
             <span>Job Order</span>
+          </button>
+
+          <button
+            type="button"
+            @click="openRescheduleModal(ticket)"
+            class="py-2.5 px-2.5 min-h-[38px] rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold text-center transition-all active:scale-95 cursor-pointer border border-blue-200 flex items-center justify-center gap-1 touch-manipulation"
+            title="Reschedule implementation date or adjust duration"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Reschedule</span>
+          </button>
+
+          <button
+            type="button"
+            @click="openNotationModal(ticket)"
+            class="py-2.5 px-2.5 min-h-[38px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold text-center transition-all active:scale-95 cursor-pointer border border-slate-200 flex items-center justify-center gap-1 touch-manipulation"
+            title="Post update or notation to requestor"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+            </svg>
+            <span>Update</span>
           </button>
 
           <button
@@ -1123,6 +1173,31 @@
               <button
                 v-if="!isBorrowingService(selectedTicketForModal)"
                 type="button"
+                @click="openRescheduleModal(selectedTicketForModal)"
+                class="px-4 py-2.5 min-h-[40px] rounded-xl bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider transition-all shadow-2xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+                title="Reschedule implementation date or adjust duration"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Reschedule</span>
+              </button>
+
+              <button
+                type="button"
+                @click="openNotationModal(selectedTicketForModal)"
+                class="px-4 py-2.5 min-h-[40px] rounded-xl bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider transition-all shadow-2xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
+                title="Post update or notation to requestor"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+                <span>Update / Note</span>
+              </button>
+
+              <button
+                v-if="!isBorrowingService(selectedTicketForModal)"
+                type="button"
                 @click="handleModalStartEarly"
                 class="px-5 py-2.5 min-h-[40px] rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 cursor-pointer touch-manipulation flex items-center justify-center gap-1.5"
               >
@@ -1218,6 +1293,24 @@
       @close="viewerModal.isOpen = false"
     />
 
+    <!-- Notation / End-User Update Modal -->
+    <TicketNotationModal
+      :is-open="showNotationModal"
+      :ticket="ticketForNotation"
+      :unit-code="props.unitCode"
+      @close="showNotationModal = false"
+      @saved="handleNotationSaved"
+    />
+
+    <!-- Reschedule / Duration Adjustment Modal -->
+    <RescheduleTicketModal
+      :is-open="showRescheduleModal"
+      :ticket="ticketForReschedule"
+      :unit-code="props.unitCode"
+      @close="showRescheduleModal = false"
+      @rescheduled="handleTicketRescheduled"
+    />
+
   </div>
 </template>
 
@@ -1228,6 +1321,8 @@ import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
+import TicketNotationModal from '@/components/TicketNotationModal.vue';
+import RescheduleTicketModal from '@/components/RescheduleTicketModal.vue';
 import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
@@ -1268,6 +1363,37 @@ const pendingTicketId = ref(null);
 const showBorrowingPickupConfirm = ref(false);
 const borrowingPickupTarget = ref(null);
 const borrowingPickupLoading = ref(false);
+
+// Notation & Reschedule modal state
+const showNotationModal = ref(false);
+const ticketForNotation = ref(null);
+const showRescheduleModal = ref(false);
+const ticketForReschedule = ref(null);
+
+const openNotationModal = (ticket) => {
+  ticketForNotation.value = ticket;
+  showNotationModal.value = true;
+};
+
+const handleNotationSaved = (result) => {
+  toast.success(`Update/notation saved for Ticket #${result.ticketId}`);
+  const idx = rawTickets.value.findIndex(t => t.id === result.ticketId);
+  if (idx !== -1) {
+    rawTickets.value[idx].staff_notation = result.notation;
+    rawTickets.value[idx].notation = result.notation;
+  }
+  fetchScheduledTickets();
+};
+
+const openRescheduleModal = (ticket) => {
+  ticketForReschedule.value = ticket;
+  showRescheduleModal.value = true;
+};
+
+const handleTicketRescheduled = (data) => {
+  toast.success(`Schedule successfully updated for Ticket #${data.ticket_id || ticketForReschedule.value?.id}`);
+  fetchScheduledTickets();
+};
 
 // Document Viewer state
 const viewerModal = reactive({

@@ -447,6 +447,21 @@
                 </div>
               </div>
 
+              <!-- Dedicated Notation / Official Staff Update Section (If Applicable) -->
+              <div v-if="selectedTicket.notation || selectedTicket.hasNotation" class="col-span-2">
+                <p class="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                  {{ selectedTicket.unit ? `${selectedTicket.unit} Staff Notation / Update` : 'Official Ticket Notation / Update' }}
+                </p>
+                <div class="p-4 bg-indigo-50/80 border border-indigo-200 rounded-xl shadow-xs">
+                  <p class="text-xs sm:text-sm text-slate-800 font-medium italic leading-relaxed">
+                    "{{ selectedTicket.notation }}"
+                  </p>
+                </div>
+              </div>
+
               <!-- Dedicated Extension Notice Section (If Applicable) -->
               <div v-if="!isIncidentTicket(selectedTicket) && selectedTicket.is_extended && selectedTicket.extension_days > 0" class="col-span-2">
                 <p class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2 flex items-center gap-2">
@@ -894,7 +909,11 @@ onMounted(async () => {
             is_recategorized: Boolean(Number(t.is_recategorized) === 1 || t.is_recategorized === true),
             original_service_type: t.original_service_type || null,
             recategorization_reason: t.recategorization_reason || '',
-            recategorized_at: t.recategorized_at || null
+            recategorized_at: t.recategorized_at || null,
+            staff_notation: t.staff_notation || t.ssu_notation || t.notation || '',
+            ssu_notation: t.ssu_notation || t.staff_notation || '',
+            hasNotation: Boolean(t.staff_notation || t.ssu_notation || t.notation),
+            notation: (t.staff_notation || t.ssu_notation || t.notation || '').trim(),
           };
       });
       checkRouteTicket();

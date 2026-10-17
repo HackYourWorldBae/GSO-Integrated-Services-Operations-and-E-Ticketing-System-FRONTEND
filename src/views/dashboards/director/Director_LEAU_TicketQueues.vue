@@ -568,6 +568,26 @@
                     <!-- Dispatched Tab Actions -->
                     <div v-else-if="activeTab === 'dispatched'" class="flex items-center justify-end gap-2">
                       <button
+                        @click="openRescheduleModal(ticket)"
+                        class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                        title="Reschedule implementation date or target duration"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>Reschedule</span>
+                      </button>
+                      <button
+                        @click="openNotationModal(ticket)"
+                        class="px-3 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                        title="Post ticket news or update to requestor"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>Update</span>
+                      </button>
+                      <button
                         @click="openDetailsModal(ticket)"
                         class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-amber-400 hover:bg-amber-50 text-slate-800 hover:text-amber-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
                       >
@@ -593,8 +613,18 @@
                       </button>
                     </div>
 
-                    <!-- Active Tab Actions: Details + Grant Extension -->
+                    <!-- Active Tab Actions: Details + Update + Grant Extension -->
                     <div v-else-if="activeTab === 'active'" class="flex items-center justify-end gap-2">
+                      <button
+                        @click="openNotationModal(ticket)"
+                        class="px-3 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                        title="Post ticket news or update to requestor"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>Update</span>
+                      </button>
                       <button
                         @click="openExtensionModal(ticket)"
                         class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
@@ -823,8 +853,41 @@
               </button>
               <button v-else-if="activeTab === 'delayed'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
 
+              <!-- Dispatched Actions -->
+              <template v-if="activeTab === 'dispatched'">
+                <button
+                  @click="openRescheduleModal(ticket)"
+                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>Reschedule</span>
+                </button>
+                <button
+                  @click="openNotationModal(ticket)"
+                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span>Update</span>
+                </button>
+              </template>
+
               <!-- Active Actions -->
-              <button v-if="activeTab === 'active'" @click="openExtensionModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Extend</button>
+              <template v-if="activeTab === 'active'">
+                <button
+                  @click="openNotationModal(ticket)"
+                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span>Update</span>
+                </button>
+                <button @click="openExtensionModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Extend</button>
+              </template>
 
               <!-- Details (All Tabs) -->
               <button @click="openDetailsModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Details</button>
@@ -1479,6 +1542,24 @@
     @recategorized="handleTicketRecategorized"
   />
 
+  <!-- Universal Staff Notation / News Update Modal -->
+  <TicketNotationModal
+    v-if="showNotationModal"
+    :show="showNotationModal"
+    :ticket="ticketForNotation"
+    @close="showNotationModal = false"
+    @saved="handleNotationSaved"
+  />
+
+  <!-- Reschedule Scheduled Ticket Modal -->
+  <RescheduleTicketModal
+    v-if="showRescheduleModal"
+    :show="showRescheduleModal"
+    :ticket="ticketForReschedule"
+    @close="showRescheduleModal = false"
+    @saved="handleRescheduleSaved"
+  />
+
   <!-- ======================= ESCALATE TO DIRECTOR MODAL ======================= -->
   <Teleport to="body">
     <div v-if="showEscalateModal" class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto" @click.self="closeEscalateModal">
@@ -1617,6 +1698,8 @@ import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from '@/views/dashboards/director/DirectorSidebar.vue';
 import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import RecategorizeTicketModal from '@/components/director/RecategorizeTicketModal.vue';
+import TicketNotationModal from '@/components/TicketNotationModal.vue';
+import RescheduleTicketModal from '@/components/RescheduleTicketModal.vue';
 import { LEAU_SERVICES } from '@/constants/services';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
 import { isBorrowingService } from '@/utils/borrowing';
@@ -1844,6 +1927,14 @@ const delayPresets = [
 // Extension Modal
 const showExtensionModal = ref(false);
 const ticketToExtend = ref(null);
+
+// Notation / Requestor News Update Modal
+const showNotationModal = ref(false);
+const ticketForNotation = ref(null);
+
+// Reschedule Scheduled Ticket Modal
+const showRescheduleModal = ref(false);
+const ticketForReschedule = ref(null);
 
 // Live working durations for active tickets
 const liveWorkingDurations = ref({});
@@ -2511,9 +2602,27 @@ const handleTicketExtended = () => {
   fetchAllQueues();
 };
 
+const openNotationModal = (ticket) => {
+  ticketForNotation.value = ticket;
+  showNotationModal.value = true;
+};
+
+const handleNotationSaved = () => {
+  fetchAllQueues();
+};
+
+const openRescheduleModal = (ticket) => {
+  ticketForReschedule.value = ticket;
+  showRescheduleModal.value = true;
+};
+
+const handleRescheduleSaved = () => {
+  fetchAllQueues();
+};
+
 const handleFocusOrVisibility = () => {
   if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value);
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value || showNotationModal.value || showRescheduleModal.value);
     if (!isInteracting) {
       fetchAllQueues();
     }
@@ -2524,7 +2633,7 @@ onMounted(() => {
   fetchAllQueues();
   pollingInterval = setInterval(() => {
     if (document.hidden) return;
-    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value);
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value || showNotationModal.value || showRescheduleModal.value);
     if (!isInteracting) {
       fetchAllQueues();
     }
