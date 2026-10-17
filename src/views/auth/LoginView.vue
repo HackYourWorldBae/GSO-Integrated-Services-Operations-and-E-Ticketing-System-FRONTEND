@@ -188,12 +188,7 @@ const handleLogin = async () => {
   try {
     let submittedIdentifier = identifier.value.trim();
 
-    // -------------------------------------------------------------------------
-    // TEMPORARY: Administrative mock account shortcut for ICT mentor testing.
-    // Automatically appends '@email.com' if only the mock username is typed.
-    // Mock targets: director, superadmin, fgmu-admin, leau-admin, ssu-admin
-    // TODO: Remove/disable once real institutional administrative credentials are deployed.
-    // -------------------------------------------------------------------------
+    // Administrative shortcut: appends '@email.com' if mock username is entered without domain.
     const adminMockAccounts = [
       'director',
       'superadmin',
