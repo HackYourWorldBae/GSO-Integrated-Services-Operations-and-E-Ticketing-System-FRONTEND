@@ -161,26 +161,20 @@
                   {{ emergencyCount }}
                 </span>
               </button>
-
-              <button
-                type="button"
-                @click="activeTab = 'all'"
-                :class="[
-                  'px-4 py-2 min-h-[44px] rounded-xl font-black transition-all cursor-pointer flex items-center gap-2 touch-manipulation border shadow-2xs',
-                  activeTab === 'all'
-                    ? 'bg-slate-900 border-slate-950 text-white shadow-sm'
-                    : 'bg-slate-100 border-slate-300/80 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
-                ]"
-              >
-                <span>All Work Orders</span>
-                <span
-                  class="px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black min-w-[24px] text-center shadow-xs transition-all"
-                  :class="activeTab === 'all' ? 'bg-white text-slate-950 font-black' : 'bg-slate-200 text-slate-800'"
-                >
-                  {{ store.totalCount }}
-                </span>
-              </button>
             </div>
+
+            <!-- Direct Link to History Archives (Completed Jobs) -->
+            <router-link
+              to="/personnel/history"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-black text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 border border-slate-300/80 transition-all cursor-pointer shadow-2xs touch-manipulation"
+              title="View completed work orders archive"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>History Archives</span>
+              <span class="px-2 py-0.5 rounded-lg text-xs font-black bg-white text-slate-800 border border-slate-200 shadow-xs">{{ store.completedCount }}</span>
+            </router-link>
           </div>
         </div>
 
@@ -823,7 +817,7 @@ const store = usePersonnelDashboardStore();
 const authStore = useAuthStore();
 
 const searchQuery = ref('');
-const activeTab = ref('active'); // 'active' | 'emergency' | 'all'
+const activeTab = ref('active'); // 'active' | 'emergency'
 const selectedTicket = ref(null);
 
 // Pagination State
@@ -926,11 +920,12 @@ const emergencyCount = computed(() => {
 const filteredAssignments = computed(() => {
   let list = store.assignments;
 
-  // 1. Tab filter
-  if (activeTab.value === 'active') {
-    list = list.filter(a => !isJobCompleted(a));
-  } else if (activeTab.value === 'emergency') {
+  // 1. Tab filter (only active operational work orders; completed ones belong strictly in History Archives)
+  if (activeTab.value === 'emergency') {
     list = list.filter(a => a.is_emergency === 1 && !isJobCompleted(a));
+  } else {
+    // Default to 'active' jobs only
+    list = list.filter(a => !isJobCompleted(a));
   }
 
   // 2. Search query filter
