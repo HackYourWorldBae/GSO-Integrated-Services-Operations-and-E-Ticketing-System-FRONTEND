@@ -115,3 +115,38 @@ export const updateGoogleDriveConfig = (payload) => {
 export const getGoogleOAuthUrl = (params = {}) =>
   apiClient.get('/superadmin/backups/gdrive-oauth-url', { params });
 
+/**
+ * Fetch automated backup schedule configuration.
+ * Route: GET /api/v1/superadmin/backups/schedule
+ */
+export const fetchBackupSchedule = () =>
+  apiClient.get('/superadmin/backups/schedule');
+
+/**
+ * Update automated backup schedule configuration.
+ * Route: POST /api/v1/superadmin/backups/schedule
+ * @param {Object} payload - { enabled: boolean, frequency: 'weekly'|'monthly', day: string, time: string }
+ */
+export const updateBackupSchedule = (payload) =>
+  apiClient.post('/superadmin/backups/schedule', payload);
+
+/**
+ * Trigger immediate automated backup run (or test due state).
+ * Route: POST /api/v1/superadmin/backups/auto-run
+ * @param {Object} [payload] - { force?: boolean }
+ */
+export const runAutomatedBackup = (payload = { force: true }) =>
+  apiClient.post('/superadmin/backups/auto-run', payload, {
+    timeout: 300000 // 5 minutes for full snapshot creation
+  });
+
+/**
+ * Seed baseline disaster recovery snapshots to reach at least 5 snapshots.
+ * Route: POST /api/v1/superadmin/backups/seed-snapshots
+ * @param {Object} [payload] - { target?: number }
+ */
+export const seedSnapshots = (payload = { target: 5 }) =>
+  apiClient.post('/superadmin/backups/seed-snapshots', payload, {
+    timeout: 600000 // 10 minutes if creating multiple snapshots sequentially
+  });
+

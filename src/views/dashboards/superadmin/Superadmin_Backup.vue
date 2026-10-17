@@ -66,9 +66,115 @@
               </svg>
             </div>
             <div>
-              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Protection Engine</p>
-              <h3 class="text-sm font-bold text-slate-900">Dual-Vault Mode</h3>
-              <p class="text-[11px] text-slate-400 font-medium">Local + Cloud Sync</p>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Disaster Recovery</p>
+              <h3 class="text-sm font-bold text-slate-900">{{ backups.length >= 5 ? '5 / 5 Compliant' : `${backups.length} / 5 Snapshots` }}</h3>
+              <p class="text-[11px] font-medium" :class="backups.length >= 5 ? 'text-emerald-600' : 'text-amber-600'">
+                {{ backups.length >= 5 ? 'Adviser standard fulfilled' : 'At least 5 required' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disaster Recovery Readiness & Rolling Snapshot Retention Banner -->
+        <div class="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-2xl sm:rounded-3xl p-6 text-white shadow-md border border-purple-800/40 relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+            <!-- Left Info -->
+            <div class="space-y-3 max-w-2xl">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <span
+                  class="px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider border flex items-center gap-1.5"
+                  :class="backups.length >= 5
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
+                    : 'bg-amber-500/20 text-amber-300 border-amber-400/30 animate-pulse'"
+                >
+                  <span class="w-2 h-2 rounded-full" :class="backups.length >= 5 ? 'bg-emerald-400' : 'bg-amber-400'"></span>
+                  <span>{{ backups.length >= 5 ? 'Disaster Recovery Compliant (5/5)' : `Adviser Standard: At Least 5 Snapshots Required (${backups.length}/5)` }}</span>
+                </span>
+
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider bg-white/10 text-slate-200 border border-white/10 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Auto-Backup: {{ schedule.enabled ? (schedule.frequency === 'weekly' ? 'Weekly (' + schedule.day + ' ' + schedule.time + ')' : 'Monthly (' + schedule.day + 'st ' + schedule.time + ')') : 'Paused' }}</span>
+                </span>
+
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-200 border border-purple-400/20" title="Rolling retention policy automatically deletes the oldest 5th snapshot whenever a new manual or scheduled snapshot is created.">
+                  Rolling 5-Limit (FIFO)
+                </span>
+              </div>
+
+              <div>
+                <h3 class="text-base sm:text-lg font-extrabold text-white tracking-tight">
+                  Disaster Recovery Snapshot Vault
+                </h3>
+                <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                  To ensure enterprise-grade disaster resilience, the system maintains at least 5 baseline snapshots. Automated backups run on your configured schedule (default: weekly), and when a new snapshot is created, the oldest 5th snapshot is automatically deleted to maintain a 5-snapshot window.
+                </p>
+              </div>
+
+              <!-- Snapshot Progress Bar -->
+              <div class="space-y-1.5 pt-1">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-300">
+                  <span>Readiness Quota</span>
+                  <span class="font-mono text-white">{{ backups.length }} / 5 Snapshots ({{ Math.min(100, Math.round((backups.length / 5) * 100)) }}%)</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-800/80 rounded-full overflow-hidden p-0.5 border border-white/10">
+                  <div
+                    class="h-full rounded-full transition-all duration-500"
+                    :class="backups.length >= 5 ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : 'bg-gradient-to-r from-amber-500 to-yellow-400'"
+                    :style="{ width: `${Math.min(100, Math.max(10, (backups.length / 5) * 100))}%` }"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Action Controls -->
+            <div class="flex flex-col sm:flex-row lg:flex-col gap-2.5 w-full lg:w-auto shrink-0">
+              <button
+                v-if="backups.length < 5"
+                @click="handleSeedSnapshots"
+                :disabled="isSeedingSnapshots"
+                type="button"
+                class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-700 text-slate-950 font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+              >
+                <svg v-if="!isSeedingSnapshots" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+                <svg v-else class="animate-spin h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isSeedingSnapshots ? 'Seeding Baseline...' : `Generate to 5 Snapshots (+${5 - backups.length})` }}</span>
+              </button>
+
+              <button
+                @click="openScheduleModal"
+                type="button"
+                class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 border border-white/15 cursor-pointer"
+              >
+                <svg class="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Edit Automated Schedule</span>
+              </button>
+
+              <button
+                @click="handleRunAutoBackup"
+                :disabled="isRunningAutoBackup"
+                type="button"
+                class="px-4 py-2.5 rounded-xl bg-purple-600/80 hover:bg-purple-600 disabled:bg-slate-700 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer border border-purple-400/30"
+              >
+                <svg v-if="!isRunningAutoBackup" class="w-4 h-4 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <svg v-else class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isRunningAutoBackup ? 'Executing Auto-Backup...' : 'Run Scheduled Now (Test)' }}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -88,6 +194,19 @@
           </div>
 
           <div class="flex items-center flex-wrap gap-2.5 w-full md:w-auto">
+            <!-- Automated Backup Schedule Button -->
+            <button
+              @click="openScheduleModal"
+              type="button"
+              class="px-4 py-2.5 rounded-xl border border-indigo-200 text-indigo-900 bg-indigo-50/80 hover:bg-indigo-100 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+              title="Configure automated weekly/monthly backup schedule and rolling retention policy"
+            >
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>Auto-Backup ({{ schedule.enabled ? (schedule.frequency === 'weekly' ? 'Weekly' : 'Monthly') : 'Off' }})</span>
+            </button>
+
             <!-- Maintenance Mode Status & Precaution Button -->
             <button
               v-if="maintenance.active"
@@ -267,6 +386,16 @@
                           >
                             LATEST
                           </span>
+                          <!-- Slot Rank Badge (1 to 5) -->
+                          <span
+                            class="px-2 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border"
+                            :class="(index >= 4 || (index === backups.length - 1 && backups.length >= 5))
+                              ? 'bg-amber-50 text-amber-800 border-amber-300'
+                              : 'bg-slate-100 text-slate-700 border-slate-200'"
+                            :title="(index >= 4 || (index === backups.length - 1 && backups.length >= 5)) ? 'Oldest 5th snapshot: will automatically be deleted when a new snapshot is created' : 'Active disaster recovery snapshot slot'"
+                          >
+                            {{ (index >= 4 || (index === backups.length - 1 && backups.length >= 5)) ? 'Slot 5/5 (Oldest - Recycled Next)' : `Slot ${index + 1}/5` }}
+                          </span>
                           <span
                             class="px-2 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border"
                             :class="{
@@ -277,8 +406,20 @@
                           >
                             {{ item.backup_category === 'full' ? 'Full System' : (item.backup_category === 'media' ? 'Media Zip' : 'Database Dump') }}
                           </span>
-                          <span class="px-2 py-0.5 rounded text-[10px] font-sans font-semibold uppercase tracking-wider bg-slate-100 text-slate-700">
-                            {{ item.backup_type }}
+                          <!-- Automated vs Manual Type Badge -->
+                          <span
+                            class="px-2 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border inline-flex items-center gap-1"
+                            :class="item.backup_type === 'scheduled'
+                              ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                              : 'bg-slate-100 text-slate-700 border-slate-200'"
+                          >
+                            <svg v-if="item.backup_type === 'scheduled'" class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <svg v-else class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span>{{ item.backup_type === 'scheduled' ? 'Automated' : 'Manual' }}</span>
                           </span>
                         </div>
                         <p class="text-xs text-slate-500 mt-0.5">{{ item.notes || 'System backup snapshot' }}</p>
@@ -1333,6 +1474,222 @@
         </div>
       </Teleport>
 
+      <!-- ======================================================== -->
+      <!-- MODAL 6: Automated Backup Schedule & Retention Modal     -->
+      <!-- ======================================================== -->
+      <Teleport to="body">
+        <div 
+          v-if="showScheduleModal" 
+          class="fixed inset-0 z-[150] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 sm:py-10 pointer-events-auto overflow-y-auto animate-fade-in"
+          @click.self="showScheduleModal = false"
+        >
+          <div 
+            class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-scale-up max-h-[calc(100dvh-3rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto pointer-events-auto"
+            @click.stop
+          >
+            <!-- Header -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold text-slate-900">Automated Backup Schedule</h3>
+                  <p class="text-xs text-indigo-700 font-bold uppercase tracking-wider">Disaster Recovery Retention</p>
+                </div>
+              </div>
+              <button @click="showScheduleModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Enable / Pause Toggle -->
+            <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+              <div>
+                <span class="text-xs font-bold text-slate-900 block">Automated Snapshot Generation</span>
+                <p class="text-[11px] text-slate-500">Automatically take full database &amp; media backups on schedule</p>
+              </div>
+              <button
+                type="button"
+                @click="scheduleForm.enabled = !scheduleForm.enabled"
+                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                :class="scheduleForm.enabled ? 'bg-emerald-600' : 'bg-slate-300'"
+              >
+                <span
+                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                  :class="scheduleForm.enabled ? 'translate-x-5' : 'translate-x-0'"
+                />
+              </button>
+            </div>
+
+            <!-- Frequency Selection (Weekly default vs Monthly) -->
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                Backup Frequency (Default: Weekly)
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <!-- Weekly Card -->
+                <div
+                  @click="scheduleForm.frequency = 'weekly'"
+                  class="p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-2 select-none cursor-pointer"
+                  :class="{
+                    'border-indigo-600 bg-indigo-50/70 ring-2 ring-indigo-500/20 shadow-xs': scheduleForm.frequency === 'weekly',
+                    'border-slate-200 bg-white hover:border-slate-300': scheduleForm.frequency !== 'weekly'
+                  }"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-100 text-indigo-700">Recommended</span>
+                    <span v-if="scheduleForm.frequency === 'weekly'" class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-slate-900 block">Weekly (Default)</span>
+                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">Generates a complete disaster recovery snapshot every 7 days.</p>
+                  </div>
+                </div>
+
+                <!-- Monthly Card -->
+                <div
+                  @click="scheduleForm.frequency = 'monthly'"
+                  class="p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-2 select-none cursor-pointer"
+                  :class="{
+                    'border-indigo-600 bg-indigo-50/70 ring-2 ring-indigo-500/20 shadow-xs': scheduleForm.frequency === 'monthly',
+                    'border-slate-200 bg-white hover:border-slate-300': scheduleForm.frequency !== 'monthly'
+                  }"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700">Monthly</span>
+                    <span v-if="scheduleForm.frequency === 'monthly'" class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-slate-900 block">Monthly</span>
+                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">Generates a complete snapshot on a selected date each month.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Schedule Timing Controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Day Selection -->
+              <div v-if="scheduleForm.frequency === 'weekly'" class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  Day of Week
+                </label>
+                <select
+                  v-model="scheduleForm.day"
+                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none"
+                >
+                  <option value="Sunday">Sunday (Default)</option>
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                  <option value="Saturday">Saturday</option>
+                </select>
+              </div>
+
+              <div v-else class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  Day of Month
+                </label>
+                <select
+                  v-model="scheduleForm.day"
+                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none"
+                >
+                  <option value="1">1st of Month (Default)</option>
+                  <option value="5">5th of Month</option>
+                  <option value="10">10th of Month</option>
+                  <option value="15">15th of Month</option>
+                  <option value="20">20th of Month</option>
+                  <option value="25">25th of Month</option>
+                  <option value="28">28th of Month</option>
+                </select>
+              </div>
+
+              <!-- Time Selection -->
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  Execution Time
+                </label>
+                <input
+                  v-model="scheduleForm.time"
+                  type="time"
+                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono font-semibold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none"
+                />
+              </div>
+            </div>
+
+            <!-- Rolling Retention FIFO Policy Box -->
+            <div class="bg-purple-50/80 border border-purple-200/90 rounded-2xl p-4 text-xs text-purple-950 space-y-2">
+              <div class="flex items-center gap-2 font-black text-purple-900 uppercase tracking-wider text-[11px]">
+                <svg class="w-4 h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Adviser Retention Standard: Max 5 Snapshots (FIFO)</span>
+              </div>
+              <p class="leading-relaxed text-purple-900/90">
+                To guarantee disaster recovery while preventing disk exhaustion, the system preserves a rolling window of <strong>5 snapshots</strong>. Whenever a new manual or scheduled snapshot is created, the oldest 5th snapshot is automatically deleted from local disk and Google Drive.
+              </p>
+              <div class="pt-1 flex items-center justify-between text-[11px] font-semibold text-purple-800">
+                <span>Next Scheduled Execution:</span>
+                <span class="font-mono font-bold">{{ schedule.next_run ? formatDate(schedule.next_run) : 'Calculated upon save' }}</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] font-semibold text-purple-800">
+                <span>Last Automated Run:</span>
+                <span class="font-mono">{{ schedule.last_run ? formatDate(schedule.last_run) : 'Never executed yet' }}</span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between pt-2">
+              <button
+                @click="handleRunAutoBackup"
+                :disabled="isRunningAutoBackup"
+                type="button"
+                class="px-4 py-2.5 rounded-xl border border-indigo-200 text-indigo-700 hover:bg-indigo-50 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                title="Immediately run an automated snapshot to test the configuration and retention pruning"
+              >
+                <svg v-if="!isRunningAutoBackup" class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                </svg>
+                <svg v-else class="animate-spin h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isRunningAutoBackup ? 'Running...' : 'Run Auto Now (Test)' }}</span>
+              </button>
+
+              <div class="flex items-center gap-2">
+                <button
+                  @click="showScheduleModal = false"
+                  type="button"
+                  class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="handleSaveSchedule"
+                  :disabled="isSavingSchedule"
+                  type="button"
+                  class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                >
+                  <svg v-if="isSavingSchedule" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>{{ isSavingSchedule ? 'Saving...' : 'Save Schedule' }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
     </template>
   </MainLayout>
 </template>
@@ -1351,7 +1708,11 @@ import {
   deleteBackup,
   getGoogleDriveStatus,
   updateGoogleDriveConfig,
-  getGoogleOAuthUrl
+  getGoogleOAuthUrl,
+  fetchBackupSchedule,
+  updateBackupSchedule,
+  runAutomatedBackup,
+  seedSnapshots
 } from '@/api/backup';
 import { fetchMaintenanceStatus, updateMaintenanceStatus } from '@/api/superadmin';
 import { toast } from 'vue3-toastify';
@@ -1370,6 +1731,28 @@ const stats = ref({
   latest_backup_at: null,
   gdrive_synced_count: 0
 });
+
+// Automated Schedule & Disaster Recovery Retention State
+const schedule = ref({
+  enabled: true,
+  frequency: 'weekly',
+  day: 'Sunday',
+  time: '02:00',
+  last_run: null,
+  next_run: null,
+  is_due: false,
+  retention_limit: 5
+});
+const scheduleForm = ref({
+  enabled: true,
+  frequency: 'weekly',
+  day: 'Sunday',
+  time: '02:00'
+});
+const showScheduleModal = ref(false);
+const isSavingSchedule = ref(false);
+const isRunningAutoBackup = ref(false);
+const isSeedingSnapshots = ref(false);
 const googleDrive = ref({
   is_configured: false,
   connected: false,
@@ -1581,6 +1964,14 @@ const loadBackups = async () => {
       if (googleDrive.value.auth_type) {
         authTab.value = googleDrive.value.auth_type;
       }
+
+      if (res.data.data.schedule) {
+        schedule.value = res.data.data.schedule;
+        scheduleForm.value.enabled = !!res.data.data.schedule.enabled;
+        scheduleForm.value.frequency = res.data.data.schedule.frequency || 'weekly';
+        scheduleForm.value.day = res.data.data.schedule.day || (res.data.data.schedule.frequency === 'monthly' ? '1' : 'Sunday');
+        scheduleForm.value.time = res.data.data.schedule.time || '02:00';
+      }
     }
   } catch (err) {
     toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to fetch backups.'));
@@ -1590,8 +1981,81 @@ const loadBackups = async () => {
 };
 
 // ---------------------------------------------------------
-// Backup Actions
+// Backup & Schedule Actions
 // ---------------------------------------------------------
+const openScheduleModal = () => {
+  scheduleForm.value.enabled = !!schedule.value.enabled;
+  scheduleForm.value.frequency = schedule.value.frequency || 'weekly';
+  scheduleForm.value.day = schedule.value.day || (schedule.value.frequency === 'monthly' ? '1' : 'Sunday');
+  scheduleForm.value.time = schedule.value.time || '02:00';
+  showScheduleModal.value = true;
+};
+
+const handleSaveSchedule = async () => {
+  isSavingSchedule.value = true;
+  try {
+    const res = await updateBackupSchedule({
+      enabled: scheduleForm.value.enabled,
+      frequency: scheduleForm.value.frequency,
+      day: scheduleForm.value.day,
+      time: scheduleForm.value.time
+    });
+    if (res.data?.status) {
+      if (res.data.data?.schedule) {
+        schedule.value = res.data.data.schedule;
+      }
+      showScheduleModal.value = false;
+      toast.success(res.data.message || 'Automated backup schedule updated successfully.');
+    }
+  } catch (err) {
+    toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to update backup schedule.'));
+  } finally {
+    isSavingSchedule.value = false;
+  }
+};
+
+const handleRunAutoBackup = async () => {
+  isRunningAutoBackup.value = true;
+  try {
+    const res = await runAutomatedBackup({ force: true });
+    if (res.data?.status) {
+      toast.success(res.data.message || 'Automated snapshot executed successfully.');
+      await loadBackups();
+    }
+  } catch (err) {
+    toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to trigger automated backup.'));
+  } finally {
+    isRunningAutoBackup.value = false;
+  }
+};
+
+const handleSeedSnapshots = async () => {
+  const result = await Swal.fire({
+    title: 'Seed Baseline Snapshots?',
+    text: `Your adviser requires at least 5 disaster recovery snapshots. This will automatically create the required baseline full snapshot archives with rolling 5-limit retention enforced.`,
+    icon: 'info',
+    showCancelButton: true,
+    confirmButtonColor: '#059669',
+    cancelButtonColor: '#64748b',
+    confirmButtonText: 'Generate to 5 Snapshots'
+  });
+
+  if (result.isConfirmed) {
+    isSeedingSnapshots.value = true;
+    try {
+      const res = await seedSnapshots({ target: 5 });
+      if (res.data?.status) {
+        toast.success(res.data.message || 'Disaster recovery baseline snapshots created!');
+        await loadBackups();
+      }
+    } catch (err) {
+      toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to generate baseline snapshots.'));
+    } finally {
+      isSeedingSnapshots.value = false;
+    }
+  }
+};
+
 const handleCreateBackup = async () => {
   openCreateBackupModal();
 };
