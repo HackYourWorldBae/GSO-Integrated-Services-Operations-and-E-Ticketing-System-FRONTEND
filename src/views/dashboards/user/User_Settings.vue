@@ -170,6 +170,34 @@
                 </div>
               </div>
 
+              <!-- Two-Factor Authentication (MFA with Email OTP) Toggle — Hidden for personnel / worker accounts -->
+              <div v-if="!isPersonnel" class="md:col-span-12 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.isMfaEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
+                <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-xs" :class="form.isMfaEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-400 text-white'">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0 space-y-1">
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                      <h4 class="text-xs font-black uppercase tracking-wider" :class="form.isMfaEnabled ? 'text-emerald-900' : 'text-slate-700'">Two-Factor Authentication (Email OTP)</h4>
+                      <span v-if="form.isMfaEnabled" class="px-2 py-0.5 bg-emerald-200/80 text-emerald-900 text-[10px] font-black uppercase tracking-wider rounded-md">Enabled</span>
+                      <span v-else class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[10px] font-bold uppercase tracking-wider rounded-md">Off</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                      <input type="checkbox" v-model="form.isMfaEnabled" class="sr-only peer" />
+                      <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                    </label>
+                  </div>
+                  <p class="text-xs leading-relaxed font-medium" :class="form.isMfaEnabled ? 'text-emerald-800/80' : 'text-slate-500'">
+                    When enabled, signing in requires both your password and a 6-digit one-time verification code sent to your registered email (<span class="font-bold">{{ form.email || 'your email' }}</span>).
+                  </p>
+                  <p v-if="!form.isMfaEnabled" class="text-[11px] font-medium text-slate-500">
+                    Two-factor authentication is currently disabled. Enable this to add an extra layer of protection to your account.
+                  </p>
+                </div>
+              </div>
+
               <!-- Student Affiliation Info (For Student Representatives) -->
               <div v-if="authStore.user?.role === 'student'" class="space-y-2 md:col-span-12 p-4 rounded-2xl bg-purple-50/60 border border-purple-200/80">
                 <div class="flex items-center justify-between">
@@ -302,7 +330,8 @@ const form = ref({
   nameExtensionSelection: '',
   customExtension: '',
   email: '',
-  emailNotificationsEnabled: true,
+  emailNotificationsEnabled: false,
+  isMfaEnabled: false,
   password: '',
   confirmPassword: '',
 });
@@ -322,8 +351,9 @@ const populateFormData = (user) => {
     form.value.nameExtensionSelection = 'OTHER';
     form.value.customExtension = ext;
   }
-  form.value.email     = (isPersonnel.value ? (user.username || user.email) : user.email) || '';
-  form.value.emailNotificationsEnabled = user.email_notifications_enabled === 0 || user.email_notifications_enabled === '0' ? false : true;
+  form.value.email = (isPersonnel.value ? (user.username || user.email) : user.email) || '';
+  form.value.emailNotificationsEnabled = Boolean(user.email_notifications_enabled === 1 || user.email_notifications_enabled === '1' || user.email_notifications_enabled === true);
+  form.value.isMfaEnabled = Boolean(user.is_mfa_enabled === 1 || user.is_mfa_enabled === '1' || user.is_mfa_enabled === true);
   if (user.avatar_path) {
       avatarPreviewUrl.value = `/api/v1/auth/avatar/${user.id}?t=${Date.now()}`;
   }
@@ -419,6 +449,7 @@ const handleSave = async () => {
       last_name:  form.value.lastName,
       name_extension: finalExtension || null,
       email_notifications_enabled: form.value.emailNotificationsEnabled ? 1 : 0,
+      is_mfa_enabled: form.value.isMfaEnabled ? 1 : 0,
     };
     if (identifierChanged) {
       if (isPersonnel.value) {

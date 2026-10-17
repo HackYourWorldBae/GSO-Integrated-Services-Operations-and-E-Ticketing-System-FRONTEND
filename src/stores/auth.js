@@ -8,6 +8,8 @@ import {
   checkSessionApi,
   assumeUnitHeadApi,
   revertUnitHeadApi,
+  verifyMfa as apiVerifyMfa,
+  resendMfa as apiResendMfa,
 } from '@/api/auth';
 
 /**
@@ -324,6 +326,19 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await apiLogin(identifier, password);
       const data     = response.data?.data || {};
+
+      // If account has MFA enabled, return challenge details for OTP verification step
+      if (data.mfa_required) {
+        return {
+          success: false,
+          mfaRequired: true,
+          mfaToken: data.mfa_token,
+          maskedEmail: data.masked_email,
+          expiresIn: data.expires_in || 600,
+          message: response.data?.message || 'Multifactor authentication required.',
+        };
+      }
+
       const userData = data.user;
       const jwtToken = data.access_token;
       const userPerms = userData.permissions || [];
@@ -368,6 +383,72 @@ export const useAuthStore = defineStore('auth', () => {
         remainingSeconds,
         remainingAttempts,
         lockoutUntil,
+      };
+    }
+  };
+
+  /**
+   * Verify MFA 6-digit OTP code to complete login.
+   * @param {string} mfaToken
+   * @param {string} otpCode
+   * @returns {Promise<{ success: boolean, message?: string, role?: string, remainingAttempts?: number }>}
+   */
+  const verifyMfa = async (mfaToken, otpCode) => {
+    try {
+      const response = await apiVerifyMfa({ mfa_token: mfaToken, otp_code: otpCode });
+      const data      = response.data?.data || {};
+      const userData  = data.user;
+      const jwtToken  = data.access_token;
+      const userPerms = userData?.permissions || [];
+
+      user.value        = userData;
+      role.value        = userData?.role;
+      permissions.value = userPerms;
+      token.value       = jwtToken;
+
+      if (jwtToken) {
+        sessionStorage.setItem('token', jwtToken);
+      }
+      sessionStorage.setItem('permissions', JSON.stringify(userPerms));
+
+      window.__gso_session_superseded = false;
+
+      // Start proactive session heartbeat
+      startSessionHeartbeat();
+
+      return { success: true, role: userData?.role };
+    } catch (err) {
+      const resData = err.response?.data || {};
+      const errors = resData.errors || {};
+      return {
+        success: false,
+        message: resData.message || 'Verification failed. Please check the 6-digit code.',
+        remainingAttempts: resData.data?.remaining_attempts ?? errors.remaining_attempts ?? null,
+      };
+    }
+  };
+
+  /**
+   * Resend MFA OTP code.
+   * @param {string} mfaToken
+   * @returns {Promise<{ success: boolean, message: string, mfaToken?: string, maskedEmail?: string, expiresIn?: number }>}
+   */
+  const resendMfa = async (mfaToken) => {
+    try {
+      const response = await apiResendMfa({ mfa_token: mfaToken });
+      const data = response.data?.data || {};
+      return {
+        success: true,
+        message: response.data?.message || 'A new verification code has been dispatched to your email.',
+        mfaToken: data.mfa_token || mfaToken,
+        maskedEmail: data.masked_email,
+        expiresIn: data.expires_in || 600,
+      };
+    } catch (err) {
+      const resData = err.response?.data || {};
+      return {
+        success: false,
+        message: resData.message || 'Unable to resend verification code. Please wait and try again.',
       };
     }
   };
@@ -559,6 +640,8 @@ export const useAuthStore = defineStore('auth', () => {
     isDeactivated,
     hasPermission,
     login,
+    verifyMfa,
+    resendMfa,
     logout,
     checkAuth,
     refreshProfile,

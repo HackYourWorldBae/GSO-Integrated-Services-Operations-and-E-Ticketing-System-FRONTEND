@@ -23,6 +23,8 @@ import {
   verifyResetToken,
   resetPassword,
   fetchPublicMaintenanceStatus,
+  verifyMfa,
+  resendMfa,
 } from '../auth'
 
 // Level 3 — Component tests: authentication flows must exchange credentials
@@ -123,6 +125,23 @@ describe('auth api module', () => {
     const res = await fetchPublicMaintenanceStatus()
     expect(apiClient.get).toHaveBeenCalledWith('/auth/maintenance-status')
     expect(res.data.status).toBe(true)
+  })
+
+  it('verifies MFA OTP code with token and 6-digit code', async () => {
+    apiClient.post.mockResolvedValueOnce({ data: { status: true, message: 'Verification successful.' } })
+    await verifyMfa({ mfa_token: 'token_abc123', otp_code: '654321' })
+    expect(apiClient.post).toHaveBeenCalledWith('/auth/verify-mfa', {
+      mfa_token: 'token_abc123',
+      otp_code: '654321',
+    })
+  })
+
+  it('resends MFA OTP code with session token', async () => {
+    apiClient.post.mockResolvedValueOnce({ data: { status: true, message: 'Code resent.' } })
+    await resendMfa({ mfa_token: 'token_abc123' })
+    expect(apiClient.post).toHaveBeenCalledWith('/auth/resend-mfa', {
+      mfa_token: 'token_abc123',
+    })
   })
 })
 

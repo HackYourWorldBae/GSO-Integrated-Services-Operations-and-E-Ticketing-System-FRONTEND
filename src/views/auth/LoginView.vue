@@ -23,10 +23,32 @@ const timeoutMessage           = ref('');
 const isMaintenanceActive      = ref(false);
 const maintenanceNotice        = ref('');
 
-let lockoutIntervalId = null;
+// Two-Factor Authentication (MFA with Email OTP) State
+const isMfaStep                = ref(false);
+const mfaToken                 = ref('');
+const maskedEmail              = ref('');
+const otpCode                  = ref('');
+const isMfaLoading             = ref(false);
+const isResendingMfa           = ref(false);
+const mfaErrorMessage          = ref('');
+const mfaSuccessMessage        = ref('');
+const mfaRemainingAttempts     = ref(null);
+const mfaExpiresSeconds        = ref(600);
+const resendCooldown           = ref(0);
+
+let lockoutIntervalId          = null;
+let mfaCountdownIntervalId     = null;
+let resendCooldownIntervalId   = null;
 
 const formattedLockoutTime = computed(() => {
   const total = Math.max(0, lockoutRemainingSeconds.value);
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+});
+
+const formattedMfaExpiry = computed(() => {
+  const total = Math.max(0, mfaExpiresSeconds.value);
   const minutes = Math.floor(total / 60);
   const seconds = total % 60;
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
@@ -57,6 +79,52 @@ const stopLockoutTimer = () => {
   }
 };
 
+const startMfaCountdown = (seconds = 600) => {
+  stopMfaCountdown();
+  mfaExpiresSeconds.value = seconds;
+  mfaCountdownIntervalId = setInterval(() => {
+    if (mfaExpiresSeconds.value > 1) {
+      mfaExpiresSeconds.value -= 1;
+    } else {
+      stopMfaCountdown();
+      mfaExpiresSeconds.value = 0;
+      mfaErrorMessage.value = 'Verification code has expired. Please request a new code.';
+    }
+  }, 1000);
+};
+
+const stopMfaCountdown = () => {
+  if (mfaCountdownIntervalId) {
+    clearInterval(mfaCountdownIntervalId);
+    mfaCountdownIntervalId = null;
+  }
+};
+
+const startResendCooldown = (seconds = 45) => {
+  stopResendCooldown();
+  resendCooldown.value = seconds;
+  resendCooldownIntervalId = setInterval(() => {
+    if (resendCooldown.value > 1) {
+      resendCooldown.value -= 1;
+    } else {
+      stopResendCooldown();
+      resendCooldown.value = 0;
+    }
+  }, 1000);
+};
+
+const stopResendCooldown = () => {
+  if (resendCooldownIntervalId) {
+    clearInterval(resendCooldownIntervalId);
+    resendCooldownIntervalId = null;
+  }
+};
+
+const stopMfaTimers = () => {
+  stopMfaCountdown();
+  stopResendCooldown();
+};
+
 onMounted(() => {
   if (route.query?.maintenance === '1' || route.query?.maintenance === 'true') {
     isMaintenanceActive.value = true;
@@ -82,7 +150,32 @@ onMounted(() => {
 
 onUnmounted(() => {
   stopLockoutTimer();
+  stopMfaTimers();
 });
+
+const navigateUserByRole = (userRole) => {
+  if (userRole === 'superadmin') {
+    router.push('/superadmin/users');
+  } else if (userRole === 'admin' || userRole === 'staff') {
+    const unitId = authStore.user?.unit_id;
+    const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
+    const unit = authStore.user?.unit_code || authStore.user?.unit || unitMap[unitId] || 'FGMU';
+
+    if (unit === 'SSU') {
+      router.push('/admin/ssu');
+    } else if (unit === 'LEAU') {
+      router.push('/admin/leau');
+    } else {
+      router.push('/admin/fgmu');
+    }
+  } else if (userRole === 'worker') {
+    router.push('/personnel/dashboard');
+  } else if (userRole === 'director') {
+    router.push('/director/dashboard');
+  } else {
+    router.push('/user/dashboard');
+  }
+};
 
 const handleLogin = async () => {
   if (isAccountLocked.value) return;
@@ -115,6 +208,19 @@ const handleLogin = async () => {
     const result = await authStore.login(submittedIdentifier, password.value);
 
     if (!result.success) {
+      if (result.mfaRequired) {
+        isMfaStep.value            = true;
+        mfaToken.value             = result.mfaToken;
+        maskedEmail.value          = result.maskedEmail || '';
+        otpCode.value              = '';
+        mfaErrorMessage.value      = '';
+        mfaRemainingAttempts.value = null;
+        mfaSuccessMessage.value    = `A 6-digit security code was dispatched to ${result.maskedEmail || 'your email'}.`;
+        startMfaCountdown(result.expiresIn || 600);
+        startResendCooldown(45);
+        return;
+      }
+
       isAccountSuspended.value = Boolean(result.isSuspended);
 
       if (result.isMaintenance) {
@@ -135,35 +241,81 @@ const handleLogin = async () => {
       return;
     }
 
-    const role = result.role;
-
-    // Redirect based on role
-    if (role === 'superadmin') {
-      router.push('/superadmin/users');
-    } else if (role === 'admin' || role === 'staff') {
-      const unitId = authStore.user?.unit_id;
-      const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
-      const unit = authStore.user?.unit_code || authStore.user?.unit || unitMap[unitId] || 'FGMU';
-
-      if (unit === 'SSU') {
-        router.push('/admin/ssu');
-      } else if (unit === 'LEAU') {
-        router.push('/admin/leau');
-      } else {
-        router.push('/admin/fgmu');
-      }
-    } else if (role === 'worker') {
-      router.push('/personnel/dashboard');
-    } else if (role === 'director') {
-      router.push('/director/dashboard');
-    } else {
-      router.push('/user/dashboard');
-    }
+    navigateUserByRole(result.role);
   } catch {
     errorMessage.value = 'Connection failed. Please check your network.';
   } finally {
     isLoading.value = false;
   }
+};
+
+const handleVerifyMfa = async () => {
+  const code = (otpCode.value || '').trim();
+  if (code.length !== 6) {
+    mfaErrorMessage.value = 'Please enter all 6 digits of your verification code.';
+    return;
+  }
+
+  isMfaLoading.value         = true;
+  mfaErrorMessage.value      = '';
+  mfaRemainingAttempts.value = null;
+
+  try {
+    const result = await authStore.verifyMfa(mfaToken.value, code);
+    if (!result.success) {
+      mfaErrorMessage.value = result.message || 'Verification failed. Please check the code.';
+      if (typeof result.remainingAttempts === 'number') {
+        mfaRemainingAttempts.value = result.remainingAttempts;
+      }
+      return;
+    }
+
+    stopMfaTimers();
+    navigateUserByRole(result.role);
+  } catch {
+    mfaErrorMessage.value = 'Connection failed. Please check your network and try again.';
+  } finally {
+    isMfaLoading.value = false;
+  }
+};
+
+const handleResendMfa = async () => {
+  if (resendCooldown.value > 0 || isResendingMfa.value) return;
+
+  isResendingMfa.value  = true;
+  mfaErrorMessage.value = '';
+
+  try {
+    const result = await authStore.resendMfa(mfaToken.value);
+    if (!result.success) {
+      mfaErrorMessage.value = result.message || 'Could not resend verification code.';
+      return;
+    }
+
+    if (result.mfaToken) {
+      mfaToken.value = result.mfaToken;
+    }
+    if (result.maskedEmail) {
+      maskedEmail.value = result.maskedEmail;
+    }
+    mfaSuccessMessage.value = 'A new 6-digit verification code has been dispatched to your email.';
+    startMfaCountdown(result.expiresIn || 600);
+    startResendCooldown(45);
+  } catch {
+    mfaErrorMessage.value = 'Failed to resend code. Please check your network.';
+  } finally {
+    isResendingMfa.value = false;
+  }
+};
+
+const cancelMfa = () => {
+  isMfaStep.value            = false;
+  mfaToken.value             = '';
+  otpCode.value              = '';
+  mfaErrorMessage.value      = '';
+  mfaSuccessMessage.value    = '';
+  mfaRemainingAttempts.value = null;
+  stopMfaTimers();
 };
 </script>
 
@@ -213,7 +365,7 @@ const handleLogin = async () => {
       </router-link>
 
       <!-- Header -->
-      <div class="mb-6 sm:mb-8 shrink-0 text-left">
+      <div v-if="!isMfaStep" class="mb-6 sm:mb-8 shrink-0 text-left">
         <h2 class="text-emerald-700 font-extrabold text-xs tracking-wider uppercase mb-1.5 ml-0.5">General Services Office</h2>
         <h1 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-1.5">
           GSO <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">e-Ticketing</span>
@@ -221,221 +373,327 @@ const handleLogin = async () => {
         <p class="text-slate-500 text-xs sm:text-sm font-medium">Please sign in to access your dashboard.</p>
       </div>
 
-      <!-- Emergency Maintenance Mode Banner -->
-      <div v-if="isMaintenanceActive" class="mb-6 p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-300 text-amber-950 animate-fade-in shrink-0 shadow-sm text-left backdrop-blur-sm">
-        <div class="flex items-start gap-3.5">
-          <div class="p-2.5 rounded-2xl bg-amber-100 text-amber-700 shrink-0 mt-0.5 border border-amber-200/80 shadow-xs">
-            <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between gap-2 flex-wrap">
-              <h3 class="text-sm font-black text-amber-950">Website Under Emergency Maintenance</h3>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-200/80 text-amber-900 font-bold text-[10px] tracking-wider uppercase border border-amber-300">
-                Notice
-              </span>
-            </div>
-            <p class="text-xs text-amber-900 mt-1.5 leading-relaxed font-semibold">
-              {{ maintenanceNotice }}
-            </p>
-            <p class="text-[11px] text-amber-800/80 mt-1.5 font-medium">
-              Regular user logins are temporarily suspended. Super Administrators may sign in with authorized credentials to manage maintenance.
-            </p>
-          </div>
+      <!-- MFA Header -->
+      <div v-else class="mb-6 shrink-0 text-left animate-fade-in">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200/80 mb-3 text-xs font-bold tracking-wide">
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          Two-Factor Authentication
         </div>
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight mb-1.5">
+          Verify It's You
+        </h1>
+        <p class="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">
+          We've sent a 6-digit verification code to
+          <span class="font-bold text-slate-900">{{ maskedEmail || 'your email' }}</span>.
+        </p>
       </div>
 
-      <!-- Account Temporarily Locked Banner (5 failed attempts -> 15 min lock) -->
-      <div v-if="isAccountLocked" class="mb-6 p-4 sm:p-5 rounded-2xl bg-rose-50/95 border border-rose-200 text-rose-950 animate-fade-in shrink-0 shadow-sm text-left backdrop-blur-sm">
-        <div class="flex items-start gap-3.5">
-          <div class="p-2.5 rounded-2xl bg-rose-100 text-rose-700 shrink-0 mt-0.5 border border-rose-200/60 shadow-xs">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between gap-2 flex-wrap">
-              <h3 class="text-sm font-black text-rose-950">Account Temporarily Locked</h3>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-200/80 text-rose-900 font-mono font-black text-xs border border-rose-300 shadow-xs">
-                <svg class="w-3.5 h-3.5 animate-pulse text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{{ formattedLockoutTime }}</span>
-              </span>
-            </div>
-            <p class="text-xs text-rose-800 mt-1.5 leading-relaxed font-medium">
-              This account has been locked for 15 minutes due to 5 consecutive failed login attempts with an incorrect password.
-            </p>
-            <div class="mt-2.5 p-2.5 rounded-xl bg-white/80 border border-rose-200/70 flex items-center justify-between text-[11px] font-semibold text-rose-900">
-              <span>Time remaining before unlock:</span>
-              <span class="font-mono font-black text-xs text-rose-700">{{ formattedLockoutTime }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Account Suspended Warning Banner -->
-      <div v-else-if="isAccountSuspended" class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 animate-fade-in shrink-0 shadow-sm text-left">
-        <div class="flex items-start gap-3">
-          <div class="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <h3 class="text-sm font-bold text-amber-950">Account Suspended</h3>
-            <p class="text-xs text-amber-800 mt-1 leading-relaxed">
-              {{ errorMessage }}
-            </p>
-            <p class="text-[11px] text-amber-700 mt-2 font-medium bg-amber-100/60 p-2 rounded-lg border border-amber-200/50">
-              Notice: Suspended accounts cannot log in. Please visit the General Services Office (GSO) in person or contact administration to appeal.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Remaining Attempts Warning Notice (1 to 4 failed attempts) -->
-      <div v-else-if="remainingAttemptsNotice !== null && remainingAttemptsNotice > 0" class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 animate-fade-in shrink-0 shadow-xs text-left">
-        <div class="flex items-start gap-3">
-          <div class="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <h3 class="text-sm font-bold text-amber-950">Incorrect Password</h3>
-            <p class="text-xs text-amber-800 mt-1 leading-relaxed">
-              {{ errorMessage }}
-            </p>
-            <div class="mt-2 flex items-center gap-1.5 flex-wrap">
-              <span class="inline-block px-2.5 py-0.5 rounded-md bg-amber-200 text-amber-950 text-[10px] font-black uppercase tracking-wider">
-                {{ remainingAttemptsNotice }} {{ remainingAttemptsNotice === 1 ? 'Attempt' : 'Attempts' }} Remaining
-              </span>
-              <span class="text-[10px] text-amber-700 font-medium">Account will lock for 15 minutes if exceeded.</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Standard Error Message -->
-      <div v-else-if="errorMessage" class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-sm text-center font-bold animate-fade-in shrink-0 shadow-sm">
-        {{ errorMessage }}
-      </div>
-
-      <!-- Inactivity Timeout Banner -->
-      <div v-if="timeoutMessage" class="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm font-semibold flex items-start gap-3 animate-fade-in shrink-0 shadow-xs text-left">
-        <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <div>
-          <p class="font-bold text-amber-950">Session Expired</p>
-          <p class="text-[11px] text-amber-800 mt-0.5 font-normal leading-relaxed">
-            {{ timeoutMessage }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Success Notification from Registration -->
-      <div v-else-if="successMessage" class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs sm:text-sm font-semibold flex items-start gap-3 animate-fade-in shrink-0 shadow-xs">
-        <svg class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <div>
-          <p class="font-bold text-emerald-900">Notice</p>
-          <p class="text-[11px] text-emerald-700 mt-0.5 font-normal leading-relaxed">
-            {{ successMessage }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Unified Form -->
-      <form @submit.prevent="handleLogin" class="space-y-4 shrink-0 pb-1">
-        
-        <div class="relative group/input text-left">
-          <label class="block text-slate-700 text-xs font-bold mb-1.5 ml-0.5">
-            Email, Username, or Employee / Student ID
-          </label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
-              <svg class="h-4 w-4 text-slate-400 group-focus-within/input:text-emerald-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      <!-- Standard Login Flow (When NOT in MFA Step) -->
+      <template v-if="!isMfaStep">
+        <!-- Emergency Maintenance Mode Banner -->
+        <div v-if="isMaintenanceActive" class="mb-6 p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-300 text-amber-950 animate-fade-in shrink-0 shadow-sm text-left backdrop-blur-sm">
+          <div class="flex items-start gap-3.5">
+            <div class="p-2.5 rounded-2xl bg-amber-100 text-amber-700 shrink-0 mt-0.5 border border-amber-200/80 shadow-xs">
+              <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <input 
-              v-model="identifier"
-              type="text" 
-              required
-              :disabled="isAccountLocked"
-              class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-200 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed min-h-[48px]"
-              placeholder="e.g. 2301219, 102456, or name@bsu.edu.ph"
-            />
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <h3 class="text-sm font-black text-amber-950">Website Under Emergency Maintenance</h3>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-200/80 text-amber-900 font-bold text-[10px] tracking-wider uppercase border border-amber-300">
+                  Notice
+                </span>
+              </div>
+              <p class="text-xs text-amber-900 mt-1.5 leading-relaxed font-semibold">
+                {{ maintenanceNotice }}
+              </p>
+              <p class="text-[11px] text-amber-800/80 mt-1.5 font-medium">
+                Regular user logins are temporarily suspended. Super Administrators may sign in with authorized credentials to manage maintenance.
+              </p>
+            </div>
           </div>
         </div>
 
-        <div class="relative group/input text-left">
-          <div class="flex items-center justify-between mb-1.5 ml-0.5 pr-0.5">
-            <label for="password_input" class="block text-slate-700 text-xs font-bold">Password</label>
-            <router-link to="/forgot-password" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors p-1 -m-1">Forgot?</router-link>
-          </div>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
-              <svg class="h-4 w-4 text-slate-400 group-focus-within/input:text-emerald-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- Account Temporarily Locked Banner (5 failed attempts -> 15 min lock) -->
+        <div v-if="isAccountLocked" class="mb-6 p-4 sm:p-5 rounded-2xl bg-rose-50/95 border border-rose-200 text-rose-950 animate-fade-in shrink-0 shadow-sm text-left backdrop-blur-sm">
+          <div class="flex items-start gap-3.5">
+            <div class="p-2.5 rounded-2xl bg-rose-100 text-rose-700 shrink-0 mt-0.5 border border-rose-200/60 shadow-xs">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <input 
-              id="password_input"
-              v-model="password"
-              :type="showPassword ? 'text' : 'password'" 
-              required
-              :disabled="isAccountLocked"
-              class="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-200 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed min-h-[48px]"
-              placeholder="••••••••"
-            />
-            <button
-              type="button"
-              @click="showPassword = !showPassword"
-              :disabled="isAccountLocked"
-              :aria-label="showPassword ? 'Hide password' : 'Show password'"
-              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-emerald-600 focus:text-emerald-600 focus:outline-none transition-colors duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <svg v-if="!showPassword" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-              <svg v-else class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
-              </svg>
-            </button>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <h3 class="text-sm font-black text-rose-950">Account Temporarily Locked</h3>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-200/80 text-rose-900 font-mono font-black text-xs border border-rose-300 shadow-xs">
+                  <svg class="w-3.5 h-3.5 animate-pulse text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{{ formattedLockoutTime }}</span>
+                </span>
+              </div>
+              <p class="text-xs text-rose-800 mt-1.5 leading-relaxed font-medium">
+                This account has been locked for 15 minutes due to 5 consecutive failed login attempts with an incorrect password.
+              </p>
+              <div class="mt-2.5 p-2.5 rounded-xl bg-white/80 border border-rose-200/70 flex items-center justify-between text-[11px] font-semibold text-rose-900">
+                <span>Time remaining before unlock:</span>
+                <span class="font-mono font-black text-xs text-rose-700">{{ formattedLockoutTime }}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <button 
-          :disabled="isLoading || isAccountLocked"
-          type="submit"
-          class="w-full min-h-[48px] py-3.5 mt-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          <span v-if="isAccountLocked" class="flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-            Locked ({{ formattedLockoutTime }})
-          </span>
-          <span v-else-if="!isLoading">Secure Sign In</span>
-          <span v-else>Authenticating...</span>
-          <svg v-if="!isLoading && !isAccountLocked" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-          <svg v-else-if="isLoading" class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-        </button>
-
-        <div class="pt-4 border-t border-slate-100 text-center">
-          <p class="text-xs text-slate-500 font-medium">
-            Don't have an account? 
-            <router-link to="/register" class="text-emerald-700 hover:text-emerald-800 font-bold hover:underline transition-all">
-              Sign Up here
-            </router-link>
-          </p>
+        <!-- Account Suspended Warning Banner -->
+        <div v-else-if="isAccountSuspended" class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 animate-fade-in shrink-0 shadow-sm text-left">
+          <div class="flex items-start gap-3">
+            <div class="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-sm font-bold text-amber-950">Account Suspended</h3>
+              <p class="text-xs text-amber-800 mt-1 leading-relaxed">
+                {{ errorMessage }}
+              </p>
+              <p class="text-[11px] text-amber-700 mt-2 font-medium bg-amber-100/60 p-2 rounded-lg border border-amber-200/50">
+                Notice: Suspended accounts cannot log in. Please visit the General Services Office (GSO) in person or contact administration to appeal.
+              </p>
+            </div>
+          </div>
         </div>
 
-      </form>
+        <!-- Remaining Attempts Warning Notice (1 to 4 failed attempts) -->
+        <div v-else-if="remainingAttemptsNotice !== null && remainingAttemptsNotice > 0" class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 animate-fade-in shrink-0 shadow-xs text-left">
+          <div class="flex items-start gap-3">
+            <div class="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-sm font-bold text-amber-950">Incorrect Password</h3>
+              <p class="text-xs text-amber-800 mt-1 leading-relaxed">
+                {{ errorMessage }}
+              </p>
+              <div class="mt-2 flex items-center gap-1.5 flex-wrap">
+                <span class="inline-block px-2.5 py-0.5 rounded-md bg-amber-200 text-amber-950 text-[10px] font-black uppercase tracking-wider">
+                  {{ remainingAttemptsNotice }} {{ remainingAttemptsNotice === 1 ? 'Attempt' : 'Attempts' }} Remaining
+                </span>
+                <span class="text-[10px] text-amber-700 font-medium">Account will lock for 15 minutes if exceeded.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Standard Error Message -->
+        <div v-else-if="errorMessage" class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-sm text-center font-bold animate-fade-in shrink-0 shadow-sm">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Inactivity Timeout Banner -->
+        <div v-if="timeoutMessage" class="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm font-semibold flex items-start gap-3 animate-fade-in shrink-0 shadow-xs text-left">
+          <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p class="font-bold text-amber-950">Session Expired</p>
+            <p class="text-[11px] text-amber-800 mt-0.5 font-normal leading-relaxed">
+              {{ timeoutMessage }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Success Notification from Registration -->
+        <div v-else-if="successMessage" class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs sm:text-sm font-semibold flex items-start gap-3 animate-fade-in shrink-0 shadow-xs">
+          <svg class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p class="font-bold text-emerald-900">Notice</p>
+            <p class="text-[11px] text-emerald-700 mt-0.5 font-normal leading-relaxed">
+              {{ successMessage }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Unified Form -->
+        <form @submit.prevent="handleLogin" class="space-y-4 shrink-0 pb-1">
+          
+          <div class="relative group/input text-left">
+            <label class="block text-slate-700 text-xs font-bold mb-1.5 ml-0.5">
+              Email, Username, or Employee / Student ID
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
+                <svg class="h-4 w-4 text-slate-400 group-focus-within/input:text-emerald-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <input 
+                v-model="identifier"
+                type="text" 
+                required
+                :disabled="isAccountLocked"
+                class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-200 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed min-h-[48px]"
+                placeholder="e.g. 2301219, 102456, or name@bsu.edu.ph"
+              />
+            </div>
+          </div>
+
+          <div class="relative group/input text-left">
+            <div class="flex items-center justify-between mb-1.5 ml-0.5 pr-0.5">
+              <label for="password_input" class="block text-slate-700 text-xs font-bold">Password</label>
+              <router-link to="/forgot-password" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors p-1 -m-1">Forgot?</router-link>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
+                <svg class="h-4 w-4 text-slate-400 group-focus-within/input:text-emerald-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <input 
+                id="password_input"
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'" 
+                required
+                :disabled="isAccountLocked"
+                class="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-200 shadow-sm hover:border-emerald-500/50 disabled:opacity-60 disabled:cursor-not-allowed min-h-[48px]"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                @click="showPassword = !showPassword"
+                :disabled="isAccountLocked"
+                :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-emerald-600 focus:text-emerald-600 focus:outline-none transition-colors duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <svg v-if="!showPassword" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <svg v-else class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button 
+            :disabled="isLoading || isAccountLocked"
+            type="submit"
+            class="w-full min-h-[48px] py-3.5 mt-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <span v-if="isAccountLocked" class="flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+              Locked ({{ formattedLockoutTime }})
+            </span>
+            <span v-else-if="!isLoading">Secure Sign In</span>
+            <span v-else>Authenticating...</span>
+            <svg v-if="!isLoading && !isAccountLocked" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            <svg v-else-if="isLoading" class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          </button>
+
+          <div class="pt-4 border-t border-slate-100 text-center">
+            <p class="text-xs text-slate-500 font-medium">
+              Don't have an account? 
+              <router-link to="/register" class="text-emerald-700 hover:text-emerald-800 font-bold hover:underline transition-all">
+                Sign Up here
+              </router-link>
+            </p>
+          </div>
+
+        </form>
+      </template>
+
+      <!-- MFA Verification Step -->
+      <div v-else class="space-y-5 shrink-0 pb-1 animate-fade-in text-left">
+        <!-- Success Alert -->
+        <div v-if="mfaSuccessMessage" class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-start gap-2.5 shadow-xs">
+          <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ mfaSuccessMessage }}</span>
+        </div>
+
+        <!-- Error Alert -->
+        <div v-if="mfaErrorMessage" class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2.5 shadow-xs">
+          <svg class="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div class="flex-1">
+            <span>{{ mfaErrorMessage }}</span>
+            <div v-if="mfaRemainingAttempts !== null && mfaRemainingAttempts > 0" class="mt-1">
+              <span class="inline-block px-2 py-0.5 rounded bg-rose-100 text-rose-900 text-[10px] font-black uppercase tracking-wider">
+                {{ mfaRemainingAttempts }} attempt(s) remaining
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <form @submit.prevent="handleVerifyMfa" class="space-y-4">
+          <div class="space-y-2">
+            <label class="block text-slate-700 text-xs font-bold ml-0.5">
+              Enter 6-Digit Security Code
+            </label>
+            <div class="relative">
+              <input
+                v-model="otpCode"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="6"
+                required
+                autofocus
+                autocomplete="one-time-code"
+                class="w-full text-center tracking-[0.45em] sm:tracking-[0.6em] text-2xl sm:text-3xl font-mono font-black py-3.5 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-all duration-200 shadow-sm placeholder:tracking-normal placeholder:font-sans placeholder:text-sm placeholder:font-normal placeholder:text-slate-400"
+                placeholder="••••••"
+              />
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-500 px-1 pt-1 font-medium">
+              <span>Code expires in:</span>
+              <span class="font-mono font-bold text-slate-800">{{ formattedMfaExpiry }}</span>
+            </div>
+          </div>
+
+          <button
+            :disabled="isMfaLoading || otpCode.trim().length !== 6"
+            type="submit"
+            class="w-full min-h-[48px] py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-emerald-700/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <span v-if="!isMfaLoading">Verify & Sign In</span>
+            <span v-else>Verifying Code...</span>
+            <svg v-if="!isMfaLoading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            <svg v-else class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          </button>
+        </form>
+
+        <!-- Resend and Cancel Controls -->
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <button
+            type="button"
+            @click="cancelMfa"
+            class="font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer py-1 flex items-center gap-1"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Back to Sign In
+          </button>
+
+          <button
+            type="button"
+            @click="handleResendMfa"
+            :disabled="resendCooldown > 0 || isResendingMfa"
+            class="font-bold text-emerald-700 hover:text-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer py-1"
+          >
+            <span v-if="isResendingMfa">Sending...</span>
+            <span v-else-if="resendCooldown > 0">Resend in {{ resendCooldown }}s</span>
+            <span v-else>Resend Code</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

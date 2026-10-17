@@ -107,4 +107,19 @@ export const assumeUnitHeadApi = (unitCode) =>
 export const revertUnitHeadApi = () =>
   apiClient.post('/auth/revert-unit-head');
 
+/**
+ * Verify Multi-Factor Authentication (MFA) OTP code to complete login.
+ * @param {{ mfa_token: string, otp_code: string }} payload
+ */
+export const verifyMfa = (payload) =>
+  apiClient.post('/auth/verify-mfa', payload);
+
+/**
+ * Resend Multi-Factor Authentication (MFA) OTP code.
+ * @param {{ mfa_token: string }} payload
+ */
+export const resendMfa = (payload) =>
+  apiClient.post('/auth/resend-mfa', payload);
+
+
 
