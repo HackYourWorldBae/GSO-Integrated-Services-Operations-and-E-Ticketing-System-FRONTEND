@@ -139,17 +139,6 @@
               <span>Drive Settings</span>
             </button>
 
-            <!-- Upload SQL / ZIP Dump Button -->
-            <button
-              @click="openUploadModal"
-              type="button"
-              class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 bg-slate-50 hover:bg-slate-100 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              <span>Upload Archive / Dump</span>
-            </button>
 
             <!-- Quick Restore Latest Snapshot Button -->
             <button
@@ -1052,114 +1041,7 @@
         </div>
       </Teleport>
 
-      <!-- ======================================================== -->
-      <!-- MODAL 3: Upload External SQL Dump Modal                 -->
-      <!-- ======================================================== -->
-      <Teleport to="body">
-        <div 
-          v-if="showUploadModal" 
-          class="fixed inset-0 z-[150] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 sm:py-10 pointer-events-auto overflow-y-auto animate-fade-in"
-          @click.self="showUploadModal = false"
-        >
-          <div 
-            class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-scale-up max-h-[calc(100dvh-3rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar my-auto pointer-events-auto"
-            @click.stop
-          >
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="text-base font-extrabold text-slate-900">Upload &amp; Restore Archive</h3>
-                  <p class="text-xs text-slate-500">Restore database SQL dumps or full system .ZIP snapshots</p>
-                </div>
-              </div>
-              <button @click="showUploadModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
 
-            <div class="space-y-4">
-              <!-- Maintenance Precaution Alert if Inactive -->
-              <div v-if="!maintenance.active" class="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-xs text-amber-950 space-y-2">
-                <div class="flex items-center gap-2 font-bold text-amber-900">
-                  <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  <span>Recommended: Activate Website Maintenance First</span>
-                </div>
-                <p class="leading-relaxed">
-                  Emergency Maintenance Mode is currently <strong>Inactive</strong>. It is strongly recommended to turn on maintenance mode to notify and evict active users before restoring files.
-                </p>
-                <button
-                  type="button"
-                  @click="openMaintenancePrecautionModal"
-                  class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs cursor-pointer shadow-xs"
-                >
-                  Activate Website Maintenance First
-                </button>
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                  Select Backup Archive (.SQL or .ZIP)
-                </label>
-                <input
-                  type="file"
-                  ref="uploadSqlFileInput"
-                  accept=".sql,.zip,application/zip,application/x-zip-compressed"
-                  class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-emerald-600 cursor-pointer"
-                  @change="handleUploadFileChange"
-                />
-              </div>
-
-              <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900">
-                <p class="font-bold">Caution:</p>
-                <p class="mt-0.5">Uploading will immediately execute the SQL dump into your active database and/or extract media assets into <code class="bg-amber-100 px-1 py-0.5 rounded text-[10px] font-mono">writable/uploads/</code>. Type confirmation below.</p>
-              </div>
-
-              <div>
-                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
-                  Type <span class="text-red-600 font-mono font-black">CONFIRM RESTORE</span>:
-                </label>
-                <input
-                  v-model="uploadRestoreConfirmation"
-                  type="text"
-                  placeholder="CONFIRM RESTORE"
-                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-800 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none uppercase"
-                />
-              </div>
-            </div>
-
-            <div class="flex items-center justify-end gap-3 pt-2">
-              <button
-                @click="showUploadModal = false"
-                type="button"
-                class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                @click="executeUploadRestore"
-                :disabled="uploadRestoreConfirmation !== 'CONFIRM RESTORE' || !selectedUploadFile || isUploadingRestore"
-                type="button"
-                class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shadow-md"
-              >
-                <svg v-if="isUploadingRestore" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>{{ isUploadingRestore ? 'Uploading & Restoring...' : 'Restore from Upload' }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </Teleport>
 
       <!-- ======================================================== -->
       <!-- MODAL 4: Website in Maintenance Precaution Modal        -->
@@ -1587,7 +1469,6 @@ import {
   fetchBackups,
   createBackup,
   restoreBackup,
-  restoreFromUpload,
   downloadBackup,
   syncBackupToGoogleDrive,
   deleteBackup,
@@ -1716,12 +1597,6 @@ const driveForm = ref({
 const detectedServiceAccountEmail = computed(() => googleDrive.value.service_account_email || '');
 const detectedAccountEmail = computed(() => googleDrive.value.account_email || '');
 
-// Upload SQL / ZIP Dump Modal State
-const showUploadModal = ref(false);
-const uploadSqlFileInput = ref(null);
-const selectedUploadFile = ref(null);
-const uploadRestoreConfirmation = ref('');
-const isUploadingRestore = ref(false);
 
 // ---------------------------------------------------------
 // Lifecycle & Data Fetching
@@ -2215,52 +2090,6 @@ const saveDriveConfig = async () => {
   }
 };
 
-// ---------------------------------------------------------
-// External Upload & Restore Handlers
-// ---------------------------------------------------------
-const openUploadModal = () => {
-  showUploadModal.value = true;
-  selectedUploadFile.value = null;
-  uploadRestoreConfirmation.value = '';
-};
-
-const handleUploadFileChange = (e) => {
-  selectedUploadFile.value = e.target.files[0] || null;
-};
-
-const executeUploadRestore = async () => {
-  if (!selectedUploadFile.value) {
-    toast.warning('Please select a .SQL dump file.');
-    return;
-  }
-  if (uploadRestoreConfirmation.value !== 'CONFIRM RESTORE') {
-    toast.warning('Type CONFIRM RESTORE to proceed.');
-    return;
-  }
-
-  isUploadingRestore.value = true;
-  try {
-    const formData = new FormData();
-    formData.append('backup_file', selectedUploadFile.value);
-    formData.append('confirmation', 'CONFIRM RESTORE');
-
-    const res = await restoreFromUpload(formData);
-    if (res.data?.status) {
-      showUploadModal.value = false;
-      await Swal.fire({
-        title: 'Restoration Completed!',
-        text: res.data.message || 'The uploaded snapshot has been executed into the database.',
-        icon: 'success',
-        confirmButtonColor: '#059669'
-      });
-      await loadBackups();
-    }
-  } catch (err) {
-    toast.error(formatErrorMessage(err.response?.data?.message || 'Uploaded restoration failed.'));
-  } finally {
-    isUploadingRestore.value = false;
-  }
-};
 
 // ---------------------------------------------------------
 // Service Account Email Clipboard Copy
