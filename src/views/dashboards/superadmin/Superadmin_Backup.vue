@@ -58,7 +58,7 @@
             </div>
           </div>
 
-          <!-- Metric 4: Disaster Recovery -->
+          <!-- Metric 4: Protection Engine -->
           <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-purple-50 border border-purple-200/60 flex items-center justify-center text-purple-600 shrink-0">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,115 +66,9 @@
               </svg>
             </div>
             <div>
-              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Disaster Recovery</p>
-              <h3 class="text-sm font-bold text-slate-900">{{ backups.length >= 5 ? '5 / 5 Compliant' : `${backups.length} / 5 Snapshots` }}</h3>
-              <p class="text-[11px] font-medium" :class="backups.length >= 5 ? 'text-emerald-600' : 'text-amber-600'">
-                {{ backups.length >= 5 ? 'Adviser standard fulfilled' : 'At least 5 required' }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Disaster Recovery Readiness & Rolling Snapshot Retention Banner -->
-        <div class="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-2xl sm:rounded-3xl p-6 text-white shadow-md border border-purple-800/40 relative overflow-hidden">
-          <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
-          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
-            <!-- Left Info -->
-            <div class="space-y-3 max-w-2xl">
-              <div class="flex items-center gap-2.5 flex-wrap">
-                <span
-                  class="px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider border flex items-center gap-1.5"
-                  :class="backups.length >= 5
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
-                    : 'bg-amber-500/20 text-amber-300 border-amber-400/30 animate-pulse'"
-                >
-                  <span class="w-2 h-2 rounded-full" :class="backups.length >= 5 ? 'bg-emerald-400' : 'bg-amber-400'"></span>
-                  <span>{{ backups.length >= 5 ? 'Disaster Recovery Compliant (5/5)' : `Adviser Standard: At Least 5 Snapshots Required (${backups.length}/5)` }}</span>
-                </span>
-
-                <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider bg-white/10 text-slate-200 border border-white/10 flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Auto-Backup: {{ schedule.enabled ? (schedule.frequency === 'weekly' ? 'Weekly (' + schedule.day + ' ' + schedule.time + ')' : 'Monthly (' + schedule.day + 'st ' + schedule.time + ')') : 'Paused' }}</span>
-                </span>
-
-                <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-200 border border-purple-400/20" title="Rolling retention policy automatically deletes the oldest 5th snapshot whenever a new manual or scheduled snapshot is created.">
-                  Rolling 5-Limit (FIFO)
-                </span>
-              </div>
-
-              <div>
-                <h3 class="text-base sm:text-lg font-extrabold text-white tracking-tight">
-                  Disaster Recovery Snapshot Vault
-                </h3>
-                <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-                  To ensure enterprise-grade disaster resilience, the system maintains at least 5 baseline snapshots. Automated backups run on your configured schedule (default: weekly), and when a new snapshot is created, the oldest 5th snapshot is automatically deleted to maintain a 5-snapshot window.
-                </p>
-              </div>
-
-              <!-- Snapshot Progress Bar -->
-              <div class="space-y-1.5 pt-1">
-                <div class="flex items-center justify-between text-xs font-semibold text-slate-300">
-                  <span>Readiness Quota</span>
-                  <span class="font-mono text-white">{{ backups.length }} / 5 Snapshots ({{ Math.min(100, Math.round((backups.length / 5) * 100)) }}%)</span>
-                </div>
-                <div class="w-full h-2.5 bg-slate-800/80 rounded-full overflow-hidden p-0.5 border border-white/10">
-                  <div
-                    class="h-full rounded-full transition-all duration-500"
-                    :class="backups.length >= 5 ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : 'bg-gradient-to-r from-amber-500 to-yellow-400'"
-                    :style="{ width: `${Math.min(100, Math.max(10, (backups.length / 5) * 100))}%` }"
-                  ></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Right Action Controls -->
-            <div class="flex flex-col sm:flex-row lg:flex-col gap-2.5 w-full lg:w-auto shrink-0">
-              <button
-                v-if="backups.length < 5"
-                @click="handleSeedSnapshots"
-                :disabled="isSeedingSnapshots"
-                type="button"
-                class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-700 text-slate-950 font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
-              >
-                <svg v-if="!isSeedingSnapshots" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                </svg>
-                <svg v-else class="animate-spin h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>{{ isSeedingSnapshots ? 'Seeding Baseline...' : `Generate to 5 Snapshots (+${5 - backups.length})` }}</span>
-              </button>
-
-              <button
-                @click="openScheduleModal"
-                type="button"
-                class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 border border-white/15 cursor-pointer"
-              >
-                <svg class="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span>Edit Automated Schedule</span>
-              </button>
-
-              <button
-                @click="handleRunAutoBackup"
-                :disabled="isRunningAutoBackup"
-                type="button"
-                class="px-4 py-2.5 rounded-xl bg-purple-600/80 hover:bg-purple-600 disabled:bg-slate-700 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer border border-purple-400/30"
-              >
-                <svg v-if="!isRunningAutoBackup" class="w-4 h-4 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <svg v-else class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>{{ isRunningAutoBackup ? 'Executing Auto-Backup...' : 'Run Scheduled Now (Test)' }}</span>
-              </button>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Protection Engine</p>
+              <h3 class="text-sm font-bold text-slate-900">Dual-Vault Mode</h3>
+              <p class="text-[11px] text-slate-400 font-medium">Local + Cloud Sync</p>
             </div>
           </div>
         </div>
@@ -1624,22 +1518,13 @@
               </div>
             </div>
 
-            <!-- Rolling Retention FIFO Policy Box -->
-            <div class="bg-purple-50/80 border border-purple-200/90 rounded-2xl p-4 text-xs text-purple-950 space-y-2">
-              <div class="flex items-center gap-2 font-black text-purple-900 uppercase tracking-wider text-[11px]">
-                <svg class="w-4 h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                <span>Adviser Retention Standard: Max 5 Snapshots (FIFO)</span>
-              </div>
-              <p class="leading-relaxed text-purple-900/90">
-                To guarantee disaster recovery while preventing disk exhaustion, the system preserves a rolling window of <strong>5 snapshots</strong>. Whenever a new manual or scheduled snapshot is created, the oldest 5th snapshot is automatically deleted from local disk and Google Drive.
-              </p>
-              <div class="pt-1 flex items-center justify-between text-[11px] font-semibold text-purple-800">
+            <!-- Schedule Status Box -->
+            <div class="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 text-xs space-y-2">
+              <div class="flex items-center justify-between text-[11px] font-semibold text-purple-900">
                 <span>Next Scheduled Execution:</span>
                 <span class="font-mono font-bold">{{ schedule.next_run ? formatDate(schedule.next_run) : 'Calculated upon save' }}</span>
               </div>
-              <div class="flex items-center justify-between text-[11px] font-semibold text-purple-800">
+              <div class="flex items-center justify-between text-[11px] font-semibold text-purple-900">
                 <span>Last Automated Run:</span>
                 <span class="font-mono">{{ schedule.last_run ? formatDate(schedule.last_run) : 'Never executed yet' }}</span>
               </div>
@@ -2032,7 +1917,7 @@ const handleRunAutoBackup = async () => {
 const handleSeedSnapshots = async () => {
   const result = await Swal.fire({
     title: 'Seed Baseline Snapshots?',
-    text: `Your adviser requires at least 5 disaster recovery snapshots. This will automatically create the required baseline full snapshot archives with rolling 5-limit retention enforced.`,
+    text: `This will generate baseline database snapshot archives up to the 5-snapshot disaster recovery threshold with rolling retention enforced.`,
     icon: 'info',
     showCancelButton: true,
     confirmButtonColor: '#059669',
