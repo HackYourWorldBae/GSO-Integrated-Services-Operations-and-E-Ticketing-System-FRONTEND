@@ -320,7 +320,7 @@
                         class="w-full px-2.5 py-1.5 bg-white/10 border border-white/15 rounded-lg text-xs font-semibold text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
                       />
                       <datalist id="assessment-material-suggestions">
-                        <option v-for="name in ALL_MATERIAL_NAMES" :key="name" :value="name" />
+                        <option v-for="name in availableAssessmentMaterials" :key="name" :value="name" />
                       </datalist>
                     </td>
                     <td class="py-2 px-3">
@@ -1074,9 +1074,12 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import 'flatpickr/dist/themes/dark.css';
 import { ALL_MATERIAL_NAMES, getDefaultUnit } from '@/constants/materials';
+import { useOperationsHubStore } from '@/stores/operationsHub';
 import { isBorrowingService } from '@/utils/borrowing';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 import CrossUnitCollaborationModal from '@/components/dispatch/CrossUnitCollaborationModal.vue';
+
+const operationsHubStore = useOperationsHubStore();
 
 const isCollaborationModalOpen = ref(false);
 const openCollaborationModal = () => {
@@ -1211,6 +1214,15 @@ const pauseCurrentTask = ref(false);
 const taskNotes = ref('');
 
 // Initial Material Assessment State
+const activeUnit = computed(() => {
+  return selectedTicket.value?.service_unit || selectedTicket.value?.unit_code || props.unitCode || 'FGMU';
+});
+
+const availableAssessmentMaterials = computed(() => {
+  const list = operationsHubStore.materialNamesByUnit(activeUnit.value);
+  return list && list.length > 0 ? list : ALL_MATERIAL_NAMES;
+});
+
 const assessmentLaborOnly = ref(false);
 const assessmentMaterials = ref([
   { material_name: '', quantity: 1, unit_measurement: 'pcs', unit_price: 0 },
@@ -1232,13 +1244,21 @@ const removeAssessmentMaterialRow = (idx) => {
   }
 };
 
-// Watch for material name changes to auto-set unit
+// Watch for material name changes to auto-set unit and default price
 watch(() => assessmentMaterials.value, (newMaterials) => {
   newMaterials.forEach(item => {
-    if (item.material_name && item.unit_measurement === 'pcs') {
-      const defaultUnit = getDefaultUnit(item.material_name);
-      if (defaultUnit) {
-        item.unit_measurement = defaultUnit;
+    if (item.material_name) {
+      if (!item.unit_measurement || item.unit_measurement === 'pcs') {
+        const defaultUnit = operationsHubStore.getDefaultUnit(item.material_name, activeUnit.value) || getDefaultUnit(item.material_name);
+        if (defaultUnit) {
+          item.unit_measurement = defaultUnit;
+        }
+      }
+      if (!item.unit_price || Number(item.unit_price) === 0) {
+        const defPrice = operationsHubStore.getDefaultPrice(item.material_name, activeUnit.value);
+        if (defPrice > 0) {
+          item.unit_price = defPrice;
+        }
       }
     }
   });
@@ -1990,6 +2010,7 @@ const refreshData = async () => {
 };
 
 onMounted(async () => {
+  operationsHubStore.initOperationsHub();
   if (props.store?.fetchPersonnel) {
     await props.store.fetchPersonnel();
   }

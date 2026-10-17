@@ -12,6 +12,50 @@
 
     <template #main-content>
       <div class="space-y-6 sm:space-y-8 animate-fade-in pb-12 max-w-[1600px] mx-auto">
+        <!-- Top Mode Selector: Executive Analytics vs Central Operations Hub -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-2 sm:p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+          <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 gap-1 w-full sm:w-auto">
+            <button
+              @click="dashboardMode = 'analytics'"
+              class="flex-1 sm:flex-none px-4 py-2 text-xs sm:text-sm font-black rounded-lg transition-all cursor-pointer min-h-[40px] flex items-center justify-center gap-2"
+              :class="dashboardMode === 'analytics'
+                ? 'bg-slate-900 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'"
+            >
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <span>Performance &amp; Analytics</span>
+            </button>
+
+            <button
+              @click="dashboardMode = 'operations'"
+              class="flex-1 sm:flex-none px-4 py-2 text-xs sm:text-sm font-black rounded-lg transition-all cursor-pointer min-h-[40px] flex items-center justify-center gap-2"
+              :class="dashboardMode === 'operations'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-emerald-700'"
+            >
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+              <span>Operations &amp; Materials Central Hub</span>
+              <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-black">
+                Edit
+              </span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 px-2 text-xs text-slate-500 font-bold self-start sm:self-auto">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Live SLA Duration &amp; Turnaround Engine</span>
+          </div>
+        </div>
+
+        <!-- Mode 1: Central Operations & Materials Hub -->
+        <OperationsHubView v-if="dashboardMode === 'operations'" />
+
+        <!-- Mode 2: Executive Analytics & Reports -->
+        <div v-else class="space-y-6 sm:space-y-8 animate-fade-in">
         <!-- ================================================================= -->
         <!-- EXECUTIVE ANALYTICS SUMMARY & OFFICIAL REPORTS SECTION           -->
         <!-- ================================================================= -->
@@ -25,8 +69,19 @@
               </h3>
             </div>
 
-            <!-- Action Toolbar: PDF Export -->
-            <div class="flex items-center gap-3 shrink-0 w-full xl:w-auto">
+            <!-- Action Toolbar: Operations Hub & PDF Export -->
+            <div class="flex flex-wrap items-center gap-3 shrink-0 w-full xl:w-auto">
+              <button
+                @click="dashboardMode = 'operations'"
+                class="px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[44px]"
+                title="Open Central Editing Hub for Materials, Holidays and Hours"
+              >
+                <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                <span>Edit Operations Hub</span>
+              </button>
+
               <button
                 @click="handleDownloadReport"
                 :disabled="isGeneratingPdf || !executiveAnalytics"
@@ -325,8 +380,9 @@
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Operational Insights (Service Distribution & SLA Health) -->
+        <!-- Operational Insights (Service Distribution & SLA Health) -->
           <div class="space-y-6 pt-2">
             <!-- Service Workload Share by Sub-Unit -->
             <div class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm flex flex-col">
@@ -492,11 +548,27 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, computed } from 'vue';
+import { onMounted, onUnmounted, ref, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
+import OperationsHubView from '@/components/director/OperationsHubView.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
+
+const route = useRoute();
+const dashboardMode = ref(route.query.tab === 'operations' ? 'operations' : 'analytics');
+
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    if (newTab === 'operations') {
+      dashboardMode.value = 'operations';
+    } else if (newTab === 'analytics') {
+      dashboardMode.value = 'analytics';
+    }
+  }
+);
 
 // Executive Analytics State
 const executiveAnalytics = ref(null);

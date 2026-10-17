@@ -155,7 +155,7 @@
                           class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-amber-500 focus:bg-white transition-all"
                         />
                         <datalist id="material-suggestions">
-                          <option v-for="name in ALL_MATERIAL_NAMES" :key="name" :value="name" />
+                          <option v-for="name in availableMaterials" :key="name" :value="name" />
                         </datalist>
                       </td>
                       <td class="py-2.5 px-3">
@@ -294,6 +294,9 @@ import { ref, computed, watch } from 'vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
 import { ALL_MATERIAL_NAMES, getDefaultUnit } from '@/constants/materials';
+import { useOperationsHubStore } from '@/stores/operationsHub';
+
+const operationsHubStore = useOperationsHubStore();
 
 const props = defineProps({
   isOpen: {
@@ -312,6 +315,15 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'updated']);
 
+const activeUnit = computed(() => {
+  return props.ticket?.service_unit || props.ticket?.unit_code || props.unitCode || 'FGMU';
+});
+
+const availableMaterials = computed(() => {
+  const list = operationsHubStore.materialNamesByUnit(activeUnit.value);
+  return list && list.length > 0 ? list : ALL_MATERIAL_NAMES;
+});
+
 const isLaborOnly = ref(false);
 const adjustmentNotes = ref('');
 const isSubmitting = ref(false);
@@ -322,6 +334,9 @@ const materials = ref([
 
 // Initialize form from existing ticket materials when opened
 watch(() => props.isOpen, (newVal) => {
+  if (newVal) {
+    operationsHubStore.initOperationsHub();
+  }
   if (newVal && props.ticket) {
     adjustmentNotes.value = '';
     isLaborOnly.value = !!props.ticket.is_labor_only;
@@ -350,12 +365,18 @@ const addMaterialRow = () => {
   });
 };
 
-// Auto-fill unit_measurement when material name matches common materials
+// Auto-fill unit_measurement and default price when material name matches
 const updateUnitForMaterial = (item) => {
   if (item.material_name) {
-    const defaultUnit = getDefaultUnit(item.material_name);
+    const defaultUnit = operationsHubStore.getDefaultUnit(item.material_name, activeUnit.value) || getDefaultUnit(item.material_name);
     if (defaultUnit && item.unit_measurement === 'pcs') {
       item.unit_measurement = defaultUnit;
+    }
+    if (!item.unit_price || Number(item.unit_price) === 0) {
+      const defPrice = operationsHubStore.getDefaultPrice(item.material_name, activeUnit.value);
+      if (defPrice > 0) {
+        item.unit_price = defPrice;
+      }
     }
   }
 };
@@ -366,13 +387,21 @@ const removeMaterialRow = (index) => {
   }
 };
 
-// Watch for material name changes to auto-set unit
+// Watch for material name changes to auto-set unit and default price
 watch(() => materials.value, (newMaterials) => {
   newMaterials.forEach(item => {
-    if (item.material_name && item.unit_measurement === 'pcs') {
-      const defaultUnit = getDefaultUnit(item.material_name);
-      if (defaultUnit) {
-        item.unit_measurement = defaultUnit;
+    if (item.material_name) {
+      if (!item.unit_measurement || item.unit_measurement === 'pcs') {
+        const defaultUnit = operationsHubStore.getDefaultUnit(item.material_name, activeUnit.value) || getDefaultUnit(item.material_name);
+        if (defaultUnit) {
+          item.unit_measurement = defaultUnit;
+        }
+      }
+      if (!item.unit_price || Number(item.unit_price) === 0) {
+        const defPrice = operationsHubStore.getDefaultPrice(item.material_name, activeUnit.value);
+        if (defPrice > 0) {
+          item.unit_price = defPrice;
+        }
       }
     }
   });

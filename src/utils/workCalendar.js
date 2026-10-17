@@ -3,17 +3,20 @@
  *
  * Institutional Work Calendar utility for GSO E-Ticketing.
  * Implements standard Philippine / University work schedules:
- * - 8 working hours/day (8:00 AM to 5:00 PM, excluding 12:00 PM - 1:00 PM lunch).
+ * - Net working hours/day (dynamically configurable, default 8:00 AM to 5:00 PM, excluding 12:00 PM - 1:00 PM lunch).
  * - Excludes weekends (Saturday & Sunday).
- * - Excludes official Philippine regular and special non-working holidays.
+ * - Excludes official Philippine regular and special non-working holidays, plus Director-configured special dates.
  * - Accounts for approved overtime hours.
  */
 
-export const WORK_START_HOUR = 8;
-export const WORK_END_HOUR = 17;
-export const LUNCH_START_HOUR = 12;
-export const LUNCH_END_HOUR = 13;
-export const STANDARD_DAILY_HOURS = 8.0;
+export let WORK_START_HOUR = 8;
+export let WORK_END_HOUR = 17;
+export let LUNCH_START_HOUR = 12;
+export let LUNCH_END_HOUR = 13;
+export let STANDARD_DAILY_HOURS = 8.0;
+
+// Internal runtime state for dynamically configured special non-working holidays
+let customHolidaysRegistry = [];
 
 // Standard Philippine Fixed Holidays (MM-DD)
 export const FIXED_PHILIPPINE_HOLIDAYS = {
@@ -32,6 +35,75 @@ export const FIXED_PHILIPPINE_HOLIDAYS = {
   '12-30': 'Rizal Day',
   '12-31': "New Year's Eve",
 };
+
+/**
+ * Configure dynamic working hours and special holidays from the Central Editing Hub.
+ */
+export function configureWorkCalendar(options = {}) {
+  if (options.workStartHour !== undefined) {
+    WORK_START_HOUR = Number(options.workStartHour) || 8;
+  } else if (options.work_start_time) {
+    const [h] = options.work_start_time.split(':');
+    WORK_START_HOUR = Number(h) || 8;
+  }
+
+  if (options.workEndHour !== undefined) {
+    WORK_END_HOUR = Number(options.workEndHour) || 17;
+  } else if (options.work_end_time) {
+    const [h] = options.work_end_time.split(':');
+    WORK_END_HOUR = Number(h) || 17;
+  }
+
+  if (options.lunchStartHour !== undefined) {
+    LUNCH_START_HOUR = Number(options.lunchStartHour) || 12;
+  } else if (options.lunch_start_time) {
+    const [h] = options.lunch_start_time.split(':');
+    LUNCH_START_HOUR = Number(h) || 12;
+  }
+
+  if (options.lunchEndHour !== undefined) {
+    LUNCH_END_HOUR = Number(options.lunchEndHour) || 13;
+  } else if (options.lunch_end_time) {
+    const [h] = options.lunch_end_time.split(':');
+    LUNCH_END_HOUR = Number(h) || 13;
+  }
+
+  if (options.standardDailyHours !== undefined) {
+    STANDARD_DAILY_HOURS = Number(options.standardDailyHours) || 8.0;
+  } else if (options.standard_daily_hours) {
+    STANDARD_DAILY_HOURS = Number(options.standard_daily_hours) || 8.0;
+  }
+
+  if (Array.isArray(options.holidays)) {
+    customHolidaysRegistry = options.holidays.filter(h => h && h.is_active !== 0 && h.is_active !== false);
+  }
+}
+
+/**
+ * Reset working calendar settings to institutional defaults.
+ */
+export function resetWorkCalendarConfig() {
+  WORK_START_HOUR = 8;
+  WORK_END_HOUR = 17;
+  LUNCH_START_HOUR = 12;
+  LUNCH_END_HOUR = 13;
+  STANDARD_DAILY_HOURS = 8.0;
+  customHolidaysRegistry = [];
+}
+
+/**
+ * Inspect active configuration.
+ */
+export function getWorkCalendarConfig() {
+  return {
+    workStartHour: WORK_START_HOUR,
+    workEndHour: WORK_END_HOUR,
+    lunchStartHour: LUNCH_START_HOUR,
+    lunchEndHour: LUNCH_END_HOUR,
+    standardDailyHours: STANDARD_DAILY_HOURS,
+    holidaysCount: customHolidaysRegistry.length,
+  };
+}
 
 /**
  * Calculates Easter Sunday for a given year (Anonymous Gregorian algorithm)
@@ -64,29 +136,31 @@ export function isWeekend(date) {
 }
 
 /**
- * Check if a date is an official Philippine holiday
+ * Check if a date is an official Philippine holiday or custom special non-working date
  */
 export function isHoliday(date) {
   const d = new Date(date);
+  if (isNaN(d.getTime())) return false;
+
+  const y = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
+  const ymd = `${y}-${month}-${day}`;
   const monthDay = `${month}-${day}`;
 
   if (FIXED_PHILIPPINE_HOLIDAYS[monthDay]) {
     return true;
   }
 
-  const year = d.getFullYear();
-
   // Movable: National Heroes Day (Last Monday of August)
-  const lastDayAug = new Date(year, 7, 31);
+  const lastDayAug = new Date(y, 7, 31);
   const lastMondayAugDate = 31 - ((lastDayAug.getDay() + 6) % 7);
   if (d.getMonth() === 7 && d.getDate() === lastMondayAugDate) {
     return true;
   }
 
   // Movable: Holy Week (Maundy Thursday, Good Friday, Black Saturday)
-  const easter = getEasterSunday(year);
+  const easter = getEasterSunday(y);
   const maundyThu = new Date(easter);
   maundyThu.setDate(easter.getDate() - 3);
   const goodFri = new Date(easter);
@@ -99,7 +173,25 @@ export function isHoliday(date) {
     d1.getMonth() === d2.getMonth() &&
     d1.getDate() === d2.getDate();
 
-  return isSameDay(d, maundyThu) || isSameDay(d, goodFri) || isSameDay(d, blackSat);
+  if (isSameDay(d, maundyThu) || isSameDay(d, goodFri) || isSameDay(d, blackSat)) {
+    return true;
+  }
+
+  // Check dynamically registered special non-working holidays
+  for (const h of customHolidaysRegistry) {
+    if (!h) continue;
+    if (h.holiday_date === ymd) {
+      return true;
+    }
+    if (h.is_recurring && h.holiday_date) {
+      const recMd = h.holiday_date.slice(5); // 'MM-DD'
+      if (recMd === monthDay) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 /**
@@ -130,11 +222,8 @@ export function addWorkingDays(startDate, workingDaysToAdd) {
 }
 
 /**
- * Formats a Date object to YYYY-MM-DD
- */
-/**
  * Safely parses date inputs without UTC midnight shift.
- * Date-only strings (YYYY-MM-DD) default to WORK_START_HOUR (8:00 AM) in local time.
+ * Date-only strings (YYYY-MM-DD) default to WORK_START_HOUR in local time.
  * SQL datetime strings (YYYY-MM-DD HH:mm:ss) parse using local time components.
  */
 export function parseDateLocal(input) {
@@ -180,8 +269,8 @@ export function formatDateToYmd(date) {
 
 /**
  * Calculate net working hours between start and end timestamps.
- * Counts ONLY hours within 8:00 AM - 5:00 PM on eligible working days,
- * subtracting the 12:00 PM - 1:00 PM lunch window, and adding overtime.
+ * Counts ONLY hours within configured operational window on eligible working days,
+ * subtracting the configured lunch window, and adding overtime.
  */
 export function calculateWorkingHoursElapsed(startDateInput, endDateInput = new Date(), overtimeHours = 0) {
   if (!startDateInput) {
@@ -229,22 +318,24 @@ export function calculateWorkingHoursElapsed(startDateInput, endDateInput = new 
       const dayWorkStart = new Date(year, month, date, WORK_START_HOUR, 0, 0);
       const dayWorkEnd = new Date(year, month, date, WORK_END_HOUR, 0, 0);
 
-      // On start day, count from actual start timestamp so early starts (e.g. before 8am) are preserved
+      // On start day, count from actual start timestamp so early starts (e.g. before start hour) are preserved
       const windowStart = isStartDay ? start : dayWorkStart;
       const windowEnd = isEndDay && end < dayWorkEnd ? end : dayWorkEnd;
 
       if (windowStart < windowEnd) {
         let diffMs = windowEnd.getTime() - windowStart.getTime();
 
-        // Check lunch break overlap (12:00 PM - 1:00 PM)
-        const lunchStart = new Date(year, month, date, LUNCH_START_HOUR, 0, 0);
-        const lunchEnd = new Date(year, month, date, LUNCH_END_HOUR, 0, 0);
+        // Check lunch break overlap
+        if (LUNCH_START_HOUR < LUNCH_END_HOUR) {
+          const lunchStart = new Date(year, month, date, LUNCH_START_HOUR, 0, 0);
+          const lunchEnd = new Date(year, month, date, LUNCH_END_HOUR, 0, 0);
 
-        if (windowStart < lunchEnd && windowEnd > lunchStart) {
-          const overlapStart = windowStart > lunchStart ? windowStart : lunchStart;
-          const overlapEnd = windowEnd < lunchEnd ? windowEnd : lunchEnd;
-          const lunchMs = overlapEnd.getTime() - overlapStart.getTime();
-          diffMs = Math.max(0, diffMs - lunchMs);
+          if (windowStart < lunchEnd && windowEnd > lunchStart) {
+            const overlapStart = windowStart > lunchStart ? windowStart : lunchStart;
+            const overlapEnd = windowEnd < lunchEnd ? windowEnd : lunchEnd;
+            const lunchMs = overlapEnd.getTime() - overlapStart.getTime();
+            diffMs = Math.max(0, diffMs - lunchMs);
+          }
         }
 
         totalMinutes += Math.floor(diffMs / 60000);
@@ -259,8 +350,9 @@ export function calculateWorkingHoursElapsed(startDateInput, endDateInput = new 
   const grandTotalMinutes = totalMinutes + otMinutes;
 
   const totalHours = Math.round((grandTotalMinutes / 60) * 10) / 10;
-  const workDays = Math.floor(grandTotalMinutes / (STANDARD_DAILY_HOURS * 60));
-  const remMinutes = grandTotalMinutes % (STANDARD_DAILY_HOURS * 60);
+  const dailyMins = STANDARD_DAILY_HOURS * 60;
+  const workDays = dailyMins > 0 ? Math.floor(grandTotalMinutes / dailyMins) : 0;
+  const remMinutes = dailyMins > 0 ? grandTotalMinutes % dailyMins : 0;
   const remHours = Math.floor(remMinutes / 60);
   const finalMinutes = remMinutes % 60;
 

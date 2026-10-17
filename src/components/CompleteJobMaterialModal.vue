@@ -117,9 +117,13 @@
                         <input
                           v-model="item.material_name"
                           type="text"
+                          list="completion-material-suggestions"
                           placeholder="e.g., 1/2-inch PVC Pipe, LED 18W Bulb"
                           class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:bg-white transition-all"
                         />
+                        <datalist id="completion-material-suggestions">
+                          <option v-for="name in availableMaterials" :key="name" :value="name" />
+                        </datalist>
                       </td>
                       <td class="py-2.5 px-3">
                         <input
@@ -257,6 +261,10 @@
 import { ref, computed, watch } from 'vue';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+import { ALL_MATERIAL_NAMES, getDefaultUnit } from '@/constants/materials';
+import { useOperationsHubStore } from '@/stores/operationsHub';
+
+const operationsHubStore = useOperationsHubStore();
 
 const props = defineProps({
   isOpen: {
@@ -279,6 +287,15 @@ const props = defineProps({
 
 const emit = defineEmits(['update:isOpen', 'completed', 'close']);
 
+const activeUnit = computed(() => {
+  return props.ticket?.service_unit || props.ticket?.unit_code || (props.unitCode === 'LEAU' || props.ticket?.unit_id === 2 ? 'LEAU' : 'FGMU');
+});
+
+const availableMaterials = computed(() => {
+  const list = operationsHubStore.materialNamesByUnit(activeUnit.value);
+  return list && list.length > 0 ? list : ALL_MATERIAL_NAMES;
+});
+
 const noMaterialsUsed = ref(false);
 const dispatcherNotes = ref('');
 const isSubmitting = ref(false);
@@ -297,6 +314,7 @@ const unitLabel = computed(() => {
 // Reset & populate form when modal opens
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
+    operationsHubStore.initOperationsHub();
     dispatcherNotes.value = props.ticket?.assignment?.dispatcher_notes || '';
 
     if (props.ticket?.is_labor_only) {
@@ -335,6 +353,26 @@ const removeMaterialRow = (index) => {
     materials.value.splice(index, 1);
   }
 };
+
+// Watch for material name changes to auto-set unit and default price
+watch(() => materials.value, (newMaterials) => {
+  newMaterials.forEach(item => {
+    if (item.material_name) {
+      if (!item.unit_measurement || item.unit_measurement === 'pcs') {
+        const defaultUnit = operationsHubStore.getDefaultUnit(item.material_name, activeUnit.value) || getDefaultUnit(item.material_name);
+        if (defaultUnit) {
+          item.unit_measurement = defaultUnit;
+        }
+      }
+      if (!item.unit_price || Number(item.unit_price) === 0) {
+        const defPrice = operationsHubStore.getDefaultPrice(item.material_name, activeUnit.value);
+        if (defPrice > 0) {
+          item.unit_price = defPrice;
+        }
+      }
+    }
+  });
+}, { deep: true });
 
 const grandTotal = computed(() => {
   if (noMaterialsUsed.value) return 0;
