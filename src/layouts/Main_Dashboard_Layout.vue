@@ -41,7 +41,7 @@
       
       <!-- Navigation Sections -->
       <div class="flex-1 overflow-y-auto custom-scrollbar pt-6 pb-20 min-w-[288px]">
-        <div class="sidebar-nav px-3" @click="handleNavClick">
+        <div class="sidebar-nav px-3" id="tour-sidebar-nav" @click="handleNavClick">
           <AppSidebar />
           <slot name="sidebar-extra" />
         </div>
@@ -149,6 +149,7 @@
             <!-- Comfort View / Senior Accessibility Mode Toggle -->
             <button
               type="button"
+              id="tour-comfort-btn"
               @click="toggleComfortView"
               :title="isComfortView ? 'Comfort View is ON (Enlarged text & high contrast). Click to turn OFF' : 'Comfort View is OFF. Click to enable enlarged text & high contrast for easier reading'"
               :aria-pressed="isComfortView"
@@ -170,6 +171,7 @@
             <!-- Sound Alert Toggle (Dashboard Audio Notification Chimes) -->
             <button
               type="button"
+              id="tour-sound-btn"
               @click="toggleSound"
               :title="soundActive ? 'Notification sound enabled (Click to mute)' : 'Notification sound muted (Click to unmute)'"
               class="relative p-2 sm:p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none border border-slate-300 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
@@ -185,9 +187,24 @@
               </svg>
             </button>
 
+            <!-- In-Website Manual / Tutorial Tour Button -->
+            <button
+              type="button"
+              id="tour-guide-btn"
+              @click="openTutorialModal()"
+              title="System User Manual & Interactive Walkthrough"
+              class="relative p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-100 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 transition-all focus:outline-none border border-slate-300 min-w-[36px] min-h-[36px] sm:min-h-[44px] flex items-center gap-1.5 cursor-pointer font-bold text-xs sm:text-sm select-none"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 sm:h-5 sm:w-5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              <span class="hidden md:inline">Guide</span>
+            </button>
+
             <!-- Notifications Menu -->
             <div class="relative" id="layout-notification-menu">
               <button 
+                id="tour-notifications-btn"
                 @click="toggleNotification" 
                 class="relative p-2 sm:p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none group border border-slate-300 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center cursor-pointer"
                 :title="unreadNotificationCount > 0 ? `${unreadNotificationCount} unread notification${unreadNotificationCount > 1 ? 's' : ''}` : 'Notifications'"
@@ -287,6 +304,7 @@
             <!-- User Menu -->
             <div class="relative" id="layout-user-menu">
               <button 
+                id="tour-profile-menu"
                 @click="toggleDropdown" 
                 class="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 pr-1.5 sm:pr-3 rounded-xl bg-slate-100 border border-slate-300 hover:border-emerald-500/60 text-slate-900 transition-all select-none min-h-[36px] sm:min-h-[44px] cursor-pointer"
               >
@@ -337,7 +355,7 @@
       </header>
 
       <!-- Main Scrollable Area -->
-      <main class="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-6 md:p-10 pb-safe relative">
+      <main id="tour-main-workspace" class="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-6 md:p-10 pb-safe relative">
         <!-- NOTE: large fixed blur orbs intentionally removed — full-viewport
              backdrop blurs force expensive repaints on every tab switch/scroll
              and were a major source of sidebar-switch jank. -->
@@ -367,6 +385,9 @@
         @confirm="executeConfirm"
         @cancel="closeConfirmModal"
       />
+
+      <!-- System In-Website Manual & Interactive Tutorial Modal -->
+      <SystemTutorialModal />
     </div>
   </div>
 </template>
@@ -382,6 +403,8 @@ import api from '@/api/client';
 import { useNetworkStatus } from '@/utils/networkMonitor';
 import { playNotificationSound, isSoundEnabled, toggleSoundEnabled } from '@/utils/sound';
 import { useAccessibility } from '@/composables/useAccessibility';
+import SystemTutorialModal from '@/components/common/SystemTutorialModal.vue';
+import { useTutorial } from '@/composables/useTutorial';
 
 const router = useRouter();
 const route = useRoute();
@@ -389,6 +412,7 @@ const authStore = useAuthStore();
 const userName = computed(() => authStore.fullName || 'User');
 const userRole = computed(() => authStore.capitalizedRole);
 const { isComfortView, toggleComfortView } = useAccessibility();
+const { openTutorialModal } = useTutorial();
 
 const accountSettingsRoute = computed(() => {
   const role = (authStore.role || userRole.value || '').toLowerCase();
