@@ -127,7 +127,6 @@ export const buildFgmuTemplateData = (ticket = {}, feedbackData = null, signatur
     t.project_working_days ||
     t.workingDays ||
     t.total_working_days ||
-    t.eodb_days ||
     '1'
   );
 

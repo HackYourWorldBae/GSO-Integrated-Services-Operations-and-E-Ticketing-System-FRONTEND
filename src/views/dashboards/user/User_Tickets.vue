@@ -1492,8 +1492,6 @@ const mapTicketData = (t) => {
     accomplishment_notes: t.accomplishment_notes || '',
     verification_status: t.verification_status || 'pending_report',
     verified_at: t.verified_at || null,
-    eodb_tier: isUnscheduled ? null : (t.eodb_tier || null),
-    eodb_days: isUnscheduled ? null : (t.eodb_days || null),
     is_emergency: Boolean(t.is_emergency),
     is_vip: Boolean(t.is_vip),
     is_approval_delayed: Boolean(Number(t.is_approval_delayed) === 1 || t.is_approval_delayed === true),

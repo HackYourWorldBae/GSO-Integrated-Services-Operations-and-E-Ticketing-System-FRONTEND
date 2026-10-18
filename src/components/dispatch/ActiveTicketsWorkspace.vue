@@ -2080,7 +2080,7 @@ const mapTicket = (input) => {
 
   const assignmentObj = t.assignment || (Array.isArray(t.assignments) && t.assignments[0]) || null;
   const assignmentsArr = Array.isArray(t.assignments) ? t.assignments : (assignmentObj ? [assignmentObj] : []);
-  const workingDaysVal = t.working_days || t.project_working_days || assignmentObj?.working_days || t.workingDays || t.eodb_days || null;
+  const workingDaysVal = t.working_days || t.project_working_days || assignmentObj?.working_days || t.workingDays || null;
   const implDate = assignmentObj?.implementation_date || t.implementation_date || t.implementationDate || t.project_target_date || null;
 
   return {

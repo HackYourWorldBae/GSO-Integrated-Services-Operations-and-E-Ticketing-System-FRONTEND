@@ -158,7 +158,6 @@ const displayTicket = computed(() => {
   const projectTitle = t.project_title || d.project_title || null;
   const status = t.status || t.ticket_status || 'active';
   const statusLabel = t.status_label || (status ? String(status).replace(/_/g, ' ') : 'Active');
-  const eodbTier = t.eodb_tier || d.eodb_tier || null;
 
   // Notes
   const dispatcherNotes = t.dispatcher_notes || t.task_notes || d.dispatcher_notes || d.task_notes || null;
@@ -202,7 +201,6 @@ const displayTicket = computed(() => {
     projectTitle,
     status,
     statusLabel,
-    eodbTier,
     dispatcherNotes,
     specialInstructions,
     assignments,
@@ -369,14 +367,6 @@ const downloadDoc = async (att) => {
                   class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-200 text-[10px] font-black uppercase tracking-wider truncate max-w-xs shadow-2xs"
                 >
                   📁 {{ displayTicket.projectTitle }}
-                </span>
-
-                <!-- EODB Tier Badge -->
-                <span
-                  v-if="displayTicket.eodbTier"
-                  class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-300"
-                >
-                  {{ displayTicket.eodbTier }}
                 </span>
 
                 <!-- Loading Spinner if refreshing server data -->
