@@ -96,11 +96,14 @@ export const getAssignedWorkers = (ticket) => {
  * @returns {string}
  */
 export const getWorkerInitials = (name) => {
-  if (!name) return 'W';
-  const parts = name.trim().split(/\s+/);
+  if (!name) return '??';
+  const clean = String(name).trim();
+  if (!clean) return '??';
+  const parts = clean.split(/\s+/);
   if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
-  return name.substring(0, 2).toUpperCase();
+  return clean.substring(0, 2).toUpperCase();
 };
+
 

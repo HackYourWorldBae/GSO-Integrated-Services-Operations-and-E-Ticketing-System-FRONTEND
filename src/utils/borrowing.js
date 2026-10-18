@@ -113,6 +113,31 @@ export function isBorrowingService(input) {
 }
 
 /**
+  * Centralized resolver for ticket emergency/urgency status.
+  * Enforces business rule: Borrowing tickets cannot be marked as emergencies.
+  * For standard work orders, normalizes numeric flags, boolean flags, and urgency/priority strings.
+  *
+  * @param {Object} ticket
+  * @returns {boolean}
+  */
+export function isTicketEmergency(ticket) {
+  if (!ticket || typeof ticket !== 'object') return false;
+  if (isBorrowingService(ticket)) return false;
+
+  const prio = String(ticket.priority || '').toLowerCase();
+  const urg = String(ticket.urgency || '').toLowerCase();
+
+  return Boolean(
+    Number(ticket.is_emergency) === 1 ||
+    ticket.is_emergency === true ||
+    urg === 'emergency' ||
+    urg === 'high' ||
+    prio === 'emergency' ||
+    prio === 'urgent'
+  );
+}
+
+/**
  * Human-readable label for a borrowing status slug.
  */
 export function borrowingStatusLabel(status) {

@@ -6,6 +6,12 @@ import { BSU_COLLEGES } from '@/constants/colleges';
 import { ADMIN_SUPPORT_BUILDINGS, RESEARCH_EXTENSION_BUILDINGS } from '@/constants/locations';
 import RegisterPrivacyModal from '@/components/auth/RegisterPrivacyModal.vue';
 import IdUploadDropzone from '@/components/auth/IdUploadDropzone.vue';
+import {
+  checkPasswordCriteria,
+  calculatePasswordStrength,
+  validateImageFile,
+  validateRegistrationForm,
+} from '@/utils/registrationValidator';
 
 const router = useRouter();
 
@@ -36,30 +42,11 @@ const hasAgreedToDisclaimer = ref(false);
 const isDisclaimerTouched = ref(false);
 
 // Password criteria checks (Elder-friendly: minimum 8 chars, letters and numbers, no special symbols required)
-const passwordCriteria = computed(() => {
-  const pwd = form.value.password || '';
-  return {
-    hasLength: pwd.length >= 8,
-    hasLetter: /[a-zA-Z]/.test(pwd),
-    hasNumber: /[0-9]/.test(pwd),
-  };
-});
-
-const passwordStrengthScore = computed(() => {
-  if (!form.value.password) return 0;
-  let score = 0;
-  if (passwordCriteria.value.hasLength) score++;
-  if (passwordCriteria.value.hasLetter) score++;
-  if (passwordCriteria.value.hasNumber) score++;
-  return score;
-});
-
+const passwordCriteria = computed(() => checkPasswordCriteria(form.value.password));
+const passwordStrengthScore = computed(() => calculatePasswordStrength(form.value.password));
 const isPasswordValid = computed(() => {
-  return (
-    passwordCriteria.value.hasLength &&
-    passwordCriteria.value.hasLetter &&
-    passwordCriteria.value.hasNumber
-  );
+  const c = passwordCriteria.value;
+  return c.hasLength && c.hasLetter && c.hasNumber;
 });
 
 const isConfirmPasswordTouched = computed(() => form.value.password_confirm.length > 0);
@@ -199,28 +186,6 @@ const idSelfieFile = ref(null);
 const idSelfiePreview = ref(null);
 const selfieInputRef = ref(null);
 
-const validateImageFile = (file, label) => {
-  if (!file) return null;
-  const fileName = file.name || '';
-  const ext = fileName.split('.').pop()?.toLowerCase() || '';
-  const validExts = ['jpg', 'jpeg', 'png', 'webp'];
-  const validMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-  
-  const isExtValid = validExts.includes(ext);
-  const isMimeValid = !file.type || validMimes.includes(file.type.toLowerCase()) || file.type.startsWith('image/');
-
-  if (!isExtValid || !isMimeValid) {
-    return `Please upload a valid image file for ${label} (JPG, JPEG, PNG, or WebP only).`;
-  }
-
-  // 5MB limit
-  if (file.size > 5 * 1024 * 1024) {
-    return `${label} image size must not exceed 5MB.`;
-  }
-
-  return null;
-};
-
 const handleFileSelect = (event, slot = 'front') => {
   const file = event.target.files?.[0];
   if (!file) return;
@@ -301,115 +266,11 @@ const validateClient = () => {
   fieldErrors.value = {};
   errorMessage.value = '';
 
-  const allErrors = {};
-
-  // Section 1: Role & Affiliation
-  if (form.value.role === 'student') {
-    if (!form.value.student_type) {
-      allErrors.student_type = 'Please select RSO or SSG.';
-    }
-    const org = form.value.organization_name.trim();
-    if (!org) {
-      allErrors.organization_name = form.value.student_type === 'rso'
-        ? 'Organization name is required.'
-        : 'Officer position is required.';
-    } else if (org.length < 2) {
-      allErrors.organization_name = 'Must be at least 2 characters.';
-    }
-    if (!form.value.college) {
-      allErrors.college = 'Please select your college.';
-    }
-  }
-
-  if (form.value.role === 'employee') {
-    if (!form.value.employee_type) {
-      allErrors.employee_type = 'Please select your staff classification.';
-    } else if (!form.value.college) {
-      allErrors.college = form.value.employee_type === 'Teaching Staff'
-        ? 'Please select your assigned college.'
-        : form.value.employee_type === 'Research and Extension Staff'
-        ? 'Please select your assigned center.'
-        : 'Please select your assigned building.';
-    }
-  }
-
-  // Section 2: Personal Info
-  const fn = form.value.first_name.trim();
-  if (!fn) {
-    allErrors.first_name = 'First name is required.';
-  } else if (fn.length < 2 || !/^[a-zA-ZÀ-ÿ\s\-'.]{2,50}$/.test(fn) || !/[a-zA-ZÀ-ÿ]/.test(fn)) {
-    allErrors.first_name = 'Must be at least 2 characters (letters only).';
-  }
-
-  const ln = form.value.last_name.trim();
-  if (!ln) {
-    allErrors.last_name = 'Last name is required.';
-  } else if (ln.length < 2 || !/^[a-zA-ZÀ-ÿ\s\-'.]{2,50}$/.test(ln) || !/[a-zA-ZÀ-ÿ]/.test(ln)) {
-    allErrors.last_name = 'Must be at least 2 characters (letters only).';
-  }
-
-  const idNum = form.value.student_id_number.trim();
-  if (!idNum) {
-    allErrors.student_id_number = form.value.role === 'student'
-      ? 'Student ID number is required.'
-      : 'Employee ID number is required.';
-  } else if (form.value.role === 'student') {
-    if (!/^\d{7}$/.test(idNum)) {
-      allErrors.student_id_number = 'Must be exactly 7 digits.';
-    }
-  } else {
-    if (!/^[A-Za-z0-9\-]{4,15}$/.test(idNum)) {
-      allErrors.student_id_number = '4–15 alphanumeric characters.';
-    }
-  }
-
-  const contact = form.value.contact_number.trim();
-  if (!contact) {
-    allErrors.contact_number = 'Contact number is required.';
-  } else if (!contact.startsWith('09')) {
-    allErrors.contact_number = 'Must start with 09.';
-  } else if (!/^09\d{9}$/.test(contact)) {
-    allErrors.contact_number = 'Must be exactly 11 digits.';
-  }
-
-  const em = form.value.email.trim();
-  if (!em) {
-    allErrors.email = 'Email address is required.';
-  } else {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailPattern.test(em)) {
-      allErrors.email = 'Please enter a valid email format (e.g. name@bsu.edu.ph).';
-    }
-  }
-
-  // Section 3: Password
-  const pwd = form.value.password;
-  if (!pwd) {
-    allErrors.password = 'Password is required.';
-  } else if (pwd.length < 8) {
-    allErrors.password = 'Must be at least 8 characters.';
-  } else if (!/[a-zA-Z]/.test(pwd)) {
-    allErrors.password = 'Must include at least one letter.';
-  } else if (!/[0-9]/.test(pwd)) {
-    allErrors.password = 'Must include at least one number.';
-  }
-
-  if (!form.value.password_confirm) {
-    allErrors.password_confirm = 'Please confirm your password.';
-  } else if (form.value.password !== form.value.password_confirm) {
-    allErrors.password_confirm = 'Passwords do not match.';
-  }
-
-  // Section 4: ID Upload & Terms
-  if (!idCardFile.value) {
-    allErrors.id_card = 'Front ID photo is required.';
-  }
-  if (!idSelfieFile.value) {
-    allErrors.id_selfie = 'Selfie with ID is required.';
-  }
-  if (!hasAgreedToDisclaimer.value) {
-    allErrors.disclaimer = 'You must agree to the Data Privacy Notice & Terms of Use.';
-  }
+  const allErrors = validateRegistrationForm(form.value, {
+    idCardFile: idCardFile.value,
+    idSelfieFile: idSelfieFile.value,
+    hasAgreedToDisclaimer: hasAgreedToDisclaimer.value,
+  });
 
   fieldErrors.value = allErrors;
   return Object.keys(allErrors).length === 0;

@@ -53,6 +53,19 @@ export const isImageFile = (fileName = '', mimeType = '') => {
 };
 
 /**
+ * Returns a clean, user-facing label for an attachment type (Word Doc, PDF, Image, File).
+ * @param {string} fileName
+ * @param {string} mimeType
+ * @returns {'Word Doc' | 'PDF' | 'Image' | 'File'}
+ */
+export const getAttachmentTypeLabel = (fileName = '', mimeType = '') => {
+  if (isDocxFile(fileName, mimeType)) return 'Word Doc';
+  if (isPdfFile(fileName, mimeType)) return 'PDF';
+  if (isImageFile(fileName, mimeType)) return 'Image';
+  return 'File';
+};
+
+/**
  * Triggers a browser download for a Blob.
  * @param {Blob} blob
  * @param {string} fileName

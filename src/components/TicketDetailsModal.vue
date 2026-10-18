@@ -1,10 +1,11 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { fetchTicket } from '@/api/tickets';
-import { isBorrowingService } from '@/utils/borrowing';
+import { isBorrowingService, isTicketEmergency } from '@/utils/borrowing';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import { handleAttachmentClick, downloadAttachmentDirectly, isDocxFile, isPdfFile, isImageFile } from '@/utils/attachmentHelper';
+import { handleAttachmentClick, downloadAttachmentDirectly, getAttachmentTypeLabel } from '@/utils/attachmentHelper';
+import { getWorkerInitials, getAssignedWorkers } from '@/utils/ticketPersonnelHelper';
 
 const props = defineProps({
   isOpen: {
@@ -94,6 +95,14 @@ const activeTicketId = computed(() => {
   return props.ticketId || props.ticket?.ticket_id || props.ticket?.id || null;
 });
 
+// Refresh ticket details if active ticket ID changes while modal remains open
+watch(activeTicketId, (newId, oldId) => {
+  if (modalOpen.value && newId && newId !== oldId) {
+    loadTicketDetails();
+  }
+});
+
+
 // Fetch full ticket details from server
 const loadTicketDetails = async () => {
   const id = activeTicketId.value;
@@ -153,7 +162,7 @@ const displayTicket = computed(() => {
   const submittedAt = t.created_at || t.submitted_at || null;
 
   // Flags & status
-  const isEmergency = Boolean(t.is_emergency || t.priority === 'urgent' || t.priority === 'emergency');
+  const isEmergency = isTicketEmergency(t);
   const isProject = Boolean(t.is_project || t.project_title);
   const projectTitle = t.project_title || d.project_title || null;
   const status = t.status || t.ticket_status || 'active';
@@ -164,9 +173,10 @@ const displayTicket = computed(() => {
   const specialInstructions = t.special_instructions || d.special_instructions || null;
 
   // Assignments / Team
-  const assignments = Array.isArray(t.assignments) && t.assignments.length > 0
+  const rawAssignments = Array.isArray(t.assignments) && t.assignments.length > 0
     ? t.assignments
     : (Array.isArray(t.team) ? t.team : []);
+  const assignments = rawAssignments.length > 0 ? rawAssignments : getAssignedWorkers(t);
 
   // Attachments
   const attachments = Array.isArray(t.attachments) ? t.attachments : [];
@@ -224,14 +234,6 @@ const formatDate = (val) => {
   }
   const d = new Date(str);
   return isNaN(d.getTime()) ? str : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-};
-
-// Avatar initials
-const getInitials = (name) => {
-  if (!name) return '??';
-  const parts = String(name).trim().split(/\s+/);
-  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
 // Unit theme classes
@@ -617,7 +619,7 @@ const downloadDoc = async (att) => {
                         : 'bg-slate-100 text-slate-700 border-slate-200'
                     ]"
                   >
-                    {{ getInitials(getWorkerName(w)) }}
+                    {{ getWorkerInitials(getWorkerName(w)) }}
                   </div>
 
                   <!-- Worker Info -->
@@ -680,7 +682,7 @@ const downloadDoc = async (att) => {
                         {{ att.file_name || 'Attached file' }}
                       </p>
                       <span class="text-[10px] text-slate-400 font-semibold uppercase">
-                        {{ isDocxFile(att.file_name, att.file_type) ? 'Word Doc' : (isPdfFile(att.file_name, att.file_type) ? 'PDF' : (isImageFile(att.file_name, att.file_type) ? 'Image' : 'File')) }}
+                        {{ getAttachmentTypeLabel(att.file_name, att.file_type) }}
                       </span>
                     </div>
                   </div>

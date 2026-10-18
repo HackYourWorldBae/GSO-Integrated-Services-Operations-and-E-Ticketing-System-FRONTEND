@@ -18,7 +18,9 @@ import {
   getBorrowingCurrentStep,
   getBorrowingStepDescription,
   getBorrowingStatusLabel,
+  isTicketEmergency,
 } from '../borrowing';
+
 
 // Level 1 — Unit tests: pure borrowing helpers shared by the LEAU
 // borrowing form, dispatch workspace, and queue workspace.
@@ -321,6 +323,7 @@ describe('borrowing utils', () => {
       // Verify that the enforced mapping policy resolves is_emergency to false for borrowing
       const mappedEmergency = isBorrowing ? false : Boolean(borrowingTicket.is_emergency || borrowingTicket.urgency === 'Emergency');
       expect(mappedEmergency).toBe(false);
+      expect(isTicketEmergency(borrowingTicket)).toBe(false);
     });
 
     it('allows emergency status for non-borrowing tickets', () => {
@@ -337,7 +340,13 @@ describe('borrowing utils', () => {
 
       const mappedEmergency = isBorrowing ? false : Boolean(jobTicket.is_emergency || jobTicket.urgency === 'Emergency');
       expect(mappedEmergency).toBe(true);
+      expect(isTicketEmergency(jobTicket)).toBe(true);
+
+      // Verify null / non-emergency ticket returns false
+      expect(isTicketEmergency(null)).toBe(false);
+      expect(isTicketEmergency({ service_type: 'Cleaning', is_emergency: 0 })).toBe(false);
     });
   });
 });
+
 
