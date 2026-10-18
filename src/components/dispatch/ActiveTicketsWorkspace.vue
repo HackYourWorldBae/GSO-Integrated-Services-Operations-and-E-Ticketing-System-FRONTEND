@@ -114,8 +114,8 @@
           </button>
         </div>
 
-        <!-- Urgency Filters (job tabs only; borrowing/collab have their own search) -->
-        <div v-if="!isLeauBorrowed && !isCollabActiveTab" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
+        <!-- Urgency Filters (job tabs & collab) -->
+        <div v-if="!isLeauBorrowed" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
             type="button"
             @click="setUrgencyFilter('all')"
@@ -126,7 +126,7 @@
                 : 'text-slate-500 hover:text-slate-800'
             ]"
           >
-            All ({{ activeTabTickets.length }})
+            All ({{ currentTabTotalCount }})
           </button>
           <button
             type="button"
@@ -290,6 +290,7 @@
         :show-dispatch-action="false"
         :hide-toolbar="true"
         :search-text="searchQuery"
+        :urgency-filter="urgencyFilter"
         :emit-actions="true"
         :emit-details="true"
         :key="'active-collab-' + collabActiveRefreshKey"
@@ -1702,17 +1703,24 @@ const switchTab = (tab) => {
   }
 };
 
+const collabActiveTickets = ref([]);
+
 const fetchCollabActiveCount = async () => {
   try {
     const res = await fetchCollabTickets({ direction: 'all', stage: 'active' });
     const list = res.data?.data?.tickets || [];
-    collabActiveCount.value = res.data?.data?.count ?? list.length;
+    collabActiveTickets.value = Array.isArray(list) ? list.map(t => ({
+      ...t,
+      is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
+    })) : [];
+    collabActiveCount.value = res.data?.data?.count ?? collabActiveTickets.value.length;
     collabActiveIds.value = new Set(
-      list
+      collabActiveTickets.value
         .filter(t => ['pending', 'accepted'].includes(String(t.collaboration_status || '')))
         .map(t => String(t.id))
     );
   } catch {
+    collabActiveTickets.value = [];
     collabActiveCount.value = 0;
     collabActiveIds.value = new Set();
   }
@@ -1921,8 +1929,22 @@ const activeTabTickets = computed(() => {
 // Backward-compatibility alias
 const activeTickets = computed(() => activeTabTickets.value);
 
+const collabActiveEmergencyCount = computed(() => {
+  return collabActiveTickets.value.filter(t => !!t.is_emergency).length;
+});
+
 const emergencyCount = computed(() => {
+  if (isCollabActiveTab.value) {
+    return collabActiveEmergencyCount.value;
+  }
   return activeTabTickets.value.filter(t => !!t.is_emergency).length;
+});
+
+const currentTabTotalCount = computed(() => {
+  if (isCollabActiveTab.value) {
+    return collabActiveCount.value;
+  }
+  return activeTabTickets.value.length;
 });
 
 const uniqueServices = computed(() => {

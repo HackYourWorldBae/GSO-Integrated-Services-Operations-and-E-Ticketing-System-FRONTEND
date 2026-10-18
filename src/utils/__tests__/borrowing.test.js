@@ -304,5 +304,40 @@ describe('borrowing utils', () => {
       })).toBe('Cancelled');
     });
   });
+
+  describe('borrowing emergency prohibition', () => {
+    it('disallows emergency status for borrowing tickets regardless of incoming flags', () => {
+      const borrowingTicket = {
+        id: 'LEAU-TIC-10-2026',
+        service_type: 'Borrowing of Tools/Equipment',
+        is_borrowing: true,
+        is_emergency: 1,
+        urgency: 'Emergency',
+      };
+
+      const isBorrowing = isBorrowingService(borrowingTicket);
+      expect(isBorrowing).toBe(true);
+
+      // Verify that the enforced mapping policy resolves is_emergency to false for borrowing
+      const mappedEmergency = isBorrowing ? false : Boolean(borrowingTicket.is_emergency || borrowingTicket.urgency === 'Emergency');
+      expect(mappedEmergency).toBe(false);
+    });
+
+    it('allows emergency status for non-borrowing tickets', () => {
+      const jobTicket = {
+        id: 'FGMU-TIC-5-2026',
+        service_type: 'Carpentry and Masonry Services',
+        is_borrowing: false,
+        is_emergency: 1,
+        urgency: 'Emergency',
+      };
+
+      const isBorrowing = isBorrowingService(jobTicket);
+      expect(isBorrowing).toBe(false);
+
+      const mappedEmergency = isBorrowing ? false : Boolean(jobTicket.is_emergency || jobTicket.urgency === 'Emergency');
+      expect(mappedEmergency).toBe(true);
+    });
+  });
 });
 

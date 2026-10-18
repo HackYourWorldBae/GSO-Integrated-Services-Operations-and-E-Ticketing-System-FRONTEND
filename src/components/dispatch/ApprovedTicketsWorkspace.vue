@@ -58,7 +58,7 @@
           </button>
         </div>
 
-        <!-- Urgency Filters (unit tickets only) -->
+        <!-- Urgency Filters (unit tickets and collab) -->
         <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
             type="button"
@@ -70,7 +70,7 @@
                 : 'text-slate-500 hover:text-slate-800'
             ]"
           >
-            All ({{ tickets.length }})
+            All ({{ currentTabTotalCount }})
           </button>
           <button
             type="button"
@@ -175,6 +175,7 @@
       :show-dispatch-action="true"
       :hide-toolbar="true"
       :search-text="searchQuery"
+      :urgency-filter="urgencyFilter"
       :key="'approved-collab-' + collabRefreshKey"
       @updated="onCollabUpdated"
     />
@@ -758,11 +759,19 @@ const refreshAll = async () => {
   await Promise.all([fetchApprovedTickets(), fetchCollabCount()]);
 };
 
+const collabTickets = ref([]);
+
 const fetchCollabCount = async () => {
   try {
     const res = await fetchCollabTickets({ direction: 'incoming', stage: 'approved' });
-    collabCount.value = res.data?.data?.count ?? (res.data?.data?.tickets || []).length;
+    const list = res.data?.data?.tickets || [];
+    collabTickets.value = Array.isArray(list) ? list.map(t => ({
+      ...t,
+      is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
+    })) : [];
+    collabCount.value = res.data?.data?.count ?? collabTickets.value.length;
   } catch {
+    collabTickets.value = [];
     collabCount.value = 0;
   }
 };
@@ -785,8 +794,22 @@ const selectedTicketForModal = ref(null);
 const currentPage = ref(1);
 const perPage = ref(15);
 
+const collabEmergencyCount = computed(() => {
+  return collabTickets.value.filter(t => !!t.is_emergency).length;
+});
+
 const emergencyCount = computed(() => {
+  if (approvedTab.value === 'collab') {
+    return collabEmergencyCount.value;
+  }
   return tickets.value.filter(t => t.is_emergency).length;
+});
+
+const currentTabTotalCount = computed(() => {
+  if (approvedTab.value === 'collab') {
+    return collabCount.value;
+  }
+  return tickets.value.length;
 });
 
 const uniqueServices = computed(() => {

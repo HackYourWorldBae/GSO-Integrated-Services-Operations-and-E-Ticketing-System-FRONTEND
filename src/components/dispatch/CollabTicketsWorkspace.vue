@@ -106,6 +106,46 @@
       </div>
 
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
+        <!-- Urgency Filters (standalone toolbar) -->
+        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
+          <button
+            type="button"
+            @click="setUrgencyFilter('all')"
+            :class="[
+              'px-3 py-1.5 min-h-[36px] rounded-lg transition-all cursor-pointer touch-manipulation',
+              effectiveUrgencyFilter === 'all'
+                ? 'bg-white text-slate-900 shadow-xs font-black'
+                : 'text-slate-500 hover:text-slate-800'
+            ]"
+          >
+            All ({{ tickets.length }})
+          </button>
+          <button
+            type="button"
+            @click="setUrgencyFilter('emergency')"
+            :class="[
+              'px-3 py-1.5 min-h-[36px] rounded-lg transition-all cursor-pointer touch-manipulation',
+              effectiveUrgencyFilter === 'emergency'
+                ? 'bg-rose-600 text-white shadow-xs font-black'
+                : 'text-rose-600 hover:bg-rose-50'
+            ]"
+          >
+            Emergency ({{ emergencyCount }})
+          </button>
+          <button
+            type="button"
+            @click="setUrgencyFilter('standard')"
+            :class="[
+              'px-3 py-1.5 min-h-[36px] rounded-lg transition-all cursor-pointer touch-manipulation',
+              effectiveUrgencyFilter === 'standard'
+                ? 'bg-white text-slate-900 shadow-xs font-black'
+                : 'text-slate-500 hover:text-slate-800'
+            ]"
+          >
+            Standard
+          </button>
+        </div>
+
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -373,8 +413,9 @@
         @click="openDetailsModal(ticket)"
       >
         <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2 min-w-0">
+          <div class="flex items-center gap-2 min-w-0 flex-wrap">
             <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg shrink-0 shadow-2xs tabular-nums">#{{ ticket.id }}</span>
+            <span v-if="ticket.is_emergency" class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200">Emergency</span>
             <span :class="['px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border', ticket.is_outgoing ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-indigo-50 text-indigo-800 border-indigo-200']">
               {{ ticket.is_outgoing ? 'Outgoing' : 'Incoming' }}
             </span>
@@ -947,6 +988,8 @@ const props = defineProps({
   // Standalone stage tabs rendered directly in the top toolbar row (beside Collab Requests)
   showStageTabs: { type: Boolean, default: false },
   searchText: { type: String, default: '' },
+  // Urgency filter: 'all' | 'emergency' | 'standard'
+  urgencyFilter: { type: String, default: 'all' },
   // When true, row clicks / Full Info buttons emit 'open-details' with the raw
   // ticket instead of opening this component's own modal — lets the parent
   // reuse its richer details modal so both tabs share one design.
@@ -1058,8 +1101,34 @@ const showDurations = computed(() => effectiveMode.value === 'active');
 // otherwise this component's own toolbar input.
 const effectiveSearch = computed(() => (props.hideToolbar ? (props.searchText || '') : searchQuery.value));
 
+// Urgency filter: parent-owned when embedded (hideToolbar),
+// otherwise this component's internal state.
+const internalUrgencyFilter = ref('all');
+const effectiveUrgencyFilter = computed(() => (props.hideToolbar ? (props.urgencyFilter || 'all') : internalUrgencyFilter.value));
+
+const setUrgencyFilter = (filter) => {
+  internalUrgencyFilter.value = filter;
+  currentPage.value = 1;
+};
+
+watch(() => props.urgencyFilter, () => {
+  currentPage.value = 1;
+});
+
+const emergencyCount = computed(() => {
+  return tickets.value.filter(t => !!t.is_emergency).length;
+});
+
 const filteredTickets = computed(() => {
   let list = tickets.value;
+
+  // Filter by urgency
+  if (effectiveUrgencyFilter.value === 'emergency') {
+    list = list.filter(t => !!t.is_emergency);
+  } else if (effectiveUrgencyFilter.value === 'standard') {
+    list = list.filter(t => !t.is_emergency);
+  }
+
   if (effectiveSearch.value.trim()) {
     const q = effectiveSearch.value.toLowerCase().trim();
     list = list.filter(t =>
@@ -1146,7 +1215,10 @@ const fetchTickets = async () => {
   try {
     const res = await fetchCollabTickets({ direction: resolvedDirection.value, stage: resolvedStage.value });
     const list = res.data?.data?.tickets || [];
-    tickets.value = Array.isArray(list) ? list : [];
+    tickets.value = Array.isArray(list) ? list.map(t => ({
+      ...t,
+      is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
+    })) : [];
     if (props.showStageTabs) {
       stageCounts.value[currentStage.value] = tickets.value.length;
       fetchStageCounts();

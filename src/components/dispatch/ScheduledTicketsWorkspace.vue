@@ -85,9 +85,9 @@
           </button>
         </div>
 
-        <!-- Urgency Filters (job schedules only) -->
+        <!-- Urgency Filters (job schedules and collab) -->
         <div
-          v-if="scheduledTab === 'jobs'"
+          v-if="scheduledTab === 'jobs' || scheduledTab === 'collab'"
           class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1"
         >
           <button
@@ -100,7 +100,7 @@
                 : 'text-slate-500 hover:text-slate-800'
             ]"
           >
-            All ({{ scheduledTickets.length }})
+            All ({{ currentTabTotalCount }})
           </button>
           <button
             type="button"
@@ -221,6 +221,7 @@
         :show-dispatch-action="true"
         :hide-toolbar="true"
         :search-text="searchQuery"
+        :urgency-filter="urgencyFilter"
         :emit-details="true"
         :key="'scheduled-collab-' + scheduledTabRefreshKey"
         @updated="onCollabUpdated"
@@ -1457,17 +1458,24 @@ const switchScheduledTab = (tab) => {
   }
 };
 
+const collabScheduledTickets = ref([]);
+
 const fetchCollabScheduledCount = async () => {
   try {
     const res = await fetchCollabTickets({ direction: 'all', stage: 'scheduled' });
     const list = res.data?.data?.tickets || [];
-    collabScheduledCount.value = res.data?.data?.count ?? list.length;
+    collabScheduledTickets.value = Array.isArray(list) ? list.map(t => ({
+      ...t,
+      is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
+    })) : [];
+    collabScheduledCount.value = res.data?.data?.count ?? collabScheduledTickets.value.length;
     collabScheduledIds.value = new Set(
-      list
+      collabScheduledTickets.value
         .filter(t => ['pending', 'accepted'].includes(String(t.collaboration_status || '')))
         .map(t => String(t.id))
     );
   } catch {
+    collabScheduledTickets.value = [];
     collabScheduledCount.value = 0;
     collabScheduledIds.value = new Set();
   }
@@ -1631,8 +1639,22 @@ const scheduledTickets = computed(() => {
   return rawTickets.value.filter(t => t.current_step == 4 && !collabScheduledIds.value.has(String(t.id)) && !isBorrowingService(t));
 });
 
+const collabScheduledEmergencyCount = computed(() => {
+  return collabScheduledTickets.value.filter(t => !!t.is_emergency).length;
+});
+
 const emergencyCount = computed(() => {
+  if (isScheduledCollab.value) {
+    return collabScheduledEmergencyCount.value;
+  }
   return scheduledTickets.value.filter(t => !!t.is_emergency).length;
+});
+
+const currentTabTotalCount = computed(() => {
+  if (isScheduledCollab.value) {
+    return collabScheduledCount.value;
+  }
+  return scheduledTickets.value.length;
 });
 
 const uniqueServices = computed(() => {

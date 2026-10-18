@@ -1322,14 +1322,45 @@
           </svg>
         </div>
         <div class="text-center">
-          <h3 class="text-xl font-black text-slate-900">Approve Service Request?</h3>
+          <h3 class="text-xl font-black text-slate-900">
+            {{ (ticketToApprove?.is_borrowing || isBorrowingService(ticketToApprove)) ? 'Approve Borrowing Request?' : 'Approve Service Request?' }}
+          </h3>
           <p class="text-xs text-slate-500 font-medium mt-1">
-            Ticket <strong class="text-slate-800">#{{ ticketToApprove?.ticketId }}</strong> will be approved and queued for admin assignment.
+            Ticket <strong class="text-slate-800">#{{ ticketToApprove?.ticketId }}</strong>
+            {{ (ticketToApprove?.is_borrowing || isBorrowingService(ticketToApprove)) 
+                ? 'will be approved and queued for inventory allocation.' 
+                : 'will be approved and queued for admin assignment.' }}
           </p>
         </div>
 
-        <!-- Emergency Priority Decision (Decided by Director before approval) -->
+        <!-- Borrowing Notice (Borrowing requests cannot and should not be marked as emergency) -->
         <div 
+          v-if="ticketToApprove && (ticketToApprove.is_borrowing || isBorrowingService(ticketToApprove))"
+          class="p-4 rounded-2xl border border-sky-200 bg-sky-50/70 flex items-start gap-3.5 text-left"
+        >
+          <div class="pt-0.5 text-sky-600 shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black uppercase tracking-wider text-sky-950">
+                Standard Borrowing Request
+              </span>
+              <span class="px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 text-[10px] font-black uppercase tracking-wider border border-sky-200">
+                Non-Emergency
+              </span>
+            </div>
+            <p class="text-[11px] font-medium leading-relaxed mt-1 text-sky-800">
+              Borrowing requests follow inventory allocation protocols and cannot be marked as an emergency request.
+            </p>
+          </div>
+        </div>
+
+        <!-- Emergency Priority Decision (Decided by Director before approval for standard service requests) -->
+        <div 
+          v-else
           @click="isEmergencyApproval = !isEmergencyApproval"
           :class="[
             'p-4 rounded-2xl border transition-all cursor-pointer select-none flex items-start gap-3.5 text-left',
@@ -2125,7 +2156,7 @@ const mapTicket = (t) => {
     working_days: Number(t.working_days || t.project_working_days || t.assignment?.working_days) || 1,
     extension_days: Number(t.extension_days) || 0,
     overtime_hours: Number(t.overtime_hours) || 0,
-    is_emergency: Boolean(Number(t.is_emergency) === 1 || t.is_emergency === true || t.urgency === 'Emergency' || t.urgency === 'High'),
+    is_emergency: (isBorrowingService(t) || Boolean(t.is_borrowing)) ? false : Boolean(Number(t.is_emergency) === 1 || t.is_emergency === true || t.urgency === 'Emergency' || t.urgency === 'High'),
     is_recategorized: Boolean(Number(t.is_recategorized) === 1 || t.is_recategorized === true),
     original_service_type: t.original_service_type || null,
     recategorization_reason: t.recategorization_reason || '',
@@ -2407,7 +2438,8 @@ const initiateApproval = (ticket) => {
     return;
   }
   ticketToApprove.value = ticket;
-  isEmergencyApproval.value = Boolean(ticket?.is_emergency || ticket?.urgency === 'Emergency' || ticket?.urgency === 'High');
+  const isBorrowing = Boolean(ticket?.is_borrowing) || isBorrowingService(ticket);
+  isEmergencyApproval.value = isBorrowing ? false : Boolean(ticket?.is_emergency || ticket?.urgency === 'Emergency' || ticket?.urgency === 'High');
   showConfirmModal.value = true;
 };
 
@@ -2455,11 +2487,13 @@ const handleTicketRecategorized = ({ ticketId, newService, reason, data }) => {
 
 const confirmApproval = async () => {
   if (ticketToApprove.value) {
+    const isBorrowing = Boolean(ticketToApprove.value?.is_borrowing) || isBorrowingService(ticketToApprove.value);
+    const finalEmergency = isBorrowing ? false : Boolean(isEmergencyApproval.value);
     try {
       await api.patch(`tickets/${ticketToApprove.value.id}/approve`, {
-        is_emergency: isEmergencyApproval.value ? 1 : 0,
+        is_emergency: finalEmergency ? 1 : 0,
       });
-      toast.success(`Approved ticket #${ticketToApprove.value.ticketId}${isEmergencyApproval.value ? ' (Emergency Priority)' : ''}`);
+      toast.success(`Approved ticket #${ticketToApprove.value.ticketId}${finalEmergency ? ' (Emergency Priority)' : ''}`);
       closeConfirmModal();
       fetchAllQueues();
     } catch (error) {
