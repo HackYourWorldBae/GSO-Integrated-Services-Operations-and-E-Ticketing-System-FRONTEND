@@ -7,6 +7,11 @@ import { ADMIN_SUPPORT_BUILDINGS, RESEARCH_EXTENSION_BUILDINGS } from '@/constan
 
 const router = useRouter();
 
+// Multi-Step Wizard State (4 steps)
+const currentStep = ref(1);
+const TOTAL_STEPS = 4;
+const stepLabels = ['Role', 'Info', 'Security', 'Verify'];
+
 // Form Fields
 const form = ref({
   first_name: '',
@@ -336,140 +341,227 @@ const removeSelectedFile = (slot = 'front') => {
   }
 };
 
-// Strict Client-Side Form Validation
+// Per-Step Validation (validates only the current step's fields)
+const validateStep = (step) => {
+  fieldErrors.value = {};
+  errorMessage.value = '';
+
+  if (step === 1) {
+    // Step 1: Role & Affiliation
+    if (form.value.role === 'student') {
+      if (!form.value.student_type) {
+        fieldErrors.value.student_type = 'Please select RSO or SSG.';
+      }
+      const org = form.value.organization_name.trim();
+      if (!org) {
+        fieldErrors.value.organization_name = form.value.student_type === 'rso'
+          ? 'Organization name is required.'
+          : 'Officer position is required.';
+      } else if (org.length < 2) {
+        fieldErrors.value.organization_name = 'Must be at least 2 characters.';
+      }
+      if (!form.value.college) {
+        fieldErrors.value.college = 'Please select your college.';
+      }
+    }
+
+    if (form.value.role === 'employee') {
+      if (!form.value.employee_type) {
+        fieldErrors.value.employee_type = 'Please select your staff classification.';
+      } else if (form.value.employee_type === 'Teaching Staff') {
+        if (!form.value.college) {
+          fieldErrors.value.college = 'Please select your assigned college.';
+        }
+      } else if (form.value.employee_type === 'Research and Extension Staff') {
+        if (!form.value.college) {
+          fieldErrors.value.college = 'Please select your assigned center.';
+        }
+      } else if (form.value.employee_type === 'Support / Administrative Staff') {
+        if (!form.value.college) {
+          fieldErrors.value.college = 'Please select your assigned building.';
+        }
+      }
+    }
+  }
+
+  if (step === 2) {
+    // Step 2: Personal Info
+    const fn = form.value.first_name.trim();
+    if (!fn) {
+      fieldErrors.value.first_name = 'First name is required.';
+    } else if (fn.length < 2) {
+      fieldErrors.value.first_name = 'Must be at least 2 characters.';
+    } else if (!/^[a-zA-ZÀ-ÿ\s\-'.]{2,50}$/.test(fn) || !/[a-zA-ZÀ-ÿ]/.test(fn)) {
+      fieldErrors.value.first_name = 'Letters, spaces, hyphens, and apostrophes only.';
+    }
+
+    const ln = form.value.last_name.trim();
+    if (!ln) {
+      fieldErrors.value.last_name = 'Last name is required.';
+    } else if (ln.length < 2) {
+      fieldErrors.value.last_name = 'Must be at least 2 characters.';
+    } else if (!/^[a-zA-ZÀ-ÿ\s\-'.]{2,50}$/.test(ln) || !/[a-zA-ZÀ-ÿ]/.test(ln)) {
+      fieldErrors.value.last_name = 'Letters, spaces, hyphens, and apostrophes only.';
+    }
+
+    const idNum = form.value.student_id_number.trim();
+    if (!idNum) {
+      fieldErrors.value.student_id_number = form.value.role === 'student' 
+        ? 'Student ID is required.' 
+        : 'Employee ID is required.';
+    } else if (form.value.role === 'student') {
+      if (!/^\d{7}$/.test(idNum)) {
+        fieldErrors.value.student_id_number = 'Must be exactly 7 digits.';
+      }
+    } else {
+      if (!/^[A-Za-z0-9\-]{4,15}$/.test(idNum)) {
+        fieldErrors.value.student_id_number = '4–15 alphanumeric characters.';
+      }
+    }
+
+    const contact = form.value.contact_number.trim();
+    if (!contact) {
+      fieldErrors.value.contact_number = 'Contact number is required.';
+    } else if (!contact.startsWith('09')) {
+      fieldErrors.value.contact_number = 'Must start with 09.';
+    } else if (!/^09\d{9}$/.test(contact)) {
+      fieldErrors.value.contact_number = 'Must be exactly 11 digits.';
+    }
+
+    const em = form.value.email.trim();
+    if (!em) {
+      fieldErrors.value.email = 'Email is required.';
+    } else {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailPattern.test(em)) {
+        fieldErrors.value.email = 'Please enter a valid email.';
+      }
+    }
+  }
+
+  if (step === 3) {
+    // Step 3: Password
+    const pwd = form.value.password;
+    if (!pwd) {
+      fieldErrors.value.password = 'Password is required.';
+    } else if (pwd.length < 8) {
+      fieldErrors.value.password = 'Must be at least 8 characters.';
+    } else if (!/[a-zA-Z]/.test(pwd)) {
+      fieldErrors.value.password = 'Must include at least one letter.';
+    } else if (!/[0-9]/.test(pwd)) {
+      fieldErrors.value.password = 'Must include at least one number.';
+    }
+
+    if (!form.value.password_confirm) {
+      fieldErrors.value.password_confirm = 'Please confirm your password.';
+    } else if (form.value.password !== form.value.password_confirm) {
+      fieldErrors.value.password_confirm = 'Passwords do not match.';
+    }
+  }
+
+  if (step === 4) {
+    // Step 4: ID Upload & Terms
+    if (!idCardFile.value) {
+      fieldErrors.value.id_card = 'Front ID photo is required.';
+    }
+    if (!idSelfieFile.value) {
+      fieldErrors.value.id_selfie = 'Selfie with ID is required.';
+    }
+    if (!hasAgreedToDisclaimer.value) {
+      fieldErrors.value.disclaimer = 'Please accept the Data Privacy Notice & Terms.';
+    }
+  }
+
+  return Object.keys(fieldErrors.value).length === 0;
+};
+
+// Full validation for final submit (runs all steps)
 const validateClient = () => {
   fieldErrors.value = {};
   errorMessage.value = '';
 
-  // 1. First Name
-  const fn = form.value.first_name.trim();
-  if (!fn) {
-    fieldErrors.value.first_name = 'First name is required.';
-  } else if (fn.length < 2) {
-    fieldErrors.value.first_name = 'First name must be at least 2 characters long.';
-  } else if (!/^[a-zA-ZÀ-ÿ\s\-'.]{2,50}$/.test(fn) || !/[a-zA-ZÀ-ÿ]/.test(fn)) {
-    fieldErrors.value.first_name = 'First name can only contain letters, spaces, hyphens, and apostrophes.';
-  }
+  // Run all step validations to collect all errors
+  const allErrors = {};
 
-  // 2. Last Name
-  const ln = form.value.last_name.trim();
-  if (!ln) {
-    fieldErrors.value.last_name = 'Last name is required.';
-  } else if (ln.length < 2) {
-    fieldErrors.value.last_name = 'Last name must be at least 2 characters long.';
-  } else if (!/^[a-zA-ZÀ-ÿ\s\-'.]{2,50}$/.test(ln) || !/[a-zA-ZÀ-ÿ]/.test(ln)) {
-    fieldErrors.value.last_name = 'Last name can only contain letters, spaces, hyphens, and apostrophes.';
-  }
-
-  // 3. ID Number (Strict 7 digits for students)
-  const idNum = form.value.student_id_number.trim();
-  if (!idNum) {
-    fieldErrors.value.student_id_number = form.value.role === 'student' 
-      ? 'Student ID Number is required.' 
-      : 'Employee ID Number is required.';
-  } else if (form.value.role === 'student') {
-    if (!/^\d{7}$/.test(idNum)) {
-      fieldErrors.value.student_id_number = 'Student ID Number must be exactly 7 digits (e.g. 2301219).';
-    }
-  } else {
-    if (!/^[A-Za-z0-9\-]{4,15}$/.test(idNum)) {
-      fieldErrors.value.student_id_number = 'Employee ID Number must be 4 to 15 alphanumeric characters (typically 6 digits, e.g. 102456).';
-    }
-  }
-
-  // 3.1 Student Organization Representative Validation
+  // Step 1 errors
   if (form.value.role === 'student') {
-    if (!form.value.student_type) {
-      fieldErrors.value.student_type = 'Please select whether you represent an RSO or the SSG.';
-    }
+    if (!form.value.student_type) allErrors.student_type = 'Please select RSO or SSG.';
     const org = form.value.organization_name.trim();
-    if (!org) {
-      fieldErrors.value.organization_name = form.value.student_type === 'rso'
-        ? 'Recognized Student Organization (RSO) name is required.'
-        : 'Officer position is required.';
-    } else if (org.length < 2) {
-      fieldErrors.value.organization_name = form.value.student_type === 'rso'
-        ? 'Organization name must be at least 2 characters long.'
-        : 'Officer position must be at least 2 characters long.';
-    }
-    if (!form.value.college) {
-      fieldErrors.value.college = 'Please select your College / Academic Unit.';
-    }
+    if (!org) allErrors.organization_name = form.value.student_type === 'rso' ? 'Organization name is required.' : 'Officer position is required.';
+    else if (org.length < 2) allErrors.organization_name = 'Must be at least 2 characters.';
+    if (!form.value.college) allErrors.college = 'Please select your college.';
   }
-
-  // 3.2 BSU Faculty / Staff Validation
   if (form.value.role === 'employee') {
-    if (!form.value.employee_type) {
-      fieldErrors.value.employee_type = 'Please select your faculty or staff classification.';
-    } else if (form.value.employee_type === 'Teaching Staff') {
-      if (!form.value.college) {
-        fieldErrors.value.college = 'Please select your assigned College / Academic Unit.';
-      }
-    } else if (form.value.employee_type === 'Research and Extension Staff') {
-      if (!form.value.college) {
-        fieldErrors.value.college = 'Please select your assigned research or extension center.';
-      }
-    } else if (form.value.employee_type === 'Support / Administrative Staff') {
-      if (!form.value.college) {
-        fieldErrors.value.college = 'Please select your assigned college, administrative, or support building.';
-      }
-    }
+    if (!form.value.employee_type) allErrors.employee_type = 'Please select your staff classification.';
+    else if (!form.value.college) allErrors.college = 'Please select your assignment.';
   }
 
-  // 4. Contact Number (Strict 11 digits starting with 09)
+  // Step 2 errors
+  const fn = form.value.first_name.trim();
+  if (!fn) allErrors.first_name = 'First name is required.';
+  else if (fn.length < 2 || !/^[a-zA-ZÀ-ÿ\s\-'.]{2,50}$/.test(fn)) allErrors.first_name = 'Invalid first name.';
+
+  const ln = form.value.last_name.trim();
+  if (!ln) allErrors.last_name = 'Last name is required.';
+  else if (ln.length < 2 || !/^[a-zA-ZÀ-ÿ\s\-'.]{2,50}$/.test(ln)) allErrors.last_name = 'Invalid last name.';
+
+  const idNum = form.value.student_id_number.trim();
+  if (!idNum) allErrors.student_id_number = 'ID number is required.';
+  else if (form.value.role === 'student' && !/^\d{7}$/.test(idNum)) allErrors.student_id_number = 'Must be exactly 7 digits.';
+  else if (form.value.role === 'employee' && !/^[A-Za-z0-9\-]{4,15}$/.test(idNum)) allErrors.student_id_number = '4–15 alphanumeric characters.';
+
   const contact = form.value.contact_number.trim();
-  if (!contact) {
-    fieldErrors.value.contact_number = 'Contact number is required.';
-  } else if (!contact.startsWith('09')) {
-    fieldErrors.value.contact_number = 'Contact number must start with 09 (e.g. 09171234567).';
-  } else if (!/^09\d{9}$/.test(contact)) {
-    fieldErrors.value.contact_number = 'Contact number must be exactly 11 digits (e.g. 09171234567).';
-  }
+  if (!contact) allErrors.contact_number = 'Contact number is required.';
+  else if (!/^09\d{9}$/.test(contact)) allErrors.contact_number = 'Must be 11 digits starting with 09.';
 
-  // 5. Email (Mandatory for forgot password recovery and ticket notifications)
   const em = form.value.email.trim();
-  if (!em) {
-    fieldErrors.value.email = 'Email address is required for password recovery and notifications.';
-  } else {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailPattern.test(em)) {
-      fieldErrors.value.email = 'Please enter a valid email address (e.g. name@bsu.edu.ph).';
-    }
-  }
+  if (!em) allErrors.email = 'Email is required.';
+  else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(em)) allErrors.email = 'Invalid email format.';
 
-  // 6. Password (Elder-friendly: min 8 chars, letters and numbers, no special symbols required)
+  // Step 3 errors
   const pwd = form.value.password;
-  if (!pwd) {
-    fieldErrors.value.password = 'Password is required.';
-  } else if (pwd.length < 8) {
-    fieldErrors.value.password = 'Password must be at least 8 characters long.';
-  } else if (!/[a-zA-Z]/.test(pwd)) {
-    fieldErrors.value.password = 'Password must include at least one letter.';
-  } else if (!/[0-9]/.test(pwd)) {
-    fieldErrors.value.password = 'Password must include at least one number.';
-  }
+  if (!pwd) allErrors.password = 'Password is required.';
+  else if (pwd.length < 8 || !/[a-zA-Z]/.test(pwd) || !/[0-9]/.test(pwd)) allErrors.password = 'Password does not meet requirements.';
 
-  // 7. Confirm Password
-  if (!form.value.password_confirm) {
-    fieldErrors.value.password_confirm = 'Please confirm your password.';
-  } else if (form.value.password !== form.value.password_confirm) {
-    fieldErrors.value.password_confirm = 'Passwords do not match.';
-  }
+  if (!form.value.password_confirm) allErrors.password_confirm = 'Please confirm your password.';
+  else if (form.value.password !== form.value.password_confirm) allErrors.password_confirm = 'Passwords do not match.';
 
-  // 8. ID Card Photo & Selfie with ID (Both Mandatory - 2 Files Required)
-  if (!idCardFile.value) {
-    fieldErrors.value.id_card = 'Please upload a clear picture of the front of your ID card.';
-  }
-  if (!idSelfieFile.value) {
-    fieldErrors.value.id_selfie = 'Please upload a clear selfie while holding your ID card.';
-  }
+  // Step 4 errors
+  if (!idCardFile.value) allErrors.id_card = 'Front ID photo is required.';
+  if (!idSelfieFile.value) allErrors.id_selfie = 'Selfie with ID is required.';
+  if (!hasAgreedToDisclaimer.value) allErrors.disclaimer = 'Please accept the terms.';
 
-  // 9. Data Privacy Notice & Terms of Use Acceptance (Mandatory)
-  if (!hasAgreedToDisclaimer.value) {
-    fieldErrors.value.disclaimer = 'Please review and accept the Data Privacy Notice & Terms of Use.';
-  }
+  fieldErrors.value = allErrors;
+  return Object.keys(allErrors).length === 0;
+};
 
-  return Object.keys(fieldErrors.value).length === 0;
+// Step Navigation
+const goToNextStep = () => {
+  if (validateStep(currentStep.value)) {
+    if (currentStep.value < TOTAL_STEPS) {
+      currentStep.value++;
+      errorMessage.value = '';
+    }
+  } else {
+    errorMessage.value = 'Please fix the errors above before continuing.';
+  }
+};
+
+const goToPrevStep = () => {
+  if (currentStep.value > 1) {
+    currentStep.value--;
+    errorMessage.value = '';
+    fieldErrors.value = {};
+  }
+};
+
+const goToStep = (step) => {
+  // Allow going back to any completed step, or forward if current step is valid
+  if (step < currentStep.value) {
+    currentStep.value = step;
+    errorMessage.value = '';
+    fieldErrors.value = {};
+  }
 };
 
 const handleRegister = async () => {
@@ -479,7 +571,22 @@ const handleRegister = async () => {
   }
 
   if (!validateClient()) {
-    errorMessage.value = 'Please correct the highlighted form errors before continuing.';
+    // Find first step with errors and navigate there
+    const step1Fields = ['student_type', 'organization_name', 'college', 'employee_type'];
+    const step2Fields = ['first_name', 'last_name', 'student_id_number', 'contact_number', 'email'];
+    const step3Fields = ['password', 'password_confirm'];
+
+    const errorKeys = Object.keys(fieldErrors.value);
+    if (errorKeys.some(k => step1Fields.includes(k))) {
+      currentStep.value = 1;
+    } else if (errorKeys.some(k => step2Fields.includes(k))) {
+      currentStep.value = 2;
+    } else if (errorKeys.some(k => step3Fields.includes(k))) {
+      currentStep.value = 3;
+    } else {
+      currentStep.value = 4;
+    }
+    errorMessage.value = 'Please correct the highlighted errors.';
     return;
   }
 
@@ -560,1060 +667,580 @@ const handleRegister = async () => {
       delete fieldErrors.value.disclaimer;
     }
   };
+
+  // Computed: College/building options depending on employee_type
+  const employeeCollegeOptions = computed(() => {
+    if (form.value.employee_type === 'Teaching Staff') {
+      return { label: 'Assigned College', placeholder: 'Select your college...', items: BSU_COLLEGES.map(c => ({ key: c.code, value: c.name, label: c.name })), type: 'colleges' };
+    }
+    if (form.value.employee_type === 'Research and Extension Staff') {
+      return { label: 'Assigned Center', placeholder: 'Select your center...', items: RESEARCH_EXTENSION_BUILDINGS.map(b => ({ key: b, value: b, label: b })), type: 'buildings' };
+    }
+    if (form.value.employee_type === 'Support / Administrative Staff') {
+      return { label: 'Assigned Building', placeholder: 'Select your building...', items: null, type: 'mixed' };
+    }
+    return null;
+  });
 </script>
 
 <template>
-  <div class="min-h-screen w-full relative flex items-center justify-center bg-slate-50 py-10 px-4 sm:px-6 font-sans">
+  <div class="min-h-screen w-full relative flex items-center justify-center bg-slate-50 py-8 px-4 sm:px-6 font-sans">
     
-    <!-- Background Image & Gradient -->
+    <!-- Subtle Background -->
     <div class="fixed inset-0 z-0 overflow-hidden bg-slate-50 pointer-events-none">
       <img 
         src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Benguet_State_University_Main_Gate.jpg" 
         alt="" 
-        class="w-full h-full object-cover opacity-15 filter grayscale"
+        class="w-full h-full object-cover opacity-10 filter grayscale"
       />
-      <div class="absolute inset-0 bg-gradient-to-br from-white/70 via-slate-50/85 to-white z-0"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-white/80 via-slate-50/90 to-white z-0"></div>
     </div>
 
-    <!-- Floating UI Orbs for depth -->
-    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none flex items-center justify-center">
-      <div class="absolute w-[600px] h-[600px] bg-emerald-400/10 rounded-full blur-[100px] mix-blend-multiply"></div>
-      <div class="absolute w-[700px] h-[700px] bg-sky-400/5 rounded-full blur-[120px] mix-blend-multiply"></div>
-    </div>
-
-    <!-- Desktop Top Left University Branding (hidden on mobile to prevent floating over form while scrolling) -->
-    <router-link to="/" class="hidden sm:flex sm:fixed sm:top-8 sm:left-10 z-20 items-center gap-4 drop-shadow-sm cursor-pointer hover:opacity-90 transition-opacity">
-      <div class="w-14 h-14 sm:w-16 sm:h-16 overflow-hidden flex-shrink-0">
+    <!-- Desktop University Branding (hidden on mobile) -->
+    <router-link to="/" class="hidden sm:flex sm:fixed sm:top-8 sm:left-10 z-20 items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity">
+      <div class="w-12 h-12 overflow-hidden flex-shrink-0">
         <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-cover rounded-full" />
       </div>
       <div>
-        <h2 class="text-emerald-800 font-extrabold tracking-widest text-xs uppercase mb-0.5 drop-shadow-md">Benguet State University</h2>
-        <p class="text-slate-700 font-bold text-[11px] tracking-wide drop-shadow-md">General Services Office</p>
+        <h2 class="text-emerald-800 font-extrabold tracking-widest text-xs uppercase">Benguet State University</h2>
+        <p class="text-slate-600 font-bold text-[11px]">General Services Office</p>
       </div>
     </router-link>
 
     <!-- Main Registration Card -->
-    <div class="relative z-10 w-full max-w-2xl my-6 sm:my-8 p-5 sm:p-10 rounded-3xl sm:rounded-[2rem] border border-slate-200/80 bg-white/95 backdrop-blur-2xl shadow-2xl transition-all duration-300">
+    <div class="relative z-10 w-full max-w-xl my-4 sm:my-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white/95 backdrop-blur-xl shadow-2xl transition-all duration-300 overflow-hidden">
       
-      <!-- Mobile In-Card University Branding (displayed inline in document flow so it never floats or disrupts filling up form) -->
-      <router-link to="/" class="sm:hidden flex items-center gap-3 mb-5 p-2.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/70 hover:bg-emerald-100/60 transition-colors shadow-xs">
-        <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-white shadow-xs border border-emerald-200/80">
+      <!-- Mobile University Branding -->
+      <router-link to="/" class="sm:hidden flex items-center gap-2.5 p-4 pb-0">
+        <div class="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-white shadow-xs border border-emerald-200/80">
           <img src="/bsu-logo.png" alt="BSU Logo" class="w-full h-full object-cover" />
         </div>
-        <div class="text-left min-w-0">
+        <div class="min-w-0">
           <h2 class="text-emerald-900 font-extrabold tracking-wider text-[11px] uppercase leading-tight truncate">Benguet State University</h2>
           <p class="text-emerald-700 font-bold text-[10px] truncate">General Services Office</p>
         </div>
       </router-link>
 
       <!-- Card Header -->
-      <div class="mb-6 text-left">
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-[11px] font-bold uppercase tracking-wider mb-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          User Registration & Identity Verification
-        </div>
-        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight mb-1.5">
+      <div class="px-5 sm:px-8 pt-5 sm:pt-7">
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
           Create your <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">GSO Account</span>
         </h1>
-        <p class="text-slate-500 text-xs sm:text-sm font-medium">
-          Register with your verified student or employee credentials to access campus services and track tickets.
+        <p class="text-slate-500 text-xs sm:text-sm font-medium mt-1">
+          Step {{ currentStep }} of {{ TOTAL_STEPS }} — {{ stepLabels[currentStep - 1] }}
         </p>
       </div>
 
-      <!-- Global Error Message -->
-      <div v-if="errorMessage" class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-xs sm:text-sm font-semibold flex items-start gap-3">
-        <svg class="w-5 h-5 flex-shrink-0 text-rose-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <div>{{ errorMessage }}</div>
+      <!-- Step Progress Bar -->
+      <div class="px-5 sm:px-8 pt-4 pb-1">
+        <div class="flex items-center gap-1.5">
+          <button
+            v-for="step in TOTAL_STEPS"
+            :key="step"
+            type="button"
+            @click="goToStep(step)"
+            :class="[
+              'h-1.5 rounded-full transition-all duration-300 flex-1',
+              step <= currentStep ? 'bg-emerald-500' : 'bg-slate-200',
+              step < currentStep ? 'cursor-pointer hover:bg-emerald-400' : 'cursor-default'
+            ]"
+            :title="`Step ${step}: ${stepLabels[step - 1]}`"
+          ></button>
+        </div>
       </div>
 
-      <form @submit.prevent="handleRegister" class="space-y-4 sm:space-y-5" novalidate>
+      <!-- Global Error -->
+      <div v-if="errorMessage" class="mx-5 sm:mx-8 mt-3 p-3 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-xs font-semibold flex items-center gap-2">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form @submit.prevent="handleRegister" class="px-5 sm:px-8 py-5 sm:py-6" novalidate>
         
-        <!-- Role Selector Toggle -->
-        <div>
-          <label class="block text-slate-700 text-xs font-bold mb-1.5 ml-0.5">
-            Account Classification <span class="text-rose-500">*</span>
-          </label>
-          <div class="grid grid-cols-2 gap-2.5 p-1.5 bg-slate-100 rounded-xl border border-slate-200">
-            <button 
-              type="button" 
-              @click="handleRoleSelect('student')"
-              :class="form.role === 'student' ? 'bg-white text-emerald-800 font-bold shadow-sm border border-emerald-200/50' : 'text-slate-600 hover:text-slate-900 font-medium'"
-              class="min-h-[44px] py-2.5 rounded-lg text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-              </svg>
-              Student (RSO / SSG)
-            </button>
-            <button 
-              type="button" 
-              @click="handleRoleSelect('employee')"
-              :class="form.role === 'employee' ? 'bg-white text-emerald-800 font-bold shadow-sm border border-emerald-200/50' : 'text-slate-600 hover:text-slate-900 font-medium'"
-              class="min-h-[44px] py-2.5 rounded-lg text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              BSU Faculty / Staff
-            </button>
-          </div>
-        </div>
-
-        <!-- Student Organization Classification (RSO / SSG only) -->
-        <div v-if="form.role === 'student'" class="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 space-y-3 transition-all">
-          <div class="flex items-start gap-2.5">
-            <div class="p-1.5 rounded-lg bg-emerald-600 text-white shrink-0 mt-0.5 shadow-sm">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-xs font-bold text-emerald-950 leading-snug">
-                Authorized Student Representative Sign-Up
-              </h3>
-              <p class="text-xs text-emerald-800/90 font-medium leading-relaxed mt-0.5">
-                Student accounts are strictly reserved for accredited officers of Recognized Student Organizations (RSO) and Supreme Student Government (SSG).
-              </p>
-            </div>
-          </div>
-
-          <!-- RSO vs SSG Choice Cards -->
-          <div>
-            <label class="block text-slate-700 text-xs font-bold mb-1.5 ml-0.5">
-              Select Student Affiliation <span class="text-rose-500">*</span>
-            </label>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <!-- RSO Option -->
-              <button
-                type="button"
-                @click="handleStudentTypeSelect('rso')"
-                :class="form.student_type === 'rso' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700'"
-                class="min-h-[56px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5 cursor-pointer"
-              >
-                <div 
-                  :class="form.student_type === 'rso' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
-                  class="p-1.5 rounded-lg shrink-0 mt-0.5 transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
-                    RSO Representative
-                    <span v-if="form.student_type === 'rso'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">Selected</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
-                    Recognized Student Organization (Clubs, councils)
-                  </p>
-                </div>
-              </button>
-
-              <!-- SSG Option -->
-              <button
-                type="button"
-                @click="handleStudentTypeSelect('ssg')"
-                :class="form.student_type === 'ssg' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700'"
-                class="min-h-[56px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5 cursor-pointer"
-              >
-                <div 
-                  :class="form.student_type === 'ssg' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
-                  class="p-1.5 rounded-lg shrink-0 mt-0.5 transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
-                    SSG Representative
-                    <span v-if="form.student_type === 'ssg'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">Selected</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
-                    Supreme Student Government (Officers, Committees)
-                  </p>
-                </div>
-              </button>
-            </div>
-            <p v-if="fieldErrors.student_type" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.student_type }}
-            </p>
-          </div>
-
-          <!-- Dynamic Name/Role Input based on RSO vs SSG -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                {{ form.student_type === 'rso' ? 'Recognized Student Organization (RSO) Name' : 'Officer Position' }} <span class="text-rose-500">*</span>
-              </label>
-            </div>
-
-            <!-- Instruction for RSO: Put the full name of the organization -->
-            <p v-if="form.student_type === 'rso'" class="text-[11px] text-slate-500 font-medium mb-1.5 ml-0.5 flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Please enter the full name of the organization followed by its acronym in parentheses.</span>
-            </p>
-
-            <input
-              v-model="form.organization_name"
-              type="text"
-              maxlength="150"
-              spellcheck="false"
-              required
-              @input="handleOrganizationNameInput"
-              :class="fieldErrors.organization_name ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white'"
-              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
-              :placeholder="form.student_type === 'rso' ? 'e.g. Body of Young Information Technologist (BYTE)' : 'President, Vice President, etc.'"
-            />
-            <p v-if="fieldErrors.organization_name" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.organization_name }}
-            </p>
-          </div>
-
-          <!-- College / Academic Unit Selection (BSU Main Campus) -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                College / Academic Unit <span class="text-rose-500">*</span>
-              </label>
-              <span class="text-[11px] text-slate-400 font-medium">BSU La Trinidad</span>
-            </div>
-            <div class="relative">
-              <select
-                v-model="form.college"
-                @change="handleCollegeChange"
-                required
-                :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20 text-rose-900' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white text-slate-900'"
-                class="w-full px-4 py-3 pr-10 rounded-xl border text-base sm:text-sm font-medium focus:outline-none transition-all min-h-[48px] appearance-none cursor-pointer"
-              >
-                <option value="" disabled>Select your college or academic unit...</option>
-                <option 
-                  v-for="c in BSU_COLLEGES" 
-                  :key="c.code" 
-                  :value="c.name"
-                >
-                  {{ c.name }}
-                </option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-            <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.college }}
-            </p>
-          </div>
-        </div>
-
-        <!-- BSU Faculty / Staff Classification (Employee only) -->
-        <div v-if="form.role === 'employee'" class="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 space-y-3.5 transition-all">
-          <div class="flex items-start gap-2.5">
-            <div class="p-1.5 rounded-lg bg-emerald-600 text-white shrink-0 mt-0.5 shadow-sm">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-xs font-bold text-emerald-950 leading-snug">
-                BSU Faculty &amp; Staff Classification
-              </h3>
-              <p class="text-xs text-emerald-800/90 font-medium leading-relaxed mt-0.5">
-                Select the category that best describes your role. Your assigned college, center, or building will be requested next.
-              </p>
-            </div>
-          </div>
-
-          <!-- 3 Faculty / Staff Options -->
-          <div>
-            <label class="block text-slate-700 text-xs font-bold mb-1.5 ml-0.5">
-              Select Faculty / Staff Type <span class="text-rose-500">*</span>
-            </label>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              
-              <!-- 1. Teaching Staff -->
-              <button
-                type="button"
-                @click="handleEmployeeTypeSelect('Teaching Staff')"
-                :class="form.employee_type === 'Teaching Staff' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700'"
-                class="min-h-[56px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5 cursor-pointer"
-              >
-                <div 
-                  :class="form.employee_type === 'Teaching Staff' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
-                  class="p-1.5 rounded-lg shrink-0 mt-0.5 transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
-                    Teaching Staff
-                    <span v-if="form.employee_type === 'Teaching Staff'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">Selected</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
-                    Faculty, Professors &amp; Instructors
-                  </p>
-                </div>
-              </button>
-
-              <!-- 2. Research and Extension Staff -->
-              <button
-                type="button"
-                @click="handleEmployeeTypeSelect('Research and Extension Staff')"
-                :class="form.employee_type === 'Research and Extension Staff' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700'"
-                class="min-h-[56px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5 cursor-pointer"
-              >
-                <div 
-                  :class="form.employee_type === 'Research and Extension Staff' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
-                  class="p-1.5 rounded-lg shrink-0 mt-0.5 transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
-                    Research &amp; Extension
-                    <span v-if="form.employee_type === 'Research and Extension Staff'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">Selected</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
-                    Research Centers &amp; Extension Units
-                  </p>
-                </div>
-              </button>
-
-              <!-- 3. Support / Administrative Staff -->
-              <button
-                type="button"
-                @click="handleEmployeeTypeSelect('Support / Administrative Staff')"
-                :class="form.employee_type === 'Support / Administrative Staff' ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm text-emerald-950' : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700'"
-                class="min-h-[56px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-start gap-2.5 cursor-pointer"
-              >
-                <div 
-                  :class="form.employee_type === 'Support / Administrative Staff' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'" 
-                  class="p-1.5 rounded-lg shrink-0 mt-0.5 transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-xs font-bold leading-tight flex items-center gap-1.5">
-                    Support / Admin Staff
-                    <span v-if="form.employee_type === 'Support / Administrative Staff'" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">Selected</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
-                    Administrative &amp; Support Personnel
-                  </p>
-                </div>
-              </button>
-            </div>
-            <p v-if="fieldErrors.employee_type" class="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.employee_type }}
-            </p>
-          </div>
-
-          <!-- College / Academic Unit Selection (Visible ONLY if Teaching Staff) -->
-          <div v-if="form.employee_type === 'Teaching Staff'" class="pt-1">
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                Assigned College / Academic Unit <span class="text-rose-500">*</span>
-              </label>
-              <span class="text-[11px] text-slate-400 font-medium">BSU Faculty Assignment</span>
-            </div>
-            <div class="relative">
-              <select
-                v-model="form.college"
-                @change="handleCollegeChange"
-                required
-                :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20 text-rose-900' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white text-slate-900'"
-                class="w-full px-4 py-3 pr-10 rounded-xl border text-base sm:text-sm font-medium focus:outline-none transition-all min-h-[48px] appearance-none cursor-pointer"
-              >
-                <option value="" disabled>Select your assigned college or academic unit...</option>
-                <option 
-                  v-for="c in BSU_COLLEGES" 
-                  :key="c.code" 
-                  :value="c.name"
-                >
-                  {{ c.name }}
-                </option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-            <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.college }}
-            </p>
-          </div>
-
-          <!-- Research / Extension Center Selection (Visible ONLY if Research and Extension Staff) -->
-          <div v-if="form.employee_type === 'Research and Extension Staff'" class="pt-1">
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                Assigned Research / Extension Center <span class="text-rose-500">*</span>
-              </label>
-              <span class="text-[11px] text-slate-400 font-medium">BSU Research &amp; Extension</span>
-            </div>
-            <div class="relative">
-              <select
-                v-model="form.college"
-                @change="handleCollegeChange"
-                required
-                :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20 text-rose-900' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white text-slate-900'"
-                class="w-full px-4 py-3 pr-10 rounded-xl border text-base sm:text-sm font-medium focus:outline-none transition-all min-h-[48px] appearance-none cursor-pointer"
-              >
-                <option value="" disabled>Select your research or extension center...</option>
-                <option
-                  v-for="c in RESEARCH_EXTENSION_BUILDINGS"
-                  :key="c"
-                  :value="c"
-                >
-                  {{ c }}
-                </option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-            <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.college }}
-            </p>
-          </div>
-
-          <!-- College & Administrative / Support Buildings Selection (Visible ONLY if Support / Administrative Staff) -->
-          <div v-if="form.employee_type === 'Support / Administrative Staff'" class="pt-1">
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                Assigned College / Administrative / Support Building <span class="text-rose-500">*</span>
-              </label>
-              <span class="text-[11px] text-slate-400 font-medium">BSU College or Admin Facility</span>
-            </div>
-            <div class="relative">
-              <select
-                v-model="form.college"
-                @change="handleCollegeChange"
-                required
-                :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20 text-rose-900' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white text-slate-900'"
-                class="w-full px-4 py-3 pr-10 rounded-xl border text-base sm:text-sm font-medium focus:outline-none transition-all min-h-[48px] appearance-none cursor-pointer"
-              >
-                <option value="" disabled>Select your assigned college or administrative building...</option>
-                <optgroup label="Colleges / Academic Units">
-                  <option 
-                    v-for="c in BSU_COLLEGES" 
-                    :key="c.code" 
-                    :value="c.name"
-                  >
-                    {{ c.name }}
-                  </option>
-                </optgroup>
-                <optgroup label="Administrative &amp; Support Buildings">
-                  <option 
-                    v-for="b in ADMIN_SUPPORT_BUILDINGS" 
-                    :key="b" 
-                    :value="b"
-                  >
-                    {{ b }}
-                  </option>
-                </optgroup>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-            <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.college }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Name Fields (Two Columns on sm+, stacked on mobile) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-          <div>
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                First Name <span class="text-rose-500">*</span>
-              </label>
-              <span class="text-[11px] text-slate-400 font-medium">Letters only</span>
-            </div>
-            <input 
-              v-model="form.first_name"
-              type="text" 
-              autocomplete="given-name"
-              maxlength="50"
-              spellcheck="false"
-              required
-              @input="handleFirstNameInput"
-              @blur="handleFirstNameBlur"
-              :class="fieldErrors.first_name ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
-              placeholder="e.g. Juan"
-            />
-            <p v-if="fieldErrors.first_name" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.first_name }}
-            </p>
-          </div>
-
-          <div>
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                Last Name <span class="text-rose-500">*</span>
-              </label>
-              <span class="text-[11px] text-slate-400 font-medium">Letters only</span>
-            </div>
-            <input 
-              v-model="form.last_name"
-              type="text" 
-              autocomplete="family-name"
-              maxlength="50"
-              spellcheck="false"
-              required
-              @input="handleLastNameInput"
-              @blur="handleLastNameBlur"
-              :class="fieldErrors.last_name ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
-              placeholder="e.g. Dela Cruz"
-            />
-            <p v-if="fieldErrors.last_name" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.last_name }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Identifier & Contact Fields -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+        <!-- ==================== STEP 1: Role & Affiliation ==================== -->
+        <div v-show="currentStep === 1" class="space-y-4">
           
-          <!-- ID Number (Strict 7 digits for students) -->
+          <!-- Role Selector -->
           <div>
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                {{ form.role === 'student' ? 'Student ID Number' : 'Employee ID Number' }} <span class="text-rose-500">*</span>
-              </label>
-              <span 
-                v-if="form.role === 'student'" 
-                :class="form.student_id_number.length === 7 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-slate-500 bg-slate-100 border-slate-200'"
-                class="text-[10px] font-bold px-1.5 py-0.5 rounded border transition-colors"
-              >
-                {{ form.student_id_number.length }}/7 digits
-              </span>
-              <span 
-                v-else
-                :class="form.student_id_number.length === 6 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-slate-500 bg-slate-100 border-slate-200'"
-                class="text-[10px] font-bold px-1.5 py-0.5 rounded border transition-colors"
-              >
-                {{ form.student_id_number.length ? (form.student_id_number.length === 6 ? '6 digits (Standard)' : `${form.student_id_number.length} chars`) : 'Typically 6 digits' }}
-              </span>
-            </div>
-            <input 
-              v-model="form.student_id_number"
-              type="text" 
-              :inputmode="form.role === 'student' ? 'numeric' : 'text'"
-              :maxlength="form.role === 'student' ? 7 : 15"
-              required
-              @input="handleStudentIdInput"
-              :class="fieldErrors.student_id_number ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-semibold tracking-wider placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
-              :placeholder="form.role === 'student' ? 'e.g. 2301219' : 'e.g. 102456'"
-            />
-            <p v-if="fieldErrors.student_id_number" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.student_id_number }}
-            </p>
-            <p v-else class="mt-1 text-[11px] text-slate-400">
-              {{ form.role === 'student' ? 'Strict 7-digit institutional student ID (numbers only).' : 'Most BSU employee IDs are 6 digits (e.g. 102456). Alphanumeric codes are also accepted.' }}
-            </p>
-          </div>
-
-          <!-- Contact Number (Strict 11 digits starting with 09) -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                Contact Number <span class="text-rose-500">*</span>
-              </label>
-              <span 
-                :class="form.contact_number.length === 11 && form.contact_number.startsWith('09') ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-slate-500 bg-slate-100 border-slate-200'"
-                class="text-[10px] font-bold px-1.5 py-0.5 rounded border transition-colors"
-              >
-                {{ form.contact_number.length }}/11 digits
-              </span>
-            </div>
-            <input 
-              v-model="form.contact_number"
-              type="tel" 
-              inputmode="numeric"
-              maxlength="11"
-              autocomplete="tel"
-              required
-              @input="handleContactNumberInput"
-              :class="fieldErrors.contact_number ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-semibold tracking-wider placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
-              placeholder="e.g. 09171234567"
-            />
-            <p v-if="fieldErrors.contact_number" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.contact_number }}
-            </p>
-            <p v-else class="mt-1 text-[11px] text-slate-400">
-              Philippine mobile number starting with 09 (numbers only).
-            </p>
-          </div>
-        </div>
-
-        <!-- Email Address (Required) -->
-        <div>
-          <div class="flex items-center justify-between mb-1.5 ml-0.5">
-            <label class="block text-slate-700 text-xs font-bold">
-              Email Address <span class="text-rose-500">*</span>
+            <label class="block text-slate-700 text-xs font-bold mb-1.5">
+              I am a <span class="text-rose-500">*</span>
             </label>
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-              Required
-            </span>
-          </div>
-          <input 
-            v-model="form.email"
-            type="email" 
-            autocomplete="email"
-            spellcheck="false"
-            maxlength="100"
-            required
-            @blur="handleEmailBlur"
-            :class="fieldErrors.email ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-            class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
-            placeholder="e.g. juan.delacruz@bsu.edu.ph"
-          />
-          <p v-if="fieldErrors.email" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-            {{ fieldErrors.email }}
-          </p>
-          <p v-else class="mt-1 text-[11px] text-slate-500 font-normal">
-            Required for password recovery and automated service ticket notifications.
-          </p>
-        </div>
-
-        <!-- Password Fields -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-          
-          <!-- Password Input -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                Password <span class="text-rose-500">*</span>
-              </label>
+            <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
               <button 
                 type="button" 
-                @click="showPassword = !showPassword"
-                class="text-xs font-bold text-slate-500 hover:text-emerald-700 transition-colors p-1 -m-1 cursor-pointer"
+                @click="handleRoleSelect('student')"
+                :class="form.role === 'student' ? 'bg-white text-emerald-800 font-bold shadow-sm' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                class="min-h-[44px] py-2.5 rounded-lg text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
               >
-                <span>{{ showPassword ? 'Hide' : 'Show' }}</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                </svg>
+                Student
               </button>
-            </div>
-            <div class="relative">
-              <input 
-                v-model="form.password"
-                :type="showPassword ? 'text' : 'password'" 
-                autocomplete="new-password"
-                maxlength="64"
-                required
-                :class="fieldErrors.password ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white'"
-                class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
-                placeholder="Minimum 8 characters"
-              />
-            </div>
-            <p v-if="fieldErrors.password" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.password }}
-            </p>
-          </div>
-
-          <!-- Confirm Password Input -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5 ml-0.5">
-              <label class="block text-slate-700 text-xs font-bold">
-                Confirm Password <span class="text-rose-500">*</span>
-              </label>
               <button 
                 type="button" 
-                @click="showConfirmPassword = !showConfirmPassword"
-                class="text-xs font-bold text-slate-500 hover:text-emerald-700 transition-colors p-1 -m-1 cursor-pointer"
+                @click="handleRoleSelect('employee')"
+                :class="form.role === 'employee' ? 'bg-white text-emerald-800 font-bold shadow-sm' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                class="min-h-[44px] py-2.5 rounded-lg text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
               >
-                <span>{{ showConfirmPassword ? 'Hide' : 'Show' }}</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Faculty / Staff
               </button>
             </div>
-            <div class="relative">
-              <input 
-                v-model="form.password_confirm"
-                :type="showConfirmPassword ? 'text' : 'password'" 
-                autocomplete="new-password"
-                maxlength="64"
-                required
-                :class="fieldErrors.password_confirm ? 'border-rose-300 ring-1 ring-rose-500/20 bg-rose-50/20' : (isPasswordMatch ? 'border-emerald-300 ring-1 ring-emerald-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-slate-50 focus:bg-white')"
-                class="w-full px-4 py-3 rounded-xl border text-slate-900 text-base sm:text-sm font-medium placeholder-slate-400 focus:outline-none transition-all min-h-[48px]"
-                placeholder="Re-enter password"
-              />
+          </div>
+
+          <!-- Student Fields -->
+          <template v-if="form.role === 'student'">
+            <!-- RSO vs SSG -->
+            <div>
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">
+                Affiliation <span class="text-rose-500">*</span>
+              </label>
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  @click="handleStudentTypeSelect('rso')"
+                  :class="form.student_type === 'rso' ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50 text-emerald-900' : 'border-slate-200 hover:border-slate-300 text-slate-600'"
+                  class="min-h-[44px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] cursor-pointer"
+                >
+                  <div class="text-xs font-bold">RSO</div>
+                  <p class="text-[10px] text-slate-500 mt-0.5">Student Organization</p>
+                </button>
+                <button
+                  type="button"
+                  @click="handleStudentTypeSelect('ssg')"
+                  :class="form.student_type === 'ssg' ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50 text-emerald-900' : 'border-slate-200 hover:border-slate-300 text-slate-600'"
+                  class="min-h-[44px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] cursor-pointer"
+                >
+                  <div class="text-xs font-bold">SSG</div>
+                  <p class="text-[10px] text-slate-500 mt-0.5">Student Government</p>
+                </button>
+              </div>
+              <p v-if="fieldErrors.student_type" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.student_type }}</p>
             </div>
-            
-            <!-- Real-time match indicator -->
+
+            <!-- Organization Name or Position -->
+            <div>
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">
+                {{ form.student_type === 'rso' ? 'Organization Name' : 'Officer Position' }} <span class="text-rose-500">*</span>
+              </label>
+              <input
+                v-model="form.organization_name"
+                type="text"
+                maxlength="150"
+                spellcheck="false"
+                required
+                @input="handleOrganizationNameInput"
+                :class="fieldErrors.organization_name ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+                class="w-full px-4 py-3 rounded-xl border text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px]"
+                :placeholder="form.student_type === 'rso' ? 'e.g. Body of Young Information Technologist (BYTE)' : 'e.g. President, Vice President'"
+              />
+              <p v-if="fieldErrors.organization_name" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.organization_name }}</p>
+            </div>
+
+            <!-- College -->
+            <div>
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">
+                College <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <select
+                  v-model="form.college"
+                  @change="handleCollegeChange"
+                  required
+                  :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+                  class="w-full px-4 py-3 pr-10 rounded-xl border text-sm font-medium focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px] appearance-none cursor-pointer text-slate-900"
+                >
+                  <option value="" disabled>Select college...</option>
+                  <option v-for="c in BSU_COLLEGES" :key="c.code" :value="c.name">{{ c.name }}</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+              <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.college }}</p>
+            </div>
+          </template>
+
+          <!-- Employee Fields -->
+          <template v-if="form.role === 'employee'">
+            <!-- Staff Type -->
+            <div>
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">
+                Staff Type <span class="text-rose-500">*</span>
+              </label>
+              <div class="space-y-2">
+                <button
+                  v-for="opt in [
+                    { value: 'Teaching Staff', label: 'Teaching Staff', desc: 'Faculty & Instructors' },
+                    { value: 'Research and Extension Staff', label: 'Research & Extension', desc: 'Research Centers & Extension' },
+                    { value: 'Support / Administrative Staff', label: 'Support / Admin', desc: 'Administrative & Support' }
+                  ]"
+                  :key="opt.value"
+                  type="button"
+                  @click="handleEmployeeTypeSelect(opt.value)"
+                  :class="form.employee_type === opt.value ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50 text-emerald-900' : 'border-slate-200 hover:border-slate-300 text-slate-600'"
+                  class="w-full min-h-[44px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between"
+                >
+                  <div>
+                    <div class="text-xs font-bold">{{ opt.label }}</div>
+                    <p class="text-[10px] text-slate-500 mt-0.5">{{ opt.desc }}</p>
+                  </div>
+                  <div v-if="form.employee_type === opt.value" class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                </button>
+              </div>
+              <p v-if="fieldErrors.employee_type" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.employee_type }}</p>
+            </div>
+
+            <!-- College / Building (conditional) -->
+            <div v-if="form.employee_type === 'Teaching Staff'">
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">
+                Assigned College <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <select v-model="form.college" @change="handleCollegeChange" required
+                  :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+                  class="w-full px-4 py-3 pr-10 rounded-xl border text-sm font-medium focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px] appearance-none cursor-pointer text-slate-900">
+                  <option value="" disabled>Select college...</option>
+                  <option v-for="c in BSU_COLLEGES" :key="c.code" :value="c.name">{{ c.name }}</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+              <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.college }}</p>
+            </div>
+
+            <div v-if="form.employee_type === 'Research and Extension Staff'">
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">
+                Assigned Center <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <select v-model="form.college" @change="handleCollegeChange" required
+                  :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+                  class="w-full px-4 py-3 pr-10 rounded-xl border text-sm font-medium focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px] appearance-none cursor-pointer text-slate-900">
+                  <option value="" disabled>Select center...</option>
+                  <option v-for="c in RESEARCH_EXTENSION_BUILDINGS" :key="c" :value="c">{{ c }}</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+              <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.college }}</p>
+            </div>
+
+            <div v-if="form.employee_type === 'Support / Administrative Staff'">
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">
+                Assigned Building <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <select v-model="form.college" @change="handleCollegeChange" required
+                  :class="fieldErrors.college ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+                  class="w-full px-4 py-3 pr-10 rounded-xl border text-sm font-medium focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px] appearance-none cursor-pointer text-slate-900">
+                  <option value="" disabled>Select building...</option>
+                  <optgroup label="Colleges">
+                    <option v-for="c in BSU_COLLEGES" :key="c.code" :value="c.name">{{ c.name }}</option>
+                  </optgroup>
+                  <optgroup label="Administrative Buildings">
+                    <option v-for="b in ADMIN_SUPPORT_BUILDINGS" :key="b" :value="b">{{ b }}</option>
+                  </optgroup>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+              <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.college }}</p>
+            </div>
+          </template>
+        </div>
+
+        <!-- ==================== STEP 2: Personal Info ==================== -->
+        <div v-show="currentStep === 2" class="space-y-4">
+          
+          <!-- Name Fields -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">First Name <span class="text-rose-500">*</span></label>
+              <input 
+                v-model="form.first_name" type="text" autocomplete="given-name" maxlength="50" spellcheck="false" required
+                @input="handleFirstNameInput" @blur="handleFirstNameBlur"
+                :class="fieldErrors.first_name ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+                class="w-full px-4 py-3 rounded-xl border text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px]"
+                placeholder="Juan"
+              />
+              <p v-if="fieldErrors.first_name" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.first_name }}</p>
+            </div>
+            <div>
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">Last Name <span class="text-rose-500">*</span></label>
+              <input 
+                v-model="form.last_name" type="text" autocomplete="family-name" maxlength="50" spellcheck="false" required
+                @input="handleLastNameInput" @blur="handleLastNameBlur"
+                :class="fieldErrors.last_name ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+                class="w-full px-4 py-3 rounded-xl border text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px]"
+                placeholder="Dela Cruz"
+              />
+              <p v-if="fieldErrors.last_name" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.last_name }}</p>
+            </div>
+          </div>
+
+          <!-- ID & Contact -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">
+                {{ form.role === 'student' ? 'Student ID' : 'Employee ID' }} <span class="text-rose-500">*</span>
+              </label>
+              <input 
+                v-model="form.student_id_number" type="text"
+                :inputmode="form.role === 'student' ? 'numeric' : 'text'"
+                :maxlength="form.role === 'student' ? 7 : 15"
+                required @input="handleStudentIdInput"
+                :class="fieldErrors.student_id_number ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+                class="w-full px-4 py-3 rounded-xl border text-slate-900 text-sm font-semibold tracking-wider placeholder-slate-400 focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px]"
+                :placeholder="form.role === 'student' ? '2301219' : '102456'"
+              />
+              <p v-if="fieldErrors.student_id_number" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.student_id_number }}</p>
+            </div>
+            <div>
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">Contact No. <span class="text-rose-500">*</span></label>
+              <input 
+                v-model="form.contact_number" type="tel" inputmode="numeric" maxlength="11" autocomplete="tel" required
+                @input="handleContactNumberInput"
+                :class="fieldErrors.contact_number ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+                class="w-full px-4 py-3 rounded-xl border text-slate-900 text-sm font-semibold tracking-wider placeholder-slate-400 focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px]"
+                placeholder="09171234567"
+              />
+              <p v-if="fieldErrors.contact_number" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.contact_number }}</p>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-slate-700 text-xs font-bold mb-1.5">Email <span class="text-rose-500">*</span></label>
+            <input 
+              v-model="form.email" type="email" autocomplete="email" spellcheck="false" maxlength="100" required
+              @blur="handleEmailBlur"
+              :class="fieldErrors.email ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px]"
+              placeholder="juan.delacruz@bsu.edu.ph"
+            />
+            <p v-if="fieldErrors.email" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.email }}</p>
+          </div>
+        </div>
+
+        <!-- ==================== STEP 3: Password ==================== -->
+        <div v-show="currentStep === 3" class="space-y-4">
+          
+          <!-- Password -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="text-slate-700 text-xs font-bold">Password <span class="text-rose-500">*</span></label>
+              <button type="button" @click="showPassword = !showPassword"
+                class="text-xs font-bold text-slate-500 hover:text-emerald-700 transition-colors cursor-pointer">
+                {{ showPassword ? 'Hide' : 'Show' }}
+              </button>
+            </div>
+            <input 
+              v-model="form.password" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" maxlength="64" required
+              :class="fieldErrors.password ? 'border-rose-300 ring-1 ring-rose-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px]"
+              placeholder="Minimum 8 characters"
+            />
+            <p v-if="fieldErrors.password" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.password }}</p>
+          </div>
+
+          <!-- Confirm Password -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="text-slate-700 text-xs font-bold">Confirm Password <span class="text-rose-500">*</span></label>
+              <button type="button" @click="showConfirmPassword = !showConfirmPassword"
+                class="text-xs font-bold text-slate-500 hover:text-emerald-700 transition-colors cursor-pointer">
+                {{ showConfirmPassword ? 'Hide' : 'Show' }}
+              </button>
+            </div>
+            <input 
+              v-model="form.password_confirm" :type="showConfirmPassword ? 'text' : 'password'" autocomplete="new-password" maxlength="64" required
+              :class="fieldErrors.password_confirm ? 'border-rose-300 ring-1 ring-rose-500/20' : (isPasswordMatch ? 'border-emerald-300 ring-1 ring-emerald-500/20' : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20')"
+              class="w-full px-4 py-3 rounded-xl border text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none transition-all bg-slate-50 focus:bg-white min-h-[44px]"
+              placeholder="Re-enter password"
+            />
             <div v-if="isConfirmPasswordTouched" class="mt-1">
               <p v-if="isPasswordMatch" class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                 Passwords match
               </p>
-              <p v-else class="text-xs text-rose-500 font-medium flex items-center gap-1">
-                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                Passwords do not match
-              </p>
+              <p v-else class="text-xs text-rose-500 font-medium">Passwords do not match</p>
             </div>
-            <p v-else-if="fieldErrors.password_confirm" class="mt-1 text-xs text-rose-500 font-medium flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-              {{ fieldErrors.password_confirm }}
-            </p>
+            <p v-else-if="fieldErrors.password_confirm" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.password_confirm }}</p>
           </div>
-        </div>
 
-        <!-- Elder-Friendly Password Requirements Card (No special characters required) -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              Password Checklist
+          <!-- Compact Password Strength -->
+          <div class="flex items-center gap-2">
+            <div class="flex gap-1 flex-1">
+              <div :class="passwordStrengthScore >= 1 ? 'bg-amber-500' : 'bg-slate-200'" class="h-1 rounded-full flex-1 transition-colors"></div>
+              <div :class="passwordStrengthScore >= 2 ? 'bg-amber-500' : 'bg-slate-200'" class="h-1 rounded-full flex-1 transition-colors"></div>
+              <div :class="passwordStrengthScore === 3 ? 'bg-emerald-500' : 'bg-slate-200'" class="h-1 rounded-full flex-1 transition-colors"></div>
+            </div>
+            <span class="text-[10px] text-slate-400 font-medium whitespace-nowrap">
+              {{ passwordStrengthScore === 0 ? '' : passwordStrengthScore === 3 ? 'Strong' : passwordStrengthScore === 2 ? 'Medium' : 'Weak' }}
             </span>
-            <span class="text-[11px] text-slate-500 font-medium">Simple & Easy</span>
           </div>
 
-          <!-- Progress Bar Indicator -->
-          <div class="grid grid-cols-3 gap-1.5 mb-2.5">
-            <div 
-              :class="passwordStrengthScore >= 1 ? 'bg-amber-500' : 'bg-slate-200'" 
-              class="h-1.5 rounded-full transition-colors duration-300"
-            ></div>
-            <div 
-              :class="passwordStrengthScore >= 2 ? 'bg-amber-500' : 'bg-slate-200'" 
-              class="h-1.5 rounded-full transition-colors duration-300"
-            ></div>
-            <div 
-              :class="passwordStrengthScore === 3 ? 'bg-emerald-500' : 'bg-slate-200'" 
-              class="h-1.5 rounded-full transition-colors duration-300"
-            ></div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-            <div 
-              :class="passwordCriteria.hasLength ? 'text-emerald-700 font-semibold' : 'text-slate-500'" 
-              class="flex items-center gap-1.5 transition-colors"
-            >
-              <svg v-if="passwordCriteria.hasLength" class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
-              <span v-else class="w-1.5 h-1.5 rounded-full bg-slate-300 mx-1 flex-shrink-0"></span>
-              At least 8 characters
-            </div>
-
-            <div 
-              :class="passwordCriteria.hasLetter ? 'text-emerald-700 font-semibold' : 'text-slate-500'" 
-              class="flex items-center gap-1.5 transition-colors"
-            >
-              <svg v-if="passwordCriteria.hasLetter" class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
-              <span v-else class="w-1.5 h-1.5 rounded-full bg-slate-300 mx-1 flex-shrink-0"></span>
-              Contains letters (A-Z)
-            </div>
-
-            <div 
-              :class="passwordCriteria.hasNumber ? 'text-emerald-700 font-semibold' : 'text-slate-500'" 
-              class="flex items-center gap-1.5 transition-colors"
-            >
-              <svg v-if="passwordCriteria.hasNumber" class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
-              <span v-else class="w-1.5 h-1.5 rounded-full bg-slate-300 mx-1 flex-shrink-0"></span>
-              Contains numbers (0-9)
-            </div>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+            <span :class="passwordCriteria.hasLength ? 'text-emerald-600' : 'text-slate-400'" class="flex items-center gap-1 transition-colors">
+              <svg v-if="passwordCriteria.hasLength" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+              <span v-else class="w-1 h-1 rounded-full bg-slate-300 mx-1"></span>
+              8+ chars
+            </span>
+            <span :class="passwordCriteria.hasLetter ? 'text-emerald-600' : 'text-slate-400'" class="flex items-center gap-1 transition-colors">
+              <svg v-if="passwordCriteria.hasLetter" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+              <span v-else class="w-1 h-1 rounded-full bg-slate-300 mx-1"></span>
+              Letters
+            </span>
+            <span :class="passwordCriteria.hasNumber ? 'text-emerald-600' : 'text-slate-400'" class="flex items-center gap-1 transition-colors">
+              <svg v-if="passwordCriteria.hasNumber" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+              <span v-else class="w-1 h-1 rounded-full bg-slate-300 mx-1"></span>
+              Numbers
+            </span>
           </div>
         </div>
 
-        <!-- Mandatory ID Card & Selfie Upload Section (2 Files Required) -->
-        <div 
-          class="pt-3 border-t border-slate-200/80 space-y-3"
-          @dragover.prevent 
-          @drop="handleSectionDrop"
-        >
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 ml-0.5">
-            <div class="flex items-center gap-2 flex-wrap">
-              <label class="block text-slate-800 text-xs sm:text-sm font-black">
-                Identity Verification Documents <span class="text-rose-500">*</span>
-              </label>
-              <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black tracking-wider uppercase border border-emerald-200">
-                2 Files Required
-              </span>
-            </div>
-            <span class="text-[11px] text-slate-500 font-medium">Max 5MB per file • JPG, PNG, WebP</span>
-          </div>
+        <!-- ==================== STEP 4: ID Upload & Terms ==================== -->
+        <div v-show="currentStep === 4" class="space-y-4" @dragover.prevent @drop="handleSectionDrop">
+          
+          <p class="text-xs text-slate-500 font-medium">Upload a clear front ID photo and a selfie holding your ID. Max 5MB each (JPG, PNG, WebP).</p>
 
-          <!-- Instruction Callout Card -->
-          <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/90 border border-emerald-200/90 text-xs text-emerald-950 flex items-start gap-3 shadow-2xs">
-            <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div class="space-y-1">
-              <p class="font-black text-emerald-950 text-xs sm:text-sm leading-tight">Verification Instructions:</p>
-              <p class="text-emerald-900 font-medium text-xs leading-relaxed">
-                Please upload a <strong>clear picture of the front ID</strong> and another <strong>picture for selfie while holding the ID</strong>. Make sure all ID text and your face are sharp and clearly legible.
-              </p>
-            </div>
-          </div>
+          <!-- Hidden File Inputs -->
+          <input ref="fileInputRef" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="hidden" @change="(e) => handleFileSelect(e, 'front')" />
+          <input ref="selfieInputRef" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="hidden" @change="(e) => handleFileSelect(e, 'selfie')" />
 
-          <!-- Hidden File Inputs for Individual or Multi-Select -->
-          <input 
-            ref="fileInputRef"
-            type="file" 
-            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" 
-            class="hidden" 
-            @change="(e) => handleFileSelect(e, 'front')"
-          />
-          <input 
-            ref="selfieInputRef"
-            type="file" 
-            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" 
-            class="hidden" 
-            @change="(e) => handleFileSelect(e, 'selfie')"
-          />
-
-          <!-- 2-Slot Grid: Front ID Card & Selfie Holding ID -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-1">
-
-            <!-- Slot 1: Front ID Card -->
-            <div class="flex flex-col">
-              <div class="flex items-center justify-between mb-1.5 ml-0.5">
-                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                  </svg>
-                  <span>1. Front ID Card</span> <span class="text-rose-500">*</span>
-                </span>
-                <span v-if="idCardFile" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                  Ready
-                </span>
-              </div>
-
-              <!-- Empty upload box for Front ID -->
-              <div 
-                v-if="!idCardPreview"
+          <!-- Upload Slots -->
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Front ID -->
+            <div>
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">Front ID <span class="text-rose-500">*</span></label>
+              <div v-if="!idCardPreview"
                 @click="$refs.fileInputRef?.click()"
-                class="min-h-[140px] border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/80 hover:bg-emerald-50/30 rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 group flex flex-col items-center justify-center active:scale-[0.99]"
-              >
-                <div class="w-10 h-10 bg-white rounded-xl shadow-xs flex items-center justify-center mb-2 group-hover:scale-105 transition-transform border border-slate-100 text-emerald-600">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <p class="text-xs font-bold text-slate-800 group-hover:text-emerald-700">Upload Front ID</p>
-                <p class="text-[10px] text-slate-500 mt-0.5">Clear picture of front ID card</p>
-              </div>
-
-              <!-- Preview card for Front ID -->
-              <div v-else class="rounded-2xl border border-slate-200 bg-slate-50 p-3 flex flex-col gap-2.5 shadow-2xs">
-                <div class="w-full h-28 sm:h-32 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-2xs relative">
-                  <img :src="idCardPreview" alt="Front ID Preview" class="w-full h-full object-cover" />
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                  <div class="truncate">
-                    <p class="text-xs font-bold text-slate-800 truncate" :title="idCardFile?.name">{{ idCardFile?.name }}</p>
-                    <p class="text-[10px] text-slate-500">{{ (idCardFile?.size / (1024 * 1024)).toFixed(2) }} MB • Front ID</p>
-                  </div>
-                  <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-                </div>
-                <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60">
-                  <button 
-                    type="button" 
-                    @click="$refs.fileInputRef?.click()" 
-                    class="flex-1 min-h-[36px] text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-white border border-slate-200 hover:border-emerald-300 py-1.5 px-3 rounded-lg shadow-2xs transition-all cursor-pointer text-center"
-                  >
-                    Change
-                  </button>
-                  <button 
-                    type="button" 
-                    @click="removeSelectedFile('front')" 
-                    class="min-h-[36px] text-xs font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 hover:border-rose-300 py-1.5 px-3 rounded-lg shadow-2xs transition-all cursor-pointer text-center"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-
-              <p v-if="fieldErrors.id_card" class="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
-                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                {{ fieldErrors.id_card }}
-              </p>
-            </div>
-
-            <!-- Slot 2: Selfie Holding ID -->
-            <div class="flex flex-col">
-              <div class="flex items-center justify-between mb-1.5 ml-0.5">
-                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  <span>2. Selfie with ID</span> <span class="text-rose-500">*</span>
-                </span>
-                <span v-if="idSelfieFile" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                  Ready
-                </span>
-              </div>
-
-              <!-- Empty upload box for Selfie with ID -->
-              <div 
-                v-if="!idSelfiePreview"
-                @click="$refs.selfieInputRef?.click()"
-                class="min-h-[140px] border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/80 hover:bg-emerald-50/30 rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 group flex flex-col items-center justify-center active:scale-[0.99]"
-              >
-                <div class="w-10 h-10 bg-white rounded-xl shadow-xs flex items-center justify-center mb-2 group-hover:scale-105 transition-transform border border-slate-100 text-emerald-600">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <p class="text-xs font-bold text-slate-800 group-hover:text-emerald-700">Upload Selfie with ID</p>
-                <p class="text-[10px] text-slate-500 mt-0.5">Selfie holding your ID card</p>
-              </div>
-
-              <!-- Preview card for Selfie with ID -->
-              <div v-else class="rounded-2xl border border-slate-200 bg-slate-50 p-3 flex flex-col gap-2.5 shadow-2xs">
-                <div class="w-full h-28 sm:h-32 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-2xs relative">
-                  <img :src="idSelfiePreview" alt="Selfie with ID Preview" class="w-full h-full object-cover" />
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                  <div class="truncate">
-                    <p class="text-xs font-bold text-slate-800 truncate" :title="idSelfieFile?.name">{{ idSelfieFile?.name }}</p>
-                    <p class="text-[10px] text-slate-500">{{ (idSelfieFile?.size / (1024 * 1024)).toFixed(2) }} MB • Selfie with ID</p>
-                  </div>
-                  <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-                </div>
-                <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60">
-                  <button 
-                    type="button" 
-                    @click="$refs.selfieInputRef?.click()" 
-                    class="flex-1 min-h-[36px] text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-white border border-slate-200 hover:border-emerald-300 py-1.5 px-3 rounded-lg shadow-2xs transition-all cursor-pointer text-center"
-                  >
-                    Change
-                  </button>
-                  <button 
-                    type="button" 
-                    @click="removeSelectedFile('selfie')" 
-                    class="min-h-[36px] text-xs font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 hover:border-rose-300 py-1.5 px-3 rounded-lg shadow-2xs transition-all cursor-pointer text-center"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-
-              <p v-if="fieldErrors.id_selfie" class="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
-                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                {{ fieldErrors.id_selfie }}
-              </p>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Informative Card Notice -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 leading-relaxed flex items-start gap-2.5">
-          <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-          <div>
-            <span class="font-bold text-slate-800">Account Access:</span>
-            Once registered, you can log in immediately to explore the GSO portal. Official service ticket intake will be authorized following ID verification by the Super Administrator.
-          </div>
-        </div>
-
-        <!-- Privacy Notice & Terms Acceptance (Required) -->
-        <div class="pt-2">
-          <div v-if="!hasAgreedToDisclaimer" class="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
-            <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-xs font-bold text-amber-900">Data Privacy Notice &amp; Terms of Use</p>
-              <p class="text-xs text-amber-800 mt-0.5 leading-relaxed">
-                Please review and accept our Data Privacy Notice &amp; Terms of Use before registering.
-              </p>
-              <button 
-                type="button"
-                @click="showDisclaimerModal = true; isDisclaimerTouched = true"
-                class="mt-2.5 px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
-              >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                class="min-h-[120px] border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/80 hover:bg-emerald-50/30 rounded-xl p-3 text-center cursor-pointer transition-all group flex flex-col items-center justify-center active:scale-[0.99]">
+                <svg class="w-8 h-8 text-slate-400 group-hover:text-emerald-500 transition-colors mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                Review Disclaimer &amp; Accept
-              </button>
+                <p class="text-[11px] font-bold text-slate-600 group-hover:text-emerald-700">Upload</p>
+              </div>
+              <div v-else class="rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
+                <div class="h-24 bg-slate-900 relative">
+                  <img :src="idCardPreview" alt="Front ID" class="w-full h-full object-cover" />
+                </div>
+                <div class="p-2 flex items-center justify-between">
+                  <p class="text-[10px] text-slate-600 font-medium truncate flex-1 mr-2">{{ idCardFile?.name }}</p>
+                  <div class="flex gap-1">
+                    <button type="button" @click="$refs.fileInputRef?.click()" class="text-[10px] font-bold text-emerald-700 hover:underline cursor-pointer">Change</button>
+                    <button type="button" @click="removeSelectedFile('front')" class="text-[10px] font-bold text-rose-600 hover:underline cursor-pointer">Remove</button>
+                  </div>
+                </div>
+              </div>
+              <p v-if="fieldErrors.id_card" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.id_card }}</p>
+            </div>
+
+            <!-- Selfie with ID -->
+            <div>
+              <label class="block text-slate-700 text-xs font-bold mb-1.5">Selfie with ID <span class="text-rose-500">*</span></label>
+              <div v-if="!idSelfiePreview"
+                @click="$refs.selfieInputRef?.click()"
+                class="min-h-[120px] border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/80 hover:bg-emerald-50/30 rounded-xl p-3 text-center cursor-pointer transition-all group flex flex-col items-center justify-center active:scale-[0.99]">
+                <svg class="w-8 h-8 text-slate-400 group-hover:text-emerald-500 transition-colors mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <p class="text-[11px] font-bold text-slate-600 group-hover:text-emerald-700">Upload</p>
+              </div>
+              <div v-else class="rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
+                <div class="h-24 bg-slate-900 relative">
+                  <img :src="idSelfiePreview" alt="Selfie with ID" class="w-full h-full object-cover" />
+                </div>
+                <div class="p-2 flex items-center justify-between">
+                  <p class="text-[10px] text-slate-600 font-medium truncate flex-1 mr-2">{{ idSelfieFile?.name }}</p>
+                  <div class="flex gap-1">
+                    <button type="button" @click="$refs.selfieInputRef?.click()" class="text-[10px] font-bold text-emerald-700 hover:underline cursor-pointer">Change</button>
+                    <button type="button" @click="removeSelectedFile('selfie')" class="text-[10px] font-bold text-rose-600 hover:underline cursor-pointer">Remove</button>
+                  </div>
+                </div>
+              </div>
+              <p v-if="fieldErrors.id_selfie" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.id_selfie }}</p>
             </div>
           </div>
-          <div v-else class="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
-            <div class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <span class="text-xs font-semibold text-emerald-800">Privacy Notice &amp; Terms accepted.</span>
-            </div>
-            <button 
-              type="button"
-              @click="showDisclaimerModal = true"
-              class="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer"
-            >
-              View Terms
+
+          <!-- Privacy Terms (compact) -->
+          <div v-if="!hasAgreedToDisclaimer" class="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3">
+            <p class="text-xs text-amber-900 font-medium">Review and accept the Data Privacy Notice & Terms of Use.</p>
+            <button type="button" @click="showDisclaimerModal = true; isDisclaimerTouched = true"
+              class="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors cursor-pointer whitespace-nowrap">
+              Review
             </button>
           </div>
+          <div v-else class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              <span class="text-xs font-semibold text-emerald-800">Terms accepted</span>
+            </div>
+            <button type="button" @click="showDisclaimerModal = true"
+              class="text-xs font-bold text-emerald-700 hover:underline cursor-pointer">View</button>
+          </div>
+          <p v-if="fieldErrors.disclaimer" class="text-xs text-rose-500 font-medium">{{ fieldErrors.disclaimer }}</p>
         </div>
 
-        <!-- Submit Button -->
-        <button 
-          :disabled="isLoading || !hasAgreedToDisclaimer"
-          type="submit"
-          class="w-full min-h-[48px] py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xl shadow-slate-900/20 transform hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          <span v-if="!isLoading">Complete Registration &amp; Verify ID</span>
-          <span v-else>Submitting Verification...</span>
-          <svg v-if="!isLoading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
-          <svg v-else class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-        </button>
+        <!-- ==================== Navigation Buttons ==================== -->
+        <div class="flex items-center gap-3 mt-6 pt-4 border-t border-slate-100">
+          <!-- Back -->
+          <button
+            v-if="currentStep > 1"
+            type="button"
+            @click="goToPrevStep"
+            class="min-h-[44px] px-5 py-2.5 text-sm font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer active:scale-[0.98]"
+          >
+            Back
+          </button>
 
-        <!-- Back to Login Link -->
-        <div class="text-center pt-2">
-          <p class="text-xs text-slate-500 font-medium">
+          <div class="flex-1"></div>
+
+          <!-- Next / Submit -->
+          <button
+            v-if="currentStep < TOTAL_STEPS"
+            type="button"
+            @click="goToNextStep"
+            class="min-h-[44px] px-6 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl shadow-lg shadow-emerald-600/20 transition-all cursor-pointer active:scale-[0.98] flex items-center gap-1.5"
+          >
+            Continue
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+          </button>
+
+          <button
+            v-else
+            :disabled="isLoading || !hasAgreedToDisclaimer"
+            type="submit"
+            class="min-h-[44px] px-6 py-2.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-lg shadow-slate-900/20 transition-all cursor-pointer active:scale-[0.98] flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span v-if="!isLoading">Register</span>
+            <span v-else>Submitting...</span>
+            <svg v-if="!isLoading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+            <svg v-else class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Back to Login -->
+        <div class="text-center pt-3">
+          <p class="text-xs text-slate-500">
             Already have an account? 
-            <router-link to="/login" class="text-emerald-700 hover:text-emerald-800 font-bold hover:underline transition-all">
-              Sign In here
-            </router-link>
+            <router-link to="/login" class="text-emerald-700 hover:text-emerald-800 font-bold hover:underline transition-all">Sign In</router-link>
           </p>
         </div>
 
@@ -1623,173 +1250,108 @@ const handleRegister = async () => {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showDisclaimerModal" class="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md overflow-y-auto pointer-events-auto" @click.self="closeDisclaimerModal">
-          <div class="my-auto bg-white w-full max-w-2xl max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] rounded-3xl shadow-2xl overflow-hidden border border-slate-200 animate-scale-up flex flex-col pointer-events-auto">
+          <div class="my-auto bg-white w-full max-w-2xl max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col pointer-events-auto">
             
             <!-- Modal Header -->
-            <div class="px-6 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-900 text-white flex items-center justify-between shrink-0 border-b border-slate-800">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="text-lg font-black text-white leading-tight">Data Privacy Notice & Terms of Use</h3>
-                  <p class="text-xs text-slate-300 font-medium mt-0.5">Republic Act No. 10173 Compliance — Benguet State University GSO</p>
-                </div>
+            <div class="px-5 py-4 bg-gradient-to-r from-slate-900 to-emerald-900 text-white flex items-center justify-between shrink-0">
+              <div>
+                <h3 class="text-base font-black text-white">Data Privacy Notice & Terms</h3>
+                <p class="text-[11px] text-slate-300 mt-0.5">RA 10173 Compliance — BSU GSO</p>
               </div>
-              <button
-                @click="closeDisclaimerModal"
-                class="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 text-slate-300 transition-colors flex items-center justify-center"
-                title="Close"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+              <button @click="closeDisclaimerModal" class="w-8 h-8 rounded-lg bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 text-slate-300 transition-colors flex items-center justify-center cursor-pointer">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
             <!-- Modal Body -->
-            <div class="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar text-sm text-slate-700 leading-relaxed">
+            <div class="flex-1 overflow-y-auto p-5 space-y-4 text-xs text-slate-700 leading-relaxed">
               
-              <!-- Data Privacy Act Notice -->
-              <div class="space-y-3 border-l-4 border-emerald-500 pl-4 py-2 bg-emerald-50/50 rounded-r-xl">
-                <h4 class="text-xs font-black text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  Republic Act No. 10173 — Data Privacy Act of 2012
-                </h4>
-                <p class="text-xs text-slate-700">
-                  Benguet State University (BSU), through the General Services Office (GSO), respects your privacy and is committed to protecting your personal information in accordance with the <strong>Data Privacy Act of 2012 (Republic Act No. 10173)</strong>, its Implementing Rules and Regulations, and other relevant issuances by the National Privacy Commission (NPC).
-                </p>
+              <div class="border-l-3 border-emerald-500 pl-3 py-1.5 bg-emerald-50/50 rounded-r-lg">
+                <h4 class="font-black text-emerald-800 uppercase tracking-wider text-[11px] mb-1">RA 10173 — Data Privacy Act of 2012</h4>
+                <p>BSU, through the GSO, respects your privacy and protects personal information per the <strong>Data Privacy Act of 2012</strong> and NPC issuances.</p>
               </div>
 
-              <!-- Purpose of Collection -->
-              <div class="space-y-2">
-                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
-                  Purpose of Data Collection
-                </h4>
-                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
-                  <li>Identity verification for GSO E-Ticketing System access</li>
-                  <li>Processing and tracking of service requests and work orders</li>
-                  <li>Communication regarding ticket status, updates, and notifications</li>
-                  <li>Generation of official reports and documentation for university operations</li>
-                  <li>Compliance with university policies, audit requirements, and legal obligations</li>
+              <div>
+                <h4 class="font-black text-slate-800 uppercase tracking-wider text-[11px] mb-1.5">Purpose of Collection</h4>
+                <ul class="list-disc list-inside space-y-0.5 ml-1">
+                  <li>Identity verification for system access</li>
+                  <li>Processing and tracking service requests</li>
+                  <li>Ticket status communication and notifications</li>
+                  <li>Official reports and university compliance</li>
                 </ul>
               </div>
 
-              <!-- Types of Data Collected -->
-              <div class="space-y-2">
-                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                  Types of Personal Data Collected
-                </h4>
-                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
-                  <li>Full name, student/employee ID number, contact number, email address</li>
-                  <li>College/unit affiliation, role classification (student RSO/SSG, faculty, staff)</li>
-                  <li>Government-issued ID image (front) and selfie with ID for identity verification</li>
-                  <li>Account credentials (hashed password), login timestamps, and activity logs</li>
-                  <li>Ticket submission history, attachments, and communication records</li>
+              <div>
+                <h4 class="font-black text-slate-800 uppercase tracking-wider text-[11px] mb-1.5">Data Collected</h4>
+                <ul class="list-disc list-inside space-y-0.5 ml-1">
+                  <li>Name, ID number, contact number, email</li>
+                  <li>College/unit affiliation and role</li>
+                  <li>ID image and selfie for verification</li>
+                  <li>Account credentials (hashed), activity logs</li>
                 </ul>
               </div>
 
-              <!-- Data Processing & Retention -->
-              <div class="space-y-2">
-                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  Data Processing, Retention & Security
-                </h4>
-                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
-                  <li>Data is processed only for the stated purposes with appropriate technical and organizational security measures</li>
-                  <li>ID images are used solely for verification and are not shared with unauthorized parties</li>
-                  <li>Personal data is retained only as long as necessary for the purposes stated or as required by law</li>
-                  <li>You have rights under RA 10173: access, rectification, erasure, restriction, portability, and objection</li>
-                  <li>Contact the BSU Data Protection Officer at <span class="font-semibold">dpo@bsu.edu.ph</span> for privacy concerns</li>
+              <div>
+                <h4 class="font-black text-slate-800 uppercase tracking-wider text-[11px] mb-1.5">Processing, Retention & Security</h4>
+                <ul class="list-disc list-inside space-y-0.5 ml-1">
+                  <li>Data processed only for stated purposes with security measures</li>
+                  <li>ID images used solely for verification</li>
+                  <li>Data retained only as necessary or as required by law</li>
+                  <li>Your rights: access, rectification, erasure, portability, objection</li>
+                  <li>Contact DPO at <strong>dpo@bsu.edu.ph</strong></li>
                 </ul>
               </div>
 
-              <!-- Data Sharing -->
-              <div class="space-y-2">
-                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                  Data Sharing & Disclosure
-                </h4>
-                <p class="text-xs text-slate-700">
-                  Your personal data will not be sold, rented, or leased to third parties. Disclosure may occur only:
-                </p>
-                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
-                  <li>To authorized BSU/GSO personnel for official duties</li>
-                  <li>When required by law, court order, or government agency with valid authority</li>
-                  <li>With your explicit consent for specific purposes</li>
-                  <li>In anonymized/aggregated form for statistical reporting</li>
+              <div>
+                <h4 class="font-black text-slate-800 uppercase tracking-wider text-[11px] mb-1.5">Data Sharing</h4>
+                <p>Data will not be sold or leased. Disclosure only to authorized BSU/GSO personnel, when required by law, with your consent, or in anonymized form.</p>
+              </div>
+
+              <div class="border-l-3 border-amber-500 pl-3 py-1.5 bg-amber-50/50 rounded-r-lg">
+                <h4 class="font-black text-amber-800 uppercase tracking-wider text-[11px] mb-1">Your Rights (RA 10173, Chapter IV)</h4>
+                <ul class="list-disc list-inside space-y-0.5 ml-1">
+                  <li><strong>Right to be Informed</strong> — Know what data is collected</li>
+                  <li><strong>Right to Access</strong> — Request a copy</li>
+                  <li><strong>Right to Rectification</strong> — Correct inaccurate data</li>
+                  <li><strong>Right to Erasure</strong> — Request deletion</li>
+                  <li><strong>Right to Portability</strong> — Obtain data in structured format</li>
+                  <li><strong>Right to Object</strong> — Object to processing</li>
+                  <li><strong>Right to Damages</strong> — Seek compensation for violations</li>
                 </ul>
               </div>
 
-              <!-- User Rights -->
-              <div class="space-y-2 border-l-4 border-amber-500 pl-4 py-2 bg-amber-50/50 rounded-r-xl">
-                <h4 class="text-xs font-black text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                  Your Rights as a Data Subject (RA 10173, Chapter IV)
-                </h4>
-                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
-                  <li><strong>Right to be Informed</strong> — Know what data is collected and why</li>
-                  <li><strong>Right to Access</strong> — Request a copy of your personal data</li>
-                  <li><strong>Right to Rectification</strong> — Correct inaccurate or incomplete data</li>
-                  <li><strong>Right to Erasure/Blocking</strong> — Request deletion when data is no longer necessary</li>
-                  <li><strong>Right to Data Portability</strong> — Obtain your data in a structured, commonly used format</li>
-                  <li><strong>Right to Object</strong> — Object to processing for direct marketing or profiling</li>
-                  <li><strong>Right to Damages</strong> — Seek compensation for damages due to violations</li>
+              <div>
+                <h4 class="font-black text-slate-800 uppercase tracking-wider text-[11px] mb-1.5">Terms of Use</h4>
+                <ul class="list-disc list-inside space-y-0.5 ml-1">
+                  <li>Account for official BSU GSO E-Ticketing use only</li>
+                  <li>Keep credentials confidential</li>
+                  <li>Provide accurate information</li>
+                  <li>Misuse results in account suspension</li>
+                  <li>BSU may suspend/terminate accounts for violations</li>
                 </ul>
               </div>
 
-              <!-- Terms of Use Summary -->
-              <div class="space-y-2 pt-2 border-t border-slate-200">
-                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                  Terms of Use — Summary
-                </h4>
-                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
-                  <li>This account is for official BSU GSO E-Ticketing System use only</li>
-                  <li>You are responsible for maintaining the confidentiality of your login credentials</li>
-                  <li>You must provide accurate, current, and complete information</li>
-                  <li>Misuse, impersonation, or unauthorized access attempts will result in account suspension</li>
-                  <li>BSU reserves the right to suspend/terminate accounts violating these terms</li>
-                  <li>Service availability is subject to university IT policies and maintenance schedules</li>
+              <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <p class="font-semibold text-slate-800 mb-1">By clicking "I Agree", you acknowledge:</p>
+                <ul class="list-disc list-inside space-y-0.5 ml-1">
+                  <li>You've read this notice and terms</li>
+                  <li>You consent to data collection and processing</li>
+                  <li>All information provided is true and accurate</li>
+                  <li>You understand your rights under RA 10173</li>
                 </ul>
               </div>
-
-              <!-- Consent Statement -->
-              <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                <p class="text-xs font-semibold text-slate-800">By clicking <strong>"I Agree"</strong>, you acknowledge that:</p>
-                <ul class="list-disc list-inside text-xs text-slate-700 space-y-1 ml-2">
-                  <li>You have read and understood this Data Privacy Notice and Terms of Use</li>
-                  <li>You voluntarily consent to the collection, use, and processing of your personal data as described</li>
-                  <li>You confirm that all information provided is true, accurate, and complete</li>
-                  <li>You understand your rights under RA 10173 and how to exercise them</li>
-                  <li>You agree to comply with BSU GSO E-Ticketing System policies and guidelines</li>
-                </ul>
-              </div>
-
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-end gap-3 shrink-0">
-              <button
-                type="button"
-                @click="closeDisclaimerModal"
-                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors cursor-pointer"
-              >
-                Decline / Cancel
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2 shrink-0">
+              <button type="button" @click="closeDisclaimerModal"
+                class="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors cursor-pointer">
+                Cancel
               </button>
-              <button
-                type="button"
-                @click="acceptDisclaimer"
-                class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-emerald-600/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>I Agree — Accept Terms</span>
+              <button type="button" @click="acceptDisclaimer"
+                class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                I Agree
               </button>
             </div>
 
@@ -1802,12 +1364,12 @@ const handleRegister = async () => {
 </template>
 
 <style scoped>
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
 }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
 }
 </style>
