@@ -64,6 +64,9 @@ const Admin_Settings = () => import('../views/dashboards/admin/Admin_Settings.vu
 const Admin_MyRequests = () => import('../views/dashboards/admin/Admin_MyRequests.vue');
 const Personnel_Dashboard = () => import('../views/dashboards/personnel/Personnel_Dashboard.vue');
 const Personnel_History = () => import('../views/dashboards/personnel/Personnel_History.vue');
+const FGMU_MaterialsLibrary = () => import('../views/dashboards/admin/fgmu/FGMU_MaterialsLibrary.vue');
+const LEAU_MaterialsLibrary = () => import('../views/dashboards/admin/leau/LEAU_MaterialsLibrary.vue');
+const Director_SpecialHolidays = () => import('../views/dashboards/director/Director_SpecialHolidays.vue');
 
 const router = createRouter({
   history: typeof window !== 'undefined' && typeof window.history !== 'undefined'
@@ -159,6 +162,13 @@ const router = createRouter({
       name: 'fgmu-dashboard',
       component: FGMU_Dashboard,
       meta: { requiresAuth: true, roles: ['admin', 'staff'], unit: 'FGMU' }
+    },
+    {
+      path: '/admin/fgmu/materials',
+      alias: ['/admin/fgmu/common-materials', '/admin/fgmu/materials-library'],
+      name: 'fgmu-admin-materials',
+      component: FGMU_MaterialsLibrary,
+      meta: { requiresAuth: true, roles: ['admin', 'staff', 'director', 'superadmin'], unit: 'FGMU' }
     },
     {
       path: '/admin/fgmu/queues',
@@ -257,6 +267,13 @@ const router = createRouter({
       name: 'leau-dashboard',
       component: LEAU_Dashboard,
       meta: { requiresAuth: true, roles: ['admin', 'staff'], unit: 'LEAU' }
+    },
+    {
+      path: '/admin/leau/materials',
+      alias: ['/admin/leau/common-materials', '/admin/leau/materials-library'],
+      name: 'leau-admin-materials',
+      component: LEAU_MaterialsLibrary,
+      meta: { requiresAuth: true, roles: ['admin', 'staff', 'director', 'superadmin'], unit: 'LEAU' }
     },
     {
       path: '/admin/leau/queues',
@@ -523,6 +540,13 @@ const router = createRouter({
       path: '/director/dashboard',
       name: 'director-dashboard',
       component: Director_Dashboard,
+      meta: { requiresAuth: true, roles: ['director', 'superadmin'] }
+    },
+    {
+      path: '/director/holidays',
+      alias: ['/director/special-holidays', '/director/calendar-holidays'],
+      name: 'director-special-holidays',
+      component: Director_SpecialHolidays,
       meta: { requiresAuth: true, roles: ['director', 'superadmin'] }
     },
     {

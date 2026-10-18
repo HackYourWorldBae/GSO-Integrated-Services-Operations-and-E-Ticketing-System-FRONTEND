@@ -189,6 +189,30 @@ const tutorialCatalog = {
         ]
       },
       {
+        id: 'admin-materials',
+        name: 'Common Materials Library',
+        route: '/admin/fgmu/materials',
+        icon: '🧰',
+        summary: 'Standardized supplies, consumable parts, and benchmark prices for unit operations and ticket pre-assessments.',
+        steps: [
+          { title: '1. Browse Catalog', desc: 'Search and inspect standardized supplies and parts used for work orders.' },
+          { title: '2. Add New Items', desc: 'Register new materials with unit of measure and benchmark price.' },
+          { title: '3. Manage Active Status', desc: 'Toggle items active or inactive to control their visibility during ticket pre-assessment.' }
+        ],
+        features: [
+          { name: 'Add Material Button', icon: '➕', location: 'Page Toolbar', desc: 'Opens dialog to register a new material or supply item.' },
+          { name: 'Category Filter Pills', icon: '🏷️', location: 'Toolbar', desc: 'Filter catalog by operational category (e.g. Electrical, Plumbing, Nursery).' },
+          { name: 'Benchmark Price Display', icon: '₱', location: 'Materials Table', desc: 'Reference cost for estimating budget allocations on repair jobs.' },
+          { name: 'Sync Baseline Button', icon: '🔄', location: 'Page Toolbar', desc: 'Restores and syncs baseline material items from server catalog.' }
+        ],
+        tips: [
+          { icon: '💡', title: 'Pre-Assessment Linking', desc: 'Active items in this library automatically appear in ticket dispatch and worker job order dropdowns.' }
+        ],
+        tourSteps: [
+          { element: '#tour-main-workspace', title: '1. Common Materials Library', desc: 'Manage standardized unit supplies, benchmark prices, and material categories.' }
+        ]
+      },
+      {
         id: 'admin-queues',
         name: 'Pending Approvals',
         route: '/admin/fgmu/queues',
@@ -388,6 +412,30 @@ const tutorialCatalog = {
           { element: '#tour-sidebar-nav', title: '1. Executive Navigation', desc: 'Access unit queues, material reports, operations hub, and archives.' },
           { element: '#tour-main-workspace', title: '2. Executive Analytics', desc: 'Review campus-wide SLA metrics and cross-unit operational performance.' },
           { element: '#tour-profile-menu', title: '3. Acting Head Delegation', desc: 'Assume direct management over any unit whenever a head is on leave.' }
+        ]
+      },
+      {
+        id: 'director-holidays',
+        name: 'Special Non-Working Holidays',
+        route: '/director/holidays',
+        icon: '📅',
+        summary: 'Calibrate official non-working holidays and executive suspensions that are bypassed during ticket turnaround and SLA calculations.',
+        steps: [
+          { title: '1. Review Holiday Calendar', desc: 'Inspect registered national, regional, and institutional non-working dates.' },
+          { title: '2. Register Special Holidays', desc: 'Add one-time suspensions or annual recurring holidays with official proclamation notes.' },
+          { title: '3. Verify SLA Computation', desc: 'Use the live SLA duration calculator simulator to verify that working hours discount holidays.' }
+        ],
+        features: [
+          { name: 'Add Special Holiday Button', icon: '➕', location: 'Action Toolbar', desc: 'Register a new institutional non-working holiday or emergency suspension.' },
+          { name: 'Recurrence Configuration', icon: '🔁', location: 'Holiday Modal', desc: 'Designate holidays as annual recurring or specific one-time dates.' },
+          { name: 'SLA Duration Verification Tool', icon: '⏱️', location: 'Bottom Panel', desc: 'Interactive simulator proving that holiday dates are completely excluded from turnaround hours.' },
+          { name: 'Classification Badges', icon: '🏷️', location: 'Table Column', desc: 'Distinguishes Special Non-Working, Regular, Local Suspension, and Institutional days.' }
+        ],
+        tips: [
+          { icon: '⚖️', title: 'EODB 3-7-20 Compliance', desc: 'All active holidays configured here are legally deducted from ticket processing days under RA 11032.' }
+        ],
+        tourSteps: [
+          { element: '#tour-main-workspace', title: '1. Special Non-Working Holidays', desc: 'Configure official non-working days excluded from ticket SLA timers.' }
         ]
       },
       {

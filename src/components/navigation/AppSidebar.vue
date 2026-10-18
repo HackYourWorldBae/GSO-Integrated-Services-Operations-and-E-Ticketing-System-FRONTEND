@@ -153,7 +153,15 @@ const rawNavGroups = computed(() => {
             to: `/admin/${unit}`,
             exact: true,
             icon: 'home'
-          }
+          },
+          ...(unit === 'fgmu' || unit === 'leau' ? [
+            {
+              label: 'Common Materials Library',
+              to: `/admin/${unit}/materials`,
+              exact: true,
+              icon: 'materials'
+            }
+          ] : [])
         ]
       },
       {
@@ -269,6 +277,12 @@ const rawNavGroups = computed(() => {
             to: '/director/dashboard',
             exact: true,
             icon: 'home'
+          },
+          {
+            label: 'Special Non-Working Holidays',
+            to: '/director/holidays',
+            exact: true,
+            icon: 'calendar'
           },
           {
             label: 'Material Logs and Report',
