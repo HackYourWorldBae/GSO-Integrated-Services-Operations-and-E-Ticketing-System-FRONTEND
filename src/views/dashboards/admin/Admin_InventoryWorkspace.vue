@@ -791,6 +791,7 @@
 
 <script setup>
 import { ref, computed, reactive, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue3-toastify';
@@ -1045,7 +1046,7 @@ const submitEditInventory = async () => {
   try {
     await updateInventoryItem(editingItem.value.id, {
       ...editForm,
-      unit: 'fgmu',
+      unit: unitLower.value,
     });
     toast.success('Inventory item updated successfully!');
     showEditModal.value = false;

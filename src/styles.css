@@ -129,7 +129,13 @@ input[type="search"] {
    ========================================================================== */
 
 html.comfort-view {
-  font-size: 110%;
+  font-size: 100%;
+}
+
+@media (min-width: 768px) {
+  html.comfort-view {
+    font-size: 110%;
+  }
 }
 
 html.comfort-view body {
@@ -150,13 +156,28 @@ html.comfort-view .text-slate-600 {
   color: #0f172a !important; /* Deep contrast for maximum readability */
 }
 
-/* Boost micro-text badges to readable sizes */
-html.comfort-view .text-\[9px\],
-html.comfort-view .text-\[10px\],
-html.comfort-view .text-\[11px\],
-html.comfort-view .text-xs {
-  font-size: 0.8125rem !important; /* 13px minimum */
-  line-height: 1.35 !important;
+/* Boost micro-text badges to readable sizes without breaking mobile pill badges */
+@media (min-width: 768px) {
+  html.comfort-view .text-\[9px\],
+  html.comfort-view .text-\[10px\],
+  html.comfort-view .text-\[11px\],
+  html.comfort-view .text-xs {
+    font-size: 0.8125rem !important; /* 13px minimum on desktop */
+    line-height: 1.35 !important;
+  }
+}
+
+@media (max-width: 767px) {
+  html.comfort-view .text-\[9px\],
+  html.comfort-view .text-\[10px\],
+  html.comfort-view .text-\[11px\] {
+    font-size: 0.75rem !important; /* 12px on mobile — fits badges cleanly without cramping */
+    line-height: 1.25 !important;
+  }
+  html.comfort-view .text-xs {
+    font-size: 0.8125rem !important;
+    line-height: 1.35 !important;
+  }
 }
 
 /* Table readability & spacing expansion */
@@ -174,12 +195,40 @@ html.comfort-view table td {
 }
 
 /* Tactile inputs and buttons (WCAG 2.5.8 Target Size ≥ 44px) */
-html.comfort-view button,
-html.comfort-view a[role="button"],
-html.comfort-view input,
+/* Exclude inline badges, absolute icon buttons (e.g. search clear), and compact action groups */
+html.comfort-view button:not(.btn-compact):not(.absolute):not([class*="w-8"]):not([class*="w-7"]):not([class*="p-1"]):not([class*="p-0"]),
+html.comfort-view a[role="button"]:not([class*="w-8"]):not([class*="w-7"]):not([class*="p-1"]),
+html.comfort-view input:not([type="checkbox"]):not([type="radio"]),
 html.comfort-view select,
 html.comfort-view textarea {
   min-height: 44px !important;
+}
+
+/* Mobile ticket cards & action groups in Comfort View: prevent cramped layouts */
+@media (max-width: 767px) {
+  html.comfort-view .md\:hidden button,
+  html.comfort-view .md\:hidden a[role="button"],
+  html.comfort-view [id^="mob-ticket-"] button,
+  html.comfort-view [id^="mob-ticket-"] a,
+  html.comfort-view [id^="ticket-"] button,
+  html.comfort-view [id^="ticket-"] a,
+  html.comfort-view .inline-flex button {
+    min-height: 38px !important;
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+  }
+
+  /* Relax mobile ticket card containers to breathe */
+  html.comfort-view main {
+    padding-left: 0.625rem !important;
+    padding-right: 0.625rem !important;
+  }
+
+  /* Ensure card action button rows wrap gracefully without squishing */
+  html.comfort-view .md\:hidden .flex-wrap,
+  html.comfort-view [id^="mob-ticket-"] .flex-wrap {
+    row-gap: 0.5rem !important;
+  }
 }
 
 /* Container borders in Comfort View: Apply tactile, defined borders strictly to structural containers */
