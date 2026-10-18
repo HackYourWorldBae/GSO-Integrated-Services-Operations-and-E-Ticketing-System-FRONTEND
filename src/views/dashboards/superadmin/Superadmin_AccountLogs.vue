@@ -78,6 +78,19 @@
                 </svg>
               </button>
 
+              <!-- Audit Specifications Button -->
+              <button
+                @click="showSpecsModal = true"
+                type="button"
+                class="px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer min-h-[44px] touch-manipulation shadow-xs"
+                title="View Audit Trail Architecture & ICT Security Justification"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Audit Specifications</span>
+              </button>
+
               <!-- Privacy Masking Toggle -->
               <button
                 @click="togglePrivacyMode"
@@ -116,14 +129,35 @@
           <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-slate-50 border-b border-slate-200">
-                  <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Timestamp</th>
-                  <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Severity</th>
-                  <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Event Type</th>
-                  <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Actor / Initiator</th>
-                  <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Target Account</th>
-                  <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Client Context</th>
-                  <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-500 text-right">Action</th>
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-700">
+                  <th class="px-6 py-3.5 text-xs font-black uppercase tracking-wider">
+                    <span>Timestamp</span>
+                    <span class="block text-[10px] font-semibold text-slate-400 normal-case">PHT (UTC+8)</span>
+                  </th>
+                  <th class="px-6 py-3.5 text-xs font-black uppercase tracking-wider">
+                    <span>Severity</span>
+                    <span class="block text-[10px] font-semibold text-slate-400 normal-case">Risk Level</span>
+                  </th>
+                  <th class="px-6 py-3.5 text-xs font-black uppercase tracking-wider">
+                    <span>Event Type</span>
+                    <span class="block text-[10px] font-semibold text-slate-400 normal-case">Security Event Code</span>
+                  </th>
+                  <th class="px-6 py-3.5 text-xs font-black uppercase tracking-wider">
+                    <span>Actor / Initiator</span>
+                    <span class="block text-[10px] font-semibold text-slate-400 normal-case">Originating Subject</span>
+                  </th>
+                  <th class="px-6 py-3.5 text-xs font-black uppercase tracking-wider">
+                    <span>Target Account</span>
+                    <span class="block text-[10px] font-semibold text-slate-400 normal-case">Affected Subject</span>
+                  </th>
+                  <th class="px-6 py-3.5 text-xs font-black uppercase tracking-wider">
+                    <span>Client Context</span>
+                    <span class="block text-[10px] font-semibold text-slate-400 normal-case">Device &amp; IP Origin</span>
+                  </th>
+                  <th class="px-6 py-3.5 text-xs font-black uppercase tracking-wider text-right">
+                    <span>Action</span>
+                    <span class="block text-[10px] font-semibold text-slate-400 normal-case">Inspect</span>
+                  </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -384,7 +418,7 @@
                 </div>
                 <div>
                   <h3 class="text-lg font-black text-slate-900">Account Activity Log</h3>
-                  <p class="text-sm text-slate-400 font-semibold">Event Reference #{{ selectedLog.id }}</p>
+                  <p class="text-xs text-purple-700 font-bold uppercase tracking-wider">Event Reference #{{ selectedLog.id }} • Immutable Record</p>
                 </div>
               </div>
               <button
@@ -401,11 +435,11 @@
             <div class="space-y-3.5 text-sm">
               <div class="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                 <div>
-                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Timestamp</div>
+                  <div class="text-[11px] font-black uppercase tracking-wider text-slate-400">Timestamp (PHT)</div>
                   <div class="font-semibold text-slate-800 mt-0.5 text-sm">{{ formatFullDateTime(selectedLog.created_at) }}</div>
                 </div>
                 <div>
-                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Severity</div>
+                  <div class="text-[11px] font-black uppercase tracking-wider text-slate-400">Risk Severity</div>
                   <div class="mt-0.5">
                     <span class="px-2 py-0.5 rounded text-xs font-bold border uppercase" :class="getSeverityBadgeClass(selectedLog.severity)">
                       {{ selectedLog.severity }}
@@ -413,56 +447,63 @@
                   </div>
                 </div>
                 <div>
-                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Event Type</div>
+                  <div class="text-[11px] font-black uppercase tracking-wider text-slate-400">Security Event Code</div>
                   <div class="font-mono font-bold text-purple-700 mt-0.5 truncate text-sm">{{ selectedLog.event_type }}</div>
                 </div>
                 <div>
-                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Client Device</div>
-                  <div class="font-semibold text-slate-800 mt-0.5 truncate text-sm">{{ selectedLog.device_summary || 'Unknown' }}</div>
+                  <div class="text-[11px] font-black uppercase tracking-wider text-slate-400">Client Platform</div>
+                  <div class="font-semibold text-slate-800 mt-0.5 truncate text-sm">{{ selectedLog.device_summary || 'Standard Browser' }}</div>
                 </div>
               </div>
 
               <!-- Actor and Target Account Info -->
               <div class="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                 <div>
-                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Actor / Initiator</div>
-                  <div class="font-bold text-slate-900 mt-0.5 text-sm">
+                  <div class="text-[11px] font-black uppercase tracking-wider text-slate-400">Originating Actor</div>
+                  <div class="font-bold text-slate-900 mt-0.5 text-sm truncate">
                     {{ selectedLog.actor_first_name ? `${selectedLog.actor_first_name} ${selectedLog.actor_last_name}` : 'System Automation' }}
                   </div>
-                  <div class="text-sm text-slate-500 font-mono">{{ formatEmail(selectedLog.actor_email) }}</div>
+                  <div class="text-xs text-slate-500 font-mono truncate">{{ formatEmail(selectedLog.actor_email) }}</div>
                 </div>
                 <div>
-                  <div class="text-xs font-black uppercase tracking-wider text-slate-400">Target User</div>
-                  <div class="font-bold text-slate-900 mt-0.5 text-sm">
+                  <div class="text-[11px] font-black uppercase tracking-wider text-slate-400">Target Subject</div>
+                  <div class="font-bold text-slate-900 mt-0.5 text-sm truncate">
                     {{ selectedLog.target_first_name ? `${selectedLog.target_first_name} ${selectedLog.target_last_name}` : 'Self / Global' }}
                   </div>
-                  <div class="text-sm text-slate-500 font-mono">{{ formatEmail(selectedLog.target_email) }}</div>
+                  <div class="text-xs text-slate-500 font-mono truncate">{{ formatEmail(selectedLog.target_email) }}</div>
                 </div>
               </div>
 
               <!-- Event Details -->
               <div>
-                <label class="text-xs font-black uppercase tracking-wider text-slate-400 block mb-1">Activity Narrative</label>
-                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-sm leading-relaxed font-medium">
+                <label class="text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">Activity Narrative</label>
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-xs sm:text-sm leading-relaxed font-medium">
                   {{ selectedLog.details || 'No additional narrative recorded.' }}
                 </div>
               </div>
 
-              <!-- Network Provenance & Data Privacy Tag -->
-              <div class="p-3 rounded-xl bg-purple-50/60 border border-purple-100 text-purple-900 text-sm flex items-center justify-between">
-                <div>
-                  <span class="font-bold">Network IP:</span>
-                  <span class="font-mono ml-1">{{ formatIp(selectedLog.ip_address) }}</span>
+              <!-- Network Origin & Integrity Status -->
+              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+                <div class="text-xs font-medium text-slate-700">
+                  <span class="font-bold text-slate-900">Network IP Origin:</span>
+                  <span class="font-mono ml-1 text-slate-800">{{ formatIp(selectedLog.ip_address) }}</span>
+                  <span class="block text-[11px] text-slate-500 mt-0.5">Captured for anomaly correlation, brute-force defense, and session validation.</span>
                 </div>
-                <span class="text-xs font-black text-purple-700 uppercase bg-purple-100 px-2 py-0.5 rounded">
-                  Immutable Record
+                <span class="text-[11px] font-black text-purple-700 uppercase bg-purple-100/80 border border-purple-200 px-2.5 py-1 rounded-lg shrink-0">
+                  Append-Only Entry
                 </span>
               </div>
 
-              <!-- Metadata JSON (Sanitized) -->
+              <!-- Security Context & Operational Parameters -->
               <div v-if="selectedLog.metadata">
-                <label class="text-xs font-black uppercase tracking-wider text-slate-400 block mb-1">Sanitized Telemetry Metadata</label>
-                <pre class="p-3 rounded-xl bg-slate-900 text-slate-200 font-mono text-sm leading-relaxed break-words whitespace-pre-wrap max-h-36 overflow-y-auto custom-scrollbar">{{ formatMetadata(selectedLog.metadata) }}</pre>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-500">Security Context &amp; Operational Parameters</label>
+                  <span class="text-[10px] text-emerald-600 font-bold">✓ Credentials Excluded</span>
+                </div>
+                <pre class="p-3 rounded-xl bg-slate-900 text-slate-200 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap max-h-36 overflow-y-auto custom-scrollbar">{{ formatMetadata(selectedLog.metadata) }}</pre>
+                <p class="text-[11px] text-slate-400 mt-1">
+                  Sanitized operational parameters (e.g. attempt counters, lockout timestamps, session identifiers) stored exclusively for automated security rules.
+                </p>
               </div>
             </div>
 
@@ -472,6 +513,111 @@
                 class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold transition-all min-h-[44px] cursor-pointer touch-manipulation"
               >
                 Close Details
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Specifications & ICT Defense Guide Modal -->
+        <div
+          v-if="showSpecsModal"
+          class="fixed inset-0 z-[150] overflow-y-auto bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 pointer-events-auto"
+          @click.self="showSpecsModal = false"
+        >
+          <div class="my-auto bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full p-5 sm:p-7 animate-scale-up space-y-6 max-h-[calc(100dvh-2rem)] sm:max-h-[90vh] overflow-y-auto custom-scrollbar pointer-events-auto">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div class="flex items-center gap-3">
+                <div class="p-3 rounded-2xl bg-purple-50 text-purple-700 border border-purple-100 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Audit Trail Architecture &amp; ICT Governance</h3>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">Technical &amp; security justification reference for ICT Division audit reviews.</p>
+                </div>
+              </div>
+              <button
+                @click="showSpecsModal = false"
+                class="w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors cursor-pointer touch-manipulation"
+                aria-label="Close"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Pillars -->
+            <div class="space-y-4 text-xs sm:text-sm">
+              <!-- Pillar 1: Purpose & Non-Repudiation -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                <div class="flex items-center gap-2 text-slate-900 font-black">
+                  <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 font-mono text-xs flex items-center justify-center shrink-0">1</span>
+                  <span>Non-Repudiation &amp; Administrative Accountability</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed font-medium pl-8">
+                  Every security-relevant action (logins, failed passwords, account lockouts, role updates, and deletions) produces an immutable record identifying <strong>who</strong> initiated it, <strong>whom</strong> it affected, and <strong>when</strong> it occurred in Philippine Standard Time (PHT). This ensures administrators cannot modify accounts without a verifiable audit entry.
+                </p>
+              </div>
+
+              <!-- Pillar 2: Data Minimization & What "Sanitized" Means -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                <div class="flex items-center gap-2 text-slate-900 font-black">
+                  <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 font-mono text-xs flex items-center justify-center shrink-0">2</span>
+                  <span>Data Minimization &amp; Sanitized Telemetry</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed font-medium pl-8">
+                  <strong>What is Sanitized Telemetry?</strong> "Telemetry" is the operational context captured during an HTTP transaction (client IP address, browser/device string, and event parameters). It is strictly <strong>sanitized</strong> because:
+                </p>
+                <ul class="text-xs text-slate-600 space-y-1 pl-12 list-disc font-medium">
+                  <li><strong>Zero Password Logging:</strong> Neither plaintext nor hashed passwords are ever recorded.</li>
+                  <li><strong>Zero Secret/Token Exposure:</strong> Authentication tokens (JWTs), MFA codes, and session secrets are completely excluded from logs.</li>
+                  <li><strong>Safe Operational Parameters Only:</strong> Stored metadata is restricted to non-sensitive fields such as failed attempt counters and lockout timestamps.</li>
+                  <li><strong>Dynamic PII Masking:</strong> Sensitive identifiers (email addresses, IP octets) are masked on the UI by default to prevent shoulder-surfing during administrative supervision.</li>
+                </ul>
+              </div>
+
+              <!-- Pillar 3: Brute-Force & Abuse Mitigation -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                <div class="flex items-center gap-2 text-slate-900 font-black">
+                  <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 font-mono text-xs flex items-center justify-center shrink-0">3</span>
+                  <span>Automated Brute-Force Defense &amp; Lockout Correlation</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed font-medium pl-8">
+                  The audit trail directly powers institutional brute-force prevention: 5 consecutive failed login attempts automatically trigger a 15-minute account lockout (<code class="font-bold text-amber-800">AUTH_LOCKOUT</code>), mitigating automated password-guessing attacks.
+                </p>
+              </div>
+
+              <!-- Pillar 4: Session Anomaly Detection -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                <div class="flex items-center gap-2 text-slate-900 font-black">
+                  <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 font-mono text-xs flex items-center justify-center shrink-0">4</span>
+                  <span>Session Anomaly &amp; Device Origin Verification</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed font-medium pl-8">
+                  Device summaries and IP addresses allow the ICT division to verify session provenance. When an anomalous IP or unfamiliar browser accesses an administrative account, security personnel can immediately identify concurrent session takeovers.
+                </p>
+              </div>
+
+              <!-- Pillar 5: Tamper-Resistant Immutability -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                <div class="flex items-center gap-2 text-slate-900 font-black">
+                  <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 font-mono text-xs flex items-center justify-center shrink-0">5</span>
+                  <span>Append-Only Immutability Guarantee</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed font-medium pl-8">
+                  The underlying database table (<code class="font-bold text-slate-800">account_activity_logs</code>) is strictly append-only. There are no update or delete API endpoints exposed in the backend, guaranteeing audit logs cannot be retroactively manipulated or covered up.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+              <button
+                @click="showSpecsModal = false"
+                class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold transition-all min-h-[44px] cursor-pointer touch-manipulation"
+              >
+                Close Specification
               </button>
             </div>
           </div>
@@ -490,6 +636,7 @@ const loading = ref(false);
 const logs = ref([]);
 const selectedLog = ref(null);
 const privacyMasked = ref(true);
+const showSpecsModal = ref(false);
 
 const togglePrivacyMode = () => {
   privacyMasked.value = !privacyMasked.value;
@@ -506,8 +653,9 @@ const closeLogDetails = () => {
 };
 
 const handleKeydown = (e) => {
-  if (e.key === 'Escape' && selectedLog.value) {
-    closeLogDetails();
+  if (e.key === 'Escape') {
+    if (selectedLog.value) closeLogDetails();
+    if (showSpecsModal.value) showSpecsModal.value = false;
   }
 };
 
