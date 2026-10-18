@@ -810,27 +810,38 @@ export function useTutorial() {
     return found || pages[0] || null;
   });
 
+  const normalizeRoutePath = (path) => {
+    if (!path) return '';
+    return path.replace(/\/admin\/(leau|ssu)\b/, '/admin/fgmu');
+  };
+
   /**
    * Determine if the user is currently looking at a specific page route
    */
   const isCurrentRoute = (pageRoute) => {
     const currentPath = router.currentRoute?.value?.path || '';
     if (!pageRoute) return false;
-    return currentPath === pageRoute || currentPath.startsWith(pageRoute + '/');
+    const normCurrent = normalizeRoutePath(currentPath);
+    const normPage = normalizeRoutePath(pageRoute);
+    return normCurrent === normPage || normCurrent.startsWith(normPage + '/');
   };
 
   /**
-   * Open tutorial modal, auto-detecting the page based on the current route
+   * Open tutorial confirmation modal, auto-detecting the page based on the current route
    */
   const openTutorialModal = (targetPageId = null) => {
     const pages = activeRoleData.value.pages || [];
     const currentPath = router.currentRoute?.value?.path || '';
+    const normCurrent = normalizeRoutePath(currentPath);
 
     if (targetPageId) {
       activePageId.value = targetPageId;
     } else {
       // Find page that matches current route
-      const matched = pages.find(p => currentPath === p.route || currentPath.startsWith(p.route + '/'));
+      const matched = pages.find(p => {
+        const normPage = normalizeRoutePath(p.route);
+        return normCurrent === normPage || normCurrent.startsWith(normPage + '/');
+      });
       activePageId.value = matched ? matched.id : (pages[0]?.id || '');
     }
 
