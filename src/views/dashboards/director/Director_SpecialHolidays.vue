@@ -191,12 +191,12 @@
                 </tr>
 
                 <tr
-                  v-for="(h, idx) in filteredHolidays"
+                  v-for="(h, idx) in paginatedHolidays"
                   :key="h.id || h.holiday_date"
                   class="hover:bg-slate-50/80 transition-colors group"
                 >
                   <td class="py-3.5 px-4 text-center font-bold text-slate-400 tabular-nums">
-                    {{ idx + 1 }}
+                    {{ (currentPage - 1) * perPage + idx + 1 }}
                   </td>
                   <td class="py-3.5 px-4">
                     <div class="font-black text-slate-900 tabular-nums text-xs sm:text-sm">
@@ -280,14 +280,14 @@
           </div>
 
           <div
-            v-for="h in filteredHolidays"
+            v-for="(h, idx) in paginatedHolidays"
             :key="h.id || h.holiday_date"
             class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-3"
           >
             <div class="flex items-start justify-between gap-3">
               <div>
-                <span class="text-[10px] font-black uppercase tracking-wider text-amber-700 block">
-                  {{ formatHolidayDate(h.holiday_date) }} • {{ formatWeekday(h.holiday_date) }}
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">
+                  #{{ (currentPage - 1) * perPage + idx + 1 }} • {{ formatHolidayDate(h.holiday_date) }} • {{ formatWeekday(h.holiday_date) }}
                 </span>
                 <h4 class="font-black text-sm text-slate-900 mt-0.5">
                   {{ h.name }}
@@ -341,6 +341,84 @@
           </div>
         </div>
 
+        <!-- Pagination Controls Toolbar -->
+        <div
+          v-if="filteredHolidays.length > 0"
+          class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <div class="flex flex-col sm:flex-row items-center gap-3 text-xs text-slate-500 w-full sm:w-auto text-center sm:text-left">
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-slate-600">Rows per page:</span>
+              <select
+                v-model.number="perPage"
+                @change="currentPage = 1"
+                class="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer min-h-[38px]"
+              >
+                <option :value="5">5</option>
+                <option :value="10">10</option>
+                <option :value="20">20</option>
+                <option :value="50">50</option>
+              </select>
+            </div>
+            <span class="text-slate-600">
+              Showing <strong class="text-slate-900">{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
+              <strong class="text-slate-900">{{ Math.min(currentPage * perPage, filteredHolidays.length) }}</strong> of
+              <strong class="text-slate-900">{{ filteredHolidays.length }}</strong> registered dates
+            </span>
+          </div>
+
+          <!-- Page Navigation Buttons -->
+          <div class="flex items-center gap-1.5 flex-wrap justify-center sm:justify-end w-full sm:w-auto">
+            <button
+              @click="currentPage = 1"
+              :disabled="currentPage === 1"
+              class="p-2 min-w-[38px] min-h-[38px] rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer flex items-center justify-center active:scale-95"
+              title="First page"
+            >
+              «
+            </button>
+            <button
+              @click="currentPage--"
+              :disabled="currentPage === 1"
+              class="px-3 py-1.5 min-h-[38px] rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95"
+            >
+              ‹ Prev
+            </button>
+
+            <template v-for="(page, idx) in displayedPages" :key="idx">
+              <span v-if="page === '...'" class="px-2 text-slate-400 font-bold text-xs">...</span>
+              <button
+                v-else
+                @click="currentPage = page"
+                :class="[
+                  'min-w-[38px] h-[38px] px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center active:scale-95',
+                  currentPage === page
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'border border-slate-200 text-slate-700 hover:bg-slate-100'
+                ]"
+              >
+                {{ page }}
+              </button>
+            </template>
+
+            <button
+              @click="currentPage++"
+              :disabled="currentPage === totalPages"
+              class="px-3 py-1.5 min-h-[38px] rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95"
+            >
+              Next ›
+            </button>
+            <button
+              @click="currentPage = totalPages"
+              :disabled="currentPage === totalPages"
+              class="p-2 min-w-[38px] min-h-[38px] rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer flex items-center justify-center active:scale-95"
+              title="Last page"
+            >
+              »
+            </button>
+          </div>
+        </div>
+
         <!-- Interactive SLA Calendar Calculation Verification Simulator -->
         <div class="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-md space-y-5">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
@@ -390,18 +468,27 @@
             </div>
           </div>
 
-          <div v-if="simResult !== null" class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-4">
-            <div>
+          <!-- Safe Simulator Result Card -->
+          <div v-if="simResult" class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-1">
               <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Computed Working Turnaround</span>
-              <span class="text-2xl font-black text-emerald-600 tabular-nums">
-                {{ simResult.toFixed(1) }} Working Hours
-              </span>
-              <span class="text-xs text-slate-500 font-medium ml-2">
-                (≈ {{ (simResult / 8.0).toFixed(2) }} business days)
-              </span>
+              <div class="flex items-baseline gap-2 flex-wrap">
+                <span class="text-2xl sm:text-3xl font-black text-emerald-600 tabular-nums">
+                  {{ simResult.formatted || (simResult.totalHours ? simResult.totalHours + ' hrs' : '0 hrs') }}
+                </span>
+                <span class="text-xs text-slate-500 font-bold">
+                  (Total: {{ Number(simResult.totalHours || 0).toFixed(1) }} working hrs / ≈ {{ (Number(simResult.totalHours || 0) / 8.0).toFixed(2) }} business days)
+                </span>
+              </div>
+              <div class="flex items-center gap-2 text-xs text-slate-500 font-medium pt-1">
+                <span>Working Days: <strong class="text-slate-700">{{ simResult.days || 0 }}d</strong></span>
+                <span>•</span>
+                <span>Net Hours: <strong class="text-slate-700">{{ simResult.hours || 0 }}h {{ simResult.minutes || 0 }}m</strong></span>
+                <span v-if="simResult.overtime">• Overtime: <strong class="text-amber-600">+{{ simResult.overtime }}h OT</strong></span>
+              </div>
             </div>
-            <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              Holidays &amp; Weekends Excluded
+            <span class="px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 w-fit shrink-0">
+              ✓ Holidays &amp; Weekends Excluded
             </span>
           </div>
         </div>
@@ -536,7 +623,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
 import { useOperationsHubStore } from '@/stores/operationsHub';
@@ -548,15 +635,15 @@ const operationsStore = useOperationsHubStore();
 
 // Summary Counters
 const recurringCount = computed(() => {
-  return operationsStore.holidays.filter(h => !!h.is_recurring).length;
+  return (operationsStore.holidays || []).filter(h => !!h.is_recurring).length;
 });
 
 const oneTimeCount = computed(() => {
-  return operationsStore.holidays.filter(h => !h.is_recurring).length;
+  return (operationsStore.holidays || []).filter(h => !h.is_recurring).length;
 });
 
 const activeHolidaysCount = computed(() => {
-  return operationsStore.holidays.filter(h => h.is_active !== 0 && h.is_active !== false).length;
+  return (operationsStore.holidays || []).filter(h => h.is_active !== 0 && h.is_active !== false).length;
 });
 
 // Search & Filtering
@@ -564,7 +651,7 @@ const searchQuery = ref('');
 const selectedType = ref('');
 
 const filteredHolidays = computed(() => {
-  let list = operationsStore.holidays;
+  let list = operationsStore.holidays || [];
 
   if (selectedType.value) {
     list = list.filter(h => h.type === selectedType.value);
@@ -580,6 +667,52 @@ const filteredHolidays = computed(() => {
   }
 
   return list;
+});
+
+// -----------------------------------------------------------------------------
+// Pagination State & Logic
+// -----------------------------------------------------------------------------
+const currentPage = ref(1);
+const perPage = ref(10);
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredHolidays.value.length / perPage.value) || 1;
+});
+
+const paginatedHolidays = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredHolidays.value.slice(start, start + perPage.value);
+});
+
+const displayedPages = computed(() => {
+  const current = currentPage.value;
+  const total = totalPages.value;
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages = [];
+  pages.push(1);
+  if (current > 3) pages.push('...');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
+});
+
+watch(searchQuery, () => {
+  currentPage.value = 1;
+});
+
+watch(selectedType, () => {
+  currentPage.value = 1;
+});
+
+watch(totalPages, (newTotal) => {
+  if (currentPage.value > newTotal) {
+    currentPage.value = Math.max(1, newTotal);
+  }
 });
 
 // Formatters
@@ -723,7 +856,7 @@ const handleDeleteHoliday = async (h) => {
         toast.error(res.message || 'Failed to remove holiday.');
       }
     } else {
-      operationsStore.holidays = operationsStore.holidays.filter(item => item.holiday_date !== h.holiday_date);
+      operationsStore.holidays = (operationsStore.holidays || []).filter(item => item.holiday_date !== h.holiday_date);
       toast.success(`Removed ${h.name}`);
     }
   }
@@ -736,20 +869,30 @@ const simResult = ref(null);
 
 const calculateSimResult = () => {
   if (!simStart.value || !simEnd.value) {
-    toast.info('Please select both start and end datetimes to simulate.');
     return;
   }
-  const s = new Date(simStart.value);
-  const e = new Date(simEnd.value);
-  if (e < s) {
-    toast.error('End datetime cannot precede start datetime.');
-    return;
+  try {
+    const s = new Date(simStart.value);
+    const e = new Date(simEnd.value);
+    if (isNaN(s.getTime()) || isNaN(e.getTime())) return;
+    if (e < s) {
+      toast.error('End datetime cannot precede start datetime.');
+      return;
+    }
+    simResult.value = calculateWorkingHoursElapsed(s, e);
+  } catch (err) {
+    console.warn('Simulation calculation failed:', err);
+    simResult.value = null;
   }
-  simResult.value = calculateWorkingHoursElapsed(s, e);
 };
 
 onMounted(async () => {
-  await operationsStore.initOperationsHub();
+  try {
+    await operationsStore.initOperationsHub();
+  } catch (err) {
+    console.warn('Could not initialize operations hub:', err);
+  }
+
   // Set default simulation datetimes: past 3 days to now
   const now = new Date();
   const threeDaysAgo = new Date(now.getTime() - 72 * 60 * 60 * 1000);
