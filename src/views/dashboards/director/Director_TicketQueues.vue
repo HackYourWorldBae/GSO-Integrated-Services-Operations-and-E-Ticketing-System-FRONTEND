@@ -1323,11 +1323,11 @@
         </div>
         <div class="text-center">
           <h3 class="text-xl font-black text-slate-900">
-            {{ (ticketToApprove?.is_borrowing || isBorrowingService(ticketToApprove)) ? 'Approve Borrowing Request?' : 'Approve Service Request?' }}
+            {{ isApprovingBorrowingTicket ? 'Approve Borrowing Request?' : 'Approve Service Request?' }}
           </h3>
           <p class="text-xs text-slate-500 font-medium mt-1">
             Ticket <strong class="text-slate-800">#{{ ticketToApprove?.ticketId }}</strong>
-            {{ (ticketToApprove?.is_borrowing || isBorrowingService(ticketToApprove)) 
+            {{ isApprovingBorrowingTicket 
                 ? 'will be approved and queued for inventory allocation.' 
                 : 'will be approved and queued for admin assignment.' }}
           </p>
@@ -1335,7 +1335,7 @@
 
         <!-- Borrowing Notice (Borrowing requests cannot and should not be marked as emergency) -->
         <div 
-          v-if="ticketToApprove && (ticketToApprove.is_borrowing || isBorrowingService(ticketToApprove))"
+          v-if="ticketToApprove && isApprovingBorrowingTicket"
           class="p-4 rounded-2xl border border-sky-200 bg-sky-50/70 flex items-start gap-3.5 text-left"
         >
           <div class="pt-0.5 text-sky-600 shrink-0">
@@ -2433,14 +2433,17 @@ const openDetailsModal = async (ticket) => {
   }
 };
 
+const isApprovingBorrowingTicket = computed(() => {
+  return Boolean(ticketToApprove.value?.is_borrowing || isBorrowingService(ticketToApprove.value));
+});
+
 const initiateApproval = (ticket) => {
   if (!isDirector.value && ticket?.is_escalated_to_director) {
     toast.warning("This ticket has been escalated and is awaiting the Director's executive approval.");
     return;
   }
   ticketToApprove.value = ticket;
-  const isBorrowing = Boolean(ticket?.is_borrowing) || isBorrowingService(ticket);
-  isEmergencyApproval.value = isBorrowing ? false : Boolean(ticket?.is_emergency || ticket?.urgency === 'Emergency' || ticket?.urgency === 'High');
+  isEmergencyApproval.value = isApprovingBorrowingTicket.value ? false : Boolean(ticket?.is_emergency || ticket?.urgency === 'Emergency' || ticket?.urgency === 'High');
   showConfirmModal.value = true;
 };
 
@@ -2488,8 +2491,7 @@ const handleTicketRecategorized = ({ ticketId, newService, reason, data }) => {
 
 const confirmApproval = async () => {
   if (ticketToApprove.value) {
-    const isBorrowing = Boolean(ticketToApprove.value?.is_borrowing) || isBorrowingService(ticketToApprove.value);
-    const finalEmergency = isBorrowing ? false : Boolean(isEmergencyApproval.value);
+    const finalEmergency = isApprovingBorrowingTicket.value ? false : Boolean(isEmergencyApproval.value);
     try {
       await api.patch(`tickets/${ticketToApprove.value.id}/approve`, {
         is_emergency: finalEmergency ? 1 : 0,

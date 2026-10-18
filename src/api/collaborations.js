@@ -91,7 +91,16 @@ export const fetchMyUnitCollaborations = (params = {}) =>
 
 /**
  * Fetch collab tickets for the current unit filtered by workflow stage.
+ * Automatically normalizes is_emergency on each ticket.
  * @param {{ direction?: 'incoming'|'outgoing'|'all', stage?: 'approved'|'scheduled'|'active'|'all', unit_id?: number }} params
  */
-export const fetchCollabTickets = (params = {}) =>
-  apiClient.get('/collaborations/tickets', { params });
+export const fetchCollabTickets = async (params = {}) => {
+  const res = await apiClient.get('/collaborations/tickets', { params });
+  if (Array.isArray(res.data?.data?.tickets)) {
+    res.data.data.tickets = res.data.data.tickets.map(t => ({
+      ...t,
+      is_emergency: Boolean(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
+    }));
+  }
+  return res;
+};

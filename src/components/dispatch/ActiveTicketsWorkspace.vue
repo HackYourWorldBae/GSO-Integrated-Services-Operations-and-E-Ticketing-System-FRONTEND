@@ -1709,10 +1709,7 @@ const fetchCollabActiveCount = async () => {
   try {
     const res = await fetchCollabTickets({ direction: 'all', stage: 'active' });
     const list = res.data?.data?.tickets || [];
-    collabActiveTickets.value = Array.isArray(list) ? list.map(t => ({
-      ...t,
-      is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
-    })) : [];
+    collabActiveTickets.value = Array.isArray(list) ? list : [];
     collabActiveCount.value = res.data?.data?.count ?? collabActiveTickets.value.length;
     collabActiveIds.value = new Set(
       collabActiveTickets.value

@@ -765,10 +765,7 @@ const fetchCollabCount = async () => {
   try {
     const res = await fetchCollabTickets({ direction: 'incoming', stage: 'approved' });
     const list = res.data?.data?.tickets || [];
-    collabTickets.value = Array.isArray(list) ? list.map(t => ({
-      ...t,
-      is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
-    })) : [];
+    collabTickets.value = Array.isArray(list) ? list : [];
     collabCount.value = res.data?.data?.count ?? collabTickets.value.length;
   } catch {
     collabTickets.value = [];

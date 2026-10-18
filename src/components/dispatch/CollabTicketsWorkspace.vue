@@ -1215,10 +1215,7 @@ const fetchTickets = async () => {
   try {
     const res = await fetchCollabTickets({ direction: resolvedDirection.value, stage: resolvedStage.value });
     const list = res.data?.data?.tickets || [];
-    tickets.value = Array.isArray(list) ? list.map(t => ({
-      ...t,
-      is_emergency: Boolean(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
-    })) : [];
+    tickets.value = Array.isArray(list) ? list : [];
     if (props.showStageTabs) {
       stageCounts.value[currentStage.value] = tickets.value.length;
       fetchStageCounts();
