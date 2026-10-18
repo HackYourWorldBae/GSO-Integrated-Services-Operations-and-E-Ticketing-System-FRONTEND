@@ -73,12 +73,12 @@
                 </span>
               </div>
 
-              <div class="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-400/20 text-center backdrop-blur-xs">
-                <span class="text-xl sm:text-2xl font-black text-blue-300 tabular-nums block">
-                  {{ categories.length }}
+              <div class="p-3.5 rounded-2xl bg-slate-500/10 border border-slate-400/20 text-center backdrop-blur-xs">
+                <span class="text-xl sm:text-2xl font-black text-slate-300 tabular-nums block">
+                  {{ unitMaterials.length - activeMaterialsCount }}
                 </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-200/70 mt-0.5 block">
-                  Categories
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-0.5 block">
+                  Inactive
                 </span>
               </div>
 
@@ -94,52 +94,31 @@
           </div>
         </div>
 
-        <!-- Controls Toolbar: Search, Category Filter, and Add Button -->
+        <!-- Controls Toolbar: Search and Add Button -->
         <div class="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <!-- Search & Category Filters -->
-          <div class="flex-1 grid grid-cols-1 sm:grid-cols-12 gap-3">
-            <!-- Search Keyword Field -->
-            <div class="sm:col-span-7 relative">
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search material description or category..."
-                class="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-inner transition-all min-h-[44px]"
-              />
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <button
-                v-if="searchQuery"
-                @click="searchQuery = ''"
-                class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
-                title="Clear search"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+          <!-- Search Field -->
+          <div class="flex-1 relative">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search material description or standard unit..."
+              class="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-inner transition-all min-h-[44px]"
+            />
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </div>
-
-            <!-- Category Filter Dropdown -->
-            <div class="sm:col-span-5 relative">
-              <select
-                v-model="selectedCategory"
-                class="w-full appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-inner cursor-pointer hover:border-slate-300 transition-colors min-h-[44px]"
-              >
-                <option value="">All Categories ({{ categories.length }})</option>
-                <option v-for="cat in categories" :key="cat" :value="cat">
-                  {{ cat }}
-                </option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
+            <button
+              v-if="searchQuery"
+              @click="searchQuery = ''"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+              title="Clear search"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
           <!-- Action Buttons -->
@@ -176,7 +155,6 @@
                 <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-500 uppercase tracking-widest">
                   <th class="py-3.5 px-4 w-12 text-center">#</th>
                   <th class="py-3.5 px-4">Material / Supply Name</th>
-                  <th class="py-3.5 px-4 w-40">Category</th>
                   <th class="py-3.5 px-4 w-28 text-center">Standard Unit</th>
                   <th class="py-3.5 px-4 w-32 text-right">Default Benchmark Price</th>
                   <th class="py-3.5 px-4 w-28 text-center">Status</th>
@@ -185,13 +163,13 @@
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr v-if="filteredMaterials.length === 0">
-                  <td colspan="7" class="py-14 text-center text-slate-400">
+                  <td colspan="6" class="py-14 text-center text-slate-400">
                     <div class="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                       </svg>
-                      <p class="font-bold text-sm text-slate-700">No materials match your filter criteria.</p>
-                      <p class="text-xs text-slate-400">Try adjusting your keyword or clearing the category filter.</p>
+                      <p class="font-bold text-sm text-slate-700">No materials match your search criteria.</p>
+                      <p class="text-xs text-slate-400">Try adjusting your keyword.</p>
                     </div>
                   </td>
                 </tr>
@@ -208,11 +186,6 @@
                     <div class="font-black text-slate-900 text-xs sm:text-sm">
                       {{ item.name }}
                     </div>
-                  </td>
-                  <td class="py-3.5 px-4">
-                    <span class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-bold text-[11px] border border-slate-200/60 inline-block">
-                      {{ item.category }}
-                    </span>
                   </td>
                   <td class="py-3.5 px-4 text-center font-bold text-slate-600">
                     {{ item.unit || 'pcs' }}
@@ -277,9 +250,6 @@
                   {{ item.name }}
                 </h4>
                 <div class="flex items-center gap-2 mt-1 flex-wrap">
-                  <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[10px]">
-                    {{ item.category }}
-                  </span>
                   <span class="text-xs font-semibold text-slate-500">
                     Unit: <strong class="text-slate-700">{{ item.unit || 'pcs' }}</strong>
                   </span>
@@ -363,24 +333,6 @@
                   placeholder="e.g., PVC Pipe 1/2 inch, LED Bulb 18W, Carabao Grass Sod"
                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
                 />
-              </div>
-
-              <!-- Category -->
-              <div class="space-y-1.5">
-                <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
-                  Material Category
-                </label>
-                <input
-                  v-model="form.category"
-                  type="text"
-                  required
-                  list="unit-category-suggestions"
-                  placeholder="e.g., Plumbing, Electrical, Grounds Maintenance, Seedlings"
-                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
-                />
-                <datalist id="unit-category-suggestions">
-                  <option v-for="c in categories" :key="c" :value="c" />
-                </datalist>
               </div>
 
               <!-- Unit of Measure & Default Price -->
@@ -521,10 +473,6 @@ const activeMaterialsCount = computed(() => {
   return unitMaterials.value.filter(m => m.is_active !== 0 && m.is_active !== false).length;
 });
 
-const categories = computed(() => {
-  return operationsStore.categoriesByUnit(effectiveUnit.value);
-});
-
 const averagePrice = computed(() => {
   const items = unitMaterials.value;
   if (!items.length) return 0;
@@ -534,20 +482,14 @@ const averagePrice = computed(() => {
 
 // Filtering and Searching
 const searchQuery = ref('');
-const selectedCategory = ref('');
 
 const filteredMaterials = computed(() => {
   let list = unitMaterials.value;
-
-  if (selectedCategory.value) {
-    list = list.filter(m => (m.category || '').toLowerCase() === selectedCategory.value.toLowerCase());
-  }
 
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.toLowerCase().trim();
     list = list.filter(m =>
       (m.name || '').toLowerCase().includes(q) ||
-      (m.category || '').toLowerCase().includes(q) ||
       (m.unit || '').toLowerCase().includes(q)
     );
   }
@@ -560,7 +502,7 @@ const showModal = ref(false);
 const editingItem = ref(null);
 const form = ref({
   name: '',
-  category: '',
+  category: 'General',
   unit: 'pcs',
   default_price: 0,
   is_active: true,
@@ -570,7 +512,7 @@ const openAddModal = () => {
   editingItem.value = null;
   form.value = {
     name: '',
-    category: selectedCategory.value || (categories.value[0] || ''),
+    category: 'General',
     unit: 'pcs',
     default_price: 0,
     is_active: true,
@@ -582,7 +524,7 @@ const openEditModal = (item) => {
   editingItem.value = item;
   form.value = {
     name: item.name || '',
-    category: item.category || '',
+    category: item.category || 'General',
     unit: item.unit || 'pcs',
     default_price: Number(item.default_price || 0),
     is_active: item.is_active !== 0 && item.is_active !== false,
@@ -593,7 +535,7 @@ const openEditModal = (item) => {
 const handleSaveMaterial = async () => {
   const payload = {
     unit_code: effectiveUnit.value,
-    category: form.value.category.trim(),
+    category: form.value.category?.trim() || 'General',
     name: form.value.name.trim(),
     unit: form.value.unit,
     default_price: Number(form.value.default_price || 0),
@@ -602,10 +544,6 @@ const handleSaveMaterial = async () => {
 
   if (!payload.name) {
     toast.error('Material name is required.');
-    return;
-  }
-  if (!payload.category) {
-    toast.error('Category is required.');
     return;
   }
 

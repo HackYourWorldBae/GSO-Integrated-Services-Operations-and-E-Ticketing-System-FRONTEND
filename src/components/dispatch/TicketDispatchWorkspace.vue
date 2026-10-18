@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6 pb-12 px-4 sm:px-6 lg:px-8 py-6 max-w-[1750px] mx-auto min-h-screen">
+  <div class="space-y-6 pb-12 px-3 sm:px-6 lg:px-8 py-4 sm:py-6 w-full max-w-[1750px] mx-auto min-h-screen">
     
     <!-- Borrowing fallback: this ticket uses inventory dispatch, not workers -->
     <div
@@ -13,7 +13,7 @@
       <button
         type="button"
         @click="switchToInventoryMode"
-        class="px-4 py-2.5 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black shrink-0 cursor-pointer active:scale-95"
+        class="px-4 py-2.5 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black shrink-0 cursor-pointer active:scale-95 w-full sm:w-auto"
       >
         Switch to Assign Inventory
       </button>
@@ -22,18 +22,15 @@
     <!-- ═══ Selected Ticket Target Banner ═══ -->
     <div
       v-if="selectedTicket && !isBorrowingSelected"
-      class="p-6 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white shadow-xl relative overflow-hidden border border-emerald-500/30 animate-scale-up space-y-6"
+      class="p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white shadow-xl relative overflow-hidden border border-emerald-500/30 animate-scale-up space-y-4 sm:space-y-6"
     >
       <div class="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
 
       <!-- Top Row: Ticket Overview & Action Buttons -->
-      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/10">
-        <div>
-          <div class="flex items-center gap-3 mb-2 flex-wrap">
-            <span class="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-xs">
-              Active Assignment Target
-            </span>
-            <span class="text-sm font-black text-emerald-400 bg-white/10 px-3 py-1 rounded-full border border-white/10">
+      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 pb-4 sm:pb-6 border-b border-white/10">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
+            <span class="text-xs sm:text-sm font-black text-emerald-400 bg-white/10 px-2.5 sm:px-3 py-1 rounded-full border border-white/10">
               #{{ selectedTicket.id }}
             </span>
             <span
@@ -42,46 +39,46 @@
             >
               Emergency
             </span>
-            <span v-if="selectedTicket.requester" class="text-xs text-slate-300 font-medium">
+            <span v-if="selectedTicket.requester" class="text-xs text-slate-300 font-medium truncate">
               Requested by <strong class="text-white">{{ selectedTicket.requester }}</strong>
             </span>
           </div>
-          <h3 class="text-2xl font-black text-white tracking-tight">
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight break-words">
             {{ selectedTicket.type || selectedTicket.title || 'Facilities Service Request' }}
           </h3>
-          <p class="text-slate-300 font-medium text-xs sm:text-sm mt-1 flex items-center gap-2">
+          <p class="text-slate-300 font-medium text-xs sm:text-sm mt-1 flex items-center gap-2 flex-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            {{ selectedTicket.location || selectedTicket.college_building || 'Campus Facility' }}
+            <span class="break-words">{{ selectedTicket.location || selectedTicket.college_building || 'Campus Facility' }}</span>
             <span v-if="selectedTicket.office_room">({{ selectedTicket.office_room }})</span>
           </p>
         </div>
 
-        <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0 flex-wrap w-full md:w-auto">
           <button
             type="button"
             @click="openCollaborationModal"
-            class="px-4 py-2.5 min-h-[44px] bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 hover:text-white text-xs font-black rounded-xl transition-all border border-indigo-500/30 cursor-pointer touch-manipulation flex items-center gap-1.5 justify-center shadow-xs"
+            class="flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 min-h-[44px] bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 hover:text-white text-xs font-black rounded-xl transition-all border border-indigo-500/30 cursor-pointer touch-manipulation flex items-center gap-1.5 justify-center shadow-xs"
             title="Request collaboration with other university units"
           >
-            <svg class="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="h-4 w-4 text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <span>Unit Collaboration</span>
+            <span class="truncate">Unit Collaboration</span>
           </button>
           <button
             type="button"
             @click="openTicketScopeModal"
-            class="px-4 py-2.5 min-h-[44px] bg-white/10 hover:bg-white/20 text-white text-xs font-black rounded-xl transition-all border border-white/10 cursor-pointer touch-manipulation flex items-center justify-center"
+            class="flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 min-h-[44px] bg-white/10 hover:bg-white/20 text-white text-xs font-black rounded-xl transition-all border border-white/10 cursor-pointer touch-manipulation flex items-center justify-center truncate"
           >
-            Review Full Details
+            Review Details
           </button>
           <button
             type="button"
             @click="clearSelectedTicket"
-            class="p-2.5 min-h-[44px] min-w-[44px] bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 hover:text-white rounded-xl transition-colors border border-rose-500/30 cursor-pointer touch-manipulation flex items-center justify-center"
+            class="p-2.5 min-h-[44px] min-w-[44px] bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 hover:text-white rounded-xl transition-colors border border-rose-500/30 cursor-pointer touch-manipulation flex items-center justify-center shrink-0"
             title="Deselect ticket"
           >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -91,15 +88,15 @@
 
       <!-- Bottom Row: Scheduling & Turnaround Configuration Controls -->
       <!-- Hidden for incoming collab dispatches: the requesting unit owns the schedule -->
-      <div v-if="!isReceivingCollabDispatch" class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+      <div v-if="!isReceivingCollabDispatch" class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 pt-2">
         <!-- Implementation Date Picker Card -->
         <div
           @click="openDatePicker"
-          class="flex items-center justify-between gap-3.5 bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-emerald-400/50 hover:bg-white/[0.08] transition-all cursor-pointer group select-none min-h-[44px]"
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-3.5 bg-white/5 p-3.5 sm:p-4 rounded-2xl border border-white/10 hover:border-emerald-400/50 hover:bg-white/[0.08] transition-all cursor-pointer group select-none min-h-[44px]"
         >
-          <div class="flex items-center gap-3.5 min-w-0">
-            <div class="w-11 h-11 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30 group-hover:scale-105 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30 group-hover:scale-105 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
@@ -107,14 +104,14 @@
               <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer">
                 Implementation Date <span class="text-rose-400">*</span>
               </span>
-              <p class="text-base sm:text-lg font-black text-white group-hover:text-emerald-300 transition-colors truncate mt-0.5">
+              <p class="text-sm sm:text-base md:text-lg font-black text-white group-hover:text-emerald-300 transition-colors truncate mt-0.5">
                 {{ formattedDateDisplay }}
               </p>
             </div>
           </div>
 
           <!-- Clickable Calendar Trigger Button -->
-          <div class="flex items-center gap-2 shrink-0">
+          <div class="flex items-center gap-2 shrink-0 self-end sm:self-auto">
             <input
               ref="datePickerInput"
               type="text"
@@ -135,15 +132,15 @@
         </div>
 
         <!-- Target Working Days Card (Strict 1-31 Days Limit) -->
-        <div class="flex items-center justify-between gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-emerald-400/40 transition-all">
-          <div class="flex items-center gap-3.5 min-w-0">
-            <div class="w-11 h-11 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white/5 p-3.5 sm:p-4 rounded-2xl border border-white/10 hover:border-emerald-400/40 transition-all">
+          <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-400/30">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div class="flex flex-col min-w-0">
-              <label for="sched-days" class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer flex items-center gap-1.5">
+              <label for="sched-days" class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer flex items-center gap-1.5 flex-wrap">
                 <span>Target Working Days</span>
                 <span class="text-rose-400">*</span>
                 <span class="text-[9px] px-1.5 py-0.5 text-emerald-300 bg-emerald-500/20 rounded font-black tracking-normal border border-emerald-500/30">1–31 Days</span>
@@ -153,12 +150,12 @@
           </div>
 
           <!-- Emphasized Number with Steppers Clamped Strictly to 1..31 -->
-          <div class="flex items-center gap-1.5 bg-white/10 p-1.5 rounded-xl border border-white/10 shrink-0">
+          <div class="flex items-center gap-1.5 bg-white/10 p-1.5 rounded-xl border border-white/10 shrink-0 self-end sm:self-auto">
             <button
               type="button"
               @click="setWorkingDays(Math.max(1, Number(workingDays || 1) - 1))"
               :disabled="Number(workingDays) <= 1"
-              class="w-11 h-11 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 select-none touch-manipulation"
+              class="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 select-none touch-manipulation"
               title="Decrease days"
             >
               −
@@ -172,13 +169,13 @@
               v-model.number="workingDays"
               @input="handleWorkingDaysInput"
               @blur="handleWorkingDaysBlur"
-              class="w-14 sm:w-16 text-center bg-transparent text-xl sm:text-3xl font-black text-white outline-none font-mono selection:bg-emerald-500"
+              class="w-12 sm:w-16 text-center bg-transparent text-xl sm:text-3xl font-black text-white outline-none font-mono selection:bg-emerald-500"
             />
             <button
               type="button"
               @click="setWorkingDays(Math.min(31, Number(workingDays || 0) + 1))"
               :disabled="Number(workingDays) >= 31"
-              class="w-11 h-11 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 shadow-xs select-none touch-manipulation"
+              class="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center font-black text-xl transition-all cursor-pointer active:scale-95 shadow-xs select-none touch-manipulation"
               title="Increase days"
             >
               +
@@ -260,7 +257,7 @@
             </div>
 
             <!-- Labor Only Toggle Switch -->
-            <label class="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 transition-all cursor-pointer select-none shrink-0 touch-manipulation">
+            <label class="flex items-center justify-between sm:justify-start gap-2.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 transition-all cursor-pointer select-none shrink-0 touch-manipulation w-full sm:w-auto">
               <input
                 type="checkbox"
                 v-model="assessmentLaborOnly"
@@ -281,7 +278,7 @@
 
           <!-- When Materials are Required -->
           <div v-else class="space-y-3">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between gap-2">
               <span class="text-[11px] font-black uppercase tracking-wider text-slate-300">Itemized Estimated Supplies & Parts</span>
               <button
                 type="button"
@@ -295,8 +292,100 @@
               </button>
             </div>
 
-            <div class="border border-white/10 rounded-xl overflow-hidden bg-slate-900/60">
-              <table class="w-full text-left text-xs border-collapse">
+            <!-- Mobile Card Layout (< 640px) -->
+            <div class="space-y-3 sm:hidden">
+              <div
+                v-for="(item, idx) in assessmentMaterials"
+                :key="`m-${idx}`"
+                class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 space-y-2.5"
+              >
+                <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                  <span class="text-xs font-black text-slate-300">Item #{{ idx + 1 }}</span>
+                  <button
+                    type="button"
+                    @click="removeAssessmentMaterialRow(idx)"
+                    :disabled="assessmentMaterials.length === 1"
+                    class="p-1 text-slate-400 hover:text-rose-400 disabled:opacity-20 cursor-pointer transition-colors rounded"
+                    title="Remove item"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Material / Item Description</label>
+                  <input
+                    v-model="item.material_name"
+                    type="text"
+                    list="assessment-material-suggestions-mobile"
+                    placeholder="e.g., PVC Pipe, 18W Bulb, Cement"
+                    class="w-full px-2.5 py-2 bg-white/10 border border-white/15 rounded-lg text-xs font-semibold text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
+                  />
+                  <datalist id="assessment-material-suggestions-mobile">
+                    <option v-for="name in availableAssessmentMaterials" :key="name" :value="name" />
+                  </datalist>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-center">Qty</label>
+                    <input
+                      v-model.number="item.quantity"
+                      type="number"
+                      min="0.1"
+                      step="any"
+                      class="w-full px-2 py-1.5 bg-white/10 border border-white/15 rounded-lg text-xs font-bold text-white text-center focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
+                    />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-center">Unit</label>
+                    <select
+                      v-model="item.unit_measurement"
+                      class="w-full px-1.5 py-1.5 bg-slate-800 border border-white/15 rounded-lg text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all cursor-pointer text-center"
+                    >
+                      <option value="pcs">pcs</option>
+                      <option value="meters">meters</option>
+                      <option value="liters">liters</option>
+                      <option value="kg">kg</option>
+                      <option value="rolls">rolls</option>
+                      <option value="sets">sets</option>
+                      <option value="bags">bags</option>
+                      <option value="cans">cans</option>
+                      <option value="pairs">pairs</option>
+                      <option value="boxes">boxes</option>
+                      <option value="units">units</option>
+                      <option value="sheets">sheets</option>
+                      <option value="gallons">gallons</option>
+                      <option value="lengths">lengths</option>
+                    </select>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-right">Price (₱)</label>
+                    <input
+                      v-model.number="item.unit_price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      class="w-full px-2 py-1.5 bg-white/10 border border-white/15 rounded-lg text-xs font-bold text-white text-right focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1 border-t border-white/5 text-xs">
+                  <span class="text-[11px] text-slate-400 font-medium">Subtotal:</span>
+                  <span class="font-black text-emerald-300 tabular-nums">
+                    ₱{{ Number((item.quantity || 0) * (item.unit_price || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desktop / Tablet Table (>= 640px) -->
+            <div class="border border-white/10 rounded-xl overflow-x-auto custom-scrollbar bg-slate-900/60 hidden sm:block">
+              <table class="w-full min-w-[620px] text-left text-xs border-collapse">
                 <thead>
                   <tr class="bg-white/5 border-b border-white/10 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                     <th class="py-2.5 px-3 w-8 text-center">#</th>
@@ -395,7 +484,7 @@
               </table>
             </div>
 
-            <div class="flex items-center justify-between text-xs pt-1">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs pt-1">
               <span class="text-slate-400">
                 {{ validAssessmentMaterialsCount }} item(s) • Total: <strong class="text-emerald-300">₱{{ totalAssessmentCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</strong>
               </span>
@@ -403,7 +492,7 @@
                 type="button"
                 @click="saveInitialAssessmentDirectly"
                 :disabled="isSavingAssessment"
-                class="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all border border-white/15 cursor-pointer flex items-center gap-1.5"
+                class="w-full sm:w-auto px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all border border-white/15 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <svg v-if="isSavingAssessment" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -421,21 +510,21 @@
     <!-- ═══ 2B. Empty Target State (When No Ticket Selected) ═══ -->
     <div
       v-else
-      class="p-8 sm:p-12 rounded-3xl border-2 border-dashed border-slate-200 bg-white text-center flex flex-col items-center justify-center space-y-4 shadow-xs"
+      class="p-5 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl border-2 border-dashed border-slate-200 bg-white text-center flex flex-col items-center justify-center space-y-4 shadow-xs"
     >
       <div
         :class="[
-          'w-16 h-16 rounded-2xl flex items-center justify-center border shadow-xs',
+          'w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center border shadow-xs',
           unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
         ]"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 sm:h-8 sm:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
       </div>
 
       <div class="max-w-md">
-        <h3 class="text-xl font-black text-slate-900 tracking-tight">No Assignment Target Selected</h3>
+        <h3 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">No Assignment Target Selected</h3>
         <p class="text-xs sm:text-sm text-slate-500 mt-1">
           <template v-if="unitCode.toUpperCase() === 'SSU'">
             Pick an incoming collaboration request from other units to schedule and dispatch security personnel.
@@ -446,19 +535,19 @@
         </p>
       </div>
 
-      <div class="flex items-center gap-3 pt-2">
+      <div class="flex items-center gap-3 pt-2 w-full sm:w-auto justify-center">
         <router-link
           :to="unitCode.toUpperCase() === 'SSU' ? '/admin/ssu/collab-tickets?tab=approved' : `/admin/${unitCode.toLowerCase()}/approved-tickets`"
           :class="[
-            'px-5 py-3 min-h-[44px] rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 touch-manipulation',
+            'w-full sm:w-auto px-5 py-3 min-h-[44px] rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 touch-manipulation text-center',
             unitCode.toUpperCase() === 'LEAU' ? 'bg-amber-600 hover:bg-amber-700' : (unitCode.toUpperCase() === 'SSU' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-emerald-600 hover:bg-emerald-700')
           ]"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          <span v-if="unitCode.toUpperCase() === 'SSU'">Select from Collab Tickets Requests ({{ dispatchQueue.length }})</span>
-          <span v-else>Select from Approved Ticket Queue ({{ dispatchQueue.length }})</span>
+          <span v-if="unitCode.toUpperCase() === 'SSU'" class="truncate">Select Collab Request ({{ dispatchQueue.length }})</span>
+          <span v-else class="truncate">Select from Approved Queue ({{ dispatchQueue.length }})</span>
         </router-link>
       </div>
 
@@ -479,7 +568,7 @@
             type="button"
             @click="selectTicket(ticket)"
             :class="[
-              'w-full p-3 rounded-2xl border border-slate-200 bg-white transition-all flex items-center justify-between gap-3 text-left cursor-pointer group shadow-2xs touch-manipulation',
+              'w-full p-3 sm:p-3.5 rounded-2xl border border-slate-200 bg-white transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left cursor-pointer group shadow-2xs touch-manipulation',
               unitCode.toUpperCase() === 'SSU'
                 ? 'hover:border-indigo-400 hover:bg-indigo-50/40'
                 : unitCode.toUpperCase() === 'LEAU'
@@ -487,9 +576,9 @@
                   : 'hover:border-emerald-400 hover:bg-emerald-50/40'
             ]"
           >
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg shadow-2xs tabular-nums">
+            <div class="min-w-0 flex-1 w-full">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="text-sm sm:text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg shadow-2xs tabular-nums">
                   #{{ ticket.id }}
                 </span>
                 <span v-if="ticket.requesting_unit_code || ticket.unit_code" class="text-[10px] font-bold text-slate-500 uppercase">
@@ -499,7 +588,7 @@
                   Urgent
                 </span>
               </div>
-              <p class="text-xs font-black text-slate-900 group-hover:text-slate-800 truncate">
+              <p class="text-xs sm:text-sm font-black text-slate-900 group-hover:text-slate-800 truncate">
                 {{ ticket.title || ticket.service || ticket.type || 'Service Request' }}
               </p>
               <p class="text-[11px] text-slate-500 truncate mt-0.5">
@@ -508,7 +597,7 @@
             </div>
             <div
               :class="[
-                'shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-white text-xs font-bold transition-colors',
+                'shrink-0 self-end sm:self-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-white text-xs font-bold transition-colors',
                 unitCode.toUpperCase() === 'SSU'
                   ? 'bg-indigo-600 group-hover:bg-indigo-700'
                   : unitCode.toUpperCase() === 'LEAU'
@@ -529,7 +618,7 @@
     <!-- ═══ 3. Current Assignments Panel (Shown when personnel are assigned to the target) ═══ -->
     <div
       v-if="selectedTicket && !isBorrowingSelected && currentAssignments.length > 0"
-      class="p-5 sm:p-6 rounded-3xl bg-slate-900 text-white shadow-lg border border-slate-800 space-y-4 animate-scale-up"
+      class="p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 text-white shadow-lg border border-slate-800 space-y-4 animate-scale-up"
     >
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
         <div class="flex items-center gap-2.5">
@@ -544,8 +633,8 @@
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-          <span class="px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-black">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+          <span class="px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-black text-center sm:text-left">
             {{ currentAssignments.length }} Assigned
           </span>
 
@@ -604,10 +693,10 @@
     </div>
 
     <!-- ═══ 4. Available Personnel Section (job requests only; borrowing uses inventory) ═══ -->
-    <div v-if="!isBorrowingSelected" class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-6">
+    <div v-if="!isBorrowingSelected" class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-4 sm:p-6 space-y-4 sm:space-y-6">
       
       <!-- Section Header & Legend -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4 border-b border-slate-100">
         <div>
           <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2.5">
             <span class="w-2.5 h-6 bg-emerald-500 rounded-full"></span>
@@ -619,12 +708,12 @@
         </div>
 
         <!-- Action Toolbar: Refresh -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 self-start sm:self-auto">
           <button
             type="button"
             @click="refreshData"
             :disabled="loadingTickets"
-            class="px-3 py-2 min-h-[38px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-1.5 shadow-2xs touch-manipulation"
+            class="px-3.5 py-2 min-h-[38px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-1.5 shadow-2xs touch-manipulation"
             title="Refresh workforce roster and queue"
           >
             <svg
@@ -676,25 +765,25 @@
           </div>
 
           <!-- Filter Mode Switcher -->
-          <div class="flex items-center gap-1.5 shrink-0 bg-white/80 p-1 rounded-xl border border-slate-200/80">
+          <div class="flex items-center gap-1.5 shrink-0 bg-white/80 p-1 rounded-xl border border-slate-200/80 w-full sm:w-auto">
             <button
               type="button"
               @click="autoFilterByService = true; personnelCategoryFilter = 'all'"
-              :class="['px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer touch-manipulation', autoFilterByService ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900']"
+              :class="['flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer touch-manipulation text-center', autoFilterByService ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900']"
             >
               Matched Specialists ({{ serviceMatchedWorkersCount }})
             </button>
             <button
               type="button"
               @click="autoFilterByService = false; personnelCategoryFilter = 'all'"
-              :class="['px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer touch-manipulation', !autoFilterByService && personnelCategoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900']"
+              :class="['flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer touch-manipulation text-center', !autoFilterByService && personnelCategoryFilter === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900']"
             >
               Show All Workers ({{ props.store?.personnel?.length || 0 }})
             </button>
           </div>
         </div>
 
-        <div class="relative max-w-md">
+        <div class="relative w-full max-w-md">
           <input
             v-model="personnelSearch"
             type="text"
@@ -707,7 +796,7 @@
         </div>
 
         <!-- Specialty Category Chips -->
-        <div v-if="store.categories && store.categories.length > 0" class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pt-1 text-xs pb-1">
+        <div v-if="store.categories && store.categories.length > 0" class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pt-1 text-xs pb-1 -mx-1 px-1">
           <button
             type="button"
             @click="autoFilterByService = false; personnelCategoryFilter = 'all'"
@@ -752,7 +841,7 @@
         </div>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4">
         <div
           v-for="worker in filteredPersonnel"
           :key="worker.id"
@@ -793,7 +882,7 @@
           </div>
 
           <!-- Worker Card Actions -->
-          <div class="pt-2 border-t border-slate-100 flex items-center gap-2">
+          <div class="pt-2 border-t border-slate-100 flex items-center gap-2 flex-wrap sm:flex-nowrap">
             <!-- Assignment CTA -->
             <button
               v-if="selectedTicket && !isWorkerAssigned(worker.id) && worker.status !== 'On Leave'"

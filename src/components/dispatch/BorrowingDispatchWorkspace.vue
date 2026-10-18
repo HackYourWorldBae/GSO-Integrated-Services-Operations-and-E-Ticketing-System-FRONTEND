@@ -1,33 +1,33 @@
 <template>
-  <div class="space-y-6 pb-12 px-4 sm:px-6 lg:px-8 py-6 max-w-[1750px] mx-auto min-h-screen">
+  <div class="space-y-6 pb-12 px-3 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-[1750px] mx-auto min-h-screen">
 
     <!-- ═══ Selected Borrowing Target Banner ═══ -->
     <div
       v-if="selectedTicket"
-      class="p-6 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white shadow-xl relative overflow-hidden border border-amber-500/30 animate-scale-up space-y-6"
+      class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white shadow-xl relative overflow-hidden border border-amber-500/30 animate-scale-up space-y-5 sm:space-y-6"
     >
       <div class="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
 
-      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/10">
-        <div>
-          <div class="flex items-center gap-3 mb-2 flex-wrap">
-            <span class="text-sm font-black text-amber-400 bg-white/10 px-3 py-1 rounded-full border border-white/10">
+      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 pb-5 sm:pb-6 border-b border-white/10">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
+            <span class="text-xs sm:text-sm font-black text-amber-400 bg-white/10 px-3 py-1 rounded-full border border-white/10 shrink-0">
               #{{ selectedTicket.id }}
             </span>
             <span
               v-if="borrowing?.status && String(borrowing.status).toLowerCase() !== 'approved_director'"
-              class="px-2.5 py-0.5 rounded-full bg-white/10 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-white/10"
+              class="px-2.5 py-0.5 rounded-full bg-white/10 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-white/10 shrink-0"
             >
               {{ formatBorrowingStatus(borrowing.status) }}
             </span>
-            <span v-if="borrowing?.borrower_name" class="text-xs text-slate-300 font-medium">
+            <span v-if="borrowing?.borrower_name" class="text-xs text-slate-300 font-medium truncate max-w-full">
               Borrower <strong class="text-white">{{ borrowing.borrower_name }}</strong>
             </span>
           </div>
-          <h3 class="text-2xl font-black text-white tracking-tight">
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight break-words">
             {{ selectedTicket.service_type || selectedTicket.title || 'Borrowing Request' }}
           </h3>
-          <p class="text-slate-300 font-medium text-xs sm:text-sm mt-1">
+          <p class="text-slate-300 font-medium text-xs sm:text-sm mt-1 break-words">
             Requested item: <strong class="text-amber-300">{{ borrowing?.item_name_requested || '—' }}</strong>
             <span v-if="borrowing?.item_model_requested">({{ borrowing.item_model_requested }})</span>
             <span v-if="borrowing?.quantity_needed"> × {{ borrowing.quantity_needed }}</span>
@@ -220,9 +220,9 @@
 
       <!-- Quick Selection Cards from Borrowing Queue -->
       <div v-if="dispatchQueue.length > 0" class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
-            <span class="w-2.5 h-5 rounded-full bg-amber-500"></span>
+            <span class="w-2.5 h-5 rounded-full bg-amber-500 shrink-0"></span>
             <span>Borrowing Requests Awaiting Fulfillment ({{ dispatchQueue.length }})</span>
           </h3>
           <span class="text-xs text-slate-400 font-semibold">Click any request to allocate inventory</span>
@@ -350,13 +350,13 @@
             </span>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap pt-1">
             <input
               v-model.number="assignQty[item.id]"
               type="number"
               :min="1"
               :max="Math.min(item.quantity_available, borrowing?.quantity_needed || item.quantity_available)"
-              class="w-20 px-2 py-2 rounded-xl border border-slate-200 text-xs font-bold text-center focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+              class="w-full sm:w-20 px-2 py-2 min-h-[40px] rounded-xl border border-slate-200 text-xs font-bold text-center focus:outline-none focus:ring-2 focus:ring-amber-500/40"
               title="Quantity to assign"
             />
             <button
@@ -364,19 +364,19 @@
               type="button"
               @click="assignInventory(item)"
               :disabled="actionLoading"
-              class="flex-1 py-2.5 px-3 min-h-[40px] rounded-xl text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50"
+              class="flex-1 w-full sm:w-auto py-2.5 px-3 min-h-[40px] rounded-xl text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50 touch-manipulation"
             >
               <span>{{ actionLoading ? 'Assigning...' : 'Assign to Request' }}</span>
             </button>
             <div
               v-else-if="isItemAssigned(item.id)"
-              class="flex-1 py-2.5 px-3 min-h-[40px] rounded-xl bg-amber-100 text-amber-800 text-xs font-black border border-amber-300 flex items-center justify-center gap-1.5"
+              class="flex-1 w-full sm:w-auto py-2.5 px-3 min-h-[40px] rounded-xl bg-amber-100 text-amber-800 text-xs font-black border border-amber-300 flex items-center justify-center gap-1.5"
             >
               <span>Assigned</span>
             </div>
             <div
               v-else
-              class="flex-1 py-2.5 px-3 min-h-[40px] rounded-xl bg-slate-100 text-slate-400 text-xs font-bold text-center flex items-center justify-center border border-slate-200"
+              class="flex-1 w-full sm:w-auto py-2.5 px-3 min-h-[40px] rounded-xl bg-slate-100 text-slate-400 text-xs font-bold text-center flex items-center justify-center border border-slate-200"
             >
               {{ !canAssign ? 'Already Assigned' : 'Unavailable' }}
             </div>

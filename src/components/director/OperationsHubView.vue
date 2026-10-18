@@ -144,48 +144,27 @@
       </div>
 
       <!-- Filters & Search Bar -->
-      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
-        <!-- Search -->
-        <div class="sm:col-span-8 relative">
-          <input
-            v-model="materialSearch"
-            type="text"
-            placeholder="Search material description or category..."
-            class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-xs transition-all"
-          />
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <button
-            v-if="materialSearch"
-            @click="materialSearch = ''"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+      <div class="relative">
+        <input
+          v-model="materialSearch"
+          type="text"
+          placeholder="Search material description..."
+          class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-xs transition-all"
+        />
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
         </div>
-
-        <!-- Category Dropdown -->
-        <div class="sm:col-span-4 relative">
-          <select
-            v-model="selectedCategory"
-            class="w-full appearance-none pl-3.5 pr-8 py-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-xs cursor-pointer hover:border-slate-300 transition-colors"
-          >
-            <option value="">All Categories ({{ availableCategories.length }})</option>
-            <option v-for="cat in availableCategories" :key="cat" :value="cat">
-              {{ cat }}
-            </option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
+        <button
+          v-if="materialSearch"
+          @click="materialSearch = ''"
+          class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       <!-- Materials Data Table -->
@@ -197,7 +176,6 @@
                 <th class="py-3.5 px-4 w-12 text-center">#</th>
                 <th class="py-3.5 px-4">Material / Supply Name</th>
                 <th class="py-3.5 px-4 w-28 text-center">Sub-Unit</th>
-                <th class="py-3.5 px-4 w-36">Category</th>
                 <th class="py-3.5 px-4 w-24 text-center">Unit</th>
                 <th class="py-3.5 px-4 w-32 text-right">Default Price</th>
                 <th class="py-3.5 px-4 w-24 text-center">Status</th>
@@ -206,13 +184,13 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-if="filteredMaterials.length === 0">
-                <td colspan="8" class="py-12 text-center text-slate-400">
+                <td colspan="7" class="py-12 text-center text-slate-400">
                   <div class="flex flex-col items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
                     <p class="font-bold text-sm text-slate-600">No materials match your filter criteria.</p>
-                    <p class="text-xs text-slate-400">Try adjusting your search keyword or selected category.</p>
+                    <p class="text-xs text-slate-400">Try adjusting your search keyword.</p>
                   </div>
                 </td>
               </tr>
@@ -238,11 +216,6 @@
                   >
                     <span class="w-1.5 h-1.5 rounded-full" :class="item.unit_code === 'FGMU' ? 'bg-blue-500' : 'bg-emerald-500'"></span>
                     {{ item.unit_code }}
-                  </span>
-                </td>
-                <td class="py-3 px-4">
-                  <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[11px]">
-                    {{ item.category }}
                   </span>
                 </td>
                 <td class="py-3 px-4 text-center font-bold text-slate-600">
@@ -663,23 +636,6 @@
             </div>
           </div>
 
-          <!-- Category -->
-          <div class="space-y-1.5">
-            <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
-              Material Category
-            </label>
-            <input
-              v-model="materialForm.category"
-              type="text"
-              required
-              list="category-suggestions"
-              placeholder="e.g., Plumbing, Electrical, Grounds Maintenance, Seedlings"
-              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
-            />
-            <datalist id="category-suggestions">
-              <option v-for="c in availableCategories" :key="c" :value="c" />
-            </datalist>
-          </div>
 
           <!-- Name -->
           <div class="space-y-1.5">
@@ -939,36 +895,26 @@ const navigationTabs = computed(() => [
 // Materials Tab State & Logic
 // -----------------------------------------------------------------------------
 const selectedUnit = ref('ALL');
-const selectedCategory = ref('');
 const materialSearch = ref('');
 
 const showMaterialModal = ref(false);
 const editingMaterial = ref(null);
 const materialForm = ref({
   unit_code: 'FGMU',
-  category: '',
+  category: 'General',
   name: '',
   unit: 'pcs',
   default_price: 0,
   is_active: true,
 });
 
-const availableCategories = computed(() => {
-  return operationsStore.categoriesByUnit(selectedUnit.value);
-});
-
 const filteredMaterials = computed(() => {
   let list = operationsStore.materialsByUnit(selectedUnit.value);
-
-  if (selectedCategory.value) {
-    list = list.filter(m => (m.category || '').toLowerCase() === selectedCategory.value.toLowerCase());
-  }
 
   if (materialSearch.value) {
     const q = materialSearch.value.toLowerCase().trim();
     list = list.filter(m =>
-      (m.name || '').toLowerCase().includes(q) ||
-      (m.category || '').toLowerCase().includes(q)
+      (m.name || '').toLowerCase().includes(q)
     );
   }
 
@@ -979,7 +925,7 @@ const openAddMaterialModal = () => {
   editingMaterial.value = null;
   materialForm.value = {
     unit_code: selectedUnit.value === 'LEAU' ? 'LEAU' : 'FGMU',
-    category: selectedCategory.value || (selectedUnit.value === 'LEAU' ? 'Grounds Maintenance' : 'Plumbing'),
+    category: 'General',
     name: '',
     unit: 'pcs',
     default_price: 0,
@@ -992,7 +938,7 @@ const openEditMaterialModal = (item) => {
   editingMaterial.value = item;
   materialForm.value = {
     unit_code: item.unit_code || 'FGMU',
-    category: item.category || '',
+    category: item.category || 'General',
     name: item.name || '',
     unit: item.unit || 'pcs',
     default_price: item.default_price || 0,
@@ -1004,7 +950,7 @@ const openEditMaterialModal = (item) => {
 const handleSaveMaterialSubmit = async () => {
   const payload = {
     unit_code: materialForm.value.unit_code,
-    category: materialForm.value.category.trim(),
+    category: materialForm.value.category?.trim() || 'General',
     name: materialForm.value.name.trim(),
     unit: materialForm.value.unit,
     default_price: Number(materialForm.value.default_price) || 0,
