@@ -343,9 +343,31 @@ textarea:focus {
   border: 1.5px solid #cbd5e1 !important;
   box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1) !important;
   padding: 1.25rem !important;
-  max-width: 360px !important;
+  max-width: min(380px, calc(100vw - 28px)) !important;
+  box-sizing: border-box !important;
   font-family: inherit !important;
   z-index: 1000000 !important;
+}
+
+@media (max-width: 640px) {
+  .driver-popover {
+    max-width: calc(100vw - 24px) !important;
+    padding: 1rem !important;
+    border-radius: 1rem !important;
+    margin: 0 auto !important;
+  }
+  .driver-popover-title {
+    font-size: 0.9rem !important;
+  }
+  .driver-popover-description {
+    font-size: 0.78rem !important;
+    line-height: 1.45 !important;
+  }
+  .driver-popover-btn {
+    min-height: 40px !important;
+    padding: 0.5rem 0.75rem !important;
+    touch-action: manipulation !important;
+  }
 }
 
 .driver-popover-title {
