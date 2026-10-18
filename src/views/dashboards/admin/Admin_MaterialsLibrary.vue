@@ -1,17 +1,9 @@
 <template>
   <MainLayout>
     <template #header-title>
-      <div class="flex items-center gap-2.5 min-w-0">
-        <span
-          class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border shrink-0"
-          :class="isFgmu ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'"
-        >
-          {{ effectiveUnit }} Standard Catalog
-        </span>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
-          Common Materials Library
-        </h2>
-      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
+        Common Materials Library
+      </h2>
     </template>
 
     <template #main-content>
@@ -54,8 +46,8 @@
             </div>
 
             <!-- Quick Stats Summary Counters -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0">
-              <div class="p-3.5 rounded-2xl bg-white/[0.07] border border-white/10 text-center backdrop-blur-xs">
+            <div class="grid grid-cols-2 gap-3 shrink-0">
+              <div class="p-3.5 rounded-2xl bg-white/[0.07] border border-white/10 text-center backdrop-blur-xs min-w-[100px]">
                 <span class="text-xl sm:text-2xl font-black text-white tabular-nums block">
                   {{ unitMaterials.length }}
                 </span>
@@ -64,25 +56,7 @@
                 </span>
               </div>
 
-              <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-400/20 text-center backdrop-blur-xs">
-                <span class="text-xl sm:text-2xl font-black text-emerald-300 tabular-nums block">
-                  {{ activeMaterialsCount }}
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-200/70 mt-0.5 block">
-                  Active
-                </span>
-              </div>
-
-              <div class="p-3.5 rounded-2xl bg-slate-500/10 border border-slate-400/20 text-center backdrop-blur-xs">
-                <span class="text-xl sm:text-2xl font-black text-slate-300 tabular-nums block">
-                  {{ unitMaterials.length - activeMaterialsCount }}
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-0.5 block">
-                  Inactive
-                </span>
-              </div>
-
-              <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/20 text-center backdrop-blur-xs">
+              <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/20 text-center backdrop-blur-xs min-w-[100px]">
                 <span class="text-xl sm:text-2xl font-black text-amber-300 tabular-nums block">
                   ₱{{ averagePrice.toFixed(0) }}
                 </span>
@@ -157,13 +131,12 @@
                   <th class="py-3.5 px-4">Material / Supply Name</th>
                   <th class="py-3.5 px-4 w-28 text-center">Standard Unit</th>
                   <th class="py-3.5 px-4 w-32 text-right">Default Benchmark Price</th>
-                  <th class="py-3.5 px-4 w-28 text-center">Status</th>
                   <th class="py-3.5 px-4 w-28 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr v-if="filteredMaterials.length === 0">
-                  <td colspan="6" class="py-14 text-center text-slate-400">
+                  <td colspan="5" class="py-14 text-center text-slate-400">
                     <div class="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -192,17 +165,6 @@
                   </td>
                   <td class="py-3.5 px-4 text-right font-black text-slate-900 tabular-nums text-xs sm:text-sm">
                     ₱{{ Number(item.default_price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
-                  </td>
-                  <td class="py-3.5 px-4 text-center">
-                    <span
-                      class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"
-                      :class="item.is_active !== 0 && item.is_active !== false
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-slate-100 text-slate-500'"
-                    >
-                      <span class="w-1.5 h-1.5 rounded-full" :class="item.is_active !== 0 && item.is_active !== false ? 'bg-emerald-500' : 'bg-slate-400'"></span>
-                      {{ item.is_active !== 0 && item.is_active !== false ? 'Active' : 'Inactive' }}
-                    </span>
                   </td>
                   <td class="py-3.5 px-4 text-center">
                     <div class="flex items-center justify-center gap-1">
@@ -255,15 +217,6 @@
                   </span>
                 </div>
               </div>
-
-              <span
-                class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0"
-                :class="item.is_active !== 0 && item.is_active !== false
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : 'bg-slate-100 text-slate-500'"
-              >
-                {{ item.is_active !== 0 && item.is_active !== false ? 'Active' : 'Inactive' }}
-              </span>
             </div>
 
             <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
@@ -381,19 +334,6 @@
                 </div>
               </div>
 
-              <!-- Active Status Switch -->
-              <div class="flex items-center gap-3 pt-2">
-                <input
-                  id="modal-material-active"
-                  v-model="form.is_active"
-                  type="checkbox"
-                  class="w-4 h-4 text-emerald-600 rounded-md border-slate-300 focus:ring-emerald-500 cursor-pointer"
-                />
-                <label for="modal-material-active" class="text-xs font-bold text-slate-700 cursor-pointer">
-                  Active in pre-assessment &amp; work completion dropdowns
-                </label>
-              </div>
-
               <!-- Modal Actions -->
               <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                 <button
@@ -469,10 +409,6 @@ const unitMaterials = computed(() => {
   return operationsStore.materialsByUnit(effectiveUnit.value);
 });
 
-const activeMaterialsCount = computed(() => {
-  return unitMaterials.value.filter(m => m.is_active !== 0 && m.is_active !== false).length;
-});
-
 const averagePrice = computed(() => {
   const items = unitMaterials.value;
   if (!items.length) return 0;
@@ -527,7 +463,7 @@ const openEditModal = (item) => {
     category: item.category || 'General',
     unit: item.unit || 'pcs',
     default_price: Number(item.default_price || 0),
-    is_active: item.is_active !== 0 && item.is_active !== false,
+    is_active: 1,
   };
   showModal.value = true;
 };
@@ -539,7 +475,7 @@ const handleSaveMaterial = async () => {
     name: form.value.name.trim(),
     unit: form.value.unit,
     default_price: Number(form.value.default_price || 0),
-    is_active: form.value.is_active ? 1 : 0,
+    is_active: 1,
   };
 
   if (!payload.name) {

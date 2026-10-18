@@ -178,13 +178,12 @@
                 <th class="py-3.5 px-4 w-28 text-center">Sub-Unit</th>
                 <th class="py-3.5 px-4 w-24 text-center">Unit</th>
                 <th class="py-3.5 px-4 w-32 text-right">Default Price</th>
-                <th class="py-3.5 px-4 w-24 text-center">Status</th>
                 <th class="py-3.5 px-4 w-24 text-center">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-if="filteredMaterials.length === 0">
-                <td colspan="7" class="py-12 text-center text-slate-400">
+                <td colspan="6" class="py-12 text-center text-slate-400">
                   <div class="flex flex-col items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -223,16 +222,6 @@
                 </td>
                 <td class="py-3 px-4 text-right font-black text-slate-800 tabular-nums">
                   ₱{{ Number(item.default_price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
-                </td>
-                <td class="py-3 px-4 text-center">
-                  <span
-                    class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider"
-                    :class="item.is_active !== 0
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : 'bg-slate-100 text-slate-500'"
-                  >
-                    {{ item.is_active !== 0 ? 'Active' : 'Disabled' }}
-                  </span>
                 </td>
                 <td class="py-3 px-4 text-center">
                   <div class="flex items-center justify-center gap-1">
@@ -697,19 +686,6 @@
             </div>
           </div>
 
-          <!-- Active Toggle -->
-          <div class="flex items-center gap-3 pt-2">
-            <input
-              id="material-active"
-              v-model="materialForm.is_active"
-              type="checkbox"
-              class="w-4 h-4 text-emerald-600 rounded-md border-slate-300 focus:ring-emerald-500 cursor-pointer"
-            />
-            <label for="material-active" class="text-xs font-bold text-slate-700 cursor-pointer">
-              Active in material pre-assessment &amp; update dropdowns
-            </label>
-          </div>
-
           <!-- Modal Actions -->
           <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
             <button
@@ -942,7 +918,7 @@ const openEditMaterialModal = (item) => {
     name: item.name || '',
     unit: item.unit || 'pcs',
     default_price: item.default_price || 0,
-    is_active: item.is_active !== 0,
+    is_active: 1,
   };
   showMaterialModal.value = true;
 };
@@ -954,7 +930,7 @@ const handleSaveMaterialSubmit = async () => {
     name: materialForm.value.name.trim(),
     unit: materialForm.value.unit,
     default_price: Number(materialForm.value.default_price) || 0,
-    is_active: materialForm.value.is_active ? 1 : 0,
+    is_active: 1,
   };
 
   if (!payload.name) {
