@@ -279,7 +279,7 @@
                         </div>
                         <div class="space-y-1 overflow-hidden flex-1">
                           <div class="flex items-center justify-between gap-1">
-                            <p :class="['text-sm truncate transition-colors group-hover:text-emerald-700', notif.is_read == 0 ? 'font-black text-slate-900' : 'font-bold text-slate-700']">{{ notif.title }}</p>
+                            <p :class="['text-sm truncate transition-colors group-hover:text-emerald-700', notif.is_read == 0 ? 'font-black text-slate-900' : 'font-bold text-slate-700']">{{ formatNotificationTitle(notif.title) }}</p>
                           </div>
                           <p :class="['text-xs font-medium leading-relaxed line-clamp-2', notif.is_read == 0 ? 'text-slate-700' : 'text-slate-500']">{{ notif.message }}</p>
                           <div class="flex items-center justify-between pt-1">
@@ -585,6 +585,18 @@ const clearReadNotifications = async () => {
     console.error('Failed to clear notifications:', error);
     fetchNotifications();
   }
+};
+
+const formatNotificationTitle = (title) => {
+  if (!title) return '';
+  return title
+    .replace(/\s*\(\s*(?:#\s*[A-Za-z0-9\-_]+|(?:FGMU|LEAU|SSU)-(?:TIC|PRJ|INC)-[A-Za-z0-9\-_]+|\d+)\s*\)/gi, '')
+    .replace(/:\s*(?:#\s*[A-Za-z0-9\-_]+|(?:FGMU|LEAU|SSU)-(?:TIC|PRJ|INC)-[A-Za-z0-9\-_]+|\d+)\s*$/gi, '')
+    .replace(/#\s*[A-Za-z0-9\-_]+/gi, '')
+    .replace(/\b(?:FGMU|LEAU|SSU)-(?:TIC|PRJ|INC)-[A-Za-z0-9\-_]+\b/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s*[:\-]\s*$/, '')
+    .trim();
 };
 
 const isRegistrationNotification = (notif) => {
