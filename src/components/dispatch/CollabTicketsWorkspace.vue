@@ -1217,7 +1217,7 @@ const fetchTickets = async () => {
     const list = res.data?.data?.tickets || [];
     tickets.value = Array.isArray(list) ? list.map(t => ({
       ...t,
-      is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
+      is_emergency: Boolean(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
     })) : [];
     if (props.showStageTabs) {
       stageCounts.value[currentStage.value] = tickets.value.length;

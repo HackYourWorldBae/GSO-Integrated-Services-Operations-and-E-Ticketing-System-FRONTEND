@@ -260,61 +260,37 @@ const processSelectedFile = (file, slot = 'front') => {
   errorMessage.value = '';
 
   if (slot === 'front') {
-    if (fieldErrors.value) {
-      delete fieldErrors.value.id_card;
-    }
-    if (idCardPreview.value && idCardPreview.value.startsWith('blob:')) {
+    delete fieldErrors.value.id_card;
+    if (idCardPreview.value?.startsWith('blob:')) {
       URL.revokeObjectURL(idCardPreview.value);
     }
     idCardFile.value = file;
-    try {
-      idCardPreview.value = URL.createObjectURL(file);
-    } catch {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        idCardPreview.value = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
+    idCardPreview.value = URL.createObjectURL(file);
   } else {
-    if (fieldErrors.value) {
-      delete fieldErrors.value.id_selfie;
-    }
-    if (idSelfiePreview.value && idSelfiePreview.value.startsWith('blob:')) {
+    delete fieldErrors.value.id_selfie;
+    if (idSelfiePreview.value?.startsWith('blob:')) {
       URL.revokeObjectURL(idSelfiePreview.value);
     }
     idSelfieFile.value = file;
-    try {
-      idSelfiePreview.value = URL.createObjectURL(file);
-    } catch {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        idSelfiePreview.value = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
+    idSelfiePreview.value = URL.createObjectURL(file);
   }
 };
 
 const removeSelectedFile = (slot = 'front') => {
   if (slot === 'front') {
-    if (idCardPreview.value && idCardPreview.value.startsWith('blob:')) {
+    if (idCardPreview.value?.startsWith('blob:')) {
       URL.revokeObjectURL(idCardPreview.value);
     }
     idCardFile.value = null;
     idCardPreview.value = null;
-    if (fileInputRef.value) {
-      fileInputRef.value.value = '';
-    }
+    if (fileInputRef.value) fileInputRef.value.value = '';
   } else {
-    if (idSelfiePreview.value && idSelfiePreview.value.startsWith('blob:')) {
+    if (idSelfiePreview.value?.startsWith('blob:')) {
       URL.revokeObjectURL(idSelfiePreview.value);
     }
     idSelfieFile.value = null;
     idSelfiePreview.value = null;
-    if (selfieInputRef.value) {
-      selfieInputRef.value.value = '';
-    }
+    if (selfieInputRef.value) selfieInputRef.value.value = '';
   }
 };
 
@@ -443,15 +419,12 @@ const handleRegister = async () => {
     
     // Smooth scroll to first error field
     await nextTick();
-    const firstKey = Object.keys(fieldErrors.value)[0];
+    const [firstKey] = Object.keys(fieldErrors.value);
     if (firstKey) {
       const el = document.querySelector(`[data-field="${firstKey}"]`);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        const input = el.querySelector('input, select, button');
-        if (input && typeof input.focus === 'function') {
-          input.focus();
-        }
+        el.querySelector('input, select, button')?.focus();
       }
     }
     return;
@@ -489,10 +462,7 @@ const handleRegister = async () => {
 
     const response = await apiRegister(formData);
 
-    const isSuccess = response.data?.status === true || 
-                      response.data?.status === 'success' || 
-                      Boolean(response.data?.data?.user) || 
-                      Boolean(response.data?.user);
+    const isSuccess = response.data?.status === true || Boolean(response.data?.data?.user);
 
     if (isSuccess) {
       const userIdentifier = form.value.student_id_number || form.value.contact_number || form.value.email;

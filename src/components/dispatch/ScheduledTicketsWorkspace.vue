@@ -1466,7 +1466,7 @@ const fetchCollabScheduledCount = async () => {
     const list = res.data?.data?.tickets || [];
     collabScheduledTickets.value = Array.isArray(list) ? list.map(t => ({
       ...t,
-      is_emergency: !!(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
+      is_emergency: Boolean(t.is_emergency || t.urgency === 'High' || t.urgency === 'Emergency')
     })) : [];
     collabScheduledCount.value = res.data?.data?.count ?? collabScheduledTickets.value.length;
     collabScheduledIds.value = new Set(
