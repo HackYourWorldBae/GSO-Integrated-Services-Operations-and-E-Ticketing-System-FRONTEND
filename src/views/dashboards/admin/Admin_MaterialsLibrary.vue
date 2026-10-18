@@ -148,12 +148,12 @@
                 </tr>
 
                 <tr
-                  v-for="(item, idx) in filteredMaterials"
+                  v-for="(item, idx) in paginatedMaterials"
                   :key="item.id || item.name"
                   class="hover:bg-slate-50/80 transition-colors group"
                 >
                   <td class="py-3.5 px-4 text-center font-bold text-slate-400 tabular-nums">
-                    {{ idx + 1 }}
+                    {{ (currentPage - 1) * perPage + idx + 1 }}
                   </td>
                   <td class="py-3.5 px-4">
                     <div class="font-black text-slate-900 text-xs sm:text-sm">
@@ -202,12 +202,15 @@
           </div>
 
           <div
-            v-for="item in filteredMaterials"
+            v-for="(item, idx) in paginatedMaterials"
             :key="item.id || item.name"
             class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-3"
           >
             <div class="flex items-start justify-between gap-3">
               <div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-0.5">
+                  #{{ (currentPage - 1) * perPage + idx + 1 }}
+                </span>
                 <h4 class="font-black text-sm text-slate-900 leading-snug">
                   {{ item.name }}
                 </h4>
@@ -245,6 +248,85 @@
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Pagination Controls Toolbar -->
+        <div
+          v-if="filteredMaterials.length > 0"
+          class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <div class="flex flex-col sm:flex-row items-center gap-3 text-xs text-slate-500 w-full sm:w-auto text-center sm:text-left">
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-slate-600">Rows per page:</span>
+              <select
+                v-model.number="perPage"
+                @change="currentPage = 1"
+                class="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer min-h-[38px]"
+              >
+                <option :value="5">5</option>
+                <option :value="10">10</option>
+                <option :value="20">20</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
+            </div>
+            <span class="text-slate-600">
+              Showing <strong class="text-slate-900">{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
+              <strong class="text-slate-900">{{ Math.min(currentPage * perPage, filteredMaterials.length) }}</strong> of
+              <strong class="text-slate-900">{{ filteredMaterials.length }}</strong> items
+            </span>
+          </div>
+
+          <!-- Page Navigation Buttons -->
+          <div class="flex items-center gap-1.5 flex-wrap justify-center sm:justify-end w-full sm:w-auto">
+            <button
+              @click="currentPage = 1"
+              :disabled="currentPage === 1"
+              class="p-2 min-w-[38px] min-h-[38px] rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer flex items-center justify-center active:scale-95"
+              title="First page"
+            >
+              «
+            </button>
+            <button
+              @click="currentPage--"
+              :disabled="currentPage === 1"
+              class="px-3 py-1.5 min-h-[38px] rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95"
+            >
+              ‹ Prev
+            </button>
+
+            <template v-for="(page, idx) in displayedPages" :key="idx">
+              <span v-if="page === '...'" class="px-2 text-slate-400 font-bold text-xs">...</span>
+              <button
+                v-else
+                @click="currentPage = page"
+                :class="[
+                  'min-w-[38px] h-[38px] px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center active:scale-95',
+                  currentPage === page
+                    ? (isFgmu ? 'bg-blue-600 text-white shadow-xs' : 'bg-emerald-600 text-white shadow-xs')
+                    : 'border border-slate-200 text-slate-700 hover:bg-slate-100'
+                ]"
+              >
+                {{ page }}
+              </button>
+            </template>
+
+            <button
+              @click="currentPage++"
+              :disabled="currentPage === totalPages"
+              class="px-3 py-1.5 min-h-[38px] rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95"
+            >
+              Next ›
+            </button>
+            <button
+              @click="currentPage = totalPages"
+              :disabled="currentPage === totalPages"
+              class="p-2 min-w-[38px] min-h-[38px] rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer flex items-center justify-center active:scale-95"
+              title="Last page"
+            >
+              »
+            </button>
           </div>
         </div>
 
@@ -360,7 +442,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useOperationsHubStore } from '@/stores/operationsHub';
@@ -431,6 +513,54 @@ const filteredMaterials = computed(() => {
   }
 
   return list;
+});
+
+// -----------------------------------------------------------------------------
+// Pagination State & Logic
+// -----------------------------------------------------------------------------
+const currentPage = ref(1);
+const perPage = ref(10);
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredMaterials.value.length / perPage.value) || 1;
+});
+
+const paginatedMaterials = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredMaterials.value.slice(start, start + perPage.value);
+});
+
+const displayedPages = computed(() => {
+  const current = currentPage.value;
+  const total = totalPages.value;
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages = [];
+  pages.push(1);
+  if (current > 3) pages.push('...');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
+});
+
+// Reset page upon search query or active unit changes
+watch(searchQuery, () => {
+  currentPage.value = 1;
+});
+
+watch(effectiveUnit, () => {
+  currentPage.value = 1;
+});
+
+// Keep page index bounded if list shrinks
+watch(totalPages, (newTotal) => {
+  if (currentPage.value > newTotal) {
+    currentPage.value = Math.max(1, newTotal);
+  }
 });
 
 // Modal State & Handlers

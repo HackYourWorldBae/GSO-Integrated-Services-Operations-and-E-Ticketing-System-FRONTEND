@@ -194,12 +194,12 @@
                 </td>
               </tr>
               <tr
-                v-for="(item, idx) in filteredMaterials"
+                v-for="(item, idx) in paginatedMaterials"
                 :key="item.id || item.name"
                 class="hover:bg-slate-50/80 transition-colors group"
               >
                 <td class="py-3 px-4 text-center font-bold text-slate-400 tabular-nums">
-                  {{ idx + 1 }}
+                  {{ (materialCurrentPage - 1) * materialPerPage + idx + 1 }}
                 </td>
                 <td class="py-3 px-4">
                   <div class="font-black text-slate-900 text-xs sm:text-sm">
@@ -248,6 +248,85 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Materials Pagination Controls Toolbar -->
+      <div
+        v-if="filteredMaterials.length > 0"
+        class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4"
+      >
+        <div class="flex flex-col sm:flex-row items-center gap-3 text-xs text-slate-500 w-full sm:w-auto text-center sm:text-left">
+          <div class="flex items-center gap-2">
+            <span class="font-medium text-slate-600">Rows per page:</span>
+            <select
+              v-model.number="materialPerPage"
+              @change="materialCurrentPage = 1"
+              class="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer min-h-[38px]"
+            >
+              <option :value="5">5</option>
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="50">50</option>
+              <option :value="100">100</option>
+            </select>
+          </div>
+          <span class="text-slate-600">
+            Showing <strong class="text-slate-900">{{ ((materialCurrentPage - 1) * materialPerPage) + 1 }}</strong> to
+            <strong class="text-slate-900">{{ Math.min(materialCurrentPage * materialPerPage, filteredMaterials.length) }}</strong> of
+            <strong class="text-slate-900">{{ filteredMaterials.length }}</strong> items
+          </span>
+        </div>
+
+        <!-- Page Navigation Buttons -->
+        <div class="flex items-center gap-1.5 flex-wrap justify-center sm:justify-end w-full sm:w-auto">
+          <button
+            @click="materialCurrentPage = 1"
+            :disabled="materialCurrentPage === 1"
+            class="p-2 min-w-[38px] min-h-[38px] rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer flex items-center justify-center active:scale-95"
+            title="First page"
+          >
+            «
+          </button>
+          <button
+            @click="materialCurrentPage--"
+            :disabled="materialCurrentPage === 1"
+            class="px-3 py-1.5 min-h-[38px] rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95"
+          >
+            ‹ Prev
+          </button>
+
+          <template v-for="(page, idx) in materialDisplayedPages" :key="idx">
+            <span v-if="page === '...'" class="px-2 text-slate-400 font-bold text-xs">...</span>
+            <button
+              v-else
+              @click="materialCurrentPage = page"
+              :class="[
+                'min-w-[38px] h-[38px] px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center active:scale-95',
+                materialCurrentPage === page
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'border border-slate-200 text-slate-700 hover:bg-slate-100'
+              ]"
+            >
+              {{ page }}
+            </button>
+          </template>
+
+          <button
+            @click="materialCurrentPage++"
+            :disabled="materialCurrentPage === materialTotalPages"
+            class="px-3 py-1.5 min-h-[38px] rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95"
+          >
+            Next ›
+          </button>
+          <button
+            @click="materialCurrentPage = materialTotalPages"
+            :disabled="materialCurrentPage === materialTotalPages"
+            class="p-2 min-w-[38px] min-h-[38px] rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer flex items-center justify-center active:scale-95"
+            title="Last page"
+          >
+            »
+          </button>
         </div>
       </div>
     </div>
@@ -837,7 +916,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useOperationsHubStore } from '@/stores/operationsHub';
 import { calculateWorkingHoursElapsed, formatDateToYmd } from '@/utils/workCalendar';
 import { toast } from 'vue3-toastify';
@@ -895,6 +974,50 @@ const filteredMaterials = computed(() => {
   }
 
   return list;
+});
+
+// Materials Pagination
+const materialCurrentPage = ref(1);
+const materialPerPage = ref(10);
+
+const materialTotalPages = computed(() => {
+  return Math.ceil(filteredMaterials.value.length / materialPerPage.value) || 1;
+});
+
+const paginatedMaterials = computed(() => {
+  const start = (materialCurrentPage.value - 1) * materialPerPage.value;
+  return filteredMaterials.value.slice(start, start + materialPerPage.value);
+});
+
+const materialDisplayedPages = computed(() => {
+  const current = materialCurrentPage.value;
+  const total = materialTotalPages.value;
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages = [];
+  pages.push(1);
+  if (current > 3) pages.push('...');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
+});
+
+watch(materialSearch, () => {
+  materialCurrentPage.value = 1;
+});
+
+watch(selectedUnit, () => {
+  materialCurrentPage.value = 1;
+});
+
+watch(materialTotalPages, (newTotal) => {
+  if (materialCurrentPage.value > newTotal) {
+    materialCurrentPage.value = Math.max(1, newTotal);
+  }
 });
 
 const openAddMaterialModal = () => {
