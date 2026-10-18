@@ -479,14 +479,14 @@ const tutorialCatalog = {
         name: 'Special Non-Working Holidays',
         route: '/director/holidays',
         icon: '📅',
-        summary: 'Calibrate official non-working holidays and executive suspensions that are bypassed during ticket turnaround and SLA calculations.',
+        summary: 'Calibrate official non-working holidays and executive suspensions that are bypassed during ticket working duration calculations.',
         sections: [
           { title: 'Holiday Registry', desc: 'Inspect registered national, regional, and institutional non-working dates.' },
           { title: 'Register Special Holiday', desc: 'Add one-time suspensions or annual recurring holidays with official proclamation notes.' },
-          { title: 'SLA Duration Simulator', desc: 'Interactive verification proving that holiday dates are completely discounted from turnaround hours.' }
+          { title: 'Working Duration Simulator', desc: 'Interactive verification proving that holiday dates are completely discounted from elapsed working hours.' }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Special Non-Working Holidays', desc: 'Configure official non-working dates legally excluded from ticket turnaround under RA 11032.' },
+          { element: '#tour-main-workspace', title: '1. Special Non-Working Holidays', desc: 'Configure official non-working dates automatically excluded from ticket working duration calculations.' },
           { element: 'button', title: '2. Add Special Holiday', desc: 'Register a national holiday, local suspension, or university non-working day.' },
           { element: 'table', title: '3. Holiday Calendar Registry', desc: 'Review registered holidays, recurrence rules, and active status.' }
         ]

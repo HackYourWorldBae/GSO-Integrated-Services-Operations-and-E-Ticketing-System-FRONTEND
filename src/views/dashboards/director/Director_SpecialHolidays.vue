@@ -30,14 +30,14 @@
                   Institutional Calendar
                 </span>
                 <span class="px-3 py-1 rounded-full bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider border border-white/10">
-                  SLA &amp; Duration Calculation
+                  Working Duration Calculation
                 </span>
               </div>
               <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
                 Special Non-Working Holidays Registry
               </h1>
               <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
-                Calibrate official national holidays, regional Baguio/Benguet declarations, and Benguet State University executive suspensions. Dates registered here are automatically excluded from ticket working duration calculations and EODB 3-7-20 SLA counters.
+                Calibrate official national holidays, regional Baguio/Benguet declarations, and Benguet State University executive suspensions. Dates registered here are automatically excluded from ticket working duration calculations.
               </p>
             </div>
 
@@ -75,14 +75,14 @@
                   {{ activeHolidaysCount }}
                 </span>
                 <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-200/70 mt-0.5 block">
-                  Active in SLA
+                  Active in Calculations
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Statutory Impact & Guidance Card -->
+        <!-- Working Duration Guidance Card -->
         <div class="p-4 sm:p-5 rounded-2xl bg-amber-50/80 border border-amber-200/80 flex items-start gap-3.5">
           <div class="p-2.5 bg-amber-100 rounded-xl text-amber-800 shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,10 +91,10 @@
           </div>
           <div class="space-y-1">
             <h4 class="text-xs sm:text-sm font-black text-amber-900 uppercase tracking-wider">
-              Legal &amp; Institutional Working Hours Compliance (RA 11032 / EODB)
+              Working Days &amp; Duration Calculation Guidelines
             </h4>
             <p class="text-xs text-amber-800 leading-relaxed font-medium">
-              Under Civil Service Commission rules and the Ease of Doing Business Act (RA 11032), non-working days (weekends and special holidays) do not count towards the 3-day (simple), 7-day (complex), and 20-day (highly technical) transaction resolution windows. Active holidays configured here are seamlessly bypassed in real-time SLA metrics.
+              Registered non-working dates and standard weekend days are automatically discounted from ticket elapsed time. This ensures turnaround duration reflects purely actual operational working hours.
             </p>
           </div>
         </div>
@@ -419,14 +419,14 @@
           </div>
         </div>
 
-        <!-- Interactive SLA Calendar Calculation Verification Simulator -->
+        <!-- Interactive Duration Calculation Simulator -->
         <div class="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-md space-y-5">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div>
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                  Live SLA Working Hours Duration Verification
+                  Live Working Duration Verification
                 </h3>
               </div>
               <p class="text-xs text-slate-500 font-medium mt-0.5">
@@ -463,7 +463,7 @@
                 @click="calculateSimResult"
                 class="w-full px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider transition-all min-h-[44px] cursor-pointer"
               >
-                Compute SLA
+                Compute Duration
               </button>
             </div>
           </div>
@@ -505,7 +505,7 @@
                   {{ editingHoliday ? 'Edit Special Holiday' : 'Add Special Non-Working Holiday' }}
                 </h3>
                 <p class="text-xs text-slate-500 font-medium">
-                  Registered dates will be bypassed during ticket SLA &amp; duration calculations.
+                  Registered dates will be automatically excluded during ticket working duration calculations.
                 </p>
               </div>
               <button
@@ -593,7 +593,7 @@
                     type="checkbox"
                     class="w-4 h-4 text-emerald-600 rounded-md border-slate-300 focus:ring-emerald-500 cursor-pointer"
                   />
-                  <span class="text-xs font-bold text-slate-700">Active in duration &amp; SLA calculations</span>
+                  <span class="text-xs font-bold text-slate-700">Active in working duration calculations</span>
                 </label>
               </div>
 

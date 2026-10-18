@@ -344,10 +344,10 @@
         </div>
         <div class="space-y-1">
           <h4 class="text-xs sm:text-sm font-black text-amber-900 uppercase tracking-wider">
-            Institutional Calendar &amp; SLA Counting Impact
+            Institutional Calendar &amp; Duration Calculation
           </h4>
           <p class="text-xs text-amber-800 leading-relaxed font-medium">
-            Dates listed here are officially recognized non-working days. The system automatically skips weekends and every registered holiday date when computing ticket working durations, EODB 3-7-20 completion timelines, and personnel leave days.
+            Dates listed here are officially recognized non-working days. The system automatically skips weekends and every registered holiday date when computing ticket working durations and operational turnaround schedules.
           </p>
         </div>
       </div>
@@ -590,7 +590,7 @@
               Live Duration Simulator
             </span>
             <h3 class="text-lg font-black tracking-tight text-white mt-2">
-              SLA Turnaround Engine Preview
+              Working Duration Engine Preview
             </h3>
             <p class="text-xs text-slate-300 font-medium">
               Test how two timestamps evaluate under your operational hours and active holidays:
@@ -800,7 +800,7 @@
               {{ editingHoliday ? 'Edit Special Holiday' : 'Add Special Non-Working Holiday' }}
             </h3>
             <p class="text-xs text-slate-500 font-medium">
-              Registered dates will be bypassed during ticket SLA &amp; duration calculations.
+              Registered dates will be bypassed during ticket working duration calculations.
             </p>
           </div>
           <button
@@ -941,7 +941,7 @@ const navigationTabs = computed(() => [
   },
   {
     id: 'hours',
-    label: 'Operating Working Hours & SLA',
+    label: 'Operating Working Hours & Calculations',
     icon: `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
   },
 ]);
@@ -1270,7 +1270,7 @@ const handleSaveWorkingHours = async () => {
 
   const res = await operationsStore.saveWorkingHours(payload);
   if (res.success) {
-    toast.success('Working hours and SLA calendar parameters successfully saved!');
+    toast.success('Working hours and calendar parameters successfully saved!');
   } else {
     toast.error(res.message || 'Failed to save working hours.');
   }
