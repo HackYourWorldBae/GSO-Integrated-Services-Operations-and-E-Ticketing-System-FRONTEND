@@ -1681,15 +1681,23 @@ const isCollabActiveTab = computed(() => activeTab.value === 'collab');
 
 const switchTab = (tab) => {
   const next = String(tab || '');
-  if (next === 'borrowed' && !hasBorrowing.value) return;
-  activeTab.value = next === 'borrowed' ? 'borrowed' : next === 'collab' ? 'collab' : (next === 'awaiting_rating' ? 'awaiting_rating' : 'in_progress');
+  if ((next === 'borrowed' || next === 'borrowing') && !hasBorrowing.value) return;
+  activeTab.value = (next === 'borrowed' || next === 'borrowing')
+    ? 'borrowed'
+    : next === 'collab'
+      ? 'collab'
+      : (next === 'awaiting_rating' ? 'awaiting_rating' : 'in_progress');
   currentPage.value = 1;
   urgencyFilter.value = 'all';
   selectedServiceFilter.value = '';
+  selectedTicketForModal.value = null;
   const nextQuery = { ...route.query };
+  delete nextQuery.ticketId;
+  delete nextQuery.highlight;
+  delete nextQuery._t;
   if (activeTab.value === 'borrowed' || activeTab.value === 'collab') {
     nextQuery.tab = activeTab.value;
-  } else if (['borrowed', 'overdue', 'collab'].includes(String(nextQuery.tab || ''))) {
+  } else {
     delete nextQuery.tab;
   }
   router.replace({ path: route.path, query: nextQuery }).catch(() => {});
@@ -2816,8 +2824,8 @@ watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () =>
 
 watch(() => route.query.tab, (v) => {
   const t = String(v || '').toLowerCase();
-  const isLeau = String(props.unitCode || '').toUpperCase() === 'LEAU';
-  const next = ((t === 'borrowed' || t === 'overdue') && isLeau) ? 'borrowed' : t === 'collab' ? 'collab' : null;
+  const isBorrowing = (t === 'borrowed' || t === 'borrowing' || t === 'overdue') && hasBorrowing.value;
+  const next = isBorrowing ? 'borrowed' : t === 'collab' ? 'collab' : null;
   if (next && next !== activeTab.value) {
     activeTab.value = next;
     currentPage.value = 1;
@@ -2837,7 +2845,7 @@ watch(() => route.query.tab, (v) => {
 
 onMounted(async () => {
   const q = String(route.query.tab || '').toLowerCase();
-  if (String(props.unitCode || '').toUpperCase() === 'LEAU' && (q === 'borrowed' || q === 'overdue')) {
+  if (hasBorrowing.value && (q === 'borrowed' || q === 'borrowing' || q === 'overdue')) {
     activeTab.value = 'borrowed';
   } else if (q === 'collab') {
     activeTab.value = 'collab';

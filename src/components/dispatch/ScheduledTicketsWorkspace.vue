@@ -2416,8 +2416,8 @@ watch([() => route.query.ticketId, () => route.query.highlight, () => route.quer
 });
 
 watch(() => route.query.tab, (v) => {
-  const next = v === 'borrowing' ? 'borrowing' : v === 'collab' ? 'collab' : 'jobs';
-  if (next === 'borrowing' && !isLEAU.value) return;
+  const next = (v === 'borrowing' || v === 'borrowed') ? 'borrowing' : v === 'collab' ? 'collab' : 'jobs';
+  if (next === 'borrowing' && !hasBorrowing.value) return;
   if (next !== scheduledTab.value) {
     scheduledTab.value = next;
     currentPage.value = 1;
@@ -2434,7 +2434,7 @@ watch(() => route.query.tab, (v) => {
 });
 
 onMounted(async () => {
-  if (route.query.tab === 'borrowing' && isLEAU.value) {
+  if ((route.query.tab === 'borrowing' || route.query.tab === 'borrowed') && hasBorrowing.value) {
     scheduledTab.value = 'borrowing';
   } else if (route.query.tab === 'collab') {
     scheduledTab.value = 'collab';
