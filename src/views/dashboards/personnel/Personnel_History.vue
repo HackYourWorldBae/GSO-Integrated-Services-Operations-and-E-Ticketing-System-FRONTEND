@@ -43,6 +43,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
+              data-tour="history-search-input"
               v-model="searchQuery"
               type="text"
               placeholder="Search completed jobs by Ticket ID, service, location, or requester..."
@@ -51,6 +52,7 @@
           </div>
           <div class="flex flex-wrap md:flex-nowrap gap-3 w-full md:w-auto">
             <select
+              data-tour="history-filter-year"
               v-model="yearFilter"
               class="w-full md:w-36 px-4 py-3 min-h-[44px] bg-slate-50/80 border border-slate-300 rounded-2xl text-base sm:text-sm text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
             >
@@ -60,6 +62,7 @@
               </option>
             </select>
             <select
+              data-tour="history-filter-unit"
               v-model="unitFilter"
               class="w-full md:w-40 px-4 py-3 min-h-[44px] bg-slate-50/80 border border-slate-300 rounded-2xl text-base sm:text-sm text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
             >
@@ -69,6 +72,7 @@
               <option value="SSU">SSU</option>
             </select>
             <select
+              data-tour="history-filter-crew"
               v-model="crewTypeFilter"
               class="w-full md:w-40 px-4 py-3 min-h-[44px] bg-slate-50/80 border border-slate-300 rounded-2xl text-base sm:text-sm text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
             >
@@ -77,6 +81,7 @@
               <option value="team">Joint Crew</option>
             </select>
             <button
+              data-tour="history-btn-refresh"
               type="button"
               @click="refreshData"
               :disabled="store.isLoading"
@@ -162,7 +167,7 @@
         </div>
 
         <!-- Tickets List (Data Table & Mobile Card Stack Matching Administrator Archives) -->
-        <div class="rounded-2xl sm:rounded-3xl bg-white border border-slate-300 overflow-hidden shadow-sm">
+        <div data-tour="history-records-table" class="rounded-2xl sm:rounded-3xl bg-white border border-slate-300 overflow-hidden shadow-sm">
           <!-- Distinct Container Section Header -->
           <div class="bg-gradient-to-r from-slate-50 via-slate-100/60 to-slate-50 px-5 sm:px-6 py-3.5 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center gap-2.5">

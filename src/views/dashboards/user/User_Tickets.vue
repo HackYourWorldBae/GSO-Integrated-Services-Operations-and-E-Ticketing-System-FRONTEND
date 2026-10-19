@@ -53,6 +53,7 @@
                 </svg>
               </span>
               <input
+                data-tour="user-search-input"
                 type="text"
                 v-model="searchQuery"
                 placeholder="Search by ID, service, or unit..."
@@ -61,7 +62,7 @@
             </div>
 
             <!-- Status Filter -->
-            <div class="flex items-center gap-2 flex-wrap">
+            <div data-tour="user-status-tabs" class="flex items-center gap-2 flex-wrap">
               <button
                 v-for="tab in statusTabs"
                 :key="tab.value"
@@ -86,6 +87,7 @@
 
             <!-- New Request -->
             <button
+              data-tour="user-btn-new-ticket"
               @click="$router.push('/services')"
               class="flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-sm shadow-emerald-600/20 transition-all active:scale-95 text-sm sm:text-base whitespace-nowrap min-h-[44px] cursor-pointer"
             >
@@ -326,6 +328,7 @@
 
                   <!-- Cancel Request Button (Pending Only) -->
                   <button
+                    data-tour="user-btn-cancel-request"
                     v-if="ticket.status === 'pending'"
                     @click="promptCancelTicket(ticket)"
                     class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 font-black rounded-xl border border-rose-200 transition-all text-xs sm:text-sm active:scale-95 whitespace-nowrap min-h-[44px] cursor-pointer"
@@ -338,6 +341,7 @@
                   </button>
 
                   <button
+                    data-tour="user-btn-track-progress"
                     @click="openTimeline(ticket)"
                     class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 font-black rounded-xl border border-slate-200 hover:border-emerald-200 transition-all text-xs sm:text-sm active:scale-95 whitespace-nowrap min-h-[44px] cursor-pointer"
                   >
@@ -348,6 +352,7 @@
                   </button>
 
                   <button
+                    data-tour="user-btn-rate-service"
                     v-if="isFeedbackEligible(ticket) && !ticket.isClosed"
                     @click="toggleRatingForm(ticket)"
                     class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-xl shadow-sm shadow-amber-500/25 transition-all text-xs sm:text-sm active:scale-95 whitespace-nowrap min-h-[44px] cursor-pointer"

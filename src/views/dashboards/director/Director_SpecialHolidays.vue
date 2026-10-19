@@ -107,6 +107,7 @@
             <div class="sm:col-span-7 relative">
               <input
                 v-model="searchQuery"
+                data-tour="holidays-search-input"
                 type="text"
                 placeholder="Search holiday name, proclamation, or notes..."
                 class="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
@@ -132,6 +133,7 @@
             <div class="sm:col-span-5 relative">
               <select
                 v-model="selectedType"
+                data-tour="holidays-filter-type"
                 class="w-full appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer min-h-[44px]"
               >
                 <option value="">All Classification Types</option>
@@ -151,6 +153,7 @@
           <!-- Add Button -->
           <div class="flex items-center gap-2.5 shrink-0">
             <button
+              data-tour="holidays-btn-add"
               @click="openAddModal"
               class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer min-h-[44px]"
             >
@@ -163,7 +166,7 @@
         </div>
 
         <!-- Holidays Table (Desktop) -->
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden hidden md:block">
+        <div data-tour="holidays-table" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden hidden md:block">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse">
               <thead>

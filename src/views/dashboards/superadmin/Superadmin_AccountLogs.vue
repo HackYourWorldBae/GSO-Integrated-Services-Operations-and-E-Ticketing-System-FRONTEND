@@ -23,6 +23,7 @@
                 </svg>
               </div>
               <input
+                data-tour="account-logs-search"
                 v-model="filters.search"
                 @input="handleSearch"
                 type="text"
@@ -43,6 +44,7 @@
             <!-- Severity Filter -->
             <div class="flex items-center gap-2 flex-wrap">
               <select
+                data-tour="account-logs-filter-severity"
                 v-model="filters.severity"
                 @change="handleFilterChange"
                 class="px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold focus:outline-none focus:border-purple-500 min-h-[44px] cursor-pointer"
@@ -56,6 +58,7 @@
 
               <!-- Category Filter -->
               <select
+                data-tour="account-logs-filter-category"
                 v-model="filters.category"
                 @change="handleFilterChange"
                 class="px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold focus:outline-none focus:border-purple-500 min-h-[44px] cursor-pointer"
@@ -93,6 +96,7 @@
 
               <!-- Privacy Masking Toggle -->
               <button
+                data-tour="account-logs-btn-privacy"
                 @click="togglePrivacyMode"
                 type="button"
                 class="px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border cursor-pointer min-h-[44px] touch-manipulation shadow-xs"
@@ -110,6 +114,7 @@
               </button>
 
               <button
+                data-tour="account-logs-btn-export"
                 @click="exportToCSV"
                 :disabled="loading || logs.length === 0"
                 class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] cursor-pointer touch-manipulation shadow-xs"
@@ -127,7 +132,7 @@
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           <!-- Desktop Table (md and up) -->
           <div class="hidden md:block overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table data-tour="account-logs-table" class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-200 text-slate-700">
                   <th class="px-6 py-3.5 text-xs font-black uppercase tracking-wider">

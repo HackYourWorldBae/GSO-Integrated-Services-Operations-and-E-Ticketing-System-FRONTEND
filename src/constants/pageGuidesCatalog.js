@@ -119,10 +119,11 @@ export const createUnitAdminDashboardGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: `1. ${U} Operations Dashboard`, desc: `Welcome to the central command hub for ${unitName}. Monitor daily operations and field performance at a glance.` },
-      { element: '.grid', title: '2. Operational KPI Gauges', desc: 'Track pending reviews, today\'s dispatched work orders, active repairs in progress, and accomplished jobs in real time.' },
-      { element: '#tour-sidebar-nav', title: '3. Operations Navigation', desc: 'Access your ticket queues, worker dispatch workspace, personnel roster, inventory, and historical archives.' },
-      { element: '#tour-notifications-btn', title: '4. Real-Time Chime Alerts', desc: 'Instant audio chimes and badge alerts notify administrators whenever a new service ticket is routed to your unit.' },
-      { element: '#tour-comfort-btn', title: '5. High-Contrast Comfort View', desc: 'Switch to accessible comfort mode anytime for high-contrast viewing during extended monitoring shifts.' }
+      { element: '[data-tour="admin-kpi-gauges"]', title: '2. Operational KPI Gauges', desc: 'Track total requests, completed work orders, and declined requests in real time.' },
+      { element: '[data-tour="admin-timeframe-tabs"]', title: '3. Timeframe Analytics Filter', desc: 'Switch throughput analytics across Today, Monthly, Quarterly, Annually, or All-Time.' },
+      { element: '#tour-sidebar-nav', title: '4. Operations Navigation', desc: 'Access your ticket queues, worker dispatch workspace, personnel roster, inventory, and historical archives.' },
+      { element: '#tour-notifications-btn', title: '5. Real-Time Chime Alerts', desc: 'Instant audio chimes and badge alerts notify administrators whenever a new service ticket is routed to your unit.' },
+      { element: '#tour-comfort-btn', title: '6. High-Contrast Comfort View', desc: 'Switch to accessible comfort mode anytime for high-contrast viewing during extended monitoring shifts.' }
     ]
   };
 };
@@ -217,9 +218,10 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
       ],
       tourSteps: [
         { element: '#tour-main-workspace', title: '1. Submitted Incidents Queue', desc: 'Review newly submitted campus security reports awaiting administrative assessment.' },
-        { element: 'input[type="text"]', title: '2. Search & Filter Reports', desc: 'Quickly locate reports by ticket ID, reporter name, contact number, or incident location.' },
-        { element: 'table, .space-y-4', title: '3. Incident Particulars & Evidence', desc: 'Inspect reported incident types, witness statements, and uploaded photo attachments.' },
-        { element: 'button', title: '4. Administrative Decision Controls', desc: 'Add official security notations, launch an active investigation, or dismiss invalid reports.' }
+        { element: '[data-tour="ssu-search-input"]', title: '2. Search & Filter Reports', desc: 'Quickly locate reports by ticket ID, reporter name, contact number, or incident location.' },
+        { element: '[data-tour="ssu-urgency-filters"]', title: '3. Urgency Prioritization', desc: 'Filter incident reports by Emergency or Standard priority to isolate urgent safety risks.' },
+        { element: '[data-tour="ssu-btn-investigate"], [data-tour="ssu-btn-notation"]', title: '4. Investigation & Notation Controls', desc: 'Launch an active investigation, record official security notations, or dismiss invalid reports.' },
+        { element: '[data-tour="ssu-btn-fullinfo"]', title: '5. Full Incident Particulars & Evidence', desc: 'Examine detailed witness testimonies, campus location, and attached photographic evidence.' }
       ]
     };
   }
@@ -354,9 +356,10 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: '1. Pending Approvals Queue', desc: `Review newly submitted ${U} service tickets awaiting administrative verification.` },
-      { element: 'input[type="text"]', title: '2. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
-      { element: 'table, .space-y-4', title: '3. Problem Particulars & Photos', desc: 'Click any request to examine uploaded photos, user details, urgency markers, and complete scope notes.' },
-      { element: 'button', title: '4. Decision Controls', desc: 'Take action: Approve to proceed to dispatch, Delay with justification, Decline, Recategorize, or Escalate to Director.' }
+      { element: '[data-tour="director-search-input"]', title: '2. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
+      { element: '[data-tour="director-tab-pending"]', title: '3. Pending Queue Tab', desc: 'View newly submitted requests awaiting administrative review and verification.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '4. Decision Controls', desc: 'Take action: Approve to proceed to dispatch, Delay with justification, Decline, or Escalate to Director.' },
+      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Full Scope & Photos Inspection', desc: 'Click to inspect complete problem particulars, client contacts, and uploaded photos.' }
     ]
   };
 };
@@ -465,8 +468,10 @@ export const createUnitAdminApprovedGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: '1. Approved Tickets Queue', desc: `Manage tickets that have been approved and are awaiting field dispatch or inventory reservation.` },
-      { element: '.flex, button', title: '2. Unit vs. Collab Tabs', desc: 'Switch between direct service requests and joint collaboration requests from counterpart units.' },
-      { element: 'button', title: '3. Assign Workers & Inventory', desc: 'Click Assign Workers for maintenance jobs, or Assign Inventory for tools and plant borrowing requests.' }
+      { element: '[data-tour="approved-tab-unit"], [data-tour="approved-tab-collab"]', title: '2. Unit vs. Collab Tabs', desc: 'Switch between direct service requests and joint collaboration requests from counterpart units.' },
+      { element: '[data-tour="approved-urgency-filters"]', title: '3. Urgency Prioritization', desc: 'Isolate emergency work orders from standard requests to expedite urgent campus repairs.' },
+      { element: '[data-tour="approved-search-input"]', title: '4. Search Approved Work Orders', desc: 'Filter approved tickets by ID number, requester name, or building.' },
+      { element: '[data-tour="approved-btn-assign"]', title: '5. Assign Workers & Equipment', desc: 'Click Assign to proceed to the Worker Dispatch console to allocate technicians and schedule implementation.' }
     ]
   };
 };
@@ -603,10 +608,11 @@ export const createUnitAdminDispatchGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: `1. ${U} Dispatch Workspace`, desc: 'Allocate personnel, set official implementation dates, and launch field work orders.' },
-      { element: '.rounded-3xl, .rounded-2xl', title: '2. Active Target Banner', desc: 'Inspect the selected ticket number, problem scope, emergency marker, and designated campus building.' },
-      { element: '.grid', title: '3. Schedule & Business Days', desc: 'Select the implementation start date and target working days. Weekends and official non-working holidays are excluded automatically.' },
-      { element: 'table, .sm\\:hidden', title: '4. Material Estimation Table', desc: 'Pre-assess standard consumable materials and benchmark prices required for the job.' },
-      { element: 'button', title: '5. Staff Assignment', desc: 'Select qualified technicians based on trade specialty and availability to finalize dispatch.' }
+      { element: '[data-tour="dispatch-queue-select"]', title: '2. Select Approved Ticket Target', desc: 'Choose an approved ticket from the dispatch queue to begin scheduling and crew allocation.' },
+      { element: '[data-tour="dispatch-schedule-controls"]', title: '3. Schedule & Working Days', desc: 'Select the implementation start date and target working days. Weekends and official holidays are excluded automatically.' },
+      { element: '[data-tour="dispatch-materials"]', title: '4. Material Estimation Table', desc: 'Pre-assess standard consumable materials and benchmark prices required for the job.' },
+      { element: '[data-tour="dispatch-staff-roster"]', title: '5. Assign Technicians & Crew', desc: 'Select qualified personnel based on trade specialty, skill match, and active availability.' },
+      { element: '[data-tour="dispatch-btn-confirm"]', title: '6. Confirm & Launch Dispatch', desc: 'Click Confirm Dispatch to transition the work order into Scheduled status and alert assigned technicians.' }
     ]
   };
 };
@@ -718,8 +724,9 @@ export const createUnitAdminDispatchedGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: `1. ${U} Scheduled Jobs Queue`, desc: 'Manage work orders scheduled for site execution by assigned technicians.' },
-      { element: 'table, .space-y-4', title: '2. Scheduled Implementation Cards', desc: 'Inspect upcoming visit dates, assigned staff names, and deadline milestones.' },
-      { element: 'button', title: '3. Job Order Slips & Actions', desc: 'Print physical job orders for technicians to carry, or mark early job starts.' }
+      { element: '[data-tour="scheduled-tab-jobs"], [data-tour="scheduled-tab-borrowing"]', title: '2. Work Orders vs Borrowing', desc: 'Switch between technician work orders and tools/plants borrowing reservations.' },
+      { element: '[data-tour="scheduled-search-input"]', title: '3. Search Scheduled Tickets', desc: 'Search work orders by ticket ID, assigned technician name, or campus venue.' },
+      { element: '[data-tour="scheduled-btn-start"], [data-tour="scheduled-btn-reschedule"]', title: '4. Start Job or Reschedule', desc: 'Mark job as In-Progress once technicians arrive on site, or adjust the scheduled implementation date.' }
     ]
   };
 };
@@ -814,8 +821,9 @@ export const createUnitAdminActiveGuide = (unitCode = 'fgmu') => {
       ],
       tourSteps: [
         { element: '#tour-main-workspace', title: '1. Active Investigations Queue', desc: 'Monitor and manage ongoing campus security investigations in real time.' },
-        { element: 'table, .space-y-4', title: '2. Case Records & Notations', desc: 'Review witness accounts, evidence, and record official security recommendations.' },
-        { element: 'button', title: '3. Investigation Controls', desc: 'Dispatch security officers, record formal findings, and resolve verified cases.' }
+        { element: '[data-tour="ssu-search-input"]', title: '2. Search Active Cases', desc: 'Search investigation cases by ticket ID, reporter, incident summary, or room.' },
+        { element: '[data-tour="ssu-btn-notation"]', title: '3. Add Investigation Findings', desc: 'Record formal security notations, evidence summaries, and administrative recommendations.' },
+        { element: '[data-tour="ssu-btn-resolve"]', title: '4. Mark as Resolved', desc: 'Conclude the investigation, notify the reporter, and archive the completed safety report.' }
       ]
     };
   }
@@ -946,8 +954,11 @@ export const createUnitAdminActiveGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: `1. ${U} Active Dispatches Queue`, desc: 'Monitor active operations in real time as technicians execute work on site.' },
-      { element: 'table, .space-y-4', title: '2. Ongoing Work Order Cards', desc: 'Track days elapsed, implementation targets, and live technician status.' },
-      { element: 'button', title: '3. Extensions & Accomplishment', desc: 'Approve timeline extension requests, liquidate actual materials used, and sign off on completed work.' }
+      { element: '[data-tour="active-tab-jobs"], [data-tour="active-tab-borrowed"]', title: '2. Work in Progress vs Borrowed', desc: 'Toggle between ongoing physical repair jobs and items currently borrowed across campus.' },
+      { element: '[data-tour="active-search-input"]', title: '3. Search Active Work Orders', desc: 'Search active jobs by ticket number, requester, location, or assigned technician.' },
+      { element: '[data-tour="active-btn-extend"]', title: '4. Timeline Extension Controls', desc: 'Approve or adjust technician extension requests when unforeseen repair complications arise.' },
+      { element: '[data-tour="active-btn-materials"]', title: '5. Liquidate Consumed Materials', desc: 'Record actual consumables and materials utilized on site for institutional auditing.' },
+      { element: '[data-tour="active-btn-complete"]', title: '6. Mark Completed & Sign Off', desc: 'Sign off on finished repairs to close the ticket and trigger client rating evaluation.' }
     ]
   };
 };
@@ -1076,8 +1087,10 @@ export const createUnitAdminPersonnelGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: `1. ${U} Personnel Roster`, desc: 'Manage your unit technicians, duty schedules, and field specializations.' },
-      { element: 'button', title: '2. Add Staff Member', desc: 'Register a new personnel account with employee ID, trade specialty, and contact details.' },
-      { element: 'table, .grid', title: '3. Staff Cards & Duty Status', desc: 'View active ticket workloads and toggle personnel availability between Available, Working, and On Leave.' }
+      { element: '[data-tour="personnel-search-input"]', title: '2. Search Personnel', desc: 'Quickly find technicians by name, employee ID number, or assigned specialty.' },
+      { element: '[data-tour="personnel-btn-categories"]', title: '3. Filter by Specialty', desc: 'Filter your roster by trade category: Carpentry, Electrical, Plumbing, Welding, Masonry, etc.' },
+      { element: '[data-tour="personnel-btn-add"]', title: '4. Register New Technician', desc: 'Add newly hired personnel to the roster with duty role and contact information.' },
+      { element: '[data-tour="personnel-cards-grid"]', title: '5. Staff Roster & Duty Status', desc: 'Inspect active workloads, assigned work orders, and toggle staff availability.' }
     ]
   };
 };
@@ -1193,9 +1206,10 @@ export const createUnitAdminInventoryGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: `1. ${U} Inventory Workspace`, desc: 'Oversee equipment, appliances, and materials available for university operations and borrowing.' },
-      { element: '.grid', title: '2. Stock Metric Counters', desc: 'Check total inventory counts, units available on shelf, borrowed items, and units under repair.' },
-      { element: 'input[type="text"]', title: '3. Inventory Search', desc: 'Search items by model name, description, or serial barcode number.' },
-      { element: 'button', title: '4. Register New Inventory', desc: 'Add newly acquired tools, nursery plants, or equipment to the institutional database.' }
+      { element: '[data-tour="inventory-status-tabs"]', title: '2. Stock Status Tabs', desc: 'Filter inventory by All, Available on shelf, Currently Borrowed, or Under Repair.' },
+      { element: '[data-tour="inventory-search-input"]', title: '3. Search Items', desc: 'Locate equipment or plants by item name, model code, or serial barcode.' },
+      { element: '[data-tour="inventory-btn-add"]', title: '4. Register New Inventory Item', desc: 'Add newly acquired tools, nursery plants, or machinery to the institutional database.' },
+      { element: '[data-tour="inventory-view-toggle"]', title: '5. View Layout Toggle', desc: 'Switch display mode between visual grid cards and compact tabular layout.' }
     ]
   };
 };
@@ -1279,9 +1293,10 @@ export const createUnitAdminMaterialsGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: `1. ${U} Materials Library`, desc: 'Standardized supplies, parts specifications, and baseline prices for university maintenance.' },
-      { element: 'input[type="text"]', title: '2. Material Description Search', desc: 'Search materials by item name or standard unit of measure.' },
-      { element: 'table, .grid', title: '3. Standard Catalog Table', desc: 'Inspect item names, standard units (pcs, lengths, kg, etc.), and benchmark prices.' },
-      { element: 'button', title: '4. Add Material & Sync', desc: 'Register new supply items or click Sync Baseline to restore institutional standards.' }
+      { element: '[data-tour="materials-search-input"]', title: '2. Search Materials Catalog', desc: 'Search standardized supplies by item name, category, or unit of measure.' },
+      { element: '[data-tour="materials-btn-add"]', title: '3. Add Standard Material', desc: 'Add a new standard consumable item with unit of measure and benchmark price.' },
+      { element: '[data-tour="materials-btn-sync"]', title: '4. Sync Baseline Standards', desc: 'Restore standard material baselines with institutional procurement benchmarks.' },
+      { element: '[data-tour="materials-catalog-table"]', title: '5. Standard Materials Table', desc: 'Inspect standard material definitions, units of measurement, and benchmark prices.' }
     ]
   };
 };
@@ -1367,8 +1382,8 @@ export const createUnitAdminCollabGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: '1. Cross-Unit Collaboration Hub', desc: 'Coordinate multi-department projects requiring joint manpower across campus.' },
-      { element: '.flex, button', title: '2. Incoming & Outgoing Queues', desc: 'Switch between support tasks assigned to your unit and external assistance you have requested.' },
-      { element: 'table, .grid', title: '3. Multi-Unit Project Cards', desc: 'View synchronized implementation dates, collaborating unit badges, and joint staff assignments.' }
+      { element: '[data-tour="collab-tab-approved"], [data-tour="collab-tab-scheduled"], [data-tour="collab-tab-active"]', title: '2. Collaboration Pipeline Stages', desc: 'Track joint tasks across Approved, Scheduled, and Work-in-Progress stages.' },
+      { element: '[data-tour="collab-search-input"]', title: '3. Search Joint Work Orders', desc: 'Filter multi-unit collaboration requests by ticket ID, project name, or partner unit.' }
     ]
   };
 };
@@ -1467,8 +1482,9 @@ export const createUnitAdminArchivesGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: `1. ${U} Historical Archives`, desc: 'Access archived records and historical work order data for past academic years.' },
-      { element: 'select, input', title: '2. Period & Term Selectors', desc: 'Filter records by academic year, semester, or specific date ranges.' },
-      { element: 'button', title: '3. Bulk Compliance Export', desc: 'Download official historical reports in PDF or spreadsheet formats for university audits.' }
+      { element: '[data-tour="archives-search-input"]', title: '2. Search Historical Records', desc: 'Search past completed and declined requests by ticket ID, requester, or venue.' },
+      { element: '[data-tour="archives-filter-year"], [data-tour="archives-filter-service"]', title: '3. Filter by Year & Service', desc: 'Isolate historical records by academic year, semester, or service specialization.' },
+      { element: '[data-tour="archives-btn-export"]', title: '4. Bulk Audit Export', desc: 'Download official historical data in PDF or CSV formats for university auditing.' }
     ]
   };
 };
@@ -1567,8 +1583,9 @@ export const createUnitAdminSettingsGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-main-workspace', title: `1. ${U} Settings`, desc: 'Configure your unit profile, physical office details, and operational preferences.' },
-      { element: 'form, .card', title: '2. Office Information', desc: 'Keep department building, room number, and phone extension accurate for client communications.' },
-      { element: 'button, canvas', title: '3. Digital Signature Setup', desc: 'Upload or sign your digital administrative signature for official work order documents.' }
+      { element: '[data-tour="admin-settings-profile"]', title: '2. Operations Profile', desc: 'Update contact numbers, email notifications, and password credentials.' },
+      { element: '[data-tour="admin-settings-signature"]', title: '3. Digital Signature Setup', desc: 'Draw or upload your official digital signature for automatic placement on job orders.' },
+      { element: '[data-tour="admin-settings-btn-save"]', title: '4. Save Configuration', desc: 'Click to save your profile changes and official signature.' }
     ]
   };
 };
@@ -1643,10 +1660,11 @@ export const pageGuidesCatalog = {
         ],
         tourSteps: [
           { element: '#tour-main-workspace', title: '1. Welcome to Your Dashboard', desc: 'Track your submitted work orders, borrowing requests, and security incident reports.' },
-          { element: 'button, a[href*="services"]', title: '2. New Service Request', desc: 'Click here anytime to submit a new facilities repair, plant borrowing, or security incident.' },
-          { element: '#tour-sidebar-nav', title: '3. Sidebar Navigation', desc: 'Easily navigate between Dashboard, Services Catalog, Active Tickets, and Completed History.' },
-          { element: '#tour-notifications-btn', title: '4. Alerts & Updates', desc: 'Hear instant chime notifications and inspect status changes as administrators dispatch workers.' },
-          { element: '#tour-comfort-btn', title: '5. High-Contrast View', desc: 'Toggle high-contrast comfort mode anytime for enhanced screen readability.' }
+          { element: '[data-tour="user-btn-new-request"]', title: '2. Submit New Request', desc: 'Click here anytime to submit a new facilities repair, plant borrowing, or security incident report.' },
+          { element: '[data-tour="user-recent-tickets"]', title: '3. Recent Tickets Tracker', desc: 'Monitor the live status and assigned technicians for your active service tickets.' },
+          { element: '[data-tour="user-btn-view-all"]', title: '4. View All Tickets', desc: 'Jump directly to the My Tickets page to inspect full histories and details.' },
+          { element: '#tour-sidebar-nav', title: '5. Navigation Sidebar', desc: 'Easily navigate between Dashboard, Services Catalog, Active Tickets, and Completed History.' },
+          { element: '#tour-notifications-btn', title: '6. Alerts & Chimes', desc: 'Hear instant chime alerts and inspect real-time updates as your requests are processed.' }
         ]
       },
       {
@@ -1723,8 +1741,10 @@ export const pageGuidesCatalog = {
         ],
         tourSteps: [
           { element: '#tour-main-workspace', title: '1. University Services Catalog', desc: 'Browse available campus maintenance, borrowing, and security services.' },
-          { element: 'input[type="text"]', title: '2. Search Services', desc: 'Type any keyword like "aircon", "plumbing", "plants", or "security" to find the right service.' },
-          { element: '.grid, .service-card', title: '3. Service Cards', desc: 'Review turnaround time benchmarks, requirements, and click to open the submission form.' }
+          { element: '[data-tour="services-search-input"]', title: '2. Search Services', desc: 'Type any keyword like "aircon", "plumbing", "plants", or "security" to find the right service.' },
+          { element: '[data-tour="services-category-tabs"]', title: '3. Category Filter Tabs', desc: 'Filter services by operational department: Facilities (FGMU), Landscape (LEAU), or Security (SSU).' },
+          { element: '[data-tour="services-card-item"]', title: '4. Service Turnaround Benchmarks', desc: 'Inspect turnaround time estimates and service descriptions before submitting.' },
+          { element: '[data-tour="services-btn-submit"]', title: '5. Fill Out Request Form', desc: 'Click to open the intake wizard and enter your specific room location and problem details.' }
         ]
       },
       {
@@ -1807,10 +1827,11 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Service Intake Form', desc: 'Provide complete details, exact campus rooms, and photos for university staff.' },
-          { element: 'form', title: '2. Fill Required Information', desc: 'Ensure building, room, and problem description meet institutional requirements.' },
-          { element: 'button', title: '3. Validate & Submit', desc: 'Click to transmit your request directly to the responsible sub-unit queue.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Service Intake Form', desc: 'Provide complete details, exact campus rooms, and photos for university staff.' },
+      { element: '[data-tour="intake-step-badge"]', title: '2. Intake Wizard Progress', desc: 'Step-by-step progress tracking ensuring all necessary campus information is supplied.' },
+      { element: '[data-tour="intake-btn-back"]', title: '3. Back to Services', desc: 'Return to the service catalog if you wish to select a different university service.' },
+      { element: '[data-tour="intake-btn-submit"]', title: '4. Validate & Submit Request', desc: 'Click to validate your form and transmit your request directly to the unit administrative queue.' }
+    ]
       },
       {
         id: 'user-tickets',
@@ -1911,8 +1932,11 @@ export const pageGuidesCatalog = {
         ],
         tourSteps: [
           { element: '#tour-main-workspace', title: '1. My Service Requests', desc: 'Review live ticket status timelines, scheduled worker visits, and borrowing pickup readiness.' },
-          { element: 'input[type="text"]', title: '2. Quick Search', desc: 'Search your tickets by ticket ID number, building name, or problem description.' },
-          { element: '.space-y-4, .ticket-card', title: '3. Ticket Details & Timeline', desc: 'Expand any ticket card to inspect assigned personnel, scheduled implementation dates, and notes.' }
+          { element: '[data-tour="user-search-input"]', title: '2. Quick Search', desc: 'Search your tickets by ticket ID number, building name, or problem description.' },
+          { element: '[data-tour="user-status-tabs"]', title: '3. Filter by Status', desc: 'Switch between All, Pending Verification, Scheduled Implementation, and Work in Progress.' },
+          { element: '[data-tour="user-btn-track-progress"]', title: '4. Track Progress & Timeline', desc: 'Inspect live milestone progress, dispatcher notations, and assigned technician names.' },
+          { element: '[data-tour="user-btn-cancel-request"]', title: '5. Cancel Request', desc: 'Withdraw a pending request before unit administrators review or dispatch workers.' },
+          { element: '[data-tour="user-btn-new-ticket"]', title: '6. Submit Another Request', desc: 'Quick shortcut to open the services catalog and submit an additional request.' }
         ]
       },
       {
@@ -1980,9 +2004,11 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Completed Tickets & Ratings', desc: 'Review accomplished work orders and submit your ratings for university services.' },
-          { element: 'button', title: '2. Rate Service (1-5 Stars)', desc: 'Click to rate the completed service and provide constructive feedback for staff evaluation.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Completed Tickets & Ratings', desc: 'Review accomplished work orders and submit your ratings for university services.' },
+      { element: '[data-tour="completed-search-input"]', title: '2. Search Completed Tickets', desc: 'Filter your historical accomplished requests by ticket ID, service, or date.' },
+      { element: '[data-tour="completed-btn-track"]', title: '3. Accomplishment History', desc: 'Review full lifecycle timeline from initial submission to final technician sign-off.' },
+      { element: '[data-tour="completed-btn-details"]', title: '4. Rate Service (1-5 Stars)', desc: 'Rate Quality, Efficiency, and Timeliness to provide constructive feedback for staff evaluation.' }
+    ]
       },
       {
         id: 'user-settings',
@@ -2063,9 +2089,10 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Profile & Preferences', desc: 'Manage your university profile details, contact number, and notification settings.' },
-          { element: 'form', title: '2. Update Information', desc: 'Ensure your college department and phone number are current so technicians can contact you.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Profile & Preferences', desc: 'Manage your university profile details, contact number, and notification settings.' },
+      { element: '[data-tour="settings-profile-card"]', title: '2. Personal Details & Password', desc: 'Keep your phone number and email current so technicians can reach you on site.' },
+      { element: '[data-tour="settings-btn-save"]', title: '3. Save Profile Changes', desc: 'Click to apply your updated profile information.' }
+    ]
       }
     ]
   },
@@ -2175,10 +2202,12 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. User Governance & RBAC', desc: 'Manage university user accounts, role permissions, and account statuses.' },
-          { element: 'table', title: '2. User Accounts Table', desc: 'Inspect user roles, unit affiliations, and verification statuses.' },
-          { element: 'button', title: '3. Role Management', desc: 'Assign or update roles to enforce strict Role-Based Access Control.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. User Governance & RBAC', desc: 'Manage university user accounts, role permissions, and account statuses.' },
+      { element: '[data-tour="superadmin-search-input"]', title: '2. Search Accounts', desc: 'Search users by employee/student ID number, full name, or university email.' },
+      { element: '[data-tour="superadmin-role-tabs"]', title: '3. Role Hierarchy Filters', desc: 'Filter accounts across Students, Employees, Unit Admins, Technicians, and Directors.' },
+      { element: '[data-tour="superadmin-btn-provision"]', title: '4. Provision Administrative Users', desc: 'Create new administrative or operational staff accounts with designated roles.' },
+      { element: '[data-tour="superadmin-users-table"]', title: '5. User Registry Table', desc: 'Inspect account statuses, reset credentials, or update role authorizations.' }
+    ]
       },
       {
         id: 'superadmin-queues',
@@ -2251,8 +2280,9 @@ export const pageGuidesCatalog = {
         ],
         tourSteps: [
           { element: '#tour-main-workspace', title: '1. Identity Verification Queue', desc: 'Review uploaded student and employee credentials to safeguard university access.' },
-          { element: 'input[type="text"]', title: '2. Search Registrants', desc: 'Search pending accounts by ID number, student name, or institutional email.' },
-          { element: 'button', title: '3. Inspect & Verify', desc: 'Open the document viewer to examine credentials, then Approve or Reject with feedback.' }
+          { element: '[data-tour="verify-search-input"]', title: '2. Search Registrants', desc: 'Search pending registrations by institutional ID, student name, or BSU email.' },
+          { element: '[data-tour="verify-filter-role"]', title: '3. Filter by Role', desc: 'Separate Student applicants from Faculty & Staff applicants for batch evaluation.' },
+          { element: '[data-tour="verify-btn-inspect"]', title: '4. Inspect Identification & Verify', desc: 'Open the credential viewer to review uploaded ID photos, then Approve or Reject.' }
         ]
       },
       {
@@ -2315,10 +2345,11 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. System Audit Logs', desc: 'Inspect immutable, timestamped records of all operational and administrative actions.' },
-          { element: 'input, select', title: '2. Filter Events', desc: 'Filter logs by action type, severity, actor, or specific ticket number.' },
-          { element: 'button', title: '3. Export Compliance Trail', desc: 'Export audit logs to spreadsheet or document formats for institutional compliance.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. System Audit Logs', desc: 'Inspect immutable, timestamped records of all operational and administrative actions.' },
+      { element: '[data-tour="audit-search-input"]', title: '2. Search & Filter Events', desc: 'Search logs by actor name, action type, IP address, or specific ticket reference.' },
+      { element: '[data-tour="audit-btn-export"]', title: '3. Export Compliance Trail', desc: 'Download timestamped audit logs in CSV format for institutional compliance.' },
+      { element: '[data-tour="audit-logs-table"]', title: '4. Immutable Audit Table', desc: 'Review chronological events with severity levels, actor identity, and before/after metadata.' }
+    ]
       },
       {
         id: 'superadmin-account-logs',
@@ -2374,8 +2405,13 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Privacy Telemetry Logs', desc: 'Monitor authentication, logins, and session lifecycles under Philippine RA 10173 guidelines.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Privacy Telemetry Logs', desc: 'Monitor authentication, logins, and session lifecycles under Philippine RA 10173 guidelines.' },
+      { element: '[data-tour="account-logs-search"]', title: '2. Search Telemetry Logs', desc: 'Search authentication attempts, IP addresses, browser agents, or specific users.' },
+      { element: '[data-tour="account-logs-filter-severity"]', title: '3. Risk Severity Filter', desc: 'Filter events by Critical lockouts, Warning failed logins, or Info session activity.' },
+      { element: '[data-tour="account-logs-btn-privacy"]', title: '4. RA 10173 Privacy Masking', desc: 'Toggle PII privacy masking on or off in accordance with data privacy regulations.' },
+      { element: '[data-tour="account-logs-btn-export"]', title: '5. Export Activity Logs', desc: 'Export authentication activity records for ICT security reporting.' },
+      { element: '[data-tour="account-logs-table"]', title: '6. Telemetry Records Table', desc: 'Inspect timestamped login, lockout, and session records with device details.' }
+    ]
       },
       {
         id: 'superadmin-backup',
@@ -2469,9 +2505,9 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Backup & Recovery Console', desc: 'Manage database snapshots and disaster recovery safeguards.' },
-          { element: 'button', title: '2. Create Database Backup', desc: 'Trigger an immediate full SQL snapshot of the entire university database.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Backup & Recovery Console', desc: 'Manage database snapshots and disaster recovery safeguards.' },
+      { element: '[data-tour="backup-btn-create"]', title: '2. Create Database Backup', desc: 'Trigger an immediate full SQL snapshot of the entire university database with zero downtime.' }
+    ]
       },
       {
         id: 'superadmin-settings',
@@ -2541,8 +2577,11 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Platform Configuration', desc: 'Manage email pipelines, API credentials, and global system parameters.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Platform Configuration', desc: 'Manage email pipelines, API credentials, and global system parameters.' },
+      { element: '[data-tour="superadmin-settings-profile"]', title: '2. Superadmin Account & Security', desc: 'Update root administrator profile credentials and multi-factor settings.' },
+      { element: '[data-tour="superadmin-settings-resend-card"]', title: '3. Email Pipeline (Resend.com)', desc: 'Configure Resend API key and sender identity for campus notification delivery.' },
+      { element: '[data-tour="superadmin-settings-btn-save"]', title: '4. Save Configuration', desc: 'Save all platform and profile updates securely.' }
+    ]
       }
     ]
   },
@@ -2617,10 +2656,13 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Executive Director Dashboard', desc: 'Monitor institutional SLA performance, turnaround metrics, and cross-unit throughput.' },
-          { element: '.grid', title: '2. Institutional SLA Gauges', desc: 'Real-time performance tracking for all university maintenance and security operations.' },
-          { element: '#tour-profile-menu', title: '3. Acting Unit Head Delegation', desc: 'Assume direct management over any unit whenever a department head is absent.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Executive Director Dashboard', desc: 'Monitor institutional SLA performance, turnaround metrics, and cross-unit throughput.' },
+      { element: '[data-tour="director-btn-report"]', title: '2. Download Executive PDF Report', desc: 'Generate and download official comprehensive institutional PDF performance reports.' },
+      { element: '[data-tour="director-timeframe-selector"]', title: '3. Reporting Period Selector', desc: 'Filter analytics across All Time, Fiscal Year, Quarter, or Month.' },
+      { element: '[data-tour="director-matrix-table"]', title: '4. Performance Matrix by Sub-Unit', desc: 'Inspect request volumes, resolved tickets, declined counts, and star ratings across FGMU, LEAU, and SSU.' },
+      { element: '[data-tour="director-services-breakdown"]', title: '5. Service Distribution Breakdown', desc: 'Analyze high-demand maintenance services across campus facilities.' },
+      { element: '#tour-profile-menu', title: '6. Acting Unit Head Delegation', desc: 'Assume direct management over any unit whenever a department head is absent.' }
+    ]
       },
       {
         id: 'director-my-requests',
@@ -2739,9 +2781,9 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Material Requisitions & Costs', desc: 'Audit materials consumed by all units and monitor departmental operational expenses.' },
-          { element: 'button', title: '2. Export Materials PDF', desc: 'Generate and download official materials consumption PDF reports for institutional auditing.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Material Requisitions & Costs', desc: 'Audit materials consumed by all units and monitor departmental operational expenses.' },
+      { element: '[data-tour="director-materials-btn-export"]', title: '2. Export Materials PDF Report', desc: 'Generate and download official materials consumption PDF reports for institutional auditing.' }
+    ]
       },
       {
         id: 'director-holidays',
@@ -2797,9 +2839,12 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Special Non-Working Holidays', desc: 'Configure official non-working dates automatically excluded from ticket working duration calculations.' },
-          { element: 'button', title: '2. Add Special Holiday', desc: 'Register a national holiday, local suspension, or university non-working day.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Special Non-Working Holidays', desc: 'Configure official non-working dates automatically excluded from ticket working duration calculations.' },
+      { element: '[data-tour="holidays-search-input"]', title: '2. Search Holiday Calendar', desc: 'Find declared holidays or class suspensions by name or calendar year.' },
+      { element: '[data-tour="holidays-filter-type"]', title: '3. Filter by Holiday Type', desc: 'Isolate National Holidays, Local Suspensions, or University Declared Non-Working Days.' },
+      { element: '[data-tour="holidays-btn-add"]', title: '4. Add Special Holiday', desc: 'Register a holiday date to automatically exclude it from business day calculations.' },
+      { element: '[data-tour="holidays-table"]', title: '5. Holiday Registry Table', desc: 'Inspect active holidays and remove or update declared suspension dates.' }
+    ]
       },
       {
         id: 'director-fgmu',
@@ -2904,9 +2949,12 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. FGMU Executive Overview', desc: 'Review major campus facilities projects requiring executive authorization.' },
-          { element: 'button', title: '2. Executive Authorization', desc: 'Authorize high-budget repairs or return tickets with specific budget directives.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. FGMU Executive Overview', desc: 'Review major campus facilities projects requiring executive authorization.' },
+      { element: '[data-tour="director-tab-pending"]', title: '2. Pending Escalations Queue', desc: 'Review facilities repairs requiring executive authorization.' },
+      { element: '[data-tour="director-search-input"]', title: '3. Search Escalated Tickets', desc: 'Filter escalated tickets by reference ID, requester, or building.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '4. Executive Authorization', desc: 'Authorize high-budget repairs, delay with directives, or return for scope revision.' },
+      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Detailed Scope Inspection', desc: 'Inspect full repair descriptions, requester contacts, and uploaded photos.' }
+    ]
       },
       {
         id: 'director-leau',
@@ -2978,9 +3026,12 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Landscape & Plant Authorizations', desc: 'Review large-scale plant loan requests and campus beautification projects.' },
-          { element: 'button', title: '2. Authorize Plant Loans', desc: 'Approve plant allocations for official university events.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Landscape & Plant Authorizations', desc: 'Review large-scale plant loan requests and campus beautification projects.' },
+      { element: '[data-tour="director-tab-borrowing"], [data-tour="director-tab-pending"]', title: '2. Borrowing & Escalations', desc: 'Manage event plant borrowing requests and large-scale landscaping initiatives.' },
+      { element: '[data-tour="director-search-input"]', title: '3. Search Landscape Requests', desc: 'Search requests by event title, organizer, or venue location.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '4. Authorize Plant Loans', desc: 'Approve plant allocations for official university ceremonies and academic events.' },
+      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Review Event Particulars', desc: 'Inspect event details, loan return schedules, and special handling instructions.' }
+    ]
       },
       {
         id: 'director-ssu',
@@ -3026,8 +3077,11 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Security Incident Log', desc: 'Monitor campus safety reports, investigation findings, and incident severity.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Security Incident Log', desc: 'Monitor campus safety reports, investigation findings, and incident severity.' },
+      { element: '[data-tour="ssu-search-input"]', title: '2. Search Incident Reports', desc: 'Locate security incident reports by ticket ID, location, or summary.' },
+      { element: '[data-tour="ssu-urgency-filters"]', title: '3. Security Urgency Filters', desc: 'Isolate high-priority campus emergencies requiring immediate intervention.' },
+      { element: '[data-tour="ssu-btn-fullinfo"]', title: '4. Review Case Findings', desc: 'Inspect witness accounts, investigation findings, and official SSU notations.' }
+    ]
       },
       {
         id: 'director-settings',
@@ -3105,9 +3159,12 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Director Settings', desc: 'Configure executive profile details and digital administrative signatures.' },
-          { element: 'button', title: '2. Sub-Unit Coverage', desc: 'Assume direct management over any unit whenever a department head is absent.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Director Settings', desc: 'Configure executive profile details and digital administrative signatures.' },
+      { element: '[data-tour="director-settings-profile"]', title: '2. Executive Profile', desc: 'Update your official director profile, contact email, and credentials.' },
+      { element: '[data-tour="director-settings-coverage-section"]', title: '3. Sub-Unit Coverage Console', desc: 'Temporarily assume charge of FGMU, LEAU, or SSU when department heads are unavailable.' },
+      { element: '[data-tour="director-btn-assume-unit"]', title: '4. Take Charge of Unit Operations', desc: 'Switch your active session to directly manage ticket queues and dispatches for any unit.' },
+      { element: '[data-tour="director-settings-btn-save"]', title: '5. Save Director Settings', desc: 'Save executive profile changes securely.' }
+    ]
       }
     ]
   },
@@ -3181,10 +3238,13 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Technician Field Console', desc: 'Manage today\'s assigned repair tasks, on-site locations, and job details.' },
-          { element: '.card, .space-y-4', title: '2. Today\'s Work Orders', desc: 'Check room location, problem description, and client contact details before heading out.' },
-          { element: 'button', title: '3. Task Instructions', desc: 'Read dispatcher notes and coordinate with your assigned crew members.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Technician Field Console', desc: 'Manage today\'s assigned repair tasks, on-site locations, and job details.' },
+      { element: '[data-tour="worker-tab-active"], [data-tour="worker-tab-emergency"]', title: '2. Active vs Emergency Jobs', desc: 'Filter today\'s tasks between standard assigned work orders and high-priority emergencies.' },
+      { element: '[data-tour="worker-search-input"]', title: '3. Search Work Orders', desc: 'Search tasks by ticket reference ID, requester, or building location.' },
+      { element: '[data-tour="worker-jobs-table"]', title: '4. Assigned Work Orders Table', desc: 'Inspect designated campus buildings, scheduled visit dates, and assigned crew members.' },
+      { element: '[data-tour="worker-btn-fullinfo"]', title: '5. Full Task Information & Notes', desc: 'Click to open the task details modal, view dispatcher notes, and client contact information.' },
+      { element: '[data-tour="worker-btn-history"]', title: '6. Accomplishment History', desc: 'Access archived records of previously fulfilled jobs and performance ratings.' }
+    ]
       },
       {
         id: 'worker-history',
@@ -3238,8 +3298,11 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Accomplishment History', desc: 'Review past completed work orders, turnaround metrics, and client satisfaction ratings.' }
-        ]
+      { element: '#tour-main-workspace', title: '1. Accomplishment History', desc: 'Review past completed work orders, turnaround metrics, and client satisfaction ratings.' },
+      { element: '[data-tour="history-search-input"]', title: '2. Search Accomplished Records', desc: 'Search past completed work orders by ticket reference number, requester, or location.' },
+      { element: '[data-tour="history-filter-year"], [data-tour="history-filter-unit"], [data-tour="history-filter-crew"]', title: '3. Filter by Year, Unit & Crew', desc: 'Filter completed jobs by calendar year, department branch, or solo vs team assignments.' },
+      { element: '[data-tour="history-records-table"]', title: '4. Archived Work Orders Registry', desc: 'Review completion timestamps, client star ratings, and recorded turnaround times.' }
+    ]
       }
     ]
   }

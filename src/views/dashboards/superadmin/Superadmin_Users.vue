@@ -21,6 +21,7 @@
             <input
               v-model="filters.search"
               @input="handleSearch"
+              data-tour="superadmin-search-input"
               type="text"
               placeholder="Search by name, email, employee or student ID number"
               class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 focus:bg-white transition-all"
@@ -59,6 +60,7 @@
 
             <!-- Provision User Button -->
             <button
+              data-tour="superadmin-btn-provision"
               @click="openCreateModal"
               class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2 active:scale-95 min-h-[44px] touch-manipulation shrink-0 cursor-pointer"
             >
@@ -73,7 +75,7 @@
         <!-- Faceted Filters Bar -->
         <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
           <!-- Role Filter Tabs -->
-          <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1.5 w-full sm:w-auto max-w-full flex-nowrap">
+          <div data-tour="superadmin-role-tabs" class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1.5 w-full sm:w-auto max-w-full flex-nowrap">
             <button
               v-for="role in roleOptions"
               :key="role.value"
@@ -169,7 +171,7 @@
         </div>
 
         <!-- User Accounts Table / Responsive Card Stack -->
-        <div class="rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden p-4 sm:p-6">
+        <div data-tour="superadmin-users-table" class="rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden p-4 sm:p-6">
           <!-- Loading State -->
           <div v-if="isLoading" class="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
             <svg class="animate-spin h-8 w-8 text-purple-500" fill="none" viewBox="0 0 24 24">

@@ -44,7 +44,7 @@
           <!-- Filter Controls for Current Year & Daily -->
           <div class="flex flex-wrap items-center justify-end gap-2 px-1">
             <!-- Period Type Tabs -->
-            <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 shadow-inner">
+            <div data-tour="admin-timeframe-tabs" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 shadow-inner">
                 <button
                   v-for="p in periodOptions"
                   :key="p.key"
@@ -118,7 +118,7 @@
           </div>
 
           <!-- Top 3 Cards Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div data-tour="admin-kpi-gauges" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- 1. Total Requests / Daily Total Requests -->
             <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">

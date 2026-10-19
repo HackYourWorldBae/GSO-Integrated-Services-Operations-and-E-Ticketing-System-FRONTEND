@@ -11,6 +11,7 @@
           <!-- Tab 1: In Progress -->
           <button
             type="button"
+            data-tour="active-tab-jobs"
             @click="switchTab('in_progress')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
@@ -38,6 +39,7 @@
           <button
             v-if="hasBorrowing"
             type="button"
+            data-tour="active-tab-borrowed"
             @click="switchTab('borrowed')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
@@ -66,6 +68,7 @@
           <!-- Tab: Collab Active (joint execution, requesting unit completes) -->
           <button
             type="button"
+            data-tour="active-tab-collab"
             @click="switchTab('collab')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
@@ -91,6 +94,7 @@
           <!-- Tab 3: Awaiting Requestor Rating -->
           <button
             type="button"
+            data-tour="active-tab-rating"
             @click="switchTab('awaiting_rating')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
@@ -167,6 +171,7 @@
           <input
             v-model="searchQuery"
             @input="currentPage = 1"
+            data-tour="active-search-input"
             type="text"
             placeholder="Search ticket #, title, service, requester, worker, room..."
             :class="[
@@ -230,6 +235,7 @@
           <input
             v-model="searchQuery"
             @input="currentPage = 1"
+            data-tour="active-search-input"
             type="text"
             placeholder="Search collab ticket #, title, service, requester, unit..."
             :class="[
@@ -511,6 +517,7 @@
                     <!-- Extend Button -->
                     <button
                       type="button"
+                      data-tour="active-btn-extend"
                       @click="openExtensionModal(ticket)"
                       class="px-2.5 py-1.5 rounded-xl border border-amber-200/80 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
                       title="Grant timeline extension with reason"
@@ -537,6 +544,7 @@
                     <!-- Adjust Materials Button -->
                     <button
                       type="button"
+                      data-tour="active-btn-materials"
                       @click="openAdjustModal(ticket)"
                       class="px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
                       title="Adjust ongoing materials and supplies"
@@ -550,6 +558,7 @@
                     <!-- Complete Job Button -->
                     <button
                       type="button"
+                      data-tour="active-btn-complete"
                       @click="openMaterialCompletionModal(ticket)"
                       :class="[
                         'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer',

@@ -29,6 +29,7 @@
     "sweetalert2": "^11.26.25",
     "tailwindcss": "^4.1.18",
     "tailwindcss-safe-area": "^1.3.0",
+    "v-onboarding": "^2.12.4",
     "vue": "^3.5.27",
     "vue-router": "^4.6.4",
     "vue3-toastify": "^0.2.9"

@@ -20,6 +20,7 @@
             </div>
             <input
               v-model="searchQuery"
+              data-tour="verify-search-input"
               type="text"
               placeholder="Search by name, email, or institutional ID..."
               class="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 focus:bg-white transition-all min-h-[44px]"
@@ -39,6 +40,7 @@
           <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end shrink-0">
             <select
               v-model="selectedRole"
+              data-tour="verify-filter-role"
               class="flex-1 sm:flex-initial px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors cursor-pointer min-h-[44px] touch-manipulation"
             >
               <option value="">All Roles</option>
@@ -143,6 +145,7 @@
             <div class="pt-4 border-t border-slate-100 mt-4 flex items-center gap-2">
               <button
                 type="button"
+                data-tour="verify-btn-inspect"
                 @click="openInspectModal(user)"
                 class="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 min-h-[44px] touch-manipulation cursor-pointer"
               >

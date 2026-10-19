@@ -74,6 +74,7 @@
           <div class="flex-1 relative">
             <input
               v-model="searchQuery"
+              data-tour="materials-search-input"
               type="text"
               placeholder="Search material description or standard unit..."
               class="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-inner transition-all min-h-[44px]"
@@ -98,6 +99,7 @@
           <!-- Action Buttons -->
           <div class="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
             <button
+              data-tour="materials-btn-add"
               @click="openAddModal"
               class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer min-h-[44px]"
             >
@@ -108,6 +110,7 @@
             </button>
 
             <button
+              data-tour="materials-btn-sync"
               @click="handleSeedDefaults"
               :disabled="operationsStore.isSaving"
               title="Ensure all standard baseline materials are present"
@@ -122,7 +125,7 @@
         </div>
 
         <!-- Materials Table (Desktop) -->
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden hidden md:block">
+        <div data-tour="materials-catalog-table" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden hidden md:block">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse">
               <thead>

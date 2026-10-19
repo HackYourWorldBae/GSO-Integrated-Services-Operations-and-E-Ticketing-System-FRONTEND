@@ -388,6 +388,9 @@
 
       <!-- System In-Website Manual & Interactive Tutorial Modal -->
       <SystemTutorialModal />
+
+      <!-- Interactive Onboarding Spotlight Tour Overlay (v-onboarding) -->
+      <InteractiveTourOverlay />
     </div>
   </div>
 </template>
@@ -404,6 +407,7 @@ import { useNetworkStatus } from '@/utils/networkMonitor';
 import { playNotificationSound, isSoundEnabled, toggleSoundEnabled } from '@/utils/sound';
 import { useAccessibility } from '@/composables/useAccessibility';
 import SystemTutorialModal from '@/components/common/SystemTutorialModal.vue';
+import InteractiveTourOverlay from '@/components/common/InteractiveTourOverlay.vue';
 import { useTutorial } from '@/composables/useTutorial';
 
 const router = useRouter();

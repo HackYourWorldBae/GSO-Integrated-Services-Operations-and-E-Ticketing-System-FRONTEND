@@ -5,9 +5,13 @@ import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue3-toastify';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { debounce } from '@/utils/debounce';
+import SystemTutorialModal from '@/components/common/SystemTutorialModal.vue';
+import InteractiveTourOverlay from '@/components/common/InteractiveTourOverlay.vue';
+import { useTutorial } from '@/composables/useTutorial';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const { openTutorialModal } = useTutorial();
 
 const userName = computed(() => authStore.fullName || 'User');
 const userRole = computed(() => authStore.capitalizedRole);
@@ -628,6 +632,20 @@ const handleSubmit = () => {
       </div>
 
       <div class="flex items-center gap-1.5 sm:gap-4 relative shrink-0" id="user-profile-menu">
+        <!-- In-Website Manual / Tutorial Tour Button -->
+        <button
+          type="button"
+          id="tour-guide-btn"
+          @click="openTutorialModal('requestor-services')"
+          title="Services Catalog User Guide & Walkthrough"
+          class="relative p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-100 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 transition-all focus:outline-none border border-slate-300 min-w-[36px] min-h-[36px] sm:min-h-[44px] flex items-center gap-1.5 cursor-pointer font-bold text-xs sm:text-sm select-none"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 sm:h-5 sm:w-5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span class="hidden md:inline">Guide</span>
+        </button>
+
         <div class="flex items-center gap-2 cursor-pointer select-none" @click="toggleDropdown">
           <div class="hidden sm:flex flex-col text-right">
             <p class="text-slate-900 font-bold text-sm flex items-center gap-1.5 justify-end hover:text-emerald-600 transition-colors">
@@ -711,7 +729,7 @@ const handleSubmit = () => {
       </div>
 
       <!-- ─── STUDENT REPRESENTATIVE ACCESS NOTICE BANNER ─── -->
-      <div v-if="isStudentUser" class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-fade-in">
+      <div v-if="isStudentUser" data-tour="services-student-toggle" class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-fade-in">
         <div class="flex items-start sm:items-center gap-3">
           <div class="p-2 rounded-xl bg-emerald-600 text-white shrink-0 shadow-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -760,6 +778,7 @@ const handleSubmit = () => {
             </svg>
           </div>
           <input
+            data-tour="services-search-input"
             v-model="searchQuery"
             type="text"
             placeholder="Search issue (e.g. 'pipe leak', 'aircon', 'broken door')..."
@@ -780,7 +799,7 @@ const handleSubmit = () => {
 
         <!-- Category Intent Filter Tabs + Quick Student Filter -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
+          <div data-tour="services-category-tabs" class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
             <button
               v-for="tab in categoryTabs"
               :key="tab.id"
@@ -850,6 +869,7 @@ const handleSubmit = () => {
 
                     <!-- Service Card (Interactive or Restricted) -->
                     <div
+                      data-tour="services-card-item"
                       @click="toggleService(unit.id, category.title, service)"
                       class="group relative select-none rounded-2xl sm:rounded-[1.5rem] p-3.5 sm:p-5 transition-all duration-300 border-2 flex flex-col items-center justify-center gap-2 sm:gap-3 text-center min-h-[120px] sm:min-h-[145px] active:scale-[0.98]"
                       :class="[
@@ -992,6 +1012,7 @@ const handleSubmit = () => {
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             </router-link>
             <button
+              data-tour="services-btn-submit"
               @click="handleSubmit"
               :disabled="totalSelected === 0"
               class="px-4 sm:px-8 py-2.5 sm:py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 min-h-[44px] sm:min-h-[48px] cursor-pointer"
@@ -1015,6 +1036,12 @@ const handleSubmit = () => {
       @confirm="executeConfirm"
       @cancel="closeConfirmModal"
     />
+
+    <!-- In-Website Manual & Interactive Tutorial Modal -->
+    <SystemTutorialModal />
+
+    <!-- Interactive Onboarding Spotlight Tour Overlay (v-onboarding) -->
+    <InteractiveTourOverlay />
 
   </div>
 </template>

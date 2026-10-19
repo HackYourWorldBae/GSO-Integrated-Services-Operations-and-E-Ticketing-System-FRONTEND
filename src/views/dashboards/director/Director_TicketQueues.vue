@@ -49,6 +49,7 @@
           <div :class="['grid gap-2 p-2 border-b border-slate-200 bg-slate-50/50 rounded-t-2xl', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6']">
             <!-- Tab 1: Pending / Escalated Approval -->
             <button
+              data-tour="director-tab-pending"
               @click="switchTab('pending')"
               :class="[
                 'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
@@ -63,6 +64,7 @@
 
             <!-- Tab 2: Approval Delayed -->
             <button
+              data-tour="director-tab-delayed"
               @click="switchTab('delayed')"
               :class="[
                 'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
@@ -77,6 +79,7 @@
             <!-- Tab 3: Approved (Awaiting Dispatch) -->
             <button
               v-if="!isPendingOnlyMode"
+              data-tour="director-tab-approved"
               @click="switchTab('approved')"
               :class="[
                 'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
@@ -92,6 +95,7 @@
             <!-- Tab 4: Dispatched / Scheduled -->
             <button
               v-if="!isPendingOnlyMode"
+              data-tour="director-tab-dispatched"
               @click="switchTab('dispatched')"
               :class="[
                 'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
@@ -107,6 +111,7 @@
             <!-- Tab 5: Borrowing Queue -->
             <button
               v-if="!isPendingOnlyMode"
+              data-tour="director-tab-borrowing"
               @click="switchTab('borrowing')"
               :class="[
                 'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
@@ -122,6 +127,7 @@
             <!-- Tab 6: Active Work Orders -->
             <button
               v-if="!isPendingOnlyMode"
+              data-tour="director-tab-active"
               @click="switchTab('active')"
               :class="[
                 'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
@@ -145,6 +151,7 @@
                 </svg>
               </div>
               <input
+                data-tour="director-search-input"
                 v-model="searchQuery"
                 @input="currentPage = 1"
                 type="text"
@@ -163,6 +170,7 @@
             </div>
             <!-- Service Filter -->
             <select
+              data-tour="director-service-filter"
               v-model="selectedServiceFilter"
               @change="currentPage = 1"
               class="px-2.5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-base sm:text-xs font-semibold focus:outline-none focus:border-emerald-500 transition-all shrink-0 touch-manipulation cursor-pointer"
@@ -486,6 +494,7 @@
                       <template v-else>
                         <!-- Delay Approval: For Director (on escalated approvals) and Unit Head (on routine pending) -->
                         <button
+                          data-tour="director-btn-delay"
                           v-if="(isDirector && ticket.is_escalated_to_director) || (!isDirector && !ticket.is_escalated_to_director)"
                           @click="openDelayModal(ticket)"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
@@ -498,6 +507,7 @@
                         </button>
 
                         <button
+                          data-tour="director-btn-approve"
                           @click="initiateApproval(ticket)"
                           class="px-4 py-2 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                           :title="isDirector ? 'Executive Approve' : 'Direct Unit Head Approve'"
@@ -513,6 +523,7 @@
                     <!-- Approval Delayed Tab Actions -->
                     <div v-else-if="activeTab === 'delayed'" class="flex items-center justify-end gap-1.5">
                       <button
+                        data-tour="director-btn-fullinfo"
                         @click="openDetailsModal(ticket)"
                         class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
                         title="View Full Info"
@@ -520,6 +531,7 @@
                         <span>Full Info</span>
                       </button>
                       <button
+                        data-tour="director-btn-decline"
                         @click="openDeclineModal(ticket)"
                         class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
                         title="Decline Request"

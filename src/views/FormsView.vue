@@ -398,7 +398,7 @@ const handleFinalSubmit = async () => {
           <div class="flex items-center justify-between">
 
             <!-- Step 1: Completed -->
-            <button type="button" @click="goBack" class="flex flex-col items-center text-center w-24 sm:w-32 shrink-0 group cursor-pointer" title="Go back to services selection">
+            <button data-tour="intake-btn-back" type="button" @click="goBack" class="flex flex-col items-center text-center w-24 sm:w-32 shrink-0 group cursor-pointer" title="Go back to services selection">
               <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-md shadow-emerald-600/20 group-hover:bg-emerald-700 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -414,7 +414,7 @@ const handleFinalSubmit = async () => {
             </div>
 
             <!-- Step 2: Current -->
-            <div class="flex flex-col items-center text-center w-24 sm:w-32 shrink-0">
+            <div data-tour="intake-step-badge" class="flex flex-col items-center text-center w-24 sm:w-32 shrink-0">
               <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-md shadow-emerald-600/30 ring-4 ring-emerald-50">
                 2
               </div>
@@ -465,6 +465,7 @@ const handleFinalSubmit = async () => {
       <!-- FINAL SUBMISSION STICKY BAR -->
       <div class="flex justify-center pt-4 sm:pt-8 sticky bottom-3 sm:bottom-6 px-1 z-30 pb-safe">
         <button 
+          data-tour="intake-btn-submit"
           @click="handleFinalSubmit"
           :disabled="isSubmitting"
           class="w-full sm:w-auto min-h-[48px] px-6 sm:px-14 py-3.5 sm:py-4.5 bg-slate-900 hover:bg-black text-white font-black text-sm sm:text-lg justify-center rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/30 transition-all flex items-center gap-2.5 sm:gap-3 active:scale-[0.98] disabled:opacity-50 cursor-pointer"

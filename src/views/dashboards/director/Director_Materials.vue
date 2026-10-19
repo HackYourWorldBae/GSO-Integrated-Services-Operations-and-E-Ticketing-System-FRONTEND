@@ -24,6 +24,7 @@
           <!-- Document Export Action -->
           <div class="flex items-center gap-3 shrink-0 w-full sm:w-auto">
             <button
+              data-tour="director-materials-btn-export"
               @click="handleDownloadMaterialsReport"
               :disabled="isGeneratingMaterialsPdf || isLoading || !executiveAnalytics"
               class="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.98] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] touch-manipulation"

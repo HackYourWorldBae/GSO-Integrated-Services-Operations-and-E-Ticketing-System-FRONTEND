@@ -47,7 +47,13 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input v-model="searchQuery" type="text" placeholder="Search Ticket ID (e.g. FGMU-TIC-42)" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-base sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all min-h-[44px] shadow-2xs" />
+            <input
+              data-tour="completed-search-input"
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search Ticket ID (e.g. FGMU-TIC-42)"
+              class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-base sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all min-h-[44px] shadow-2xs"
+            />
           </div>
         </div>
 
@@ -83,13 +89,21 @@
                   </td>
                   <td class="py-5 px-6 bg-slate-50/60 border-y border-r border-slate-300 rounded-r-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all text-right">
                     <div class="inline-flex items-center justify-end gap-2">
-                      <button @click="openTimeline(ticket)" class="px-4 py-2.5 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all text-xs active:scale-95 inline-flex items-center gap-1.5 cursor-pointer shadow-xs min-h-[38px]">
+                      <button
+                        data-tour="completed-btn-track"
+                        @click="openTimeline(ticket)"
+                        class="px-4 py-2.5 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all text-xs active:scale-95 inline-flex items-center gap-1.5 cursor-pointer shadow-xs min-h-[38px]"
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                         Track Progress
                       </button>
-                      <button @click="viewDetails(ticket)" class="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 text-xs font-bold rounded-xl transition-all shadow-xs active:scale-95 inline-flex items-center gap-1.5 cursor-pointer min-h-[38px]">
+                      <button
+                        data-tour="completed-btn-details"
+                        @click="viewDetails(ticket)"
+                        class="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 text-xs font-bold rounded-xl transition-all shadow-xs active:scale-95 inline-flex items-center gap-1.5 cursor-pointer min-h-[38px]"
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />

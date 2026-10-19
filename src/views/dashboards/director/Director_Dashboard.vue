@@ -30,6 +30,7 @@
             <div class="flex flex-wrap items-center gap-3 shrink-0 w-full xl:w-auto">
 
               <button
+                data-tour="director-btn-report"
                 @click="handleDownloadReport"
                 :disabled="isGeneratingPdf || !executiveAnalytics"
                 class="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-900 hover:bg-emerald-800 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] touch-manipulation whitespace-nowrap"
@@ -48,7 +49,7 @@
           </div>
 
           <!-- Interactive Period & Timeframe Selector Bar -->
-          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
+          <div data-tour="director-timeframe-selector" class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
             <!-- Period Tabs (Segmented Control) -->
             <div class="flex flex-wrap items-center gap-2">
               <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1 w-full sm:w-auto">
@@ -136,7 +137,7 @@
 
             <!-- Desktop Performance Table -->
             <div class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 shadow-sm">
-              <table class="min-w-[650px] w-full text-left border-collapse">
+              <table data-tour="director-matrix-table" class="min-w-[650px] w-full text-left border-collapse">
                 <thead>
                   <tr class="bg-slate-50 text-slate-700 text-xs sm:text-sm font-black uppercase tracking-wider border-b border-slate-200">
                     <th class="py-3 px-5">Sub-Unit</th>
@@ -332,7 +333,7 @@
         <!-- Operational Insights (Service Distribution & SLA Health) -->
           <div class="space-y-6 pt-2">
             <!-- Service Workload Share by Sub-Unit -->
-            <div class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm flex flex-col">
+            <div data-tour="director-services-breakdown" class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm flex flex-col">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div class="flex items-center gap-2">
                   <h4 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Top Service Categories</h4>

@@ -11,6 +11,7 @@
           <!-- Tab: Job Schedules -->
           <button
             type="button"
+            data-tour="scheduled-tab-jobs"
             @click="switchScheduledTab('jobs')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
@@ -37,6 +38,7 @@
           <button
             v-if="hasBorrowing"
             type="button"
+            data-tour="scheduled-tab-borrowing"
             @click="switchScheduledTab('borrowing')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
@@ -62,6 +64,7 @@
           <!-- Tab: Collab Tickets -->
           <button
             type="button"
+            data-tour="scheduled-tab-collab"
             @click="switchScheduledTab('collab')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
@@ -141,6 +144,7 @@
           <input
             v-model="searchQuery"
             @input="currentPage = 1"
+            data-tour="scheduled-search-input"
             type="text"
             :placeholder="scheduledTab === 'borrowing' ? 'Search ticket #, borrower, item, ID...' : 'Search ticket #, title, service, requester, worker, room...'"
             :class="[
@@ -390,6 +394,7 @@
                   <!-- Reschedule / Adjust Schedule Action Button -->
                   <button
                     type="button"
+                    data-tour="scheduled-btn-reschedule"
                     @click="openRescheduleModal(ticket)"
                     class="px-2.5 py-1.5 rounded-xl border border-blue-200/80 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1 cursor-pointer"
                     title="Reschedule implementation date or adjust working days"
@@ -428,6 +433,7 @@
                   <!-- Start Early Action Button -->
                   <button
                     type="button"
+                    data-tour="scheduled-btn-start"
                     @click="initiateStartEarly(ticket)"
                     class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 flex items-center gap-1.5 cursor-pointer"
                     title="Start job ahead of schedule"

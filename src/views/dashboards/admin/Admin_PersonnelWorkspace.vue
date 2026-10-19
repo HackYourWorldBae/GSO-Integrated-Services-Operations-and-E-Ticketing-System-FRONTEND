@@ -69,6 +69,7 @@
             <div class="relative flex-1 max-w-md w-full">
               <input
                 v-model="searchQuery"
+                data-tour="personnel-search-input"
                 type="text"
                 placeholder="Search staff by name or profession..."
                 class="w-full pl-10 pr-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-slate-50/50"
@@ -82,6 +83,7 @@
             <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end sm:justify-start shrink-0">
               <button
                 v-if="isAdmin"
+                data-tour="personnel-btn-categories"
                 @click="showCategoryModal = true"
                 class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-black hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs cursor-pointer touch-manipulation"
               >
@@ -93,6 +95,7 @@
 
               <button
                 v-if="isAdmin"
+                data-tour="personnel-btn-add"
                 @click="openAddModal"
                 class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs shadow-emerald-200 active:scale-95 cursor-pointer touch-manipulation"
               >
@@ -173,7 +176,7 @@
           <p class="text-xs text-slate-400 mt-1">Try adjusting your search criteria or add new staff members.</p>
         </div>
 
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+        <div v-else data-tour="personnel-cards-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           <div
             v-for="worker in filteredPersonnel"
             :key="worker.id"

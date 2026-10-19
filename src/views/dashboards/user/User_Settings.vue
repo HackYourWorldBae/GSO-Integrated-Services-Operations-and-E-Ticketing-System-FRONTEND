@@ -42,7 +42,7 @@
     <template #main-content>
       <div class="max-w-4xl mx-auto space-y-8 animate-fade-in">
         <!-- Profile Form Card -->
-        <div class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+        <div data-tour="settings-profile-card" class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
           <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
              <div class="flex items-center gap-4">
                 <div class="relative group cursor-pointer" @click="triggerAvatarUpload" title="Click to change profile picture">
@@ -285,7 +285,7 @@
           </div>
 
           <div class="p-8 bg-slate-50/50 border-t border-slate-100 flex items-center justify-center">
-            <button @click="handleSave" :disabled="isSaving" class="group relative px-12 py-5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-300 text-white font-black rounded-3xl shadow-[0_10px_30px_rgba(5,150,105,0.2)] transition-all hover:-translate-y-1.5 active:translate-y-0 overflow-hidden w-full md:w-auto">
+            <button data-tour="settings-btn-save" @click="handleSave" :disabled="isSaving" class="group relative px-12 py-5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-300 text-white font-black rounded-3xl shadow-[0_10px_30px_rgba(5,150,105,0.2)] transition-all hover:-translate-y-1.5 active:translate-y-0 overflow-hidden w-full md:w-auto">
               <span v-if="!isSaving" class="relative z-10 flex items-center justify-center gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />

@@ -22,6 +22,7 @@
             <input
               v-model="filters.search"
               @input="handleSearch"
+              data-tour="audit-search-input"
               type="text"
               placeholder="Search by ticket ID, actor name, action..."
               class="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 focus:bg-white transition-all min-h-[44px]"
@@ -50,6 +51,7 @@
               </svg>
             </button>
             <button
+              data-tour="audit-btn-export"
               @click="exportToCSV"
               :disabled="loading || logs.length === 0"
               class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] cursor-pointer touch-manipulation"
@@ -63,7 +65,7 @@
         </div>
 
         <!-- Logs Table Card (Desktop) & Mobile Card Stack -->
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div data-tour="audit-logs-table" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           <!-- Desktop Table (md and up) -->
           <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-collapse">

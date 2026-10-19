@@ -17,6 +17,7 @@
               <input
                 v-model="searchQuery"
                 @input="currentPage = 1"
+                data-tour="inventory-search-input"
                 type="text"
                 placeholder="Search tools &amp; equipment by name, model, serial, or location..."
                 class="w-full pl-10 pr-9 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-slate-50/50"
@@ -38,7 +39,7 @@
             <!-- Action Controls: View Switcher + Add Inventory -->
             <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end shrink-0">
               <!-- View Switcher -->
-              <div class="hidden sm:inline-flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80">
+              <div data-tour="inventory-view-toggle" class="hidden sm:inline-flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80">
                 <button
                   type="button"
                   @click="viewMode = 'table'"
@@ -72,6 +73,7 @@
               <!-- Add Inventory Button -->
               <button
                 v-if="isAdmin"
+                data-tour="inventory-btn-add"
                 @click="openAddModal"
                 class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs shadow-emerald-200 active:scale-95 cursor-pointer touch-manipulation"
               >
@@ -86,7 +88,7 @@
           <!-- Status & Category Filters (Non-overflowing wrapped layout) -->
           <div class="pt-3 border-t border-slate-100 space-y-3 min-w-0">
             <!-- Row 1: Stock Status Filter Tabs -->
-            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
+            <div data-tour="inventory-status-tabs" class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
               <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1 shrink-0">Stock Status:</span>
               <button
                 type="button"

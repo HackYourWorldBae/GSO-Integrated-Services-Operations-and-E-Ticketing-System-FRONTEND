@@ -40,7 +40,7 @@
         </div>
 
         <!-- Profile Form Card -->
-        <div class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+        <div data-tour="admin-settings-profile" class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
           <div class="p-5 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
             <div class="flex items-center gap-4">
               <div class="relative group cursor-pointer shrink-0" @click="triggerAvatarUpload" title="Click to change profile picture">
@@ -300,7 +300,7 @@
             </div>
 
             <!-- Official Digital Signature Section -->
-            <div class="space-y-3">
+            <div data-tour="admin-settings-signature" class="space-y-3">
               <div class="flex items-center justify-between flex-wrap gap-2">
                 <div>
                   <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Official Digital Signature</h4>
@@ -416,6 +416,7 @@
           <!-- Bottom Action Bar -->
           <div class="p-4 sm:p-8 bg-slate-50/70 border-t border-slate-100 flex items-center justify-end">
             <button
+              data-tour="admin-settings-btn-save"
               type="button"
               @click="handleSave"
               :disabled="isSaving"

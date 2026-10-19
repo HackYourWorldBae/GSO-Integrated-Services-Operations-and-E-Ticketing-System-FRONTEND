@@ -97,6 +97,7 @@
                 </svg>
               </span>
               <input
+                data-tour="worker-search-input"
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search jobs by Ticket ID, service, location, or crew member name..."
@@ -125,6 +126,7 @@
           <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200 text-xs sm:text-sm">
             <div class="flex flex-wrap items-center gap-2">
               <button
+                data-tour="worker-tab-active"
                 type="button"
                 @click="activeTab = 'active'"
                 :class="[
@@ -144,6 +146,7 @@
               </button>
 
               <button
+                data-tour="worker-tab-emergency"
                 type="button"
                 @click="activeTab = 'emergency'"
                 :class="[
@@ -165,6 +168,7 @@
 
             <!-- Direct Link to History Archives (Completed Jobs) -->
             <router-link
+              data-tour="worker-btn-history"
               to="/personnel/history"
               class="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-black text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 border border-slate-300/80 transition-all cursor-pointer shadow-2xs touch-manipulation"
               title="View completed work orders archive"
@@ -257,7 +261,7 @@
             </div>
 
             <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
+              <table data-tour="worker-jobs-table" class="w-full text-left border-collapse">
                 <thead>
                   <tr class="bg-slate-100/90 border-b-2 border-slate-200 text-slate-600 font-black">
                     <th class="px-4 py-3.5 text-[11px] font-black uppercase tracking-wider text-slate-600">Ticket Ref</th>
@@ -377,6 +381,7 @@
                     <!-- Actions Column with Full Info Button -->
                     <td class="px-4 py-3 whitespace-nowrap text-right" @click.stop>
                       <button
+                        data-tour="worker-btn-fullinfo"
                         type="button"
                         @click="openTicketDetails(ticket)"
                         class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"

@@ -30,7 +30,7 @@
         </div>
 
         <!-- Urgency Filters -->
-        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
+        <div data-tour="ssu-urgency-filters" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
             type="button"
             @click="urgencyFilter = 'all'; currentPage = 1"
@@ -81,6 +81,7 @@
             </svg>
           </div>
           <input
+            data-tour="ssu-search-input"
             v-model="rawSearchQuery"
             type="text"
             placeholder="Search by ticket ID, reporter name, contact, location, or summary..."
@@ -257,6 +258,7 @@
                     <template v-if="activeQueue === 'submitted'">
                       <!-- Set to Under Investigation -->
                       <button
+                        data-tour="ssu-btn-investigate"
                         type="button"
                         @click="openInvestigateModal(ticket)"
                         class="px-3 py-2 min-h-[38px] rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
@@ -271,6 +273,7 @@
 
                       <!-- Add Notation (on submitted tickets) -->
                       <button
+                        data-tour="ssu-btn-notation"
                         type="button"
                         @click="openNotationModal(ticket)"
                         class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
@@ -284,6 +287,7 @@
 
                       <!-- Dismiss / Decline -->
                       <button
+                        data-tour="ssu-btn-dismiss"
                         type="button"
                         @click="openDismissModal(ticket)"
                         class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
@@ -301,6 +305,7 @@
 
                       <!-- Add / Update Notation -->
                       <button
+                        data-tour="ssu-btn-notation"
                         type="button"
                         @click="openNotationModal(ticket)"
                         class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
@@ -314,6 +319,7 @@
 
                       <!-- Mark as Resolved -->
                       <button
+                        data-tour="ssu-btn-resolve"
                         type="button"
                         @click="initiateResolve(ticket)"
                         class="px-3.5 py-2 min-h-[38px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
@@ -328,6 +334,7 @@
 
                     <!-- View Full Info Modal Trigger -->
                     <button
+                      data-tour="ssu-btn-fullinfo"
                       type="button"
                       @click="openDetailsModal(ticket)"
                       class="p-2 min-h-[38px] min-w-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 transition-all flex items-center justify-center cursor-pointer touch-manipulation"

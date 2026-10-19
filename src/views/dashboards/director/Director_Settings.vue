@@ -13,7 +13,7 @@
     <template #main-content>
       <div class="max-w-4xl mx-auto space-y-8 animate-fade-in pb-12">
         <!-- Profile Form Card -->
-        <div class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+        <div data-tour="director-settings-profile" class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
           <div class="p-4 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
             <div class="flex items-center gap-4">
               <div class="relative group cursor-pointer shrink-0" @click="triggerAvatarUpload" title="Click to change profile picture">
@@ -387,6 +387,7 @@
           <!-- Bottom Action Bar -->
           <div class="p-4 sm:p-6 md:p-8 bg-slate-50/70 border-t border-slate-100 flex items-center justify-end">
             <button
+              data-tour="director-settings-btn-save"
               type="button"
               @click="handleSave"
               :disabled="isSaving"
@@ -405,7 +406,7 @@
         </div>
 
         <!-- Sub-Unit Head Delegation & Coverage (Acting Unit Head Switcher) -->
-        <div class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+        <div data-tour="director-settings-coverage-section" class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
           <div class="p-4 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shadow-xs shrink-0">
@@ -601,6 +602,7 @@
                   <!-- Actions -->
                   <div>
                     <button
+                      data-tour="director-btn-assume-unit"
                       v-if="!unit.is_currently_acting"
                       type="button"
                       @click="handleAssumeUnit(unit)"

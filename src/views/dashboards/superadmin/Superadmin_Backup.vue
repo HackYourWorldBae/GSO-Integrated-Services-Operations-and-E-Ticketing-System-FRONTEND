@@ -156,6 +156,7 @@
 
             <!-- Create Full Backup Now Button -->
             <button
+              data-tour="backup-btn-create"
               @click="openCreateBackupModal"
               :disabled="isCreatingBackup"
               type="button"

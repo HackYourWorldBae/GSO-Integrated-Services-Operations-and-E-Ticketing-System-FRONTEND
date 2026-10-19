@@ -9,7 +9,7 @@
     <template #main-content>
       <div class="max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-fade-in pb-12">
         <!-- Profile Form Card -->
-        <div class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+        <div data-tour="superadmin-settings-profile" class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
           <div class="p-4 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
             <div class="flex items-center gap-3 sm:gap-4">
               <div class="relative group cursor-pointer shrink-0" @click="triggerAvatarUpload" title="Click to change profile picture">
@@ -286,6 +286,7 @@
           <!-- Bottom Action Bar -->
            <div class="p-4 sm:p-8 bg-slate-50/70 border-t border-slate-100 flex items-center justify-stretch sm:justify-end">
             <button
+              data-tour="superadmin-settings-btn-save"
               type="button"
               @click="handleSave"
               :disabled="isSaving"
@@ -304,7 +305,7 @@
         </div>
 
         <!-- Resend.com Email Integration Card -->
-        <div class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+        <div data-tour="superadmin-settings-resend-card" class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
           <div class="p-4 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
             <div class="flex items-center gap-3 sm:gap-4">
               <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[1.25rem] bg-slate-900 flex items-center justify-center text-emerald-400 shadow-md border border-slate-700 shrink-0">

@@ -1,7 +1,5 @@
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import router from '@/router';
-import { driver } from 'driver.js';
-import 'driver.js/dist/driver.css';
 import { useAuthStore } from '@/stores/auth';
 import {
   pageGuidesCatalog,
@@ -21,6 +19,9 @@ import {
 
 const isTutorialModalOpen = ref(false);
 const activePageId = ref('');
+const isTourActive = ref(false);
+const activeTourSteps = ref([]);
+const activeTourPage = ref(null);
 
 export function useTutorial() {
   const authStore = useAuthStore();
@@ -185,7 +186,16 @@ export function useTutorial() {
   };
 
   /**
-   * Launch interactive tour with Driver.js for the active page
+   * End or close the active interactive tour
+   */
+  const endTour = () => {
+    isTourActive.value = false;
+    activeTourSteps.value = [];
+    activeTourPage.value = null;
+  };
+
+  /**
+   * Launch interactive tour with v-onboarding for the active page
    */
   const startPageTour = async (pageId = null) => {
     const targetId = pageId || activePageId.value;
@@ -200,49 +210,45 @@ export function useTutorial() {
     const targetRoute = normalizeRoutePath(page.route);
     if (targetRoute && currentPath !== targetRoute && !currentPath.startsWith(targetRoute)) {
       await router.push(page.route);
-      await new Promise(resolve => setTimeout(resolve, 350));
+      await new Promise(resolve => setTimeout(resolve, 450));
     }
 
     const rawSteps = page.tourSteps || [
       { element: '#tour-main-workspace', title: page.name, desc: page.summary }
     ];
 
-    // Fallback gracefully to #tour-main-workspace if element is hidden
-    const driverSteps = rawSteps.map(s => {
-      let targetSelector = s.element || '#tour-main-workspace';
-      const el = document.querySelector(targetSelector);
-      if (!el || (el.offsetWidth === 0 && el.offsetHeight === 0)) {
-        targetSelector = '#tour-main-workspace';
-      }
+    // Format steps for v-onboarding with deterministic target pinpointing & fallback
+    const formattedSteps = rawSteps.map(s => {
+      const targetSelector = s.element || '#tour-main-workspace';
 
       return {
-        element: targetSelector,
-        popover: {
+        attachTo: {
+          element: () => {
+            if (targetSelector) {
+              const el = document.querySelector(targetSelector);
+              if (el && (el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0)) {
+                return el;
+              }
+            }
+            // Fallbacks if element isn't visible yet
+            return (
+              document.querySelector('#tour-main-workspace') ||
+              document.querySelector('main') ||
+              document.body
+            );
+          },
+          classList: ['tour-pinpoint-target']
+        },
+        content: {
           title: s.title,
-          description: s.desc,
-          side: s.side || 'bottom',
-          align: s.align || 'center'
+          description: s.desc
         }
       };
     });
 
-    const driverObj = driver({
-      showProgress: true,
-      animate: true,
-      allowClose: true,
-      overlayColor: 'rgba(15, 23, 42, 0.72)',
-      stagePadding: 6,
-      stageRadius: 14,
-      nextBtnText: 'Next →',
-      prevBtnText: '← Back',
-      doneBtnText: 'Finish Tutorial',
-      steps: driverSteps,
-      onDestroyStarted: () => {
-        driverObj.destroy();
-      }
-    });
-
-    driverObj.drive();
+    activeTourPage.value = page;
+    activeTourSteps.value = formattedSteps;
+    isTourActive.value = true;
   };
 
   return {
@@ -253,9 +259,13 @@ export function useTutorial() {
     activeRoleData,
     availablePages,
     activePageData,
+    isTourActive,
+    activeTourSteps,
+    activeTourPage,
     selectPage,
     openTutorialModal,
     closeTutorialModal,
+    endTour,
     startPageTour
   };
 }

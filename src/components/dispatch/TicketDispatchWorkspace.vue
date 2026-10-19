@@ -88,7 +88,7 @@
 
       <!-- Bottom Row: Scheduling & Turnaround Configuration Controls -->
       <!-- Hidden for incoming collab dispatches: the requesting unit owns the schedule -->
-      <div v-if="!isReceivingCollabDispatch" class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 pt-2">
+      <div v-if="!isReceivingCollabDispatch" data-tour="dispatch-schedule-controls" class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 pt-2">
         <!-- Implementation Date Picker Card -->
         <div
           @click="openDatePicker"
@@ -232,7 +232,7 @@
 
       <!-- Row 3: Initial Material Assessment & Labor-Only Scope -->
       <!-- Hidden for incoming collab dispatches: the requesting unit owns the materials -->
-      <div v-if="!isReceivingCollabDispatch" class="relative z-10 pt-2 border-t border-white/10">
+      <div v-if="!isReceivingCollabDispatch" data-tour="dispatch-materials" class="relative z-10 pt-2 border-t border-white/10">
         <div class="bg-white/5 rounded-2xl border border-white/10 p-4 sm:p-5 space-y-4">
           
           <!-- Section Header & Quick Scope Indicator -->
@@ -552,7 +552,7 @@
       </div>
 
       <!-- Quick select cards for Tickets Awaiting Dispatch -->
-      <div v-if="dispatchQueue.length > 0" class="w-full max-w-3xl mt-4 pt-4 border-t border-slate-100 text-left">
+      <div v-if="dispatchQueue.length > 0" data-tour="dispatch-queue-select" class="w-full max-w-3xl mt-4 pt-4 border-t border-slate-100 text-left">
         <p class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2.5">
           <template v-if="unitCode.toUpperCase() === 'SSU'">
             Or pick directly from incoming collaboration requests awaiting dispatch:
@@ -640,6 +640,7 @@
 
           <!-- Confirm & Dispatch All Button -->
           <button
+            data-tour="dispatch-btn-confirm"
             type="button"
             @click="dispatchAll"
             :disabled="isDispatching"
@@ -693,7 +694,7 @@
     </div>
 
     <!-- ═══ 4. Available Personnel Section (job requests only; borrowing uses inventory) ═══ -->
-    <div v-if="!isBorrowingSelected" class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-4 sm:p-6 space-y-4 sm:space-y-6">
+    <div v-if="!isBorrowingSelected" data-tour="dispatch-staff-roster" class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-4 sm:p-6 space-y-4 sm:space-y-6">
       
       <!-- Section Header & Legend -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4 border-b border-slate-100">

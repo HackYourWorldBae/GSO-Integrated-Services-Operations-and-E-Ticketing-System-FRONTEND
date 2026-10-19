@@ -24,6 +24,7 @@
           <!-- Tab 1: Collab Requests (Awaiting Dispatch) -->
           <button
             type="button"
+            data-tour="collab-tab-approved"
             @click="switchStageTab('approved')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
@@ -49,6 +50,7 @@
           <!-- Tab 2: Dispatched -->
           <button
             type="button"
+            data-tour="collab-tab-scheduled"
             @click="switchStageTab('scheduled')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
@@ -74,6 +76,7 @@
           <!-- Tab 3: Active Collab -->
           <button
             type="button"
+            data-tour="collab-tab-active"
             @click="switchStageTab('active')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
@@ -155,6 +158,7 @@
           <input
             v-model="searchQuery"
             @input="currentPage = 1"
+            data-tour="collab-search-input"
             type="text"
             placeholder="Search ticket #, title, service, requester, unit..."
             class="w-full pl-9 pr-9 py-2.5 min-h-[44px] rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"

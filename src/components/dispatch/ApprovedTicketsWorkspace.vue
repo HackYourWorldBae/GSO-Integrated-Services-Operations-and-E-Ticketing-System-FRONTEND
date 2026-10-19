@@ -9,6 +9,7 @@
         <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
           <!-- Tab: Unit Tickets -->
           <button
+            data-tour="approved-tab-unit"
             type="button"
             @click="switchApprovedTab('unit')"
             :class="[
@@ -34,6 +35,7 @@
 
           <!-- Tab: Collab Requests -->
           <button
+            data-tour="approved-tab-collab"
             type="button"
             @click="switchApprovedTab('collab')"
             :class="[
@@ -59,7 +61,7 @@
         </div>
 
         <!-- Urgency Filters (unit tickets and collab) -->
-        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
+        <div data-tour="approved-urgency-filters" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
           <button
             type="button"
             @click="setUrgencyFilter('all')"
@@ -109,6 +111,7 @@
             </svg>
           </div>
           <input
+            data-tour="approved-search-input"
             v-model="searchQuery"
             @input="currentPage = 1"
             type="text"
@@ -288,6 +291,7 @@
                   <!-- Full Info Modal Trigger -->
                   <button
                     type="button"
+                    data-tour="approved-btn-fullinfo"
                     @click="openDetailsModal(ticket)"
                     :class="[
                       'px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer',
@@ -306,6 +310,7 @@
                   <router-link
                     v-if="isBorrowingTicket(ticket)"
                     :to="borrowingDispatchLinkFor(ticket)"
+                    data-tour="approved-btn-assign"
                     class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer bg-amber-600 hover:bg-amber-700"
                     title="Assign inventory for this borrowing request"
                   >
@@ -317,6 +322,7 @@
                   <router-link
                     v-else
                     :to="`${assignRoute}?ticket=${ticket.id}`"
+                    data-tour="approved-btn-assign"
                     :class="[
                       'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer',
                       themeAccentBg

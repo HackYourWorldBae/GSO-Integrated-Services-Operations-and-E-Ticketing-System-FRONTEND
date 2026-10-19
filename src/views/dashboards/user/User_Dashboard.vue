@@ -78,6 +78,7 @@
               <p class="text-emerald-100 text-xs sm:text-base font-medium mt-1 leading-relaxed">Submit a new service request to the GSO in seconds.</p>
             </div>
             <button
+              data-tour="user-btn-new-request"
               v-if="authStore.hasPermission('tickets.create') && isUserVerified"
               @click="$router.push('/services')"
               class="w-full sm:w-auto min-h-[48px] group flex items-center justify-center gap-2.5 bg-white hover:bg-emerald-50 active:scale-[0.98] text-emerald-800 font-black px-6 py-3.5 rounded-xl shadow-lg shadow-black/20 transition-all shrink-0 text-sm sm:text-base cursor-pointer"
@@ -100,13 +101,17 @@
         </div>
 
         <!-- Recent Activity — Ticket Status Updates -->
-        <div class="bg-white border border-slate-300 rounded-2xl shadow-sm overflow-hidden">
+        <div data-tour="user-recent-tickets" class="bg-white border border-slate-300 rounded-2xl shadow-sm overflow-hidden">
           <!-- Section header (No dots) -->
           <div class="bg-gradient-to-r from-slate-50 via-slate-100/60 to-slate-50 px-4 sm:px-6 py-3.5 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
               <h3 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Ticket Status Updates</h3>
             </div>
-            <router-link to="/user/tickets" class="min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 active:bg-slate-200 transition-colors inline-flex items-center gap-1.5 shadow-2xs">
+            <router-link
+              data-tour="user-btn-view-all"
+              to="/user/tickets"
+              class="min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 active:bg-slate-200 transition-colors inline-flex items-center gap-1.5 shadow-2xs"
+            >
               <span>View All</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
