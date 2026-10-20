@@ -1331,6 +1331,7 @@ const openAttachment = async (att) => {
 
 // ── Data Fetching ──────────────────────────────────────────────────────────
 const fetchQueues = async () => {
+  const start = Date.now();
   loading.value = true;
   try {
     const [pendingRes, investigatingRes] = await Promise.all([
@@ -1352,6 +1353,10 @@ const fetchQueues = async () => {
   } catch (error) {
     console.error('Failed to fetch SSU queues:', error);
   } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
     loading.value = false;
   }
 };

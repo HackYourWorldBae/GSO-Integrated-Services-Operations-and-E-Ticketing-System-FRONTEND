@@ -1215,6 +1215,7 @@ const collabBadge = (t) => {
 const canRespond = (t) => !t.is_outgoing && t.collaboration_status === 'pending';
 
 const fetchTickets = async () => {
+  const start = Date.now();
   loading.value = true;
   try {
     const res = await fetchCollabTickets({ direction: resolvedDirection.value, stage: resolvedStage.value });
@@ -1228,6 +1229,10 @@ const fetchTickets = async () => {
     console.error('Failed to load collab tickets:', err);
     toast.error('Failed to load collab tickets.');
   } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
     loading.value = false;
   }
 };

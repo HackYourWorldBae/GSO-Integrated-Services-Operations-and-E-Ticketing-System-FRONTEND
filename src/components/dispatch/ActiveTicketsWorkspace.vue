@@ -1747,8 +1747,18 @@ const onCollabActiveUpdated = async () => {
 };
 
 const refreshActiveAll = async () => {
-  collabActiveRefreshKey.value += 1;
-  await Promise.all([fetchActiveTickets(), fetchCollabActiveCount()]);
+  const start = Date.now();
+  loading.value = true;
+  try {
+    collabActiveRefreshKey.value += 1;
+    await Promise.all([fetchActiveTickets(), fetchCollabActiveCount()]);
+  } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
+    loading.value = false;
+  }
 };
 
 const fetchBorrowingCount = async () => {

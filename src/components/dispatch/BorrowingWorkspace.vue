@@ -25,10 +25,20 @@
           type="button"
           @click="refreshAll"
           :disabled="loading"
-          class="px-3 py-2.5 min-h-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+          class="px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 flex items-center gap-1.5 active:scale-95 touch-manipulation"
           title="Refresh borrowing queues"
         >
-          {{ loading ? 'Refreshing...' : 'Refresh' }}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 text-slate-600 transition-transform"
+            :class="{ 'animate-spin text-amber-600': loading }"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>{{ loading ? 'Refreshing...' : 'Refresh' }}</span>
         </button>
       </div>
       <div class="px-2 pt-2">
@@ -685,6 +695,7 @@ const fetchOverdue = async () => {
 };
 
 const refreshAll = async () => {
+  const start = Date.now();
   loading.value = true;
   try {
     await Promise.all([fetchQueue(), fetchOverdue()]);
@@ -695,6 +706,10 @@ const refreshAll = async () => {
     toast.error('Failed to load borrowing queues.');
   }
   finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
     loading.value = false;
   }
 };

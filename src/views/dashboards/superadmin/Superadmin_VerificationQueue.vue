@@ -55,10 +55,10 @@
               class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] touch-manipulation cursor-pointer shrink-0"
               title="Refresh Queue"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="{ 'animate-spin': loading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="{ 'animate-spin text-purple-600': loading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span class="hidden xs:inline sm:inline">Refresh</span>
+              <span class="hidden xs:inline sm:inline">{{ loading ? 'Refreshing...' : 'Refresh' }}</span>
             </button>
           </div>
         </div>
@@ -450,6 +450,7 @@ const isUserVerified = (u) => {
 };
 
 const fetchPendingUsers = async () => {
+  const start = Date.now();
   loading.value = true;
   try {
     const res = await fetchUsers({ per_page: 100 });
@@ -459,6 +460,10 @@ const fetchPendingUsers = async () => {
     console.error('Failed to fetch pending users queue:', err);
     toast.error('Failed to load verification queue.');
   } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
     loading.value = false;
   }
 };

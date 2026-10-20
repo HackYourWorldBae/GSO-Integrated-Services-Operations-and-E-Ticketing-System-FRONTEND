@@ -247,12 +247,12 @@
             </div>
             <!-- Refresh -->
             <button
-              @click="fetchAllQueues"
+              @click="fetchAllQueues(true)"
               :disabled="isLoading"
-              class="p-2 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 touch-manipulation cursor-pointer"
+              class="p-2 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 touch-manipulation cursor-pointer active:scale-95"
               title="Refresh queue"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="{ 'animate-spin': isLoading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="{ 'animate-spin text-purple-600': isLoading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
@@ -2239,7 +2239,8 @@ const mapBorrowingTicket = (r) => {
   };
 };
 
-const fetchAllQueues = async () => {
+const fetchAllQueues = async (isManual = false) => {
+  const start = Date.now();
   isLoading.value = true;
   try {
     const [pendingRes, delayedRes, dispatchRes, activeRes, borrowingRes] = await Promise.allSettled([
@@ -2293,6 +2294,12 @@ const fetchAllQueues = async () => {
   } catch (error) {
     console.error('Failed to fetch ' + currentUnit.value + ' queues:', error);
   } finally {
+    if (isManual) {
+      const elapsed = Date.now() - start;
+      if (elapsed < 600) {
+        await new Promise(r => setTimeout(r, 600 - elapsed));
+      }
+    }
     isLoading.value = false;
   }
 };

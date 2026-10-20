@@ -761,8 +761,18 @@ const switchApprovedTab = (tab) => {
 };
 
 const refreshAll = async () => {
-  collabRefreshKey.value += 1;
-  await Promise.all([fetchApprovedTickets(), fetchCollabCount()]);
+  const start = Date.now();
+  loading.value = true;
+  try {
+    collabRefreshKey.value += 1;
+    await Promise.all([fetchApprovedTickets(), fetchCollabCount()]);
+  } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
+    loading.value = false;
+  }
 };
 
 const collabTickets = ref([]);

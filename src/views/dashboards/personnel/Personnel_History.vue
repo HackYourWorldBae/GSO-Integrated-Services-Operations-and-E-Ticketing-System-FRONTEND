@@ -84,14 +84,14 @@
               data-tour="history-btn-refresh"
               type="button"
               @click="refreshData"
-              :disabled="store.isLoading"
-              class="w-full md:w-auto px-5 py-3 min-h-[44px] bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all text-sm whitespace-nowrap cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center gap-2 border border-slate-950 shadow-sm"
+              :disabled="store.isLoading || isRefreshing"
+              class="w-full md:w-auto px-5 py-3 min-h-[44px] bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all text-sm whitespace-nowrap cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center gap-2 border border-slate-950 shadow-sm disabled:opacity-50"
               title="Refresh history"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300" :class="{ 'animate-spin': store.isLoading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300 transition-transform" :class="{ 'animate-spin': store.isLoading || isRefreshing }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Refresh</span>
+              <span>{{ isRefreshing ? 'Refreshing...' : 'Refresh' }}</span>
             </button>
           </div>
         </div>
@@ -617,8 +617,19 @@ onMounted(async () => {
   await loadHistory();
 });
 
+const isRefreshing = ref(false);
 const refreshData = async () => {
-  await loadHistory();
+  isRefreshing.value = true;
+  const start = Date.now();
+  try {
+    await loadHistory();
+  } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
+    isRefreshing.value = false;
+  }
 };
 
 

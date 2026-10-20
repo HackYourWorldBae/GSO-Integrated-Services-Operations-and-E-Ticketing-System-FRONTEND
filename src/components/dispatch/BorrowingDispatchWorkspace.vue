@@ -286,9 +286,20 @@
             type="button"
             @click="refreshData"
             :disabled="loadingInventory"
-            class="px-3 py-2 min-h-[38px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-1.5"
+            class="px-3.5 py-2 min-h-[38px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-1.5 shadow-2xs touch-manipulation"
+            title="Refresh Inventory"
           >
-            <span>Refresh Inventory</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-3.5 w-3.5 text-slate-600 transition-transform"
+              :class="{ 'animate-spin text-amber-600': loadingInventory }"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>{{ loadingInventory ? 'Refreshing...' : 'Refresh Inventory' }}</span>
           </button>
         </div>
       </div>
@@ -610,8 +621,18 @@ const selectTicketById = async (ticketId) => {
 };
 
 const refreshData = async () => {
-  await Promise.all([fetchDispatchQueue(), fetchInventory()]);
-  if (selectedTicket.value) await fetchBorrowing(selectedTicket.value.id);
+  const start = Date.now();
+  loadingInventory.value = true;
+  try {
+    await Promise.all([fetchDispatchQueue(), fetchInventory()]);
+    if (selectedTicket.value) await fetchBorrowing(selectedTicket.value.id);
+  } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
+    loadingInventory.value = false;
+  }
 };
 
 const assignInventory = async (item) => {

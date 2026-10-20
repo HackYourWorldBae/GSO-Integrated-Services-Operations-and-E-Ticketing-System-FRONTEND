@@ -1491,8 +1491,18 @@ const onCollabUpdated = async () => {
 };
 
 const refreshScheduledAll = async () => {
-  scheduledTabRefreshKey.value += 1;
-  await Promise.all([fetchScheduledTickets(), fetchCollabScheduledCount(), fetchBorrowingCount()]);
+  const start = Date.now();
+  loading.value = true;
+  try {
+    scheduledTabRefreshKey.value += 1;
+    await Promise.all([fetchScheduledTickets(), fetchCollabScheduledCount(), fetchBorrowingCount()]);
+  } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
+    loading.value = false;
+  }
 };
 
 const handleBorrowingViewDetails = (req) => {

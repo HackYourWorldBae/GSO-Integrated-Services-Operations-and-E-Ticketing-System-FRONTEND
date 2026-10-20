@@ -727,7 +727,7 @@
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            <span>Refresh Roster</span>
+            <span>{{ loadingTickets ? 'Refreshing...' : 'Refresh Roster' }}</span>
           </button>
         </div>
       </div>
@@ -2092,10 +2092,20 @@ watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, ro
 });
 
 const refreshData = async () => {
-  if (props.store?.fetchPersonnel) {
-    await props.store.fetchPersonnel();
+  const start = Date.now();
+  loadingTickets.value = true;
+  try {
+    if (props.store?.fetchPersonnel) {
+      await props.store.fetchPersonnel();
+    }
+    await fetchDispatchQueue();
+  } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
+    loadingTickets.value = false;
   }
-  await fetchDispatchQueue();
   toast.info('Workforce roster and ticket queue refreshed.');
 };
 

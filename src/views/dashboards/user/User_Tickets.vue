@@ -85,6 +85,18 @@
               </button>
             </div>
 
+            <!-- Refresh Tickets Button -->
+            <button
+              @click="handleManualRefreshTickets"
+              :disabled="isRefreshingList"
+              class="p-2.5 min-h-[44px] min-w-[44px] rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 cursor-pointer active:scale-95 touch-manipulation shadow-2xs"
+              title="Refresh tickets list"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="{ 'animate-spin text-emerald-600': isRefreshingList }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+
             <!-- New Request -->
             <button
               data-tour="user-btn-new-ticket"
@@ -1521,6 +1533,7 @@ const syncOpenTicket = async (targetId = null) => {
   const tId = targetId || selectedTicket.value?.ticketId || selectedTicket.value?.id;
   if (!tId) return;
 
+  const start = Date.now();
   isSyncingTicket.value = true;
   try {
     const res = await api.get(`tickets/${tId}`);
@@ -1539,7 +1552,27 @@ const syncOpenTicket = async (targetId = null) => {
   } catch (err) {
     console.warn(`[User_Tickets] Failed to sync ticket #${tId}:`, err?.message || err);
   } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
     isSyncingTicket.value = false;
+  }
+};
+
+const isRefreshingList = ref(false);
+const handleManualRefreshTickets = async () => {
+  if (isRefreshingList.value) return;
+  isRefreshingList.value = true;
+  const start = Date.now();
+  try {
+    await fetchTickets();
+  } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 600) {
+      await new Promise(r => setTimeout(r, 600 - elapsed));
+    }
+    isRefreshingList.value = false;
   }
 };
 
