@@ -149,10 +149,10 @@
                 <thead>
                   <tr class="bg-slate-50 text-slate-700 text-xs sm:text-sm font-black uppercase tracking-wider border-b border-slate-200">
                     <th class="py-3 px-5">Sub-Unit</th>
-                    <th class="py-3 px-4 text-center">Requests</th>
+                    <th class="py-3 px-4 text-center">Unresolved</th>
                     <th class="py-3 px-4 text-center">Resolved</th>
                     <th class="py-3 px-4 text-center">Declined</th>
-                    <th class="py-3 px-5 text-center">Rating ★</th>
+                    <th class="py-3 px-5 text-center">Total Requests</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-sm">
@@ -166,13 +166,10 @@
                         </div>
                       </div>
                     </td>
-                    <td class="py-3.5 px-4 text-center font-black tabular-nums text-slate-900 text-sm sm:text-base">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center font-black text-amber-700 tabular-nums text-sm sm:text-base">{{ getUnresolvedCount(executiveAnalytics?.units?.FGMU) }}</td>
                     <td class="py-3.5 px-4 text-center font-black text-emerald-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</td>
                     <td class="py-3.5 px-4 text-center font-bold text-slate-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</td>
-                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">
-                      <span v-if="executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg">{{ executiveAnalytics.units.FGMU.avg_ratings.overall_avg }}</span>
-                      <span v-else class="text-slate-400 text-xs font-medium">—</span>
-                    </td>
+                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</td>
                   </tr>
 
                   <!-- LEAU -->
@@ -185,13 +182,10 @@
                         </div>
                       </div>
                     </td>
-                    <td class="py-3.5 px-4 text-center font-black tabular-nums text-slate-900 text-sm sm:text-base">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center font-black text-amber-700 tabular-nums text-sm sm:text-base">{{ getUnresolvedCount(executiveAnalytics?.units?.LEAU) }}</td>
                     <td class="py-3.5 px-4 text-center font-black text-emerald-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</td>
                     <td class="py-3.5 px-4 text-center font-bold text-slate-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</td>
-                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">
-                      <span v-if="executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg">{{ executiveAnalytics.units.LEAU.avg_ratings.overall_avg }}</span>
-                      <span v-else class="text-slate-400 text-xs font-medium">—</span>
-                    </td>
+                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</td>
                   </tr>
 
                   <!-- SSU -->
@@ -204,25 +198,19 @@
                         </div>
                       </div>
                     </td>
-                    <td class="py-3.5 px-4 text-center font-black tabular-nums text-slate-900 text-sm sm:text-base">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center font-black text-amber-700 tabular-nums text-sm sm:text-base">{{ getUnresolvedCount(executiveAnalytics?.units?.SSU) }}</td>
                     <td class="py-3.5 px-4 text-center font-black text-emerald-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</td>
                     <td class="py-3.5 px-4 text-center font-bold text-slate-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</td>
-                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">
-                      <span v-if="executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg">{{ executiveAnalytics.units.SSU.avg_ratings.overall_avg }}</span>
-                      <span v-else class="text-slate-400 text-xs font-medium">—</span>
-                    </td>
+                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</td>
                   </tr>
 
                   <!-- Consolidated Total Row -->
                   <tr class="bg-slate-50 font-black text-slate-900 border-t-2 border-slate-200">
                     <td class="py-3.5 px-5 text-xs sm:text-sm font-black tracking-wider text-slate-700 uppercase">GSO Overall</td>
-                    <td class="py-3.5 px-4 text-center text-slate-900 tabular-nums text-sm sm:text-base font-black">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</td>
+                    <td class="py-3.5 px-4 text-center text-amber-700 tabular-nums text-sm sm:text-base font-black">{{ getOverallUnresolvedCount() }}</td>
                     <td class="py-3.5 px-4 text-center text-emerald-700 tabular-nums text-sm sm:text-base font-black">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</td>
                     <td class="py-3.5 px-4 text-center text-slate-700 tabular-nums text-sm sm:text-base font-black">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</td>
-                    <td class="py-3.5 px-5 text-center text-slate-900 tabular-nums text-sm sm:text-base font-black">
-                      <span v-if="executiveAnalytics?.summary?.overall_ratings?.overall_avg">{{ executiveAnalytics.summary.overall_ratings.overall_avg }}</span>
-                      <span v-else class="text-slate-400 text-xs font-medium">—</span>
-                    </td>
+                    <td class="py-3.5 px-5 text-center text-slate-900 tabular-nums text-sm sm:text-base font-black">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -237,14 +225,12 @@
                     <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-blue-50 text-blue-700 border border-blue-200/60 uppercase shrink-0">FGMU</span>
                     <span class="font-bold text-slate-900 text-sm sm:text-base">Facilities Management</span>
                   </div>
-                  <span class="text-xs sm:text-sm font-black text-amber-700 flex items-center gap-1 shrink-0">
-                    ★ {{ executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg || '—' }}
-                  </span>
+                  <span class="text-xs font-bold text-slate-500">{{ executiveAnalytics?.units?.FGMU?.completion_rate ?? 0 }}% completed</span>
                 </div>
-                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-200/60 text-center">
                   <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Requests</span>
-                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</span>
+                    <span class="text-xs font-bold text-amber-700 uppercase tracking-wider block">Unresolved</span>
+                    <span class="text-base font-black text-amber-700 tabular-nums">{{ getUnresolvedCount(executiveAnalytics?.units?.FGMU) }}</span>
                   </div>
                   <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
                     <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Resolved</span>
@@ -253,6 +239,10 @@
                   <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
                     <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Declined</span>
                     <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</span>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Total</span>
+                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</span>
                   </div>
                 </div>
               </div>
@@ -264,14 +254,12 @@
                     <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase shrink-0">LEAU</span>
                     <span class="font-bold text-slate-900 text-sm sm:text-base">Landscaping &amp; Environment</span>
                   </div>
-                  <span class="text-xs sm:text-sm font-black text-amber-700 flex items-center gap-1 shrink-0">
-                    ★ {{ executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg || '—' }}
-                  </span>
+                  <span class="text-xs font-bold text-slate-500">{{ executiveAnalytics?.units?.LEAU?.completion_rate ?? 0 }}% completed</span>
                 </div>
-                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-200/60 text-center">
                   <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Requests</span>
-                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</span>
+                    <span class="text-xs font-bold text-amber-700 uppercase tracking-wider block">Unresolved</span>
+                    <span class="text-base font-black text-amber-700 tabular-nums">{{ getUnresolvedCount(executiveAnalytics?.units?.LEAU) }}</span>
                   </div>
                   <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
                     <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Resolved</span>
@@ -280,6 +268,10 @@
                   <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
                     <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Declined</span>
                     <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</span>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Total</span>
+                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</span>
                   </div>
                 </div>
               </div>
@@ -291,14 +283,12 @@
                     <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-rose-50 text-rose-700 border border-rose-200/60 uppercase shrink-0">SSU</span>
                     <span class="font-bold text-slate-900 text-sm sm:text-base">Security Services</span>
                   </div>
-                  <span class="text-xs sm:text-sm font-black text-amber-700 flex items-center gap-1 shrink-0">
-                    ★ {{ executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg || '—' }}
-                  </span>
+                  <span class="text-xs font-bold text-slate-500">{{ executiveAnalytics?.units?.SSU?.completion_rate ?? 0 }}% completed</span>
                 </div>
-                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-200/60 text-center">
                   <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Requests</span>
-                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</span>
+                    <span class="text-xs font-bold text-amber-700 uppercase tracking-wider block">Unresolved</span>
+                    <span class="text-base font-black text-amber-700 tabular-nums">{{ getUnresolvedCount(executiveAnalytics?.units?.SSU) }}</span>
                   </div>
                   <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
                     <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Resolved</span>
@@ -308,6 +298,10 @@
                     <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Declined</span>
                     <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</span>
                   </div>
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
+                    <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Total</span>
+                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -315,14 +309,12 @@
               <div class="p-4 rounded-2xl bg-slate-900 text-white space-y-3 shadow-sm">
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-emerald-400">GSO Overall Total</span>
-                  <span class="text-xs sm:text-sm font-black text-amber-400 flex items-center gap-1 shrink-0">
-                    ★ {{ executiveAnalytics?.summary?.overall_ratings?.overall_avg || '5.00' }}
-                  </span>
+                  <span class="text-xs font-bold text-emerald-400">{{ executiveAnalytics?.summary?.completion_rate ?? 0 }}% completed</span>
                 </div>
-                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-center">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-center">
                   <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Requests</span>
-                    <span class="text-base font-black text-white tabular-nums">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</span>
+                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">Unresolved</span>
+                    <span class="text-base font-black text-amber-400 tabular-nums">{{ getOverallUnresolvedCount() }}</span>
                   </div>
                   <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
@@ -331,6 +323,10 @@
                   <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
                     <span class="text-base font-black text-slate-300 tabular-nums">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</span>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                    <span class="text-xs font-bold text-white uppercase tracking-wider block">Total</span>
+                    <span class="text-base font-black text-white tabular-nums">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</span>
                   </div>
                 </div>
               </div>
@@ -468,9 +464,78 @@
                 </div>
               </div>
 
+              <!-- Sub-Unit Ratings Breakdown -->
+              <div class="pt-5 border-t border-slate-100 space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-wider block">Sub-Unit Satisfaction Ratings</span>
+                  <span class="text-[11px] font-bold text-slate-400">Scale 1.0 – 5.0</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <!-- FGMU -->
+                  <div class="p-4 sm:p-5 rounded-xl bg-slate-50/80 border border-slate-200/70 flex flex-col justify-between gap-3 hover:border-blue-200 transition-colors">
+                    <div class="flex items-center justify-between">
+                      <span class="px-2 py-0.5 rounded text-[11px] font-black uppercase bg-blue-50 text-blue-700 border border-blue-200/60">FGMU</span>
+                      <span class="text-xs font-bold text-slate-500 truncate">Facilities</span>
+                    </div>
+                    <div>
+                      <div class="flex items-baseline gap-1">
+                        <span class="text-amber-500 text-lg leading-none">★</span>
+                        <span class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
+                          {{ executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.overall_avg).toFixed(2) : 'N/A' }}
+                        </span>
+                        <span class="text-xs font-bold text-slate-400 ml-1">/ 5.00</span>
+                      </div>
+                      <span class="text-[11px] font-medium text-slate-500 block mt-1">
+                        {{ executiveAnalytics?.units?.FGMU?.avg_ratings?.total_feedbacks ?? 0 }} client {{ (executiveAnalytics?.units?.FGMU?.avg_ratings?.total_feedbacks ?? 0) === 1 ? 'review' : 'reviews' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- LEAU -->
+                  <div class="p-4 sm:p-5 rounded-xl bg-slate-50/80 border border-slate-200/70 flex flex-col justify-between gap-3 hover:border-emerald-200 transition-colors">
+                    <div class="flex items-center justify-between">
+                      <span class="px-2 py-0.5 rounded text-[11px] font-black uppercase bg-emerald-50 text-emerald-700 border border-emerald-200/60">LEAU</span>
+                      <span class="text-xs font-bold text-slate-500 truncate">Environment</span>
+                    </div>
+                    <div>
+                      <div class="flex items-baseline gap-1">
+                        <span class="text-amber-500 text-lg leading-none">★</span>
+                        <span class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
+                          {{ executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.overall_avg).toFixed(2) : 'N/A' }}
+                        </span>
+                        <span class="text-xs font-bold text-slate-400 ml-1">/ 5.00</span>
+                      </div>
+                      <span class="text-[11px] font-medium text-slate-500 block mt-1">
+                        {{ executiveAnalytics?.units?.LEAU?.avg_ratings?.total_feedbacks ?? 0 }} client {{ (executiveAnalytics?.units?.LEAU?.avg_ratings?.total_feedbacks ?? 0) === 1 ? 'review' : 'reviews' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- SSU -->
+                  <div class="p-4 sm:p-5 rounded-xl bg-slate-50/80 border border-slate-200/70 flex flex-col justify-between gap-3 hover:border-rose-200 transition-colors">
+                    <div class="flex items-center justify-between">
+                      <span class="px-2 py-0.5 rounded text-[11px] font-black uppercase bg-rose-50 text-rose-700 border border-rose-200/60">SSU</span>
+                      <span class="text-xs font-bold text-slate-500 truncate">Security</span>
+                    </div>
+                    <div>
+                      <div class="flex items-baseline gap-1">
+                        <span class="text-amber-500 text-lg leading-none">★</span>
+                        <span class="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
+                          {{ executiveAnalytics?.units?.SSU?.avg_ratings?.overall_avg ? parseFloat(executiveAnalytics.units.SSU.avg_ratings.overall_avg).toFixed(2) : 'N/A' }}
+                        </span>
+                        <span class="text-xs font-bold text-slate-400 ml-1">/ 5.00</span>
+                      </div>
+                      <span class="text-[11px] font-medium text-slate-500 block mt-1">
+                        {{ executiveAnalytics?.units?.SSU?.avg_ratings?.total_feedbacks ?? 0 }} client {{ (executiveAnalytics?.units?.SSU?.avg_ratings?.total_feedbacks ?? 0) === 1 ? 'review' : 'reviews' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- Rating Breakdown Dimensions -->
-              <div class="pt-4 border-t border-slate-100 space-y-3">
-                <span class="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-wider block">Client Rating Breakdown</span>
+              <div class="pt-5 border-t border-slate-100 space-y-3">
+                <span class="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-wider block">Campus-Wide Rating Dimensions</span>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   <div class="p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200/70 flex flex-col gap-1.5">
                     <div class="flex items-center gap-1.5">
@@ -623,6 +688,25 @@ const kpiPeriodLabel = computed(() => {
 const changePeriod = (key) => {
   selectedPeriod.value = key;
   fetchExecutiveAnalytics();
+};
+
+const getUnresolvedCount = (unit) => {
+  if (!unit) return 0;
+  if (unit.unresolved !== undefined && unit.unresolved !== null) return unit.unresolved;
+  const total = Number(unit.total ?? 0);
+  const resolved = Number(unit.resolved ?? 0);
+  const declined = Number(unit.declined ?? 0);
+  return Math.max(0, total - (resolved + declined));
+};
+
+const getOverallUnresolvedCount = () => {
+  const summary = executiveAnalytics.value?.summary;
+  if (!summary) return 0;
+  if (summary.total_unresolved !== undefined && summary.total_unresolved !== null) return summary.total_unresolved;
+  const total = Number(summary.total_requests ?? 0);
+  const resolved = Number(summary.total_resolved ?? 0);
+  const declined = Number(summary.total_declined ?? 0);
+  return Math.max(0, total - (resolved + declined));
 };
 
 const handleManualRefresh = async () => {

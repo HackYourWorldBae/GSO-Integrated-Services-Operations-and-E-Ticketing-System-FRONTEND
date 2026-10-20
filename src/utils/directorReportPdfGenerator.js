@@ -286,10 +286,10 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
             // Header Row
             [
               { text: 'SUB-UNIT', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb' },
-              { text: 'TOTAL', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
+              { text: 'UNRESOLVED', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
               { text: 'RESOLVED', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
               { text: 'DECLINED', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
-              { text: 'CSAT / 5.0', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
+              { text: 'TOTAL REQUESTS', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
             ],
             // FGMU Row
             [
@@ -299,10 +299,10 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
                   { text: 'Electrical, Plumbing, Carpentry, Air Conditioning', fontSize: 6.5, color: '#6b7280' },
                 ],
               },
-              { text: String(units.FGMU?.total || 0), fontSize: 8, alignment: 'center' },
+              { text: String(units.FGMU?.unresolved ?? Math.max(0, (units.FGMU?.total || 0) - ((units.FGMU?.resolved || 0) + (units.FGMU?.declined || 0)))), fontSize: 8, alignment: 'center' },
               { text: String(units.FGMU?.resolved || 0), fontSize: 8, bold: true, alignment: 'center' },
               { text: String(units.FGMU?.declined || 0), fontSize: 8, alignment: 'center' },
-              { text: units.FGMU?.avg_ratings?.overall_avg ? `${units.FGMU.avg_ratings.overall_avg}` : 'N/A', fontSize: 8, alignment: 'center' },
+              { text: String(units.FGMU?.total || 0), fontSize: 8, bold: true, alignment: 'center' },
             ],
             // LEAU Row
             [
@@ -313,10 +313,10 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
                 ],
                 fillColor: '#f9fafb',
               },
-              { text: String(units.LEAU?.total || 0), fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
+              { text: String(units.LEAU?.unresolved ?? Math.max(0, (units.LEAU?.total || 0) - ((units.LEAU?.resolved || 0) + (units.LEAU?.declined || 0)))), fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
               { text: String(units.LEAU?.resolved || 0), fontSize: 8, bold: true, alignment: 'center', fillColor: '#f9fafb' },
               { text: String(units.LEAU?.declined || 0), fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
-              { text: units.LEAU?.avg_ratings?.overall_avg ? `${units.LEAU.avg_ratings.overall_avg}` : 'N/A', fontSize: 8, alignment: 'center', fillColor: '#f9fafb' },
+              { text: String(units.LEAU?.total || 0), fontSize: 8, bold: true, alignment: 'center', fillColor: '#f9fafb' },
             ],
             // SSU Row
             [
@@ -326,18 +326,18 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
                   { text: 'Security Incidents, Campus Investigations & Safety Protocols', fontSize: 6.5, color: '#6b7280' },
                 ],
               },
-              { text: String(units.SSU?.total || 0), fontSize: 8, alignment: 'center' },
+              { text: String(units.SSU?.unresolved ?? Math.max(0, (units.SSU?.total || 0) - ((units.SSU?.resolved || 0) + (units.SSU?.declined || 0)))), fontSize: 8, alignment: 'center' },
               { text: String(units.SSU?.resolved || 0), fontSize: 8, bold: true, alignment: 'center' },
               { text: String(units.SSU?.declined || 0), fontSize: 8, alignment: 'center' },
-              { text: units.SSU?.avg_ratings?.overall_avg ? `${units.SSU.avg_ratings.overall_avg}` : 'N/A', fontSize: 8, alignment: 'center' },
+              { text: String(units.SSU?.total || 0), fontSize: 8, bold: true, alignment: 'center' },
             ],
             // Consolidated Total Row
             [
               { text: 'CONSOLIDATED GSO TOTAL', bold: true, fontSize: 8, color: '#111827', fillColor: '#f3f4f6' },
-              { text: String(summary.total_requests || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
+              { text: String(summary.total_unresolved ?? Math.max(0, (summary.total_requests || 0) - ((summary.total_resolved || 0) + (summary.total_declined || 0)))), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
               { text: String(summary.total_resolved || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
               { text: String(summary.total_declined || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
-              { text: ratings.overall_avg ? `${ratings.overall_avg}` : 'N/A', bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
+              { text: String(summary.total_requests || 0), bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
             ],
           ],
         },
@@ -486,9 +486,24 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
                       { text: `${compHealth.not_completed_percent || 0}%`, fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
                     ],
                     [
-                      { text: 'Quality Rating (avg)', fontSize: 7.5, fillColor: '#f9fafb' },
-                      { text: ratings.avg_quality ? `${parseFloat(ratings.avg_quality).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: 'FGMU Satisfaction (avg)', fontSize: 7.5, fillColor: '#f9fafb' },
+                      { text: units.FGMU?.avg_ratings?.overall_avg ? `${parseFloat(units.FGMU.avg_ratings.overall_avg).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
                       { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center', fillColor: '#f9fafb' },
+                    ],
+                    [
+                      { text: 'LEAU Satisfaction (avg)', fontSize: 7.5 },
+                      { text: units.LEAU?.avg_ratings?.overall_avg ? `${parseFloat(units.LEAU.avg_ratings.overall_avg).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center' },
+                      { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center' },
+                    ],
+                    [
+                      { text: 'SSU Satisfaction (avg)', fontSize: 7.5, fillColor: '#f9fafb' },
+                      { text: units.SSU?.avg_ratings?.overall_avg ? `${parseFloat(units.SSU.avg_ratings.overall_avg).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center', fillColor: '#f9fafb' },
+                    ],
+                    [
+                      { text: 'Quality Rating (avg)', fontSize: 7.5 },
+                      { text: ratings.avg_quality ? `${parseFloat(ratings.avg_quality).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center' },
+                      { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center' },
                     ],
                     [
                       { text: 'Efficiency Rating (avg)', fontSize: 7.5 },
