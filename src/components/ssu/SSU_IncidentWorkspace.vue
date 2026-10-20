@@ -3,7 +3,7 @@
 
     <!-- ═══ Unified Compact Toolbar ═══ -->
     <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs">
-      <!-- Top Row: Stage Indicator & Urgency Filter Pills -->
+      <!-- Top Row: Stage Indicator -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 border-b border-slate-100">
         <!-- Stage Pill -->
         <div class="flex items-center gap-2">
@@ -27,47 +27,6 @@
               {{ activeQueue === 'submitted' ? 'Review new incident reports and initiate investigation.' : 'Manage open investigation cases, communicate recommendations, and resolve.' }}
             </template>
           </span>
-        </div>
-
-        <!-- Urgency Filters -->
-        <div data-tour="ssu-urgency-filters" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
-          <button
-            type="button"
-            @click="urgencyFilter = 'all'; currentPage = 1"
-            :class="[
-              'px-3.5 py-1.5 min-h-[36px] rounded-lg transition-all cursor-pointer touch-manipulation',
-              urgencyFilter === 'all'
-                ? 'bg-white text-slate-900 shadow-xs font-black'
-                : 'text-slate-500 hover:text-slate-800'
-            ]"
-          >
-            All ({{ currentQueueTickets.length }})
-          </button>
-          <button
-            type="button"
-            @click="urgencyFilter = 'emergency'; currentPage = 1"
-            :class="[
-              'px-3.5 py-1.5 min-h-[36px] rounded-lg transition-all cursor-pointer touch-manipulation flex items-center gap-1.5',
-              urgencyFilter === 'emergency'
-                ? 'bg-rose-600 text-white shadow-xs font-black'
-                : 'text-rose-600 hover:bg-rose-50'
-            ]"
-          >
-            <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-            Emergency ({{ emergencyCount }})
-          </button>
-          <button
-            type="button"
-            @click="urgencyFilter = 'standard'; currentPage = 1"
-            :class="[
-              'px-3.5 py-1.5 min-h-[36px] rounded-lg transition-all cursor-pointer touch-manipulation',
-              urgencyFilter === 'standard'
-                ? 'bg-white text-slate-900 shadow-xs font-black'
-                : 'text-slate-500 hover:text-slate-800'
-            ]"
-          >
-            Standard
-          </button>
         </div>
       </div>
 
@@ -186,13 +145,6 @@
                     class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-3 py-1 rounded-lg shadow-2xs group-hover:border-slate-400 group-hover:bg-slate-200/90 transition-colors whitespace-nowrap tabular-nums"
                   >
                     {{ ticket.ticketId }}
-                  </span>
-                  <span
-                    v-if="ticket.is_emergency"
-                    class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200 flex items-center gap-1"
-                  >
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                    Emergency
                   </span>
                 </div>
               </td>
@@ -395,17 +347,11 @@
           highlightedTicketId === ticket.id ? 'border-rose-400 ring-2 ring-rose-400/30' : 'border-slate-200'
         ]"
       >
-        <!-- Top Row: Ref & Urgency -->
+        <!-- Top Row: Ref & Status -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-1.5 flex-wrap">
             <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg tabular-nums shadow-2xs">
               {{ ticket.ticketId }}
-            </span>
-            <span
-              v-if="ticket.is_emergency"
-              class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200"
-            >
-              Emergency
             </span>
           </div>
           <span
@@ -707,13 +653,6 @@
               <div class="flex items-center gap-2 flex-wrap mb-1.5">
                 <span class="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200">
                   {{ detailsModal.ticket?.ticketId }}
-                </span>
-                <span
-                  v-if="detailsModal.ticket?.is_emergency"
-                  class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider border border-rose-200 flex items-center gap-1"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                  Emergency
                 </span>
                 <span
                   :class="[
@@ -1034,7 +973,6 @@ const highlightedTicketId = ref(null);
 
 const rawSearchQuery       = ref('');
 const debouncedSearchQuery = ref('');
-const urgencyFilter        = ref('all'); // 'all' | 'emergency' | 'standard'
 
 const currentPage = ref(1);
 const perPage     = ref(10);
@@ -1096,21 +1034,10 @@ const currentQueueTickets = computed(() => {
     : investigatingTickets.value;
 });
 
-const emergencyCount = computed(() =>
-  currentQueueTickets.value.filter(t => t.is_emergency).length
-);
-
 const filteredTickets = computed(() => {
   let list = currentQueueTickets.value;
 
-  // 1. Urgency
-  if (urgencyFilter.value === 'emergency') {
-    list = list.filter(t => t.is_emergency);
-  } else if (urgencyFilter.value === 'standard') {
-    list = list.filter(t => !t.is_emergency);
-  }
-
-  // 2. Search
+  // Search
   if (debouncedSearchQuery.value.trim()) {
     const q = debouncedSearchQuery.value.toLowerCase().trim();
     list = list.filter(t =>

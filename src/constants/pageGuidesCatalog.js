@@ -219,9 +219,8 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
       tourSteps: [
         { element: '#tour-main-workspace', title: '1. Submitted Incidents Queue', desc: 'Review newly submitted campus security reports awaiting administrative assessment.' },
         { element: '[data-tour="ssu-search-input"]', title: '2. Search & Filter Reports', desc: 'Quickly locate reports by ticket ID, reporter name, contact number, or incident location.' },
-        { element: '[data-tour="ssu-urgency-filters"]', title: '3. Urgency Prioritization', desc: 'Filter incident reports by Emergency or Standard priority to isolate urgent safety risks.' },
-        { element: '[data-tour="ssu-btn-investigate"], [data-tour="ssu-btn-notation"]', title: '4. Investigation & Notation Controls', desc: 'Launch an active investigation, record official security notations, or dismiss invalid reports.' },
-        { element: '[data-tour="ssu-btn-fullinfo"]', title: '5. Full Incident Particulars & Evidence', desc: 'Examine detailed witness testimonies, campus location, and attached photographic evidence.' }
+        { element: '[data-tour="ssu-btn-investigate"], [data-tour="ssu-btn-notation"]', title: '3. Investigation & Notation Controls', desc: 'Launch an active investigation, record official security notations, or dismiss invalid reports.' },
+        { element: '[data-tour="ssu-btn-fullinfo"]', title: '4. Full Incident Particulars & Evidence', desc: 'Examine detailed witness testimonies, campus location, and attached photographic evidence.' }
       ]
     };
   }
@@ -3078,8 +3077,7 @@ export const pageGuidesCatalog = {
         tourSteps: [
       { element: '#tour-main-workspace', title: '1. Security Incident Log', desc: 'Monitor campus safety reports, investigation findings, and incident severity.' },
       { element: '[data-tour="ssu-search-input"]', title: '2. Search Incident Reports', desc: 'Locate security incident reports by ticket ID, location, or summary.' },
-      { element: '[data-tour="ssu-urgency-filters"]', title: '3. Security Urgency Filters', desc: 'Isolate high-priority campus emergencies requiring immediate intervention.' },
-      { element: '[data-tour="ssu-btn-fullinfo"]', title: '4. Review Case Findings', desc: 'Inspect witness accounts, investigation findings, and official SSU notations.' }
+      { element: '[data-tour="ssu-btn-fullinfo"]', title: '3. Review Case Findings', desc: 'Inspect witness accounts, investigation findings, and official SSU notations.' }
     ]
       },
       {
