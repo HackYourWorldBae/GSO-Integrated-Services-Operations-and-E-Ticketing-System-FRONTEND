@@ -339,120 +339,110 @@
         </div>
 
         <!-- Add / Edit Holiday Modal -->
-        <div
-          v-if="showModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
-        >
-          <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
-            <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <div>
-                <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                  {{ editingHoliday ? 'Edit Special Holiday' : 'Add Special Non-Working Holiday' }}
-                </h3>
-                <p class="text-xs text-slate-500 font-medium">
-                  Service requests automatically pause on registered dates.
-                </p>
-              </div>
-              <button
-                @click="showModal = false"
-                class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <form @submit.prevent="handleSaveHolidaySubmit" class="p-6 space-y-4">
-              <!-- Holiday Date -->
-              <div class="space-y-1.5">
-                <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
-                  Holiday Date
-                </label>
-                <input
-                  v-model="holidayForm.holiday_date"
-                  type="date"
-                  required
-                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
-                />
-              </div>
-
-              <!-- Name -->
-              <div class="space-y-1.5">
-                <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
-                  Holiday Name / Proclamation
-                </label>
-                <input
-                  v-model="holidayForm.name"
-                  type="text"
-                  required
-                  placeholder="e.g., Benguet Foundation Day, Baguio Charter Day, Typhoon Suspension"
-                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
-                />
-              </div>
-
-              <!-- Holiday Type -->
-              <div class="space-y-1.5">
-                <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
-                  Classification Type
-                </label>
-                <select
-                  v-model="holidayForm.type"
-                  required
-                  class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px] cursor-pointer"
-                >
-                  <option value="special_non_working">Special Non-Working Holiday</option>
-                  <option value="regular">Regular Statutory Holiday</option>
-                  <option value="local_suspension">Local / Executive Suspension</option>
-                  <option value="institutional">University / Institutional Holiday</option>
-                </select>
-              </div>
-
-              <!-- Notes / Proclamation Description -->
-              <div class="space-y-1.5">
-                <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
-                  Remarks / Proclamation Reference (Optional)
-                </label>
-                <textarea
-                  v-model="holidayForm.notes"
-                  rows="2"
-                  placeholder="e.g., Presidential Proclamation No. 729 / Executive Memorandum No. 14"
-                  class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
-                ></textarea>
-              </div>
-
-              <!-- Recurrence Checkbox -->
-              <div class="pt-1">
-                <label class="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    v-model="holidayForm.is_recurring"
-                    type="checkbox"
-                    class="w-4 h-4 text-emerald-600 rounded-md border-slate-300 focus:ring-emerald-500 cursor-pointer"
-                  />
-                  <span class="text-xs font-bold text-slate-700">Recurs annually on this month and day</span>
-                </label>
-              </div>
-
-              <!-- Actions -->
-              <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+        <Teleport to="body">
+          <div
+            v-if="showModal"
+            class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto"
+            @click.self="showModal = false"
+          >
+            <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all my-auto">
+              <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div>
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                    {{ editingHoliday ? 'Edit Special Holiday' : 'Add Special Non-Working Holiday' }}
+                  </h3>
+                  <p class="text-xs text-slate-500 font-medium">
+                    Service requests automatically pause on registered dates.
+                  </p>
+                </div>
                 <button
-                  type="button"
                   @click="showModal = false"
-                  class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer min-h-[40px]"
+                  class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  :disabled="operationsStore.isSaving"
-                  class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 min-h-[40px]"
-                >
-                  {{ operationsStore.isSaving ? 'Saving...' : (editingHoliday ? 'Update Holiday' : 'Save Holiday') }}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
-            </form>
+
+              <form @submit.prevent="handleSaveHolidaySubmit" class="p-6 space-y-4">
+                <!-- Holiday Date -->
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
+                    Holiday Date
+                  </label>
+                  <input
+                    v-model="holidayForm.holiday_date"
+                    type="date"
+                    required
+                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
+                  />
+                </div>
+
+                <!-- Name -->
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
+                    Holiday Name
+                  </label>
+                  <input
+                    v-model="holidayForm.name"
+                    type="text"
+                    required
+                    placeholder="e.g., Benguet Foundation Day, Baguio Charter Day, Suspension"
+                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
+                  />
+                </div>
+
+                <!-- Holiday Type -->
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
+                    Classification Type
+                  </label>
+                  <select
+                    v-model="holidayForm.type"
+                    required
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px] cursor-pointer"
+                  >
+                    <option value="special_non_working">Special Non-Working Holiday</option>
+                    <option value="regular">Regular Holiday</option>
+                    <option value="local_suspension">Local / Executive Suspension</option>
+                    <option value="institutional">University Holiday</option>
+                  </select>
+                </div>
+
+                <!-- Recurrence Checkbox -->
+                <div class="pt-1">
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input
+                      v-model="holidayForm.is_recurring"
+                      type="checkbox"
+                      class="w-4 h-4 text-emerald-600 rounded-md border-slate-300 focus:ring-emerald-500 cursor-pointer"
+                    />
+                    <span class="text-xs font-bold text-slate-700">Recurs annually on this month and day</span>
+                  </label>
+                </div>
+
+                <!-- Actions -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    @click="showModal = false"
+                    class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer min-h-[40px]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    :disabled="operationsStore.isSaving"
+                    class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 min-h-[40px]"
+                  >
+                    {{ operationsStore.isSaving ? 'Saving...' : (editingHoliday ? 'Update Holiday' : 'Save Holiday') }}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+        </Teleport>
       </div>
     </template>
   </MainLayout>
