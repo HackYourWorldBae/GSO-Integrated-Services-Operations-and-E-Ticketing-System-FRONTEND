@@ -18,62 +18,21 @@
           <div class="absolute -right-20 -top-20 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
           <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div class="space-y-2.5 max-w-2xl">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-400/30">
-                  Institutional Calendar
-                </span>
-                <span class="px-3 py-1 rounded-full bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider border border-white/10">
-                  Working Duration Calculation
-                </span>
-              </div>
-              <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                Special Non-Working Holidays Registry
-              </h1>
-              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
-                Calibrate official national holidays, regional Baguio/Benguet declarations, and Benguet State University executive suspensions. Dates registered here are automatically excluded from ticket working duration calculations.
-              </p>
+          <div class="relative z-10 max-w-3xl space-y-3">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-400/30">
+                Official Calendar
+              </span>
+              <span class="px-3 py-1 rounded-full bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider border border-white/10">
+                Work Pauses Automatically
+              </span>
             </div>
-
-            <!-- Stats Counters -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0">
-              <div class="p-3.5 rounded-2xl bg-white/[0.07] border border-white/10 text-center backdrop-blur-xs">
-                <span class="text-xl sm:text-2xl font-black text-white tabular-nums block">
-                  {{ operationsStore.holidays.length }}
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-0.5 block">
-                  Registered Dates
-                </span>
-              </div>
-
-              <div class="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-400/20 text-center backdrop-blur-xs">
-                <span class="text-xl sm:text-2xl font-black text-blue-300 tabular-nums block">
-                  {{ recurringCount }}
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-200/70 mt-0.5 block">
-                  Annual Recurring
-                </span>
-              </div>
-
-              <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/20 text-center backdrop-blur-xs">
-                <span class="text-xl sm:text-2xl font-black text-amber-300 tabular-nums block">
-                  {{ oneTimeCount }}
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-200/70 mt-0.5 block">
-                  One-Time Dates
-                </span>
-              </div>
-
-              <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-400/20 text-center backdrop-blur-xs">
-                <span class="text-xl sm:text-2xl font-black text-emerald-300 tabular-nums block">
-                  {{ activeHolidaysCount }}
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-200/70 mt-0.5 block">
-                  Active in Calculations
-                </span>
-              </div>
-            </div>
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+              Special Non-Working Holidays
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
+              Manage national holidays, local declarations, and university suspensions. Service requests automatically pause during these dates so working days are not counted.
+            </p>
           </div>
         </div>
 
@@ -87,7 +46,7 @@
                 v-model="searchQuery"
                 data-tour="holidays-search-input"
                 type="text"
-                placeholder="Search holiday name, proclamation, or notes..."
+                placeholder="Search holiday name, notes, or date..."
                 class="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
               />
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -114,11 +73,11 @@
                 data-tour="holidays-filter-type"
                 class="w-full appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer min-h-[44px]"
               >
-                <option value="">All Classification Types</option>
+                <option value="">All Holiday Types</option>
                 <option value="special_non_working">Special Non-Working Holiday</option>
-                <option value="regular">Regular Statutory Holiday</option>
-                <option value="local_suspension">Local / Executive Suspension</option>
-                <option value="institutional">University / Institutional Holiday</option>
+                <option value="regular">Regular Holiday</option>
+                <option value="local_suspension">Local / Class Suspension</option>
+                <option value="institutional">University Holiday</option>
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,13 +113,12 @@
                   <th class="py-3.5 px-4">Holiday Name &amp; Executive Proclamation</th>
                   <th class="py-3.5 px-4 w-44 text-center">Classification</th>
                   <th class="py-3.5 px-4 w-36 text-center">Recurrence</th>
-                  <th class="py-3.5 px-4 w-28 text-center">Calendar Status</th>
                   <th class="py-3.5 px-4 w-28 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr v-if="filteredHolidays.length === 0">
-                  <td colspan="7" class="py-14 text-center text-slate-400">
+                  <td colspan="6" class="py-14 text-center text-slate-400">
                     <div class="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -215,17 +173,6 @@
                     </span>
                   </td>
                   <td class="py-3.5 px-4 text-center">
-                    <span
-                      class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"
-                      :class="h.is_active !== 0 && h.is_active !== false
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-slate-100 text-slate-500'"
-                    >
-                      <span class="w-1.5 h-1.5 rounded-full" :class="h.is_active !== 0 && h.is_active !== false ? 'bg-emerald-500' : 'bg-slate-400'"></span>
-                      {{ h.is_active !== 0 && h.is_active !== false ? 'Active' : 'Disabled' }}
-                    </span>
-                  </td>
-                  <td class="py-3.5 px-4 text-center">
                     <div class="flex items-center justify-center gap-1">
                       <button
                         @click="openEditModal(h)"
@@ -266,7 +213,7 @@
             class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-3"
           >
             <div class="flex items-start justify-between gap-3">
-              <div>
+              <div class="flex-1">
                 <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">
                   #{{ (currentPage - 1) * perPage + idx + 1 }} • {{ formatHolidayDate(h.holiday_date) }} • {{ formatWeekday(h.holiday_date) }}
                 </span>
@@ -277,15 +224,6 @@
                   {{ h.notes }}
                 </p>
               </div>
-
-              <span
-                class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0"
-                :class="h.is_active !== 0 && h.is_active !== false
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : 'bg-slate-100 text-slate-500'"
-              >
-                {{ h.is_active !== 0 && h.is_active !== false ? 'Active' : 'Disabled' }}
-              </span>
             </div>
 
             <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
@@ -412,7 +350,7 @@
                   {{ editingHoliday ? 'Edit Special Holiday' : 'Add Special Non-Working Holiday' }}
                 </h3>
                 <p class="text-xs text-slate-500 font-medium">
-                  Registered dates will be automatically excluded during ticket working duration calculations.
+                  Service requests automatically pause on registered dates.
                 </p>
               </div>
               <button
@@ -483,8 +421,8 @@
                 ></textarea>
               </div>
 
-              <!-- Recurrence & Active Checkboxes -->
-              <div class="space-y-2 pt-1">
+              <!-- Recurrence Checkbox -->
+              <div class="pt-1">
                 <label class="flex items-center gap-2.5 cursor-pointer">
                   <input
                     v-model="holidayForm.is_recurring"
@@ -492,15 +430,6 @@
                     class="w-4 h-4 text-emerald-600 rounded-md border-slate-300 focus:ring-emerald-500 cursor-pointer"
                   />
                   <span class="text-xs font-bold text-slate-700">Recurs annually on this month and day</span>
-                </label>
-
-                <label class="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    v-model="holidayForm.is_active"
-                    type="checkbox"
-                    class="w-4 h-4 text-emerald-600 rounded-md border-slate-300 focus:ring-emerald-500 cursor-pointer"
-                  />
-                  <span class="text-xs font-bold text-slate-700">Active in working duration calculations</span>
                 </label>
               </div>
 
@@ -540,18 +469,7 @@ import Swal from 'sweetalert2';
 
 const operationsStore = useOperationsHubStore();
 
-// Summary Counters
-const recurringCount = computed(() => {
-  return (operationsStore.holidays || []).filter(h => !!h.is_recurring).length;
-});
 
-const oneTimeCount = computed(() => {
-  return (operationsStore.holidays || []).filter(h => !h.is_recurring).length;
-});
-
-const activeHolidaysCount = computed(() => {
-  return (operationsStore.holidays || []).filter(h => h.is_active !== 0 && h.is_active !== false).length;
-});
 
 // Search & Filtering
 const searchQuery = ref('');
@@ -644,7 +562,7 @@ const formatWeekday = (dateStr) => {
 const formatHolidayType = (type) => {
   switch (type) {
     case 'special_non_working': return 'Special Non-Working';
-    case 'regular': return 'Regular Statutory';
+    case 'regular': return 'Regular Holiday';
     case 'local_suspension': return 'Executive Suspension';
     case 'institutional': return 'University Holiday';
     default: return type || 'Special Non-Working';
@@ -674,7 +592,6 @@ const holidayForm = ref({
   name: '',
   type: 'special_non_working',
   is_recurring: false,
-  is_active: true,
   notes: '',
 });
 
@@ -685,7 +602,6 @@ const openAddModal = () => {
     name: '',
     type: 'special_non_working',
     is_recurring: false,
-    is_active: true,
     notes: '',
   };
   showModal.value = true;
@@ -698,7 +614,6 @@ const openEditModal = (h) => {
     name: h.name,
     type: h.type || 'special_non_working',
     is_recurring: !!h.is_recurring,
-    is_active: h.is_active !== 0 && h.is_active !== false,
     notes: h.notes || '',
   };
   showModal.value = true;
@@ -710,7 +625,7 @@ const handleSaveHolidaySubmit = async () => {
     name: holidayForm.value.name.trim(),
     type: holidayForm.value.type,
     is_recurring: holidayForm.value.is_recurring ? 1 : 0,
-    is_active: holidayForm.value.is_active ? 1 : 0,
+    is_active: 1,
     notes: holidayForm.value.notes.trim(),
   };
 
