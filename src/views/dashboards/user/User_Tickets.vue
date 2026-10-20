@@ -1557,6 +1557,7 @@ const syncOpenTicket = async (targetId = null) => {
       await new Promise(r => setTimeout(r, 600 - elapsed));
     }
     isSyncingTicket.value = false;
+    toast.success('Ticket status synced');
   }
 };
 
@@ -1573,6 +1574,7 @@ const handleManualRefreshTickets = async () => {
       await new Promise(r => setTimeout(r, 600 - elapsed));
     }
     isRefreshingList.value = false;
+    toast.success('Page refreshed');
   }
 };
 

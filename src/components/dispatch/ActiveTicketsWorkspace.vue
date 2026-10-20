@@ -1758,6 +1758,7 @@ const refreshActiveAll = async () => {
       await new Promise(r => setTimeout(r, 600 - elapsed));
     }
     loading.value = false;
+    toast.success('Page refreshed');
   }
 };
 

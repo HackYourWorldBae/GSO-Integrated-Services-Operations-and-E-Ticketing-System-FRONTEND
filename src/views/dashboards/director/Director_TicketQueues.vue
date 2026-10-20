@@ -2299,6 +2299,7 @@ const fetchAllQueues = async (isManual = false) => {
       if (elapsed < 600) {
         await new Promise(r => setTimeout(r, 600 - elapsed));
       }
+      toast.success('Page refreshed');
     }
     isLoading.value = false;
   }

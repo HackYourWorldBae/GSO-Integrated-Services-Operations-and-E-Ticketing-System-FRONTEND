@@ -23,7 +23,7 @@
         <div class="flex-1"></div>
         <button
           type="button"
-          @click="refreshAll"
+          @click="handleManualRefresh"
           :disabled="loading"
           class="px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 flex items-center gap-1.5 active:scale-95 touch-manipulation"
           title="Refresh borrowing queues"
@@ -712,6 +712,11 @@ const refreshAll = async () => {
     }
     loading.value = false;
   }
+};
+
+const handleManualRefresh = async () => {
+  await refreshAll();
+  toast.success('Page refreshed');
 };
 
 const doReadyForPickup = async (req) => {

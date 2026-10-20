@@ -71,7 +71,7 @@
 
               <!-- Actions -->
               <button
-                @click="fetchLogs"
+                @click="handleManualRefresh"
                 :disabled="loading"
                 class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center disabled:opacity-50 min-h-[44px] min-w-[44px] cursor-pointer touch-manipulation active:scale-95"
                 title="Refresh Activity Logs"
@@ -636,6 +636,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { fetchAccountActivityLogs } from '@/api/superadmin';
+import { toast } from 'vue3-toastify';
 
 const loading = ref(false);
 const logs = ref([]);
@@ -732,6 +733,11 @@ const fetchLogs = async () => {
     }
     loading.value = false;
   }
+};
+
+const handleManualRefresh = async () => {
+  await fetchLogs();
+  toast.success('Page refreshed');
 };
 
 // Data Privacy PII Masking Utilities

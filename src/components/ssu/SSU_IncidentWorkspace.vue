@@ -102,7 +102,7 @@
         <!-- Refresh Button -->
         <button
           type="button"
-          @click="fetchQueues"
+          @click="handleManualRefresh"
           :disabled="loading"
           class="p-2.5 min-h-[44px] min-w-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
           title="Refresh ticket queues"
@@ -1359,6 +1359,11 @@ const fetchQueues = async () => {
     }
     loading.value = false;
   }
+};
+
+const handleManualRefresh = async () => {
+  await fetchQueues();
+  toast.success('Page refreshed');
 };
 
 const checkRouteHighlight = () => {

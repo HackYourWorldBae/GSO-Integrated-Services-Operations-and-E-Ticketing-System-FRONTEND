@@ -175,7 +175,7 @@
         </div>
         <button
           type="button"
-          @click="fetchTickets"
+          @click="handleManualRefresh"
           :disabled="loading"
           class="p-2.5 min-h-[44px] min-w-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shrink-0 cursor-pointer active:scale-95"
           title="Refresh collab ticket list"
@@ -1235,6 +1235,11 @@ const fetchTickets = async () => {
     }
     loading.value = false;
   }
+};
+
+const handleManualRefresh = async () => {
+  await fetchTickets();
+  toast.success('Page refreshed');
 };
 
 const formatDate = (dateString) => {

@@ -632,6 +632,7 @@ const refreshData = async () => {
       await new Promise(r => setTimeout(r, 600 - elapsed));
     }
     loadingInventory.value = false;
+    toast.success('Page refreshed');
   }
 };
 

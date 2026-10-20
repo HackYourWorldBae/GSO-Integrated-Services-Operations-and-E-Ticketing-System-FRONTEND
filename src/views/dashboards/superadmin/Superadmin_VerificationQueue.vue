@@ -50,7 +50,7 @@
             </select>
 
             <button
-              @click="fetchPendingUsers"
+              @click="handleManualRefresh"
               :disabled="loading"
               class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] touch-manipulation cursor-pointer shrink-0"
               title="Refresh Queue"
@@ -466,6 +466,11 @@ const fetchPendingUsers = async () => {
     }
     loading.value = false;
   }
+};
+
+const handleManualRefresh = async () => {
+  await fetchPendingUsers();
+  toast.success('Page refreshed');
 };
 
 const pendingUsers = computed(() => {

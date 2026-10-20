@@ -2105,8 +2105,8 @@ const refreshData = async () => {
       await new Promise(r => setTimeout(r, 600 - elapsed));
     }
     loadingTickets.value = false;
+    toast.success('Page refreshed');
   }
-  toast.info('Workforce roster and ticket queue refreshed.');
 };
 
 onMounted(async () => {

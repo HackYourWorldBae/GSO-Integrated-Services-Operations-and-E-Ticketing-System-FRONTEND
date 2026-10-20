@@ -111,7 +111,7 @@
 
             <!-- Refresh Button -->
             <button
-              @click="fetchExecutiveAnalytics"
+              @click="handleManualRefresh"
               :disabled="isLoading"
               class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600 rounded-xl transition-all cursor-pointer shadow-2xs group touch-manipulation shrink-0 active:scale-95 disabled:opacity-50"
               title="Refresh Materials Data"
@@ -578,6 +578,11 @@ const fetchExecutiveAnalytics = async () => {
     }
     isLoading.value = false;
   }
+};
+
+const handleManualRefresh = async () => {
+  await fetchExecutiveAnalytics();
+  toast.success('Page refreshed');
 };
 
 const handleDownloadMaterialsReport = async () => {

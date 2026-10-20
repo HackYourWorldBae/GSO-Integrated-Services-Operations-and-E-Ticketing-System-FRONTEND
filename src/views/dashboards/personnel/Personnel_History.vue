@@ -571,6 +571,7 @@ import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { usePersonnelDashboardStore } from '@/stores/personnelDashboard';
 import { useAuthStore } from '@/stores/auth';
+import { toast } from 'vue3-toastify';
 
 const route = useRoute();
 const store = usePersonnelDashboardStore();
@@ -629,6 +630,7 @@ const refreshData = async () => {
       await new Promise(r => setTimeout(r, 600 - elapsed));
     }
     isRefreshing.value = false;
+    toast.success('Page refreshed');
   }
 };
 

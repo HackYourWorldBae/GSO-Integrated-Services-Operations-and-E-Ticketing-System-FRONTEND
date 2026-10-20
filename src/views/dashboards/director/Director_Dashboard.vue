@@ -637,6 +637,7 @@ const handleManualRefresh = async () => {
       await new Promise(r => setTimeout(r, 600 - elapsed));
     }
     isRefreshing.value = false;
+    toast.success('Page refreshed');
   }
 };
 
