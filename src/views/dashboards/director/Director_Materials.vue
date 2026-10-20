@@ -27,8 +27,8 @@
               data-tour="director-materials-btn-export"
               @click="handleDownloadMaterialsReport"
               :disabled="isGeneratingMaterialsPdf || isLoading || !executiveAnalytics"
-              class="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.98] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] touch-manipulation"
-              title="Generate and download official materials consumption PDF document"
+              class="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.98] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] touch-manipulation whitespace-nowrap"
+              :title="`Generate and download official ${activeTimeFilterLabel.toLowerCase()} materials consumption PDF document`"
             >
               <svg v-if="isGeneratingMaterialsPdf" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -37,7 +37,7 @@
               <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span>{{ isGeneratingMaterialsPdf ? 'Generating PDF...' : 'Export Materials PDF' }}</span>
+              <span>{{ isGeneratingMaterialsPdf ? 'Generating PDF...' : `Export ${activeTimeFilterLabel} Materials PDF` }}</span>
             </button>
           </div>
         </div>
@@ -278,11 +278,11 @@
 
                 <tr
                   v-else
-                  v-for="(item, idx) in filteredItems"
+                  v-for="(item, idx) in paginatedItems"
                   :key="item.id || idx"
                   class="hover:bg-slate-50/80 transition-colors"
                 >
-                  <td class="py-3 px-4 text-center text-xs font-bold text-slate-400 tabular-nums">{{ idx + 1 }}</td>
+                  <td class="py-3 px-4 text-center text-xs font-bold text-slate-400 tabular-nums">{{ (currentPage - 1) * perPage + idx + 1 }}</td>
                   <td class="py-3 px-6">
                     <div class="font-bold text-slate-900 text-sm">{{ item.material_name }}</div>
                     <div v-if="item.service_type || item.ticket_title" class="text-xs text-slate-400 truncate max-w-sm mt-0.5">{{ item.service_type || item.ticket_title }}</div>
@@ -341,7 +341,7 @@
             <!-- Mobile Material Cards List -->
             <template v-else>
               <div
-                v-for="(item, idx) in filteredItems"
+                v-for="(item, idx) in paginatedItems"
                 :key="'mob-mat-' + (item.id || idx)"
                 class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 shadow-2xs"
               >
@@ -349,7 +349,7 @@
                 <div class="flex items-center justify-between gap-2 flex-wrap">
                   <div class="flex items-center gap-1.5 flex-wrap">
                     <span class="w-6 h-6 rounded-lg bg-slate-200/70 text-slate-700 text-[10px] font-black flex items-center justify-center tabular-nums">
-                      {{ idx + 1 }}
+                      {{ (currentPage - 1) * perPage + idx + 1 }}
                     </span>
                     <span
                       class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider border"
@@ -403,6 +403,85 @@
                 </div>
               </div>
             </template>
+          </div>
+
+          <!-- Materials Logs Pagination Bar -->
+          <div
+            v-if="filteredItems.length > 0"
+            class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs"
+          >
+            <!-- Rows per page & range info -->
+            <div class="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
+              <div class="flex items-center gap-2">
+                <span class="font-medium text-slate-600">Rows per page:</span>
+                <select
+                  v-model.number="perPage"
+                  @change="currentPage = 1"
+                  class="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer min-h-[38px]"
+                >
+                  <option :value="10">10</option>
+                  <option :value="25">25</option>
+                  <option :value="50">50</option>
+                  <option :value="100">100</option>
+                </select>
+              </div>
+              <span class="text-slate-600">
+                Showing <strong class="text-slate-900">{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
+                <strong class="text-slate-900">{{ Math.min(currentPage * perPage, filteredItems.length) }}</strong> of
+                <strong class="text-slate-900">{{ filteredItems.length }}</strong> items
+              </span>
+            </div>
+
+            <!-- Page Navigation Buttons -->
+            <div class="flex items-center gap-1.5 flex-wrap justify-center sm:justify-end w-full sm:w-auto">
+              <button
+                @click="currentPage = 1"
+                :disabled="currentPage === 1"
+                class="p-2 min-w-[38px] min-h-[38px] rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer flex items-center justify-center active:scale-95"
+                title="First page"
+              >
+                «
+              </button>
+              <button
+                @click="currentPage--"
+                :disabled="currentPage === 1"
+                class="px-3 py-1.5 min-h-[38px] rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95"
+              >
+                ‹ Prev
+              </button>
+
+              <template v-for="(page, idx) in displayedPages" :key="idx">
+                <span v-if="page === '...'" class="px-2 text-slate-400 font-bold text-xs">...</span>
+                <button
+                  v-else
+                  @click="currentPage = page"
+                  :class="[
+                    'min-w-[38px] h-[38px] px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center active:scale-95',
+                    currentPage === page
+                      ? 'bg-slate-900 text-white shadow-xs'
+                      : 'border border-slate-200 text-slate-700 hover:bg-slate-100'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+              </template>
+
+              <button
+                @click="currentPage++"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-1.5 min-h-[38px] rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95"
+              >
+                Next ›
+              </button>
+              <button
+                @click="currentPage = totalPages"
+                :disabled="currentPage === totalPages"
+                class="p-2 min-w-[38px] min-h-[38px] rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-xs font-bold cursor-pointer flex items-center justify-center active:scale-95"
+                title="Last page"
+              >
+                »
+              </button>
+            </div>
           </div>
         </div>
 
@@ -519,6 +598,54 @@ const filteredTotalWorth = computed(() => {
 
 const filteredTotalQuantity = computed(() => {
   return filteredItems.value.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+});
+
+// Dynamic Active Time Filter Label
+const activeTimeFilterLabel = computed(() => {
+  const p = periodOptions.find((opt) => opt.key === selectedPeriod.value);
+  return p ? p.label : 'Materials';
+});
+
+// -----------------------------------------------------------------------------
+// Pagination State & Logic
+// -----------------------------------------------------------------------------
+const currentPage = ref(1);
+const perPage = ref(10);
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredItems.value.length / perPage.value) || 1;
+});
+
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredItems.value.slice(start, start + perPage.value);
+});
+
+const displayedPages = computed(() => {
+  const current = currentPage.value;
+  const total = totalPages.value;
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages = [];
+  pages.push(1);
+  if (current > 3) pages.push('...');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
+});
+
+watch([debouncedSearchQuery, activeUnitScope, selectedPeriod, selectedYear, selectedMonth, selectedQuarter], () => {
+  currentPage.value = 1;
+});
+
+watch(totalPages, (newTotal) => {
+  if (currentPage.value > newTotal) {
+    currentPage.value = Math.max(1, newTotal);
+  }
 });
 
 // Formatters
