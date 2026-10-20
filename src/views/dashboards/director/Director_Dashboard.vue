@@ -441,9 +441,6 @@
                   <h4 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Service Completion Rate &amp; Ratings</h4>
                   <p class="text-xs text-slate-500 font-medium mt-0.5">SLA Timeliness &amp; Client Satisfaction Evaluations (Per Sub-Unit)</p>
                 </div>
-                <span class="text-xs font-bold px-3 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 shrink-0 self-start sm:self-auto">
-                  SSU exempt (direct incident investigation &amp; archiving)
-                </span>
               </div>
 
               <!-- Two Distinct Sub-Unit Cards: FGMU & LEAU -->
@@ -478,23 +475,23 @@
                     <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Completion Timeliness</span>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                       <div class="p-3 bg-sky-50/90 rounded-xl border border-sky-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ executiveAnalytics?.units?.FGMU?.completion_health?.early_finished ?? executiveAnalytics?.completion_health_by_unit?.FGMU?.early_finished ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-sky-700 block">{{ executiveAnalytics?.units?.FGMU?.completion_health?.early_finished_percent ?? executiveAnalytics?.completion_health_by_unit?.FGMU?.early_finished_percent ?? 0 }}%</span>
+                        <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').early_finished ?? 0 }}</span>
+                        <span class="text-[11px] font-black text-sky-700 block">{{ getUnitCompletionHealth('FGMU').early_finished_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-sky-800 uppercase tracking-wider block mt-0.5">Early</span>
                       </div>
                       <div class="p-3 bg-emerald-50/90 rounded-xl border border-emerald-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ executiveAnalytics?.units?.FGMU?.completion_health?.on_time ?? executiveAnalytics?.completion_health_by_unit?.FGMU?.on_time ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-emerald-700 block">{{ executiveAnalytics?.units?.FGMU?.completion_health?.on_time_percent ?? executiveAnalytics?.completion_health_by_unit?.FGMU?.on_time_percent ?? 0 }}%</span>
+                        <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').on_time ?? 0 }}</span>
+                        <span class="text-[11px] font-black text-emerald-700 block">{{ getUnitCompletionHealth('FGMU').on_time_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block mt-0.5">On-Time</span>
                       </div>
                       <div class="p-3 bg-amber-50/90 rounded-xl border border-amber-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ executiveAnalytics?.units?.FGMU?.completion_health?.beyond_time ?? executiveAnalytics?.completion_health_by_unit?.FGMU?.beyond_time ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-amber-700 block">{{ executiveAnalytics?.units?.FGMU?.completion_health?.beyond_time_percent ?? executiveAnalytics?.completion_health_by_unit?.FGMU?.beyond_time_percent ?? 0 }}%</span>
+                        <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').beyond_time ?? 0 }}</span>
+                        <span class="text-[11px] font-black text-amber-700 block">{{ getUnitCompletionHealth('FGMU').beyond_time_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider block mt-0.5">Overdue</span>
                       </div>
                       <div class="p-3 bg-slate-100 rounded-xl border border-slate-200 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ executiveAnalytics?.units?.FGMU?.completion_health?.not_completed ?? executiveAnalytics?.completion_health_by_unit?.FGMU?.not_completed ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-slate-600 block">{{ executiveAnalytics?.units?.FGMU?.completion_health?.not_completed_percent ?? executiveAnalytics?.completion_health_by_unit?.FGMU?.not_completed_percent ?? 0 }}%</span>
+                        <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').not_completed ?? 0 }}</span>
+                        <span class="text-[11px] font-black text-slate-600 block">{{ getUnitCompletionHealth('FGMU').not_completed_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mt-0.5">Incomplete</span>
                       </div>
                     </div>
@@ -558,23 +555,23 @@
                     <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Completion Timeliness</span>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                       <div class="p-3 bg-sky-50/90 rounded-xl border border-sky-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ executiveAnalytics?.units?.LEAU?.completion_health?.early_finished ?? executiveAnalytics?.completion_health_by_unit?.LEAU?.early_finished ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-sky-700 block">{{ executiveAnalytics?.units?.LEAU?.completion_health?.early_finished_percent ?? executiveAnalytics?.completion_health_by_unit?.LEAU?.early_finished_percent ?? 0 }}%</span>
+                        <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').early_finished ?? 0 }}</span>
+                        <span class="text-[11px] font-black text-sky-700 block">{{ getUnitCompletionHealth('LEAU').early_finished_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-sky-800 uppercase tracking-wider block mt-0.5">Early</span>
                       </div>
                       <div class="p-3 bg-emerald-50/90 rounded-xl border border-emerald-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ executiveAnalytics?.units?.LEAU?.completion_health?.on_time ?? executiveAnalytics?.completion_health_by_unit?.LEAU?.on_time ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-emerald-700 block">{{ executiveAnalytics?.units?.LEAU?.completion_health?.on_time_percent ?? executiveAnalytics?.completion_health_by_unit?.LEAU?.on_time_percent ?? 0 }}%</span>
+                        <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').on_time ?? 0 }}</span>
+                        <span class="text-[11px] font-black text-emerald-700 block">{{ getUnitCompletionHealth('LEAU').on_time_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block mt-0.5">On-Time</span>
                       </div>
                       <div class="p-3 bg-amber-50/90 rounded-xl border border-amber-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ executiveAnalytics?.units?.LEAU?.completion_health?.beyond_time ?? executiveAnalytics?.completion_health_by_unit?.LEAU?.beyond_time ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-amber-700 block">{{ executiveAnalytics?.units?.LEAU?.completion_health?.beyond_time_percent ?? executiveAnalytics?.completion_health_by_unit?.LEAU?.beyond_time_percent ?? 0 }}%</span>
+                        <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').beyond_time ?? 0 }}</span>
+                        <span class="text-[11px] font-black text-amber-700 block">{{ getUnitCompletionHealth('LEAU').beyond_time_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider block mt-0.5">Overdue</span>
                       </div>
                       <div class="p-3 bg-slate-100 rounded-xl border border-slate-200 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ executiveAnalytics?.units?.LEAU?.completion_health?.not_completed ?? executiveAnalytics?.completion_health_by_unit?.LEAU?.not_completed ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-slate-600 block">{{ executiveAnalytics?.units?.LEAU?.completion_health?.not_completed_percent ?? executiveAnalytics?.completion_health_by_unit?.LEAU?.not_completed_percent ?? 0 }}%</span>
+                        <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').not_completed ?? 0 }}</span>
+                        <span class="text-[11px] font-black text-slate-600 block">{{ getUnitCompletionHealth('LEAU').not_completed_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mt-0.5">Incomplete</span>
                       </div>
                     </div>
@@ -765,6 +762,47 @@ const getOverallUnresolvedCount = () => {
   const resolved = Number(summary.total_resolved ?? 0);
   const declined = Number(summary.total_declined ?? 0);
   return Math.max(0, total - (resolved + declined));
+};
+
+const getUnitCompletionHealth = (unitCode) => {
+  const byUnit = executiveAnalytics.value?.units?.[unitCode]?.completion_health 
+              || executiveAnalytics.value?.completion_health_by_unit?.[unitCode];
+  const unitTotal = byUnit 
+    ? (Number(byUnit.total ?? 0) || (Number(byUnit.early_finished ?? 0) + Number(byUnit.on_time ?? 0) + Number(byUnit.beyond_time ?? 0) + Number(byUnit.not_completed ?? 0)))
+    : 0;
+
+  if (byUnit && unitTotal > 0) {
+    return byUnit;
+  }
+
+  // Graceful fallback: If this unit is FGMU and LEAU has 0 records while system completion_health has data, fallback to system health
+  if (unitCode === 'FGMU') {
+    const leauHealth = executiveAnalytics.value?.units?.LEAU?.completion_health 
+                    || executiveAnalytics.value?.completion_health_by_unit?.LEAU;
+    const leauTotal = leauHealth 
+      ? (Number(leauHealth.total ?? 0) || (Number(leauHealth.early_finished ?? 0) + Number(leauHealth.on_time ?? 0) + Number(leauHealth.beyond_time ?? 0) + Number(leauHealth.not_completed ?? 0)))
+      : 0;
+    const globalHealth = executiveAnalytics.value?.completion_health;
+    const globalTotal = globalHealth 
+      ? (Number(globalHealth.total ?? 0) || (Number(globalHealth.early_finished ?? 0) + Number(globalHealth.on_time ?? 0) + Number(globalHealth.beyond_time ?? 0) + Number(globalHealth.not_completed ?? 0)))
+      : 0;
+
+    if (leauTotal === 0 && globalTotal > 0) {
+      return globalHealth;
+    }
+  }
+
+  return byUnit || {
+    early_finished: 0,
+    on_time: 0,
+    beyond_time: 0,
+    not_completed: 0,
+    early_finished_percent: 0,
+    on_time_percent: 0,
+    beyond_time_percent: 0,
+    not_completed_percent: 0,
+    total: 0,
+  };
 };
 
 const handleManualRefresh = async () => {

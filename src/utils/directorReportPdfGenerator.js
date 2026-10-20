@@ -104,8 +104,14 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
   const materialsSummary = data.materials_summary || {};
   const compHealth = data.completion_health || {};
   const compHealthByUnit = data.completion_health_by_unit || {};
-  const fgmuHealth = compHealthByUnit.FGMU || units.FGMU?.completion_health || {};
-  const leauHealth = compHealthByUnit.LEAU || units.LEAU?.completion_health || {};
+  let fgmuHealth = compHealthByUnit.FGMU || units.FGMU?.completion_health || {};
+  let leauHealth = compHealthByUnit.LEAU || units.LEAU?.completion_health || {};
+  const fgmuTotal = (fgmuHealth.total || 0) || ((fgmuHealth.early_finished || 0) + (fgmuHealth.on_time || 0) + (fgmuHealth.beyond_time || 0) + (fgmuHealth.not_completed || 0));
+  const leauTotal = (leauHealth.total || 0) || ((leauHealth.early_finished || 0) + (leauHealth.on_time || 0) + (leauHealth.beyond_time || 0) + (leauHealth.not_completed || 0));
+  const compTotal = (compHealth.total || 0) || ((compHealth.early_finished || 0) + (compHealth.on_time || 0) + (compHealth.beyond_time || 0) + (compHealth.not_completed || 0));
+  if (fgmuTotal === 0 && leauTotal === 0 && compTotal > 0) {
+    fgmuHealth = compHealth;
+  }
   const fgmuRatings = units.FGMU?.avg_ratings || {};
   const leauRatings = units.LEAU?.avg_ratings || {};
   const delayReasons = data.delay_reasons || [];
