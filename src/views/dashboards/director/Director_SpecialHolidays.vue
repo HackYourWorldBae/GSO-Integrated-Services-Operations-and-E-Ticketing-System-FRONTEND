@@ -5,14 +5,9 @@
     </template>
 
     <template #header-title>
-      <div class="flex items-center gap-2.5 min-w-0">
-        <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
-          Executive Portal
-        </span>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
-          Special Non-Working Holidays
-        </h2>
-      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
+        Special Non-Working Holidays
+      </h2>
     </template>
 
     <template #main-content>
@@ -79,23 +74,6 @@
                 </span>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Working Duration Guidance Card -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-amber-50/80 border border-amber-200/80 flex items-start gap-3.5">
-          <div class="p-2.5 bg-amber-100 rounded-xl text-amber-800 shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div class="space-y-1">
-            <h4 class="text-xs sm:text-sm font-black text-amber-900 uppercase tracking-wider">
-              Working Days &amp; Duration Calculation Guidelines
-            </h4>
-            <p class="text-xs text-amber-800 leading-relaxed font-medium">
-              Registered non-working dates and standard weekend days are automatically discounted from ticket elapsed time. This ensures turnaround duration reflects purely actual operational working hours.
-            </p>
           </div>
         </div>
 
@@ -422,80 +400,6 @@
           </div>
         </div>
 
-        <!-- Interactive Duration Calculation Simulator -->
-        <div class="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-md space-y-5">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                  Live Working Duration Verification
-                </h3>
-              </div>
-              <p class="text-xs text-slate-500 font-medium mt-0.5">
-                Test how the current non-working holiday registry actively discounts hours between two dates.
-              </p>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
-            <div class="sm:col-span-5 space-y-1.5">
-              <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">
-                Start Datetime (Ticket Filed)
-              </label>
-              <input
-                v-model="simStart"
-                type="datetime-local"
-                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
-              />
-            </div>
-
-            <div class="sm:col-span-5 space-y-1.5">
-              <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">
-                End Datetime (Resolution / Current)
-              </label>
-              <input
-                v-model="simEnd"
-                type="datetime-local"
-                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
-              />
-            </div>
-
-            <div class="sm:col-span-2">
-              <button
-                @click="calculateSimResult"
-                class="w-full px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider transition-all min-h-[44px] cursor-pointer"
-              >
-                Compute Duration
-              </button>
-            </div>
-          </div>
-
-          <!-- Safe Simulator Result Card -->
-          <div v-if="simResult" class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="space-y-1">
-              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Computed Working Turnaround</span>
-              <div class="flex items-baseline gap-2 flex-wrap">
-                <span class="text-2xl sm:text-3xl font-black text-emerald-600 tabular-nums">
-                  {{ simResult.formatted || (simResult.totalHours ? simResult.totalHours + ' hrs' : '0 hrs') }}
-                </span>
-                <span class="text-xs text-slate-500 font-bold">
-                  (Total: {{ Number(simResult.totalHours || 0).toFixed(1) }} working hrs / ≈ {{ (Number(simResult.totalHours || 0) / 8.0).toFixed(2) }} business days)
-                </span>
-              </div>
-              <div class="flex items-center gap-2 text-xs text-slate-500 font-medium pt-1">
-                <span>Working Days: <strong class="text-slate-700">{{ simResult.days || 0 }}d</strong></span>
-                <span>•</span>
-                <span>Net Hours: <strong class="text-slate-700">{{ simResult.hours || 0 }}h {{ simResult.minutes || 0 }}m</strong></span>
-                <span v-if="simResult.overtime">• Overtime: <strong class="text-amber-600">+{{ simResult.overtime }}h OT</strong></span>
-              </div>
-            </div>
-            <span class="px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 w-fit shrink-0">
-              ✓ Holidays &amp; Weekends Excluded
-            </span>
-          </div>
-        </div>
-
         <!-- Add / Edit Holiday Modal -->
         <div
           v-if="showModal"
@@ -630,7 +534,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
 import { useOperationsHubStore } from '@/stores/operationsHub';
-import { calculateWorkingHoursElapsed, formatDateToYmd } from '@/utils/workCalendar';
+import { formatDateToYmd } from '@/utils/workCalendar';
 import { toast } from 'vue3-toastify';
 import Swal from 'sweetalert2';
 
@@ -865,42 +769,11 @@ const handleDeleteHoliday = async (h) => {
   }
 };
 
-// Simulation state
-const simStart = ref('');
-const simEnd = ref('');
-const simResult = ref(null);
-
-const calculateSimResult = () => {
-  if (!simStart.value || !simEnd.value) {
-    return;
-  }
-  try {
-    const s = new Date(simStart.value);
-    const e = new Date(simEnd.value);
-    if (isNaN(s.getTime()) || isNaN(e.getTime())) return;
-    if (e < s) {
-      toast.error('End datetime cannot precede start datetime.');
-      return;
-    }
-    simResult.value = calculateWorkingHoursElapsed(s, e);
-  } catch (err) {
-    console.warn('Simulation calculation failed:', err);
-    simResult.value = null;
-  }
-};
-
 onMounted(async () => {
   try {
     await operationsStore.initOperationsHub();
   } catch (err) {
     console.warn('Could not initialize operations hub:', err);
   }
-
-  // Set default simulation datetimes: past 3 days to now
-  const now = new Date();
-  const threeDaysAgo = new Date(now.getTime() - 72 * 60 * 60 * 1000);
-  simStart.value = threeDaysAgo.toISOString().slice(0, 16);
-  simEnd.value = now.toISOString().slice(0, 16);
-  calculateSimResult();
 });
 </script>
