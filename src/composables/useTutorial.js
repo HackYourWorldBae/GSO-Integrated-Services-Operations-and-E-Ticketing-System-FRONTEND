@@ -23,6 +23,17 @@ const isTourActive = ref(false);
 const activeTourSteps = ref([]);
 const activeTourPage = ref(null);
 
+/**
+ * Global cleanup to remove any lingering pinpoint highlight classes across the DOM
+ */
+export const cleanupTourHighlights = () => {
+  if (typeof document === 'undefined') return;
+  const elements = document.querySelectorAll('.tour-pinpoint-target');
+  elements.forEach((el) => {
+    el.classList.remove('tour-pinpoint-target');
+  });
+};
+
 export function useTutorial() {
   const authStore = useAuthStore();
 
@@ -189,6 +200,7 @@ export function useTutorial() {
    * End or close the active interactive tour
    */
   const endTour = () => {
+    cleanupTourHighlights();
     isTourActive.value = false;
     activeTourSteps.value = [];
     activeTourPage.value = null;
@@ -198,6 +210,7 @@ export function useTutorial() {
    * Launch interactive tour with v-onboarding for the active page
    */
   const startPageTour = async (pageId = null) => {
+    cleanupTourHighlights();
     const targetId = pageId || activePageId.value;
     const page = availablePages.value.find(p => p.id === targetId) || activePageData.value;
 
@@ -242,6 +255,11 @@ export function useTutorial() {
         content: {
           title: s.title,
           description: s.desc
+        },
+        on: {
+          afterStep: () => {
+            cleanupTourHighlights();
+          }
         }
       };
     });
@@ -266,6 +284,7 @@ export function useTutorial() {
     openTutorialModal,
     closeTutorialModal,
     endTour,
-    startPageTour
+    startPageTour,
+    cleanupTourHighlights
   };
 }

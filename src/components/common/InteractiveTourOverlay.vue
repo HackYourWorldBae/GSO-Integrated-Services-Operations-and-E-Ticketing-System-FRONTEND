@@ -31,9 +31,9 @@
                   <!-- Close Button -->
                   <button
                     type="button"
-                    @click="exit"
+                    @click="handleTourSkip"
                     class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
-                    title="Exit Tour"
+                    title="Exit Tour (Esc)"
                     aria-label="Exit Interactive Tour"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -42,10 +42,13 @@
                   </button>
                 </div>
 
-                <!-- Step Content -->
+                <!-- Step Content (Clean SVG icon, No Emojis) -->
                 <div class="py-3">
                   <h4 class="text-base sm:text-lg font-black text-white tracking-tight leading-snug flex items-center gap-2">
-                    <span class="text-emerald-400 font-black text-sm sm:text-base">📍</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
                     <span>{{ step?.content?.title || 'System Walkthrough' }}</span>
                   </h4>
                   <p class="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed mt-2 text-justify sm:text-left">
@@ -66,7 +69,7 @@
                   <button
                     v-if="!isFirst"
                     type="button"
-                    @click="previous"
+                    @click="handleStepPrevious(previous)"
                     class="px-3.5 py-1.5 min-h-[36px] rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-95 flex items-center gap-1"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -79,17 +82,17 @@
                   <div class="flex items-center gap-2">
                     <button
                       type="button"
-                      @click="exit"
+                      @click="handleTourSkip"
                       class="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 font-semibold transition-colors cursor-pointer"
                     >
                       Skip
                     </button>
                     <button
                       type="button"
-                      @click="isLast ? finish() : next()"
+                      @click="isLast ? handleTourFinishClick() : handleStepNext(next)"
                       class="px-4 py-1.5 min-h-[36px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-1.5"
                     >
-                      <span>{{ isLast ? 'Finish Tour ✓' : 'Next' }}</span>
+                      <span>{{ isLast ? 'Finish Tour' : 'Next' }}</span>
                       <svg v-if="!isLast" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                       </svg>
@@ -106,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { VOnboardingWrapper, VOnboardingStep, useVOnboarding } from 'v-onboarding';
 import 'v-onboarding/dist/style.css';
 import { useTutorial } from '@/composables/useTutorial';
@@ -115,7 +118,8 @@ const {
   isTourActive,
   activeTourSteps,
   activeTourPage,
-  endTour
+  endTour,
+  cleanupTourHighlights
 } = useTutorial();
 
 const wrapperRef = ref(null);
@@ -148,27 +152,74 @@ const wrapperOptions = {
   autoFinishByExit: true
 };
 
+const handleStepNext = (nextFn) => {
+  cleanupTourHighlights();
+  if (typeof nextFn === 'function') {
+    nextFn();
+  }
+};
+
+const handleStepPrevious = (prevFn) => {
+  cleanupTourHighlights();
+  if (typeof prevFn === 'function') {
+    prevFn();
+  }
+};
+
+const handleTourSkip = () => {
+  cleanupTourHighlights();
+  endTour();
+};
+
+const handleTourFinishClick = () => {
+  cleanupTourHighlights();
+  finish();
+  endTour();
+};
+
+const handleTourFinish = () => {
+  cleanupTourHighlights();
+  endTour();
+};
+
+const handleTourExit = () => {
+  cleanupTourHighlights();
+  endTour();
+};
+
+// Keyboard listener: Escape to exit/skip tour
+const handleKeyDown = (e) => {
+  if (!isTourActive.value) return;
+  if (e.key === 'Escape') {
+    handleTourSkip();
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+  cleanupTourHighlights();
+});
+
 watch(
   isTourActive,
   async (active) => {
     if (active && activeTourSteps.value?.length > 0) {
+      cleanupTourHighlights();
       await nextTick();
       // Brief pause to ensure target elements are mounted and layout settles
       setTimeout(() => {
         start();
       }, 150);
+    } else {
+      cleanupTourHighlights();
     }
   },
   { flush: 'post' }
 );
-
-const handleTourFinish = () => {
-  endTour();
-};
-
-const handleTourExit = () => {
-  endTour();
-};
 </script>
 
 <style>
