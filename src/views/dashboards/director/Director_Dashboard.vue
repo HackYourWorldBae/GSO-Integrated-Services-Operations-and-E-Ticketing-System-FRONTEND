@@ -436,18 +436,15 @@
 
             <!-- Service Completion Rate & Ratings -->
             <div class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-6 shadow-sm">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
-                <div>
-                  <h4 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Service Completion Rate &amp; Ratings</h4>
-                  <p class="text-xs text-slate-500 font-medium mt-0.5">SLA Timeliness &amp; Client Satisfaction Evaluations (Per Sub-Unit)</p>
-                </div>
+              <div class="pb-4 border-b border-slate-100">
+                <h4 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Service Completion Rate &amp; Ratings</h4>
               </div>
 
-              <!-- Two Distinct Sub-Unit Cards: FGMU & LEAU -->
-              <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <!-- Two Distinct Sub-Unit Cards: FGMU & LEAU (Each Full-Width) -->
+              <div class="flex flex-col gap-6 w-full">
 
                 <!-- FGMU Card -->
-                <div class="p-5 sm:p-6 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-5">
+                <div class="w-full p-5 sm:p-6 lg:p-7 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-5">
                   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/70">
                     <div class="flex items-center gap-2.5">
                       <span class="px-2.5 py-1 rounded-lg text-xs font-black uppercase bg-blue-100 text-blue-800 border border-blue-200">FGMU</span>
@@ -473,25 +470,25 @@
                   <!-- FGMU Completion Health -->
                   <div class="space-y-2">
                     <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Completion Timeliness</span>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                      <div class="p-3 bg-sky-50/90 rounded-xl border border-sky-200/70 text-center">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div class="p-3.5 sm:p-4 bg-sky-50/90 rounded-xl border border-sky-200/70 text-center">
                         <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').early_finished ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-sky-700 block">{{ getUnitCompletionHealth('FGMU').early_finished_percent ?? 0 }}%</span>
+                        <span class="text-xs font-black text-sky-700 block">{{ getUnitCompletionHealth('FGMU').early_finished_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-sky-800 uppercase tracking-wider block mt-0.5">Early</span>
                       </div>
-                      <div class="p-3 bg-emerald-50/90 rounded-xl border border-emerald-200/70 text-center">
+                      <div class="p-3.5 sm:p-4 bg-emerald-50/90 rounded-xl border border-emerald-200/70 text-center">
                         <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').on_time ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-emerald-700 block">{{ getUnitCompletionHealth('FGMU').on_time_percent ?? 0 }}%</span>
+                        <span class="text-xs font-black text-emerald-700 block">{{ getUnitCompletionHealth('FGMU').on_time_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block mt-0.5">On-Time</span>
                       </div>
-                      <div class="p-3 bg-amber-50/90 rounded-xl border border-amber-200/70 text-center">
+                      <div class="p-3.5 sm:p-4 bg-amber-50/90 rounded-xl border border-amber-200/70 text-center">
                         <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').beyond_time ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-amber-700 block">{{ getUnitCompletionHealth('FGMU').beyond_time_percent ?? 0 }}%</span>
+                        <span class="text-xs font-black text-amber-700 block">{{ getUnitCompletionHealth('FGMU').beyond_time_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider block mt-0.5">Overdue</span>
                       </div>
-                      <div class="p-3 bg-slate-100 rounded-xl border border-slate-200 text-center">
+                      <div class="p-3.5 sm:p-4 bg-slate-100 rounded-xl border border-slate-200 text-center">
                         <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').not_completed ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-slate-600 block">{{ getUnitCompletionHealth('FGMU').not_completed_percent ?? 0 }}%</span>
+                        <span class="text-xs font-black text-slate-600 block">{{ getUnitCompletionHealth('FGMU').not_completed_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mt-0.5">Incomplete</span>
                       </div>
                     </div>
@@ -500,26 +497,26 @@
                   <!-- FGMU Dimensions -->
                   <div class="space-y-2 pt-2 border-t border-slate-200/60">
                     <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Service Dimensions</span>
-                    <div class="grid grid-cols-3 gap-2.5">
-                      <div class="p-3 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Quality</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Quality</span>
                         <div class="flex items-baseline gap-1">
-                          <span class="text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.avg_ratings?.avg_quality ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
-                          <span class="text-[10px] font-semibold text-slate-400">/ 5.0</span>
+                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.avg_ratings?.avg_quality ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
+                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
                         </div>
                       </div>
-                      <div class="p-3 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Efficiency</span>
+                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Efficiency</span>
                         <div class="flex items-baseline gap-1">
-                          <span class="text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.avg_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
-                          <span class="text-[10px] font-semibold text-slate-400">/ 5.0</span>
+                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.avg_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
+                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
                         </div>
                       </div>
-                      <div class="p-3 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Timeliness</span>
+                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Timeliness</span>
                         <div class="flex items-baseline gap-1">
-                          <span class="text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.avg_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
-                          <span class="text-[10px] font-semibold text-slate-400">/ 5.0</span>
+                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.avg_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
+                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
                         </div>
                       </div>
                     </div>
@@ -527,7 +524,7 @@
                 </div>
 
                 <!-- LEAU Card -->
-                <div class="p-5 sm:p-6 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-5">
+                <div class="w-full p-5 sm:p-6 lg:p-7 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-5">
                   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/70">
                     <div class="flex items-center gap-2.5">
                       <span class="px-2.5 py-1 rounded-lg text-xs font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">LEAU</span>
@@ -553,25 +550,25 @@
                   <!-- LEAU Completion Health -->
                   <div class="space-y-2">
                     <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Completion Timeliness</span>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                      <div class="p-3 bg-sky-50/90 rounded-xl border border-sky-200/70 text-center">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div class="p-3.5 sm:p-4 bg-sky-50/90 rounded-xl border border-sky-200/70 text-center">
                         <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').early_finished ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-sky-700 block">{{ getUnitCompletionHealth('LEAU').early_finished_percent ?? 0 }}%</span>
+                        <span class="text-xs font-black text-sky-700 block">{{ getUnitCompletionHealth('LEAU').early_finished_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-sky-800 uppercase tracking-wider block mt-0.5">Early</span>
                       </div>
-                      <div class="p-3 bg-emerald-50/90 rounded-xl border border-emerald-200/70 text-center">
+                      <div class="p-3.5 sm:p-4 bg-emerald-50/90 rounded-xl border border-emerald-200/70 text-center">
                         <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').on_time ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-emerald-700 block">{{ getUnitCompletionHealth('LEAU').on_time_percent ?? 0 }}%</span>
+                        <span class="text-xs font-black text-emerald-700 block">{{ getUnitCompletionHealth('LEAU').on_time_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block mt-0.5">On-Time</span>
                       </div>
-                      <div class="p-3 bg-amber-50/90 rounded-xl border border-amber-200/70 text-center">
+                      <div class="p-3.5 sm:p-4 bg-amber-50/90 rounded-xl border border-amber-200/70 text-center">
                         <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').beyond_time ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-amber-700 block">{{ getUnitCompletionHealth('LEAU').beyond_time_percent ?? 0 }}%</span>
+                        <span class="text-xs font-black text-amber-700 block">{{ getUnitCompletionHealth('LEAU').beyond_time_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider block mt-0.5">Overdue</span>
                       </div>
-                      <div class="p-3 bg-slate-100 rounded-xl border border-slate-200 text-center">
+                      <div class="p-3.5 sm:p-4 bg-slate-100 rounded-xl border border-slate-200 text-center">
                         <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').not_completed ?? 0 }}</span>
-                        <span class="text-[11px] font-black text-slate-600 block">{{ getUnitCompletionHealth('LEAU').not_completed_percent ?? 0 }}%</span>
+                        <span class="text-xs font-black text-slate-600 block">{{ getUnitCompletionHealth('LEAU').not_completed_percent ?? 0 }}%</span>
                         <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mt-0.5">Incomplete</span>
                       </div>
                     </div>
@@ -580,26 +577,26 @@
                   <!-- LEAU Dimensions -->
                   <div class="space-y-2 pt-2 border-t border-slate-200/60">
                     <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Service Dimensions</span>
-                    <div class="grid grid-cols-3 gap-2.5">
-                      <div class="p-3 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Quality</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Quality</span>
                         <div class="flex items-baseline gap-1">
-                          <span class="text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.avg_ratings?.avg_quality ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
-                          <span class="text-[10px] font-semibold text-slate-400">/ 5.0</span>
+                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.avg_ratings?.avg_quality ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
+                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
                         </div>
                       </div>
-                      <div class="p-3 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Efficiency</span>
+                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Efficiency</span>
                         <div class="flex items-baseline gap-1">
-                          <span class="text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.avg_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
-                          <span class="text-[10px] font-semibold text-slate-400">/ 5.0</span>
+                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.avg_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
+                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
                         </div>
                       </div>
-                      <div class="p-3 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Timeliness</span>
+                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Timeliness</span>
                         <div class="flex items-baseline gap-1">
-                          <span class="text-lg font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.avg_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
-                          <span class="text-[10px] font-semibold text-slate-400">/ 5.0</span>
+                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.avg_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
+                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
                         </div>
                       </div>
                     </div>
