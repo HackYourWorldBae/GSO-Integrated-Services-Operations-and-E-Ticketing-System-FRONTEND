@@ -103,6 +103,11 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
   const serviceBreakdown = data.service_breakdown || [];
   const materialsSummary = data.materials_summary || {};
   const compHealth = data.completion_health || {};
+  const compHealthByUnit = data.completion_health_by_unit || {};
+  const fgmuHealth = compHealthByUnit.FGMU || units.FGMU?.completion_health || {};
+  const leauHealth = compHealthByUnit.LEAU || units.LEAU?.completion_health || {};
+  const fgmuRatings = units.FGMU?.avg_ratings || {};
+  const leauRatings = units.LEAU?.avg_ratings || {};
   const delayReasons = data.delay_reasons || [];
   const ratings = summary.overall_ratings || {};
 
@@ -458,67 +463,103 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
               {
                 table: {
                   headerRows: 1,
-                  widths: ['*', 45, 45],
+                  widths: ['*', 35, 45],
                   body: [
                     [
-                      { text: 'CRITERION', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb' },
+                      { text: 'CRITERION / SUB-UNIT', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb' },
                       { text: 'VALUE', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
                       { text: 'SHARE / SCORE', bold: true, fontSize: 7, color: '#111827', fillColor: '#e5e7eb', alignment: 'center' },
                     ],
+                    // FGMU Header
                     [
-                      { text: 'Early / Ahead of Schedule', fontSize: 7.5, bold: true },
-                      { text: String(compHealth.early_finished || 0), fontSize: 7.5, alignment: 'center' },
-                      { text: `${compHealth.early_finished_percent || 0}%`, fontSize: 7.5, bold: true, alignment: 'center' },
+                      { text: 'Facilities & Grounds Management (FGMU)', colSpan: 3, bold: true, fontSize: 6.8, color: '#1e3a8a', fillColor: '#dbeafe' },
+                      {}, {},
                     ],
                     [
-                      { text: 'On-Time Completion', fontSize: 7.5, bold: true, fillColor: '#f9fafb' },
-                      { text: String(compHealth.on_time || 0), fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
-                      { text: `${compHealth.on_time_percent || 0}%`, fontSize: 7.5, bold: true, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: 'Early / Ahead of Schedule', fontSize: 6.8 },
+                      { text: String(fgmuHealth.early_finished || 0), fontSize: 6.8, alignment: 'center' },
+                      { text: `${fgmuHealth.early_finished_percent || 0}%`, fontSize: 6.8, bold: true, alignment: 'center' },
                     ],
                     [
-                      { text: 'Completed Beyond Schedule', fontSize: 7.5 },
-                      { text: String(compHealth.beyond_time || 0), fontSize: 7.5, alignment: 'center' },
-                      { text: `${compHealth.beyond_time_percent || 0}%`, fontSize: 7.5, alignment: 'center' },
+                      { text: 'On-Time Completion', fontSize: 6.8, fillColor: '#f9fafb' },
+                      { text: String(fgmuHealth.on_time || 0), fontSize: 6.8, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: `${fgmuHealth.on_time_percent || 0}%`, fontSize: 6.8, bold: true, alignment: 'center', fillColor: '#f9fafb' },
                     ],
                     [
-                      { text: 'Incomplete / Suspended', fontSize: 7.5, fillColor: '#f9fafb' },
-                      { text: String(compHealth.not_completed || 0), fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
-                      { text: `${compHealth.not_completed_percent || 0}%`, fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: 'Completed Beyond Schedule', fontSize: 6.8 },
+                      { text: String(fgmuHealth.beyond_time || 0), fontSize: 6.8, alignment: 'center' },
+                      { text: `${fgmuHealth.beyond_time_percent || 0}%`, fontSize: 6.8, alignment: 'center' },
                     ],
                     [
-                      { text: 'FGMU Satisfaction (avg)', fontSize: 7.5, fillColor: '#f9fafb' },
-                      { text: units.FGMU?.avg_ratings?.overall_avg ? `${parseFloat(units.FGMU.avg_ratings.overall_avg).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
-                      { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center', fillColor: '#f9fafb' },
+                      { text: 'Incomplete / Suspended', fontSize: 6.8, fillColor: '#f9fafb' },
+                      { text: String(fgmuHealth.not_completed || 0), fontSize: 6.8, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: `${fgmuHealth.not_completed_percent || 0}%`, fontSize: 6.8, alignment: 'center', fillColor: '#f9fafb' },
                     ],
                     [
-                      { text: 'LEAU Satisfaction (avg)', fontSize: 7.5 },
-                      { text: units.LEAU?.avg_ratings?.overall_avg ? `${parseFloat(units.LEAU.avg_ratings.overall_avg).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center' },
-                      { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center' },
+                      { text: 'Quality Dimension (avg)', fontSize: 6.8 },
+                      { text: fgmuRatings.avg_quality ? `${parseFloat(fgmuRatings.avg_quality).toFixed(2)}` : '5.00', fontSize: 6.8, alignment: 'center' },
+                      { text: '/ 5.00', fontSize: 6, color: '#6b7280', alignment: 'center' },
                     ],
                     [
-                      { text: 'SSU Satisfaction (avg)', fontSize: 7.5, fillColor: '#f9fafb' },
-                      { text: units.SSU?.avg_ratings?.overall_avg ? `${parseFloat(units.SSU.avg_ratings.overall_avg).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
-                      { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center', fillColor: '#f9fafb' },
+                      { text: 'Efficiency Dimension (avg)', fontSize: 6.8, fillColor: '#f9fafb' },
+                      { text: fgmuRatings.avg_efficiency ? `${parseFloat(fgmuRatings.avg_efficiency).toFixed(2)}` : '5.00', fontSize: 6.8, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: '/ 5.00', fontSize: 6, color: '#6b7280', alignment: 'center', fillColor: '#f9fafb' },
                     ],
                     [
-                      { text: 'Quality Rating (avg)', fontSize: 7.5 },
-                      { text: ratings.avg_quality ? `${parseFloat(ratings.avg_quality).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center' },
-                      { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center' },
+                      { text: 'Timeliness Dimension (avg)', fontSize: 6.8 },
+                      { text: fgmuRatings.avg_timeliness ? `${parseFloat(fgmuRatings.avg_timeliness).toFixed(2)}` : '5.00', fontSize: 6.8, alignment: 'center' },
+                      { text: '/ 5.00', fontSize: 6, color: '#6b7280', alignment: 'center' },
                     ],
                     [
-                      { text: 'Efficiency Rating (avg)', fontSize: 7.5 },
-                      { text: ratings.avg_efficiency ? `${parseFloat(ratings.avg_efficiency).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center' },
-                      { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center' },
+                      { text: 'FGMU Overall Satisfaction', bold: true, fontSize: 6.8, color: '#1e3a8a', fillColor: '#eff6ff' },
+                      { text: fgmuRatings.overall_avg ? `${parseFloat(fgmuRatings.overall_avg).toFixed(2)}` : '5.00', bold: true, fontSize: 7, alignment: 'center', fillColor: '#eff6ff' },
+                      { text: '/ 5.00', fontSize: 6, bold: true, alignment: 'center', fillColor: '#eff6ff' },
+                    ],
+
+                    // LEAU Header
+                    [
+                      { text: 'Landscaping & Environment (LEAU)', colSpan: 3, bold: true, fontSize: 6.8, color: '#065f46', fillColor: '#d1fae5' },
+                      {}, {},
                     ],
                     [
-                      { text: 'Timeliness Rating (avg)', fontSize: 7.5, fillColor: '#f9fafb' },
-                      { text: ratings.avg_timeliness ? `${parseFloat(ratings.avg_timeliness).toFixed(2)}` : 'N/A', fontSize: 7.5, alignment: 'center', fillColor: '#f9fafb' },
-                      { text: '/ 5.00', fontSize: 7, color: '#6b7280', alignment: 'center', fillColor: '#f9fafb' },
+                      { text: 'Early / Ahead of Schedule', fontSize: 6.8 },
+                      { text: String(leauHealth.early_finished || 0), fontSize: 6.8, alignment: 'center' },
+                      { text: `${leauHealth.early_finished_percent || 0}%`, fontSize: 6.8, bold: true, alignment: 'center' },
                     ],
                     [
-                      { text: 'Overall Client Rating', bold: true, fontSize: 7.5, color: '#111827', fillColor: '#f3f4f6' },
-                      { text: ratings.overall_avg ? `${parseFloat(ratings.overall_avg).toFixed(2)}` : 'N/A', bold: true, fontSize: 8, alignment: 'center', fillColor: '#f3f4f6' },
-                      { text: '/ 5.00', fontSize: 7, bold: true, alignment: 'center', fillColor: '#f3f4f6' },
+                      { text: 'On-Time Completion', fontSize: 6.8, fillColor: '#f9fafb' },
+                      { text: String(leauHealth.on_time || 0), fontSize: 6.8, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: `${leauHealth.on_time_percent || 0}%`, fontSize: 6.8, bold: true, alignment: 'center', fillColor: '#f9fafb' },
+                    ],
+                    [
+                      { text: 'Completed Beyond Schedule', fontSize: 6.8 },
+                      { text: String(leauHealth.beyond_time || 0), fontSize: 6.8, alignment: 'center' },
+                      { text: `${leauHealth.beyond_time_percent || 0}%`, fontSize: 6.8, alignment: 'center' },
+                    ],
+                    [
+                      { text: 'Incomplete / Suspended', fontSize: 6.8, fillColor: '#f9fafb' },
+                      { text: String(leauHealth.not_completed || 0), fontSize: 6.8, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: `${leauHealth.not_completed_percent || 0}%`, fontSize: 6.8, alignment: 'center', fillColor: '#f9fafb' },
+                    ],
+                    [
+                      { text: 'Quality Dimension (avg)', fontSize: 6.8 },
+                      { text: leauRatings.avg_quality ? `${parseFloat(leauRatings.avg_quality).toFixed(2)}` : '5.00', fontSize: 6.8, alignment: 'center' },
+                      { text: '/ 5.00', fontSize: 6, color: '#6b7280', alignment: 'center' },
+                    ],
+                    [
+                      { text: 'Efficiency Dimension (avg)', fontSize: 6.8, fillColor: '#f9fafb' },
+                      { text: leauRatings.avg_efficiency ? `${parseFloat(leauRatings.avg_efficiency).toFixed(2)}` : '5.00', fontSize: 6.8, alignment: 'center', fillColor: '#f9fafb' },
+                      { text: '/ 5.00', fontSize: 6, color: '#6b7280', alignment: 'center', fillColor: '#f9fafb' },
+                    ],
+                    [
+                      { text: 'Timeliness Dimension (avg)', fontSize: 6.8 },
+                      { text: leauRatings.avg_timeliness ? `${parseFloat(leauRatings.avg_timeliness).toFixed(2)}` : '5.00', fontSize: 6.8, alignment: 'center' },
+                      { text: '/ 5.00', fontSize: 6, color: '#6b7280', alignment: 'center' },
+                    ],
+                    [
+                      { text: 'LEAU Overall Satisfaction', bold: true, fontSize: 6.8, color: '#065f46', fillColor: '#ecfdf5' },
+                      { text: leauRatings.overall_avg ? `${parseFloat(leauRatings.overall_avg).toFixed(2)}` : '5.00', bold: true, fontSize: 7, alignment: 'center', fillColor: '#ecfdf5' },
+                      { text: '/ 5.00', fontSize: 6, bold: true, alignment: 'center', fillColor: '#ecfdf5' },
                     ],
                   ],
                 },
@@ -527,11 +568,18 @@ const buildDirectorReportDocDefinition = (data, logoDataUrl) => {
                   vLineWidth: () => 0.5,
                   hLineColor: () => '#e5e7eb',
                   vLineColor: () => '#e5e7eb',
-                  paddingLeft: () => 4,
-                  paddingRight: () => 4,
-                  paddingTop: () => 2.5,
-                  paddingBottom: () => 2.5,
+                  paddingLeft: () => 3,
+                  paddingRight: () => 3,
+                  paddingTop: () => 1.5,
+                  paddingBottom: () => 1.5,
                 },
+              },
+              {
+                text: '* SSU investigations are direct incident security protocols exempt from client CSAT evaluations.',
+                fontSize: 5.8,
+                italics: true,
+                color: '#6b7280',
+                margin: [0, 2, 0, 0],
               },
             ],
           },
