@@ -116,7 +116,7 @@ export function useTutorial() {
         roleLabel: info.label,
         roleIcon: info.icon,
         roleBadge: `${unit.toUpperCase()} Operations`,
-        roleSummary: `Operational walkthrough and complete manual reference for ${unit.toUpperCase()} administrators and unit dispatchers.`,
+        roleSummary: `Guide for ${unit.toUpperCase()} administrators to manage tickets, staff, and unit operations.`,
         pages
       };
     }

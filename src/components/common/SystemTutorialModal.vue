@@ -60,12 +60,12 @@ const {
   startPageTour
 } = useTutorial();
 
-// Format as "[Page Name] Guide"
+// Format as "[Page Name] Page Guide"
 const guideTitle = computed(() => {
   const name = activePageData.value?.name?.trim();
   if (!name) return 'Page Guide';
-  if (/guide$/i.test(name)) return name;
-  return `${name} Guide`;
+  const baseName = name.replace(/\s*(page\s+guide|guide)$/i, '').trim();
+  return `${baseName} Page Guide`;
 });
 
 const handleStartTour = () => {

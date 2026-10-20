@@ -26,7 +26,7 @@ export const createUnitAdminDashboardGuide = (unitCode = 'fgmu') => {
     icon: '📊',
     manualSection: `Section ${U === 'FGMU' ? 'C1' : U === 'LEAU' ? 'D1' : 'E1'}: ${U} Dashboard`,
     roleBadge: `${U} Unit Head`,
-    summary: `Central operational analytics command hub for ${unitName}. Provides real-time metrics on throughput, live queue workloads, daily performance over the past 7 days, technician evaluation ratings, and delay root-cause analysis.`,
+    summary: `Overview of ${unitName} daily operations. View total requests, completed work, live ticket numbers, and staff ratings.`,
     sections: [
       {
         title: 'Throughput & Volume Analytics',
@@ -142,7 +142,7 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
       icon: '📥',
       manualSection: 'Section E3: SSU Submitted Tickets',
       roleBadge: 'SSU Administrator',
-      summary: 'Review and evaluate incoming security incident reports filed by campus students, faculty, and personnel. Examine witness testimonies, attached evidence photos, and initiate safety investigations or administrative recommendations.',
+      summary: 'Review new campus incident reports from students and staff. Check details and photos, then start an investigation or take action.',
       sections: [
         {
           title: 'Queue Summary & Status Banner',
@@ -234,7 +234,7 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
     icon: '📥',
     manualSection: `Section ${U === 'FGMU' ? 'C3' : 'D3'}: Pending Approvals`,
     roleBadge: `${U} Administrator`,
-    summary: `Examine incoming service tickets for ${U}, review problem particulars and photo attachments, and take administrative actions: Approve for dispatch, Delay for inspections or procurement, Decline out-of-scope work, Recategorize misclassified trades, or Escalate heavy projects to the GSO Director.`,
+    summary: `Review new service requests for ${U}. Check photos and details, then approve, decline, delay, or forward them to the Director.`,
     sections: [
       {
         title: 'Filter & Search Toolbar',
@@ -376,7 +376,7 @@ export const createUnitAdminApprovedGuide = (unitCode = 'fgmu') => {
     icon: '✅',
     manualSection: `Section ${U === 'FGMU' ? 'C4' : 'D4'}: Approved Tickets`,
     roleBadge: `${U} Administrator`,
-    summary: `Manage tickets that have passed administrative approval and are awaiting dispatch. For work orders, proceed to technician assignment and scheduling. For borrowing requests, proceed to equipment/plant inventory allocation. Review and respond to incoming collaboration requests from counterpart units.`,
+    summary: `View approved requests waiting for staff assignment, item reservation, or assistance from other units.`,
     sections: [
       {
         title: 'Awaiting Dispatch Status Banner',
@@ -489,7 +489,7 @@ export const createUnitAdminDispatchGuide = (unitCode = 'fgmu') => {
     icon: '👷',
     manualSection: `Section ${U === 'FGMU' ? 'C5' : U === 'LEAU' ? 'D5' : 'E6'}: Dispatch Tickets`,
     roleBadge: `${U} Dispatcher`,
-    summary: `Assign qualified technicians or security responders to approved tickets, set calendar implementation start dates, compute target completion deadlines (auto-excluding weekends and official non-working holidays), pre-assess consumable materials, or reserve borrowing inventory.`,
+    summary: `Assign workers, set start dates and deadlines, list materials needed, and reserve tools or plants.`,
     sections: [
       {
         title: 'Active Assignment Target Banner',
@@ -629,7 +629,7 @@ export const createUnitAdminDispatchedGuide = (unitCode = 'fgmu') => {
     icon: '📅',
     manualSection: `Section ${U === 'FGMU' ? 'C6' : 'D6'}: Scheduled Tickets`,
     roleBadge: `${U} Administrator`,
-    summary: `Manage dispatched jobs awaiting on-site execution, print official University Job Order slips (with auto-rendered Unit Head and Director digital signatures), mark early job starts, and release reserved borrowing inventory to clients upon pickup.`,
+    summary: `Track scheduled jobs, print job order slips with signatures, mark when work begins, and release borrowed items.`,
     sections: [
       {
         title: 'Awaiting Implementation Status Badge',
@@ -745,7 +745,7 @@ export const createUnitAdminActiveGuide = (unitCode = 'fgmu') => {
       icon: '⚡',
       manualSection: 'Section E4: SSU Under Investigation',
       roleBadge: 'SSU Administrator',
-      summary: 'Monitor active security investigations across campus. Review witness testimonies, record formal security recommendation notations, dispatch security personnel if field response is required, and resolve completed cases.',
+      summary: 'Track ongoing security cases, write case notes, send security personnel if needed, and close solved incidents.',
       sections: [
         {
           title: 'Active Cases Status Banner',
@@ -836,7 +836,7 @@ export const createUnitAdminActiveGuide = (unitCode = 'fgmu') => {
     icon: '⚡',
     manualSection: `Section ${U === 'FGMU' ? 'C7' : 'D7'}: Active Tickets`,
     roleBadge: `${U} Operations Head`,
-    summary: `Monitor jobs actively undergoing on-site execution, authorize timeline extensions for unforeseen complications, adjust ongoing material scopes, liquidate actual spare parts consumed, inspect and return borrowed items, and review completed jobs awaiting client evaluation.`,
+    summary: `Track ongoing repairs, extend deadlines if delayed, record materials used, and check returned borrowed items.`,
     sections: [
       {
         title: 'Active & Awaiting Rating Status Banner',
@@ -976,7 +976,7 @@ export const createUnitAdminPersonnelGuide = (unitCode = 'fgmu') => {
     icon: '👥',
     manualSection: `Section ${U === 'FGMU' ? 'C8' : U === 'LEAU' ? 'D8' : 'E7'}: Personnel Management`,
     roleBadge: `${U} Roster Administrator`,
-    summary: `Manage the unit personnel roster, monitor real-time technician duty availability (Available, Working on Site, On Leave), register new staff accounts with optional mobile portal access, handle staff leave with automatic job reassignment or recovery timeline extension, and configure trade specialties.`,
+    summary: `View and manage your unit staff, check who is available or on leave, add new workers, and assign trade skills.`,
     sections: [
       {
         title: 'Personnel Directory & Specialty Filter',
@@ -1107,7 +1107,7 @@ export const createUnitAdminInventoryGuide = (unitCode = 'fgmu') => {
     icon: '📦',
     manualSection: `Section ${U === 'FGMU' ? 'C9' : 'D9'}: Inventory Management`,
     roleBadge: `${U} Inventory Custodian`,
-    summary: `Manage university tools, equipment, nursery plants, and materials. Monitor available stock levels, register new inventory items, conduct physical count quantity adjustments, update maintenance conditions, and fulfill equipment loans.`,
+    summary: `Manage tools, equipment, and plants. Check stock quantities, add items, update conditions, and handle loans.`,
     sections: [
       {
         title: 'Stock Metric Summary Cards',
@@ -1225,7 +1225,7 @@ export const createUnitAdminMaterialsGuide = (unitCode = 'fgmu') => {
     icon: '🧰',
     manualSection: `Section ${U === 'FGMU' ? 'C10' : 'D10'}: Common Materials Library`,
     roleBadge: `${U} Supplies Manager`,
-    summary: `Standardized supplies, consumable parts, and benchmark prices for ${U} dispatches and ticket pre-assessments. Enables accurate job costing, budget estimation, and automated liquidation reconciliation upon work order completion.`,
+    summary: `Browse standard materials and prices used for ${U} repairs and work orders.`,
     sections: [
       {
         title: 'Standard Supplies Catalog',
@@ -1312,7 +1312,7 @@ export const createUnitAdminCollabGuide = (unitCode = 'fgmu') => {
     icon: '🤝',
     manualSection: `Section ${U === 'FGMU' ? 'C11' : U === 'LEAU' ? 'D11' : 'E5'}: Collaboration Tickets`,
     roleBadge: `${U} Operations Coordinator`,
-    summary: `Coordinate complex multi-unit projects requiring synchronized support between FGMU, LEAU, and SSU. Manage incoming assistance requests, monitor counterpart worker assignments, track joint implementation dates, and review multi-department progress.`,
+    summary: `Coordinate shared jobs with other units (FGMU, LEAU, or SSU) and track joint worker assignments.`,
     sections: [
       {
         title: 'Cross-Unit Operations Header',
@@ -1400,7 +1400,7 @@ export const createUnitAdminArchivesGuide = (unitCode = 'fgmu') => {
     icon: '🏛️',
     manualSection: `Section ${U === 'FGMU' ? 'C12' : U === 'LEAU' ? 'D12' : 'E8'}: Archives & Records`,
     roleBadge: `${U} Records Custodian`,
-    summary: `Historical repository of all closed, completed, resolved, and declined tickets. Search records by ticket reference, filter by academic calendar year and service category, inspect completed particulars with client feedback ratings, and export dedicated audit packages (.ZIP).`,
+    summary: `View past completed, resolved, and declined requests. Search by ticket number or year, view ratings, and download records.`,
     sections: [
       {
         title: 'Completed Tickets Archives Header',
@@ -1501,7 +1501,7 @@ export const createUnitAdminSettingsGuide = (unitCode = 'fgmu') => {
     icon: '⚙️',
     manualSection: `Section ${U === 'FGMU' ? 'C13' : U === 'LEAU' ? 'D13' : 'E9'}: Account Settings`,
     roleBadge: `${U} Administrator`,
-    summary: `Manage your operational administrator profile, official email notifications (vital for immediate high-priority alerts), password security, and official digital approval signature applied automatically to generated Job Orders and Material Slips.`,
+    summary: `Update your profile, change password, manage email alerts, and save your digital signature for job orders.`,
     sections: [
       {
         title: 'Unit Operations Profile Card',
@@ -1599,7 +1599,7 @@ export const pageGuidesCatalog = {
     roleLabel: 'Student & Employee Portal',
     roleIcon: '🎓',
     roleBadge: 'Requestor Access',
-    roleSummary: 'Submit work orders, borrow university tools & plants, report campus security incidents, track ticket progress in real-time, and evaluate completed services.',
+    roleSummary: 'Submit service requests, borrow equipment or plants, report security incidents, and track your tickets.',
     pages: [
       {
         id: 'user-dashboard',
@@ -1608,7 +1608,7 @@ export const pageGuidesCatalog = {
         icon: '🏠',
         manualSection: 'Section B1: Dashboard Overview',
         roleBadge: 'Requestor Portal',
-        summary: 'Your central hub for tracking quick request updates, system alerts, ID verification status, and rapid navigation to the university services catalog.',
+        summary: 'See your recent requests, account verification status, and quick links to request services.',
         sections: [
           {
             title: 'Institutional ID Verification Notice',
@@ -1674,7 +1674,7 @@ export const pageGuidesCatalog = {
         icon: '📝',
         manualSection: 'Section B2: Submitting a Service Request (Step 1)',
         roleBadge: 'Requestor Portal',
-        summary: 'Browse and select university maintenance, borrowing, and safety services. RSO and SSG student representatives see authorized student services, while faculty and staff access structural and facilities trades.',
+        summary: 'Browse and choose available university services, repairs, tool borrowing, or security assistance.',
         sections: [
           {
             title: 'Student Representative vs Faculty Mode Banner',
@@ -1754,7 +1754,7 @@ export const pageGuidesCatalog = {
         icon: '📝',
         manualSection: 'Section B2: Submitting a Service Request (Step 2)',
         roleBadge: 'Requestor Portal',
-        summary: 'Enter problem particulars, specify campus building and room locations, upload photos, specify borrowing schedules, or narrate security incident reports.',
+        summary: 'Fill out your request details, pick the building and room, attach photos, and submit your form.',
         sections: [
           {
             title: 'Service Summary Header',
@@ -1840,7 +1840,7 @@ export const pageGuidesCatalog = {
         icon: '📋',
         manualSection: 'Section B3: My Service Requests',
         roleBadge: 'Requestor Portal',
-        summary: 'Track live status timelines across all your submitted tickets, review scheduled worker visits and borrowing pickup dates, cancel pending requests if plans change, and evaluate accomplished jobs.',
+        summary: 'Track the status of your requests, check worker visit dates, cancel pending tickets, and rate finished work.',
         sections: [
           {
             title: 'Search & Status Queue Tabs',
@@ -1946,7 +1946,7 @@ export const pageGuidesCatalog = {
         icon: '⭐',
         manualSection: 'Section B4: Completed Tickets',
         roleBadge: 'Requestor Portal',
-        summary: 'Inspect finalized and closed tickets for institutional reference, download official completion records, and view past star ratings and technician sign-offs.',
+        summary: 'View your finished requests, see worker notes and ratings, and download completion slips.',
         sections: [
           {
             title: 'Completed Tickets Search & Table',
@@ -2017,7 +2017,7 @@ export const pageGuidesCatalog = {
         icon: '⚙️',
         manualSection: 'Section B5: Account Settings',
         roleBadge: 'Requestor Portal',
-        summary: 'Manage your contact information, profile avatar, email notification preferences for request updates, institutional affiliation, and password security.',
+        summary: 'Update your personal info, change password, and set email notification preferences.',
         sections: [
           {
             title: 'Requestor Profile & Status Banner',
@@ -2102,8 +2102,7 @@ export const pageGuidesCatalog = {
     roleKey: 'admin',
     roleLabel: 'Unit Administrator (FGMU / LEAU / SSU)',
     roleIcon: '🛠️',
-    roleBadge: 'Unit Operations',
-    roleSummary: 'Oversee unit operations, manage pending tickets, dispatch skilled personnel, maintain plant/tool inventory, and review completed work orders.',
+    roleSummary: 'Oversee unit operations, manage tickets, assign workers, maintain inventory, and review past records.',
     pages: [] // Dynamically generated in useTutorial.js based on active unit
   },
 
@@ -2113,7 +2112,7 @@ export const pageGuidesCatalog = {
     roleLabel: 'Super Administrator Console',
     roleIcon: '🛡️',
     roleBadge: 'System Governance',
-    roleSummary: 'Root-level security administration, user account governance & RBAC, ID credential verification, business audit logging, privacy-protected account telemetry, disaster backup & restoration, and transactional email service pipelines.',
+    roleSummary: 'Manage user accounts, verify student and employee IDs, monitor system logs, create backups, and configure settings.',
     pages: [
       {
         id: 'superadmin-users',
@@ -2122,7 +2121,7 @@ export const pageGuidesCatalog = {
         icon: '👥',
         manualSection: 'Section F1: User Accounts',
         roleBadge: 'Superadmin Console',
-        summary: 'Comprehensive campus user directory. Provision internal GSO staff, manage Role-Based Access Control (RBAC), suspend compromised accounts, archive inactive users (180+ days), and inspect registration credentials.',
+        summary: 'Manage all user accounts, assign user roles, create staff accounts, and activate or suspend users.',
         sections: [
           {
             title: 'Campus User Directory Table',
@@ -2216,7 +2215,7 @@ export const pageGuidesCatalog = {
         icon: '🛡️',
         manualSection: 'Section F2: User Queues',
         roleBadge: 'Superadmin Console',
-        summary: 'Review and verify uploaded student and employee registration credentials (Front ID card and Selfie with ID) before unlocking service ticket submission privileges.',
+        summary: 'Check uploaded school IDs and selfies to approve or reject new user registrations.',
         sections: [
           {
             title: 'Queue Summary & Pending Counter',
@@ -2292,7 +2291,7 @@ export const pageGuidesCatalog = {
         icon: '📜',
         manualSection: 'Section F3: Business Audit Trail',
         roleBadge: 'Superadmin Console',
-        summary: 'Immutable, chronological record of all ticket actions, dispatches, cancellations, material liquidations, and status changes across all GSO sub-units.',
+        summary: 'View system activity logs for ticket updates, dispatches, cancellations, and status changes.',
         sections: [
           {
             title: 'Operations Audit Trail Explorer',
@@ -2358,7 +2357,7 @@ export const pageGuidesCatalog = {
         icon: '🔒',
         manualSection: 'Section F4: Account Activity Audit Trail',
         roleBadge: 'Superadmin Console',
-        summary: 'Privacy-protected security telemetry covering authentication and account lifecycle events (logins, logouts, password changes, registrations) with masked PII and RA 10173 compliance.',
+        summary: 'View security logs for user logins, logouts, password resets, and account registrations.',
         sections: [
           {
             title: 'Data Privacy Act (RA 10173) Compliance Notice',
@@ -2420,7 +2419,7 @@ export const pageGuidesCatalog = {
         icon: '💾',
         manualSection: 'Section F5: Backup & Recovery',
         roleBadge: 'Superadmin Console',
-        summary: 'Comprehensive disaster recovery hub. Create immediate full database snapshots, configure automated Google Drive cloud backups, activate Maintenance Mode with user eviction countdown, and restore system state.',
+        summary: 'Create database backups, set up Google Drive sync, and restore previous system copies when needed.',
         sections: [
           {
             title: 'Database Snapshot Operations Panel',
@@ -2516,7 +2515,7 @@ export const pageGuidesCatalog = {
         icon: '⚙️',
         manualSection: 'Section F6: Account Settings & Email Service',
         roleBadge: 'Superadmin Console',
-        summary: 'Root administrator profile management, system-wide Resend transactional email pipeline integration, API credentials, sender domain configuration, and test email verification.',
+        summary: 'Update admin profile, configure email service keys and domains, and send test emails.',
         sections: [
           {
             title: 'Root Administrator Profile Card',
@@ -2592,7 +2591,7 @@ export const pageGuidesCatalog = {
     roleLabel: 'Executive Director Console',
     roleIcon: '🏛️',
     roleBadge: 'Executive Director',
-    roleSummary: 'Institutional SLA analytics, multi-unit oversight (FGMU, LEAU, SSU), emergency escalations, holiday calendar, and financial material reports.',
+    roleSummary: 'Oversee FGMU, LEAU, and SSU operations, approve major requests, review materials reports, and set holiday calendars.',
     pages: [
       {
         id: 'director-dashboard',
@@ -2601,7 +2600,7 @@ export const pageGuidesCatalog = {
         icon: '📊',
         manualSection: 'Section G1: Executive Overview',
         roleBadge: 'Director Console',
-        summary: 'Institutional multi-unit performance console. Monitor throughput across FGMU, LEAU, and SSU, review top service categories, track SLA completion health, audit client star ratings, and export formal executive reports.',
+        summary: 'Overview of all unit operations (FGMU, LEAU, SSU). Monitor overall progress, ratings, and export executive reports.',
         sections: [
           {
             title: 'Unit Ticket Overview Cards',
@@ -2671,7 +2670,7 @@ export const pageGuidesCatalog = {
         icon: '📋',
         manualSection: 'Section G2: My Service Requests',
         roleBadge: 'Director Console',
-        summary: 'Submit and track service requests initiated by the Executive Director. Follow live progress timelines, cancel pending tickets, and evaluate completed work.',
+        summary: 'Submit and track requests made by the Director, check progress, and evaluate finished work.',
         sections: [
           {
             title: 'Director Self-Service Request Manager',
@@ -2732,7 +2731,7 @@ export const pageGuidesCatalog = {
         icon: '📑',
         manualSection: 'Section G3: Material Logs and Report',
         roleBadge: 'Director Console',
-        summary: 'Consolidated university-wide financial and material consumption report. Audit supplies and tools consumed across FGMU and LEAU work orders, review itemized costs, and export official materials reports.',
+        summary: 'Review materials and supplies used across work orders, check costs, and download materials reports.',
         sections: [
           {
             title: 'Summary Metric Cards',
@@ -2792,7 +2791,7 @@ export const pageGuidesCatalog = {
         icon: '📅',
         manualSection: 'Section G4: Special Non-Working Holidays',
         roleBadge: 'Director Console',
-        summary: 'Calibrate official non-working holidays and executive suspensions that are automatically bypassed during ticket working duration and deadline calculations.',
+        summary: 'Set official non-working holidays and school suspensions so deadlines skip those days automatically.',
         sections: [
           {
             title: 'Holiday Registry Table',
@@ -2853,7 +2852,7 @@ export const pageGuidesCatalog = {
         icon: '🛠️',
         manualSection: 'Section G5: FGMU Ticket Overview',
         roleBadge: 'Director Console',
-        summary: 'Review and manage tickets handled by FGMU. Sub-unit admins escalate heavy requests (major structural repairs or high-cost equipment) for executive Director approval.',
+        summary: 'Review FGMU requests and approve major repairs or high-cost jobs escalated by the unit head.',
         sections: [
           {
             title: 'Stage 1 - Escalated Approval Tab',
@@ -2963,7 +2962,7 @@ export const pageGuidesCatalog = {
         icon: '🌿',
         manualSection: 'Section G6: LEAU Ticket Overview',
         roleBadge: 'Director Console',
-        summary: 'Review and manage tickets handled by LEAU. Authorize large-scale environmental projects, major campus tree trimming, and bulk plant loans for university ceremonies.',
+        summary: 'Review LEAU requests and approve large landscaping, tree trimming, or bulk plant loan projects.',
         sections: [
           {
             title: 'Stage 1 - Escalated Approval Tab',
@@ -3040,7 +3039,7 @@ export const pageGuidesCatalog = {
         icon: '🛡️',
         manualSection: 'Section G7: SSU Reports Overview',
         roleBadge: 'Director Console',
-        summary: 'Confidential campus safety and security oversight. Review new incident reports and active investigations handled by the SSU. (Note: SSU handles incidents directly; the Director has read-only oversight).',
+        summary: 'View campus security incident reports and check ongoing investigations handled by SSU.',
         sections: [
           {
             title: 'Submitted Reports Tab (Read-Only)',
@@ -3090,7 +3089,7 @@ export const pageGuidesCatalog = {
         icon: '⚙️',
         manualSection: 'Section G11: Director Account Settings',
         roleBadge: 'Director Console',
-        summary: 'Manage executive profile, official digital directorate signature, email alert toggles across all three units, and the Sub-Unit Head Coverage Switcher to temporarily take charge of FGMU, LEAU, or SSU.',
+        summary: 'Update your profile, upload your digital signature, manage alerts, and switch coverage for any unit.',
         sections: [
           {
             title: 'Executive Profile Card',
@@ -3175,7 +3174,7 @@ export const pageGuidesCatalog = {
     roleLabel: 'Responding Field Personnel',
     roleIcon: '👷',
     roleBadge: 'Field Staff',
-    roleSummary: 'Mobile-friendly technician console to inspect assigned work orders, check campus room locations, view dispatcher instructions, and track completed job history.',
+    roleSummary: 'View assigned jobs, check campus room locations, read instructions, and view your work history.',
     pages: [
       {
         id: 'worker-dashboard',
@@ -3184,7 +3183,7 @@ export const pageGuidesCatalog = {
         icon: '📲',
         manualSection: 'Section H1: Assigned Work Orders',
         roleBadge: 'Field Personnel',
-        summary: 'Your daily field console. Inspect repair tasks assigned to you by unit admins, check exact building rooms, read dispatcher instructions, and view co-workers assigned to joint crews.',
+        summary: 'View tasks assigned to you, check building room locations, read instructions, and see your team members.',
         sections: [
           {
             title: 'Technician Banner & Workload Counters',
@@ -3253,7 +3252,7 @@ export const pageGuidesCatalog = {
         icon: '📜',
         manualSection: 'Section H2: Completed Jobs History',
         roleBadge: 'Field Personnel',
-        summary: 'Review your historical accomplishments, completed work order records, actual working durations, and responding crew members.',
+        summary: 'Review your past completed jobs, work duration records, and fellow crew members.',
         sections: [
           {
             title: 'Accomplishment Ledger Banner',
