@@ -232,21 +232,45 @@ export function useTutorial() {
 
     // Format steps for v-onboarding with deterministic target pinpointing & fallback
     const formattedSteps = rawSteps.map(s => {
-      const targetSelector = s.element || '#tour-main-workspace';
+      const targetSelector = s.element || '#tour-page-header';
 
       return {
         attachTo: {
           element: () => {
+            let el = null;
             if (targetSelector) {
-              const el = document.querySelector(targetSelector);
-              if (el && (el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0)) {
-                return el;
+              el = document.querySelector(targetSelector);
+            }
+
+            // If the element is #tour-main-workspace, main, body, or an excessively tall container,
+            // resolve it to a compact, prominent top heading/banner so the spotlight focuses cleanly
+            // and the user never has to scroll down through thousands of pixels.
+            const isBroadWorkspace = !el ||
+              targetSelector === '#tour-main-workspace' ||
+              targetSelector === 'main' ||
+              targetSelector === 'body';
+
+            if (isBroadWorkspace || (el && el.offsetHeight > (window.innerHeight * 0.55))) {
+              // Try finding the dedicated header or topmost prominent heading first
+              const compactAnchor = 
+                document.querySelector('#tour-page-header') ||
+                (el && el.querySelector('h1, h2, h3, [data-tour-header], .page-heading, .sidebar-header')) ||
+                document.querySelector('header h2, header h1, main h2, main h1');
+
+              if (compactAnchor && (compactAnchor.offsetWidth > 0 || compactAnchor.offsetHeight > 0)) {
+                return compactAnchor;
               }
             }
-            // Fallbacks if element isn't visible yet
+
+            if (el && (el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0)) {
+              return el;
+            }
+
+            // Fallbacks: compact header first, then workspace, then body
             return (
-              document.querySelector('#tour-main-workspace') ||
-              document.querySelector('main') ||
+              document.querySelector('#tour-page-header') ||
+              document.querySelector('header h2') ||
+              document.querySelector('main h2') ||
               document.body
             );
           },
@@ -254,7 +278,8 @@ export function useTutorial() {
         },
         content: {
           title: s.title,
-          description: s.desc
+          desc: s.desc || s.description || '',
+          description: s.desc || s.description || ''
         },
         on: {
           afterStep: () => {

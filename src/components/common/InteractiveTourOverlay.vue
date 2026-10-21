@@ -129,24 +129,24 @@ const wrapperOptions = {
   popper: {
     placement: 'bottom',
     modifiers: [
-      { name: 'offset', options: { offset: [0, 16] } },
+      { name: 'offset', options: { offset: [0, 14] } },
       { name: 'arrow', options: { padding: 12 } },
-      { name: 'flip', options: { fallbackPlacements: ['top', 'bottom', 'right', 'left'] } },
+      { name: 'flip', options: { fallbackPlacements: ['top', 'bottom', 'right', 'left'], padding: 16 } },
       { name: 'preventOverflow', options: { boundary: 'viewport', padding: 16 } }
     ]
   },
   overlay: {
     enabled: true,
-    padding: 8,
-    borderRadius: 14,
+    padding: 6,
+    borderRadius: 12,
     preventOverlayInteraction: false
   },
   scrollToStep: {
     enabled: true,
     options: {
       behavior: 'smooth',
-      block: 'center',
-      inline: 'center'
+      block: 'nearest',
+      inline: 'nearest'
     }
   },
   autoFinishByExit: true
@@ -272,5 +272,27 @@ watch(
 
 .animate-scale-up {
   animation: scaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Ensure Popper Step Card is constrained to viewport on all screen sizes */
+[data-v-onboarding-wrapper] {
+  max-width: 100vw !important;
+}
+
+.tour-card {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+
+/* On mobile viewports (≤ 640px), ensure the tour card docks nicely at the bottom
+   or stays safely within the visible viewport so elders never have to hunt/scroll */
+@media (max-width: 640px) {
+  .tour-card {
+    width: calc(100vw - 20px) !important;
+    max-width: 420px !important;
+    margin: 0 auto;
+    font-size: 0.95rem;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.15) !important;
+  }
 }
 </style>

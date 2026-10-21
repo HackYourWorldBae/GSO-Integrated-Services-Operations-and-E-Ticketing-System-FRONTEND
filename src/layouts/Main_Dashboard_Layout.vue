@@ -137,7 +137,7 @@
           </button>
           
           <!-- Page Title -->
-          <div class="flex items-center min-w-0 flex-1 overflow-hidden">
+          <div id="tour-page-header" class="flex items-center min-w-0 flex-1 overflow-hidden">
             <slot name="header-title">
               <h2 class="text-base sm:text-2xl font-black text-slate-900 tracking-tight truncate">Dashboard Overview</h2>
             </slot>
