@@ -45,23 +45,14 @@
               </p>
             </div>
 
-            <!-- Quick Stats Summary Counters -->
-            <div class="grid grid-cols-2 gap-3 shrink-0">
+            <!-- Quick Stats Summary Counter -->
+            <div class="flex items-center gap-3 shrink-0">
               <div class="p-3.5 rounded-2xl bg-white/[0.07] border border-white/10 text-center backdrop-blur-xs min-w-[100px]">
                 <span class="text-xl sm:text-2xl font-black text-white tabular-nums block">
                   {{ unitMaterials.length }}
                 </span>
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-0.5 block">
                   Total Items
-                </span>
-              </div>
-
-              <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/20 text-center backdrop-blur-xs min-w-[100px]">
-                <span class="text-xl sm:text-2xl font-black text-amber-300 tabular-nums block">
-                  ₱{{ averagePrice.toFixed(0) }}
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-200/70 mt-0.5 block">
-                  Avg. Price
                 </span>
               </div>
             </div>
@@ -110,16 +101,16 @@
             </button>
 
             <button
-              data-tour="materials-btn-sync"
-              @click="handleSeedDefaults"
+              data-tour="materials-btn-refresh"
+              @click="handleRefresh"
               :disabled="operationsStore.isSaving"
-              title="Ensure all standard baseline materials are present"
+              title="Refresh materials catalog"
               class="px-3.5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[44px] disabled:opacity-50"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span class="hidden sm:inline">Sync Baseline</span>
+              <span>Refresh</span>
             </button>
           </div>
         </div>
@@ -494,12 +485,6 @@ const unitMaterials = computed(() => {
   return operationsStore.materialsByUnit(effectiveUnit.value);
 });
 
-const averagePrice = computed(() => {
-  const items = unitMaterials.value;
-  if (!items.length) return 0;
-  const sum = items.reduce((acc, curr) => acc + Number(curr.default_price || 0), 0);
-  return sum / items.length;
-});
 
 // Filtering and Searching
 const searchQuery = ref('');
@@ -662,12 +647,12 @@ const handleDeleteMaterial = async (item) => {
   }
 };
 
-const handleSeedDefaults = async () => {
+const handleRefresh = async () => {
   try {
     await operationsStore.fetchMaterials(effectiveUnit.value);
-    toast.info(`Synchronized ${effectiveUnit.value} materials catalog.`);
+    toast.info(`Refreshed ${effectiveUnit.value} materials catalog.`);
   } catch (err) {
-    console.error('Failed to sync materials:', err);
+    console.error('Failed to refresh materials:', err);
   }
 };
 

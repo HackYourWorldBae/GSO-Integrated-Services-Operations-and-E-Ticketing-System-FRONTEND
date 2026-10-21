@@ -1242,9 +1242,9 @@ export const createUnitAdminMaterialsGuide = (unitCode = 'fgmu') => {
         details: 'Filter materials by item name or category (Electrical, Plumbing, Structural, Finishes, Landscaping, Nursery).'
       },
       {
-        title: 'Baseline Synchronization Dialog',
-        desc: 'Restore standardized pricing',
-        details: 'Sync Baseline feature restores institutional standards from the university server if local prices become outdated.'
+        title: 'Catalog Refresh',
+        desc: 'Reload materials catalog',
+        details: 'Refresh feature reloads standardized materials and benchmarks from the university server.'
       }
     ],
     tabs: [
@@ -1258,9 +1258,9 @@ export const createUnitAdminMaterialsGuide = (unitCode = 'fgmu') => {
         result: 'Adds supply item to the library.'
       },
       {
-        label: 'Sync Baseline',
+        label: 'Refresh',
         type: 'info',
-        desc: 'Synchronizes local material prices with institutional standard baselines from the university database.',
+        desc: 'Refreshes local material prices and items from the university database.',
         result: 'Updates benchmark prices across all catalog items.'
       },
       {
@@ -1282,11 +1282,10 @@ export const createUnitAdminMaterialsGuide = (unitCode = 'fgmu') => {
         ]
       },
       {
-        title: 'How to Sync Institutional Baseline Prices',
+        title: 'How to Refresh Materials Catalog',
         steps: [
-          'Click "Sync Baseline" in the library toolbar.',
-          'Review the synchronization preview comparing local vs server benchmark prices.',
-          'Confirm the sync to restore university standard baseline figures.'
+          'Click "Refresh" in the library toolbar.',
+          'The system fetches the latest standard materials and benchmarks from the database.'
         ]
       }
     ],
@@ -1294,7 +1293,7 @@ export const createUnitAdminMaterialsGuide = (unitCode = 'fgmu') => {
       { element: '#tour-main-workspace', title: `1. ${U} Materials Library`, desc: 'Standardized supplies, parts specifications, and baseline prices for university maintenance.' },
       { element: '[data-tour="materials-search-input"]', title: '2. Search Materials Catalog', desc: 'Search standardized supplies by item name, category, or unit of measure.' },
       { element: '[data-tour="materials-btn-add"]', title: '3. Add Standard Material', desc: 'Add a new standard consumable item with unit of measure and benchmark price.' },
-      { element: '[data-tour="materials-btn-sync"]', title: '4. Sync Baseline Standards', desc: 'Restore standard material baselines with institutional procurement benchmarks.' },
+      { element: '[data-tour="materials-btn-refresh"]', title: '4. Refresh Catalog', desc: 'Reload standard material catalog and benchmarks.' },
       { element: '[data-tour="materials-catalog-table"]', title: '5. Standard Materials Table', desc: 'Inspect standard material definitions, units of measurement, and benchmark prices.' }
     ]
   };
