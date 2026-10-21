@@ -1573,7 +1573,7 @@ export const createUnitAdminSettingsGuide = (unitCode = 'fgmu') => {
       {
         title: 'How to Configure Email Alert Preferences',
         steps: [
-          'Locate the "Email Notifications: Request & Ticket Updates" toggle.',
+          'Locate the "Email Notifications" toggle.',
           'Toggle "On" to receive immediate email notifications whenever a new ticket is submitted or an incident report is filed.',
           'Click "Save Changes" at the bottom of the profile.'
         ]
