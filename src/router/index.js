@@ -964,12 +964,9 @@ if (typeof window !== 'undefined') {
         icon: 'warning',
         title: 'Session Ended',
         html: `
-          <div style="text-align: center; color: #475569; font-size: 14px; line-height: 1.6; padding-top: 4px;">
-            <p style="margin-bottom: 8px; font-weight: 600; color: #1e293b;">
-              Your account was logged in from another device or browser.
-            </p>
-            <p style="margin: 0; color: #64748b; font-size: 13px;">
-              Only one active session is allowed per user account. You have been signed out from this session to keep your account secure.
+          <div style="text-align: center; color: #1e293b; font-size: 15px; line-height: 1.5; padding: 6px 0;">
+            <p style="margin: 0; font-weight: 600;">
+              You were signed out because your account logged in from another device.
             </p>
           </div>
         `,

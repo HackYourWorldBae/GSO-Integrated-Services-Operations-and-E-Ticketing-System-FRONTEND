@@ -433,16 +433,31 @@
               <div>
                 <h4 class="text-xl font-black text-slate-900 flex items-center gap-2 italic">
                   <div class="w-2.5 h-6 bg-amber-500 rounded-full shrink-0"></div>
-                  Root Cause Analysis (Why Delays &amp; Barriers Happen)
+                  Why Delays &amp; Barriers Happen (Root Cause Analysis)
                 </h4>
-                <p class="text-xs sm:text-sm text-slate-600 font-medium mt-0.5">Top reported operational factors causing timeline extensions or work stoppages</p>
+                <p class="text-xs sm:text-sm text-slate-600 font-medium mt-0.5">Reported operational factors causing timeline extensions or work stoppages</p>
               </div>
-              <span class="text-xs font-black text-amber-700 bg-amber-50 px-3 py-1 rounded-full uppercase tracking-wider border border-amber-200 shrink-0">
-                Improvement Focus
-              </span>
+              <button
+                type="button"
+                @click="showRootCauseDetails = !showRootCauseDetails"
+                class="px-4 py-2 min-h-[40px] text-xs sm:text-sm font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl transition-all cursor-pointer flex items-center gap-2 shrink-0 select-none shadow-2xs"
+                :aria-expanded="showRootCauseDetails"
+              >
+                <span>{{ showRootCauseDetails ? 'Hide Details' : 'View Detailed Factors' }}</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4 transition-transform duration-200"
+                  :class="{ 'rotate-180': showRootCauseDetails }"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div v-show="showRootCauseDetails" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in">
               
               <!-- Delay Reasons List -->
               <div class="space-y-4">
@@ -584,6 +599,7 @@ import api from '@/api/client';
 
 const router = useRouter();
 const stats = ref({});
+const showRootCauseDetails = ref(false);
 let isAlive = true;
 let statsRequestSeq = 0;
 let statsAbort = null;

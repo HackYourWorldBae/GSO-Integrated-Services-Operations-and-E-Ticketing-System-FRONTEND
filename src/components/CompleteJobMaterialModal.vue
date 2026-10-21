@@ -17,8 +17,8 @@
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-black text-white leading-tight">Complete Job & Material Liquidation</h3>
-                <p class="text-xs text-emerald-400 font-bold uppercase tracking-widest mt-0.5">
+                <h3 class="text-lg font-black text-white leading-tight">Complete Job & Record Materials Used</h3>
+                <p class="text-xs text-emerald-400 font-bold mt-0.5">
                   Ticket #{{ ticket?.id || '—' }} • {{ unitLabel }}
                 </p>
               </div>
@@ -26,7 +26,9 @@
 
             <button
               @click="emitClose"
-              class="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 transition-colors flex items-center justify-center cursor-pointer"
+              class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 text-slate-300 transition-colors flex items-center justify-center cursor-pointer shadow-xs"
+              title="Close modal"
+              aria-label="Close modal"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -40,20 +42,20 @@
             <!-- Ticket Summary Info Card -->
             <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Service Requested</span>
-                <span class="text-xs sm:text-sm font-bold text-slate-800 truncate block">{{ ticket?.title || ticket?.service_type || 'N/A' }}</span>
+                <span class="text-xs font-bold text-slate-600 block mb-0.5">Service Requested</span>
+                <span class="text-sm font-bold text-slate-900 truncate block">{{ ticket?.title || ticket?.service_type || 'N/A' }}</span>
               </div>
               <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Requestor</span>
-                <span class="text-xs sm:text-sm font-bold text-slate-800 truncate block">{{ ticket?.details?.end_user || ticket?.requestedBy || 'N/A' }}</span>
+                <span class="text-xs font-bold text-slate-600 block mb-0.5">Requestor</span>
+                <span class="text-sm font-bold text-slate-900 truncate block">{{ ticket?.details?.end_user || ticket?.requestedBy || 'N/A' }}</span>
               </div>
               <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Assigned Worker</span>
-                <span class="text-xs sm:text-sm font-bold text-slate-800 truncate block">{{ ticket?.assignment?.personnel_name || 'N/A' }}</span>
+                <span class="text-xs font-bold text-slate-600 block mb-0.5">Assigned Worker</span>
+                <span class="text-sm font-bold text-slate-900 truncate block">{{ ticket?.assignment?.personnel_name || 'N/A' }}</span>
               </div>
               <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Duration / Elapsed</span>
-                <span class="text-xs sm:text-sm font-black text-emerald-700 block">{{ elapsedDuration || 'Finished' }}</span>
+                <span class="text-xs font-bold text-slate-600 block mb-0.5">Duration / Elapsed</span>
+                <span class="text-sm font-black text-emerald-700 block">{{ elapsedDuration || 'Finished' }}</span>
               </div>
             </div>
 

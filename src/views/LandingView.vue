@@ -122,9 +122,7 @@ const goToRegister = () => router.push({ name: 'register' });
           </h1>
 
           <p class="hero-subtext">
-            The official digital platform for submitting, monitoring, and managing campus service
-            requests across all GSO units — designed for transparency, accountability,
-            and efficient campus operations.
+            Submit, track, and manage your campus service requests in one place — simple, fast, and paperless for all BSU students, faculty, and staff.
           </p>
 
           <div class="hero-actions">

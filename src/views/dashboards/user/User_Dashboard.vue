@@ -52,11 +52,11 @@
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-                <h4 class="text-sm sm:text-base font-black text-amber-950">Institutional ID Verification Under Review</h4>
-                <span class="px-2.5 py-0.5 text-xs font-black rounded-full bg-amber-200 text-amber-900">Pending Approval</span>
+                <h4 class="text-sm sm:text-base font-black text-amber-950">ID Verification in Progress</h4>
+                <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-amber-200 text-amber-900">Waiting for Approval</span>
               </div>
-              <p class="text-xs sm:text-sm text-amber-950 font-medium max-w-2xl leading-relaxed">
-                Your registration is complete and your institutional ID card photo has been queued for Super Administrator verification. You can freely explore the portal; service request submission will be enabled once your identity is confirmed.
+              <p class="text-sm text-amber-950 font-medium max-w-2xl leading-relaxed">
+                Your ID was submitted and is being checked by our team. You can look around the portal while you wait. Requesting services will be enabled once your ID is approved.
               </p>
             </div>
           </div>
