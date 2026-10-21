@@ -151,10 +151,11 @@
               type="button"
               id="tour-comfort-btn"
               @click="toggleComfortView"
-              :title="isComfortView ? 'Easy-to-read mode is ON (Larger text & high contrast). Click to turn OFF' : 'Click to turn ON Easy-to-read mode (Larger text & high contrast for seniors)'"
+              :title="isComfortView ? 'Comfort View is ON (Larger text & high contrast). Click to turn OFF' : 'Click to turn ON Comfort View (Larger text & high contrast for seniors)'"
+              aria-label="Comfort View"
               :aria-pressed="isComfortView"
               :class="[
-                'relative px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl transition-all border min-h-[36px] sm:min-h-[44px] flex items-center gap-1.5 sm:gap-2 cursor-pointer font-bold text-xs sm:text-sm select-none',
+                'relative p-2 sm:px-3 sm:py-2 rounded-xl transition-all border min-w-[36px] min-h-[36px] sm:min-h-[44px] flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 cursor-pointer font-bold text-xs sm:text-sm select-none',
                 isComfortView
                   ? 'bg-emerald-700 text-white border-emerald-800 shadow-md ring-2 ring-emerald-500/50'
                   : 'bg-slate-100 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 border-slate-300'
@@ -164,8 +165,12 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
-              <span class="inline">{{ isComfortView ? 'Easy-to-Read ON' : 'Easy-to-Read' }}</span>
+              <span class="hidden sm:inline">{{ isComfortView ? 'Comfort View ON' : 'Comfort View' }}</span>
               <span v-if="isComfortView" class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse hidden sm:inline-block"></span>
+              <span v-if="isComfortView" class="absolute -top-0.5 -right-0.5 sm:hidden flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+              </span>
             </button>
 
             <!-- Sound Alert Toggle (Dashboard Audio Notification Chimes) -->

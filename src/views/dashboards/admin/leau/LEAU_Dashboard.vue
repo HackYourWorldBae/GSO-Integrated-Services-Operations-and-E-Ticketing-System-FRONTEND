@@ -117,27 +117,27 @@
               </div>
           </div>
 
-          <!-- Top 3 Cards Grid -->
-          <div data-tour="admin-kpi-gauges" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <!-- 1. Total Requests / Daily Total Requests -->
+          <!-- Top 4 Cards Grid (2x2) -->
+          <div data-tour="admin-kpi-gauges" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- 1. Unresolved Requests / Daily Unresolved Requests (Top Left) -->
             <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
-                <span class="text-xs font-black text-slate-900 bg-slate-100 border border-slate-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
-                  {{ stats.filter?.label || (selectedPeriod === 'day' ? 'Daily' : 'All Time') }}
+                <span class="text-xs font-black text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
+                  {{ selectedPeriod === 'day' ? 'Daily Unresolved' : 'Unresolved' }}
                 </span>
               </div>
               <div>
-                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ unresolvedCount }}</h3>
                 <p class="text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-wider mt-1">
-                  {{ selectedPeriod === 'day' ? 'Daily Total Requests' : 'Total Requests' }}
+                  {{ selectedPeriod === 'day' ? 'Daily Unresolved Requests' : 'Unresolved Requests' }}
                 </p>
                 <p v-if="selectedPeriod === 'day'" class="text-[11px] text-slate-400 font-medium mt-0.5">
-                  Requests submitted on this specific day
+                  Requests pending resolution on this day
                 </p>
               </div>
             </div>
 
-            <!-- 2. Resolved Tickets / Daily Completed Jobs -->
+            <!-- 2. Resolved Tickets / Daily Completed Jobs (Top Right) -->
             <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
                 <span class="text-xs font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
@@ -155,7 +155,7 @@
               </div>
             </div>
 
-            <!-- 3. Declined Requests / Daily Declined Requests -->
+            <!-- 3. Declined Requests / Daily Declined Requests (Bottom Left) -->
             <div 
               @click="router.push('/admin/leau/archives')" 
               class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm cursor-pointer hover:border-slate-400 hover:shadow-md transition-all flex flex-col justify-between"
@@ -172,6 +172,24 @@
                 </p>
                 <p v-if="selectedPeriod === 'day'" class="text-[11px] text-slate-400 font-medium mt-0.5">
                   Requests declined or archived on this day
+                </p>
+              </div>
+            </div>
+
+            <!-- 4. Total Requests / Daily Total Requests (Bottom Right) -->
+            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center mb-4">
+                <span class="text-xs font-black text-slate-900 bg-slate-100 border border-slate-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
+                  {{ stats.filter?.label || (selectedPeriod === 'day' ? 'Daily' : 'All Time') }}
+                </span>
+              </div>
+              <div>
+                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+                <p class="text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-wider mt-1">
+                  {{ selectedPeriod === 'day' ? 'Daily Total Requests' : 'Total Requests' }}
+                </p>
+                <p v-if="selectedPeriod === 'day'" class="text-[11px] text-slate-400 font-medium mt-0.5">
+                  Requests submitted on this specific day
                 </p>
               </div>
             </div>
@@ -248,7 +266,7 @@
           </div>
         </div>
 
-        <!-- Live Workload & Operations Status (Bottom 3 Cards) -->
+        <!-- Live Workload & Operations Status (2x2 Grid) -->
         <div class="space-y-4">
           <div class="flex items-center justify-between px-1">
             <div>
@@ -259,9 +277,9 @@
             </div>
           </div>
 
-          <!-- Bottom 3 Cards Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <!-- 1. Pending (Awaiting Approval) -->
+          <!-- 2x2 Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- 1. Pending (Awaiting Approval) - Top Left -->
             <div 
               @click="router.push('/admin/leau/queues')"
               class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer hover:border-amber-300 transition-all flex flex-col justify-between"
@@ -275,10 +293,24 @@
               </div>
             </div>
 
-            <!-- 2. Dispatched & Scheduled -->
+            <!-- 2. Approved (Awaiting Dispatch) - Top Right -->
+            <div 
+              @click="router.push('/admin/leau/approved-tickets')"
+              class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer hover:border-indigo-300 transition-all flex flex-col justify-between"
+            >
+              <div class="flex items-center mb-4">
+                <span class="text-xs font-black text-indigo-700 bg-indigo-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">Approved</span>
+              </div>
+              <div>
+                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ stats.approved || 0 }}</h3>
+                <p class="text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-wider mt-1">Approved Requests</p>
+              </div>
+            </div>
+
+            <!-- 3. Dispatched & Scheduled - Bottom Left -->
             <div 
               @click="router.push('/admin/leau/dispatched')"
-              class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer flex flex-col justify-between"
+              class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer hover:border-blue-300 transition-all flex flex-col justify-between"
             >
               <div class="flex items-center mb-4">
                 <span class="text-xs font-black text-blue-700 bg-blue-100 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">Dispatched</span>
@@ -289,10 +321,10 @@
               </div>
             </div>
 
-            <!-- 3. Active Dispatches (Work In Progress) -->
+            <!-- 4. Active Dispatches (Work In Progress) - Bottom Right -->
             <div 
               @click="router.push('/admin/leau/active-tickets')"
-              class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer flex flex-col justify-between"
+              class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-200/80 shadow-md cursor-pointer hover:border-emerald-300 transition-all flex flex-col justify-between"
             >
               <div class="flex items-center mb-4">
                 <span class="text-xs font-black text-emerald-800 bg-emerald-200/80 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap">Active</span>
@@ -599,6 +631,17 @@ import api from '@/api/client';
 
 const router = useRouter();
 const stats = ref({});
+
+const unresolvedCount = computed(() => {
+  if (stats.value?.unresolved !== undefined && stats.value?.unresolved !== null) {
+    return Number(stats.value.unresolved) || 0;
+  }
+  const total = Number(stats.value?.total || 0);
+  const resolved = Number(stats.value?.resolved || 0);
+  const declined = Number(stats.value?.declined || 0);
+  return Math.max(0, total - (resolved + declined));
+});
+
 const showRootCauseDetails = ref(false);
 let isAlive = true;
 let statsRequestSeq = 0;

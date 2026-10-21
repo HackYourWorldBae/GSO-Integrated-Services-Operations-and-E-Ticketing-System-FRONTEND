@@ -141,30 +141,30 @@
               </div>
           </div>
 
-          <!-- Top 3 Cards Grid -->
-          <div data-tour="admin-kpi-gauges" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <!-- 1. Total Requests / Daily Total Requests -->
+          <!-- Top 4 Cards Grid (2x2) -->
+          <div data-tour="admin-kpi-gauges" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- 1. Unresolved Reports / Daily Unresolved Reports (Top Left) -->
             <div 
               @click="router.push('/admin/ssu/submitted-tickets')"
               class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm cursor-pointer hover:border-slate-400 hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div class="flex items-center mb-4">
-                <span class="text-xs font-black text-slate-900 bg-slate-100 border border-slate-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
-                  {{ stats.filter?.label || (selectedPeriod === 'day' ? 'Daily' : 'All Time') }}
+                <span class="text-xs font-black text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
+                  {{ selectedPeriod === 'day' ? 'Daily Unresolved' : 'Unresolved' }}
                 </span>
               </div>
               <div>
-                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ unresolvedCount }}</h3>
                 <p class="text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-wider mt-1">
-                  {{ selectedPeriod === 'day' ? 'Daily Total Requests' : 'Total Reports' }}
+                  {{ selectedPeriod === 'day' ? 'Daily Unresolved Reports' : 'Unresolved Reports' }}
                 </p>
                 <p v-if="selectedPeriod === 'day'" class="text-[11px] text-slate-400 font-medium mt-0.5">
-                  Reports submitted on this specific day
+                  Reports pending resolution on this day
                 </p>
               </div>
             </div>
 
-            <!-- 2. Resolved Reports / Daily Completed -->
+            <!-- 2. Resolved Reports / Daily Completed (Top Right) -->
             <div 
               @click="router.push('/admin/ssu/archives')"
               class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm cursor-pointer hover:border-slate-400 hover:shadow-md transition-all flex flex-col justify-between"
@@ -185,7 +185,7 @@
               </div>
             </div>
 
-            <!-- 3. Declined Reports / Daily Declined -->
+            <!-- 3. Declined Reports / Daily Declined (Bottom Left) -->
             <div 
               @click="router.push('/admin/ssu/archives')" 
               class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm cursor-pointer hover:border-slate-400 hover:shadow-md transition-all flex flex-col justify-between"
@@ -202,6 +202,27 @@
                 </p>
                 <p v-if="selectedPeriod === 'day'" class="text-[11px] text-slate-400 font-medium mt-0.5">
                   Reports dismissed or archived on this day
+                </p>
+              </div>
+            </div>
+
+            <!-- 4. Total Requests / Daily Total Requests (Bottom Right) -->
+            <div 
+              @click="router.push('/admin/ssu/submitted-tickets')"
+              class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm cursor-pointer hover:border-slate-400 hover:shadow-md transition-all flex flex-col justify-between"
+            >
+              <div class="flex items-center mb-4">
+                <span class="text-xs font-black text-slate-900 bg-slate-100 border border-slate-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
+                  {{ stats.filter?.label || (selectedPeriod === 'day' ? 'Daily' : 'All Time') }}
+                </span>
+              </div>
+              <div>
+                <h3 class="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+                <p class="text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-wider mt-1">
+                  {{ selectedPeriod === 'day' ? 'Daily Total Requests' : 'Total Reports' }}
+                </p>
+                <p v-if="selectedPeriod === 'day'" class="text-[11px] text-slate-400 font-medium mt-0.5">
+                  Reports submitted on this specific day
                 </p>
               </div>
             </div>
@@ -344,7 +365,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, nextTick } from 'vue';
+import { onMounted, onUnmounted, ref, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import Chart from 'chart.js/auto';
@@ -352,6 +373,16 @@ import api from '@/api/client';
 
 const router = useRouter();
 const stats = ref({});
+
+const unresolvedCount = computed(() => {
+  if (stats.value?.unresolved !== undefined && stats.value?.unresolved !== null) {
+    return Number(stats.value.unresolved) || 0;
+  }
+  const total = Number(stats.value?.total || 0);
+  const resolved = Number(stats.value?.resolved || 0);
+  const declined = Number(stats.value?.declined || 0);
+  return Math.max(0, total - (resolved + declined));
+});
 
 const ssuActivePeriod = ref('Month');
 const ssuPeriodFilters = [

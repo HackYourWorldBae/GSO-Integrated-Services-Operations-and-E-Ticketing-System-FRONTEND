@@ -107,19 +107,19 @@
               </div>
           </div>
 
-          <!-- Top 3 Cards Grid: Total, Resolved, Declined -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <!-- 1. Total Requests / Daily Total Requests -->
+          <!-- Top 4 Cards Grid: Unresolved, Resolved, Declined, Total (2x2) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- 1. Unresolved Requests / Daily Unresolved Requests (Top Left) -->
             <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
-                <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
-                  {{ selectedPeriod === 'day' ? 'Daily Requests' : 'Total Requests' }}
+                <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
+                  {{ selectedPeriod === 'day' ? 'Daily Unresolved' : 'Unresolved' }}
                 </span>
               </div>
               <div>
-                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ unresolvedCount }}</h3>
                 <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">
-                  {{ selectedPeriod === 'day' ? 'Daily Total Requests' : timeframeLabel }}
+                  {{ selectedPeriod === 'day' ? 'Daily Unresolved Requests' : timeframeLabel }}
                 </p>
                 <p v-if="selectedPeriod === 'day'" class="text-[10px] text-slate-400 font-medium mt-0.5">
                   {{ timeframeLabel }}
@@ -127,7 +127,7 @@
               </div>
             </div>
 
-            <!-- 2. Resolved Tickets / Daily Completed Jobs -->
+            <!-- 2. Resolved Tickets / Daily Completed Jobs (Top Right) -->
             <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
                 <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
@@ -145,7 +145,7 @@
               </div>
             </div>
 
-            <!-- 3. Declined Requests / Daily Declined Requests -->
+            <!-- 3. Declined Requests / Daily Declined Requests (Bottom Left) -->
             <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
                 <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
@@ -156,6 +156,24 @@
                 <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.declined || 0 }}</h3>
                 <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">
                   {{ selectedPeriod === 'day' ? 'Daily Declined Requests' : timeframeLabel }}
+                </p>
+                <p v-if="selectedPeriod === 'day'" class="text-[10px] text-slate-400 font-medium mt-0.5">
+                  {{ timeframeLabel }}
+                </p>
+              </div>
+            </div>
+
+            <!-- 4. Total Requests / Daily Total Requests (Bottom Right) -->
+            <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center mb-4">
+                <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
+                  {{ selectedPeriod === 'day' ? 'Daily Requests' : 'Total Requests' }}
+                </span>
+              </div>
+              <div>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">
+                  {{ selectedPeriod === 'day' ? 'Daily Total Requests' : timeframeLabel }}
                 </p>
                 <p v-if="selectedPeriod === 'day'" class="text-[10px] text-slate-400 font-medium mt-0.5">
                   {{ timeframeLabel }}
@@ -235,7 +253,7 @@
           </div>
         </div>
 
-        <!-- Live Workload & Operations Status (Bottom 3 Cards) -->
+        <!-- Live Workload & Operations Status (2x2 Grid) -->
         <div class="space-y-4">
           <div class="flex items-center justify-between px-1">
             <div>
@@ -246,10 +264,9 @@
             </div>
           </div>
 
-
-          <!-- Bottom 3 Cards Grid: Pending, Dispatched, Active -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <!-- 1. Pending -->
+          <!-- 2x2 Cards Grid: Pending, Approved, Dispatched, Active -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- 1. Pending (Top Left) -->
             <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
                 <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Pending</span>
@@ -260,7 +277,18 @@
               </div>
             </div>
 
-            <!-- 2. Dispatched & Scheduled -->
+            <!-- 2. Approved (Top Right) -->
+            <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center mb-4">
+                <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Approved</span>
+              </div>
+              <div>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.approved || 0 }}</h3>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">Approved Requests</p>
+              </div>
+            </div>
+
+            <!-- 3. Dispatched & Scheduled (Bottom Left) -->
             <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
                 <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Dispatched</span>
@@ -271,7 +299,7 @@
               </div>
             </div>
 
-            <!-- 3. Active Dispatches -->
+            <!-- 4. Active Dispatches (Bottom Right) -->
             <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
                 <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">Active</span>
@@ -559,6 +587,16 @@ import DirectorSidebar from './DirectorSidebar.vue';
 import api from '@/api/client';
 
 const stats = ref({});
+
+const unresolvedCount = computed(() => {
+  if (stats.value?.unresolved !== undefined && stats.value?.unresolved !== null) {
+    return Number(stats.value.unresolved) || 0;
+  }
+  const total = Number(stats.value?.total || 0);
+  const resolved = Number(stats.value?.resolved || 0);
+  const declined = Number(stats.value?.declined || 0);
+  return Math.max(0, total - (resolved + declined));
+});
 
 const safeVal = (val) => parseFloat(val) || 0;
 

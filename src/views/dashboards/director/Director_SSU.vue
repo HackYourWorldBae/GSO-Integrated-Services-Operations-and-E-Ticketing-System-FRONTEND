@@ -107,19 +107,19 @@
               </div>
           </div>
 
-          <!-- Top 3 Cards Grid: Total, Resolved, Declined -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <!-- 1. Total Requests / Daily Total Requests -->
+          <!-- Top 4 Cards Grid: Unresolved, Resolved, Declined, Total (2x2) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- 1. Unresolved Reports / Daily Unresolved Reports (Top Left) -->
             <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-md flex flex-col justify-between">
               <div class="flex items-center mb-4">
-                <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
-                  {{ selectedPeriod === 'day' ? 'Daily Requests' : 'Total Requests' }}
+                <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
+                  {{ selectedPeriod === 'day' ? 'Daily Unresolved' : 'Unresolved' }}
                 </span>
               </div>
               <div>
-                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ unresolvedCount }}</h3>
                 <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">
-                  {{ selectedPeriod === 'day' ? 'Daily Total Requests' : timeframeLabel }}
+                  {{ selectedPeriod === 'day' ? 'Daily Unresolved Reports' : timeframeLabel }}
                 </p>
                 <p v-if="selectedPeriod === 'day'" class="text-[10px] text-slate-400 font-medium mt-0.5">
                   {{ timeframeLabel }}
@@ -127,7 +127,7 @@
               </div>
             </div>
 
-            <!-- 2. Resolved Reports / Daily Completed -->
+            <!-- 2. Resolved Reports / Daily Completed (Top Right) -->
             <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-md flex flex-col justify-between">
               <div class="flex items-center mb-4">
                 <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
@@ -145,7 +145,7 @@
               </div>
             </div>
 
-            <!-- 3. Declined Reports / Daily Declined -->
+            <!-- 3. Declined Reports / Daily Declined (Bottom Left) -->
             <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-md flex flex-col justify-between">
               <div class="flex items-center mb-4">
                 <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
@@ -156,6 +156,24 @@
                 <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.declined || 0 }}</h3>
                 <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">
                   {{ selectedPeriod === 'day' ? 'Daily Declined Requests' : timeframeLabel }}
+                </p>
+                <p v-if="selectedPeriod === 'day'" class="text-[10px] text-slate-400 font-medium mt-0.5">
+                  {{ timeframeLabel }}
+                </p>
+              </div>
+            </div>
+
+            <!-- 4. Total Requests / Daily Total Requests (Bottom Right) -->
+            <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-md flex flex-col justify-between">
+              <div class="flex items-center mb-4">
+                <span class="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
+                  {{ selectedPeriod === 'day' ? 'Daily Requests' : 'Total Requests' }}
+                </span>
+              </div>
+              <div>
+                <h3 class="text-3xl font-black text-slate-900 tabular-nums">{{ stats.total || 0 }}</h3>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">
+                  {{ selectedPeriod === 'day' ? 'Daily Total Requests' : timeframeLabel }}
                 </p>
                 <p v-if="selectedPeriod === 'day'" class="text-[10px] text-slate-400 font-medium mt-0.5">
                   {{ timeframeLabel }}
@@ -302,6 +320,17 @@ import Chart from 'chart.js/auto';
 import api from '@/api/client';
 
 const stats = ref({});
+
+const unresolvedCount = computed(() => {
+  if (stats.value?.unresolved !== undefined && stats.value?.unresolved !== null) {
+    return Number(stats.value.unresolved) || 0;
+  }
+  const total = Number(stats.value?.total || 0);
+  const resolved = Number(stats.value?.resolved || 0);
+  const declined = Number(stats.value?.declined || 0);
+  return Math.max(0, total - (resolved + declined));
+});
+
 let charts = [];
 let isAlive = true;
 let statsRequestSeq = 0;
