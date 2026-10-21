@@ -7,29 +7,55 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 border-b border-slate-100">
         <!-- Stage Tabs -->
         <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
-          <!-- Tab: Unit Tickets -->
+          <!-- Tab: Job Requests (renamed from Unit Tickets) -->
           <button
-            data-tour="approved-tab-unit"
+            data-tour="approved-tab-job"
             type="button"
-            @click="switchApprovedTab('unit')"
+            @click="switchApprovedTab('job')"
             :class="[
               'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
-              approvedTab === 'unit'
+              (approvedTab === 'job' || approvedTab === 'unit')
                 ? [themeAccentBg, themeAccentShadow, 'text-white shadow-md']
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
             ]"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="approvedTab === 'unit' ? 'text-white' : 'text-slate-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="(approvedTab === 'job' || approvedTab === 'unit') ? 'text-white' : 'text-slate-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <span>Unit Tickets</span>
+            <span>Job Requests</span>
             <span
               :class="[
                 'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
-                approvedTab === 'unit' ? 'bg-white text-slate-950 font-black' : 'bg-slate-200 text-slate-800'
+                (approvedTab === 'job' || approvedTab === 'unit') ? 'bg-white text-slate-950 font-black' : 'bg-slate-200 text-slate-800'
               ]"
             >
-              {{ tickets.length }}
+              {{ jobTicketsCount }}
+            </span>
+          </button>
+
+          <!-- Tab: Borrowing Requests -->
+          <button
+            data-tour="approved-tab-borrowing"
+            type="button"
+            @click="switchApprovedTab('borrowing')"
+            :class="[
+              'flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+              approvedTab === 'borrowing'
+                ? [themeAccentBg, themeAccentShadow, 'text-white shadow-md']
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+            ]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="approvedTab === 'borrowing' ? 'text-white' : 'text-slate-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Borrowing</span>
+            <span
+              :class="[
+                'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                approvedTab === 'borrowing' ? 'bg-white text-slate-950 font-black' : 'bg-slate-200 text-slate-800'
+              ]"
+            >
+              {{ borrowingTicketsCount }}
             </span>
           </button>
 
@@ -132,9 +158,9 @@
           </button>
         </div>
 
-        <!-- Service Filter Dropdown (unit tickets only) -->
+        <!-- Service Filter Dropdown (Job requests only) -->
         <select
-          v-if="approvedTab === 'unit'"
+          v-if="approvedTab !== 'borrowing' && approvedTab !== 'collab'"
           v-model="selectedServiceFilter"
           @change="currentPage = 1"
           :class="[
@@ -183,7 +209,7 @@
       @updated="onCollabUpdated"
     />
 
-    <template v-if="approvedTab === 'unit'">
+    <template v-if="approvedTab !== 'collab'">
 
     <!-- ═══ Desktop Tabular View (Matching Director Ticket Queues) ═══ -->
     <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
@@ -193,36 +219,38 @@
             <tr class="bg-slate-50 border-b border-slate-200">
               <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Ticket Ref</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Requester</th>
-              <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
+              <th v-if="approvedTab !== 'borrowing'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Location</th>
+              <th v-if="approvedTab === 'borrowing'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Item Requested</th>
+              <th v-if="approvedTab === 'borrowing'" class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">Date Needed</th>
               <th class="px-3 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-xs">
             
             <!-- Loading State -->
-            <tr v-if="loading && tickets.length === 0">
-              <td colspan="4" class="py-16 text-center">
+            <tr v-if="loading && currentApprovedTickets.length === 0">
+              <td :colspan="approvedTab === 'borrowing' ? 5 : 4" class="py-16 text-center">
                 <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold">
                   <svg class="animate-spin h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Loading approved tickets...
+                  Loading {{ approvedTab === 'borrowing' ? 'borrowing requests' : 'job requests' }}...
                 </div>
               </td>
             </tr>
 
             <!-- Empty State -->
             <tr v-else-if="paginatedTickets.length === 0">
-              <td colspan="4" class="py-16 text-center">
+              <td :colspan="approvedTab === 'borrowing' ? 5 : 4" class="py-16 text-center">
                 <div class="max-w-sm mx-auto flex flex-col items-center">
                   <div class="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="text-sm font-bold text-slate-700">No Approved Tickets Pending Assignment</p>
-                  <p class="text-xs text-slate-400 mt-1">There are no records matching your current filter criteria.</p>
+                  <p class="text-sm font-bold text-slate-700">No {{ approvedTab === 'borrowing' ? 'Borrowing Requests' : 'Job Requests' }} Found</p>
+                  <p class="text-xs text-slate-400 mt-1">There are no approved {{ approvedTab === 'borrowing' ? 'borrowing requests' : 'job requests' }} matching your criteria.</p>
                 </div>
               </td>
             </tr>
@@ -279,10 +307,33 @@
                 </div>
               </td>
 
-              <!-- Location -->
-              <td class="px-3 py-2.5 whitespace-nowrap">
+              <!-- Location (Job Requests) -->
+              <td v-if="approvedTab !== 'borrowing'" class="px-3 py-2.5 whitespace-nowrap">
                 <div class="text-xs font-semibold text-slate-700">{{ ticket.location || ticket.college_building || 'Main Campus' }}</div>
                 <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
+              </td>
+
+              <!-- Item Requested (Borrowing Requests) -->
+              <td v-if="approvedTab === 'borrowing'" class="px-3 py-2.5">
+                <div class="text-xs font-black text-slate-900 truncate max-w-[220px]" :title="ticket.borrowing?.item_name_requested || ticket.item_requested || ticket.item_name || 'Tools / Equipment'">
+                  {{ ticket.borrowing?.item_name_requested || ticket.item_requested || ticket.item_name || 'Tools / Equipment' }}
+                  <span v-if="ticket.borrowing?.item_model_requested || ticket.item_model" class="font-semibold text-slate-500">
+                    ({{ ticket.borrowing?.item_model_requested || ticket.item_model }})
+                  </span>
+                </div>
+                <div class="text-[10px] text-sky-700 font-semibold">
+                  Qty: {{ ticket.borrowing?.quantity_needed || ticket.quantity_needed || ticket.quantity || 1 }}
+                </div>
+              </td>
+
+              <!-- Date Needed (Borrowing Requests) -->
+              <td v-if="approvedTab === 'borrowing'" class="px-3 py-2.5 whitespace-nowrap">
+                <div class="text-xs font-semibold text-slate-800">
+                  {{ formatDate(ticket.borrowing?.date_needed || ticket.date_needed) }}
+                </div>
+                <div v-if="ticket.borrowing?.expected_return_date || ticket.expected_return_date" class="text-[10px] text-slate-400">
+                  Until: {{ formatDate(ticket.borrowing?.expected_return_date || ticket.expected_return_date) }}
+                </div>
               </td>
 
               <!-- Actions -->
@@ -308,7 +359,7 @@
 
                   <!-- Assign Workers / Assign Inventory CTA (borrowing-aware) -->
                   <router-link
-                    v-if="isBorrowingTicket(ticket)"
+                    v-if="isBorrowingTicket(ticket) || approvedTab === 'borrowing'"
                     :to="borrowingDispatchLinkFor(ticket)"
                     data-tour="approved-btn-assign"
                     class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer bg-amber-600 hover:bg-amber-700"
@@ -382,7 +433,7 @@
 
       <!-- Empty State -->
       <div v-else-if="paginatedTickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
-        <p class="text-sm font-bold text-slate-600">No Approved Tickets</p>
+        <p class="text-sm font-bold text-slate-600">No {{ approvedTab === 'borrowing' ? 'Borrowing Requests' : 'Job Requests' }}</p>
         <p class="text-xs text-slate-400 mt-1">No matching records found.</p>
       </div>
 
@@ -419,8 +470,8 @@
           </div>
         </div>
 
-        <!-- Location (job/service removed) -->
-        <div class="mt-2 flex items-center justify-between text-xs text-slate-600">
+        <!-- Location for Job Requests -->
+        <div v-if="approvedTab !== 'borrowing'" class="mt-2 flex items-center justify-between text-xs text-slate-600">
           <div class="flex items-center gap-1.5 truncate">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -433,6 +484,18 @@
           </span>
         </div>
 
+        <!-- Borrowing Item Info (Borrowing Requests) -->
+        <div v-else class="mt-2 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/70 text-xs space-y-1">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-bold text-slate-900 truncate">{{ ticket.borrowing?.item_name_requested || ticket.item_requested || ticket.item_name || 'Tools / Equipment' }}</span>
+            <span class="text-[10px] text-amber-800 font-bold shrink-0">Qty: {{ ticket.borrowing?.quantity_needed || ticket.quantity_needed || ticket.quantity || 1 }}</span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500">
+            <span>Needed: <strong class="text-slate-800">{{ formatDate(ticket.borrowing?.date_needed || ticket.date_needed) }}</strong></span>
+            <span v-if="ticket.borrowing?.expected_return_date || ticket.expected_return_date">Return: {{ formatDate(ticket.borrowing?.expected_return_date || ticket.expected_return_date) }}</span>
+          </div>
+        </div>
+
         <!-- Actions -->
         <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end gap-2" @click.stop>
           <button
@@ -443,14 +506,14 @@
             Full Info
           </button>
           <router-link
-            v-if="isBorrowingTicket(ticket)"
+            v-if="isBorrowingTicket(ticket) || approvedTab === 'borrowing'"
             :to="borrowingDispatchLinkFor(ticket)"
             class="px-4 py-2 min-h-[38px] rounded-xl text-white text-xs font-black uppercase tracking-wider inline-flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95 touch-manipulation bg-amber-600 hover:bg-amber-700"
           >
             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
-            <span>Inventory</span>
+            <span>{{ ticket.status === 'processing' ? 'Ready for Pickup' : 'Assign Inventory' }}</span>
           </router-link>
           <router-link
             v-else
@@ -463,7 +526,7 @@
             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span>Assign</span>
+            <span>Assign Workers</span>
           </router-link>
         </div>
       </div>
@@ -749,14 +812,23 @@ const themeMobileBorderHover = computed(() => isLeau.value ? 'hover:border-amber
 const themeAttachmentHover = computed(() => isLeau.value ? 'hover:border-amber-500 hover:bg-amber-50/40' : 'hover:border-emerald-500 hover:bg-emerald-50/40');
 const themeAttachmentIconBg = computed(() => isLeau.value ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700');
 
-// Unit / Collab tab state — receiving unit dispatches joint tickets here.
-// Tabs + shared search live in one toolbar card (director queue style).
-const approvedTab = ref('unit');
+// Unit / Job / Borrowing / Collab tab state
+const approvedTab = ref('job');
 const collabCount = ref(0);
 const collabRefreshKey = ref(0);
 
+// ── Borrowing detection (LEAU Borrowing of Plants / Tools & Equipment) ──
+const isBorrowingTicket = (ticket) => isBorrowingService(ticket);
+const borrowingDispatchLinkFor = (ticket) => borrowingDispatchLink(ticket?.id, props.unitCode);
+
 const switchApprovedTab = (tab) => {
-  approvedTab.value = tab === 'collab' ? 'collab' : 'unit';
+  if (tab === 'collab') {
+    approvedTab.value = 'collab';
+  } else if (tab === 'borrowing') {
+    approvedTab.value = 'borrowing';
+  } else {
+    approvedTab.value = 'job';
+  }
   currentPage.value = 1;
 };
 
@@ -808,27 +880,46 @@ const selectedTicketForModal = ref(null);
 const currentPage = ref(1);
 const perPage = ref(15);
 
-const collabEmergencyCount = computed(() => {
-  return collabTickets.value.filter(t => !!t.is_emergency).length;
-});
+// Split tickets: Job Requests vs Borrowing Requests
+const jobTickets = computed(() => tickets.value.filter(t => !isBorrowingTicket(t)));
+const borrowingTickets = computed(() => tickets.value.filter(t => isBorrowingTicket(t)));
+
+const jobTicketsCount = computed(() => jobTickets.value.length);
+const borrowingTicketsCount = computed(() => borrowingTickets.value.length);
+
+const jobEmergencyCount = computed(() => jobTickets.value.filter(t => !!t.is_emergency).length);
+const collabEmergencyCount = computed(() => collabTickets.value.filter(t => !!t.is_emergency).length);
 
 const emergencyCount = computed(() => {
   if (approvedTab.value === 'collab') {
     return collabEmergencyCount.value;
   }
-  return tickets.value.filter(t => t.is_emergency).length;
+  if (approvedTab.value === 'borrowing') {
+    return 0;
+  }
+  return jobEmergencyCount.value;
 });
 
 const currentTabTotalCount = computed(() => {
   if (approvedTab.value === 'collab') {
     return collabCount.value;
   }
-  return tickets.value.length;
+  if (approvedTab.value === 'borrowing') {
+    return borrowingTicketsCount.value;
+  }
+  return jobTicketsCount.value;
+});
+
+const currentApprovedTickets = computed(() => {
+  if (approvedTab.value === 'borrowing') {
+    return borrowingTickets.value;
+  }
+  return jobTickets.value;
 });
 
 const uniqueServices = computed(() => {
   const set = new Set();
-  tickets.value.forEach(t => {
+  jobTickets.value.forEach(t => {
     const s = t.service || t.service_type || t.type;
     if (s && String(s).trim()) set.add(String(s).trim());
   });
@@ -836,7 +927,7 @@ const uniqueServices = computed(() => {
 });
 
 const filteredTickets = computed(() => {
-  let list = tickets.value;
+  let list = currentApprovedTickets.value;
 
   if (urgencyFilter.value === 'emergency') {
     list = list.filter(t => t.is_emergency);
@@ -844,7 +935,7 @@ const filteredTickets = computed(() => {
     list = list.filter(t => !t.is_emergency);
   }
 
-  if (selectedServiceFilter.value) {
+  if (approvedTab.value !== 'borrowing' && selectedServiceFilter.value) {
     const target = selectedServiceFilter.value.trim().toLowerCase();
     list = list.filter(t => {
       const s = (t.service || t.service_type || t.type || '').trim().toLowerCase();
@@ -863,7 +954,9 @@ const filteredTickets = computed(() => {
       (t.location && t.location.toLowerCase().includes(q)) ||
       (t.college_building && t.college_building.toLowerCase().includes(q)) ||
       (t.office_room && t.office_room.toLowerCase().includes(q)) ||
-      (t.job_description && t.job_description.toLowerCase().includes(q))
+      (t.job_description && t.job_description.toLowerCase().includes(q)) ||
+      (t.item_requested && t.item_requested.toLowerCase().includes(q)) ||
+      (t.borrowing?.item_name_requested && t.borrowing.item_name_requested.toLowerCase().includes(q))
     );
   }
 
@@ -903,12 +996,6 @@ const getInitials = (name) => {
   }
   return name.substring(0, 2).toUpperCase();
 };
-
-// ── Borrowing detection (LEAU Borrowing of Plants / Tools & Equipment) ──
-// Borrowing tickets use the inventory workflow instead of worker assignment.
-const isBorrowingTicket = (ticket) => isBorrowingService(ticket);
-
-const borrowingDispatchLinkFor = (ticket) => borrowingDispatchLink(ticket?.id, props.unitCode);
 
 const formatDate = (val) => {
   if (!val) return 'N/A';
@@ -1025,6 +1112,11 @@ const checkRouteQueryTicket = () => {
 
   if (match) {
     selectedTicketForModal.value = match;
+    if (isBorrowingTicket(match)) {
+      approvedTab.value = 'borrowing';
+    } else {
+      approvedTab.value = 'job';
+    }
     const idx = filteredTickets.value.findIndex(t => String(t.id) === String(match.id));
     if (idx !== -1) {
       currentPage.value = Math.floor(idx / perPage.value) + 1;
@@ -1046,9 +1138,12 @@ onMounted(async () => {
   }
   await fetchApprovedTickets();
   await fetchCollabCount();
-  // Deep-link ?tab=collab opens the incoming collab requests tab directly.
-  if (String(route.query.tab || '').toLowerCase() === 'collab') {
+  // Deep-link ?tab=collab or ?tab=borrowing opens the corresponding tab directly.
+  const targetTab = String(route.query.tab || '').toLowerCase();
+  if (targetTab === 'collab') {
     approvedTab.value = 'collab';
+  } else if (targetTab === 'borrowing') {
+    approvedTab.value = 'borrowing';
   }
   checkRouteQueryTicket();
 });

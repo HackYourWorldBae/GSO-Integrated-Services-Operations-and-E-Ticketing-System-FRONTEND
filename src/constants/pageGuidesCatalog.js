@@ -400,10 +400,16 @@ export const createUnitAdminApprovedGuide = (unitCode = 'fgmu') => {
     ],
     tabs: [
       {
-        name: 'Unit Tickets',
-        badge: 'Primary Queue',
-        desc: 'Approved work orders and borrowing requests originating from university requestors for your unit.',
+        name: 'Job Requests',
+        badge: 'Work Orders',
+        desc: 'Approved work orders originating from university requestors for your unit.',
         criteria: 'Holds tickets with status "Awaiting Dispatch".'
+      },
+      {
+        name: 'Borrowing',
+        badge: 'Inventory Allocation',
+        desc: 'Approved borrowing requests (tools, equipment, or plants) awaiting item assignment and pickup prep.',
+        criteria: 'Holds approved borrowing tickets awaiting inventory assignment.'
       },
       {
         name: 'Collab Requests',
@@ -451,7 +457,7 @@ export const createUnitAdminApprovedGuide = (unitCode = 'fgmu') => {
       {
         title: 'How to Fulfill a Borrowing Request',
         steps: [
-          'Locate the approved borrowing ticket (flagged with a Borrowing tag) in the Unit Tickets list.',
+          'Switch to the "Borrowing" tab on the Approved Tickets page to locate the approved borrowing ticket.',
           'Click "Assign Inventory" (or "Proceed to Assign Inventory" inside Full Info).',
           'Match the requested item and quantity against available on-shelf inventory, click "Assign", then click "Set Ready for Pickup".'
         ]
