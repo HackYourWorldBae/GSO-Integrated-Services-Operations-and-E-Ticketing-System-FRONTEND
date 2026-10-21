@@ -35,7 +35,7 @@
 
     <template #header-title>
       <h2 class="text-sm sm:text-xl font-bold text-slate-900 tracking-tight truncate">
-        {{ isDirector ? currentUnit + ' Ticket Overview' : currentUnit + ' Pending Approvals' }}
+        {{ isDirector ? currentUnit + ' Tickets Overview' : currentUnit + ' Pending Approvals' }}
       </h2>
     </template>
 
@@ -493,36 +493,24 @@
 
                   <!-- Actions -->
                   <td class="px-3 py-3 whitespace-nowrap text-right" @click.stop>
-                    <!-- Pending Tab Actions: Senior-Friendly Streamlined (Option A) -->
-                    <div v-if="activeTab === 'pending'" class="flex items-center justify-end gap-2 flex-wrap">
-                      <button
-                        @click="openDetailsModal(ticket)"
-                        class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer select-none"
-                        title="View Full Ticket Details, Attachments & Secondary Actions"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        <span>View Details</span>
-                      </button>
-
-                      <span
-                        v-if="!isDirector && ticket.is_escalated_to_director"
-                        class="px-3.5 py-2 min-h-[44px] rounded-xl border border-purple-200 bg-purple-50 text-purple-800 text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-2xs select-none"
-                        title="This ticket has been escalated and is awaiting the Director's executive approval."
-                      >
-                        <svg class="h-4 w-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>With Director</span>
-                      </span>
-
-                      <template v-else>
-                        <!-- Delay Approval: For Director (on escalated approvals) and Unit Head (on routine pending) -->
+                    <!-- Director View: Full Info + Delay (escalated pending) + Decline + Approve -->
+                    <template v-if="isDirector">
+                      <div class="flex items-center justify-end gap-2 flex-wrap">
                         <button
+                          @click="openDetailsModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer select-none"
+                          title="View Full Ticket Details"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Full Info</span>
+                        </button>
+
+                        <button
+                          v-if="ticket.is_escalated_to_director && activeTab === 'pending'"
                           data-tour="director-btn-delay"
-                          v-if="(isDirector && ticket.is_escalated_to_director) || (!isDirector && !ticket.is_escalated_to_director)"
                           @click="openDelayModal(ticket)"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
                           title="Delay Approval (e.g. Awaiting procurement of materials, budget clearance, or site assessment)"
@@ -534,119 +522,104 @@
                         </button>
 
                         <button
+                          v-if="(ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')) || (activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase()))"
+                          data-tour="director-btn-decline"
+                          @click="openDeclineModal(ticket)"
+                          class="px-3 py-2 min-h-[44px] rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="Decline Request"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          <span>Decline</span>
+                        </button>
+
+                        <button
+                          v-if="(ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')) || (activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase()))"
                           data-tour="director-btn-approve"
                           @click="initiateApproval(ticket)"
                           class="px-4 py-2 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                          :title="isDirector ? 'Executive Approve' : 'Direct Unit Head Approve'"
+                          title="Executive Approve Request"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                           </svg>
                           <span>Approve</span>
                         </button>
-                      </template>
-                    </div>
+                      </div>
+                    </template>
 
-                    <!-- Approval Delayed Tab Actions -->
-                    <div v-else-if="activeTab === 'delayed'" class="flex items-center justify-end gap-1.5">
-                      <button
-                        data-tour="director-btn-fullinfo"
-                        @click="openDetailsModal(ticket)"
-                        class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="View Full Info"
-                      >
-                        <span>Full Info</span>
-                      </button>
-                      <button
-                        data-tour="director-btn-decline"
-                        @click="openDeclineModal(ticket)"
-                        class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="Decline Request"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        <span>Decline</span>
-                      </button>
-                      <button
-                        v-if="!isDirector && ticket.is_escalated_to_director"
-                        disabled
-                        class="px-3.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-80 select-none shadow-2xs"
-                        title="This ticket has been escalated and is awaiting the Director's executive approval."
-                      >
-                        <svg class="h-3.5 w-3.5 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>Awaiting Director's Approval</span>
-                      </button>
-                      <button
-                        v-else
-                        @click="initiateApproval(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
-                        title="Direct Approve"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>Approve</span>
-                      </button>
-                    </div>
-
-                    <!-- Approved Tab Actions -->
-                    <div v-else-if="activeTab === 'approved'" class="flex items-center justify-end gap-2">
-                      <button
-                        @click="openDetailsModal(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        <span>Full Info</span>
-                      </button>
-                    </div>
-
-                    <!-- Dispatched Tab Actions -->
-                    <div v-else-if="activeTab === 'dispatched'" class="flex items-center justify-end gap-2">
-                      <button
-                        @click="openRescheduleModal(ticket)"
-                        class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
-                        title="Reschedule implementation date or target duration"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span>Reschedule</span>
-                      </button>
-                      <button
-                        @click="openNotationModal(ticket)"
-                        class="px-3 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
-                        title="Post ticket news or update to requestor"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span>Update</span>
-                      </button>
-                      <button
-                        @click="openDetailsModal(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        <span>Full Info</span>
-                      </button>
-                    </div>
-
-                    <!-- Borrowing Tab Actions -->
-                    <div v-else-if="activeTab === 'borrowing'" class="flex items-center justify-end gap-2">
-                      <template v-if="['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase())">
+                    <!-- Non-Director (Unit Head / Staff / Admin) Actions -->
+                    <template v-else>
+                      <!-- Pending Tab Actions: Senior-Friendly Streamlined (Option A) -->
+                      <div v-if="activeTab === 'pending'" class="flex items-center justify-end gap-2 flex-wrap">
                         <button
-                          @click.stop="openDeclineModal(ticket)"
-                          class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
-                          title="Decline request"
+                          @click="openDetailsModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer select-none"
+                          title="View Full Ticket Details, Attachments & Secondary Actions"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>View Details</span>
+                        </button>
+
+                        <span
+                          v-if="ticket.is_escalated_to_director"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-purple-200 bg-purple-50 text-purple-800 text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-2xs select-none"
+                          title="This ticket has been escalated and is awaiting the Director's executive approval."
+                        >
+                          <svg class="h-4 w-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>With Director</span>
+                        </span>
+
+                        <template v-else>
+                          <!-- Delay Approval: For Director (on escalated approvals) and Unit Head (on routine pending) -->
+                          <button
+                            data-tour="director-btn-delay"
+                            v-if="!ticket.is_escalated_to_director"
+                            @click="openDelayModal(ticket)"
+                            class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                            title="Delay Approval (e.g. Awaiting procurement of materials, budget clearance, or site assessment)"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Delay</span>
+                          </button>
+
+                          <button
+                            data-tour="director-btn-approve"
+                            @click="initiateApproval(ticket)"
+                            class="px-4 py-2 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                            title="Direct Unit Head Approve"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Approve</span>
+                          </button>
+                        </template>
+                      </div>
+
+                      <!-- Approval Delayed Tab Actions -->
+                      <div v-else-if="activeTab === 'delayed'" class="flex items-center justify-end gap-1.5">
+                        <button
+                          data-tour="director-btn-fullinfo"
+                          @click="openDetailsModal(ticket)"
+                          class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                          title="View Full Info"
+                        >
+                          <span>Full Info</span>
+                        </button>
+                        <button
+                          data-tour="director-btn-decline"
+                          @click="openDeclineModal(ticket)"
+                          class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                          title="Decline Request"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -654,7 +627,19 @@
                           <span>Decline</span>
                         </button>
                         <button
-                          @click.stop="initiateApproval(ticket)"
+                          v-if="ticket.is_escalated_to_director"
+                          disabled
+                          class="px-3.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-80 select-none shadow-2xs"
+                          title="This ticket has been escalated and is awaiting the Director's executive approval."
+                        >
+                          <svg class="h-3.5 w-3.5 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>Awaiting Director's Approval</span>
+                        </button>
+                        <button
+                          v-else
+                          @click="initiateApproval(ticket)"
                           class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
                           title="Direct Approve"
                         >
@@ -663,53 +648,127 @@
                           </svg>
                           <span>Approve</span>
                         </button>
-                      </template>
-                      <button
-                        @click="openDetailsModal(ticket)"
-                        class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-400 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        <span>Full Info</span>
-                      </button>
-                    </div>
+                      </div>
 
-                    <!-- Active Tab Actions: Details + Update + Grant Extension -->
-                    <div v-else-if="activeTab === 'active'" class="flex items-center justify-end gap-2">
-                      <button
-                        @click="openNotationModal(ticket)"
-                        class="px-3 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
-                        title="Post ticket news or update to requestor"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span>Update</span>
-                      </button>
-                      <button
-                        @click="openExtensionModal(ticket)"
-                        class="px-3 py-1.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
-                        title="Grant timeline extension due to unforeseen circumstances"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>Extend</span>
-                      </button>
-                      <button
-                        @click="openDetailsModal(ticket)"
-                        class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                        title="View Full Details"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        <span>Full Info</span>
-                      </button>
-                    </div>
+                      <!-- Approved Tab Actions -->
+                      <div v-else-if="activeTab === 'approved'" class="flex items-center justify-end gap-2">
+                        <button
+                          @click="openDetailsModal(ticket)"
+                          class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Full Info</span>
+                        </button>
+                      </div>
+
+                      <!-- Dispatched Tab Actions -->
+                      <div v-else-if="activeTab === 'dispatched'" class="flex items-center justify-end gap-2">
+                        <button
+                          @click="openRescheduleModal(ticket)"
+                          class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                          title="Reschedule implementation date or target duration"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span>Reschedule</span>
+                        </button>
+                        <button
+                          @click="openNotationModal(ticket)"
+                          class="px-3 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                          title="Post ticket news or update to requestor"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          <span>Update</span>
+                        </button>
+                        <button
+                          @click="openDetailsModal(ticket)"
+                          class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Full Info</span>
+                        </button>
+                      </div>
+
+                      <!-- Borrowing Tab Actions -->
+                      <div v-else-if="activeTab === 'borrowing'" class="flex items-center justify-end gap-2">
+                        <template v-if="['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase())">
+                          <button
+                            @click.stop="openDeclineModal(ticket)"
+                            class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                            title="Decline request"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span>Decline</span>
+                          </button>
+                          <button
+                            @click.stop="initiateApproval(ticket)"
+                            class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                            title="Direct Approve"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Approve</span>
+                          </button>
+                        </template>
+                        <button
+                          @click="openDetailsModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-400 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Full Info</span>
+                        </button>
+                      </div>
+
+                      <!-- Active Tab Actions: Details + Update + Grant Extension -->
+                      <div v-else-if="activeTab === 'active'" class="flex items-center justify-end gap-2">
+                        <button
+                          @click="openNotationModal(ticket)"
+                          class="px-3 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                          title="Post ticket news or update to requestor"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          <span>Update</span>
+                        </button>
+                        <button
+                          @click="openExtensionModal(ticket)"
+                          class="px-3 py-1.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                          title="Grant timeline extension due to unforeseen circumstances"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>Extend</span>
+                        </button>
+                        <button
+                          @click="openDetailsModal(ticket)"
+                          class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                          title="View Full Details"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Full Info</span>
+                        </button>
+                      </div>
+                    </template>
                   </td>
                 </tr>
               </tbody>
@@ -877,94 +936,147 @@
 
             <!-- Actions -->
             <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end gap-1.5 flex-wrap" @click.stop>
-              <!-- Pending Actions -->
-              <template v-if="activeTab === 'pending'">
-                <button v-if="isDirector && ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Return</button>
-                <button v-if="!isDirector && !ticket.is_escalated_to_director" @click="openEscalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Escalate</button>
-                <button v-if="!isDirector && ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Recall</button>
-                <button v-if="(isDirector && ticket.is_escalated_to_director) || (!isDirector && !ticket.is_escalated_to_director)" @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
-                <button @click="openDeclineModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+              <!-- Director View: Full Info + Delay (escalated pending) + Decline + Approve -->
+              <template v-if="isDirector">
                 <button
-                  v-if="!isDirector && ticket.is_escalated_to_director"
+                  @click="openDetailsModal(ticket)"
+                  class="px-3.5 py-1.5 min-h-[36px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                  title="View Full Ticket Details"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span>Full Info</span>
+                </button>
+
+                <button
+                  v-if="ticket.is_escalated_to_director && activeTab === 'pending'"
+                  @click="openDelayModal(ticket)"
+                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                  title="Delay Approval"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Delay</span>
+                </button>
+
+                <button
+                  v-if="(ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')) || (activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase()))"
+                  @click="openDeclineModal(ticket)"
+                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                  title="Decline Request"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span>Decline</span>
+                </button>
+
+                <button
+                  v-if="(ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')) || (activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase()))"
+                  @click="initiateApproval(ticket)"
+                  class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-sm"
+                  title="Executive Approve Request"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Approve</span>
+                </button>
+              </template>
+
+              <!-- Non-Director Mobile Actions -->
+              <template v-else>
+                <!-- Pending Actions -->
+                <template v-if="activeTab === 'pending'">
+                  <button v-if="!ticket.is_escalated_to_director" @click="openEscalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Escalate</button>
+                  <button v-if="ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Recall</button>
+                  <button v-if="!ticket.is_escalated_to_director" @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
+                  <button @click="openDeclineModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+                  <button
+                    v-if="ticket.is_escalated_to_director"
+                    disabled
+                    class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80"
+                  >
+                    Awaiting Director's Approval
+                  </button>
+                  <button
+                    v-else
+                    @click="initiateApproval(ticket)"
+                    class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer"
+                  >
+                    Approve
+                  </button>
+                </template>
+
+                <!-- Delayed Actions -->
+                <button v-if="activeTab === 'delayed'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+                <button
+                  v-if="activeTab === 'delayed' && ticket.is_escalated_to_director"
                   disabled
                   class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80"
                 >
                   Awaiting Director's Approval
                 </button>
-                <button
-                  v-else
-                  @click="initiateApproval(ticket)"
-                  class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer"
-                >
-                  Approve
-                </button>
+                <button v-else-if="activeTab === 'delayed'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
+
+                <!-- Dispatched Actions -->
+                <template v-if="activeTab === 'dispatched'">
+                  <button
+                    @click="openRescheduleModal(ticket)"
+                    class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Reschedule</span>
+                  </button>
+                  <button
+                    @click="openNotationModal(ticket)"
+                    class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span>Update</span>
+                  </button>
+                </template>
+
+                <!-- Active Actions -->
+                <template v-if="activeTab === 'active'">
+                  <button
+                    @click="openNotationModal(ticket)"
+                    class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span>Update</span>
+                  </button>
+                  <button @click="openExtensionModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Extend</button>
+                </template>
+
+                <!-- Borrowing Pending Actions -->
+                <template v-if="activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase())">
+                  <button
+                    @click="openDeclineModal(ticket)"
+                    class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer"
+                  >
+                    Decline
+                  </button>
+                  <button
+                    @click="initiateApproval(ticket)"
+                    class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer"
+                  >
+                    Approve
+                  </button>
+                </template>
+
+                <!-- Details (All Tabs) -->
+                <button @click="openDetailsModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Full Info</button>
               </template>
-
-              <!-- Delayed Actions -->
-              <button v-if="activeTab === 'delayed'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
-              <button
-                v-if="!isDirector && ticket.is_escalated_to_director"
-                disabled
-                class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80"
-              >
-                Awaiting Director's Approval
-              </button>
-              <button v-else-if="activeTab === 'delayed'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
-
-              <!-- Dispatched Actions -->
-              <template v-if="activeTab === 'dispatched'">
-                <button
-                  @click="openRescheduleModal(ticket)"
-                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>Reschedule</span>
-                </button>
-                <button
-                  @click="openNotationModal(ticket)"
-                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  <span>Update</span>
-                </button>
-              </template>
-
-              <!-- Active Actions -->
-              <template v-if="activeTab === 'active'">
-                <button
-                  @click="openNotationModal(ticket)"
-                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  <span>Update</span>
-                </button>
-                <button @click="openExtensionModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Extend</button>
-              </template>
-
-              <!-- Borrowing Pending Actions -->
-              <template v-if="activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase())">
-                <button
-                  @click="openDeclineModal(ticket)"
-                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer"
-                >
-                  Decline
-                </button>
-                <button
-                  @click="initiateApproval(ticket)"
-                  class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer"
-                >
-                  Approve
-                </button>
-              </template>
-
-              <!-- Details (All Tabs) -->
-              <button @click="openDetailsModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Details</button>
             </div>
           </div>
 
@@ -1280,109 +1392,188 @@
           <button @click="closeDetailsModal" class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer shadow-2xs">
             Close Full Info
           </button>
-          <div v-if="activeTab === 'pending'" class="flex items-center gap-2 flex-wrap">
-            <!-- Return to Unit Head (Director only for escalated tickets) -->
-            <button
-              v-if="isDirector && selectedTicketForModal.is_escalated_to_director"
-              @click="openDeescalateModal(selectedTicketForModal); closeDetailsModal()"
-              class="px-3.5 py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold hover:bg-purple-100 transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <svg class="h-4 w-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-              <span>Return to Unit</span>
-            </button>
 
-            <!-- Request Director Approval (Unit Head only, for non-escalated tickets) -->
-            <button
-              v-if="!isDirector && !selectedTicketForModal.is_escalated_to_director"
-              @click="openEscalateModal(selectedTicketForModal); closeDetailsModal()"
-              class="px-3.5 py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold hover:bg-purple-100 transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <svg class="h-4 w-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-              <span>Escalate to Director</span>
-            </button>
+          <!-- Director Actions: Delay, Decline, and Approve for Escalated / Borrowing tickets -->
+          <template v-if="isDirector">
+            <!-- Escalated Pending Tab Actions -->
+            <div v-if="activeTab === 'pending' && selectedTicketForModal?.is_escalated_to_director" class="flex items-center gap-2 flex-wrap">
+              <button
+                @click="openDelayModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1"
+                title="Delay Approval"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Delay Approval</span>
+              </button>
+              <button
+                @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Decline Request"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Decline Request</span>
+              </button>
+              <button
+                @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
+                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Executive Approve Escalated Ticket"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Approve Request</span>
+              </button>
+            </div>
 
-            <!-- Recall Escalation (Unit Head only, for escalated tickets) -->
-            <button
-              v-if="!isDirector && selectedTicketForModal.is_escalated_to_director"
-              @click="openDeescalateModal(selectedTicketForModal); closeDetailsModal()"
-              class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <svg class="h-4 w-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-              <span>Recall Escalation</span>
-            </button>
+            <!-- Escalated Delayed Tab Actions -->
+            <div v-else-if="activeTab === 'delayed' && selectedTicketForModal?.is_escalated_to_director" class="flex items-center gap-2">
+              <button
+                @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Decline Request"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Decline Request</span>
+              </button>
+              <button
+                @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
+                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Executive Approve Escalated Ticket"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Approve Request</span>
+              </button>
+            </div>
 
-            <button
-              v-if="!isDirector && !selectedTicketForModal.is_escalated_to_director"
-              @click="openRecategorizeModal(selectedTicketForModal); closeDetailsModal()"
-              class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
-              title="Change Nature of Work / Recategorize Ticket"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              <span>Recategorize</span>
-            </button>
-            <button
-              v-if="(isDirector && selectedTicketForModal.is_escalated_to_director) || (!isDirector && !selectedTicketForModal.is_escalated_to_director)"
-              @click="openDelayModal(selectedTicketForModal); closeDetailsModal()"
-              class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Delay</span>
-            </button>
-            <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
-              Decline Request
-            </button>
-            <button
-              v-if="!isDirector && selectedTicketForModal.is_escalated_to_director"
-              disabled
-              class="px-5 py-2.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80 flex items-center gap-1.5"
-            >
-              <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Awaiting Director's Approval</span>
-            </button>
-            <button
-              v-else
-              @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
-              class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
-            >
-              Approve Request
-            </button>
-          </div>
-          <div v-else-if="activeTab === 'delayed'" class="flex items-center gap-2">
-            <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
-              Decline
-            </button>
-            <button
-              v-if="!isDirector && selectedTicketForModal.is_escalated_to_director"
-              disabled
-              class="px-5 py-2.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80 flex items-center gap-1.5"
-            >
-              <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Awaiting Director's Approval</span>
-            </button>
-            <button
-              v-else
-              @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
-              class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
-            >
-              Approve
-            </button>
-          </div>
-          <div v-else-if="activeTab === 'active'">
-            <button @click="openExtensionModal(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-amber-600/20 transition-all cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Extend Timeline</span>
-            </button>
-          </div>
+            <!-- Borrowing Pending Actions -->
+            <div v-else-if="activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(selectedTicketForModal?.borrowing_status || selectedTicketForModal?.status).toLowerCase())" class="flex items-center gap-2">
+              <button
+                @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Decline Request"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Decline Request</span>
+              </button>
+              <button
+                @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
+                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Approve Request"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Approve Request</span>
+              </button>
+            </div>
+          </template>
+
+          <!-- Non-Director Actions -->
+          <template v-else>
+            <div v-if="activeTab === 'pending'" class="flex items-center gap-2 flex-wrap">
+              <!-- Request Director Approval (Unit Head only, for non-escalated tickets) -->
+              <button
+                v-if="!selectedTicketForModal.is_escalated_to_director"
+                @click="openEscalateModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold hover:bg-purple-100 transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <svg class="h-4 w-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                <span>Escalate to Director</span>
+              </button>
+
+              <!-- Recall Escalation (Unit Head only, for escalated tickets) -->
+              <button
+                v-if="selectedTicketForModal.is_escalated_to_director"
+                @click="openDeescalateModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <svg class="h-4 w-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                <span>Recall Escalation</span>
+              </button>
+
+              <button
+                v-if="!selectedTicketForModal.is_escalated_to_director"
+                @click="openRecategorizeModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Change Nature of Work / Recategorize Ticket"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <span>Recategorize</span>
+              </button>
+              <button
+                v-if="!selectedTicketForModal.is_escalated_to_director"
+                @click="openDelayModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Delay</span>
+              </button>
+              <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
+                Decline Request
+              </button>
+              <button
+                v-if="selectedTicketForModal.is_escalated_to_director"
+                disabled
+                class="px-5 py-2.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80 flex items-center gap-1.5"
+              >
+                <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Awaiting Director's Approval</span>
+              </button>
+              <button
+                v-else
+                @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
+                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+              >
+                Approve Request
+              </button>
+            </div>
+            <div v-else-if="activeTab === 'delayed'" class="flex items-center gap-2">
+              <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
+                Decline
+              </button>
+              <button
+                v-if="selectedTicketForModal.is_escalated_to_director"
+                disabled
+                class="px-5 py-2.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80 flex items-center gap-1.5"
+              >
+                <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Awaiting Director's Approval</span>
+              </button>
+              <button
+                v-else
+                @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
+                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+              >
+                Approve
+              </button>
+            </div>
+            <div v-else-if="activeTab === 'active'">
+              <button @click="openExtensionModal(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-amber-600/20 transition-all cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Extend Timeline</span>
+              </button>
+            </div>
+          </template>
         </div>
 
       </div>

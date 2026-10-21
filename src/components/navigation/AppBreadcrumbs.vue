@@ -1,8 +1,10 @@
 <script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
 const route = useRoute();
+const authStore = useAuthStore();
 
 const breadcrumbs = computed(() => {
   const path = route.path;
@@ -54,8 +56,20 @@ const breadcrumbs = computed(() => {
     crumbs.push({ label: 'User Account Management', to: null });
   } else if (path.includes('/superadmin/logs')) {
     crumbs.push({ label: 'Audit Trail & Operations Logs', to: null });
-  } else if (path.includes('/queues')) {
-    crumbs.push({ label: path.includes('/ssu') ? 'Incident Queues' : 'Ticket Queues', to: null });
+  } else if (path.includes('/queues') || path.includes('/pending-approvals') || path.endsWith('/pending')) {
+    const unit = path.includes('/fgmu')
+      ? 'FGMU'
+      : path.includes('/leau')
+      ? 'LEAU'
+      : path.includes('/ssu')
+      ? 'SSU'
+      : (route.meta?.unit ? String(route.meta.unit).toUpperCase() : '');
+    crumbs.push({
+      label: path.includes('/ssu') && !path.startsWith('/director')
+        ? 'Incident Queues'
+        : (unit ? `${unit} Tickets Overview` : 'Tickets Overview'),
+      to: null
+    });
   } else if (path.includes('/personnel/history') || path.includes('/completed-jobs')) {
     crumbs.push({ label: 'Completed Jobs History', to: null });
   } else if (path.includes('/personnel/dashboard') || path.startsWith('/worker') || path === '/personnel') {
