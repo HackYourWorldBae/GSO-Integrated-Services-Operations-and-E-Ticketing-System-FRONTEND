@@ -56,7 +56,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span>Upload Image (Auto-Remove Background)</span>
+            <span>Upload PNG Image</span>
           </button>
         </div>
 
@@ -167,7 +167,7 @@
             </div>
           </div>
 
-          <!-- MODE 2: UPLOAD IMAGE WITH AUTO BACKGROUND REMOVAL -->
+          <!-- MODE 2: UPLOAD PNG IMAGE -->
           <div v-show="activeMode === 'upload'" class="space-y-4">
             <!-- Upload Box (if no image yet) -->
             <div
@@ -182,7 +182,7 @@
               <input
                 ref="fileInputRef"
                 type="file"
-                accept="image/png,image/jpeg,image/jpg,image/webp"
+                accept="image/png"
                 class="hidden"
                 @change="handleFileSelect"
               />
@@ -191,23 +191,23 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
               </div>
-              <h4 class="text-sm font-black text-slate-900 mb-1">Upload a photo of your signature</h4>
+              <h4 class="text-sm font-black text-slate-900 mb-1">Upload your signature PNG</h4>
               <p class="text-xs text-slate-500 font-medium max-w-sm mb-3">
-                Sign on clean paper, snap a photo, and upload. The paper background will be removed automatically!
+                Upload a transparent PNG (.png) file of your signature.
               </p>
               <span class="inline-flex items-center px-3 py-1 rounded-full bg-slate-200/80 text-slate-700 text-[10px] font-bold">
-                PNG, JPG, or WebP up to 3MB
+                PNG format only, up to 3MB
               </span>
             </div>
 
-            <!-- Uploaded Image & Auto-Removed Background Preview -->
+            <!-- Uploaded Image Preview -->
             <div v-else class="space-y-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
-                    ✓ Background Removed
+                    ✓ PNG Ready
                   </span>
-                  <span class="text-xs text-slate-500 font-medium">Clean transparent ink</span>
+                  <span class="text-xs text-slate-500 font-medium">Signature loaded</span>
                 </div>
                 <button
                   type="button"
@@ -230,63 +230,8 @@
                 <img
                   v-if="processedSignatureDataUrl"
                   :src="processedSignatureDataUrl"
-                  alt="Processed Transparent Signature"
+                  alt="Signature Preview"
                   class="max-h-full max-w-full object-contain filter drop-shadow-sm"
-                />
-                <div v-else class="text-xs font-bold text-slate-400">
-                  Processing background removal...
-                </div>
-              </div>
-
-              <!-- Ink Tone Selector for Upload -->
-              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between flex-wrap gap-2 text-xs">
-                <span class="font-bold text-slate-700">Signature Ink Tone:</span>
-                <div class="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    @click="setUploadInkStyle('original')"
-                    class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                    :class="uploadInkStyle === 'original' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'"
-                  >
-                    Natural Ink
-                  </button>
-                  <button
-                    type="button"
-                    @click="setUploadInkStyle('black')"
-                    class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                    :class="uploadInkStyle === 'black' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'"
-                  >
-                    Deep Black
-                  </button>
-                  <button
-                    type="button"
-                    @click="setUploadInkStyle('blue')"
-                    class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                    :class="uploadInkStyle === 'blue' ? 'bg-blue-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'"
-                  >
-                    Navy Blue
-                  </button>
-                </div>
-              </div>
-
-              <!-- Sensitivity Adjustment Slider -->
-              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
-                <div class="flex items-center justify-between text-xs font-bold text-slate-700">
-                  <label for="sensitivity-slider" class="flex items-center gap-1.5 cursor-pointer">
-                    <span>Background Cleanup Level:</span>
-                    <span class="text-emerald-700 font-black">{{ Math.round(removalSensitivity * 100) }}%</span>
-                  </label>
-                  <span class="text-[10px] text-slate-400">Higher level cleans faint shadows</span>
-                </div>
-                <input
-                  id="sensitivity-slider"
-                  type="range"
-                  min="0.55"
-                  max="0.95"
-                  step="0.02"
-                  v-model.number="removalSensitivity"
-                  @input="reprocessUploadedImage"
-                  class="w-full accent-emerald-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
                 />
               </div>
             </div>
@@ -360,13 +305,6 @@ const fileInputRef = ref(null);
 const isDragging = ref(false);
 const uploadedRawImage = ref(null);
 const processedSignatureDataUrl = ref(null);
-const removalSensitivity = ref(0.80);
-const uploadInkStyle = ref('original'); // 'original' | 'black' | 'blue'
-
-const setUploadInkStyle = (style) => {
-  uploadInkStyle.value = style;
-  reprocessUploadedImage();
-};
 
 const hasValidSignature = computed(() => {
   if (activeMode.value === 'draw') {
@@ -409,7 +347,6 @@ const resetState = () => {
   currentStroke = null;
   uploadedRawImage.value = null;
   processedSignatureDataUrl.value = null;
-  uploadInkStyle.value = 'original';
   activeMode.value = 'draw';
 };
 
@@ -625,8 +562,9 @@ const handleFileDrop = (event) => {
 };
 
 const processRawImageFile = (file) => {
-  if (!['image/jpeg', 'image/png', 'image/webp', 'image/jpg'].includes(file.type)) {
-    toast.error('Please upload a valid JPG, PNG, or WebP image.');
+  const isPng = file.type === 'image/png' || file.name?.toLowerCase().endsWith('.png');
+  if (!isPng) {
+    toast.error('Please upload a transparent PNG (.png) image.');
     return;
   }
   if (file.size > 3 * 1024 * 1024) {
@@ -636,34 +574,20 @@ const processRawImageFile = (file) => {
 
   const reader = new FileReader();
   reader.onload = (e) => {
+    const dataUrl = e.target.result;
     const img = new Image();
     img.onload = () => {
       uploadedRawImage.value = img;
-      reprocessUploadedImage();
+      processedSignatureDataUrl.value = dataUrl;
     };
-    img.src = e.target.result;
+    img.src = dataUrl;
   };
   reader.readAsDataURL(file);
-};
-
-const reprocessUploadedImage = () => {
-  if (!uploadedRawImage.value) return;
-  try {
-    processedSignatureDataUrl.value = removeSignatureBackground(
-      uploadedRawImage.value,
-      removalSensitivity.value,
-      uploadInkStyle.value
-    );
-  } catch (err) {
-    console.error('Failed to auto-remove signature background:', err);
-    toast.error('Failed to process image background.');
-  }
 };
 
 const resetUploadedImage = () => {
   uploadedRawImage.value = null;
   processedSignatureDataUrl.value = null;
-  uploadInkStyle.value = 'original';
   if (fileInputRef.value) fileInputRef.value.value = '';
 };
 

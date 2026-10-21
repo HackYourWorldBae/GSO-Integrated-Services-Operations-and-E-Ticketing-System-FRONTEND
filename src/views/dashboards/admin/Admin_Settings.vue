@@ -64,12 +64,9 @@
               </div>
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">{{ unitCode }} Operations Profile</h3>
-                  <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider rounded-md border border-emerald-200">
-                    {{ roleLabel }}
-                  </span>
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">{{ unitCode }} Administrator Profile</h3>
                 </div>
-                <p class="text-xs text-slate-500 font-medium mt-0.5">Manage operational profile details and credentials for {{ unitCode }}</p>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Manage operational profile details and credentials for {{ unitCode }} admin</p>
               </div>
             </div>
 
@@ -387,7 +384,7 @@
                       No official signature registered
                     </h5>
                     <p class="text-xs text-slate-500 font-medium">
-                      Draw on screen or upload a photo of your signature with auto-background removal.
+                      Draw on screen or upload a transparent PNG image (.png) of your signature.
                     </p>
                   </div>
                 </div>
@@ -517,12 +514,6 @@ const unitFullName = computed(() => {
     case 'SSU': return 'Special Services Unit';
     default: return 'Facilities & Grounds Maintenance Unit';
   }
-});
-
-const roleLabel = computed(() => {
-  const role = (authStore.role || authStore.user?.role || '').toLowerCase();
-  if (role === 'staff') return `${unitCode.value} Staff`;
-  return `${unitCode.value} Administrator`;
 });
 
 onMounted(() => {

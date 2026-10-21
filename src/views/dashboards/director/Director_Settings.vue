@@ -359,7 +359,7 @@
                       No Director signature registered
                     </h5>
                     <p class="text-xs text-slate-500 font-medium">
-                      Draw on screen or upload an image of your signature with automatic background removal.
+                      Draw on screen or upload a transparent PNG image (.png) of your signature.
                     </p>
                   </div>
                 </div>

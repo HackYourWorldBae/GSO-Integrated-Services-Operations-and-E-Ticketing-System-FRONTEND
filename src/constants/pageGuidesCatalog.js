@@ -3097,7 +3097,7 @@ export const pageGuidesCatalog = {
           {
             title: 'Official Executive Signature Studio',
             desc: 'Directorate approval signee on Job Orders',
-            details: 'Auto-rendered above the GSO Director signature line on official Job Orders (QM-GSO-01). Features Draw Signature and Upload Image with background removal.'
+            details: 'Auto-rendered above the GSO Director signature line on official Job Orders (QM-GSO-01). Features Draw Signature and Upload Transparent PNG Image.'
           },
           {
             title: 'Sub-Unit Head Coverage & Switcher (Acting Head Mode)',
