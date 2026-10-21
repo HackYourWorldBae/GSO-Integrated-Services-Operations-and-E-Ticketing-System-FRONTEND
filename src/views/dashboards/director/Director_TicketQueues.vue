@@ -108,23 +108,7 @@
               <span class="truncate">Scheduled</span>
             </button>
 
-            <!-- Tab 5: Borrowing Queue -->
-            <button
-              v-if="!isPendingOnlyMode"
-              data-tour="director-tab-borrowing"
-              @click="switchTab('borrowing')"
-              :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
-                isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
-                activeTab === 'borrowing'
-                  ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
-                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
-              ]"
-            >
-              <span class="truncate">Borrowing</span>
-            </button>
-
-            <!-- Tab 6: Active Work Orders -->
+            <!-- Tab 5: Active Work Orders (In Progress) -->
             <button
               v-if="!isPendingOnlyMode"
               data-tour="director-tab-active"
@@ -138,6 +122,22 @@
               ]"
             >
               <span class="truncate">In Progress</span>
+            </button>
+
+            <!-- Tab 6: Borrowing Queue -->
+            <button
+              v-if="!isPendingOnlyMode"
+              data-tour="director-tab-borrowing"
+              @click="switchTab('borrowing')"
+              :class="[
+                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
+                activeTab === 'borrowing'
+                  ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
+              ]"
+            >
+              <span class="truncate">Borrowing</span>
             </button>
           </div>
 
