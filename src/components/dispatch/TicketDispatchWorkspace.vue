@@ -384,13 +384,13 @@
             <div class="border border-white/10 rounded-xl overflow-x-auto custom-scrollbar bg-slate-900/60 hidden sm:block">
               <table class="w-full min-w-[620px] text-left text-xs border-collapse">
                 <thead>
-                  <tr class="bg-white/5 border-b border-white/10 text-[11px] font-bold text-white">
-                    <th class="py-2.5 px-3 w-8 text-center">#</th>
-                    <th class="py-2.5 px-3">Material / Item Description</th>
-                    <th class="py-2.5 px-3 w-20">Qty</th>
-                    <th class="py-2.5 px-3 w-28">Unit</th>
-                    <th class="py-2.5 px-3 w-28 text-right">Est. Price (₱)</th>
-                    <th class="py-2.5 px-3 w-28 text-right">Total (₱)</th>
+                  <tr class="bg-white/5 border-b border-white/10 text-[11px] font-bold">
+                    <th class="py-2.5 px-3 w-8 text-center text-white">#</th>
+                    <th class="py-2.5 px-3 text-white">Material / Item Description</th>
+                    <th class="py-2.5 px-3 w-20 text-white">Qty</th>
+                    <th class="py-2.5 px-3 w-28 text-white">Unit</th>
+                    <th class="py-2.5 px-3 w-28 text-right text-white">Est. Price (₱)</th>
+                    <th class="py-2.5 px-3 w-28 text-right text-white">Total (₱)</th>
                     <th class="py-2.5 px-2 w-10 text-center"></th>
                   </tr>
                 </thead>
