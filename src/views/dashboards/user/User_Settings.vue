@@ -66,7 +66,7 @@
                 </div>
                 <div>
                    <h3 class="text-lg font-black text-slate-900 tracking-tight">Personal Details</h3>
-                   <p class="text-sm text-slate-500 font-medium">Click on avatar to upload photo, or update account details below</p>
+                   <p class="text-sm text-slate-500 font-medium">Upload a photo, or change your account details below.</p>
                 </div>
              </div>
              <div class="flex items-center gap-2">
@@ -145,7 +145,7 @@
                   </div>
                   <input v-model="form.email" :type="isPersonnel ? 'text' : 'email'" class="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-[1.25rem] text-sm font-bold text-slate-700 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none" :placeholder="isPersonnel ? 'Enter username (e.g. juan_delacruz)' : 'user@university.edu'" :autocomplete="isPersonnel ? 'username' : 'email'">
                 </div>
-                <p class="text-[11px] text-slate-400 font-medium ml-1">{{ isPersonnel ? 'Used for signing in to the personnel dashboard (3-50 characters: letters, numbers, dots, hyphens, or underscores).' : 'Used for login and all request/ticket email updates (including status changes).' }}</p>
+                <p class="text-[11px] text-slate-400 font-medium ml-1">{{ isPersonnel ? 'Your sign-in name for the worker dashboard. Use letters, numbers, dots, hyphens, or underscores (3-50 characters).' : 'Your email address for signing in and receiving ticket updates.' }}</p>
               </div>
 
               <!-- Email Updates Opt-In (wired to email_notifications_enabled) — Hidden for personnel / worker accounts -->
@@ -164,7 +164,7 @@
                     </label>
                   </div>
                   <p class="text-xs leading-relaxed font-medium" :class="form.emailNotificationsEnabled ? 'text-emerald-800/80' : 'text-slate-500'">
-                    When on, status updates for your submitted requests (approved, dispatched, completed, declined) are emailed to <span class="font-bold">this address ({{ form.email || 'your email' }})</span>. Toggle off to stay dashboard-only.
+                    When on, you get emails when your requests change status (approved, sent to worker, finished, or declined).
                   </p>
                   <p v-if="!form.emailNotificationsEnabled" class="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">Email updates are paused — you will not receive ticket status emails until re-enabled.</p>
                 </div>
@@ -193,7 +193,7 @@
                     When enabled, signing in requires both your password and a 6-digit one-time verification code sent to your registered email (<span class="font-bold">{{ form.email || 'your email' }}</span>).
                   </p>
                   <p v-if="!form.isMfaEnabled" class="text-[11px] font-medium text-slate-500">
-                    Two-factor authentication is currently disabled. Enable this to add an extra layer of protection to your account.
+                    Two-factor login is off. Turn it on to add extra protection to your account.
                   </p>
                 </div>
               </div>
@@ -216,7 +216,7 @@
                   <span>{{ authStore.user.college }}</span>
                 </p>
                 <p class="text-[11px] text-slate-500 font-medium">
-                  Your student representative account is authorized to request: Borrowing of Tools/Equipment, Borrowing of Plants, Hauling, Stage &amp; Hall Decoration, and Incident Reports.
+                  Your student representative account can request: Borrowing Tools/Equipment, Borrowing Plants, Hauling, Stage & Hall Decoration, and Incident Reports.
                 </p>
               </div>
 
@@ -235,7 +235,7 @@
                   <span>{{ authStore.user.college }}</span>
                 </p>
                 <p class="text-[11px] text-slate-500 font-medium">
-                  Your employee account is authorized to request all general campus services and track work orders across university facilities.
+                  Your employee account can request all campus services and track work orders across university facilities.
                 </p>
               </div>
 
@@ -472,7 +472,7 @@ const handleSave = async () => {
     }
 
     if (result.success) {
-      toast.success(isPersonnel.value ? 'Personnel account settings updated successfully!' : 'Profile updated successfully!');
+      toast.success(isPersonnel.value ? 'Worker account updated successfully!' : 'Profile updated successfully!');
     } else {
       toast.error(result.message || 'Failed to update profile.');
     }

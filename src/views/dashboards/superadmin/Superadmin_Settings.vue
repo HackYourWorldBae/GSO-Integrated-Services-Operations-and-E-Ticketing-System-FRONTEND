@@ -38,7 +38,7 @@
                     Root Superadmin
                   </span>
                 </div>
-                <p class="text-xs text-slate-500 font-medium mt-0.5">Manage system administrator identity and root access credentials</p>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Manage your system administrator identity and login details.</p>
               </div>
             </div>
 
@@ -136,7 +136,7 @@
                     placeholder="superadmin@bsu.edu.ph"
                   />
                 </div>
-                <p class="text-[11px] text-slate-400 font-medium ml-1">Primary administrative system email address. Used for login and system notifications.</p>
+                <p class="text-[11px] text-slate-400 font-medium ml-1">Your main system email. Used for signing in and system messages.</p>
               </div>
 
               <!-- Email Notifications Toggle -->
@@ -155,7 +155,7 @@
                     </label>
                   </div>
                   <p class="text-xs leading-relaxed font-medium" :class="form.emailNotificationsEnabled ? 'text-emerald-800/80' : 'text-slate-500'">
-                    When on, system backup events, critical audit alerts, and security warnings are sent to <span class="font-bold">{{ form.email || 'your email' }}</span>.
+                    When on, backup events, audit alerts, and security warnings are sent to <span class="font-bold">{{ form.email || 'your email' }}</span>.
                   </p>
                   <p v-if="!form.emailNotificationsEnabled" class="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
                     Email alerts are paused.
@@ -183,10 +183,10 @@
                     </label>
                   </div>
                   <p class="text-xs leading-relaxed font-medium" :class="form.isMfaEnabled ? 'text-emerald-800/80' : 'text-slate-500'">
-                    When enabled, Super Administrator sign-in requires both your password and a 6-digit one-time verification code dispatched to <span class="font-bold">{{ form.email || 'your email' }}</span>.
+                    When on, signing in needs both your password and a 6-digit code sent to <span class="font-bold">{{ form.email || 'your email' }}</span>.
                   </p>
                   <p v-if="!form.isMfaEnabled" class="text-[11px] font-medium text-slate-500">
-                    Two-factor authentication is currently disabled. Recommended for highest privilege security.
+                    Extra login protection is off. Turn it on to keep your superadmin account safe.
                   </p>
                 </div>
               </div>
@@ -258,8 +258,8 @@
               <div class="space-y-0.5">
                 <h4 class="text-xs font-black text-white uppercase tracking-wider">Root Security Notice</h4>
                 <p class="text-xs text-slate-400 leading-relaxed font-medium">
-                  This account controls global system security policies, identity verification approvals, audit logs, and account provisionings. Ensure you maintain strong authentication practices.
-                </p>
+                    This account handles system security, identity approvals, audit logs, and account setup. Use strong authentication.
+                  </p>
               </div>
             </div>
           </div>
@@ -306,7 +306,7 @@
                   </span>
                 </div>
                 <p class="text-xs text-slate-500 font-medium mt-0.5">
-                  Transactional email delivery for forgot password recovery, requestor ticket updates, and SSU Admin incident alerts.
+                  Email delivery for password recovery, ticket updates, and SSU incident alerts.
                 </p>
               </div>
             </div>
@@ -401,7 +401,7 @@
                 <div>
                   <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider">Enable Transactional Emails</h4>
                   <p class="text-[11px] text-slate-500 font-medium">
-                    Automatically dispatch emails for ticket approvals, completion notices, SSU incident alerts, and password resets.
+                    Automatically sends emails for ticket approvals, completion notices, SSU incident alerts, and password resets.
                   </p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">

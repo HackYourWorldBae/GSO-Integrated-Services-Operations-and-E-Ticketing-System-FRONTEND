@@ -66,7 +66,7 @@
                 <div class="flex items-center gap-2 flex-wrap">
                   <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">{{ unitCode }} Administrator Profile</h3>
                 </div>
-                <p class="text-xs text-slate-500 font-medium mt-0.5">Manage operational profile details and credentials for {{ unitCode }} admin</p>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Manage your profile and login details for {{ unitCode }}.</p>
               </div>
             </div>
 
@@ -164,7 +164,7 @@
                     placeholder="admin@bsu.edu.ph"
                   />
                 </div>
-                <p class="text-[11px] text-slate-400 font-medium ml-1">Official operational unit administrator email address. Used for login and system notifications.</p>
+                <p class="text-[11px] text-slate-400 font-medium ml-1">Your official {{ unitCode }} administrator email. Used for signing in and system messages.</p>
               </div>
 
               <!-- Email Notifications Toggle -->
@@ -183,11 +183,11 @@
                     </label>
                   </div>
                   <p class="text-xs leading-relaxed font-medium" :class="form.emailNotificationsEnabled ? 'text-emerald-800/80' : 'text-slate-500'">
-                    <span v-if="unitCode === 'SSU'">Critical for SSU incident reporting — when on, new Incident Reports trigger an immediate high-priority email to <span class="font-bold">{{ form.email || 'your email' }}</span> alongside the dashboard alert.</span>
-                    <span v-else>When on, automated unit ticket dispatches and system escalation alerts are sent to <span class="font-bold">{{ form.email || 'your email' }}</span>.</span>
+                    <span v-if="unitCode === 'SSU'">Important for SSU incident reports — when on, new Incident Reports send an urgent email to <span class="font-bold">{{ form.email || 'your email' }}</span>.</span>
+                    <span v-else>When on, ticket and alert emails are sent to <span class="font-bold">{{ form.email || 'your email' }}</span>.</span>
                   </p>
                   <p v-if="!form.emailNotificationsEnabled" class="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
-                    Email alerts are paused — you will not receive ticket update or dispatch emails until re-enabled.
+                    Email alerts are paused — you will not receive ticket emails until you turn them back on.
                   </p>
                 </div>
               </div>
@@ -212,10 +212,10 @@
                     </label>
                   </div>
                   <p class="text-xs leading-relaxed font-medium" :class="form.isMfaEnabled ? 'text-emerald-800/80' : 'text-slate-500'">
-                    When enabled, administrator sign-in requires both your password and a 6-digit one-time verification code dispatched to <span class="font-bold">{{ form.email || 'your email' }}</span>.
+                    When on, signing in needs both your password and a 6-digit code sent to <span class="font-bold">{{ form.email || 'your email' }}</span>.
                   </p>
                   <p v-if="!form.isMfaEnabled" class="text-[11px] font-medium text-slate-500">
-                    Two-factor authentication is currently disabled. Recommended for administrative accounts.
+                    Extra login protection is off. Turn it on to keep your admin account safe.
                   </p>
                 </div>
               </div>
@@ -283,7 +283,7 @@
                 <div>
                   <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Official Digital Signature</h4>
                   <p class="text-xs text-slate-500 font-medium ml-1">
-                    Applied automatically to {{ unitCode }} Job Orders, Request Slips, and archived documents.
+                    Added to {{ unitCode }} work orders and request slips automatically.
                   </p>
                 </div>
                 <button
@@ -324,8 +324,8 @@
                         Signature Active
                       </span>
                     </div>
-                    <p class="text-xs font-bold text-slate-700">Official signee on {{ unitCode }} job orders</p>
-                    <p class="text-[11px] text-slate-400 font-medium">Auto-rendered above your designated signature line</p>
+                    <p class="text-xs font-bold text-slate-700">Official signee on {{ unitCode }} work orders</p>
+                    <p class="text-[11px] text-slate-400 font-medium">Appears above your signature line</p>
                   </div>
                 </div>
 
@@ -383,9 +383,9 @@
                 </svg>
               </div>
               <div class="space-y-0.5">
-                <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider">{{ unitFullName }} Jurisdiction</h4>
+                <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider">{{ unitFullName }} Area</h4>
                 <p class="text-xs text-slate-600 leading-relaxed font-medium">
-                  Your operational administrator role permits ticket dispatch, worker scheduling, job liquidation, and inventory management strictly within the {{ unitCode }} branch.
+                  Your admin role covers tickets, worker scheduling, materials, and inventory only within {{ unitCode }}.
                 </p>
               </div>
             </div>
