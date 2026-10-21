@@ -346,6 +346,8 @@ const handleRegister = async () => {
       errorMessage.value = err.response.data.message || 'Please correct the highlighted errors.';
     } else if (err.response?.data?.message) {
       errorMessage.value = err.response.data.message;
+    } else if (err.response?.data?.messages?.error) {
+      errorMessage.value = err.response.data.messages.error;
     } else {
       errorMessage.value = 'Failed to submit registration. Please check your connection and try again.';
     }

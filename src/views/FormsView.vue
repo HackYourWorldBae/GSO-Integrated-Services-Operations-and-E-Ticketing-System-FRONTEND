@@ -352,12 +352,18 @@ const handleFinalSubmit = async () => {
     }
   } catch (error) {
     console.error('Submission error:', error);
-    const apiErrors = error.response?.data?.errors;
-    if (apiErrors && typeof apiErrors === 'object') {
-      const messages = Object.values(apiErrors).flat().join(', ');
-      toast.error(messages || error.response?.data?.message || "An error occurred while submitting.");
+    const data = error.response?.data;
+    const apiErrors = data?.errors || (typeof data?.messages === 'object' ? data.messages : null);
+
+    if (apiErrors && typeof apiErrors === 'object' && Object.keys(apiErrors).length > 0) {
+      const messages = Object.entries(apiErrors)
+        .map(([k, v]) => Array.isArray(v) ? v.join(', ') : (typeof v === 'object' ? JSON.stringify(v) : `${v}`))
+        .filter(Boolean)
+        .join('; ');
+      toast.error(messages || data?.message || "An error occurred while submitting.");
     } else {
-      toast.error(error.response?.data?.message || "An error occurred while submitting. Please try again.");
+      const errMsg = data?.message || data?.messages?.error || error.message || "An error occurred while submitting. Please try again.";
+      toast.error(errMsg);
     }
   } finally {
     isSubmitting.value = false;
