@@ -149,175 +149,154 @@
                 <!-- Main info -->
                 <div class="flex-1 min-w-0">
                   <!-- Meta / Badges Row -->
-                  <div class="flex flex-wrap items-start justify-between gap-2 mb-2.5">
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <!-- Unit badge -->
-                      <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 text-xs font-black uppercase tracking-wider border border-slate-300">
-                        {{ ticket.unit }}
-                      </span>
-                      <span class="px-2 py-0.5 rounded-md font-mono font-black text-xs text-slate-900 bg-slate-100 border border-slate-300 shadow-2xs">#{{ ticket.ticketId }}</span>
-                    </div>
-                    
-                    <!-- Status badge -->
-                    <span v-if="ticket.is_approval_delayed" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border bg-amber-100 text-amber-900 border-amber-300 shadow-2xs">
-                      <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                      Approval Delayed
+                  <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <span class="px-2 py-0.5 rounded-md font-mono font-black text-xs text-slate-900 bg-slate-100 border border-slate-300 shadow-2xs">
+                      #{{ ticket.ticketId }}
                     </span>
-                    <span v-else :class="['inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border', getStatusBadge(ticket.status)]">
-                      <span class="w-2 h-2 rounded-full" :class="getStatusDot(ticket.status)"></span>
-                      {{ ticket.statusLabel }}
+                    <span class="px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-black uppercase tracking-wider border border-slate-300">
+                      {{ ticket.unit }}
+                    </span>
+                    <span v-if="ticket.service && ticket.title && ticket.title !== ticket.service" class="px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 text-xs font-bold border border-slate-200">
+                      {{ ticket.service }}
                     </span>
 
-                    <!-- Recategorized badge -->
-                    <span v-if="ticket.is_recategorized" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border bg-sky-50 text-sky-800 border-sky-300 shadow-2xs" title="Nature of work was adjusted by Administration">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                      </svg>
-                      Recategorized
-                    </span>
+                    <div class="ml-auto flex items-center gap-1.5 flex-wrap">
+                      <!-- Approval Delayed Badge -->
+                      <span v-if="ticket.is_approval_delayed" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border bg-amber-100 text-amber-900 border-amber-300 shadow-2xs">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        Approval Delayed
+                      </span>
+                      <!-- Main Status Badge -->
+                      <span v-else :class="['inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border', getStatusBadge(ticket.status)]">
+                        <span class="w-2 h-2 rounded-full" :class="getStatusDot(ticket.status)"></span>
+                        {{ ticket.statusLabel }}
+                      </span>
+
+                      <!-- Recategorized Badge -->
+                      <span v-if="ticket.is_recategorized" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wide border bg-sky-50 text-sky-800 border-sky-300 shadow-2xs" title="Nature of work was adjusted by Administration">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        Adjusted
+                      </span>
+                    </div>
                   </div>
 
                   <!-- Title -->
-                  <h3 class="text-lg sm:text-xl font-black text-slate-900 leading-snug mb-2 truncate" :title="ticket.title || ticket.service">{{ ticket.title || ticket.service }}</h3>
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 leading-snug mb-3" :title="ticket.title || ticket.service">
+                    {{ ticket.title || ticket.service }}
+                  </h3>
 
-                  <!-- Categories / Service Type -->
-                  <div class="flex flex-wrap gap-1.5 mb-2.5" v-if="ticket.title && ticket.title !== ticket.service">
-                    <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-bold uppercase tracking-wider border border-slate-200">{{ ticket.service }}</span>
-                  </div>
-
-                  <!-- Dates Row -->
-                  <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <div class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-500 font-semibold">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <!-- Key Dates & Operational Timeline Row -->
+                  <div class="flex flex-wrap items-center gap-2 pt-1 text-xs sm:text-sm">
+                    <!-- Submitted Date -->
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 font-medium border border-slate-200/80">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                       </svg>
-                      Submitted {{ ticket.date }}
-                    </div>
-                    <div v-if="!isUnscheduledTicket(ticket) && ticket.implementationDate" class="flex items-center gap-1.5 text-xs sm:text-sm text-emerald-700 font-bold">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      <span>Requested: <strong class="text-slate-800 font-semibold">{{ ticket.date }}</strong></span>
+                    </span>
+
+                    <!-- Scheduled Date -->
+                    <span v-if="!isUnscheduledTicket(ticket) && ticket.implementationDate" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-medium border border-emerald-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z" />
                       </svg>
-                      Scheduled: {{ ticket.implementationDate }}
-                    </div>
-                    <div v-if="!isUnscheduledTicket(ticket) && ticket.workingDays" class="flex items-center gap-1.5 text-xs sm:text-sm text-amber-900 font-black bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <span>Scheduled: <strong class="text-emerald-900 font-bold">{{ ticket.implementationDate }}</strong></span>
+                    </span>
+
+                    <!-- Target Working Days & Extension -->
+                    <span v-if="!isUnscheduledTicket(ticket) && ticket.workingDays" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 font-medium border border-amber-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span>Target: {{ ticket.workingDays }} Working Day(s)</span>
-                      <span v-if="ticket.extension_days > 0" class="text-xs font-black text-amber-800 bg-amber-200/80 px-1.5 py-0.5 rounded border border-amber-300">
-                        +{{ ticket.extension_days }}d Ext
+                      <span>Est. Duration: <strong class="text-amber-950 font-bold">{{ ticket.workingDays }} Day{{ ticket.workingDays > 1 ? 's' : '' }}</strong></span>
+                      <span v-if="ticket.extension_days > 0" class="ml-0.5 px-1.5 py-0.2 rounded text-[11px] font-black bg-amber-200 text-amber-900">
+                        +{{ ticket.extension_days }}d ext
                       </span>
-                    </div>
-                    <div v-if="!isUnscheduledTicket(ticket) && (ticket.effective_target_date || ticket.target_completion_date)" class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-800 font-bold bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    </span>
+
+                    <!-- Target Completion Date -->
+                    <span v-if="!isUnscheduledTicket(ticket) && (ticket.effective_target_date || ticket.target_completion_date)" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-medium border border-slate-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                       </svg>
-                      Target Completion: {{ formatDate(ticket.effective_target_date || ticket.target_completion_date) }}
-                    </div>
+                      <span>Target: <strong class="text-slate-900 font-bold">{{ formatDate(ticket.effective_target_date || ticket.target_completion_date) }}</strong></span>
+                    </span>
                   </div>
 
-                  <!-- Official Recategorization Notice Card -->
-                  <div v-if="ticket.is_recategorized" class="mt-3.5 flex items-start gap-3 p-4 bg-sky-50/90 border border-sky-200 rounded-2xl animate-fade-in shadow-xs">
-                    <div class="p-2.5 bg-sky-100 rounded-xl shrink-0 mt-0.5 text-sky-700">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                      </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1 flex-wrap">
-                        <span class="text-xs sm:text-sm font-black text-sky-950 uppercase tracking-wide">Nature of Work Adjusted by Administration</span>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-sky-200 text-sky-900 border border-sky-300 uppercase tracking-wider">
-                          Notice
-                        </span>
+                  <!-- Unified Important Update Banner (Prioritized single callout to eliminate multi-card clutter) -->
+                  <!-- 1. Action Required: Rating & Evaluation for Completed tickets -->
+                  <div v-if="isFeedbackEligible(ticket)" class="mt-3.5 flex items-center justify-between gap-3 p-3.5 bg-gradient-to-r from-amber-50 to-amber-100/60 border border-amber-300 rounded-xl shadow-2xs">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-lg bg-amber-200/80 flex items-center justify-center shrink-0 text-amber-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
                       </div>
-                      <p class="text-sm text-sky-950 font-semibold leading-relaxed">
-                        The administration reviewed your problem description and updated the nature of work from <strong class="line-through text-slate-500">{{ ticket.original_service_type || 'previous service' }}</strong> to <strong class="text-sky-900 underline decoration-sky-400 decoration-2 underline-offset-2">{{ ticket.service }}</strong> to ensure the proper team and resources are assigned.
-                      </p>
-                      <p v-if="ticket.recategorization_reason" class="text-sm text-sky-900 font-medium mt-1 italic">
-                        <span class="font-bold not-italic text-xs uppercase tracking-wider text-sky-950">Admin Note:</span> "{{ ticket.recategorization_reason }}"
-                      </p>
-                      <p v-if="ticket.recategorized_at" class="text-xs text-sky-700 font-medium mt-1">
-                        Updated on {{ formatDateTime(ticket.recategorized_at) }}
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- Official Approval Delay Notice Card -->
-                  <div v-if="ticket.is_approval_delayed" class="mt-3.5 flex items-start gap-3 p-4 bg-amber-50/90 border border-amber-200 rounded-2xl animate-fade-in shadow-xs">
-                    <div class="p-2.5 bg-amber-100 rounded-xl shrink-0 mt-0.5 text-amber-800">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1 flex-wrap">
-                        <span class="text-xs sm:text-sm font-black text-amber-900 uppercase tracking-wide">Approval Deferred / Delayed</span>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-200 text-amber-900 border border-amber-300 uppercase tracking-wider">
-                          In Queue
-                        </span>
+                      <div>
+                        <p class="text-xs font-black uppercase tracking-wider text-amber-900">Action Required &bull; Service Completed</p>
+                        <p class="text-xs sm:text-sm text-amber-950 font-medium">Please tap <strong class="font-bold underline decoration-amber-400">Rate Service</strong> to submit your service evaluation and finalize this ticket.</p>
                       </div>
-                      <p class="text-sm text-amber-950 font-semibold leading-relaxed">
-                        This request is temporarily deferred from immediate approval: <strong>{{ ticket.approval_delay_reason || 'Awaiting materials procurement or clearance' }}</strong>.
-                      </p>
-                      <p class="text-xs text-amber-800 font-medium mt-1">
-                        The department will proceed with review once requirements are satisfied. You do not need to resubmit.
-                      </p>
                     </div>
                   </div>
 
-                  <!-- Official Timeline Extension Notice Card -->
-                  <div v-if="!isUnscheduledTicket(ticket) && ticket.is_extended && ticket.extension_days > 0" class="mt-3.5 flex items-start gap-3 p-4 bg-amber-50/90 border border-amber-200 rounded-2xl animate-fade-in shadow-xs">
-                    <div class="p-2.5 bg-amber-100 rounded-xl shrink-0 mt-0.5 text-amber-800">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1 flex-wrap">
-                        <span class="text-xs sm:text-sm font-black text-amber-900 uppercase tracking-wide">Official Timeline Extension Notice</span>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-200 text-amber-900 border border-amber-300 uppercase tracking-wider">
-                          +{{ ticket.extension_days }} Working Day{{ ticket.extension_days > 1 ? 's' : '' }} Extension
-                        </span>
-                      </div>
-                      <p class="text-sm text-amber-950 font-semibold leading-relaxed">
-                        Target completion date has been adjusted to <strong>{{ formatDate(ticket.effective_target_date || ticket.target_completion_date) }}</strong> (total expected duration: {{ ticket.workingDays }} working days).
-                      </p>
-                      <p v-if="ticket.extension_reason" class="text-sm text-amber-900 font-medium mt-1 italic">
-                        <span class="font-bold not-italic text-xs uppercase tracking-wider text-amber-950">Reason:</span> "{{ ticket.extension_reason }}"
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- Decline / Cancellation reason inline -->
-                  <div v-if="ticket.declineReason && (ticket.status === 'cancelled' || String(ticket.statusLabel || '').toLowerCase().includes('cancel'))" class="mt-3.5 flex items-start gap-3 p-4 bg-slate-100 border border-slate-300 rounded-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <!-- 2. Cancellation / Decline reason -->
+                  <div v-else-if="ticket.declineReason && (ticket.status === 'cancelled' || String(ticket.statusLabel || '').toLowerCase().includes('cancel'))" class="mt-3.5 flex items-start gap-3 p-3 bg-slate-100 border border-slate-300 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div>
-                      <p class="text-xs font-black text-slate-700 uppercase tracking-wider mb-0.5">Reason for Cancellation</p>
-                      <p class="text-sm font-semibold text-slate-800 leading-relaxed">{{ ticket.declineReason }}</p>
+                      <p class="text-[11px] font-black uppercase tracking-wider text-slate-600">Reason for Cancellation</p>
+                      <p class="text-xs sm:text-sm font-semibold text-slate-800">{{ ticket.declineReason }}</p>
                     </div>
                   </div>
-                  <div v-else-if="(ticket.status === 'declined' || ticket.status === 'rejected') && ticket.declineReason" class="mt-3.5 flex items-start gap-3 p-4 bg-rose-50 border border-rose-200 rounded-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div v-else-if="(ticket.status === 'declined' || ticket.status === 'rejected') && ticket.declineReason" class="mt-3.5 flex items-start gap-3 p-3 bg-rose-50 border border-rose-200 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <div>
-                      <p class="text-xs font-black text-rose-700 uppercase tracking-wider mb-0.5">Reason for Decline</p>
-                      <p class="text-sm font-semibold text-rose-900 leading-relaxed">{{ ticket.declineReason }}</p>
+                      <p class="text-[11px] font-black uppercase tracking-wider text-rose-700">Reason for Decline</p>
+                      <p class="text-xs sm:text-sm font-semibold text-rose-900">{{ ticket.declineReason }}</p>
                     </div>
                   </div>
 
-                  <!-- Rate Instruction & Action Required Callout -->
-                  <div v-if="isFeedbackEligible(ticket)" class="mt-3.5 flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl animate-fade-in">
-                    <div class="p-2 bg-amber-100 rounded-lg shrink-0 mt-0.5">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-700" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
+                  <!-- 3. Approval Delay / Deferred Notice -->
+                  <div v-else-if="ticket.is_approval_delayed" class="mt-3.5 flex items-start gap-3 p-3 bg-amber-50/90 border border-amber-200 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-700 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="text-xs sm:text-sm">
+                      <p class="text-[11px] font-black uppercase tracking-wider text-amber-900">Approval Deferred in Queue</p>
+                      <p class="text-amber-950 font-medium">Temporarily deferred: <strong class="font-bold">{{ ticket.approval_delay_reason || 'Awaiting materials procurement or clearance' }}</strong>. Department will proceed once ready.</p>
                     </div>
-                    <div>
-                      <p class="text-xs font-black text-amber-800 uppercase tracking-wider mb-0.5">Action Required</p>
-                      <p class="text-sm font-semibold text-amber-900 leading-relaxed">This service request has been completed! Please click the <strong>"Rate Service"</strong> button to submit your service evaluation and finalize this ticket.</p>
+                  </div>
+
+                  <!-- 4. Schedule Adjustment (Extension) Notice -->
+                  <div v-else-if="!isUnscheduledTicket(ticket) && ticket.is_extended && ticket.extension_days > 0" class="mt-3.5 flex items-start gap-3 p-3 bg-amber-50/80 border border-amber-200 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="text-xs sm:text-sm">
+                      <p class="text-[11px] font-black uppercase tracking-wider text-amber-900">Timeline Extended (+{{ ticket.extension_days }} Working Day{{ ticket.extension_days > 1 ? 's' : '' }})</p>
+                      <p class="text-amber-950 font-medium">
+                        Target completion moved to <strong>{{ formatDate(ticket.effective_target_date || ticket.target_completion_date) }}</strong>.
+                        <span v-if="ticket.extension_reason" class="italic text-amber-900 ml-1">"{{ ticket.extension_reason }}"</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- 5. Work Nature Adjustment (Recategorized) Notice -->
+                  <div v-else-if="ticket.is_recategorized" class="mt-3.5 flex items-start gap-3 p-3 bg-sky-50 border border-sky-200 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    <div class="text-xs sm:text-sm">
+                      <p class="text-[11px] font-black uppercase tracking-wider text-sky-900">Service Category Adjusted</p>
+                      <p class="text-sky-950 font-medium">
+                        Administration updated nature of work from <span class="line-through text-slate-500">{{ ticket.original_service_type || 'previous service' }}</span> to <strong class="text-sky-900">{{ ticket.service }}</strong> to assign proper resources.
+                        <span v-if="ticket.recategorization_reason" class="italic text-sky-800 ml-1">"{{ ticket.recategorization_reason }}"</span>
+                      </p>
                     </div>
                   </div>
                 </div>

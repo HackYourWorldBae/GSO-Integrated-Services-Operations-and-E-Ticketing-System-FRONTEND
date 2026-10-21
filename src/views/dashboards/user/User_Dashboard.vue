@@ -131,70 +131,73 @@
           </div>
 
           <!-- Ticket list -->
-          <div v-else class="divide-y divide-slate-200">
+          <div v-else class="divide-y divide-slate-100">
             <div
               v-for="update in recentUpdates"
               :key="update.ticketId"
               @click="navigateToTicket(update.ticketId)"
-              class="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-4 sm:px-6 sm:py-4.5 hover:bg-slate-50/80 active:bg-slate-100/70 transition-colors cursor-pointer"
+              class="group p-4 sm:p-5 hover:bg-slate-50/80 active:bg-slate-100/70 transition-all cursor-pointer"
             >
-              <div class="flex items-start gap-3 sm:gap-3.5 min-w-0 flex-1">
-                <!-- Status indicator icon -->
-                <div class="flex-shrink-0 mt-0.5">
-                  <div class="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center" :class="getUpdateIconBg(update.status)">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="getUpdateIconColor(update.status)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                    </svg>
-                    <!-- Pulse ring for active tickets -->
-                    <span v-if="update.status === 'processing'" class="absolute inset-0 rounded-xl ring-2 ring-blue-300 animate-ping opacity-60"></span>
-                  </div>
-                </div>
-
-                <!-- Ticket Content -->
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between sm:justify-start gap-2 flex-wrap">
-                    <p class="text-sm sm:text-base font-black text-slate-900 group-hover:text-emerald-700 transition-colors truncate">
-                      {{ update.service || update.title }}
-                    </p>
-                    <span class="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wide border shrink-0" :class="getStatusBadge(update.status)">
-                      <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(update.status)"></span>
-                      {{ update.statusLabel || update.status }}
-                    </span>
-                    <span v-if="update.is_recategorized" class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wide bg-sky-50 text-sky-700 border border-sky-200 shrink-0" title="Nature of work was recategorized by Administration">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              <div class="flex items-start justify-between gap-3 sm:gap-4">
+                <div class="flex items-start gap-3 sm:gap-3.5 min-w-0 flex-1">
+                  <!-- Status indicator icon -->
+                  <div class="flex-shrink-0 mt-0.5">
+                    <div class="relative w-10 h-10 rounded-xl flex items-center justify-center border shadow-xs" :class="[getUpdateIconBg(update.status), 'border-slate-200/60']">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="getUpdateIconColor(update.status)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                       </svg>
-                      Recategorized
-                    </span>
+                      <!-- Pulse ring for active tickets -->
+                      <span v-if="update.status === 'processing'" class="absolute inset-0 rounded-xl ring-2 ring-blue-400 animate-ping opacity-50"></span>
+                    </div>
                   </div>
 
-                  <div class="flex items-center gap-2 mt-1.5 text-xs sm:text-sm text-slate-500">
-                    <span class="text-xs">Ticket</span>
-                    <span class="px-2 py-0.5 rounded-md font-mono font-black text-xs text-slate-900 bg-slate-100 border border-slate-300 shadow-2xs">#{{ update.ticketId }}</span>
-                    <span class="text-slate-400">•</span>
-                    <span class="font-medium text-slate-600">{{ update.time }}</span>
-                  </div>
+                  <!-- Ticket Content -->
+                  <div class="flex-1 min-w-0">
+                    <!-- Top row: ID, Unit, Time -->
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="px-2 py-0.5 rounded-md font-mono font-bold text-xs text-slate-800 bg-slate-100 border border-slate-200 shadow-2xs">
+                        #{{ update.ticketId }}
+                      </span>
+                      <span v-if="update.unit" class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        {{ update.unit }}
+                      </span>
+                      <span class="text-slate-300">•</span>
+                      <span class="text-xs text-slate-400 font-medium">
+                        {{ update.time }}
+                      </span>
+                    </div>
 
-                  <div v-if="update.is_recategorized" class="mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-sky-50 border border-sky-300 text-sky-950 text-xs">
-                    <span class="font-semibold text-slate-600">Service adjusted to:</span>
-                    <span class="font-bold text-sky-900">{{ update.service }}</span>
-                    <span v-if="update.original_service_type" class="text-slate-400 line-through text-[11px]">({{ update.original_service_type }})</span>
-                  </div>
+                    <!-- Title -->
+                    <h4 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-emerald-700 transition-colors truncate">
+                      {{ update.service || update.title }}
+                    </h4>
 
-                  <div v-if="update.status === 'resolved' && (update.unit === 'FGMU' || update.unit === 'LEAU')" class="mt-2.5 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 border border-amber-300 text-amber-950">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-amber-700" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                    </svg>
-                    <p class="text-xs font-bold">Action Required: Tap here to rate and close</p>
+                    <!-- Essential Alert / Status Summary (Single clean banner) -->
+                    <div v-if="update.status === 'resolved' && (update.unit === 'FGMU' || update.unit === 'LEAU')" class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                      </svg>
+                      <span>Completed — Click to rate &amp; close</span>
+                    </div>
+
+                    <div v-else-if="update.is_recategorized" class="mt-2 text-xs text-sky-800 flex items-center gap-1 font-medium truncate">
+                      <span class="font-bold text-sky-900">Service:</span>
+                      <span class="truncate">{{ update.service }}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Desktop Arrow Indicator -->
-              <div class="hidden sm:flex flex-shrink-0 items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
+                <!-- Right Side: Status Badge & Chevron -->
+                <div class="flex items-center gap-2.5 shrink-0 self-center">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wide border" :class="getStatusBadge(update.status)">
+                    <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(update.status)"></span>
+                    <span>{{ update.statusLabel || update.status }}</span>
+                  </span>
+
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
