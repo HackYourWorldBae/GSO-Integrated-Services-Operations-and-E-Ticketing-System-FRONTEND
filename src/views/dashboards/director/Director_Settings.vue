@@ -37,10 +37,7 @@
               </div>
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-lg font-black text-slate-900 tracking-tight">Executive Profile</h3>
-                  <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider rounded-md border border-emerald-200">
-                    Executive Director
-                  </span>
+                  <h3 class="text-lg font-black text-slate-900 tracking-tight">GSO Director Profile</h3>
                 </div>
                 <p class="text-xs text-slate-500 font-medium mt-0.5">Manage your profile and login details.</p>
               </div>
