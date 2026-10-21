@@ -1601,34 +1601,9 @@
           </p>
         </div>
 
-        <!-- Borrowing Notice (Borrowing requests cannot and should not be marked as emergency) -->
-        <div 
-          v-if="ticketToApprove && isApprovingBorrowingTicket"
-          class="p-4 rounded-2xl border border-sky-200 bg-sky-50/70 flex items-start gap-3.5 text-left"
-        >
-          <div class="pt-0.5 text-sky-600 shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-black uppercase tracking-wider text-sky-950">
-                Standard Borrowing Request
-              </span>
-              <span class="px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 text-[10px] font-black uppercase tracking-wider border border-sky-200">
-                Non-Emergency
-              </span>
-            </div>
-            <p class="text-[11px] font-medium leading-relaxed mt-1 text-sky-800">
-              Borrowing requests follow inventory allocation protocols and cannot be marked as an emergency request.
-            </p>
-          </div>
-        </div>
-
         <!-- Emergency Priority Decision (Decided by Director before approval for standard service requests) -->
         <div 
-          v-else
+          v-if="!isApprovingBorrowingTicket"
           @click="isEmergencyApproval = !isEmergencyApproval"
           :class="[
             'p-4 rounded-2xl border transition-all cursor-pointer select-none flex items-start gap-3.5 text-left',

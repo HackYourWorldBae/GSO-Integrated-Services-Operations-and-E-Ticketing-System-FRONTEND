@@ -48,7 +48,6 @@ const modalOpen = computed({
 const detailedTicket = ref(null);
 const loading = ref(false);
 const fetchError = ref(null);
-const showLogs = ref(false);
 
 // Document Preview Modal State
 const viewerModal = ref({
@@ -87,7 +86,6 @@ watch(modalOpen, (isOpen) => {
     document.body.style.overflow = '';
     detailedTicket.value = null;
     fetchError.value = null;
-    showLogs.value = false;
   }
 });
 
@@ -702,40 +700,7 @@ const downloadDoc = async (att) => {
               </div>
             </div>
 
-            <!-- Expandable Activity Logs / Audit Trail -->
-            <div v-if="displayTicket.logs && displayTicket.logs.length > 0" class="pt-2 border-t border-slate-100">
-              <button
-                type="button"
-                @click="showLogs = !showLogs"
-                class="w-full flex items-center justify-between py-2 text-xs font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 cursor-pointer"
-              >
-                <span>Activity Audit Trail ({{ displayTicket.logs.length }} events)</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4 transition-transform duration-200"
-                  :class="{ 'rotate-180': showLogs }"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
 
-              <div v-if="showLogs" class="mt-2 space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
-                <div
-                  v-for="log in displayTicket.logs"
-                  :key="log.id"
-                  class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] space-y-0.5"
-                >
-                  <div class="flex items-center justify-between text-slate-400">
-                    <span class="font-black uppercase tracking-wider text-slate-700">{{ log.action }}</span>
-                    <span>{{ formatDate(log.created_at) }}</span>
-                  </div>
-                  <p class="text-slate-600 font-medium">{{ log.details || log.comment || 'Action recorded' }}</p>
-                </div>
-              </div>
-            </div>
 
           </div>
 
