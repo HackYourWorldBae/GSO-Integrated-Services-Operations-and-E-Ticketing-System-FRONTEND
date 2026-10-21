@@ -185,7 +185,6 @@ html.comfort-view table th {
   padding-top: 0.875rem !important;
   padding-bottom: 0.875rem !important;
   font-size: 0.875rem !important;
-  color: #0f172a !important;
 }
 
 html.comfort-view table td {
@@ -308,7 +307,6 @@ html.comfort-view header {
 /* Clear contrast on table headers for enterprise readability */
 table thead th {
   letter-spacing: 0.05em;
-  color: #334155 !important;
   border-color: #cbd5e1 !important;
 }
 
