@@ -3,9 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { fetchTicket } from '@/api/tickets';
 import { isBorrowingService, isTicketEmergency } from '@/utils/borrowing';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
-import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
-import { handleAttachmentClick, downloadAttachmentDirectly, getAttachmentTypeLabel } from '@/utils/attachmentHelper';
-import { getWorkerInitials, getAssignedWorkers } from '@/utils/ticketPersonnelHelper';
+import { getAssignedWorkers } from '@/utils/ticketPersonnelHelper';
 
 const props = defineProps({
   isOpen: {
@@ -49,21 +47,13 @@ const detailedTicket = ref(null);
 const loading = ref(false);
 const fetchError = ref(null);
 
-// Document Preview Modal State
-const viewerModal = ref({
-  isOpen: false,
-  title: 'Document Preview',
-  fileName: '',
-  fileBlob: null,
-});
-
 const closeModal = () => {
   modalOpen.value = false;
 };
 
 // Keydown handler for Escape key
 const handleKeyDown = (e) => {
-  if (e.key === 'Escape' && modalOpen.value && !viewerModal.value.isOpen) {
+  if (e.key === 'Escape' && modalOpen.value) {
     closeModal();
   }
 };
@@ -286,29 +276,6 @@ const statusBadgeClass = computed(() => {
   return 'bg-slate-100 text-slate-700 border-slate-200';
 });
 
-// Worker info helpers
-const getWorkerId = (w) => w.personnel_id || w.id || w.worker_id;
-const getWorkerName = (w) => w.personnel_name || w.name || w.assigned_to_name || 'Staff Member';
-const getWorkerSpecialty = (w) => w.specialty || w.profession || w.role || 'Personnel';
-
-const isWorkerHighlighted = (w) => {
-  if (!props.highlightWorkerId) return false;
-  return String(getWorkerId(w)) === String(props.highlightWorkerId);
-};
-
-// Attachment handling
-const openAttachment = async (att) => {
-  await handleAttachmentClick(att, (blob, attachment) => {
-    viewerModal.value.fileBlob = blob;
-    viewerModal.value.fileName = attachment.file_name || 'attachment';
-    viewerModal.value.title = attachment.file_name || 'Document Preview';
-    viewerModal.value.isOpen = true;
-  });
-};
-
-const downloadDoc = async (att) => {
-  await downloadAttachmentDirectly(att);
-};
 </script>
 
 <template>
@@ -527,7 +494,6 @@ const downloadDoc = async (att) => {
 
               <!-- Full description -->
               <div>
-                <label class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Statement of Request</label>
                 <p class="text-xs text-slate-700 leading-relaxed font-medium bg-white p-3.5 rounded-xl border border-slate-200 whitespace-pre-line">
                   {{ displayTicket.description }}
                 </p>
@@ -585,120 +551,7 @@ const downloadDoc = async (att) => {
               </div>
             </div>
 
-            <!-- Assigned Workforce Team Section -->
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <h4 class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  Assigned Personnel Crew ({{ displayTicket.assignments.length }} Staff)
-                </h4>
-                <span class="text-[11px] font-bold text-slate-400">Unit: {{ displayTicket.unit }}</span>
-              </div>
 
-              <!-- List of assigned workers -->
-              <div v-if="displayTicket.assignments.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div
-                  v-for="(w, wIdx) in displayTicket.assignments"
-                  :key="w.id || w.personnel_id || wIdx"
-                  class="p-3 rounded-2xl border transition-all flex items-start gap-3 shadow-2xs"
-                  :class="[
-                    isWorkerHighlighted(w)
-                      ? 'bg-emerald-50/70 border-emerald-300 ring-2 ring-emerald-500/30'
-                      : 'bg-white border-slate-200/80 hover:border-slate-300'
-                  ]"
-                >
-                  <!-- Worker Avatar -->
-                  <div
-                    class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs shrink-0 border"
-                    :class="[
-                      isWorkerHighlighted(w)
-                        ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
-                        : 'bg-slate-100 text-slate-700 border-slate-200'
-                    ]"
-                  >
-                    {{ getWorkerInitials(getWorkerName(w)) }}
-                  </div>
-
-                  <!-- Worker Info -->
-                  <div class="min-w-0 flex-1 leading-tight text-xs space-y-1">
-                    <div class="flex items-center justify-between gap-1 flex-wrap">
-                      <span class="font-black text-slate-900 truncate">
-                        {{ getWorkerName(w) }}
-                      </span>
-                      <span
-                        v-if="isWorkerHighlighted(w)"
-                        class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-600 text-white"
-                      >
-                        Viewing From Roster
-                      </span>
-                    </div>
-
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 truncate">
-                        {{ getWorkerSpecialty(w) }}
-                      </span>
-                      <span v-if="w.queue_order" class="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                        {{ w.queue_order === 1 ? 'Active Job' : `Queue #${w.queue_order}` }}
-                      </span>
-                    </div>
-
-                    <div v-if="w.contact_number || w.contact" class="text-[11px] text-slate-500 font-medium pt-0.5">
-                      📞 {{ w.contact_number || w.contact }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div v-else class="p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center text-xs text-slate-400 font-bold">
-                No personnel records attached to this ticket.
-              </div>
-            </div>
-
-            <!-- Supporting Attachments Section (if any) -->
-            <div v-if="displayTicket.attachments && displayTicket.attachments.length > 0" class="space-y-2 pt-2">
-              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
-                Supporting Attachments ({{ displayTicket.attachments.length }})
-              </span>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div
-                  v-for="att in displayTicket.attachments"
-                  :key="att.id"
-                  class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors group"
-                >
-                  <div
-                    class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer"
-                    @click="openAttachment(att)"
-                    title="Click to preview / view document"
-                  >
-                    <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                      </svg>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs font-bold text-slate-800 truncate group-hover:text-emerald-700 transition-colors">
-                        {{ att.file_name || 'Attached file' }}
-                      </p>
-                      <span class="text-[10px] text-slate-400 font-semibold uppercase">
-                        {{ getAttachmentTypeLabel(att.file_name, att.file_type) }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    @click.stop="downloadDoc(att)"
-                    class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer shrink-0"
-                    title="Download file directly"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
 
 
 
@@ -721,13 +574,7 @@ const downloadDoc = async (att) => {
       </div>
     </Transition>
 
-    <!-- Nested Document & Attachment Viewer Modal -->
-    <DocumentViewerModal
-      v-model:isOpen="viewerModal.isOpen"
-      :title="viewerModal.title"
-      :fileName="viewerModal.fileName"
-      :fileBlob="viewerModal.fileBlob"
-    />
+
   </Teleport>
 </template>
 
