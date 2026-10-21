@@ -143,9 +143,9 @@
               <label for="sched-days" class="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer flex items-center gap-1.5 flex-wrap">
                 <span>Target Working Days</span>
                 <span class="text-rose-400">*</span>
-                <span class="text-[9px] px-1.5 py-0.5 text-emerald-300 bg-emerald-500/20 rounded font-black tracking-normal border border-emerald-500/30">1–31 Days</span>
+                <span class="text-[9px] px-1.5 py-0.5 text-emerald-300 bg-emerald-500/20 rounded font-black tracking-normal border border-emerald-500/30">MAX 31 DAYS</span>
               </label>
-              <span class="text-[11px] text-slate-400 font-medium">Estimated turnaround (strictly max 31 days)</span>
+
             </div>
           </div>
 
@@ -250,9 +250,7 @@
                     Pre-Job Requirement
                   </span>
                 </div>
-                <p class="text-[11px] text-slate-300 font-medium mt-0.5">
-                  Input estimated materials needed prior to work start, or designate as a labor-only service.
-                </p>
+
               </div>
             </div>
 
@@ -278,8 +276,7 @@
 
           <!-- When Materials are Required -->
           <div v-else class="space-y-3">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-[11px] font-black uppercase tracking-wider text-slate-300">Itemized Estimated Supplies & Parts</span>
+            <div class="flex items-center justify-end gap-2">
               <button
                 type="button"
                 @click="addAssessmentMaterialRow"
@@ -315,7 +312,7 @@
                 </div>
 
                 <div class="space-y-1">
-                  <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Material / Item Description</label>
+                  <label class="text-[11px] font-bold text-white block">Material / Item Description</label>
                   <input
                     v-model="item.material_name"
                     type="text"
@@ -330,7 +327,7 @@
 
                 <div class="grid grid-cols-3 gap-2">
                   <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-center">Qty</label>
+                    <label class="text-[11px] font-bold text-white block text-center">Qty</label>
                     <input
                       v-model.number="item.quantity"
                       type="number"
@@ -340,7 +337,7 @@
                     />
                   </div>
                   <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-center">Unit</label>
+                    <label class="text-[11px] font-bold text-white block text-center">Unit</label>
                     <select
                       v-model="item.unit_measurement"
                       class="w-full px-1.5 py-1.5 bg-slate-800 border border-white/15 rounded-lg text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all cursor-pointer text-center"
@@ -362,7 +359,7 @@
                     </select>
                   </div>
                   <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-right">Price (₱)</label>
+                    <label class="text-[11px] font-bold text-white block text-right">Price (₱)</label>
                     <input
                       v-model.number="item.unit_price"
                       type="number"
@@ -387,7 +384,7 @@
             <div class="border border-white/10 rounded-xl overflow-x-auto custom-scrollbar bg-slate-900/60 hidden sm:block">
               <table class="w-full min-w-[620px] text-left text-xs border-collapse">
                 <thead>
-                  <tr class="bg-white/5 border-b border-white/10 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <tr class="bg-white/5 border-b border-white/10 text-[11px] font-bold text-white">
                     <th class="py-2.5 px-3 w-8 text-center">#</th>
                     <th class="py-2.5 px-3">Material / Item Description</th>
                     <th class="py-2.5 px-3 w-20">Qty</th>
