@@ -2875,7 +2875,7 @@ export const pageGuidesCatalog = {
           {
             title: 'Stage 4 - Borrowing',
             desc: 'Equipment loan requests',
-            details: 'Filter by All Active, Pending Pickups, and Awaiting Return.'
+            details: 'Filter by Pending Approval, Approved, Awaiting Pickup, and Awaiting Return.'
           },
           {
             title: 'Stage 5 - In Progress',

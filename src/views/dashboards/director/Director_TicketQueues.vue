@@ -168,8 +168,9 @@
                 </svg>
               </button>
             </div>
-            <!-- Service Filter -->
+            <!-- Service Filter (hidden on borrowing tab) -->
             <select
+              v-if="activeTab !== 'borrowing'"
               data-tour="director-service-filter"
               v-model="selectedServiceFilter"
               @change="currentPage = 1"
@@ -212,35 +213,61 @@
             <div v-else-if="activeTab === 'pending' && isDirector" class="inline-flex items-center px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold shrink-0">
               <span>Escalated for Executive Approval</span>
             </div>
-            <!-- Borrowing Sub-filter Pills (Borrowing tab: Active tickets only) -->
-            <div v-else-if="activeTab === 'borrowing'" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0 flex-wrap">
+            <!-- Borrowing Sub-filter Pills (Borrowing tab: clearly separated stages) -->
+            <div v-else-if="activeTab === 'borrowing'" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0 flex-wrap gap-1">
               <button
                 type="button"
-                @click="selectedBorrowingFilter = 'all'; currentPage = 1"
-                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer"
-                :class="selectedBorrowingFilter === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                @click="selectedBorrowingFilter = 'pending_approval'; currentPage = 1"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+                :class="selectedBorrowingFilter === 'pending_approval' ? 'bg-purple-600 text-white shadow-xs' : 'text-purple-800 hover:text-purple-950 hover:bg-slate-200/60'"
               >
-                All Active ({{ borrowingActiveCount }})
-              </button>
-              <button
-                type="button"
-                @click="selectedBorrowingFilter = 'pickups'; currentPage = 1"
-                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1"
-                :class="selectedBorrowingFilter === 'pickups' ? 'bg-amber-600 text-white shadow-xs' : 'text-amber-800 hover:text-amber-950'"
-              >
-                <span>Pending Pickups</span>
-                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black" :class="selectedBorrowingFilter === 'pickups' ? 'bg-amber-800 text-white' : 'bg-amber-200 text-amber-900'">
-                  {{ borrowingPickupsCount }}
+                <span>Pending Approval</span>
+                <span
+                  class="px-1.5 py-0.2 rounded-full text-[10px] font-black"
+                  :class="selectedBorrowingFilter === 'pending_approval' ? 'bg-purple-800 text-white' : 'bg-purple-200 text-purple-900'"
+                >
+                  {{ borrowingPendingApprovalCount }}
                 </span>
               </button>
               <button
                 type="button"
-                @click="selectedBorrowingFilter = 'returns'; currentPage = 1"
-                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1"
-                :class="selectedBorrowingFilter === 'returns' ? 'bg-emerald-600 text-white shadow-xs' : 'text-emerald-800 hover:text-emerald-950'"
+                @click="selectedBorrowingFilter = 'approved'; currentPage = 1"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+                :class="selectedBorrowingFilter === 'approved' ? 'bg-blue-600 text-white shadow-xs' : 'text-blue-800 hover:text-blue-950 hover:bg-slate-200/60'"
+              >
+                <span>Approved</span>
+                <span
+                  class="px-1.5 py-0.2 rounded-full text-[10px] font-black"
+                  :class="selectedBorrowingFilter === 'approved' ? 'bg-blue-800 text-white' : 'bg-blue-200 text-blue-900'"
+                >
+                  {{ borrowingApprovedCount }}
+                </span>
+              </button>
+              <button
+                type="button"
+                @click="selectedBorrowingFilter = 'awaiting_pickup'; currentPage = 1"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+                :class="selectedBorrowingFilter === 'awaiting_pickup' ? 'bg-amber-600 text-white shadow-xs' : 'text-amber-800 hover:text-amber-950 hover:bg-slate-200/60'"
+              >
+                <span>Awaiting Pickup</span>
+                <span
+                  class="px-1.5 py-0.2 rounded-full text-[10px] font-black"
+                  :class="selectedBorrowingFilter === 'awaiting_pickup' ? 'bg-amber-800 text-white' : 'bg-amber-200 text-amber-900'"
+                >
+                  {{ borrowingAwaitingPickupCount }}
+                </span>
+              </button>
+              <button
+                type="button"
+                @click="selectedBorrowingFilter = 'awaiting_return'; currentPage = 1"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+                :class="selectedBorrowingFilter === 'awaiting_return' ? 'bg-emerald-600 text-white shadow-xs' : 'text-emerald-800 hover:text-emerald-950 hover:bg-slate-200/60'"
               >
                 <span>Awaiting Return</span>
-                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black" :class="selectedBorrowingFilter === 'returns' ? 'bg-emerald-800 text-white' : 'bg-emerald-200 text-emerald-900'">
+                <span
+                  class="px-1.5 py-0.2 rounded-full text-[10px] font-black"
+                  :class="selectedBorrowingFilter === 'awaiting_return' ? 'bg-emerald-800 text-white' : 'bg-emerald-200 text-emerald-900'"
+                >
                   {{ borrowingReturnsCount }}
                 </span>
               </button>
@@ -306,7 +333,7 @@
                         {{ isDirector && activeTab === 'pending'
                           ? 'No tickets currently escalated for Director approval.'
                           : (activeTab === 'borrowing'
-                              ? 'No active borrowing requests (pending pickups or awaiting return).'
+                              ? borrowingEmptyMessage
                               : 'There are no records matching your current filter criteria.') }}
                       </p>
                     </div>
@@ -615,6 +642,28 @@
 
                     <!-- Borrowing Tab Actions -->
                     <div v-else-if="activeTab === 'borrowing'" class="flex items-center justify-end gap-2">
+                      <template v-if="['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase())">
+                        <button
+                          @click.stop="openDeclineModal(ticket)"
+                          class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                          title="Decline request"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          <span>Decline</span>
+                        </button>
+                        <button
+                          @click.stop="initiateApproval(ticket)"
+                          class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                          title="Direct Approve"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Approve</span>
+                        </button>
+                      </template>
                       <button
                         @click="openDetailsModal(ticket)"
                         class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-400 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
@@ -896,6 +945,22 @@
                   <span>Update</span>
                 </button>
                 <button @click="openExtensionModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Extend</button>
+              </template>
+
+              <!-- Borrowing Pending Actions -->
+              <template v-if="activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase())">
+                <button
+                  @click="openDeclineModal(ticket)"
+                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer"
+                >
+                  Decline
+                </button>
+                <button
+                  @click="initiateApproval(ticket)"
+                  class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer"
+                >
+                  Approve
+                </button>
               </template>
 
               <!-- Details (All Tabs) -->
@@ -1837,7 +1902,7 @@ const ticketListOptions = computed(() => [
     key: 'borrowing',
     label: 'Borrowing Requests',
     shortLabel: 'Borrowing Requests',
-    description: 'Pending pickups & awaiting return (active)',
+    description: 'Pending approval, approved, awaiting pickup & return',
     count: queueCounts.value.borrowing || 0,
   },
 ]);
@@ -1866,7 +1931,10 @@ const selectTicketList = (key) => {
   isListsDropdownOpen.value = false;
   currentPage.value = 1;
   searchQuery.value = '';
-  selectedBorrowingFilter.value = 'all';
+  selectedBorrowingFilter.value = 'pending_approval';
+  if (key === 'borrowing') {
+    selectedServiceFilter.value = '';
+  }
 };
 
 const handleDocumentClick = (e) => {
@@ -1910,14 +1978,26 @@ const formatBorrowingStatus = (status) => {
   return String(status).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 };
 
-// Borrowing sub-filter state for Active Borrowing list
-const selectedBorrowingFilter = ref('all'); // 'all' | 'pickups' | 'returns'
+// Borrowing sub-filter state
+const selectedBorrowingFilter = ref('pending_approval'); // 'pending_approval' | 'approved' | 'awaiting_pickup' | 'awaiting_return'
 
 const borrowingActiveCount = computed(() => (queuesData.value.borrowing || []).length);
 
-const borrowingPickupsCount = computed(() => {
+const borrowingPendingApprovalCount = computed(() => {
   return (queuesData.value.borrowing || []).filter(t => 
-    ['ready_for_pickup', 'inventory_assigned', 'approved_director'].includes(String(t.status || t.borrowing_status).toLowerCase())
+    ['pending_director', 'pending'].includes(String(t.status || t.borrowing_status).toLowerCase())
+  ).length;
+});
+
+const borrowingApprovedCount = computed(() => {
+  return (queuesData.value.borrowing || []).filter(t => 
+    ['approved_director', 'approved'].includes(String(t.status || t.borrowing_status).toLowerCase())
+  ).length;
+});
+
+const borrowingAwaitingPickupCount = computed(() => {
+  return (queuesData.value.borrowing || []).filter(t => 
+    ['ready_for_pickup', 'inventory_assigned'].includes(String(t.status || t.borrowing_status).toLowerCase())
   ).length;
 });
 
@@ -1925,6 +2005,23 @@ const borrowingReturnsCount = computed(() => {
   return (queuesData.value.borrowing || []).filter(t => 
     ['picked_up', 'overdue'].includes(String(t.status || t.borrowing_status).toLowerCase())
   ).length;
+});
+
+const borrowingEmptyMessage = computed(() => {
+  switch (selectedBorrowingFilter.value) {
+    case 'pending_approval':
+      return 'No borrowing requests currently pending approval.';
+    case 'approved':
+      return 'No approved borrowing requests awaiting inventory assignment.';
+    case 'awaiting_pickup':
+    case 'pickups':
+      return 'No borrowing requests awaiting pickup.';
+    case 'awaiting_return':
+    case 'returns':
+      return 'No active borrowing requests awaiting return.';
+    default:
+      return 'No borrowing requests matching this filter.';
+  }
 });
 
 // Collaboration helper: checks if ticket is a cross-unit collaboration
@@ -2008,7 +2105,17 @@ const activeTabLabel = computed(() => {
     case 'approved': return 'Approved (Awaiting Dispatch)';
     case 'dispatched': return 'Approved (Dispatched)';
     case 'active': return 'Dispatched & In Progress';
-    case 'borrowing': return 'Borrowing Requests';
+    case 'borrowing': {
+      switch (selectedBorrowingFilter.value) {
+        case 'pending_approval': return 'Borrowing (Pending Approval)';
+        case 'approved': return 'Borrowing (Approved)';
+        case 'awaiting_pickup':
+        case 'pickups': return 'Borrowing (Awaiting Pickup)';
+        case 'awaiting_return':
+        case 'returns': return 'Borrowing (Awaiting Return)';
+        default: return 'Borrowing Requests';
+      }
+    }
     default: return 'Tickets';
   }
 });
@@ -2045,19 +2152,27 @@ const filteredTickets = computed(() => {
     }
   }
 
-  if (activeTab.value === 'borrowing' && selectedBorrowingFilter.value !== 'all') {
-    if (selectedBorrowingFilter.value === 'pickups') {
+  if (activeTab.value === 'borrowing') {
+    if (selectedBorrowingFilter.value === 'pending_approval') {
       list = list.filter(t => 
-        ['ready_for_pickup', 'inventory_assigned', 'approved_director'].includes(String(t.status || t.borrowing_status).toLowerCase())
+        ['pending_director', 'pending'].includes(String(t.status || t.borrowing_status).toLowerCase())
       );
-    } else if (selectedBorrowingFilter.value === 'returns') {
+    } else if (selectedBorrowingFilter.value === 'approved') {
+      list = list.filter(t => 
+        ['approved_director', 'approved'].includes(String(t.status || t.borrowing_status).toLowerCase())
+      );
+    } else if (selectedBorrowingFilter.value === 'awaiting_pickup' || selectedBorrowingFilter.value === 'pickups') {
+      list = list.filter(t => 
+        ['ready_for_pickup', 'inventory_assigned'].includes(String(t.status || t.borrowing_status).toLowerCase())
+      );
+    } else if (selectedBorrowingFilter.value === 'awaiting_return' || selectedBorrowingFilter.value === 'returns') {
       list = list.filter(t => 
         ['picked_up', 'overdue'].includes(String(t.status || t.borrowing_status).toLowerCase())
       );
     }
   }
 
-  if (selectedServiceFilter.value) {
+  if (activeTab.value !== 'borrowing' && selectedServiceFilter.value) {
     const target = selectedServiceFilter.value.trim().toLowerCase();
     list = list.filter(t => {
       const s = (t.service || t.service_type || '').trim().toLowerCase();
@@ -2112,7 +2227,10 @@ const switchTab = (tab) => {
   currentPage.value = 1;
   searchQuery.value = '';
   selectedEscalationFilter.value = 'all';
-  selectedBorrowingFilter.value = 'all';
+  selectedBorrowingFilter.value = 'pending_approval';
+  if (tab === 'borrowing') {
+    selectedServiceFilter.value = '';
+  }
   clearRouteQueryTicket();
 };
 
