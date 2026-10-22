@@ -239,7 +239,17 @@ export function useTutorial() {
           element: () => {
             let el = null;
             if (targetSelector) {
-              el = document.querySelector(targetSelector);
+              const candidates = targetSelector.split(',').map(sel => sel.trim()).filter(Boolean);
+              for (const cand of candidates) {
+                const found = document.querySelector(cand);
+                if (found && (found.offsetWidth > 0 || found.offsetHeight > 0 || found.getClientRects().length > 0)) {
+                  el = found;
+                  break;
+                }
+              }
+              if (!el) {
+                el = document.querySelector(targetSelector);
+              }
             }
 
             // If the element is #tour-main-workspace, main, body, or an excessively tall container,

@@ -43,7 +43,7 @@
       <div class="space-y-5 sm:space-y-8 animate-fade-in">
 
         <!-- Identity Verification Pending Notice -->
-        <div v-if="!isUserVerified" class="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50/80 to-amber-50 p-4 sm:p-6 shadow-sm">
+        <div v-if="!isUserVerified" data-tour="user-id-notice" class="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50/80 to-amber-50 p-4 sm:p-6 shadow-sm">
           <div class="flex items-start gap-3.5">
             <div class="p-2.5 sm:p-3 rounded-xl bg-amber-100 text-amber-800 shrink-0 mt-0.5">
               <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,7 +63,7 @@
         </div>
 
         <!-- Hero CTA Banner -->
-        <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-800 p-5 sm:p-8 shadow-xl">
+        <div data-tour="user-hero-banner" class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-800 p-5 sm:p-8 shadow-xl">
           <!-- Background decorations -->
           <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div class="absolute -top-12 -right-12 w-56 h-56 bg-white/5 rounded-full blur-2xl"></div>
@@ -90,6 +90,7 @@
             </button>
             <div
               v-else-if="!isUserVerified"
+              data-tour="user-btn-new-request"
               class="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-900/50 text-emerald-100 font-bold px-4 py-3 rounded-xl border border-emerald-500/30 text-xs sm:text-sm shadow-inner min-h-[44px]"
             >
               <svg class="h-4 w-4 text-amber-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

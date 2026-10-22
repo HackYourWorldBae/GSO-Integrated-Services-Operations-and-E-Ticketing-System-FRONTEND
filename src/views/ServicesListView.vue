@@ -686,7 +686,7 @@ const handleSubmit = () => {
     <main class="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 pt-6 sm:pt-12 pb-28 sm:pb-36">
 
       <!-- Page Header -->
-      <div class="mb-6 sm:mb-10">
+      <div data-tour="services-header" class="mb-6 sm:mb-10">
         <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest border border-emerald-200 mb-2.5">Service Request</span>
         <h2 class="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
           What do you need <span class="text-emerald-600">help</span> with?

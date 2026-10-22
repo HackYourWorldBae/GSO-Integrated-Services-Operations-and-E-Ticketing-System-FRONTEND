@@ -42,7 +42,7 @@
     <template #main-content>
       <div class="space-y-6 animate-fade-in relative pb-12">
         <!-- Search and Filters -->
-        <div class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border border-slate-300 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+        <div data-tour="completed-search-card" class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border border-slate-300 shadow-sm flex flex-col md:flex-row gap-4 items-center">
           <div class="flex-1 w-full relative">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -58,7 +58,7 @@
         </div>
 
         <!-- Tickets List Container -->
-        <div class="rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-300 p-4 sm:p-6 md:p-8 overflow-hidden shadow-sm mt-6">
+        <div data-tour="completed-table-card" class="rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-300 p-4 sm:p-6 md:p-8 overflow-hidden shadow-sm mt-6">
           <!-- Desktop Table (Hidden on Mobile) -->
           <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-separate border-spacing-y-4 min-w-[700px]">
@@ -72,7 +72,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="ticket in paginatedTickets" :key="ticket.id" class="group transition-all duration-200">
+                <tr v-for="ticket in paginatedTickets" :key="ticket.id" data-tour="completed-ticket-row" class="group transition-all duration-200">
                   <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-300 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all">
                     <span class="text-sm font-black text-slate-900 font-mono">#{{ ticket.ticketId }}</span>
                   </td>

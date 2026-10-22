@@ -45,7 +45,7 @@
         <div data-tour="settings-profile-card" class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
           <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
              <div class="flex items-center gap-4">
-                <div class="relative group cursor-pointer" @click="triggerAvatarUpload" title="Click to change profile picture">
+                <div data-tour="settings-avatar-upload" class="relative group cursor-pointer" @click="triggerAvatarUpload" title="Click to change profile picture">
                   <input
                     type="file"
                     ref="avatarInputRef"
@@ -149,7 +149,7 @@
               </div>
 
               <!-- Email Updates Opt-In (wired to email_notifications_enabled) — Hidden for personnel / worker accounts -->
-              <div v-if="!isPersonnel" class="md:col-span-12 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.emailNotificationsEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
+              <div v-if="!isPersonnel" data-tour="settings-email-toggle" class="md:col-span-12 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.emailNotificationsEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
                 <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-xs" :class="form.emailNotificationsEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-400 text-white'">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -240,7 +240,7 @@
               </div>
 
               <!-- Password -->
-              <div class="space-y-3 md:col-span-6">
+              <div data-tour="settings-password-inputs" class="space-y-3 md:col-span-6">
                 <label class="block text-sm font-black text-slate-900 uppercase tracking-widest ml-1">New Password</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500 text-slate-400">

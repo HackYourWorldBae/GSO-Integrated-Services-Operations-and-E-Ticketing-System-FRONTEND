@@ -1602,8 +1602,8 @@ export const pageGuidesCatalog = {
     roleKey: 'requestor',
     roleLabel: 'Student & Employee Portal',
     roleIcon: '🎓',
-    roleBadge: 'Requestor Access',
-    roleSummary: 'Submit service requests, borrow equipment or plants, report security incidents, and track your tickets.',
+    roleBadge: 'Requestor',
+    roleSummary: 'Request campus services, borrow tools or plants, report incidents, and track your requests.',
     pages: [
       {
         id: 'user-dashboard',
@@ -1611,64 +1611,64 @@ export const pageGuidesCatalog = {
         route: '/user/dashboard',
         icon: '🏠',
         manualSection: 'Section B1: Dashboard Overview',
-        roleBadge: 'Requestor Portal',
-        summary: 'See your recent requests, account verification status, and quick links to request services.',
+        roleBadge: 'Requestor',
+        summary: 'See recent updates, check your account status, and request campus services.',
         sections: [
           {
-            title: 'Institutional ID Verification Notice',
-            desc: 'Registration approval status banner',
-            details: 'If your uploaded student/employee ID is still under review by the Super Administrator, a "Verification Under Review" notice appears with status "Pending Approval". Submitting service tickets is locked until confirmed.'
+            title: 'ID Verification Notice',
+            desc: 'Account approval status',
+            details: 'If your student or employee ID is still being verified, a notice appears here. Requesting services is paused until your ID is approved.'
           },
           {
-            title: 'Quick Action Banner',
-            desc: 'Direct link to services catalog',
-            details: 'Contains the "New Service Request" button to launch the university services catalog. If your ID is pending, this button displays "Submissions Locked (ID Pending)" and is temporarily disabled.'
+            title: 'New Service Request Banner',
+            desc: 'Shortcut to request help',
+            details: 'Click the "New Service Request" button to browse campus services. If your ID is still being checked, this button shows as locked.'
           },
           {
-            title: 'Ticket Status Updates Feed',
-            desc: 'Live activity stream of recent submissions',
-            details: 'Displays ticket reference numbers (#SSU-TIC-1-2026, #FGMU-TIC-10-2026), service titles, current status badges (Pending Review, Queued for Dispatch, Under Investigation, Ready for Pickup), and submission timestamps.'
+            title: 'Recent Ticket Updates',
+            desc: 'Latest updates on your requests',
+            details: 'Shows your latest tickets with their reference numbers, service names, and current status (such as Pending, Scheduled, or Finished). Click any ticket to see its details.'
           },
           {
-            title: 'Navigation Shortcuts',
-            desc: 'Quick links to history and catalog',
-            details: 'Click "View All" to jump straight into the full ticket tracking workspace.'
+            title: 'View All Link',
+            desc: 'Open your full tickets list',
+            details: 'Click "View All" to go to the My Tickets page, where you can filter, search, and track all your active requests.'
           }
         ],
         tabs: [
-          { name: 'Recent Activity', badge: 'Live Feed', desc: 'Chronological overview of current active tickets and status changes.' }
+          { name: 'Recent Activity', badge: 'Latest Updates', desc: 'Shows your latest requests and status updates.' }
         ],
         buttons: [
           {
             label: 'New Service Request',
             type: 'primary',
-            desc: 'Launches the University Services Catalog to file a maintenance, borrowing, or incident report ticket.',
-            result: 'Navigates to /services (locked if ID is unverified).'
+            desc: 'Opens the services catalog to request maintenance, borrowing, or security help.',
+            result: 'Takes you to the services list.'
           },
           {
             label: 'View All',
             type: 'secondary',
-            desc: 'Navigates to the My Service Requests page to inspect full tracking timelines.',
-            result: 'Navigates to /user/tickets.'
+            desc: 'Opens the My Tickets page to see all your active requests.',
+            result: 'Takes you to My Tickets.'
           }
         ],
         procedures: [
           {
-            title: 'How to Check Your Account Verification Status',
+            title: 'How to Check If Your ID Is Approved',
             steps: [
-              'Log in to the GSO Portal using your student or employee credentials.',
-              'Look at the top of your Dashboard: if you see "Institutional ID Verification Under Review", your registration is queued for Superadmin approval.',
-              'Once approved, the notice disappears and the "New Service Request" button becomes fully active.'
+              'Log in with your university account.',
+              'Look at the top of your dashboard. If you see "ID Verification in Progress", our team is still checking your ID.',
+              'Once approved, the notice disappears and the "New Service Request" button turns active.'
             ]
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Welcome to Your Dashboard', desc: 'Track your submitted work orders, borrowing requests, and security incident reports.' },
-          { element: '[data-tour="user-btn-new-request"]', title: '2. Submit New Request', desc: 'Click here anytime to submit a new facilities repair, plant borrowing, or security incident report.' },
-          { element: '[data-tour="user-recent-tickets"]', title: '3. Recent Tickets Tracker', desc: 'Monitor the live status and assigned technicians for your active service tickets.' },
-          { element: '[data-tour="user-btn-view-all"]', title: '4. View All Tickets', desc: 'Jump directly to the My Tickets page to inspect full histories and details.' },
-          { element: '#tour-sidebar-nav', title: '5. Navigation Sidebar', desc: 'Easily navigate between Dashboard, Services Catalog, Active Tickets, and Completed History.' },
-          { element: '#tour-notifications-btn', title: '6. Alerts & Chimes', desc: 'Hear instant chime alerts and inspect real-time updates as your requests are processed.' }
+          { element: '[data-tour="user-hero-banner"], #tour-main-workspace', title: '1. Welcome to Your Dashboard', desc: 'This is your home screen. You can ask for assistance, check recent requests, and see updates on your tickets.' },
+          { element: '[data-tour="user-btn-new-request"]', title: '2. Request a Service', desc: 'Click here anytime to start a new request for repairs, borrowed equipment, plants, or security assistance.' },
+          { element: '[data-tour="user-recent-tickets"]', title: '3. Recent Updates', desc: 'Check the latest updates on your requests here, including whether staff started the job or if it is ready for your rating.' },
+          { element: '[data-tour="user-btn-view-all"]', title: '4. View All Tickets', desc: 'Click "View All" to jump straight into your complete list of active tickets.' },
+          { element: '#tour-sidebar-nav, button[title="Toggle Sidebar"]', title: '5. Menu & Navigation', desc: 'Use the menu to switch between your Dashboard, Services Catalog, Active Tickets, Completed History, and Settings.' },
+          { element: '#tour-notifications-btn', title: '6. Notifications', desc: 'Click the bell icon to see new notifications whenever staff update or complete your requests.' }
         ]
       },
       {
@@ -1677,78 +1677,78 @@ export const pageGuidesCatalog = {
         route: '/services',
         icon: '📝',
         manualSection: 'Section B2: Submitting a Service Request (Step 1)',
-        roleBadge: 'Requestor Portal',
+        roleBadge: 'Requestor',
         summary: 'Browse and choose available university services, repairs, tool borrowing, or security assistance.',
         sections: [
           {
-            title: 'Student Representative vs Faculty Mode Banner',
-            desc: 'Role-based service entitlement indicator',
-            details: 'RSO and SSG student officers see what their organization is authorized to request (Borrowing, Hauling, Stage Decoration, Incidents). Structural services are reserved for Faculty/Staff. Includes a "Show all services / Authorized only" toggle.'
+            title: 'Student vs Faculty Services',
+            desc: 'Authorized services for your role',
+            details: 'Student representatives can request borrowing of tools or plants, hauling, stage decoration, and incident reports. Structural building repairs are reserved for faculty and staff.'
           },
           {
-            title: 'Category Filter Tabs',
-            desc: 'Service classification filters',
-            details: 'Tabs: All Services, Facilities & Repairs (FGMU), Grounds & Landscaping (LEAU), and Security & Incident (SSU).'
+            title: 'Category Tabs',
+            desc: 'Filter by unit or work type',
+            details: 'Easily filter services across Facilities & Repairs (FGMU), Grounds & Landscaping (LEAU), and Security & Incidents (SSU).'
           },
           {
-            title: 'Search Services Input',
-            desc: 'Keyword discovery search bar',
-            details: 'Type any problem keyword like "aircon", "pipe leak", "plants", "welding", or "security" to immediately find relevant services.'
+            title: 'Search Bar',
+            desc: 'Find services quickly',
+            details: 'Type any keyword like "leak", "light", "weeding", or "stolen" to find the right service.'
           },
           {
-            title: 'Grouped Service Catalog Grid',
-            desc: 'Interactive service selection cards',
-            details: 'Services grouped under Structure & Finishes, Utilities & Mechanical, Janitorial & Landscaping, and Security. Click one or more cards across categories to select them.'
+            title: 'Service Selection Cards',
+            desc: 'Tap cards to select',
+            details: 'Click on one or more service cards across any category to select the help you need. A green checkmark shows they are selected.'
           },
           {
-            title: 'Selection Summary & Fill Out Form Bar',
-            desc: 'Selected service counter and intake trigger',
+            title: 'Selected Services & Next Step',
+            desc: 'Selected service counter and next button',
             details: 'Bottom bar displays the number of chosen services and unlocks the "Fill Out Form" button once at least 1 service is selected.'
           }
         ],
         tabs: [
-          { name: 'All Services', badge: 'Full Catalog', desc: 'Browse the entire university service offering.' },
-          { name: 'Facilities & Repairs', badge: 'FGMU', desc: 'Electrical, plumbing, carpentry, welding, masonry, painting, and mechanical works.' },
-          { name: 'Grounds & Landscaping', badge: 'LEAU', desc: 'Hauling, borrowing of plants, tools/equipment, stage decoration, and lawn care.' },
-          { name: 'Security & Incident', badge: 'SSU', desc: 'Official incident report submission for campus security events.' }
+          { name: 'All Services', badge: 'Full Catalog', desc: 'Browse all university services.' },
+          { name: 'Facilities & Repairs', badge: 'FGMU', desc: 'Electrical, plumbing, carpentry, welding, masonry, and painting.' },
+          { name: 'Grounds & Landscaping', badge: 'LEAU', desc: 'Hauling, borrowing plants, tools and equipment, stage decoration, and lawn care.' },
+          { name: 'Security & Incidents', badge: 'SSU', desc: 'Official incident report submissions for campus security concerns.' }
         ],
         buttons: [
           {
             label: 'Fill Out Form',
             type: 'primary',
-            desc: 'Proceeds to Step 2 (Service Intake Form) with your selected services loaded.',
-            result: 'Opens the detailed intake form modal or standalone intake page.'
+            desc: 'Opens the request form with your chosen services.',
+            result: 'Opens the detailed request form page.'
           },
           {
             label: 'Show all services / Authorized only',
             type: 'secondary',
-            desc: 'For student representatives: toggles between authorized student services and full catalog (restricted items show "Faculty Only").',
-            result: 'Toggles catalog display filter.'
+            desc: 'For students: toggle between allowed services and the full campus catalog.',
+            result: 'Toggles between authorized student services and full catalog.'
           },
           {
             label: 'Service Cards',
             type: 'info',
-            desc: 'Clicking any card selects or deselects it. Multiple services can be chosen simultaneously.',
-            result: 'Updates selection counter.'
+            desc: 'Click any card to select or unselect a service.',
+            result: 'Updates your chosen services.'
           }
         ],
         procedures: [
           {
-            title: 'How to Select and Initiate a Service Request',
+            title: 'How to Select and Request Services',
             steps: [
-              'Click "New Service Request" from the dashboard or "Services Catalog" in the sidebar.',
-              'Use the search bar or category tabs to find the needed service (e.g., Plumbing Works, Borrowing of Plants).',
-              'Click on the service card(s) to select them. The bottom counter updates.',
-              'Click "Fill Out Form" to proceed to Step 2.'
+              'Click "New Service Request" from the dashboard or "Services Catalog" in the menu.',
+              'Use the search bar or category tabs to find the service you need.',
+              'Click on the service cards to select them. The bottom counter updates.',
+              'Click "Fill Out Form" to move to Step 2.'
             ]
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. University Services Catalog', desc: 'Browse available campus maintenance, borrowing, and security services.' },
-          { element: '[data-tour="services-search-input"]', title: '2. Search Services', desc: 'Type any keyword like "aircon", "plumbing", "plants", or "security" to find the right service.' },
-          { element: '[data-tour="services-category-tabs"]', title: '3. Category Filter Tabs', desc: 'Filter services by operational department: Facilities (FGMU), Landscape (LEAU), or Security (SSU).' },
-          { element: '[data-tour="services-card-item"]', title: '4. Service Turnaround Benchmarks', desc: 'Inspect turnaround time estimates and service descriptions before submitting.' },
-          { element: '[data-tour="services-btn-submit"]', title: '5. Fill Out Request Form', desc: 'Click to open the intake wizard and enter your specific room location and problem details.' }
+          { element: '[data-tour="services-header"], main', title: '1. Choose Your Services', desc: 'Browse all available campus services. You can pick one or more services before moving to the form.' },
+          { element: '[data-tour="services-search-input"]', title: '2. Search Services', desc: 'Type keywords like "pipe leak", "aircon", "broken door", or "plants" to find what you need quickly.' },
+          { element: '[data-tour="services-category-tabs"]', title: '3. Filter by Category', desc: 'Filter services by department: Facilities (repairs), Landscape (plants & tools), or Security (incidents).' },
+          { element: '[data-tour="services-card-item"]', title: '4. Select Service Cards', desc: 'Click any service card to select it. Click it again if you want to unselect it.' },
+          { element: '[data-tour="services-btn-submit"]', title: '5. Fill Out Request Form', desc: 'Once you have chosen your services, click "Fill Out Form" to specify your location and describe what you need.' }
         ]
       },
       {
@@ -1757,85 +1757,84 @@ export const pageGuidesCatalog = {
         route: '/services',
         icon: '📝',
         manualSection: 'Section B2: Submitting a Service Request (Step 2)',
-        roleBadge: 'Requestor Portal',
+        roleBadge: 'Requestor',
         summary: 'Fill out your request details, pick the building and room, attach photos, and submit your form.',
         sections: [
           {
-            title: 'Service Summary Header',
-            desc: 'Confirmation of chosen services and handling unit',
-            details: 'Confirms selected services and identifies which GSO sub-unit will handle the ticket (Facilities Management, Landscaping & Aesthetics, or Security Services).'
+            title: 'Selected Services Summary',
+            desc: 'Overview of chosen services and handling unit',
+            details: 'Confirms selected services and identifies which GSO unit will handle the ticket (Facilities, Landscaping, or Security).'
           },
           {
-            title: 'Work Order Form Fields (Facilities & Grounds)',
-            desc: 'Standard maintenance request fields',
-            details: 'College/Building (required dropdown or custom input), Office/Room (required), Source of Fund (optional), Job Particulars (required, minimum 10 characters), and Supporting Photos/Docs (PNG, JPG, PDF, DOCX up to 10MB).'
+            title: 'Maintenance & Repair Fields',
+            desc: 'Building, room, and problem description',
+            details: 'Select your building, type your room or office number, explain the issue (at least 10 characters), and attach clear photos if available.'
           },
           {
-            title: 'Borrowing Request Form Fields (Tools & Plants)',
-            desc: 'Equipment loan specifications',
-            details: 'Item/s Name (required), Quantity Needed (optional), Detailed Purpose (required, e.g., lab experiment, ceremony), Pickup Date (required), Expected Return Date (required), Acknowledgement & Terms Checkbox (required agreement to return in good condition).'
+            title: 'Borrowing Request Fields',
+            desc: 'Item name, quantity, and dates',
+            details: 'Enter the item name, quantity needed, purpose, pickup date, and expected return date, then agree to the return terms.'
           },
           {
-            title: 'Incident Report Form Fields (Security Services)',
-            desc: 'Confidential campus incident form',
-            details: 'Incident Type checkboxes (Theft, Altercations, Vandalism, Unauthorized Entry, Road Accident, Fire, Harassment, Substance Abuse, or custom Other), Person Involved (Who), Location (Where), Date & Time (When), Narrative Statement (How), and Auto-filled Reporter Profile.'
+            title: 'Security Incident Fields',
+            desc: 'Confidential incident details',
+            details: 'Choose the incident type, persons involved, location, date, time, and explain what happened in the statement box.'
           }
         ],
         tabs: [
-          { name: 'Intake Specifications', badge: 'Required Data', desc: 'Enter detailed specifications corresponding to your chosen service.' }
+          { name: 'Request Form', badge: 'Required', desc: 'Fill in the required information for your chosen services.' }
         ],
         buttons: [
           {
             label: 'Validate & Submit Request',
             type: 'primary',
-            desc: 'Validates all required fields and officially sends the ticket to the appropriate unit admin queue.',
-            result: 'Creates ticket, sends confirmation email, and routes to My Service Requests.'
+            desc: 'Checks that all required fields are filled out and sends your ticket to the GSO team.',
+            result: 'Creates your ticket and sends you a confirmation update.'
           },
           {
-            label: 'Back to Selection / Dashboard',
+            label: 'Back to Services',
             type: 'secondary',
-            desc: 'Cancels form entry and returns to the catalog selection screen.',
-            result: 'Returns without creating a ticket.'
+            desc: 'Returns to the services list so you can change your chosen services.',
+            result: 'Returns to Step 1 without submitting.'
           }
         ],
         procedures: [
           {
-            title: 'How to Submit a Facilities Work Order',
+            title: 'How to Submit a Maintenance Work Order',
             steps: [
-              'Confirm chosen services in the summary box.',
-              'Select the College/Building and enter the specific Office/Room number.',
-              'Type a detailed description of the problem (minimum 10 characters).',
-              'Drag or upload clear photos of the issue (up to 10MB each).',
+              'Confirm your chosen services in the summary box.',
+              'Select your building and type your room or office number.',
+              'Describe the issue clearly (at least 10 characters).',
+              'Attach clear photos of the issue if available (up to 10MB each).',
               'Click "Validate & Submit Request".'
             ]
           },
           {
             title: 'How to Submit a Tool or Plant Borrowing Request',
             steps: [
-              'Enter the Item Name and Quantity Needed.',
-              'Explain the Purpose of Use in detail (e.g., student organization exhibit).',
-              'Pick the Date Needed (Pickup Date) and Expected Return Date.',
-              'Tick the "Acknowledgement & Agreement" box accepting responsibility for care and return.',
+              'Enter the item name and quantity needed.',
+              'Explain what you will use the items for.',
+              'Pick your pickup date and return date.',
+              'Check the agreement box to accept responsibility for returning the items in good shape.',
               'Click "Validate & Submit Request".'
             ]
           },
           {
-            title: 'How to Submit an Incident Report',
+            title: 'How to Submit a Security Incident Report',
             steps: [
-              'Check the appropriate Incident Type(s) or specify custom details.',
-              'Enter the names of persons involved (Who) and exact campus location (Where).',
-              'Select the incident Date and Time (When).',
-              'Provide a chronological narrative account of what happened (How).',
+              'Select the type of incident.',
+              'Enter the persons involved (if known) and the exact campus location.',
+              'Select the date and time it occurred.',
+              'Write what happened in the description box.',
               'Click "Validate & Submit Request".'
             ]
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Service Intake Form', desc: 'Provide complete details, exact campus rooms, and photos for university staff.' },
-      { element: '[data-tour="intake-step-badge"]', title: '2. Intake Wizard Progress', desc: 'Step-by-step progress tracking ensuring all necessary campus information is supplied.' },
-      { element: '[data-tour="intake-btn-back"]', title: '3. Back to Services', desc: 'Return to the service catalog if you wish to select a different university service.' },
-      { element: '[data-tour="intake-btn-submit"]', title: '4. Validate & Submit Request', desc: 'Click to validate your form and transmit your request directly to the unit administrative queue.' }
-    ]
+          { element: '[data-tour="intake-stepper-card"], main', title: '1. Service Request Form', desc: 'Enter your building, room number, and a short description of what you need help with.' },
+          { element: '[data-tour="intake-btn-back"]', title: '2. Back to Services', desc: 'Click here if you need to go back and change your selected services.' },
+          { element: '[data-tour="intake-btn-submit"]', title: '3. Submit Your Request', desc: 'Review your details and click "Validate & Submit Request" to send your ticket to the GSO team.' }
+        ]
       },
       {
         id: 'user-tickets',
@@ -1843,104 +1842,97 @@ export const pageGuidesCatalog = {
         route: '/user/tickets',
         icon: '📋',
         manualSection: 'Section B3: My Service Requests',
-        roleBadge: 'Requestor Portal',
+        roleBadge: 'Requestor',
         summary: 'Track the status of your requests, check worker visit dates, cancel pending tickets, and rate finished work.',
         sections: [
           {
-            title: 'Search & Status Queue Tabs',
-            desc: 'Filtering your active ticket portfolio',
-            details: 'Search by Ticket ID, service, or handling unit. Switch between All, Pending, In Progress, and Awaiting Rating tabs (each with live count badges).'
+            title: 'Search & Status Tabs',
+            desc: 'Find and filter your active tickets',
+            details: 'Search by ticket ID number, building, or service name. Switch between All, Pending, In Progress, and Awaiting Rating tabs.'
           },
           {
-            title: 'Service Request Cards',
-            desc: 'Comprehensive summary card for each ticket',
-            details: 'Shows handling unit (FGMU, LEAU, SSU) with reference # (e.g., #FGMU-TIC-10-2026), service title, live status badge (Pending Approval, Queued for Dispatch, Under Investigation, Ready for Pickup, Awaiting Rating), progress indicator (e.g., 3/5, 6/6), submission date, and scheduled visit date.'
+            title: 'Request Cards',
+            desc: 'Summary of each active ticket',
+            details: 'Shows handling unit (FGMU, LEAU, SSU) with reference number, service name, status badge, submission date, and visit schedule.'
           },
           {
-            title: 'Tracking Progress Timeline Modal',
-            desc: 'Step-by-step lifecycle visualizer',
-            details: 'Facilities flow: Digital Submission -> Ticket Creation -> Admin Approval -> Dispatch & Schedule -> Job Started -> Job Finished. Incident flow: Report Submission -> Staff Review -> Action/Investigation -> Resolution -> Archiving. Completed steps are checked, current step is highlighted, upcoming steps are greyed out.'
+            title: 'Step-by-Step Progress Timeline',
+            desc: 'Visual timeline of your request',
+            details: 'Click "Track Progress" on any card to see its step-by-step progress from submission, admin review, worker dispatch, job start, to completion.'
           },
           {
-            title: 'Service Performance Evaluation Modal',
-            desc: 'Rating and closing accomplished jobs',
-            details: 'Activated when ticket reaches "Awaiting User Rating". Rate Quality, Efficiency, and Timeliness (1 to 5 stars), select Job Completion Status (Finished Early, On-Time, Beyond Time, Not Performed), add remarks, and click "Submit Evaluation & Close Ticket".'
+            title: 'Rating & Feedback Form',
+            desc: 'Rate staff when work is completed',
+            details: 'When a job is marked completed, a rating form appears so you can give 1 to 5 stars for Quality, Efficiency, and Timeliness, then close the ticket.'
           }
         ],
         tabs: [
-          { name: 'All', badge: 'Active Portfolio', desc: 'All active submitted tickets across all units.' },
-          { name: 'Pending', badge: 'Under Review', desc: 'Tickets awaiting administrative approval or Director review. Eligible for cancellation.' },
-          { name: 'In Progress', badge: 'Scheduled & Active', desc: 'Tickets approved, scheduled for visit, or actively undergoing field repairs.' },
-          { name: 'Awaiting Rating', badge: 'Action Required', desc: 'Finished jobs awaiting your evaluation rating to complete and archive.' }
+          { name: 'All', badge: 'Active', desc: 'Shows all your active submitted requests.' },
+          { name: 'Pending', badge: 'Under Review', desc: 'Requests waiting for review by unit administrators. You can cancel requests in this tab.' },
+          { name: 'In Progress', badge: 'Active', desc: 'Requests that are approved, scheduled for a visit, or actively being worked on.' },
+          { name: 'Awaiting Rating', badge: 'Action Needed', desc: 'Finished jobs waiting for your rating before they move to completed history.' }
         ],
         buttons: [
           {
             label: 'Track Progress',
             type: 'primary',
-            desc: 'Opens the step-by-step progress timeline modal with live status indicators and technician schedules.',
-            result: 'Displays interactive progress timeline.'
+            desc: 'Opens the step-by-step progress timeline showing current status and worker schedules.',
+            result: 'Displays the tracking timeline modal.'
           },
           {
             label: 'Cancel Request',
             type: 'danger',
-            desc: 'Safely cancels a ticket while still in Pending status. Disappears once ticket is approved.',
-            result: 'Cancels ticket and archives with cancellation reason.'
+            desc: 'Cancels a pending request if you no longer need the work done.',
+            result: 'Cancels your request and closes the ticket.'
           },
           {
-            label: 'Close Evaluation / Rate Service',
+            label: 'Rate Service & Close',
             type: 'success',
-            desc: 'Opens the Service Performance Evaluation modal to rate staff and close accomplished tickets.',
-            result: 'Submits 1-5 star ratings and archives ticket.'
+            desc: 'Opens the rating form to score the work and close the ticket.',
+            result: 'Submits your 1 to 5 star rating and moves the ticket to history.'
           },
           {
-            label: '+ New Request',
+            label: 'New Request',
             type: 'secondary',
-            desc: 'Quick link to the Services Catalog to submit another ticket.',
-            result: 'Navigates to /services.'
-          },
-          {
-            label: 'Sync Status',
-            type: 'info',
-            desc: 'Refreshes ticket state in real time from the server.',
-            result: 'Fetches latest status timeline updates.'
+            desc: 'Quick link to the services catalog to submit another request.',
+            result: 'Takes you to the services catalog.'
           }
         ],
         procedures: [
           {
-            title: 'How to Track a Ticket\'s Progress',
+            title: 'How to Track Your Request',
             steps: [
               'Click "Track Progress" on any ticket card.',
-              'Review the current step highlighted in green or blue (e.g., Dispatch & Schedule).',
-              'Check scheduled implementation dates and assigned technician names.',
-              'Click "View Digital Ticket" to review what you originally submitted, or "Sync Status" to refresh.'
+              'Review the highlighted step to see where your request is in the process.',
+              'Check scheduled visit dates and assigned worker names.'
             ]
           },
           {
             title: 'How to Cancel a Pending Request',
             steps: [
-              'Locate the ticket in the "Pending" tab.',
-              'Click "Cancel Request" (only available before admin approval).',
-              'Confirm the cancellation prompt. The ticket is withdrawn immediately.'
+              'Find the request in the "Pending" tab.',
+              'Click "Cancel Request" (available only before the request is approved).',
+              'Confirm the prompt to withdraw the ticket.'
             ]
           },
           {
-            title: 'How to Rate and Close a Completed Work Order',
+            title: 'How to Rate a Finished Job',
             steps: [
-              'When the job is finished, the card enters the "Awaiting Rating" tab with an Action Required alert.',
-              'Click "Close Evaluation" on the ticket card.',
-              'Select the Job Completion Status (e.g., Completed On-Time).',
-              'Rate Quality, Efficiency, and Timeliness from 1 to 5 stars, and enter optional feedback remarks.',
+              'When the job is finished, the ticket moves to the "Awaiting Rating" tab.',
+              'Click "Rate Service & Close" on the ticket card.',
+              'Choose whether the job was finished on time, early, or late.',
+              'Rate Quality, Efficiency, and Timeliness from 1 to 5 stars, and leave optional comments.',
               'Click "Submit Evaluation & Close Ticket". The ticket moves to Completed Tickets.'
             ]
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. My Service Requests', desc: 'Review live ticket status timelines, scheduled worker visits, and borrowing pickup readiness.' },
-          { element: '[data-tour="user-search-input"]', title: '2. Quick Search', desc: 'Search your tickets by ticket ID number, building name, or problem description.' },
-          { element: '[data-tour="user-status-tabs"]', title: '3. Filter by Status', desc: 'Switch between All, Pending Verification, Scheduled Implementation, and Work in Progress.' },
-          { element: '[data-tour="user-btn-track-progress"]', title: '4. Track Progress & Timeline', desc: 'Inspect live milestone progress, dispatcher notations, and assigned technician names.' },
-          { element: '[data-tour="user-btn-cancel-request"]', title: '5. Cancel Request', desc: 'Withdraw a pending request before unit administrators review or dispatch workers.' },
-          { element: '[data-tour="user-btn-new-ticket"]', title: '6. Submit Another Request', desc: 'Quick shortcut to open the services catalog and submit an additional request.' }
+          { element: '[data-tour="user-filters-bar"], #tour-main-workspace', title: '1. My Service Requests', desc: 'Track all your active requests, see who is assigned, and check scheduled visit dates.' },
+          { element: '[data-tour="user-search-input"]', title: '2. Search Requests', desc: 'Search your tickets by ticket ID number, building, or service name.' },
+          { element: '[data-tour="user-status-tabs"]', title: '3. Filter by Status', desc: 'Filter tickets by status: All, Pending (waiting for review), In Progress (scheduled or active), and Awaiting Rating (finished jobs ready for feedback).' },
+          { element: '[data-tour="user-btn-track-progress"], [data-tour="user-ticket-card"], [data-tour="user-empty-state"]', title: '4. Track Progress', desc: 'Click "Track Progress" on any card to see its step-by-step timeline, visit dates, and assigned worker.' },
+          { element: '[data-tour="user-btn-cancel-request"], [data-tour="user-ticket-card"], [data-tour="user-status-tabs"]', title: '5. Cancel Request', desc: 'If your request is still in Pending status and you no longer need the service, you can cancel it here.' },
+          { element: '[data-tour="user-btn-new-ticket"]', title: '6. New Request', desc: 'Click "New Request" anytime to open the services catalog and submit another request.' }
         ]
       },
       {
@@ -1949,70 +1941,64 @@ export const pageGuidesCatalog = {
         route: '/user/completed-tickets',
         icon: '⭐',
         manualSection: 'Section B4: Completed Tickets',
-        roleBadge: 'Requestor Portal',
+        roleBadge: 'Requestor',
         summary: 'View your finished requests, see worker notes and ratings, and download completion slips.',
         sections: [
           {
-            title: 'Completed Tickets Search & Table',
-            desc: 'Searchable historical archive ledger',
-            details: 'Search by Ticket ID (e.g., FGMU-TIC-42). Displays Ticket ID, Service Name, Status (Closed), Completed Date, and Action buttons with pagination controls.'
+            title: 'Completed Tickets Table',
+            desc: 'Searchable list of finished requests',
+            details: 'Search by ticket ID number or service name. Displays ticket number, service title, completion status, and completed date.'
           },
           {
-            title: 'Completed Ticket Details Viewer',
-            desc: 'Read-only archival dossier',
-            details: 'Shows Status, Completed Date, Ticket ID, Requested By, Contact, Unit Assigned, Target Duration, Completion Date, Job Particulars, and Submitted Attachments download links.'
+            title: 'Completed Ticket Details',
+            desc: 'Finished work summary',
+            details: 'Review original request details, completion date, assigned worker notes, and uploaded photos.'
           },
           {
-            title: 'Your Service Feedback Card',
-            desc: 'Historical evaluation audit',
-            details: 'Displays the 1 to 5 star scores you submitted for Quality, Efficiency, and Timeliness along with your written feedback remarks.'
+            title: 'Your Feedback & Rating',
+            desc: 'Scores and remarks given',
+            details: 'Shows the 1 to 5 star ratings and comments you gave for Quality, Efficiency, and Timeliness.'
           },
           {
-            title: 'Finalized Progress Timeline',
-            desc: 'Complete lifecycle verification',
-            details: 'All steps verified from Digital Submission through Job Finished (marked COMPLETED), confirming the ticket is permanently finalized and archived.'
+            title: 'Verified Timeline',
+            desc: 'Full record of all milestones',
+            details: 'Shows the verified completion history confirming that all steps were completed from initial submission to final sign-off.'
           }
         ],
         tabs: [
-          { name: 'Completed Archive', badge: 'Permanent Records', desc: 'All finished and rated tickets stored for your institutional reference.' }
+          { name: 'Completed Archive', badge: 'History', desc: 'All past finished requests saved for your records.' }
         ],
         buttons: [
           {
             label: 'View Details',
             type: 'primary',
-            desc: 'Opens the full read-only Completed Ticket Details modal showing particulars, ratings, and attachments.',
-            result: 'Displays completed ticket dossier.'
+            desc: 'Opens full details for the completed request, including worker notes and your submitted ratings.',
+            result: 'Displays the completed ticket details modal.'
           },
           {
             label: 'Track Progress',
             type: 'secondary',
-            desc: 'Reopens the finalized step-by-step timeline confirming all completed milestones.',
-            result: 'Displays archived timeline modal.'
-          },
-          {
-            label: 'Download Attachment',
-            type: 'info',
-            desc: 'Downloads user-uploaded photos or documents attached during request submission.',
-            result: 'Downloads file to local computer.'
+            desc: 'Shows the complete history timeline confirming all milestones from start to finish.',
+            result: 'Displays the completed timeline modal.'
           }
         ],
         procedures: [
           {
-            title: 'How to Review Completed Job Records',
+            title: 'How to Review Past Completed Requests',
             steps: [
               'Click "Completed Tickets" in the sidebar.',
-              'Search by Ticket ID or browse using the Prev/Next page controls.',
-              'Click "View Details" to review original scope, target duration vs completion date, and submitted feedback.',
-              'Click "Track Progress" to inspect verified completion milestones.'
+              'Search by ticket ID number or browse through the pages.',
+              'Click "View Details" to see what was done, when it was completed, and your submitted rating.',
+              'Click "Track Progress" to see the full timeline from submission to completion.'
             ]
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Completed Tickets & Ratings', desc: 'Review accomplished work orders and submit your ratings for university services.' },
-      { element: '[data-tour="completed-search-input"]', title: '2. Search Completed Tickets', desc: 'Filter your historical accomplished requests by ticket ID, service, or date.' },
-      { element: '[data-tour="completed-btn-track"]', title: '3. Accomplishment History', desc: 'Review full lifecycle timeline from initial submission to final technician sign-off.' },
-      { element: '[data-tour="completed-btn-details"]', title: '4. Rate Service (1-5 Stars)', desc: 'Rate Quality, Efficiency, and Timeliness to provide constructive feedback for staff evaluation.' }
-    ]
+          { element: '[data-tour="completed-table-card"], #tour-main-workspace', title: '1. Completed Tickets', desc: 'View all your finished, closed, or cancelled requests in one place.' },
+          { element: '[data-tour="completed-search-input"]', title: '2. Search History', desc: 'Quickly find an older request by typing its ticket ID number or service name.' },
+          { element: '[data-tour="completed-btn-track"], [data-tour="completed-ticket-row"], [data-tour="completed-table-card"]', title: '3. Full Timeline', desc: 'Click "Track Progress" to see the complete history from when you first submitted the request to when work finished.' },
+          { element: '[data-tour="completed-btn-details"], [data-tour="completed-ticket-row"], [data-tour="completed-table-card"]', title: '4. View Details & Rating', desc: 'Click "View Details" to inspect the final work summary, assigned worker notes, and the rating you gave.' }
+        ]
       },
       {
         id: 'user-settings',
@@ -2020,83 +2006,85 @@ export const pageGuidesCatalog = {
         route: '/user/edit-profile',
         icon: '⚙️',
         manualSection: 'Section B5: Account Settings',
-        roleBadge: 'Requestor Portal',
+        roleBadge: 'Requestor',
         summary: 'Update your personal info, change password, and set email notification preferences.',
         sections: [
           {
-            title: 'Requestor Profile & Status Banner',
-            desc: 'Identity and active account status',
-            details: 'Displays avatar photo upload and status tag (Active Account). Click the avatar to upload a profile photo.'
+            title: 'Profile Photo',
+            desc: 'Account picture upload',
+            details: 'Click the circular photo avatar to upload a profile picture for your account.'
           },
           {
-            title: 'Personal & Contact Information',
+            title: 'Personal Details',
             desc: 'Name and email management',
-            details: 'Update First Name, Last Name, and Email Address. Your email is used for login credentials and transactional service notifications.'
+            details: 'Update your first name, last name, and email address. Your email is used to log in and receive status notices.'
           },
           {
-            title: 'Email Updates for My Requests Toggle',
-            desc: 'Automated email alert preferences',
-            details: 'Toggle On to receive status update emails (approved, dispatched, completed, declined). Toggle Off to only view updates on the web dashboard.'
+            title: 'Email Notification Updates',
+            desc: 'Email alerts for your requests',
+            details: 'Turn this on to receive email notices when your requests are approved, dispatched, or completed.'
           },
           {
-            title: 'Faculty / Staff Classification Box',
-            desc: 'Institutional authority verification',
-            details: 'For faculty/staff: confirms your classification (e.g., Teaching Staff) and Academic College / Department, establishing your service request authorizations.'
+            title: 'Two-Factor Authentication',
+            desc: 'Extra account protection',
+            details: 'Turn this on to receive a 6-digit email code when logging in for extra account security.'
           },
           {
-            title: 'Password Security Update',
-            desc: 'Alphanumeric credential reset',
-            details: 'Enter New Password and Confirm New Password (minimum 8 characters). Leave blank to keep existing password unchanged.'
+            title: 'Change Password',
+            desc: 'Password update',
+            details: 'Enter a new password (at least 8 characters). Leave blank if you do not want to change it.'
           }
         ],
         tabs: [
-          { name: 'Profile & Security', badge: 'User Settings', desc: 'Personal details, email notifications, and password security.' }
+          { name: 'Profile & Security', badge: 'Settings', desc: 'Personal information, notification preferences, and password settings.' }
         ],
         buttons: [
           {
             label: 'Save Profile Changes',
             type: 'primary',
-            desc: 'Applies profile edits, contact updates, notification preferences, and new passwords.',
-            result: 'Commits updates to user account.'
+            desc: 'Saves your updated name, email, notification preferences, or new password.',
+            result: 'Saves your profile changes.'
           },
           {
-            label: 'Upload Avatar Photo',
+            label: 'Profile Photo Upload',
             type: 'secondary',
-            desc: 'Click on avatar thumbnail to upload a custom profile picture.',
-            result: 'Updates profile image.'
+            desc: 'Click on your photo thumbnail to choose a new picture.',
+            result: 'Updates your profile picture.'
           },
           {
             label: 'Email Updates Toggle',
             type: 'info',
-            desc: 'Enables or disables transactional emails for ticket status changes.',
+            desc: 'Turns email notices for your requests on or off.',
             result: 'Updates notification preferences.'
           }
         ],
         procedures: [
           {
-            title: 'How to Update Contact Info and Email Alerts',
+            title: 'How to Update Your Info and Email Alerts',
             steps: [
-              'Click "Account Settings" in the sidebar.',
-              'Update your First Name, Last Name, or Email Address.',
-              'Set the "Email Updates for My Requests" toggle to On if you want email alerts whenever staff dispatch or finish your ticket.',
+              'Click "Account Settings" in the menu.',
+              'Update your name or email address.',
+              'Switch "Email Updates for My Requests" to On if you want email alerts when staff work on your request.',
               'Click "Save Profile Changes".'
             ]
           },
           {
             title: 'How to Change Your Password',
             steps: [
-              'Navigate to Account Settings.',
-              'Scroll to New Password and enter at least 8 alphanumeric characters.',
-              'Retype the password in Confirm New Password.',
+              'Go to Account Settings.',
+              'Type your new password (at least 8 characters) in New Password.',
+              'Type the same password in Confirm New Password.',
               'Click "Save Profile Changes".'
             ]
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Profile & Preferences', desc: 'Manage your university profile details, contact number, and notification settings.' },
-      { element: '[data-tour="settings-profile-card"]', title: '2. Personal Details & Password', desc: 'Keep your phone number and email current so technicians can reach you on site.' },
-      { element: '[data-tour="settings-btn-save"]', title: '3. Save Profile Changes', desc: 'Click to apply your updated profile information.' }
-    ]
+          { element: '[data-tour="settings-profile-card"], #tour-main-workspace', title: '1. Profile & Settings', desc: 'Manage your personal details, email preferences, and account security.' },
+          { element: '[data-tour="settings-avatar-upload"]', title: '2. Profile Photo', desc: 'Click the photo circle to upload a picture for your account.' },
+          { element: '[data-tour="settings-email-toggle"]', title: '3. Email Updates', desc: 'Turn this on to receive email notices when your requests are approved, dispatched, or completed.' },
+          { element: '[data-tour="settings-password-inputs"]', title: '4. Change Password', desc: 'Enter a new password here if you want to change it. Leave blank to keep your current password.' },
+          { element: '[data-tour="settings-btn-save"]', title: '5. Save Changes', desc: 'Click here to save any updates you made to your profile or password.' }
+        ]
       }
     ]
   },

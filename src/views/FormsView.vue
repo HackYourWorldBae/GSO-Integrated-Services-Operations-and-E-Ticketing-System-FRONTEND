@@ -399,7 +399,7 @@ const handleFinalSubmit = async () => {
       </div>
 
       <!-- ─── INTAKE WIZARD PROGRESS STEPPER (2 STEPS) ─── -->
-      <div class="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 mb-6 sm:mb-10 shadow-sm">
+      <div data-tour="intake-stepper-card" class="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 mb-6 sm:mb-10 shadow-sm">
         <div class="max-w-md mx-auto">
           <div class="flex items-center justify-between">
 
