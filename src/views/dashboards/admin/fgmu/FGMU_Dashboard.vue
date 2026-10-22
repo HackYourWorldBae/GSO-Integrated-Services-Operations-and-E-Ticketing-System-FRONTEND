@@ -118,9 +118,9 @@
           </div>
 
           <!-- Top 4 Cards Grid (2x2) -->
-          <div data-tour="admin-kpi-gauges" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <!-- 1. Unresolved Requests / Daily Unresolved Requests (Top Left) -->
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm flex flex-col justify-between">
+            <div data-tour="admin-kpi-gauges" class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
                 <span class="text-xs font-black text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-2xs">
                   {{ selectedPeriod === 'day' ? 'Daily Unresolved' : 'Unresolved' }}
@@ -199,7 +199,7 @@
           <div v-if="stats.daily_breakdown && stats.daily_breakdown.length > 0" class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-slate-200 pb-3">
               <div>
-                <h4 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                <h4 data-tour="admin-daily-tracker" class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
                   Daily Activity Tracker (Last 7 Days)
                 </h4>
               </div>
@@ -270,7 +270,7 @@
         <div class="space-y-4">
           <div class="flex items-center justify-between px-1">
             <div>
-              <h3 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
+              <h3 data-tour="admin-workload-status" class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
                 <span class="w-2.5 h-5 rounded-full bg-emerald-600 shrink-0"></span>
                 Live Workload &amp; Operations Status
               </h3>
@@ -343,7 +343,7 @@
           
           <!-- Performance Radar -->
           <div class="p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200/80 shadow-md flex flex-col min-h-[320px] lg:h-[400px]">
-            <h4 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2 italic">
+            <h4 data-tour="admin-eval-averages" class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2 italic">
               <div class="w-2.5 h-6 bg-emerald-500 rounded-full shrink-0"></div>
               Evaluation Averages
             </h4>
@@ -373,7 +373,7 @@
           <div class="p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200/80 shadow-md flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-6 gap-2">
-                <h4 class="text-xl font-black text-slate-900 flex items-center gap-2 italic">
+                <h4 data-tour="admin-completion-health" class="text-xl font-black text-slate-900 flex items-center gap-2 italic">
                   <div class="w-2.5 h-6 bg-slate-800 rounded-full shrink-0"></div>
                   Job Completion Health
                 </h4>
@@ -463,7 +463,7 @@
           <div class="p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200/80 shadow-md flex flex-col lg:col-span-2 space-y-6">
             <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
               <div>
-                <h4 class="text-xl font-black text-slate-900 flex items-center gap-2 italic">
+                <h4 data-tour="admin-root-cause" class="text-xl font-black text-slate-900 flex items-center gap-2 italic">
                   <div class="w-2.5 h-6 bg-amber-500 rounded-full shrink-0"></div>
                   Why Delays &amp; Barriers Happen (Root Cause Analysis)
                 </h4>

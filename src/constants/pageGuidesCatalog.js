@@ -29,101 +29,105 @@ export const createUnitAdminDashboardGuide = (unitCode = 'fgmu') => {
     summary: `Overview of ${unitName} daily operations. View total requests, completed work, live ticket numbers, and staff ratings.`,
     sections: [
       {
-        title: 'Throughput & Volume Analytics',
-        desc: 'Outcome metrics for selected timeframe',
-        details: 'Displays Total Requests (all time or selected period), Resolved Tickets (completed), and Declined Requests. Includes a live Today: X Requests • Y Completed badge. Filterable by All Time, Annually, Quarterly, Monthly, or Daily.'
+        title: 'Request Counts',
+        desc: 'Unresolved, resolved, declined, and total requests',
+        details: 'Shows how many requests are pending, completed, or declined for the selected timeframe. Filterable by All Time, Annual, Quarterly, Monthly, or Daily.'
       },
       {
-        title: 'Daily Performance & Activity Tracker (Last 7 Days)',
-        desc: '7-day operational workload breakdown',
-        details: 'Visualizes daily received requests vs. completed work orders for the past seven days, with the current day prominently flagged as TODAY. Clicking any specific day immediately filters the throughput analytics to that date.'
+        title: '7-Day Activity Tracker',
+        desc: 'Daily workload for the past week',
+        details: 'Shows requests received vs. work completed each day for the last seven days. The current day is marked as TODAY. Click any day to filter the dashboard to that date.'
       },
       {
-        title: 'Active Operations & Workload (Live Pipeline)',
-        desc: 'Real-time stage counters across current tickets',
+        title: 'Live Workload Status',
+        desc: 'Current ticket stages at a glance',
         details: isSsu
-          ? 'Tracks incoming security incident reports across two active stages: Awaiting Review (Pending) and Under Investigation (Processing).'
-          : 'Tracks tickets actively in the pipeline: Awaiting Approval (Pending), Scheduled Jobs (Dispatched), and Work in Progress (Active).'
+          ? 'Tracks security incident reports across two stages: Awaiting Review and Under Investigation.'
+          : 'Tracks tickets in the pipeline: Pending Approval, Dispatched, and Work in Progress.'
       },
       ...(isSsu
         ? [
             {
-              title: 'Incident Heatmap (By Category)',
-              desc: 'Visual distribution of campus safety reports',
-              details: 'Donut chart illustrating incident frequencies across categories (Theft/Burglary, Vandalism, Altercations, Bullying, etc.) with a color-coded legend to pinpoint high-risk campus zones.'
+              title: 'Incident Heatmap',
+              desc: 'Campus safety reports by category',
+              details: 'Donut chart showing incident types (Theft, Vandalism, Altercations, Bullying, etc.) to spot recurring security concerns.'
             }
           ]
         : [
             {
-              title: 'Evaluation Averages & Star Ratings',
-              desc: 'Client satisfaction scores across completed work orders',
-              details: 'Displays average scores (out of 5) and star ratings for Quality, Efficiency, and Timeliness submitted by university requesters upon job closure.'
+              title: 'Evaluation Averages',
+              desc: 'Client satisfaction ratings',
+              details: 'Shows average scores out of 5 for Quality, Efficiency, and Timeliness from requesters who rated completed work.'
             },
             {
               title: 'Job Completion Health',
-              desc: 'Turnaround distribution of evaluated jobs',
-              details: 'Shows counts and percentages across 4 standardized outcomes: Early / Ahead of Schedule, On-Time Completion, Completed Beyond Time, and Not Completed / Halted.'
+              desc: 'Job completion breakdown',
+              details: 'Shows percentages for four outcomes: Early, On-Time, Beyond Time (Delayed), and Not Completed (Halted).'
             },
             {
-              title: 'Root Cause Analysis (Why Delays & Barriers Happen)',
-              desc: 'Operational delay factors and obstacles',
-              details: `Categorizes reported obstacles into 3 columns: Completed Beyond Time (Delay Factors), Not Completed / Performed (Barriers), and Approval Delay Reasons (Pre-Work holdups such as ${isLeau ? 'Equipment Inspection' : 'Awaiting Procurement'}).`
+              title: 'Delay & Barrier Reasons',
+              desc: 'Why work is delayed or incomplete',
+              details: `Groups obstacles into three lists: Delayed Work (reasons jobs ran late), Barriers (why work wasn't finished), and Approval Delays (pre-work holds such as ${isLeau ? 'Equipment Inspection' : 'Awaiting Procurement'}).`
             }
           ])
     ],
     tabs: [
-      { name: 'All Time', badge: 'Historical', desc: 'Aggregates all historical ticket throughput since system inception.' },
-      { name: 'Annually', badge: 'Current Fiscal Year', desc: 'Filters performance metrics to the current academic calendar year.' },
-      { name: 'Quarterly', badge: 'Current Quarter', desc: 'Isolates metrics for Q1, Q2, Q3, or Q4 institutional reporting.' },
-      { name: 'Monthly', badge: 'Current Month', desc: 'Focuses analytics on current monthly operations.' },
-      { name: 'Daily', badge: 'Single Day Focus', desc: 'Zeroes in on today or a specific day selected from the 7-day tracker.' }
+      { name: 'All Time', badge: 'Historical', desc: 'All past years combined.' },
+      { name: 'Annually', badge: 'Current Year', desc: 'Metrics for the current academic year.' },
+      { name: 'Quarterly', badge: 'Quarter', desc: 'Q1, Q2, Q3, or Q4 reporting.' },
+      { name: 'Monthly', badge: 'Month', desc: 'Current month activity.' },
+      { name: 'Daily', badge: 'Day Focus', desc: 'Today or a specific day from the tracker.' }
     ],
     buttons: [
       {
         label: '+ Request / Request Service',
         type: 'primary',
-        desc: 'Opens the Admin Self-Service Intake flow to submit an internal unit work order or incident report.',
-        result: 'Routes to the Service Catalog selection screen with role set as ADMIN.'
+        desc: 'Open the service catalog to submit a new internal work order.',
+        result: 'Opens the service selection screen.'
       },
       {
-        label: 'Timeframe Filter Buttons',
+        label: 'Time Period Filter',
         type: 'secondary',
-        desc: 'Switches the analytics calculation window between All Time, Annually, Quarterly, Monthly, and Daily.',
-        result: 'Instantly recalculates KPI counters and throughput charts.'
+        desc: 'Change the analytics view between All Time, Annual, Quarterly, Monthly, or Daily.',
+        result: 'Recalculates the KPI numbers and charts.'
       },
       {
         label: '7-Day Tracker Day Cards',
         type: 'info',
-        desc: 'Clicking any individual day card in the 7-day performance widget filters the dashboard view to that specific date.',
-        result: 'Applies date filter to throughput and volume statistics.'
+        desc: 'Click any day card in the weekly tracker to filter the dashboard to that date.',
+        result: 'Applies the selected date filter.'
       }
     ],
     procedures: [
       {
-        title: 'How to Monitor Daily Unit Workload and Health',
+        title: 'How to Check Your Unit Workload',
         steps: [
-          'Log in to the GSO Portal using your unit administrative credentials.',
-          'Review the Throughput & Volume Analytics banner at the top to check today\'s incoming requests and completions.',
-          'Examine the Live Pipeline to see if tickets are backed up in Pending Approvals or Active Dispatches.',
-          'Inspect the Job Completion Health and Root Cause Analysis cards to identify recurring procurement or weather bottlenecks.'
+          'Log in to the GSO Portal with your unit admin account.',
+          'Check the Request Counts at the top for today’s pending and completed items.',
+          'Look at the Live Workload Status to see if tickets are waiting in Pending Approval or Active Dispatch.',
+          'Review the Job Completion Health and Delay & Barrier Reasons cards to spot recurring problems.'
         ]
       },
       {
-        title: 'How to Submit an Internal Admin Work Order',
+        title: 'How to Submit an Internal Work Order',
         steps: [
-          'Click the "+ Request" button in the upper action header.',
-          'Browse or search the Services Catalog for the required facilities, landscaping, or security service.',
-          'Select the service card, click "Fill Out Form", enter building and room particulars, attach optional photos, and click "Validate & Submit Request".'
+          'Click the "+ Request" button at the top.',
+          'Search the service catalog for the facilities, landscaping, or security service you need.',
+          'Select the service, click "Fill Out Form", enter building and room details, attach photos if needed, and click "Validate & Submit Request".'
         ]
       }
     ],
     tourSteps: [
-      { element: '#tour-main-workspace', title: `1. ${U} Operations Dashboard`, desc: `Welcome to the central command hub for ${unitName}. Monitor daily operations and field performance at a glance.` },
-      { element: '[data-tour="admin-kpi-gauges"]', title: '2. Operational KPI Gauges', desc: 'Track total requests, completed work orders, and declined requests in real time.' },
-      { element: '[data-tour="admin-timeframe-tabs"]', title: '3. Timeframe Analytics Filter', desc: 'Switch throughput analytics across Today, Monthly, Quarterly, Annually, or All-Time.' },
-      { element: '#tour-sidebar-nav', title: '4. Operations Navigation', desc: 'Access your ticket queues, worker dispatch workspace, personnel roster, inventory, and historical archives.' },
-      { element: '#tour-notifications-btn', title: '5. Real-Time Chime Alerts', desc: 'Instant audio chimes and badge alerts notify administrators whenever a new service ticket is routed to your unit.' },
-      { element: '#tour-comfort-btn', title: '6. High-Contrast Comfort View', desc: 'Switch to accessible comfort mode anytime for high-contrast viewing during extended monitoring shifts.' }
+      { element: '#tour-page-header', title: `1. ${U} Dashboard Overview`, desc: `Your ${unitName} home screen. See key metrics and take quick actions.` },
+      { element: '[data-tour="admin-timeframe-tabs"]', title: '2. Time Period Filter', desc: 'Switch the analytics view: All Time, Annual, Quarterly, Monthly, or Daily.' },
+      { element: '[data-tour="admin-kpi-gauges"]', title: '3. Key Numbers', desc: 'See unresolved, resolved, declined, and total request counts at a glance.' },
+      { element: '[data-tour="admin-daily-tracker"]', title: '4. 7-Day Activity Tracker', desc: 'Review daily requests vs. completed work for the past week.' },
+      { element: '[data-tour="admin-workload-status"]', title: '5. Live Workload Status', desc: 'Check pending approvals, dispatched, scheduled, and active jobs.' },
+      { element: '[data-tour="admin-eval-averages"]', title: '6. Evaluation Averages', desc: 'View client ratings for quality, efficiency, and timeliness.' },
+      { element: '[data-tour="admin-completion-health"]', title: '7. Job Completion Health', desc: 'See on-time, early, delayed, and halted job breakdown.' },
+      { element: '[data-tour="admin-root-cause"]', title: '8. Delay & Barrier Reasons', desc: 'Review top factors causing delays or incomplete work.' },
+      { element: '#tour-sidebar-nav', title: '9. Menu & Navigation', desc: 'Use the sidebar to switch between Dashboard, Queues, Approved, Dispatched, Active, Personnel, Inventory, Materials, Archives, and Settings.' },
+      { element: '#tour-notifications-btn', title: '10. Notifications', desc: 'Click the bell to see new alerts when tickets are assigned or updated.' }
     ]
   };
 };
@@ -472,11 +476,11 @@ export const createUnitAdminApprovedGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Approved Tickets Queue', desc: `Manage tickets that have been approved and are awaiting field dispatch or inventory reservation.` },
-      { element: '[data-tour="approved-tab-unit"], [data-tour="approved-tab-collab"]', title: '2. Unit vs. Collab Tabs', desc: 'Switch between direct service requests and joint collaboration requests from counterpart units.' },
-      { element: '[data-tour="approved-urgency-filters"]', title: '3. Urgency Prioritization', desc: 'Isolate emergency work orders from standard requests to expedite urgent campus repairs.' },
-      { element: '[data-tour="approved-search-input"]', title: '4. Search Approved Work Orders', desc: 'Filter approved tickets by ID number, requester name, or building.' },
-      { element: '[data-tour="approved-btn-assign"]', title: '5. Assign Workers & Equipment', desc: 'Click Assign to proceed to the Worker Dispatch console to allocate technicians and schedule implementation.' }
+      { element: '#tour-page-header', title: `1. ${U} Approved Tickets`, desc: 'View approved tickets awaiting field dispatch or inventory reservation.' },
+      { element: '[data-tour="approved-tab-job"], [data-tour="approved-tab-borrowing"], [data-tour="approved-tab-collab"]', title: '2. Job vs Borrowing vs Collab Tabs', desc: 'Switch between approved work orders, borrowing requests, and cross-unit collaboration tickets.' },
+      { element: '[data-tour="approved-urgency-filters"]', title: '3. Filter by Urgency', desc: 'Filter by All, Emergency, or Standard priority.' },
+      { element: '[data-tour="approved-search-input"]', title: '4. Search Approved Tickets', desc: 'Search by ticket ID, requester, service, or campus location.' },
+      { element: '[data-tour="approved-btn-fullinfo"], [data-tour="approved-btn-assign"]', title: '5. Assign Workers or View Details', desc: 'Click Full Info to inspect details, or Assign Workers to proceed to dispatch.' }
     ]
   };
 };
@@ -612,12 +616,12 @@ export const createUnitAdminDispatchGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '#tour-main-workspace', title: `1. ${U} Dispatch Workspace`, desc: 'Allocate personnel, set official implementation dates, and launch field work orders.' },
-      { element: '[data-tour="dispatch-queue-select"]', title: '2. Select Approved Ticket Target', desc: 'Choose an approved ticket from the dispatch queue to begin scheduling and crew allocation.' },
-      { element: '[data-tour="dispatch-schedule-controls"]', title: '3. Schedule & Working Days', desc: 'Select the implementation start date and target working days. Weekends and official holidays are excluded automatically.' },
-      { element: '[data-tour="dispatch-materials"]', title: '4. Material Estimation Table', desc: 'Pre-assess standard consumable materials and benchmark prices required for the job.' },
-      { element: '[data-tour="dispatch-staff-roster"]', title: '5. Assign Technicians & Crew', desc: 'Select qualified personnel based on trade specialty, skill match, and active availability.' },
-      { element: '[data-tour="dispatch-btn-confirm"]', title: '6. Confirm & Launch Dispatch', desc: 'Click Confirm Dispatch to transition the work order into Scheduled status and alert assigned technicians.' }
+      { element: '#tour-page-header', title: `1. ${U} Dispatch Workspace`, desc: 'Allocate personnel, set implementation dates, and launch field work orders.' },
+      { element: '[data-tour="dispatch-queue-select"]', title: '2. Select Approved Ticket', desc: 'Choose an approved ticket from the queue to begin scheduling and crew allocation.' },
+      { element: '[data-tour="dispatch-schedule-controls"]', title: '3. Schedule & Working Days', desc: 'Select implementation start date and target working days. Weekends and official holidays are excluded automatically.' },
+      { element: '[data-tour="dispatch-materials"]', title: '4. Material Estimation', desc: 'Pre-assess consumable materials and benchmark prices required for the job.' },
+      { element: '[data-tour="dispatch-staff-roster"]', title: '5. Assign Technicians', desc: 'Select qualified personnel based on trade specialty and active availability.' },
+      { element: '[data-tour="dispatch-btn-confirm"]', title: '6. Confirm & Launch Dispatch', desc: 'Click Confirm Dispatch to transition the work order into Scheduled status.' }
     ]
   };
 };
@@ -728,10 +732,10 @@ export const createUnitAdminDispatchedGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '#tour-main-workspace', title: `1. ${U} Scheduled Jobs Queue`, desc: 'Manage work orders scheduled for site execution by assigned technicians.' },
-      { element: '[data-tour="scheduled-tab-jobs"], [data-tour="scheduled-tab-borrowing"]', title: '2. Work Orders vs Borrowing', desc: 'Switch between technician work orders and tools/plants borrowing reservations.' },
+      { element: '#tour-page-header', title: `1. ${U} Scheduled Jobs`, desc: 'Manage work orders scheduled for site execution by assigned technicians.' },
+      { element: '[data-tour="scheduled-tab-jobs"], [data-tour="scheduled-tab-borrowing"], [data-tour="scheduled-tab-collab"]', title: '2. Jobs vs Borrowing vs Collab', desc: 'Switch between technician work orders, tools/plants borrowing reservations, and cross-unit jobs.' },
       { element: '[data-tour="scheduled-search-input"]', title: '3. Search Scheduled Tickets', desc: 'Search work orders by ticket ID, assigned technician name, or campus venue.' },
-      { element: '[data-tour="scheduled-btn-start"], [data-tour="scheduled-btn-reschedule"]', title: '4. Start Job or Reschedule', desc: 'Mark job as In-Progress once technicians arrive on site, or adjust the scheduled implementation date.' }
+      { element: '[data-tour="scheduled-btn-start"], [data-tour="scheduled-btn-reschedule"]', title: '4. Start Job or Reschedule', desc: 'Mark job as In-Progress once technicians arrive, or adjust the scheduled implementation date.' }
     ]
   };
 };
@@ -958,8 +962,8 @@ export const createUnitAdminActiveGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '#tour-main-workspace', title: `1. ${U} Active Dispatches Queue`, desc: 'Monitor active operations in real time as technicians execute work on site.' },
-      { element: '[data-tour="active-tab-jobs"], [data-tour="active-tab-borrowed"]', title: '2. Work in Progress vs Borrowed', desc: 'Toggle between ongoing physical repair jobs and items currently borrowed across campus.' },
+      { element: '#tour-page-header', title: `1. ${U} Active Dispatches`, desc: 'Monitor active operations in real time as technicians execute work on site.' },
+      { element: '[data-tour="active-tab-jobs"], [data-tour="active-tab-borrowed"], [data-tour="active-tab-collab"], [data-tour="active-tab-rating"]', title: '2. Job Tabs', desc: 'Toggle between In Progress, Borrowed Requests, Cross-Unit Active, and Awaiting Requestor Rating.' },
       { element: '[data-tour="active-search-input"]', title: '3. Search Active Work Orders', desc: 'Search active jobs by ticket number, requester, location, or assigned technician.' },
       { element: '[data-tour="active-btn-extend"]', title: '4. Timeline Extension Controls', desc: 'Approve or adjust technician extension requests when unforeseen repair complications arise.' },
       { element: '[data-tour="active-btn-materials"]', title: '5. Liquidate Consumed Materials', desc: 'Record actual consumables and materials utilized on site for institutional auditing.' },
@@ -1091,7 +1095,7 @@ export const createUnitAdminPersonnelGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '#tour-main-workspace', title: `1. ${U} Personnel Roster`, desc: 'Manage your unit technicians, duty schedules, and field specializations.' },
+      { element: '#tour-page-header', title: `1. ${U} Personnel Roster`, desc: 'Manage your unit technicians, duty schedules, and field specializations.' },
       { element: '[data-tour="personnel-search-input"]', title: '2. Search Personnel', desc: 'Quickly find technicians by name, employee ID number, or assigned specialty.' },
       { element: '[data-tour="personnel-btn-categories"]', title: '3. Filter by Specialty', desc: 'Filter your roster by trade category: Carpentry, Electrical, Plumbing, Welding, Masonry, etc.' },
       { element: '[data-tour="personnel-btn-add"]', title: '4. Register New Technician', desc: 'Add newly hired personnel to the roster with duty role and contact information.' },
@@ -1296,11 +1300,11 @@ export const createUnitAdminMaterialsGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '#tour-main-workspace', title: `1. ${U} Materials Library`, desc: 'Standardized supplies, parts specifications, and baseline prices for university maintenance.' },
-      { element: '[data-tour="materials-search-input"]', title: '2. Search Materials Catalog', desc: 'Search standardized supplies by item name, category, or unit of measure.' },
-      { element: '[data-tour="materials-btn-add"]', title: '3. Add Standard Material', desc: 'Add a new standard consumable item with unit of measure and benchmark price.' },
+      { element: '#tour-page-header', title: `1. ${U} Materials Library`, desc: 'Standardized supplies, parts specifications, and baseline prices for university maintenance.' },
+      { element: '[data-tour="materials-search-input"]', title: '2. Search Materials Catalog', desc: 'Search supplies by item name or category.' },
+      { element: '[data-tour="materials-btn-add"]', title: '3. Add Standard Material', desc: 'Add a new consumable item with unit of measure and benchmark price.' },
       { element: '[data-tour="materials-btn-refresh"]', title: '4. Refresh Catalog', desc: 'Reload standard material catalog and benchmarks.' },
-      { element: '[data-tour="materials-catalog-table"]', title: '5. Standard Materials Table', desc: 'Inspect standard material definitions, units of measurement, and benchmark prices.' }
+      { element: '[data-tour="materials-catalog-table"]', title: '5. Standard Materials Table', desc: 'Inspect material definitions, units of measurement, and benchmark prices.' }
     ]
   };
 };
@@ -1385,7 +1389,7 @@ export const createUnitAdminCollabGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Cross-Unit Collaboration Hub', desc: 'Coordinate multi-department projects requiring joint manpower across campus.' },
+      { element: '#tour-page-header', title: '1. Cross-Unit Collaboration Hub', desc: 'Coordinate multi-department projects requiring joint manpower across campus.' },
       { element: '[data-tour="collab-tab-approved"], [data-tour="collab-tab-scheduled"], [data-tour="collab-tab-active"]', title: '2. Collaboration Pipeline Stages', desc: 'Track joint tasks across Approved, Scheduled, and Work-in-Progress stages.' },
       { element: '[data-tour="collab-search-input"]', title: '3. Search Joint Work Orders', desc: 'Filter multi-unit collaboration requests by ticket ID, project name, or partner unit.' }
     ]
@@ -1485,10 +1489,10 @@ export const createUnitAdminArchivesGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '#tour-main-workspace', title: `1. ${U} Historical Archives`, desc: 'Access archived records and historical work order data for past academic years.' },
-      { element: '[data-tour="archives-search-input"]', title: '2. Search Historical Records', desc: 'Search past completed and declined requests by ticket ID, requester, or venue.' },
-      { element: '[data-tour="archives-filter-year"], [data-tour="archives-filter-service"]', title: '3. Filter by Year & Service', desc: 'Isolate historical records by academic year, semester, or service specialization.' },
-      { element: '[data-tour="archives-btn-export"]', title: '4. Bulk Audit Export', desc: 'Download official historical data in PDF or CSV formats for university auditing.' }
+      { element: '#tour-page-header', title: `1. ${U} Archives`, desc: 'Access archived records and historical work order data for past academic years.' },
+      { element: '[data-tour="archives-search-input"]', title: '2. Search Historical Records', desc: 'Search past tickets by ticket ID, requester, or venue.' },
+      { element: '[data-tour="archives-filter-year"], [data-tour="archives-filter-service"]', title: '3. Filter by Year & Service', desc: 'Isolate records by academic year or service specialization.' },
+      { element: '[data-tour="archives-btn-export"]', title: '4. Bulk Audit Export', desc: 'Download historical data in PDF or CSV formats.' }
     ]
   };
 };
@@ -1586,7 +1590,7 @@ export const createUnitAdminSettingsGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '#tour-main-workspace', title: `1. ${U} Settings`, desc: 'Configure your unit profile, physical office details, and operational preferences.' },
+      { element: '#tour-page-header', title: `1. ${U} Settings`, desc: 'Set up your unit profile, digital signature, and email alerts.' },
       { element: '[data-tour="admin-settings-profile"]', title: '2. Operations Profile', desc: 'Update contact numbers, email notifications, and password credentials.' },
       { element: '[data-tour="admin-settings-signature"]', title: '3. Digital Signature Setup', desc: 'Draw or upload your official digital signature for automatic placement on job orders.' },
       { element: '[data-tour="admin-settings-btn-save"]', title: '4. Save Configuration', desc: 'Click to save your profile changes and official signature.' }
