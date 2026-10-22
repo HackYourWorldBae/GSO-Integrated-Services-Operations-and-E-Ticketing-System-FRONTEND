@@ -2597,63 +2597,63 @@ export const pageGuidesCatalog = {
         sections: [
           {
             title: 'Unit Ticket Overview Cards',
-            desc: 'Direct jump links to unit queues',
-            details: 'Cards for FGMU Ticket Overview, LEAU Ticket Overview, and SSU Incident Reports Overview. Clicking "Open Queues" navigates directly to that unit\'s live queue.'
+            desc: 'Quick links to each unit queue',
+            details: 'Cards for FGMU Ticket Overview, LEAU Ticket Overview, and SSU Incident Reports Overview. Clicking "Open Queues" goes directly to that unit\'s live ticket list.'
           },
           {
             title: 'Performance by Sub-Unit Table',
-            desc: 'Comparative throughput and ratings ledger',
+            desc: 'Side-by-side unit performance',
             details: 'Breaks down Requests, Resolved, Declined, and Rating averages for FGMU, LEAU, and SSU, with a GSO Overall row totaling performance across all units.'
           },
           {
             title: 'Top Service Categories Breakdown',
-            desc: 'Most requested campus trades',
+            desc: 'Most requested services',
             details: 'Tabs for All Units, FGMU, LEAU, and SSU. Itemizes top service categories with request counts and percentage distribution (e.g., Carpentry 20%, Plant Borrowing 36.7%, Incidents 100%).'
           },
           {
             title: 'Service Completion Rate & Ratings',
-            desc: 'Turnaround health breakdown',
+            desc: 'Job completion health',
             details: 'Visualizes counts and percentages of jobs completed Early, On-Time, Overdue, or Incomplete, alongside average client scores for Quality, Efficiency, and Timeliness.'
           }
         ],
         tabs: [
-          { name: 'All-Time', badge: 'Historical', desc: 'Consolidated performance across all past years.' },
-          { name: 'Annual', badge: 'Yearly', desc: 'Metrics for the current calendar academic year.' },
-          { name: 'Quarterly', badge: 'Quarter', desc: 'Q1, Q2, Q3, or Q4 institutional reporting.' },
-          { name: 'Monthly', badge: 'Month', desc: 'Current month\'s operational throughput.' }
+          { name: 'All-Time', badge: 'Historical', desc: 'All past years combined.' },
+          { name: 'Annual', badge: 'Yearly', desc: 'Metrics for the current academic year.' },
+          { name: 'Quarterly', badge: 'Quarter', desc: 'Q1, Q2, Q3, or Q4 reporting.' },
+          { name: 'Monthly', badge: 'Month', desc: 'Current month\'s activity.' }
         ],
         buttons: [
           {
             label: 'Generate & Download Report',
             type: 'primary',
-            desc: 'Exports executive performance analytics and throughput summaries into official downloadable reports.',
-            result: 'Downloads executive summary report.'
+            desc: 'Exports performance data and summaries into a downloadable executive report.',
+            result: 'Downloads an executive summary report.'
           },
           {
             label: 'Open Queues / Ticket Overview',
             type: 'info',
-            desc: 'Navigates directly to the live queue overview for FGMU, LEAU, or SSU.',
-            result: 'Opens specific unit queue.'
+            desc: 'Goes directly to the ticket queue for FGMU, LEAU, or SSU.',
+            result: 'Opens a specific unit queue.'
           }
         ],
         procedures: [
           {
-            title: 'How to Audit Cross-Unit SLA Performance',
+            title: 'How to Review Cross-Unit Performance',
             steps: [
               'Review the Performance by Sub-Unit table to compare throughput and ratings between FGMU, LEAU, and SSU.',
               'Inspect Service Completion Rate to identify overdue or halted jobs.',
-              'Select a specific Year and Month from the period dropdowns to examine historical trends.',
+              'Select a Year and Month from the period dropdowns to examine historical trends.',
               'Click "Generate & Download Report" to produce an official executive report for the University President and Regents.'
             ]
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Executive Director Dashboard', desc: 'Monitor institutional SLA performance, turnaround metrics, and cross-unit throughput.' },
-      { element: '[data-tour="director-btn-report"]', title: '2. Download Executive PDF Report', desc: 'Generate and download official comprehensive institutional PDF performance reports.' },
-      { element: '[data-tour="director-timeframe-selector"]', title: '3. Reporting Period Selector', desc: 'Filter analytics across All Time, Fiscal Year, Quarter, or Month.' },
-      { element: '[data-tour="director-matrix-table"]', title: '4. Performance Matrix by Sub-Unit', desc: 'Inspect request volumes, resolved tickets, declined counts, and star ratings across FGMU, LEAU, and SSU.' },
-      { element: '[data-tour="director-services-breakdown"]', title: '5. Service Distribution Breakdown', desc: 'Analyze high-demand maintenance services across campus facilities.' },
-      { element: '#tour-profile-menu', title: '6. Acting Unit Head Delegation', desc: 'Assume direct management over any unit whenever a department head is absent.' }
+      { element: '#tour-main-workspace', title: '1. Executive Director Dashboard', desc: 'Your executive home screen. See unit performance at a glance and take quick actions.' },
+      { element: '[data-tour="director-btn-report"]', title: '2. Download Executive PDF Report', desc: 'Download an executive performance report as a PDF.' },
+      { element: '[data-tour="director-timeframe-selector"]', title: '3. Reporting Period Selector', desc: 'Switch the reporting period: All Time, Annual, Quarterly, or Monthly.' },
+      { element: '[data-tour="director-matrix-table"]', title: '4. Performance Matrix by Sub-Unit', desc: 'Compare unresolved, resolved, declined, and total requests across FGMU, LEAU, and SSU.' },
+      { element: '[data-tour="director-services-breakdown"]', title: '5. Service Distribution Breakdown', desc: 'See which services are requested most across campus.' },
+      { element: '#tour-profile-menu', title: '6. Profile & Account', desc: 'Open your profile menu to view account settings or sign out.' }
     ]
       },
       {
@@ -2714,7 +2714,7 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Director Service Requests', desc: 'Manage service requests initiated by the Executive Director.' }
+          { element: '#tour-main-workspace', title: '1. Director Service Requests', desc: 'View and track service requests you submitted as Director.' }
         ]
       },
       {
@@ -2773,8 +2773,8 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Material Requisitions & Costs', desc: 'Audit materials consumed by all units and monitor departmental operational expenses.' },
-      { element: '[data-tour="director-materials-btn-export"]', title: '2. Export Materials PDF Report', desc: 'Generate and download official materials consumption PDF reports for institutional auditing.' }
+      { element: '#tour-main-workspace', title: '1. Material Logs & Costs', desc: 'Review materials and supplies used across work orders and check costs.' },
+      { element: '[data-tour="director-materials-btn-export"]', title: '2. Export Materials PDF Report', desc: 'Download a materials consumption report as a PDF.' }
     ]
       },
       {
@@ -2831,11 +2831,11 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Special Non-Working Holidays', desc: 'Configure official non-working dates automatically excluded from ticket working duration calculations.' },
-      { element: '[data-tour="holidays-search-input"]', title: '2. Search Holiday Calendar', desc: 'Find declared holidays or class suspensions by name or calendar year.' },
-      { element: '[data-tour="holidays-filter-type"]', title: '3. Filter by Holiday Type', desc: 'Isolate National Holidays, Local Suspensions, or University Declared Non-Working Days.' },
-      { element: '[data-tour="holidays-btn-add"]', title: '4. Add Special Holiday', desc: 'Register a holiday date to automatically exclude it from business day calculations.' },
-      { element: '[data-tour="holidays-table"]', title: '5. Holiday Registry Table', desc: 'Inspect active holidays and remove or update declared suspension dates.' }
+      { element: '#tour-main-workspace', title: '1. Special Non-Working Holidays', desc: 'Set official non-working dates that are excluded from ticket deadlines.' },
+      { element: '[data-tour="holidays-search-input"]', title: '2. Search Holiday Calendar', desc: 'Find holidays or suspensions by name or year.' },
+      { element: '[data-tour="holidays-filter-type"]', title: '3. Filter by Holiday Type', desc: 'Show National Holidays, Local Suspensions, or University Non-Working Days.' },
+      { element: '[data-tour="holidays-btn-add"]', title: '4. Add Special Holiday', desc: 'Register a holiday to exclude it from business day calculations.' },
+      { element: '[data-tour="holidays-table"]', title: '5. Holiday Registry Table', desc: 'View active holidays and update or remove suspension dates.' }
     ]
       },
       {
@@ -2941,11 +2941,11 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. FGMU Executive Overview', desc: 'Review major campus facilities projects requiring executive authorization.' },
-      { element: '[data-tour="director-tab-pending"]', title: '2. Pending Escalations Queue', desc: 'Review facilities repairs requiring executive authorization.' },
+      { element: '#tour-main-workspace', title: '1. FGMU Executive Overview', desc: 'Review facilities projects needing executive approval.' },
+      { element: '[data-tour="director-tab-pending"]', title: '2. Pending Escalations Queue', desc: 'Review facilities repairs needing executive authorization.' },
       { element: '[data-tour="director-search-input"]', title: '3. Search Escalated Tickets', desc: 'Filter escalated tickets by reference ID, requester, or building.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '4. Executive Authorization', desc: 'Authorize high-budget repairs, delay with directives, or return for scope revision.' },
-      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Detailed Scope Inspection', desc: 'Inspect full repair descriptions, requester contacts, and uploaded photos.' }
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '4. Executive Authorization', desc: 'Approve repairs, delay with a reason, or return for scope changes.' },
+      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Detailed Scope Inspection', desc: 'View full repair details, requester contacts, and uploaded photos.' }
     ]
       },
       {
@@ -3018,11 +3018,11 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Landscape & Plant Authorizations', desc: 'Review large-scale plant loan requests and campus beautification projects.' },
-      { element: '[data-tour="director-tab-borrowing"], [data-tour="director-tab-pending"]', title: '2. Borrowing & Escalations', desc: 'Manage event plant borrowing requests and large-scale landscaping initiatives.' },
-      { element: '[data-tour="director-search-input"]', title: '3. Search Landscape Requests', desc: 'Search requests by event title, organizer, or venue location.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '4. Authorize Plant Loans', desc: 'Approve plant allocations for official university ceremonies and academic events.' },
-      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Review Event Particulars', desc: 'Inspect event details, loan return schedules, and special handling instructions.' }
+      { element: '#tour-main-workspace', title: '1. Landscape & Plant Authorizations', desc: 'Review plant loan requests and campus beautification projects.' },
+      { element: '[data-tour="director-tab-borrowing"], [data-tour="director-tab-pending"]', title: '2. Borrowing & Escalations', desc: 'Manage event plant borrowing and large landscaping requests.' },
+      { element: '[data-tour="director-search-input"]', title: '3. Search Landscape Requests', desc: 'Search requests by event title, organizer, or venue.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '4. Authorize Plant Loans', desc: 'Approve plant allocations for university ceremonies and events.' },
+      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Review Event Particulars', desc: 'View event details, return schedules, and handling instructions.' }
     ]
       },
       {
@@ -3069,9 +3069,9 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Security Incident Log', desc: 'Monitor campus safety reports, investigation findings, and incident severity.' },
-      { element: '[data-tour="ssu-search-input"]', title: '2. Search Incident Reports', desc: 'Locate security incident reports by ticket ID, location, or summary.' },
-      { element: '[data-tour="ssu-btn-fullinfo"]', title: '3. Review Case Findings', desc: 'Inspect witness accounts, investigation findings, and official SSU notations.' }
+      { element: '#tour-main-workspace', title: '1. SSU Analytics Dashboard', desc: 'Monitor security incident counts and resolution rates across campus.' },
+      { element: '[data-tour="ssu-stats-cards"]', title: '2. Incident Count Cards', desc: 'See unresolved, resolved, declined, and total incident numbers at a glance.' },
+      { element: '[data-tour="ssu-incident-heatmap"]', title: '3. Incident Heatmap', desc: 'View incident distribution by category to spot recurring security concerns.' }
     ]
       },
       {
@@ -3150,11 +3150,11 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Director Settings', desc: 'Configure executive profile details and digital administrative signatures.' },
-      { element: '[data-tour="director-settings-profile"]', title: '2. Executive Profile', desc: 'Update your official director profile, contact email, and credentials.' },
-      { element: '[data-tour="director-settings-coverage-section"]', title: '3. Sub-Unit Coverage Console', desc: 'Temporarily assume charge of FGMU, LEAU, or SSU when department heads are unavailable.' },
-      { element: '[data-tour="director-btn-assume-unit"]', title: '4. Take Charge of Unit Operations', desc: 'Switch your active session to directly manage ticket queues and dispatches for any unit.' },
-      { element: '[data-tour="director-settings-btn-save"]', title: '5. Save Director Settings', desc: 'Save executive profile changes securely.' }
+      { element: '#tour-main-workspace', title: '1. Director Settings', desc: 'Set up your executive profile and digital signature.' },
+      { element: '[data-tour="director-settings-profile"]', title: '2. Executive Profile', desc: 'Update your profile, contact email, and credentials.' },
+      { element: '[data-tour="director-settings-coverage-section"]', title: '3. Sub-Unit Coverage Console', desc: 'Temporarily take charge of FGMU, LEAU, or SSU when unit heads are away.' },
+      { element: '[data-tour="director-btn-assume-unit"]', title: '4. Take Charge of Unit Operations', desc: 'Switch your session to manage ticket queues for any unit.' },
+      { element: '[data-tour="director-settings-btn-save"]', title: '5. Save Director Settings', desc: 'Save profile changes securely.' }
     ]
       }
     ]
