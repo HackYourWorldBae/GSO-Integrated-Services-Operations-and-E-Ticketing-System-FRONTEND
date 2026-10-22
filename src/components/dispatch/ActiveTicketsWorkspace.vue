@@ -119,7 +119,7 @@
         </div>
 
         <!-- Urgency Filters (job tabs & collab) -->
-        <div v-if="!isLeauBorrowed" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
+        <div v-if="!isLeauBorrowed" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1" data-tour="active-urgency-filters">
           <button
             type="button"
             @click="setUrgencyFilter('all')"

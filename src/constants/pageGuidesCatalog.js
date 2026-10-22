@@ -1075,11 +1075,15 @@ export const createUnitAdminActiveGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-page-header', title: `1. ${U} Active Dispatches`, desc: 'Monitor active operations in real time as technicians execute work on site.' },
-      { element: '[data-tour="active-tab-jobs"], [data-tour="active-tab-borrowed"], [data-tour="active-tab-collab"], [data-tour="active-tab-rating"]', title: '2. Job Tabs', desc: 'Toggle between In Progress, Borrowed Requests, Cross-Unit Active, and Awaiting Requestor Rating.' },
-      { element: '[data-tour="active-search-input"]', title: '3. Search Active Work Orders', desc: 'Search active jobs by ticket number, requester, location, or assigned technician.' },
-      { element: '[data-tour="active-btn-extend"]', title: '4. Timeline Extension Controls', desc: 'Approve or adjust technician extension requests when unforeseen repair complications arise.' },
-      { element: '[data-tour="active-btn-materials"]', title: '5. Liquidate Consumed Materials', desc: 'Record actual consumables and materials utilized on site for institutional auditing.' },
-      { element: '[data-tour="active-btn-complete"]', title: '6. Mark Completed & Sign Off', desc: 'Sign off on finished repairs to close the ticket and trigger client rating evaluation.' }
+      { element: '[data-tour="active-tab-jobs"]', title: '2. In Progress Tab', desc: 'View maintenance work orders currently being executed on campus by field technicians.' },
+      { element: '[data-tour="active-tab-borrowed"]', title: '3. Borrowed Requests Tab', desc: 'View tools, equipment, and plants currently checked out by borrowers awaiting physical return.' },
+      { element: '[data-tour="active-tab-collab"]', title: '4. Collab Active Tab', desc: 'View active collaborative tickets involving joint manpower across units.' },
+      { element: '[data-tour="active-tab-rating"]', title: '5. Awaiting Requestor Rating Tab', desc: 'View tickets marked completed, waiting for end-user 1-5 star rating.' },
+      { element: '[data-tour="active-urgency-filters"]', title: '6. Filter by Urgency', desc: 'Filter active tickets by All, Emergency, or Standard priority.' },
+      { element: '[data-tour="active-search-input"]', title: '7. Search Active Work Orders', desc: 'Search active jobs by ticket number, requester, location, or assigned technician.' },
+      { element: '[data-tour="active-btn-extend"]', title: '8. Timeline Extension Controls', desc: 'Grant additional working days for unforeseen repair complications.' },
+      { element: '[data-tour="active-btn-materials"]', title: '9. Liquidate Consumed Materials', desc: 'Record actual consumables and materials utilized on site for institutional auditing.' },
+      { element: '[data-tour="active-btn-complete"]', title: '10. Mark Completed & Sign Off', desc: 'Sign off on finished repairs to close the ticket and trigger client rating evaluation.' }
     ]
   };
 };
