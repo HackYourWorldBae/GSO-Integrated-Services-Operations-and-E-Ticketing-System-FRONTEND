@@ -464,8 +464,9 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
       { element: '[data-tour="admin-page-header"]', title: '1. Pending Approvals Queue', desc: `Review newly submitted ${U} service tickets awaiting administrative verification.` },
       { element: '[data-tour="director-search-input"]', title: '2. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
       { element: '[data-tour="director-tab-pending"]', title: '3. Pending Queue Tab', desc: 'View newly submitted requests awaiting administrative review and verification.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '4. Decision Controls', desc: 'Take action: Approve to proceed to dispatch, Delay with justification, Decline, or Escalate to Director.' },
-      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Full Scope & Photos Inspection', desc: 'Click to inspect complete problem particulars, client contacts, and uploaded photos.' }
+      { element: '[data-tour="director-btn-fullinfo"]', title: '4. Full Scope & Photos Inspection', desc: 'Click "View Details" / "Full Info" to inspect problem particulars, client contacts, and uploaded photos before deciding.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"], [data-tour="director-btn-decline"]', title: '5. Decision Controls', desc: 'Approve to proceed to dispatch, Delay with justification, or Decline invalid requests.' },
+      { element: '[data-tour="director-tab-delayed"]', title: '6. Approval Delayed Tab', desc: 'View tickets on hold for procurement, budget clearance, or inspection until explicitly approved or declined.' }
     ]
   };
 };
