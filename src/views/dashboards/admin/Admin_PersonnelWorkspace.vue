@@ -176,8 +176,9 @@
           <p class="text-xs text-slate-400 mt-1">Try adjusting your search criteria or add new staff members.</p>
         </div>
 
-        <div v-else data-tour="personnel-cards-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           <div
+            data-tour="personnel-cards-grid"
             v-for="worker in filteredPersonnel"
             :key="worker.id"
             class="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 hover:shadow-md transition-all flex flex-col justify-between gap-4 group"
