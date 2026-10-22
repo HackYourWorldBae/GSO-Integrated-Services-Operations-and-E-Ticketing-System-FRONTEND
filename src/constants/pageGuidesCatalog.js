@@ -1663,12 +1663,13 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '[data-tour="user-hero-banner"], #tour-main-workspace', title: '1. Welcome to Your Dashboard', desc: 'This is your home screen. You can ask for assistance, check recent requests, and see updates on your tickets.' },
-          { element: '[data-tour="user-btn-new-request"]', title: '2. Request a Service', desc: 'Click here anytime to start a new request for repairs, borrowed equipment, plants, or security assistance.' },
-          { element: '[data-tour="user-recent-tickets"]', title: '3. Recent Updates', desc: 'Check the latest updates on your requests here, including whether staff started the job or if it is ready for your rating.' },
-          { element: '[data-tour="user-btn-view-all"]', title: '4. View All Tickets', desc: 'Click "View All" to jump straight into your complete list of active tickets.' },
-          { element: '#tour-sidebar-nav, button[title="Toggle Sidebar"]', title: '5. Menu & Navigation', desc: 'Use the menu to switch between your Dashboard, Services Catalog, Active Tickets, Completed History, and Settings.' },
-          { element: '#tour-notifications-btn', title: '6. Notifications', desc: 'Click the bell icon to see new notifications whenever staff update or complete your requests.' }
+          { element: '[data-tour="user-id-notice"]', title: '1. ID Verification Notice', desc: 'Your ID is being reviewed by our team. Service requests are paused until approval, but you can still browse the portal.' },
+          { element: '[data-tour="user-hero-banner"], #tour-main-workspace', title: '2. Welcome to Your Dashboard', desc: 'This is your home screen. You can ask for assistance, check recent requests, and see updates on your tickets.' },
+          { element: '[data-tour="user-btn-new-request"]', title: '3. Request a Service', desc: 'Click here to start a new request for repairs, borrowed equipment, plants, or security assistance. Locked until your ID is approved.' },
+          { element: '[data-tour="user-recent-tickets"]', title: '4. Recent Updates', desc: 'Check the latest updates on your requests here, including whether staff started the job or if it is ready for your rating.' },
+          { element: '[data-tour="user-btn-view-all"]', title: '5. View All Tickets', desc: 'Click "View All" to jump straight into your complete list of active tickets.' },
+          { element: '#tour-sidebar-nav, button[title="Toggle Sidebar"]', title: '6. Menu & Navigation', desc: 'Use the menu to switch between your Dashboard, Services Catalog, Active Tickets, Completed History, and Settings.' },
+          { element: '#tour-notifications-btn', title: '7. Notifications', desc: 'Click the bell icon to see new notifications whenever staff update or complete your requests.' }
         ]
       },
       {

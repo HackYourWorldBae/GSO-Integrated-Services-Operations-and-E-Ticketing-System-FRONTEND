@@ -255,7 +255,7 @@ const recentUpdates = computed(() => {
     title: t.title,
     service: t.service,
     unit: t.unit,
-    description: `Status is ${t.statusLabel || t.status}`,
+    description: getStatusDescription(t.statusLabel || t.status),
     time: t.date,
     status: t.status,
     statusLabel: t.statusLabel,
@@ -344,6 +344,24 @@ const getStatusDot = (status) => {
     rejected:      'bg-rose-500',
   };
   return map[status] || 'bg-slate-400';
+};
+
+const getStatusDescription = (status) => {
+  const s = (status || '').toLowerCase();
+  const map = {
+    pending:       'Awaiting review by our team',
+    processing:    'Being worked on',
+    'in-progress': 'Being worked on',
+    approved:      'Approved, waiting to be scheduled',
+    scheduled:     'Scheduled for service',
+    completed:     'Completed — ready for your rating',
+    resolved:      'Resolved — ready for your rating',
+    closed:        'Closed',
+    cancelled:     'Cancelled',
+    declined:      'Declined',
+    rejected:      'Rejected',
+  };
+  return map[s] || `Status: ${status}`;
 };
 
 const fetchDashboardData = async () => {
