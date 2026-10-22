@@ -2913,7 +2913,7 @@ export const pageGuidesCatalog = {
           },
           {
             title: 'Stage 4 - Borrowing',
-            desc: 'Equipment loan requests',
+            desc: 'Equipment borrowing requests',
             details: 'Filter by Pending Approval, Approved, Awaiting Pickup, and Awaiting Return.'
           },
           {
@@ -2927,7 +2927,7 @@ export const pageGuidesCatalog = {
           { name: 'Approval Delayed', badge: 'Held by Director', desc: 'Tickets delayed by Director pending ocular inspections or budget.' },
           { name: 'Approved (Ready)', badge: 'Awaiting Workers', desc: 'Approved tickets ready for FGMU staff assignment.' },
           { name: 'Scheduled', badge: 'Upcoming', desc: 'Tickets scheduled with assigned workers.' },
-          { name: 'Borrowing', badge: 'Equipment Loans', desc: 'Tools and equipment borrowing requests.' },
+          { name: 'Borrowing', badge: 'Equipment Borrowing', desc: 'Tools and equipment borrowing requests.' },
           { name: 'In Progress', badge: 'Active Site Work', desc: 'Jobs actively being serviced on campus.' }
         ],
         buttons: [
@@ -2991,7 +2991,7 @@ export const pageGuidesCatalog = {
       { element: '[data-tour="director-tab-approved"]', title: '4. Approved (Ready)', desc: 'See approved tickets awaiting worker assignment.' },
       { element: '[data-tour="director-tab-dispatched"]', title: '5. Scheduled / Dispatched', desc: 'Check tickets with assigned workers and work dates.' },
       { element: '[data-tour="director-tab-active"]', title: '6. In Progress', desc: 'Monitor active jobs on campus.' },
-      { element: '[data-tour="director-tab-borrowing"]', title: '7. Borrowing', desc: 'Review equipment and tool loan requests.' },
+      { element: '[data-tour="director-tab-borrowing"]', title: '7. Borrowing', desc: 'Review equipment and tool borrowing requests.' },
       { element: '[data-tour="director-search-input"]', title: '8. Search Escalated Tickets', desc: 'Filter escalated tickets by reference ID, requester, or building.' },
       { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '9. Executive Authorization', desc: 'Approve repairs, delay with a reason, or return for scope changes.' },
       { element: '[data-tour="director-btn-fullinfo"]', title: '10. Detailed Scope Inspection', desc: 'View full repair details, requester contacts, and uploaded photos.' }
@@ -3004,7 +3004,7 @@ export const pageGuidesCatalog = {
         icon: '📊',
         manualSection: 'Section G6: LEAU Ticket Overview',
         roleBadge: 'Director Console',
-        summary: 'Review LEAU performance metrics, plant loan statistics, and grounds operational health.',
+        summary: 'Review LEAU performance metrics, plant borrowing statistics, and grounds operational health.',
         sections: [
           {
             title: 'Statistics Cards',
@@ -3042,11 +3042,11 @@ export const pageGuidesCatalog = {
         icon: '🌿',
         manualSection: 'Section G6: LEAU Ticket Overview',
         roleBadge: 'Director Console',
-        summary: 'Review LEAU requests and approve large landscaping, tree trimming, or bulk plant loan projects.',
+        summary: 'Review LEAU requests and approve large landscaping, tree trimming, or bulk plant borrowing projects.',
         sections: [
           {
             title: 'Stage 1 - Escalated Approval Tab',
-            desc: 'Major landscaping and bulk plant loan escalations',
+            desc: 'Major landscaping and bulk plant borrowing escalations',
             details: 'Examine justification notes, plant quantities requested, event venues, and attached documents.'
           },
           {
@@ -3057,7 +3057,7 @@ export const pageGuidesCatalog = {
           {
             title: 'Stages 2 through 5 (Ready, Scheduled, Borrowing, In Progress)',
             desc: 'Full operational visibility',
-            details: 'Inspect approved plant loans, scheduled lawn mowing, and active groundskeeping dispatches.'
+            details: 'Inspect approved plant borrowing, scheduled lawn mowing, and active groundskeeping dispatches.'
           }
         ],
         tabs: [
@@ -3065,14 +3065,14 @@ export const pageGuidesCatalog = {
           { name: 'Approval Delayed', badge: 'Held', desc: 'Tickets delayed pending inspection or materials.' },
           { name: 'Approved (Ready)', badge: 'Awaiting Staff', desc: 'Approved tickets ready for LEAU staff assignment.' },
           { name: 'Scheduled', badge: 'Upcoming', desc: 'Scheduled grounds visits.' },
-          { name: 'Borrowing', badge: 'Plant Loans', desc: 'Nursery plant loans for ceremonies and exhibits.' },
+          { name: 'Borrowing', badge: 'Plant Borrowing', desc: 'Nursery plant borrowing for ceremonies and exhibits.' },
           { name: 'In Progress', badge: 'Active Site Work', desc: 'Ongoing grounds and beautification work.' }
         ],
         buttons: [
           {
             label: 'Approve / Approve Request',
             type: 'success',
-            desc: 'Authorizes major landscaping work or bulk plant loans.',
+            desc: 'Authorizes major landscaping work or bulk plant borrowing.',
             result: 'Clears ticket for LEAU dispatch.'
           },
           {
@@ -3096,7 +3096,7 @@ export const pageGuidesCatalog = {
         ],
         procedures: [
           {
-            title: 'How to Authorize Major Plant Loans for Ceremonies',
+            title: 'How to Authorize Major Plant Borrowing for Ceremonies',
             steps: [
               'Click the "Escalated Approval" tab in the LEAU Overview.',
               'Click "View Details" to check requested plant quantities, venue, and return dates.',
@@ -3105,15 +3105,15 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. Landscape & Plant Authorizations', desc: 'Review plant loan requests and campus beautification projects.' },
-      { element: '[data-tour="director-tab-borrowing"]', title: '2. Borrowing (Plant Loans)', desc: 'Review nursery plant loans for ceremonies and exhibits.' },
+      { element: '#tour-main-workspace', title: '1. Landscape & Plant Authorizations', desc: 'Review plant borrowing requests and campus beautification projects.' },
+      { element: '[data-tour="director-tab-borrowing"]', title: '2. Borrowing (Plants)', desc: 'Review nursery plant borrowing for ceremonies and exhibits.' },
       { element: '[data-tour="director-tab-pending"]', title: '3. Pending Escalations', desc: 'Review landscaping requests needing executive authorization.' },
       { element: '[data-tour="director-tab-delayed"]', title: '4. Approval Delayed', desc: 'View tickets held pending materials, budget, or inspection.' },
       { element: '[data-tour="director-tab-approved"]', title: '5. Approved (Ready)', desc: 'See approved tickets awaiting staff assignment.' },
       { element: '[data-tour="director-tab-dispatched"]', title: '6. Scheduled / Dispatched', desc: 'Check tickets with assigned workers and work dates.' },
       { element: '[data-tour="director-tab-active"]', title: '7. In Progress', desc: 'Monitor active grounds and beautification work.' },
       { element: '[data-tour="director-search-input"]', title: '8. Search Landscape Requests', desc: 'Search requests by event title, organizer, or venue.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '9. Authorize Plant Loans', desc: 'Approve plant allocations for university ceremonies and events.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '9. Authorize Plant Borrowing', desc: 'Approve plant borrowing allocations for university ceremonies and events.' },
       { element: '[data-tour="director-btn-fullinfo"]', title: '10. Review Event Particulars', desc: 'View event details, return schedules, and handling instructions.' }
     ]
       },
@@ -3161,7 +3161,7 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-      { element: '#tour-main-workspace', title: '1. SSU Analytics Dashboard', desc: 'Monitor security incident counts and resolution rates across campus.' },
+      { element: '#tour-main-workspace', title: '1. SSU Reports Overview', desc: 'View campus security incident reports and check ongoing investigations.' },
       { element: '[data-tour="ssu-stats-cards"]', title: '2. Incident Count Cards', desc: 'See unresolved, resolved, declined, and total incident numbers at a glance.' },
       { element: '[data-tour="ssu-incident-heatmap"]', title: '3. Incident Heatmap', desc: 'View incident distribution by category to spot recurring security concerns.' }
     ]

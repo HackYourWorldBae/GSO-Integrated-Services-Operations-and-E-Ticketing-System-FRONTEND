@@ -44,16 +44,16 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input v-model="searchQuery" type="text" placeholder="Search Full Ticket Number (e.g. LEAU-TIC-18-2026)" class="w-full pl-12 pr-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
+            <input v-model="searchQuery" data-tour="archives-search-input" type="text" placeholder="Search Full Ticket Number (e.g. LEAU-TIC-18-2026)" class="w-full pl-12 pr-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" />
           </div>
           <div class="flex flex-wrap md:flex-nowrap gap-3 w-full md:w-auto">
-            <select v-model="yearFilter" @change="applyFilter" class="w-full md:w-36 px-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+            <select v-model="yearFilter" data-tour="archives-filter-year" @change="applyFilter" class="w-full md:w-36 px-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
               <option value="all">All Years</option>
               <option v-for="yr in availableYears" :key="yr" :value="yr">
                 Year {{ yr }}
               </option>
             </select>
-            <select v-model="serviceFilter" @change="applyFilter" class="w-full md:w-48 px-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+            <select v-model="serviceFilter" data-tour="archives-filter-service" @change="applyFilter" class="w-full md:w-48 px-4 py-3 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
               <option value="">All Services</option>
               <option v-for="service in serviceCategories" :key="service" :value="service">
                 {{ service }}
@@ -63,6 +63,7 @@
               Filter
             </button>
             <button
+              data-tour="archives-btn-export"
               @click="showExportModal = true"
               type="button"
               class="w-full md:w-auto px-5 py-3 min-h-[44px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 active:scale-95 transition-all text-sm whitespace-nowrap flex items-center justify-center gap-2 cursor-pointer shrink-0 touch-manipulation"
