@@ -110,7 +110,7 @@
 
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2">
         <!-- Urgency Filters (standalone toolbar) -->
-        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1">
+        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1" data-tour="collab-urgency-filters">
           <button
             type="button"
             @click="setUrgencyFilter('all')"

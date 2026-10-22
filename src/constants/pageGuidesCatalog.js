@@ -1506,8 +1506,11 @@ export const createUnitAdminCollabGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-page-header', title: '1. Cross-Unit Collaboration Hub', desc: 'Coordinate multi-department projects requiring joint manpower across campus.' },
-      { element: '[data-tour="collab-tab-approved"], [data-tour="collab-tab-scheduled"], [data-tour="collab-tab-active"]', title: '2. Collaboration Pipeline Stages', desc: 'Track joint tasks across Approved, Scheduled, and Work-in-Progress stages.' },
-      { element: '[data-tour="collab-search-input"]', title: '3. Search Joint Work Orders', desc: 'Filter multi-unit collaboration requests by ticket ID, project name, or partner unit.' }
+      { element: '[data-tour="collab-tab-approved"]', title: '2. Collab Requests Tab', desc: 'View incoming collaboration requests awaiting your unit\'s dispatch.' },
+      { element: '[data-tour="collab-tab-scheduled"]', title: '3. Dispatched Tab', desc: 'View collaboration tickets dispatched with assigned personnel scheduled to execute.' },
+      { element: '[data-tour="collab-tab-active"]', title: '4. Active Collab Tab', desc: 'View live cross-unit execution tracking with turnaround duration monitoring.' },
+      { element: '[data-tour="collab-urgency-filters"]', title: '5. Filter by Urgency', desc: 'Filter collaboration tickets by All, Emergency, or Standard priority.' },
+      { element: '[data-tour="collab-search-input"]', title: '6. Search Joint Work Orders', desc: 'Filter multi-unit collaboration requests by ticket ID, project name, or partner unit.' }
     ]
   };
 };
