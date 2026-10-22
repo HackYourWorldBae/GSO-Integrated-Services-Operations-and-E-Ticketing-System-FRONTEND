@@ -2714,7 +2714,10 @@ export const pageGuidesCatalog = {
           }
         ],
         tourSteps: [
-          { element: '#tour-main-workspace', title: '1. Director Service Requests', desc: 'View and track service requests you submitted as Director.' }
+          { element: '#tour-main-workspace', title: '1. Director Service Requests', desc: 'View and track service requests you submitted as Director.' },
+          { element: '[data-tour="myrequests-status-tabs"]', title: '2. Filter by Status', desc: 'Switch between All Requests, Pending, In Progress, Awaiting Rating, and Completed.' },
+          { element: '[data-tour="myrequests-btn-new-request"]', title: '3. New Request', desc: 'Submit a new service request from the services catalog.' },
+          { element: '[data-tour="myrequests-ticket-card"]', title: '4. Ticket Card', desc: 'Click any ticket to view its progress timeline and rate completed work.' }
         ]
       },
       {
@@ -2774,7 +2777,10 @@ export const pageGuidesCatalog = {
         ],
         tourSteps: [
       { element: '#tour-main-workspace', title: '1. Material Logs & Costs', desc: 'Review materials and supplies used across work orders and check costs.' },
-      { element: '[data-tour="director-materials-btn-export"]', title: '2. Export Materials PDF Report', desc: 'Download a materials consumption report as a PDF.' }
+      { element: '[data-tour="materials-period-selector"]', title: '2. Period Selector', desc: 'Filter materials by All Time, Annual, Quarterly, or Monthly.' },
+      { element: '[data-tour="materials-kpi-cards"]', title: '3. Cost Summary Cards', desc: 'See total materials cost, items used, and per-unit breakdowns.' },
+      { element: '[data-tour="materials-ledger-table"]', title: '4. Materials Ledger Table', desc: 'Browse itemized material entries with quantity, unit price, and ticket reference.' },
+      { element: '[data-tour="director-materials-btn-export"]', title: '5. Export Materials PDF Report', desc: 'Download a materials consumption report as a PDF.' }
     ]
       },
       {
@@ -2943,9 +2949,14 @@ export const pageGuidesCatalog = {
         tourSteps: [
       { element: '#tour-main-workspace', title: '1. FGMU Executive Overview', desc: 'Review facilities projects needing executive approval.' },
       { element: '[data-tour="director-tab-pending"]', title: '2. Pending Escalations Queue', desc: 'Review facilities repairs needing executive authorization.' },
-      { element: '[data-tour="director-search-input"]', title: '3. Search Escalated Tickets', desc: 'Filter escalated tickets by reference ID, requester, or building.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '4. Executive Authorization', desc: 'Approve repairs, delay with a reason, or return for scope changes.' },
-      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Detailed Scope Inspection', desc: 'View full repair details, requester contacts, and uploaded photos.' }
+      { element: '[data-tour="director-tab-delayed"]', title: '3. Approval Delayed', desc: 'View tickets held pending materials, budget, or inspection.' },
+      { element: '[data-tour="director-tab-approved"]', title: '4. Approved (Ready)', desc: 'See approved tickets awaiting worker assignment.' },
+      { element: '[data-tour="director-tab-dispatched"]', title: '5. Scheduled / Dispatched', desc: 'Check tickets with assigned workers and work dates.' },
+      { element: '[data-tour="director-tab-active"]', title: '6. In Progress', desc: 'Monitor active jobs on campus.' },
+      { element: '[data-tour="director-tab-borrowing"]', title: '7. Borrowing', desc: 'Review equipment and tool loan requests.' },
+      { element: '[data-tour="director-search-input"]', title: '8. Search Escalated Tickets', desc: 'Filter escalated tickets by reference ID, requester, or building.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '9. Executive Authorization', desc: 'Approve repairs, delay with a reason, or return for scope changes.' },
+      { element: '[data-tour="director-btn-fullinfo"]', title: '10. Detailed Scope Inspection', desc: 'View full repair details, requester contacts, and uploaded photos.' }
     ]
       },
       {
@@ -3019,10 +3030,15 @@ export const pageGuidesCatalog = {
         ],
         tourSteps: [
       { element: '#tour-main-workspace', title: '1. Landscape & Plant Authorizations', desc: 'Review plant loan requests and campus beautification projects.' },
-      { element: '[data-tour="director-tab-borrowing"], [data-tour="director-tab-pending"]', title: '2. Borrowing & Escalations', desc: 'Manage event plant borrowing and large landscaping requests.' },
-      { element: '[data-tour="director-search-input"]', title: '3. Search Landscape Requests', desc: 'Search requests by event title, organizer, or venue.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '4. Authorize Plant Loans', desc: 'Approve plant allocations for university ceremonies and events.' },
-      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Review Event Particulars', desc: 'View event details, return schedules, and handling instructions.' }
+      { element: '[data-tour="director-tab-borrowing"]', title: '2. Borrowing (Plant Loans)', desc: 'Review nursery plant loans for ceremonies and exhibits.' },
+      { element: '[data-tour="director-tab-pending"]', title: '3. Pending Escalations', desc: 'Review landscaping requests needing executive authorization.' },
+      { element: '[data-tour="director-tab-delayed"]', title: '4. Approval Delayed', desc: 'View tickets held pending materials, budget, or inspection.' },
+      { element: '[data-tour="director-tab-approved"]', title: '5. Approved (Ready)', desc: 'See approved tickets awaiting staff assignment.' },
+      { element: '[data-tour="director-tab-dispatched"]', title: '6. Scheduled / Dispatched', desc: 'Check tickets with assigned workers and work dates.' },
+      { element: '[data-tour="director-tab-active"]', title: '7. In Progress', desc: 'Monitor active grounds and beautification work.' },
+      { element: '[data-tour="director-search-input"]', title: '8. Search Landscape Requests', desc: 'Search requests by event title, organizer, or venue.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '9. Authorize Plant Loans', desc: 'Approve plant allocations for university ceremonies and events.' },
+      { element: '[data-tour="director-btn-fullinfo"]', title: '10. Review Event Particulars', desc: 'View event details, return schedules, and handling instructions.' }
     ]
       },
       {
@@ -3155,6 +3171,87 @@ export const pageGuidesCatalog = {
       { element: '[data-tour="director-settings-coverage-section"]', title: '3. Sub-Unit Coverage Console', desc: 'Temporarily take charge of FGMU, LEAU, or SSU when unit heads are away.' },
       { element: '[data-tour="director-btn-assume-unit"]', title: '4. Take Charge of Unit Operations', desc: 'Switch your session to manage ticket queues for any unit.' },
       { element: '[data-tour="director-settings-btn-save"]', title: '5. Save Director Settings', desc: 'Save profile changes securely.' }
+    ]
+      },
+      {
+        id: 'director-fgmu-archives',
+        name: 'FGMU Historical Archives',
+        route: '/admin/fgmu/archives',
+        icon: '📦',
+        manualSection: 'Section G8: FGMU Archives',
+        roleBadge: 'Director Console',
+        summary: 'View archived Facilities & Grounds Management work orders and historical records.',
+        sections: [
+          {
+            title: 'Archive Search & Filters',
+            desc: 'Search and filter archived tickets',
+            details: 'Search past completed and declined FGMU requests by ticket ID, requester, or venue. Filter by year and service type.'
+          },
+          {
+            title: 'Bulk Audit Export',
+            desc: 'Download historical data',
+            details: 'Download official historical data in PDF or CSV formats for university auditing.'
+          }
+        ],
+        tourSteps: [
+      { element: '#tour-main-workspace', title: '1. FGMU Archives', desc: 'Access archived Facilities & Grounds Management work order records.' },
+      { element: '[data-tour="archives-search-input"]', title: '2. Search Historical Records', desc: 'Search past tickets by ticket ID, requester, or venue.' },
+      { element: '[data-tour="archives-filter-year"], [data-tour="archives-filter-service"]', title: '3. Filter by Year & Service', desc: 'Isolate records by academic year or service specialization.' },
+      { element: '[data-tour="archives-btn-export"]', title: '4. Bulk Audit Export', desc: 'Download historical data in PDF or CSV formats.' }
+    ]
+      },
+      {
+        id: 'director-leau-archives',
+        name: 'LEAU Historical Archives',
+        route: '/admin/leau/archives',
+        icon: '📦',
+        manualSection: 'Section G9: LEAU Archives',
+        roleBadge: 'Director Console',
+        summary: 'View archived Landscaping & Environmental Aesthetics work orders and historical records.',
+        sections: [
+          {
+            title: 'Archive Search & Filters',
+            desc: 'Search and filter archived tickets',
+            details: 'Search past completed and declined LEAU requests by ticket ID, requester, or venue. Filter by year and service type.'
+          },
+          {
+            title: 'Bulk Audit Export',
+            desc: 'Download historical data',
+            details: 'Download official historical data in PDF or CSV formats for university auditing.'
+          }
+        ],
+        tourSteps: [
+      { element: '#tour-main-workspace', title: '1. LEAU Archives', desc: 'Access archived Landscaping & Environmental Aesthetics work order records.' },
+      { element: '[data-tour="archives-search-input"]', title: '2. Search Historical Records', desc: 'Search past tickets by ticket ID, requester, or venue.' },
+      { element: '[data-tour="archives-filter-year"], [data-tour="archives-filter-service"]', title: '3. Filter by Year & Service', desc: 'Isolate records by academic year or service specialization.' },
+      { element: '[data-tour="archives-btn-export"]', title: '4. Bulk Audit Export', desc: 'Download historical data in PDF or CSV formats.' }
+    ]
+      },
+      {
+        id: 'director-ssu-archives',
+        name: 'SSU Historical Archives',
+        route: '/admin/ssu/archives',
+        icon: '📦',
+        manualSection: 'Section G10: SSU Archives',
+        roleBadge: 'Director Console',
+        summary: 'View archived Safety & Security Services incident reports and historical records.',
+        sections: [
+          {
+            title: 'Archive Search & Filters',
+            desc: 'Search and filter archived tickets',
+            details: 'Search past completed and declined SSU incidents by ticket ID, reporter, or location. Filter by year and incident type.'
+          },
+          {
+            title: 'Bulk Audit Export',
+            desc: 'Download historical data',
+            details: 'Download official historical data in PDF or CSV formats for university auditing.'
+          }
+        ],
+        tourSteps: [
+      { element: '#tour-main-workspace', title: '1. SSU Archives', desc: 'Access archived Safety & Security Services incident report records.' },
+      { element: '[data-tour="archives-search-input"]', title: '2. Search Historical Records', desc: 'Search past incidents by ticket ID, reporter, or location.' },
+      { element: '[data-tour="archives-filter-year"], [data-tour="archives-filter-service"]', title: '3. Filter by Year & Service', desc: 'Isolate records by academic year or incident type.' },
+      { element: '[data-tour="archives-btn-export"]', title: '4. Bulk Audit Export', desc: 'Download historical data in PDF or CSV formats.' }
     ]
       }
     ]

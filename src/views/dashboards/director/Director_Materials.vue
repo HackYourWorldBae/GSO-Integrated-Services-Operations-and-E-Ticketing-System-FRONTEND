@@ -43,7 +43,7 @@
         </div>
 
         <!-- Period Filter & Scope Toolbar -->
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
+        <div data-tour="materials-period-selector" class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
           <!-- Period Selector Tabs -->
           <div class="flex flex-wrap items-center gap-2">
             <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1 w-full sm:w-auto">
@@ -131,7 +131,7 @@
         </div>
 
         <!-- Materials Cost KPI Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div data-tour="materials-kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <!-- 1. Total Cost of Materials -->
           <div class="p-5 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col gap-3 hover:shadow-md transition-all duration-200">
             <div class="flex items-center">
@@ -189,7 +189,7 @@
         </div>
 
         <!-- Materials Interactive Data Table Section -->
-        <div class="p-4 sm:p-6 lg:p-7 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-4 sm:space-y-5">
+        <div data-tour="materials-ledger-table" class="p-4 sm:p-6 lg:p-7 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-4 sm:space-y-5">
           <!-- Table Controls Toolbar -->
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
             <!-- Left: Sub-unit Filter Tabs (Segmented Control) -->

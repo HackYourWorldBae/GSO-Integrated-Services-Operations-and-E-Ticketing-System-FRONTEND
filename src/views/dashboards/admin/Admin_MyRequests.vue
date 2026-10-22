@@ -12,7 +12,7 @@
         <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
             <!-- Status Filter Tabs -->
-            <div class="flex items-center gap-2 flex-wrap">
+            <div data-tour="myrequests-status-tabs" class="flex items-center gap-2 flex-wrap">
               <button
                 v-for="tab in statusTabs"
                 :key="tab.value"
@@ -37,6 +37,7 @@
 
             <!-- New Request Action Button -->
             <button
+              data-tour="myrequests-btn-new-request"
               @click="$router.push('/services')"
               class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-sm shadow-emerald-600/20 transition-all active:scale-95 text-sm sm:text-base whitespace-nowrap min-h-[44px] cursor-pointer"
             >
@@ -66,7 +67,7 @@
         </div>
 
         <!-- ===================== TICKET CARDS ===================== -->
-        <div v-else class="space-y-3.5">
+        <div data-tour="myrequests-ticket-card" v-else class="space-y-3.5">
           <div
             v-for="ticket in paginatedTickets"
             :key="ticket.id"

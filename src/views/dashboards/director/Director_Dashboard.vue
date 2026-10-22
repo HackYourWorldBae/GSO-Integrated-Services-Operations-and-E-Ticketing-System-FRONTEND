@@ -337,10 +337,10 @@
         <!-- Operational Insights (Service Distribution & SLA Health) -->
           <div class="space-y-6 pt-2">
             <!-- Service Workload Share by Sub-Unit -->
-            <div data-tour="director-services-breakdown" class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm flex flex-col">
+            <div class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm flex flex-col">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div class="flex items-center gap-2">
-                  <h4 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Top Service Categories</h4>
+                  <h4 data-tour="director-services-breakdown" class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Top Service Categories</h4>
                 </div>
 
                 <!-- Sub-unit Filter Tabs -->

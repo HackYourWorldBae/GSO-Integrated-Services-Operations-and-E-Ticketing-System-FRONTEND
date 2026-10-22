@@ -108,7 +108,7 @@
           </div>
 
           <!-- Top 4 Cards Grid: Unresolved, Resolved, Declined, Total (2x2) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div data-tour="fgmu-stats-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <!-- 1. Unresolved Requests / Daily Unresolved Requests (Top Left) -->
             <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
               <div class="flex items-center mb-4">
@@ -316,7 +316,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           
           <!-- Performance Evaluation Averages -->
-          <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[320px]">
+          <div data-tour="fgmu-eval-averages" class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[320px]">
             <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
               <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
               Evaluation Averages
@@ -347,7 +347,7 @@
           <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
-                <h4 class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
+                <h4 data-tour="fgmu-completion-health" class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
                   <div class="w-2 h-6 bg-slate-800 rounded-full"></div>
                   Job Completion Health
                 </h4>
@@ -437,7 +437,7 @@
           <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col lg:col-span-2 space-y-6">
             <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
               <div>
-                <h4 class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
+                <h4 data-tour="fgmu-root-cause" class="text-lg font-black text-slate-900 flex items-center gap-2 italic">
                   <div class="w-2 h-6 bg-amber-500 rounded-full"></div>
                   Root Cause Analysis (Why Delays & Barriers Happen)
                 </h4>

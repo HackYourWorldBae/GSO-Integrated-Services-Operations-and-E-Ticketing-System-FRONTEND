@@ -40,7 +40,7 @@
         </div>
 
         <!-- Profile Form Card -->
-        <div data-tour="admin-settings-profile" class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+        <div class="bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
           <div class="p-5 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
             <div class="flex items-center gap-4">
               <div class="relative group cursor-pointer shrink-0" @click="triggerAvatarUpload" title="Click to change profile picture">
@@ -64,7 +64,7 @@
               </div>
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">{{ unitCode }} Administrator Profile</h3>
+                  <h3 data-tour="admin-settings-profile" class="text-base sm:text-lg font-black text-slate-900 tracking-tight">{{ unitCode }} Administrator Profile</h3>
                 </div>
                 <p class="text-xs text-slate-500 font-medium mt-0.5">Manage your profile and login details for {{ unitCode }}.</p>
               </div>
@@ -278,10 +278,10 @@
             </div>
 
             <!-- Official Digital Signature Section -->
-            <div data-tour="admin-settings-signature" class="space-y-3">
+            <div class="space-y-3">
               <div class="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Official Digital Signature</h4>
+                  <h4 data-tour="admin-settings-signature" class="text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Official Digital Signature</h4>
                   <p class="text-xs text-slate-500 font-medium ml-1">
                     Added to {{ unitCode }} work orders and request slips automatically.
                   </p>
