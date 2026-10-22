@@ -2845,6 +2845,44 @@ export const pageGuidesCatalog = {
     ]
       },
       {
+        id: 'director-fgmu-analytics',
+        name: 'FGMU Unit Analytics',
+        route: '/director/fgmu',
+        icon: '📊',
+        manualSection: 'Section G5: FGMU Ticket Overview',
+        roleBadge: 'Director Console',
+        summary: 'Review FGMU performance metrics, incident counts, and operational health.',
+        sections: [
+          {
+            title: 'Statistics Cards',
+            desc: 'Unresolved, resolved, declined, and total request counts',
+            details: 'Quick overview of FGMU ticket volumes across all statuses.'
+          },
+          {
+            title: 'Evaluation Averages',
+            desc: 'Client feedback ratings for quality, efficiency, and timeliness',
+            details: 'Average star ratings from completed service evaluations.'
+          },
+          {
+            title: 'Job Completion Health',
+            desc: 'On-time vs overdue job distribution',
+            details: 'Breakdown of completed jobs by timeliness performance.'
+          },
+          {
+            title: 'Root Cause Analysis',
+            desc: 'Why delays and barriers happen',
+            details: 'Top reported operational factors causing timeline extensions or work stoppages.'
+          }
+        ],
+        tourSteps: [
+      { element: '#tour-main-workspace', title: '1. FGMU Analytics Dashboard', desc: 'Monitor FGMU performance metrics and operational health.' },
+      { element: '[data-tour="fgmu-stats-cards"]', title: '2. Statistics Cards', desc: 'See unresolved, resolved, declined, and total request counts at a glance.' },
+      { element: '[data-tour="fgmu-eval-averages"]', title: '3. Evaluation Averages', desc: 'View client feedback ratings for quality, efficiency, and timeliness.' },
+      { element: '[data-tour="fgmu-completion-health"]', title: '4. Job Completion Health', desc: 'Check on-time vs overdue job distribution.' },
+      { element: '[data-tour="fgmu-root-cause"]', title: '5. Root Cause Analysis', desc: 'See top reported factors causing delays and work stoppages.' }
+    ]
+      },
+      {
         id: 'director-fgmu',
         name: 'FGMU Ticket Overview & Escalations',
         route: '/director/fgmu/queues',
@@ -2957,6 +2995,44 @@ export const pageGuidesCatalog = {
       { element: '[data-tour="director-search-input"]', title: '8. Search Escalated Tickets', desc: 'Filter escalated tickets by reference ID, requester, or building.' },
       { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '9. Executive Authorization', desc: 'Approve repairs, delay with a reason, or return for scope changes.' },
       { element: '[data-tour="director-btn-fullinfo"]', title: '10. Detailed Scope Inspection', desc: 'View full repair details, requester contacts, and uploaded photos.' }
+    ]
+      },
+      {
+        id: 'director-leau-analytics',
+        name: 'LEAU Unit Analytics',
+        route: '/director/leau',
+        icon: '📊',
+        manualSection: 'Section G6: LEAU Ticket Overview',
+        roleBadge: 'Director Console',
+        summary: 'Review LEAU performance metrics, plant loan statistics, and grounds operational health.',
+        sections: [
+          {
+            title: 'Statistics Cards',
+            desc: 'Unresolved, resolved, declined, and total request counts',
+            details: 'Quick overview of LEAU ticket volumes across all statuses.'
+          },
+          {
+            title: 'Evaluation Averages',
+            desc: 'Client feedback ratings for quality, efficiency, and timeliness',
+            details: 'Average star ratings from completed service evaluations.'
+          },
+          {
+            title: 'Job Completion Health',
+            desc: 'On-time vs overdue job distribution',
+            details: 'Breakdown of completed jobs by timeliness performance.'
+          },
+          {
+            title: 'Root Cause Analysis',
+            desc: 'Why delays and barriers happen',
+            details: 'Top reported operational factors causing timeline extensions or work stoppages.'
+          }
+        ],
+        tourSteps: [
+      { element: '#tour-main-workspace', title: '1. LEAU Analytics Dashboard', desc: 'Monitor LEAU performance metrics and grounds operational health.' },
+      { element: '[data-tour="leau-stats-cards"]', title: '2. Statistics Cards', desc: 'See unresolved, resolved, declined, and total request counts at a glance.' },
+      { element: '[data-tour="leau-eval-averages"]', title: '3. Evaluation Averages', desc: 'View client feedback ratings for quality, efficiency, and timeliness.' },
+      { element: '[data-tour="leau-completion-health"]', title: '4. Job Completion Health', desc: 'Check on-time vs overdue job distribution.' },
+      { element: '[data-tour="leau-root-cause"]', title: '5. Root Cause Analysis', desc: 'See top reported factors causing delays and work stoppages.' }
     ]
       },
       {
@@ -3091,6 +3167,32 @@ export const pageGuidesCatalog = {
     ]
       },
       {
+        id: 'director-ssu-analytics',
+        name: 'SSU Unit Analytics',
+        route: '/director/ssu',
+        icon: '📊',
+        manualSection: 'Section G7: SSU Reports Overview',
+        roleBadge: 'Director Console',
+        summary: 'Review SSU incident statistics, resolution rates, and security operational health.',
+        sections: [
+          {
+            title: 'Statistics Cards',
+            desc: 'Unresolved, resolved, declined, and total incident counts',
+            details: 'Quick overview of SSU incident volumes across all statuses.'
+          },
+          {
+            title: 'Incident Heatmap',
+            desc: 'Incident distribution by category',
+            details: 'Visual breakdown of security incidents by type to spot recurring concerns.'
+          }
+        ],
+        tourSteps: [
+      { element: '#tour-main-workspace', title: '1. SSU Analytics Dashboard', desc: 'Monitor SSU incident statistics and security operational health.' },
+      { element: '[data-tour="ssu-stats-cards"]', title: '2. Incident Count Cards', desc: 'See unresolved, resolved, declined, and total incident numbers at a glance.' },
+      { element: '[data-tour="ssu-incident-heatmap"]', title: '3. Incident Heatmap', desc: 'View incident distribution by category to spot recurring security concerns.' }
+    ]
+      },
+      {
         id: 'director-settings',
         name: 'Director Settings & Acting Unit Head Coverage',
         route: '/director/settings',
@@ -3168,9 +3270,9 @@ export const pageGuidesCatalog = {
         tourSteps: [
       { element: '#tour-main-workspace', title: '1. Director Settings', desc: 'Set up your executive profile and digital signature.' },
       { element: '[data-tour="director-settings-profile"]', title: '2. Executive Profile', desc: 'Update your profile, contact email, and credentials.' },
-      { element: '[data-tour="director-settings-coverage-section"]', title: '3. Sub-Unit Coverage Console', desc: 'Temporarily take charge of FGMU, LEAU, or SSU when unit heads are away.' },
-      { element: '[data-tour="director-btn-assume-unit"]', title: '4. Take Charge of Unit Operations', desc: 'Switch your session to manage ticket queues for any unit.' },
-      { element: '[data-tour="director-settings-btn-save"]', title: '5. Save Director Settings', desc: 'Save profile changes securely.' }
+      { element: '[data-tour="director-settings-btn-save"]', title: '3. Save Director Settings', desc: 'Save profile changes securely.' },
+      { element: '[data-tour="director-settings-coverage-section"]', title: '4. Sub-Unit Coverage Console', desc: 'Temporarily take charge of FGMU, LEAU, or SSU when unit heads are away.' },
+      { element: '[data-tour="director-btn-assume-unit"]', title: '5. Take Charge of Unit Operations', desc: 'Switch your session to manage ticket queues for any unit.' }
     ]
       },
       {

@@ -139,13 +139,13 @@
           <!-- Cross-Unit Performance Matrix Table -->
           <div class="space-y-3 pt-2">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <h4 class="text-sm sm:text-base font-black text-slate-900 tracking-tight uppercase tracking-wider">Performance by Sub-Unit</h4>
+              <h4 data-tour="director-matrix-table" class="text-sm sm:text-base font-black text-slate-900 tracking-tight uppercase tracking-wider">Performance by Sub-Unit</h4>
               <span class="text-xs sm:text-sm font-bold text-slate-500">{{ kpiPeriodLabel }}</span>
             </div>
 
             <!-- Desktop Performance Table -->
             <div class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 shadow-sm">
-              <table data-tour="director-matrix-table" class="min-w-[650px] w-full text-left border-collapse">
+              <table class="min-w-[650px] w-full text-left border-collapse">
                 <thead>
                   <tr class="bg-slate-50 text-slate-700 text-xs sm:text-sm font-black uppercase tracking-wider border-b border-slate-200">
                     <th class="py-3 px-5">Sub-Unit</th>
