@@ -142,9 +142,9 @@
           </div>
 
           <!-- Top 4 Cards Grid (2x2) -->
-          <div data-tour="admin-kpi-gauges" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <!-- 1. Unresolved Reports / Daily Unresolved Reports (Top Left) -->
-            <div 
+            <div data-tour="admin-kpi-gauges" 
               @click="router.push('/admin/ssu/submitted-tickets')"
               class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm cursor-pointer hover:border-slate-400 hover:shadow-md transition-all flex flex-col justify-between"
             >
