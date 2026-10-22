@@ -102,11 +102,11 @@
         </div>
 
         <!-- Recent Activity — Ticket Status Updates -->
-        <div data-tour="user-recent-tickets" class="bg-white border border-slate-300 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-white border border-slate-300 rounded-2xl shadow-sm overflow-hidden">
           <!-- Section header (No dots) -->
           <div class="bg-gradient-to-r from-slate-50 via-slate-100/60 to-slate-50 px-4 sm:px-6 py-3.5 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-              <h3 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Ticket Status Updates</h3>
+              <h3 data-tour="user-recent-tickets" class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">Ticket Status Updates</h3>
             </div>
             <router-link
               data-tour="user-btn-view-all"
