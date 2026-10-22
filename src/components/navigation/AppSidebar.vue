@@ -181,53 +181,63 @@ const rawNavGroups = computed(() => {
           {
             label: 'Submitted Tickets',
             to: '/admin/ssu/submitted-tickets',
+            exact: true,
             icon: 'queue'
           },
           {
             label: 'Under Investigation',
             to: '/admin/ssu/investigating-tickets',
+            exact: true,
             icon: 'shield'
           },
           {
             label: 'Collab Tickets',
             to: '/admin/ssu/collab-tickets',
+            exact: true,
             icon: 'users'
           },
           {
             label: 'Dispatch Tickets',
             to: '/admin/ssu/assign-workers',
+            exact: true,
             icon: 'dispatch'
           }
         ] : [
           {
             label: 'Pending Approvals',
             to: `/admin/${unit}/queues`,
+            exact: true,
             icon: 'queue'
           },
           {
             label: 'Approved Tickets',
             to: `/admin/${unit}/approved-tickets`,
+            exact: true,
             icon: 'check'
           },
           {
             label: 'Dispatch Tickets',
             to: `/admin/${unit}/assign-workers`,
+            exact: true,
             icon: 'dispatch'
           },
           {
             label: 'Scheduled Tickets',
             to: `/admin/${unit}/dispatched`,
+            exact: true,
             icon: 'calendar'
           },
           {
             label: 'Active Tickets',
             to: `/admin/${unit}/active-tickets`,
+            exact: true,
             icon: 'tools'
           },
           ...(unit === 'leau' || unit === 'fgmu' ? [
             {
               label: 'Inventory Management',
               to: `/admin/${unit}/inventory`,
+              exact: true,
               icon: 'box'
             }
           ] : [])
@@ -239,6 +249,7 @@ const rawNavGroups = computed(() => {
           {
             label: isSSU ? 'Security Personnel' : 'Personnel Management',
             to: `/admin/${unit}/personnel`,
+            exact: true,
             icon: 'users'
           }
         ]
@@ -249,6 +260,7 @@ const rawNavGroups = computed(() => {
           {
             label: isSSU ? 'Archived Incidents' : 'Archived Tickets',
             to: `/admin/${unit}/archives`,
+            exact: true,
             icon: 'archive'
           }
         ]
@@ -289,6 +301,12 @@ const rawNavGroups = computed(() => {
             to: '/director/materials',
             exact: true,
             icon: 'materials'
+          },
+          {
+            label: 'Central Operations Hub',
+            to: '/director/operations',
+            exact: true,
+            icon: 'tools'
           }
         ]
       },
@@ -434,16 +452,19 @@ const rawNavGroups = computed(() => {
         {
           label: 'My Service Requests',
           to: '/user/tickets',
+          exact: true,
           icon: 'queue'
         },
         {
           label: 'Completed Tickets',
           to: '/user/completed-tickets',
+          exact: true,
           icon: 'check'
         },
         {
           label: 'Account Settings',
           to: '/user/edit-profile',
+          exact: true,
           icon: 'settings'
         }
       ]
@@ -476,7 +497,8 @@ const navGroups = computed(() => {
           v-for="item in group.items"
           :key="item.to"
           :to="item.to"
-          exact-active-class="router-link-exact-active"
+          active-class=""
+          exact-active-class=""
           :class="[
             'nav-item group',
             isItemActive(item) ? 'router-link-active' : ''

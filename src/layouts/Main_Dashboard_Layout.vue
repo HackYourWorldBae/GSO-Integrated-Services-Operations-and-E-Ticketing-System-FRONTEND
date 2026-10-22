@@ -12,9 +12,10 @@
     <!-- Sidebar -->
     <aside 
       :class="[
-        'fixed md:relative flex flex-col transition-[width,transform] duration-200 ease-out z-50 h-[100dvh] border-r border-slate-300/80 shadow-xl bg-white overflow-hidden', 
-        isSidebarOpen ? 'w-72 border-r' : 'w-0 border-none',
-        isMobileSidebarOpen ? 'translate-x-0 w-72 max-w-[85vw] border-r' : '-translate-x-full md:translate-x-0'
+        'fixed md:relative flex flex-col z-50 h-[100dvh] bg-white overflow-hidden',
+        isLayoutMounted ? 'transition-[width,transform] duration-200 ease-out' : '',
+        isSidebarOpen ? 'md:w-72 border-r border-slate-300/80 shadow-xl md:shadow-none' : 'md:w-0 md:border-none',
+        isMobileSidebarOpen ? 'translate-x-0 w-72 max-w-[85vw] border-r border-slate-300/80 shadow-2xl' : '-translate-x-full md:translate-x-0'
       ]"
     >
       <!-- Sidebar Header -->
@@ -40,7 +41,11 @@
       </div>
       
       <!-- Navigation Sections -->
-      <div class="flex-1 overflow-y-auto custom-scrollbar pt-6 pb-20 min-w-[288px]">
+      <div 
+        ref="sidebarNavContainer"
+        @scroll.passive="handleSidebarScroll"
+        class="flex-1 overflow-y-auto custom-scrollbar pt-6 pb-20 min-w-[288px]"
+      >
         <div class="sidebar-nav px-3" id="tour-sidebar-nav" @click="handleNavClick">
           <AppSidebar />
           <slot name="sidebar-extra" />
@@ -401,7 +406,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -440,10 +445,44 @@ const accountSettingsRoute = computed(() => {
   }
   return '/user/edit-profile';
 });
-const isSidebarOpen = ref(true);
+
+// Preserve desktop sidebar collapsed state across route navigations
+const isSidebarOpen = ref(
+  typeof window !== 'undefined'
+    ? localStorage.getItem('gso_portal_sidebar_open') !== 'false'
+    : true
+);
 const isMobileSidebarOpen = ref(false);
 const isDropdownOpen = ref(false);
 const isNotificationOpen = ref(false);
+
+watch(isSidebarOpen, (val) => {
+  try {
+    localStorage.setItem('gso_portal_sidebar_open', String(val));
+  } catch { /* noop */ }
+});
+
+// Prevent CSS transform/width animation on initial route mount so sidebar stays stationary
+const isLayoutMounted = ref(false);
+const sidebarNavContainer = ref(null);
+const SIDEBAR_SCROLL_KEY = 'gso_portal_sidebar_scroll_top';
+
+const handleSidebarScroll = (e) => {
+  if (e?.target) {
+    sessionStorage.setItem(SIDEBAR_SCROLL_KEY, String(e.target.scrollTop));
+  }
+};
+
+const restoreSidebarScroll = () => {
+  if (!sidebarNavContainer.value) return;
+  const saved = sessionStorage.getItem(SIDEBAR_SCROLL_KEY);
+  if (saved !== null) {
+    const parsed = parseInt(saved, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      sidebarNavContainer.value.scrollTop = parsed;
+    }
+  }
+};
 
 // Acting Unit Head Mode Reversion
 const isRevertingRole = ref(false);
@@ -925,6 +964,15 @@ let notificationInterval = null;
 let removeRouterHook = null;
 
 onMounted(() => {
+  restoreSidebarScroll();
+  nextTick(() => {
+    restoreSidebarScroll();
+    requestAnimationFrame(() => {
+      restoreSidebarScroll();
+      isLayoutMounted.value = true;
+    });
+  });
+
   const currentUser = authStore.user || (() => {
     try {
       const raw = sessionStorage.getItem('auth');
@@ -1108,7 +1156,7 @@ const handleLogout = () => {
   padding: 12px 16px;
   border-radius: 14px;
   color: #475569;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   font-weight: 700;
   font-size: 0.95rem;
   white-space: nowrap;
@@ -1119,7 +1167,7 @@ const handleLogout = () => {
 }
 
 .sidebar-nav .nav-item svg {
-  transition: all 0.25s ease;
+  transition: color 0.15s ease;
   flex-shrink: 0;
   color: #94a3b8;
 }
@@ -1128,12 +1176,12 @@ const handleLogout = () => {
   background-color: #f0fdf4;
   color: #15803d;
   border-color: #bbf7d0;
-  padding-left: 18px;
+  padding-left: 16px; /* Stationary - strictly no horizontal shifting */
 }
 
 .sidebar-nav .nav-item:hover svg {
   color: #16a34a;
-  transform: scale(1.1);
+  transform: none; /* Stationary - no scale popping */
 }
 
 /* Active left accent bar */
@@ -1154,7 +1202,7 @@ const handleLogout = () => {
   border-color: #bbf7d0;
   font-weight: 700;
   box-shadow: 0 2px 8px rgba(22, 163, 74, 0.08);
-  padding-left: 20px;
+  padding-left: 16px; /* Stationary - identical padding so item stays still */
 }
 
 .sidebar-nav .nav-item.router-link-active svg {

@@ -141,7 +141,7 @@
               </div>
 
               <!-- Email Notifications Toggle -->
-              <div class="md:col-span-12 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.emailNotificationsEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
+              <div data-tour="director-settings-email" class="md:col-span-12 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.emailNotificationsEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
                 <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-xs" :class="form.emailNotificationsEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-400 text-white'">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -165,7 +165,7 @@
               </div>
 
               <!-- Two-Factor Authentication (MFA with Email OTP) Toggle -->
-              <div class="md:col-span-12 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.isMfaEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
+              <div data-tour="director-settings-2fa" class="md:col-span-12 p-4 rounded-2xl border flex items-start gap-3.5 transition-colors" :class="form.isMfaEnabled ? 'bg-emerald-50/60 border-emerald-200/70' : 'bg-slate-50 border-slate-200'">
                 <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-xs" :class="form.isMfaEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-400 text-white'">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -193,7 +193,7 @@
               </div>
 
               <!-- New Password -->
-              <div class="space-y-2.5 md:col-span-6">
+              <div data-tour="director-settings-password" class="space-y-2.5 md:col-span-6">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">New Password</label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
@@ -249,7 +249,7 @@
             </div>
 
             <!-- Official Digital Signature Section -->
-            <div class="space-y-3">
+            <div data-tour="director-settings-signature" class="space-y-3">
               <div class="flex items-center justify-between flex-wrap gap-2">
                 <div>
                   <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest ml-1">Official Executive Signature</h4>

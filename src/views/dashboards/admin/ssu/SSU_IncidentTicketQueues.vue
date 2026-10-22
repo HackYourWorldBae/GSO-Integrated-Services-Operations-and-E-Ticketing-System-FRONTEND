@@ -65,7 +65,7 @@
 
     <template #main-content>
       <!-- Director Stage Switcher Tabs -->
-      <div v-if="isDirector" class="mb-4">
+      <div v-if="isDirector" data-tour="ssu-queues-tabs" class="mb-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1.5 bg-white border border-slate-200 rounded-2xl shadow-xs">
           <button
             type="button"
@@ -97,6 +97,7 @@
       </div>
 
       <SSU_IncidentWorkspace
+        data-tour="ssu-incident-workspace"
         :active-queue="currentTab"
         :is-director="isDirector"
         @update:activeQueue="onTabChange"

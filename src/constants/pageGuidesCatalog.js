@@ -3162,8 +3162,8 @@ export const pageGuidesCatalog = {
         ],
         tourSteps: [
       { element: '#tour-main-workspace', title: '1. SSU Reports Overview', desc: 'View campus security incident reports and check ongoing investigations.' },
-      { element: '[data-tour="ssu-stats-cards"]', title: '2. Incident Count Cards', desc: 'See unresolved, resolved, declined, and total incident numbers at a glance.' },
-      { element: '[data-tour="ssu-incident-heatmap"]', title: '3. Incident Heatmap', desc: 'View incident distribution by category to spot recurring security concerns.' }
+      { element: '[data-tour="ssu-queues-tabs"]', title: '2. Stage Tabs', desc: 'Switch between Submitted Reports and Under Investigation queues.' },
+      { element: '[data-tour="ssu-incident-workspace"]', title: '3. Incident Workspace', desc: 'View the full list of SSU incident tickets with details and actions.' }
     ]
       },
       {
@@ -3270,9 +3270,13 @@ export const pageGuidesCatalog = {
         tourSteps: [
       { element: '#tour-main-workspace', title: '1. Director Settings', desc: 'Set up your executive profile and digital signature.' },
       { element: '[data-tour="director-settings-profile"]', title: '2. Executive Profile', desc: 'Update your profile, contact email, and credentials.' },
-      { element: '[data-tour="director-settings-btn-save"]', title: '3. Save Director Settings', desc: 'Save profile changes securely.' },
-      { element: '[data-tour="director-settings-coverage-section"]', title: '4. Sub-Unit Coverage Console', desc: 'Temporarily take charge of FGMU, LEAU, or SSU when unit heads are away.' },
-      { element: '[data-tour="director-btn-assume-unit"]', title: '5. Take Charge of Unit Operations', desc: 'Switch your session to manage ticket queues for any unit.' }
+      { element: '[data-tour="director-settings-email"]', title: '3. Email Notifications', desc: 'Turn on email alerts for urgent system alerts and delayed ticket escalations.' },
+      { element: '[data-tour="director-settings-2fa"]', title: '4. Two-Factor Authentication', desc: 'Enable 6-digit email OTP verification for secure director login.' },
+      { element: '[data-tour="director-settings-password"]', title: '5. Password Change', desc: 'Set a new password (minimum 8 characters) to protect your account.' },
+      { element: '[data-tour="director-settings-signature"]', title: '6. Executive Signature', desc: 'Draw or upload your official digital signature for Job Orders.' },
+      { element: '[data-tour="director-settings-btn-save"]', title: '7. Save Director Settings', desc: 'Save profile changes securely.' },
+      { element: '[data-tour="director-settings-coverage-section"]', title: '8. Sub-Unit Coverage Console', desc: 'Temporarily take charge of FGMU, LEAU, or SSU when unit heads are away.' },
+      { element: '[data-tour="director-btn-assume-unit"]', title: '9. Take Charge of Unit Operations', desc: 'Switch your session to manage ticket queues for any unit.' }
     ]
       },
       {

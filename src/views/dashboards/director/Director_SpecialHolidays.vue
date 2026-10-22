@@ -103,11 +103,11 @@
         </div>
 
         <!-- Holidays Table (Desktop) -->
-        <div data-tour="holidays-table" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden hidden md:block">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden hidden md:block">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse">
               <thead>
-                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                <tr data-tour="holidays-table" class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-500 uppercase tracking-widest">
                   <th class="py-3.5 px-4 w-12 text-center">#</th>
                   <th class="py-3.5 px-4 w-48">Holiday Date</th>
                   <th class="py-3.5 px-4">Holiday Name &amp; Executive Proclamation</th>

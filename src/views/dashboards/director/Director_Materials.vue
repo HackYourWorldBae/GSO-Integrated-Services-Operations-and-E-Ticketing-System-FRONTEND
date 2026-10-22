@@ -131,9 +131,9 @@
         </div>
 
         <!-- Materials Cost KPI Cards Grid -->
-        <div data-tour="materials-kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <!-- 1. Total Cost of Materials -->
-          <div class="p-5 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col gap-3 hover:shadow-md transition-all duration-200">
+          <div data-tour="materials-kpi-cards" class="p-5 rounded-2xl bg-slate-900 text-white shadow-sm flex flex-col gap-3 hover:shadow-md transition-all duration-200">
             <div class="flex items-center">
               <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700/60 text-[10px] font-bold tracking-wider">All Units</span>
             </div>
@@ -189,7 +189,7 @@
         </div>
 
         <!-- Materials Interactive Data Table Section -->
-        <div data-tour="materials-ledger-table" class="p-4 sm:p-6 lg:p-7 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-4 sm:space-y-5">
+        <div class="p-4 sm:p-6 lg:p-7 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-4 sm:space-y-5">
           <!-- Table Controls Toolbar -->
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
             <!-- Left: Sub-unit Filter Tabs (Segmented Control) -->
@@ -238,7 +238,7 @@
           <div class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 shadow-2xs">
             <table class="min-w-[850px] w-full text-left border-collapse">
               <thead>
-                <tr class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                <tr data-tour="materials-ledger-table" class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
                   <th class="py-3.5 px-4 text-center w-12">#</th>
                   <th class="py-3.5 px-6">Material / Supply Name</th>
                   <th class="py-3.5 px-4 text-center">Measurement</th>

@@ -108,9 +108,9 @@
           </div>
 
           <!-- Top 4 Cards Grid: Unresolved, Resolved, Declined, Total (2x2) -->
-          <div data-tour="ssu-stats-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <!-- 1. Unresolved Reports / Daily Unresolved Reports (Top Left) -->
-            <div class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-md flex flex-col justify-between">
+            <div data-tour="ssu-stats-cards" class="p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 dark:border-slate-800 shadow-md flex flex-col justify-between">
               <div class="flex items-center mb-4">
                 <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-tight shrink-0 whitespace-nowrap">
                   {{ selectedPeriod === 'day' ? 'Daily Unresolved' : 'Unresolved' }}
@@ -295,8 +295,8 @@
         <div class="grid grid-cols-1 gap-8">
           
           <!-- Incident Distribution -->
-          <div data-tour="ssu-incident-heatmap" class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[280px] sm:min-h-[350px] lg:h-[450px]">
-            <h4 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
+          <div class="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-100 shadow-sm flex flex-col min-h-[280px] sm:min-h-[350px] lg:h-[450px]">
+            <h4 data-tour="ssu-incident-heatmap" class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 italic">
               <div class="w-2 h-6 bg-rose-500 rounded-full"></div>
               Incident Heatmap (By Category)
             </h4>
