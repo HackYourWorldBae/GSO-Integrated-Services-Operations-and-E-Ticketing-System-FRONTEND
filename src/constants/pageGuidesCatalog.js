@@ -1625,18 +1625,20 @@ export const createUnitAdminSettingsGuide = (unitCode = 'fgmu') => {
     icon: '⚙️',
     manualSection: `Section ${U === 'FGMU' ? 'C13' : U === 'LEAU' ? 'D13' : 'E9'}: Account Settings`,
     roleBadge: `${U} Administrator`,
-    summary: `Update your profile, change password, manage email alerts, and save your digital signature for job orders.`,
+    summary: isSsu
+      ? 'Update your profile, change password, and manage email alerts.'
+      : 'Update your profile, change password, manage email alerts, and save your digital signature for job orders.',
     sections: [
       {
         title: 'Unit Operations Profile Card',
         desc: 'Administrative credentials and contact info',
         details: 'Displays official administrator badge, avatar photo upload, First Name, Last Name, Name Extension, and official university unit email address.'
       },
-      {
+      ...(!isSsu ? [{
         title: 'Official Digital Signature Studio',
         desc: 'Automated job order approval signature',
         details: 'Signature rendered automatically above the Unit Head signature line on generated Job Orders (QM-GSO-01), Request Slips, and archives. Offers Draw Signature (Ink color and thickness) and Upload Image (Auto-Remove Background).'
-      },
+      }] : []),
       {
         title: 'Email Notifications Toggle',
         desc: 'Transactional alert preferences',
@@ -1652,20 +1654,22 @@ export const createUnitAdminSettingsGuide = (unitCode = 'fgmu') => {
       {
         title: 'Unit Jurisdiction Notice',
         desc: 'Role authorization boundaries',
-        details: `Explains that your account permissions govern ticket dispatch, worker scheduling, job liquidation, and inventory management strictly within the ${U} operational branch.`
+        details: isSsu
+          ? `Explains that your account permissions govern incident reporting, security worker dispatch, and security logs strictly within the SSU operational branch.`
+          : `Explains that your account permissions govern ticket dispatch, worker scheduling, job liquidation, and inventory management strictly within the ${U} operational branch.`
       }
     ],
     tabs: [
       { name: 'Profile & Credentials', badge: 'User Settings', desc: 'Administrator details, email notifications, and password security.' },
-      { name: 'Digital Signature', badge: 'Document Authorization', desc: 'Draw or upload digital signature for automated job order rendering.' }
+      ...(!isSsu ? [{ name: 'Digital Signature', badge: 'Document Authorization', desc: 'Draw or upload digital signature for automated job order rendering.' }] : [])
     ],
     buttons: [
-      {
+      ...(!isSsu ? [{
         label: 'Change Signature / Update Signature',
         type: 'primary',
         desc: 'Opens the Official Digital Signature Studio modal with Draw and Upload tabs.',
         result: 'Displays signature studio modal.'
-      },
+      }] : []),
       {
         label: 'Save Changes / Save Profile Changes',
         type: 'success',
@@ -1678,15 +1682,15 @@ export const createUnitAdminSettingsGuide = (unitCode = 'fgmu') => {
         desc: 'Switches between email+dashboard alerts and dashboard-only notifications.',
         result: 'Toggles automated email dispatch for ticket events.'
       },
-      {
+      ...(!isSsu ? [{
         label: 'Remove Signature',
         type: 'danger',
         desc: 'Deletes the current digital signature from the system.',
         result: 'Clears saved signature.'
-      }
+      }] : [])
     ],
     procedures: [
-      {
+      ...(!isSsu ? [{
         title: 'How to Set Up or Update Your Official Digital Signature',
         steps: [
           'Navigate to Account Settings in the sidebar.',
@@ -1695,7 +1699,7 @@ export const createUnitAdminSettingsGuide = (unitCode = 'fgmu') => {
           'To upload a photo: click "Upload Image", sign on clean white paper, take a photo, and upload it (PNG/JPG up to 3MB; paper background is removed automatically).',
           'Click "Save Official Signature". The signature will now auto-render on all generated Job Orders.'
         ]
-      },
+      }] : []),
       {
         title: 'How to Configure Email Alert Preferences',
         steps: [
@@ -1706,10 +1710,13 @@ export const createUnitAdminSettingsGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '#tour-page-header', title: `1. ${U} Settings`, desc: 'Set up your unit profile, digital signature, and email alerts.' },
-      { element: '[data-tour="admin-settings-profile"]', title: '2. Operations Profile', desc: 'Update contact numbers, email notifications, and password credentials.' },
-      { element: '[data-tour="admin-settings-signature"]', title: '3. Digital Signature Setup', desc: 'Draw or upload your official digital signature for automatic placement on job orders.' },
-      { element: '[data-tour="admin-settings-btn-save"]', title: '4. Save Configuration', desc: 'Click to save your profile changes and official signature.' }
+      { element: '#tour-page-header', title: `1. ${U} Settings`, desc: isSsu ? 'Set up your unit profile and email alerts.' : 'Set up your unit profile, digital signature, and email alerts.' },
+      { element: '[data-tour="admin-settings-profile"]', title: '2. Operations Profile', desc: 'Update first name, last name, suffix, email address, and contact details.' },
+      { element: '[data-tour="admin-settings-email"]', title: '3. Email Notifications', desc: 'Turn on to receive automated email alerts for new tickets and status changes to your registered email.' },
+      { element: '[data-tour="admin-settings-mfa"]', title: '4. Two-Factor Authentication (Email OTP)', desc: 'Enable 6-digit email one-time password verification for secure admin login.' },
+      { element: '[data-tour="admin-settings-password"]', title: '5. Change Password', desc: 'Set a new password (minimum 8 characters) or leave blank to keep your current password.' },
+      ...(!isSsu ? [{ element: '[data-tour="admin-settings-signature"]', title: '6. Digital Signature Setup', desc: 'Draw or upload your official digital signature for automatic placement on job orders.' }] : []),
+      { element: '[data-tour="admin-settings-btn-save"]', title: isSsu ? '6. Save Configuration' : '7. Save Configuration', desc: isSsu ? 'Click to save your profile changes, email preferences, and MFA setting.' : 'Click to save your profile changes, email preferences, MFA setting, and signature.' }
     ]
   };
 };
