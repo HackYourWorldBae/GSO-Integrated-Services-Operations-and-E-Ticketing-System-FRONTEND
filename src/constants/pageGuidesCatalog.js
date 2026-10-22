@@ -462,11 +462,12 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '[data-tour="admin-page-header"]', title: '1. Pending Approvals Queue', desc: `Review newly submitted ${U} service tickets awaiting administrative verification.` },
-      { element: '[data-tour="director-search-input"]', title: '2. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
-      { element: '[data-tour="director-tab-pending"]', title: '3. Pending Queue Tab', desc: 'View newly submitted requests awaiting administrative review and verification.' },
-      { element: '[data-tour="director-btn-fullinfo"]', title: '4. Full Scope & Photos Inspection', desc: 'Click "View Details" / "Full Info" to inspect problem particulars, client contacts, and uploaded photos before deciding.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"], [data-tour="director-btn-decline"]', title: '5. Decision Controls', desc: 'Approve to proceed to dispatch, Delay with justification, or Decline invalid requests.' },
-      { element: '[data-tour="director-tab-delayed"]', title: '6. Approval Delayed Tab', desc: 'View tickets on hold for procurement, budget clearance, or inspection until explicitly approved or declined.' }
+      { element: '[data-tour="director-tab-pending"]', title: '2. Pending Queue Tab', desc: 'View newly submitted requests awaiting administrative review and verification.' },
+      { element: '[data-tour="director-subtab-job"], [data-tour="director-subtab-borrowing"]', title: '3. Job vs Borrowing Sub-tabs', desc: 'Switch between Job Requests and Borrowing Requests within the Pending queue.' },
+      { element: '[data-tour="director-search-input"]', title: '4. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
+      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Full Scope & Photos Inspection', desc: 'Click "View Details" / "Full Info" to inspect problem particulars, client contacts, and uploaded photos before deciding.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"], [data-tour="director-btn-decline"]', title: '6. Decision Controls', desc: 'Approve to proceed to dispatch, Delay with justification, or Decline invalid requests.' },
+      { element: '[data-tour="director-tab-delayed"]', title: '7. Approval Delayed Tab', desc: 'View tickets on hold for procurement, budget clearance, or inspection until explicitly approved or declined.' }
     ]
   };
 };
@@ -581,10 +582,13 @@ export const createUnitAdminApprovedGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-page-header', title: `1. ${U} Approved Tickets`, desc: 'View approved tickets awaiting field dispatch or inventory reservation.' },
-      { element: '[data-tour="approved-tab-job"], [data-tour="approved-tab-borrowing"], [data-tour="approved-tab-collab"]', title: '2. Job vs Borrowing vs Collab Tabs', desc: 'Switch between approved work orders, borrowing requests, and cross-unit collaboration tickets.' },
-      { element: '[data-tour="approved-urgency-filters"]', title: '3. Filter by Urgency', desc: 'Filter by All, Emergency, or Standard priority.' },
-      { element: '[data-tour="approved-search-input"]', title: '4. Search Approved Tickets', desc: 'Search by ticket ID, requester, service, or campus location.' },
-      { element: '[data-tour="approved-btn-fullinfo"], [data-tour="approved-btn-assign"]', title: '5. Assign Workers or View Details', desc: 'Click Full Info to inspect details, or Assign Workers to proceed to dispatch.' }
+      { element: '[data-tour="approved-tab-job"]', title: '2. Job Requests Tab', desc: 'View approved work orders awaiting worker assignment.' },
+      { element: '[data-tour="approved-tab-borrowing"]', title: '3. Borrowing Requests Tab', desc: 'View approved borrowing requests (tools, equipment, plants) awaiting inventory assignment.' },
+      { element: '[data-tour="approved-tab-collab"]', title: '4. Collab Requests Tab', desc: 'View incoming cross-unit collaboration requests where your unit\'s manpower is requested.' },
+      { element: '[data-tour="approved-urgency-filters"]', title: '5. Filter by Urgency', desc: 'Filter tickets by All, Emergency, or Standard priority.' },
+      { element: '[data-tour="approved-search-input"]', title: '6. Search Approved Tickets', desc: 'Search by ticket ID, requester, service, or campus location.' },
+      { element: '[data-tour="approved-btn-fullinfo"]', title: '7. View Full Info', desc: 'Click "Full Info" on a ticket row to inspect complete details, attachments, and scope of work.' },
+      { element: '[data-tour="approved-btn-assign"]', title: '8. Assign Workers or Inventory', desc: 'Click "Assign Workers" for job requests or "Assign Inventory" for borrowing requests to proceed to dispatch.' }
     ]
   };
 };
