@@ -97,7 +97,6 @@
       </div>
 
       <SSU_IncidentWorkspace
-        data-tour="ssu-incident-workspace"
         :active-queue="currentTab"
         :is-director="isDirector"
         @update:activeQueue="onTabChange"

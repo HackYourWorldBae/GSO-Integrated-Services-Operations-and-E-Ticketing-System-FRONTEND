@@ -59,7 +59,6 @@ const Superadmin_AccountLogs = () => import('../views/dashboards/superadmin/Supe
 const Superadmin_Settings = () => import('../views/dashboards/superadmin/Superadmin_Settings.vue');
 const Superadmin_Backup = () => import('../views/dashboards/superadmin/Superadmin_Backup.vue');
 const Director_Settings = () => import('../views/dashboards/director/Director_Settings.vue');
-const Director_OperationsHub = () => import('../views/dashboards/director/Director_OperationsHub.vue');
 const Admin_Settings = () => import('../views/dashboards/admin/Admin_Settings.vue');
 const Admin_MyRequests = () => import('../views/dashboards/admin/Admin_MyRequests.vue');
 const Personnel_Dashboard = () => import('../views/dashboards/personnel/Personnel_Dashboard.vue');
@@ -620,9 +619,7 @@ const router = createRouter({
     },
     {
       path: '/director/operations',
-      name: 'director-operations',
-      component: Director_OperationsHub,
-      meta: { requiresAuth: true, roles: ['director', 'superadmin'] }
+      redirect: '/director/dashboard'
     },
 
     // Dispatcher Dashboards — Redirect to unified Admin & Operations portal

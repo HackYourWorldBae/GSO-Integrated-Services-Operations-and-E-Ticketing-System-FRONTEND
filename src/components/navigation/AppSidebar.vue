@@ -301,12 +301,6 @@ const rawNavGroups = computed(() => {
             to: '/director/materials',
             exact: true,
             icon: 'materials'
-          },
-          {
-            label: 'Central Operations Hub',
-            to: '/director/operations',
-            exact: true,
-            icon: 'tools'
           }
         ]
       },

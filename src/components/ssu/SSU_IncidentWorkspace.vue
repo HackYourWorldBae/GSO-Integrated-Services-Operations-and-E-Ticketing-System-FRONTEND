@@ -2,7 +2,7 @@
   <div class="space-y-4 animate-fade-in relative pb-16">
 
     <!-- ═══ Unified Compact Toolbar ═══ -->
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs">
+    <div data-tour="ssu-incident-workspace" class="bg-white rounded-2xl border border-slate-200/90 shadow-xs">
       <!-- Top Row: Stage Indicator -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 border-b border-slate-100">
         <!-- Stage Pill -->
