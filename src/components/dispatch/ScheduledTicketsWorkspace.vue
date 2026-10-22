@@ -91,6 +91,7 @@
         <!-- Urgency Filters (job schedules and collab) -->
         <div
           v-if="scheduledTab === 'jobs' || scheduledTab === 'collab'"
+          data-tour="scheduled-urgency-filters"
           class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 text-xs font-bold self-start sm:self-auto flex-wrap sm:flex-nowrap gap-1"
         >
           <button
@@ -382,6 +383,7 @@
                   <button
                     type="button"
                     @click="openJobOrderDocument(ticket)"
+                    data-tour="scheduled-btn-joborder"
                     class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1.5 cursor-pointer border border-slate-200"
                     title="Print / View Job Order (Job Request Form)"
                   >

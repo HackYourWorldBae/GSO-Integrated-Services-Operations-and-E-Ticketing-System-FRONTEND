@@ -841,9 +841,13 @@ export const createUnitAdminDispatchedGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-page-header', title: `1. ${U} Scheduled Jobs`, desc: 'Manage work orders scheduled for site execution by assigned technicians.' },
-      { element: '[data-tour="scheduled-tab-jobs"], [data-tour="scheduled-tab-borrowing"], [data-tour="scheduled-tab-collab"]', title: '2. Jobs vs Borrowing vs Collab', desc: 'Switch between technician work orders, tools/plants borrowing reservations, and cross-unit jobs.' },
-      { element: '[data-tour="scheduled-search-input"]', title: '3. Search Scheduled Tickets', desc: 'Search work orders by ticket ID, assigned technician name, or campus venue.' },
-      { element: '[data-tour="scheduled-btn-start"], [data-tour="scheduled-btn-reschedule"]', title: '4. Start Job or Reschedule', desc: 'Mark job as In-Progress once technicians arrive, or adjust the scheduled implementation date.' }
+      { element: '[data-tour="scheduled-tab-jobs"]', title: '2. Job Schedules Tab', desc: 'View technician work orders waiting to start on site.' },
+      { element: '[data-tour="scheduled-tab-borrowing"]', title: '3. Borrowing Requests Tab', desc: 'View approved borrowing reservations ready for item pickup.' },
+      { element: '[data-tour="scheduled-tab-collab"]', title: '4. Collab Tickets Tab', desc: 'View cross-unit scheduled work orders coordinated with counterpart departments.' },
+      { element: '[data-tour="scheduled-urgency-filters"]', title: '5. Filter by Urgency', desc: 'Filter tickets by All, Emergency, or Standard priority.' },
+      { element: '[data-tour="scheduled-search-input"]', title: '6. Search Scheduled Tickets', desc: 'Search work orders by ticket ID, assigned technician name, or campus venue.' },
+      { element: '[data-tour="scheduled-btn-joborder"]', title: '7. Job Order / Print', desc: 'Open the official Job Order slip with digital signatures for field technicians.' },
+      { element: '[data-tour="scheduled-btn-reschedule"], [data-tour="scheduled-btn-start"]', title: '8. Reschedule or Start Early', desc: 'Adjust the implementation date, or mark the job as In-Progress ahead of schedule.' }
     ]
   };
 };
