@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth';
 import {
   pageGuidesCatalog,
   createUnitAdminDashboardGuide,
+  createUnitAdminMyRequestsGuide,
   createUnitAdminQueuesGuide,
   createUnitAdminApprovedGuide,
   createUnitAdminDispatchGuide,
@@ -85,6 +86,7 @@ export function useTutorial() {
       if (unit === 'ssu') {
         pages = [
           createUnitAdminDashboardGuide('ssu'),
+          createUnitAdminMyRequestsGuide('ssu'), // My Service Requests
           createUnitAdminQueuesGuide('ssu'), // Submitted Incidents
           createUnitAdminActiveGuide('ssu'), // Under Investigation
           createUnitAdminCollabGuide('ssu'), // SSU Collab Tickets
@@ -97,6 +99,7 @@ export function useTutorial() {
         // FGMU & LEAU
         pages = [
           createUnitAdminDashboardGuide(unit),
+          createUnitAdminMyRequestsGuide(unit), // My Service Requests
           createUnitAdminQueuesGuide(unit),
           createUnitAdminApprovedGuide(unit),
           createUnitAdminDispatchGuide(unit),

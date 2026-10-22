@@ -2,7 +2,7 @@
   <MainLayout>
     <template #header-title>
       <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
-        Common Materials Library
+        {{ effectiveUnit }} Materials Library
       </h2>
     </template>
 

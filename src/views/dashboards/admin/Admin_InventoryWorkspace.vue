@@ -2,7 +2,7 @@
   <MainLayout>
     <template #header-title>
       <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight truncate">
-        FGMU Inventory Management (Tools &amp; Equipment)
+        {{ pageTitle }}
       </h2>
     </template>
 

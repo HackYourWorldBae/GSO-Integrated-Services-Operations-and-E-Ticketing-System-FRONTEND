@@ -132,6 +132,109 @@ export const createUnitAdminDashboardGuide = (unitCode = 'fgmu') => {
   };
 };
 
+export const createUnitAdminMyRequestsGuide = (unitCode = 'fgmu') => {
+  const u = unitCode.toLowerCase();
+  const U = unitCode.toUpperCase();
+  const isSsu = u === 'ssu';
+  const isLeau = u === 'leau';
+  const unitName = isSsu
+    ? 'Safety & Security Services Unit'
+    : isLeau
+    ? 'Landscaping & Environmental Aesthetics Unit'
+    : 'Facilities & Grounds Management Unit';
+
+  return {
+    id: `admin-${u}-my-requests`,
+    name: `${U} My Service Requests`,
+    route: `/admin/${u}/my-requests`,
+    icon: '📋',
+    manualSection: `Section ${U === 'FGMU' ? 'C2' : U === 'LEAU' ? 'D2' : 'E2'}: My Service Requests (Admin Self-Service)`,
+    roleBadge: `${U} Administrator`,
+    summary: `Track the service requests you submitted as a ${U} administrator, follow their progress, and rate completed work.`,
+    sections: [
+      {
+        title: 'Status Filter Tabs',
+        desc: 'Personal request tracker',
+        details: 'Filter your submitted requests by All Requests, Pending, In Progress, Awaiting Rating, and Completed. Each tab shows a live count of matching tickets.'
+      },
+      {
+        title: 'Request Service Button',
+        desc: 'Submit a new internal work order',
+        details: `Opens the service catalog so you can submit a request as a ${U} administrator, using the same flow as a regular requestor.`
+      },
+      {
+        title: 'Ticket Cards',
+        desc: 'Your submitted requests',
+        details: 'Each card shows the handling unit, ticket reference number, service name, status badge, submission date, location, and assigned personnel. Use the actions to view progress, cancel a pending request, or rate completed work.'
+      },
+      {
+        title: 'Progress Timeline & Evaluation',
+        desc: 'Track and close your tickets',
+        details: 'Click "View Progress" to inspect the step-by-step timeline and request details. When the job is complete, rate Quality, Efficiency, and Timeliness to close and archive the ticket.'
+      }
+    ],
+    tabs: [
+      { name: 'All Requests', badge: 'Total', desc: 'Every ticket you submitted, regardless of status.' },
+      { name: 'Pending', badge: 'Under Review', desc: `Requests still waiting for ${U} action.` },
+      { name: 'In Progress', badge: 'Active', desc: 'Approved, dispatched, or ongoing work.' },
+      { name: 'Awaiting Rating', badge: 'Action Required', desc: 'Completed jobs waiting for your evaluation.' },
+      { name: 'Completed', badge: 'Archived', desc: 'Rated and closed requests.' }
+    ],
+    buttons: [
+      {
+        label: 'Request Service',
+        type: 'primary',
+        desc: 'Opens the service catalog to submit a new work order.',
+        result: 'Navigates to /services so you can choose a service and fill out the intake form.'
+      },
+      {
+        label: 'View Progress',
+        type: 'info',
+        desc: 'Opens the progress timeline and request information modal.',
+        result: 'Displays the ticket timeline, request details, and attached documents.'
+      },
+      {
+        label: 'Rate Service & Close',
+        type: 'success',
+        desc: 'Expands the evaluation form for a completed ticket.',
+        result: 'Submits your quality, efficiency, and timeliness ratings and closes the ticket.'
+      },
+      {
+        label: 'Cancel Request',
+        type: 'danger',
+        desc: 'Cancels a request that is still pending.',
+        result: 'Asks for a cancellation reason and marks the ticket as cancelled.'
+      }
+    ],
+    procedures: [
+      {
+        title: 'How to Track a Request You Submitted',
+        steps: [
+          'Open My Service Requests from the sidebar under Service Request.',
+          'Use the status tabs to filter All Requests, Pending, In Progress, Awaiting Rating, or Completed.',
+          'Click "View Progress" on a ticket card to open its timeline, request details, and attachments.',
+          'Once the job is completed, click "Rate Service & Close", answer the evaluation, and submit to archive the ticket.'
+        ]
+      },
+      {
+        title: 'How to Submit a New Request as an Admin',
+        steps: [
+          `Click "Request Service" at the top of the ${U} My Service Requests page.`,
+          'Search or browse the service catalog, select one or more services, and click "Fill Out Form".',
+          'Enter the college/building, office/room, and job particulars, then attach optional photos or documents.',
+          'Click "Validate & Submit Request" and return to My Service Requests to track the new ticket.'
+        ]
+      }
+    ],
+    tourSteps: [
+      { element: '#tour-page-header', title: `1. ${U} My Service Requests`, desc: `View and track the service requests you submitted as a ${U} administrator.` },
+      { element: '[data-tour="myrequests-status-tabs"]', title: '2. Filter by Status', desc: 'Switch between All Requests, Pending, In Progress, Awaiting Rating, and Completed.' },
+      { element: '[data-tour="myrequests-btn-new-request"]', title: '3. Request Service', desc: 'Submit a new service request from the services catalog.' },
+      { element: '[data-tour="myrequests-ticket-card"]', title: '4. Ticket Cards', desc: 'Click "View Progress" on any ticket to see its timeline and rate completed work.' }
+    ]
+  };
+};
+
 export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
   const u = unitCode.toLowerCase();
   const U = unitCode.toUpperCase();
