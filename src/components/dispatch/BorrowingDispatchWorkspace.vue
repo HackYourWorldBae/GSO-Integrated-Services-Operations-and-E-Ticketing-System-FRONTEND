@@ -210,7 +210,7 @@
 
         <div class="flex items-center gap-3 pt-2">
           <router-link
-            to="/admin/leau/approved-tickets"
+            :to="`/admin/${(props.unitCode || 'leau').toLowerCase()}/approved-tickets`"
             class="px-5 py-3 min-h-[44px] rounded-xl text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700"
           >
             <span>Select from Approved Tickets ({{ dispatchQueue.length }})</span>
@@ -505,7 +505,7 @@ const fetchDispatchQueue = async () => {
     const targetCode = (props.unitCode || 'LEAU').toUpperCase();
     const res = await api.get(`tickets/dispatch/${targetCode}`);
     const raw = res.data?.data?.tickets || res.data?.data || [];
-    dispatchQueue.value = Array.isArray(raw) ? raw : [];
+    dispatchQueue.value = Array.isArray(raw) ? raw.filter(isBorrowingTicket) : [];
   } catch (e) {
     console.error(`Failed to fetch ${props.unitCode} dispatch queue:`, e);
   }
@@ -604,12 +604,12 @@ const selectTicketById = async (ticketId) => {
     }
   }
   if (!found) {
-    toast.error(`Ticket #${ticketId} not found in the LEAU dispatch queue. It may need director approval first.`);
+    toast.error(`Ticket #${ticketId} not found in the ${(props.unitCode || 'LEAU').toUpperCase()} dispatch queue. It may need director approval first.`);
     return;
   }
   if (!isBorrowingTicket(found)) {
     toast.info(`Ticket #${ticketId} is a regular job request. Opening worker dispatch instead.`);
-    router.push(`/admin/leau/assign-workers?ticket=${ticketId}`);
+    router.push(`/admin/${(props.unitCode || 'leau').toLowerCase()}/assign-workers?ticket=${ticketId}`);
     return;
   }
   selectedTicket.value = found;
@@ -667,7 +667,7 @@ const markReadyForPickup = async () => {
     await markBorrowingReadyForPickup(selectedTicket.value.id);
     toast.success('Marked ready for pickup. See Scheduled Tickets › Borrowing Requests.');
     await fetchBorrowing(selectedTicket.value.id);
-    router.push('/admin/leau/dispatched?tab=borrowing');
+    router.push(`/admin/${(props.unitCode || 'leau').toLowerCase()}/dispatched?tab=borrowing`);
   } catch (e) {
     isMarkingReady.value = false;
     console.error('Ready for pickup failed:', e);

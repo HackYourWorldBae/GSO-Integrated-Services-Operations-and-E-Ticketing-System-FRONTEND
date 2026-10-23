@@ -70,10 +70,10 @@ export function isBorrowingService(input) {
     return true;
   }
 
-  // Check borrowing property or root fields for valid borrowing fields first if input is an object
+  // Check borrowing property, details, or root fields for valid borrowing fields first if input is an object
   if (typeof input === 'object') {
-    if (input.borrowing && typeof input.borrowing === 'object') {
-      const b = input.borrowing;
+    const b = input.borrowing || input.details;
+    if (b && typeof b === 'object') {
       if (
         b.item_name_requested ||
         b.item_name ||
@@ -87,7 +87,8 @@ export function isBorrowingService(input) {
     }
     if (
       input.borrowing_request_id ||
-      (input.item_name_requested && input.borrower_name)
+      input.item_name_requested ||
+      (input.borrowing_status && BORROWING_STATUSES.includes(input.borrowing_status))
     ) {
       return true;
     }
@@ -298,8 +299,15 @@ export function canUnassignInventory(borrowingStatus) {
  * inventory assignment when the ticket nature is a borrowing request.
  */
 export function borrowingDispatchLink(ticketId, unitCode = '') {
-  const detectedUnit = (unitCode || (ticketId && String(ticketId).startsWith('FGMU') ? 'fgmu' : 'leau')).toLowerCase();
-  return `/admin/${detectedUnit}/assign-workers?ticket=${ticketId}`;
+  let detectedUnit = (unitCode || '').toLowerCase();
+  if (!detectedUnit && ticketId) {
+    const tid = String(ticketId).toUpperCase();
+    if (tid.startsWith('FGMU')) detectedUnit = 'fgmu';
+    else if (tid.startsWith('LEAU')) detectedUnit = 'leau';
+    else detectedUnit = 'leau';
+  }
+  detectedUnit = detectedUnit || 'leau';
+  return `/admin/${detectedUnit}/assign-workers?ticket=${ticketId}&mode=borrowing`;
 }
 
 /**

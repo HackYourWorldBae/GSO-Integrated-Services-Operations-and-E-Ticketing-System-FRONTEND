@@ -149,7 +149,10 @@ describe('borrowing utils', () => {
 
   it('builds the borrowing dispatch deep link', () => {
     expect(borrowingDispatchLink('LEAU-TIC-1-2026')).toBe(
-      '/admin/leau/assign-workers?ticket=LEAU-TIC-1-2026'
+      '/admin/leau/assign-workers?ticket=LEAU-TIC-1-2026&mode=borrowing'
+    );
+    expect(borrowingDispatchLink('FGMU-TIC-1-2026')).toBe(
+      '/admin/fgmu/assign-workers?ticket=FGMU-TIC-1-2026&mode=borrowing'
     );
   });
 

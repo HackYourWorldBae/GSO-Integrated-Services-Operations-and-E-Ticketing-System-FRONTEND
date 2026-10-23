@@ -21,6 +21,7 @@
         unit-code="LEAU"
         unit-title="Landscaping &amp; Environmental Aesthetics Unit"
         :store="leauStore"
+        @switch-to-borrowing="dispatchMode = 'borrowing'"
       />
     </template>
   </MainLayout>
@@ -44,6 +45,10 @@ const checkingType = ref(false);
 const isBorrowingMode = computed(() => dispatchMode.value === 'borrowing');
 
 const resolveTicketType = async (ticketId) => {
+  if (route.query.mode === 'borrowing') {
+    dispatchMode.value = 'borrowing';
+    return;
+  }
   if (!ticketId) {
     dispatchMode.value = 'job';
     return;
@@ -74,14 +79,16 @@ const resolveTicketType = async (ticketId) => {
 };
 
 watch(
-  () => [route.query.ticket, route.query._t],
+  () => [route.query.ticket, route.query.ticketId, route.query.id, route.query.mode, route.query._t],
   ([v]) => {
-    resolveTicketType(v);
+    const tid = v || route.query.ticketId || route.query.id;
+    resolveTicketType(tid);
   },
   { immediate: true }
 );
 
 onMounted(() => {
-  resolveTicketType(route.query.ticket);
+  const tid = route.query.ticket || route.query.ticketId || route.query.id;
+  resolveTicketType(tid);
 });
 </script>

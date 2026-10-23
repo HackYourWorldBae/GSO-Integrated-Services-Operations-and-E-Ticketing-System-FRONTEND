@@ -111,7 +111,7 @@
             <router-link
               data-tour="user-btn-view-all"
               to="/user/tickets"
-              class="min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 active:bg-slate-200 transition-colors inline-flex items-center gap-1.5 shadow-2xs"
+              class="min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 active:bg-slate-200 transition-colors inline-flex items-center gap-1.5 shadow-2xs shrink-0"
             >
               <span>View All</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -143,8 +143,8 @@
                 <div class="flex items-start gap-3 sm:gap-3.5 min-w-0 flex-1">
                   <!-- Status indicator icon -->
                   <div class="flex-shrink-0 mt-0.5">
-                    <div class="relative w-10 h-10 rounded-xl flex items-center justify-center border shadow-xs" :class="[getUpdateIconBg(update.status), 'border-slate-200/60']">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="getUpdateIconColor(update.status)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center border shadow-xs" :class="[getUpdateIconBg(update.status), 'border-slate-200/60']">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 sm:h-5 sm:w-5" :class="getUpdateIconColor(update.status)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                       </svg>
                       <!-- Pulse ring for active tickets -->
@@ -154,43 +154,56 @@
 
                   <!-- Ticket Content -->
                   <div class="flex-1 min-w-0">
-                    <!-- Top row: ID, Unit, Time -->
-                    <div class="flex items-center gap-2 mb-1">
-                      <span class="px-2 py-0.5 rounded-md font-mono font-bold text-xs text-slate-800 bg-slate-100 border border-slate-200 shadow-2xs">
-                        #{{ update.ticketId }}
-                      </span>
-                      <span v-if="update.unit" class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                        {{ update.unit }}
-                      </span>
-                      <span class="text-slate-300">•</span>
-                      <span class="text-xs text-slate-400 font-medium">
-                        {{ update.time }}
-                      </span>
+                    <!-- Top row: ID, Unit, Time, and Mobile Chevron -->
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                      <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                        <span class="px-2 py-0.5 rounded-md font-mono font-bold text-[11px] sm:text-xs text-slate-800 bg-slate-100 border border-slate-200 shadow-2xs">
+                          #{{ update.ticketId }}
+                        </span>
+                        <span v-if="update.unit" class="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                          {{ update.unit }}
+                        </span>
+                        <span class="text-slate-300">•</span>
+                        <span class="text-[11px] sm:text-xs text-slate-400 font-medium">
+                          {{ update.time }}
+                        </span>
+                      </div>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="sm:hidden h-4 w-4 text-slate-400 group-hover:text-emerald-600 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
 
                     <!-- Title -->
-                    <h4 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-emerald-700 transition-colors truncate">
+                    <h4 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-emerald-700 transition-colors leading-snug line-clamp-2 sm:truncate break-words">
                       {{ update.service || update.title }}
                     </h4>
 
+                    <!-- Mobile Status Badge (shown on mobile < sm, hidden on desktop) -->
+                    <div class="mt-2.5 flex sm:hidden items-center gap-2 flex-wrap">
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wide border shadow-2xs" :class="getStatusBadge(update.status)">
+                        <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(update.status)"></span>
+                        <span>{{ update.statusLabel || update.status }}</span>
+                      </span>
+                    </div>
+
                     <!-- Essential Alert / Status Summary (Single clean banner) -->
-                    <div v-if="update.status === 'resolved' && (update.unit === 'FGMU' || update.unit === 'LEAU')" class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold">
+                    <div v-if="update.status === 'resolved' && (update.unit === 'FGMU' || update.unit === 'LEAU')" class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold max-w-full">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                       </svg>
-                      <span>Completed — Click to rate &amp; close</span>
+                      <span class="truncate">Completed — Click to rate &amp; close</span>
                     </div>
 
-                    <div v-else-if="update.is_recategorized" class="mt-2 text-xs text-sky-800 flex items-center gap-1 font-medium truncate">
-                      <span class="font-bold text-sky-900">Service:</span>
+                    <div v-else-if="update.is_recategorized" class="mt-2 text-xs text-sky-800 flex items-center gap-1 font-medium truncate max-w-full">
+                      <span class="font-bold text-sky-900 shrink-0">Service:</span>
                       <span class="truncate">{{ update.service }}</span>
                     </div>
                   </div>
                 </div>
 
-                <!-- Right Side: Status Badge & Chevron -->
-                <div class="flex items-center gap-2.5 shrink-0 self-center">
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wide border" :class="getStatusBadge(update.status)">
+                <!-- Desktop Right Side: Status Badge & Chevron (hidden on mobile, visible on sm+) -->
+                <div class="hidden sm:flex items-center gap-2.5 shrink-0 self-center">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wide border shadow-2xs" :class="getStatusBadge(update.status)">
                     <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDot(update.status)"></span>
                     <span>{{ update.statusLabel || update.status }}</span>
                   </span>

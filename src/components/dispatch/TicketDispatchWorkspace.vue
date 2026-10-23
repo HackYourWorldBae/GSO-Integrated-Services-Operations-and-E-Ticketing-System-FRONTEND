@@ -1209,24 +1209,25 @@ const props = defineProps({
   }
 });
 
+const emit = defineEmits(['switch-to-borrowing']);
+
 const route = useRoute();
 const router = useRouter();
 
-// LEAU borrowing requests are dispatched via inventory assignment on the same
-// Dispatch tickets page. If a borrowing ticket lands here (e.g. type resolution
-// raced), surface a switch notice instead of the worker workflow.
+// Borrowing requests are dispatched via inventory assignment, not workers.
+// If a borrowing ticket lands here, surface a switch notice instead of the worker workflow.
 const isBorrowingSelected = computed(() => {
-  if (String(props.unitCode || '').toUpperCase() !== 'LEAU') return false;
   if (!selectedTicket.value) return false;
   return isBorrowingService(selectedTicket.value);
 });
 
 const switchToInventoryMode = () => {
   if (!selectedTicket.value) return;
+  emit('switch-to-borrowing', selectedTicket.value);
   // Force the parent unified dispatcher to re-resolve this ticket as borrowing.
   router.replace({
     path: route.path,
-    query: { ...route.query, ticket: selectedTicket.value.id, _t: Date.now() },
+    query: { ...route.query, ticket: selectedTicket.value.id, mode: 'borrowing', _t: Date.now() },
   });
   // Fallback: full reload guarantees the borrowing workspace mounts.
   setTimeout(() => {
@@ -1737,6 +1738,10 @@ watch(workingDays, (newVal) => {
 
 const selectTicket = (ticket) => {
   selectedTicket.value = ticket;
+  if (isBorrowingService(ticket)) {
+    emit('switch-to-borrowing', ticket);
+    return;
+  }
   currentAssignments.value = [];
   autoFilterByService.value = true;
   personnelCategoryFilter.value = 'all';
@@ -1979,7 +1984,9 @@ const fetchDispatchQueue = async () => {
       rawData = res.data?.data?.tickets || res.data?.data || [];
     }
     if (Array.isArray(rawData)) {
-      dispatchQueue.value = rawData.map(t => {
+      dispatchQueue.value = rawData
+        .filter(t => !isBorrowingService(t))
+        .map(t => {
         const firstAssignWithDate = (t.assignments || t.other_unit_assignments || []).find(a => a.implementation_date || a.working_days);
         const resolvedImplDate = t.implementation_date || t.implementationDate || t.project_target_date || firstAssignWithDate?.implementation_date || null;
         const resolvedWorkingDays = t.working_days || t.workingDays || t.project_working_days || firstAssignWithDate?.working_days || null;
@@ -2038,6 +2045,11 @@ const checkRouteQueryTicket = async () => {
     String(t.ticketId || '').toLowerCase().trim().replace(/^#/, '') === targetStr
   );
   if (found) {
+    if (isBorrowingService(found)) {
+      selectedTicket.value = found;
+      emit('switch-to-borrowing', found);
+      return;
+    }
     selectTicket(found);
   } else {
     // If not found in queue, fetch individual ticket directly
@@ -2046,6 +2058,11 @@ const checkRouteQueryTicket = async () => {
       const res = await api.get(`tickets/${cleanParam}`);
       const t = res.data?.data?.ticket;
       if (t) {
+        if (isBorrowingService(t)) {
+          selectedTicket.value = t;
+          emit('switch-to-borrowing', t);
+          return;
+        }
         const firstAssignWithDate = (t.assignments || []).find(a => a.implementation_date || a.working_days);
         const resolvedImplDate = t.implementation_date || t.assignment?.implementation_date || t.project_target_date || firstAssignWithDate?.implementation_date || null;
         const resolvedWorkingDays = t.working_days || t.project_working_days || t.assignment?.working_days || firstAssignWithDate?.working_days || null;
