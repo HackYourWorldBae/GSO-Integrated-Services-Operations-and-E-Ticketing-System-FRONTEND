@@ -259,7 +259,7 @@
                 class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1"
                 :class="selectedEscalationFilter === 'escalated' ? 'bg-purple-600 text-white shadow-xs' : 'text-purple-700 hover:text-purple-900'"
               >
-                <span>Escalated</span>
+                <span>{{ isFgmu ? 'With Director' : 'Escalated' }}</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black" :class="selectedEscalationFilter === 'escalated' ? 'bg-purple-800 text-white' : 'bg-purple-200 text-purple-900'">
                   {{ escalatedPendingCount }}
                 </span>
@@ -270,7 +270,7 @@
                 class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer"
                 :class="selectedEscalationFilter === 'routine' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
               >
-                Routine
+                {{ isFgmu ? 'To Review' : 'Routine' }}
               </button>
             </div>
             <!-- Executive Status Badge (Pending tab for Director) -->
@@ -435,9 +435,9 @@
                       <span
                         v-if="ticket.is_escalated_to_director"
                         class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[9px] font-black uppercase tracking-wider inline-flex items-center shadow-2xs"
-                        :title="ticket.escalation_reason ? 'Escalated to Director: ' + ticket.escalation_reason : 'Escalated to Director for Approval'"
+                        :title="ticket.escalation_reason ? (isFgmu ? 'With Director: ' : 'Escalated to Director: ') + ticket.escalation_reason : (isFgmu ? 'With Director for Approval' : 'Escalated to Director for Approval')"
                       >
-                        Director Review
+                        {{ isFgmu ? 'With Director' : 'Director Review' }}
                       </span>
                       <span
                         v-if="ticket.is_borrowing || isBorrowingService(ticket)"
@@ -655,7 +655,19 @@
                             <span>Delay</span>
                           </button>
 
+                          <!-- For FGMU: Cannot approve directly; Request Director Approval -->
                           <button
+                            v-if="isFgmu"
+                            @click="openEscalateModal(ticket)"
+                            class="px-3.5 py-2 min-h-[44px] rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                            title="Request Director Approval"
+                          >
+                            <svg class="h-4 w-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                            <span>Request Director Approval</span>
+                          </button>
+                          <!-- For LEAU: Direct Unit Head Approve -->
+                          <button
+                            v-else
                             data-tour="director-btn-approve"
                             @click="initiateApproval(ticket)"
                             class="px-4 py-2 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
@@ -701,17 +713,28 @@
                           </svg>
                           <span>Awaiting Director's Approval</span>
                         </button>
-                        <button
-                          v-else
-                          @click="initiateApproval(ticket)"
-                          class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
-                          title="Direct Approve"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>Approve</span>
-                        </button>
+                        <template v-else>
+                          <button
+                            v-if="isFgmu"
+                            @click="openEscalateModal(ticket)"
+                            class="px-3 py-1.5 rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                            title="Request Director Approval"
+                          >
+                            <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                            <span>Request Director Approval</span>
+                          </button>
+                          <button
+                            v-else
+                            @click="initiateApproval(ticket)"
+                            class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                            title="Direct Approve"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Approve</span>
+                          </button>
+                        </template>
                       </div>
 
                       <!-- Approved Tab Actions -->
@@ -911,7 +934,7 @@
                 v-if="ticket.is_escalated_to_director"
                 class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[9px] font-black uppercase tracking-wider shrink-0 inline-flex items-center shadow-2xs"
               >
-                Director Review
+                {{ isFgmu ? 'With Director' : 'Director Review' }}
               </span>
               <span
                 v-if="ticket.is_borrowing || isBorrowingService(ticket)"
@@ -1062,10 +1085,19 @@
               <template v-else>
                 <!-- Pending Actions -->
                 <template v-if="activeTab === 'pending'">
-                  <button v-if="!ticket.is_escalated_to_director" @click="openEscalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Escalate</button>
-                  <button v-if="ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Recall</button>
+                  <!-- For LEAU: Request Director Approval button -->
+                  <button
+                    v-if="!ticket.is_escalated_to_director && !isFgmu"
+                    @click="openEscalateModal(ticket)"
+                    class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                  >
+                    <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                    <span>Request Director Approval</span>
+                  </button>
+                  <button v-if="ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">{{ isFgmu ? 'Recall' : 'Recall' }}</button>
                   <button v-if="!ticket.is_escalated_to_director" @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
                   <button @click="openDeclineModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+
                   <button
                     v-if="ticket.is_escalated_to_director"
                     disabled
@@ -1073,6 +1105,16 @@
                   >
                     Awaiting Director's Approval
                   </button>
+                  <!-- For FGMU: Approve button changed to Request Director Approval -->
+                  <button
+                    v-else-if="isFgmu"
+                    @click="openEscalateModal(ticket)"
+                    class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                  >
+                    <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                    <span>Request Director Approval</span>
+                  </button>
+                  <!-- For LEAU: Direct Approve button -->
                   <button
                     v-else
                     @click="initiateApproval(ticket)"
@@ -1090,6 +1132,14 @@
                   class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80"
                 >
                   Awaiting Director's Approval
+                </button>
+                <button
+                  v-else-if="activeTab === 'delayed' && isFgmu"
+                  @click="openEscalateModal(ticket)"
+                  class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                >
+                  <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                  <span>Request Director Approval</span>
                 </button>
                 <button v-else-if="activeTab === 'delayed'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
 
@@ -1205,7 +1255,7 @@
                 v-if="selectedTicketForModal.is_escalated_to_director"
                 class="px-2.5 py-0.5 rounded-md bg-purple-100 border border-purple-300 text-purple-800 text-[10px] font-black uppercase tracking-wider flex items-center shadow-2xs"
               >
-                Escalated to Director
+                {{ isFgmu ? 'With Director' : 'Escalated to Director' }}
               </span>
               <span
                 v-if="isCollabTicket(selectedTicketForModal)"
@@ -1250,13 +1300,13 @@
           <!-- Escalation Notice Banner -->
           <div v-if="selectedTicketForModal.is_escalated_to_director" class="p-4 rounded-2xl bg-purple-50 border border-purple-200 text-purple-900 space-y-1.5">
             <div class="flex items-center gap-2 font-black text-sm sm:text-base tracking-wide text-purple-900">
-              <span>Escalated to Director for Executive Approval</span>
+              <span>{{ isFgmu ? 'Endorsed for Director Approval' : 'Escalated to Director for Executive Approval' }}</span>
             </div>
             <p class="text-xs sm:text-sm text-purple-900 font-bold leading-relaxed">
               Justification: {{ selectedTicketForModal.escalation_reason || 'Executive review requested for heavy or important task.' }}
             </p>
             <p v-if="selectedTicketForModal.escalated_by_name" class="text-xs text-purple-700 font-medium">
-              Escalated by {{ selectedTicketForModal.escalated_by_name }} on {{ formatDate(selectedTicketForModal.escalated_at) }}.
+              {{ isFgmu ? 'Submitted' : 'Escalated' }} by {{ selectedTicketForModal.escalated_by_name }} on {{ formatDate(selectedTicketForModal.escalated_at) }}.
             </p>
           </div>
 
@@ -1552,14 +1602,15 @@
           <!-- Non-Director Actions -->
           <template v-else>
             <div v-if="activeTab === 'pending'" class="flex items-center gap-2 flex-wrap">
-              <!-- Request Director Approval (Unit Head only, for non-escalated tickets) -->
+              <!-- Request Director Approval (For LEAU: formerly Escalate to Director) -->
               <button
-                v-if="!selectedTicketForModal.is_escalated_to_director"
+                v-if="!selectedTicketForModal.is_escalated_to_director && !isFgmu"
                 @click="openEscalateModal(selectedTicketForModal); closeDetailsModal()"
                 class="px-3.5 py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold hover:bg-purple-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Request Director Approval"
               >
                 <svg class="h-4 w-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                <span>Escalate to Director</span>
+                <span>Request Director Approval</span>
               </button>
 
               <!-- Recall Escalation (Unit Head only, for escalated tickets) -->
@@ -1569,7 +1620,7 @@
                 class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <svg class="h-4 w-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-                <span>Recall Escalation</span>
+                <span>{{ isFgmu ? 'Recall Request' : 'Recall Escalation' }}</span>
               </button>
 
               <button
@@ -1606,6 +1657,17 @@
                 </svg>
                 <span>Awaiting Director's Approval</span>
               </button>
+              <!-- For FGMU: Approve button changed to Request Director Approval -->
+              <button
+                v-else-if="isFgmu"
+                @click="openEscalateModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-purple-600/20 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Request Director Approval"
+              >
+                <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                <span>Request Director Approval</span>
+              </button>
+              <!-- For LEAU: Direct Approve button -->
               <button
                 v-else
                 @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
@@ -1627,6 +1689,15 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Awaiting Director's Approval</span>
+              </button>
+              <button
+                v-else-if="isFgmu"
+                @click="openEscalateModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-purple-600/20 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Request Director Approval"
+              >
+                <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                <span>Request Director Approval</span>
               </button>
               <button
                 v-else
@@ -1982,7 +2053,7 @@
             </div>
             <div>
               <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight">
-                {{ isDirector ? 'Return Request to Unit Head' : 'Recall Escalation' }}
+                {{ isDirector ? 'Return Request to Unit Head' : (isFgmu ? 'Recall Request from Director' : 'Recall Escalation') }}
               </h3>
               <p class="text-xs text-slate-500 font-medium">Ticket <strong class="text-slate-800">#{{ ticketToDeescalate?.ticketId }}</strong></p>
             </div>
@@ -1995,8 +2066,11 @@
         <div class="p-5 sm:p-6 space-y-4 text-xs sm:text-sm">
           <p class="text-slate-600 leading-relaxed font-medium">
             {{ isDirector
-              ? 'This ticket will be returned to the Unit Head queue for direct administrative review and approval.'
-              : 'Cancel executive escalation and return this ticket to the Unit Head approval queue for direct processing.'
+              ? 'This ticket will be returned to the Unit Head queue for direct administrative review.'
+              : (isFgmu
+                  ? 'Recall this ticket from the Director back to your FGMU review queue.'
+                  : 'Cancel executive escalation and return this ticket to the Unit Head approval queue for direct processing.'
+                )
             }}
           </p>
 
@@ -2066,6 +2140,7 @@ const currentUnit = computed(() => {
   return route.path.includes('/leau') ? 'LEAU' : 'FGMU';
 });
 const isLeau = computed(() => currentUnit.value === 'LEAU');
+const isFgmu = computed(() => currentUnit.value === 'FGMU');
 const unitLower = computed(() => currentUnit.value.toLowerCase());
 const servicesList = computed(() => isLeau.value ? LEAU_SERVICES : FGMU_SERVICES);
 
@@ -2848,8 +2923,12 @@ const isApprovingBorrowingTicket = computed(() => {
 });
 
 const initiateApproval = (ticket) => {
+  if (!isDirector.value && isFgmu.value) {
+    toast.warning("FGMU requests require Director approval. Please use 'Request Director Approval'.");
+    return;
+  }
   if (!isDirector.value && ticket?.is_escalated_to_director) {
-    toast.warning("This ticket has been escalated and is awaiting the Director's executive approval.");
+    toast.warning("This ticket has been submitted and is awaiting the Director's executive approval.");
     return;
   }
   ticketToApprove.value = ticket;
@@ -2981,7 +3060,9 @@ const selectedEscalationPreset = ref('');
 const escalateReasonInput = ref('');
 const isSubmittingEscalate = ref(false);
 
-const escalationPresets = [
+const fgmuEscalationPresets = [
+  'Reviewed and recommended for Director approval',
+  'Scope of work and requirements verified',
   'Heavy structural repairs requiring executive budget',
   'High-cost procurement / specialized equipment',
   'Campus-wide disruption / safety hazard',
@@ -2989,10 +3070,22 @@ const escalationPresets = [
   'Other / Custom Justification'
 ];
 
+const leauEscalationPresets = [
+  'High-cost procurement / specialized landscaping equipment',
+  'Large-scale campus grounds overhaul requiring executive budget',
+  'Campus-wide safety hazard (e.g. hazardous trees/storm damage)',
+  'Major institutional / VIP event preparation',
+  'Reviewed and recommended for Director approval',
+  'Other / Custom Justification'
+];
+
+const escalationPresets = computed(() => isFgmu.value ? fgmuEscalationPresets : leauEscalationPresets);
+
 const openEscalateModal = (ticket) => {
   ticketToEscalate.value = ticket;
-  selectedEscalationPreset.value = escalationPresets[0];
-  escalateReasonInput.value = escalationPresets[0];
+  const presets = isFgmu.value ? fgmuEscalationPresets : leauEscalationPresets;
+  selectedEscalationPreset.value = presets[0];
+  escalateReasonInput.value = presets[0];
   showEscalateModal.value = true;
 };
 
@@ -3009,12 +3102,12 @@ const submitEscalation = async () => {
   isSubmittingEscalate.value = true;
   try {
     await escalateTicketToDirector(ticketToEscalate.value.id, escalateReasonInput.value.trim());
-    toast.success(`Ticket #${ticketToEscalate.value.ticketId || ticketToEscalate.value.id} escalated to Director.`);
+    toast.success(`Ticket #${ticketToEscalate.value.ticketId || ticketToEscalate.value.id} submitted for Director approval.`);
     closeEscalateModal();
     if (selectedTicketForModal.value) closeDetailsModal();
     fetchAllQueues();
   } catch (error) {
-    const msg = error.response?.data?.messages?.error || error.response?.data?.message || 'Failed to escalate ticket';
+    const msg = error.response?.data?.messages?.error || error.response?.data?.message || 'Failed to submit request for Director approval';
     toast.error(msg);
   } finally {
     isSubmittingEscalate.value = false;

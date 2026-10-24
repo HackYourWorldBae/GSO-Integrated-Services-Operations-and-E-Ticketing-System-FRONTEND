@@ -401,11 +401,11 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
         result: 'Marks ticket as Declined, notifies requester, and records entry in historical archives.'
       },
       {
-        label: 'Escalate to Director',
+        label: 'Request Director Approval',
         type: 'info',
-        desc: 'Transfers heavy, high-budget, or structurally critical work orders to the GSO Director for executive clearance.',
-        fields: 'Select Justification Preset (Heavy structural repairs, High-cost procurement, Campus disruption, VIP event, Custom) + Detailed Justification Notes.',
-        result: 'Sends ticket directly to the Director\'s Escalated Approval tab.'
+        desc: 'Submits the request to the GSO Director for executive clearance. For FGMU, all requests are reviewed by the unit admin and submitted for Director approval. For LEAU, routine requests can be approved directly while complex requests are submitted for Director approval.',
+        fields: 'Select Justification Preset + Detailed Recommendation / Justification Notes.',
+        result: 'Sends ticket directly to the Director\'s Approval tab.'
       },
       {
         label: 'Recategorize',
@@ -423,13 +423,14 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
     ],
     procedures: [
       {
-        title: 'How to Approve a Ticket for Dispatch',
+        title: 'How to Approve a Ticket for Dispatch (or Request Director Approval)',
         steps: [
           'Locate the ticket in the Pending Approval queue and click "View Details" to inspect the scope of work.',
           'Verify that campus location and problem particulars are clearly defined.',
-          'Click "Approve" (or "Approve Request" inside the modal).',
+          'For FGMU: Click "Request Director Approval" to forward the reviewed ticket to the Director.',
+          'For LEAU: Click "Approve Request" for routine local approval, or "Request Director Approval" if executive clearance is required.',
           'Check "Mark as Emergency Request" if this is an urgent safety or infrastructure hazard.',
-          'Click "Confirm Approval". The ticket transitions to Approved Tickets.'
+          'Confirm submission. The ticket transitions accordingly.'
         ]
       },
       {
@@ -442,12 +443,12 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
         ]
       },
       {
-        title: 'How to Escalate Heavy Work to the GSO Director',
+        title: 'How to Request Director Approval',
         steps: [
-          'Open the ticket\'s Full Info modal and click "Escalate to Director".',
-          'Select a Justification Preset (e.g., Heavy structural repairs requiring executive budget).',
-          'Enter detailed justification notes outlining why executive clearance is necessary.',
-          'Click "Submit to Director". The ticket is routed to the Director Console.'
+          'Open the ticket\'s Full Info modal and click "Request Director Approval" (or row button).',
+          'Select a Justification Preset (e.g., "Reviewed and recommended for Director approval" or "Heavy structural repairs").',
+          'Enter detailed recommendation or justification notes.',
+          'Click "Submit to Director". The ticket is routed to the Director Console for final executive approval.'
         ]
       },
       {
