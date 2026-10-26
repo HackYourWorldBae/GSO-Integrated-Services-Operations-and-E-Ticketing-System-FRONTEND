@@ -963,11 +963,59 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Temporary Password *</label>
-                <input v-model="createForm.password" type="password" required minlength="8" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="Minimum 8 chars" />
+                <div class="relative">
+                  <input
+                    v-model="createForm.password"
+                    :type="showCreatePassword ? 'text' : 'password'"
+                    required
+                    minlength="8"
+                    class="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
+                    placeholder="Minimum 8 chars"
+                    autocomplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    @click="showCreatePassword = !showCreatePassword"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-purple-600 transition-colors cursor-pointer"
+                    aria-label="Toggle temporary password visibility"
+                  >
+                    <svg v-if="!showCreatePassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 013.111-5.184M9.9 4.314A10.198 10.198 0 0112 4c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l3.59 3.59m0 0A9.956 9.956 0 016.59 2.59M9 13a3 3 0 013-3m0 3a1.5 1.5 0 011.5 1.5" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Confirm Password *</label>
-                <input v-model="createForm.confirm_password" type="password" required minlength="8" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="Re-type password" />
+                <div class="relative">
+                  <input
+                    v-model="createForm.confirm_password"
+                    :type="showCreateConfirmPassword ? 'text' : 'password'"
+                    required
+                    minlength="8"
+                    class="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
+                    placeholder="Re-type password"
+                    autocomplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    @click="showCreateConfirmPassword = !showCreateConfirmPassword"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-purple-600 transition-colors cursor-pointer"
+                    aria-label="Toggle confirm password visibility"
+                  >
+                    <svg v-if="!showCreateConfirmPassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 013.111-5.184M9.9 4.314A10.198 10.198 0 0112 4c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l3.59 3.59m0 0A9.956 9.956 0 016.59 2.59M9 13a3 3 0 013-3m0 3a1.5 1.5 0 011.5 1.5" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1091,11 +1139,59 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Reset Password</label>
-                <input v-model="editForm.password" type="password" minlength="6" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" placeholder="Leave empty to keep" />
+                <div class="relative">
+                  <input
+                    v-model="editForm.password"
+                    :type="showEditPassword ? 'text' : 'password'"
+                    minlength="8"
+                    class="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
+                    placeholder="Leave empty to keep"
+                    autocomplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    @click="showEditPassword = !showEditPassword"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-purple-600 transition-colors cursor-pointer"
+                    aria-label="Toggle reset password visibility"
+                  >
+                    <svg v-if="!showEditPassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 013.111-5.184M9.9 4.314A10.198 10.198 0 0112 4c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l3.59 3.59m0 0A9.956 9.956 0 016.59 2.59M9 13a3 3 0 013-3m0 3a1.5 1.5 0 011.5 1.5" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Confirm Reset Password</label>
-                <input v-model="editForm.confirm_password" type="password" minlength="6" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" :disabled="!editForm.password" placeholder="Confirm new password" />
+                <div class="relative">
+                  <input
+                    v-model="editForm.confirm_password"
+                    :type="showEditConfirmPassword ? 'text' : 'password'"
+                    minlength="8"
+                    class="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
+                    :disabled="!editForm.password"
+                    placeholder="Confirm new password"
+                    autocomplete="new-password"
+                  />
+                  <button
+                    v-if="editForm.password"
+                    type="button"
+                    @click="showEditConfirmPassword = !showEditConfirmPassword"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-purple-600 transition-colors cursor-pointer"
+                    aria-label="Toggle confirm reset password visibility"
+                  >
+                    <svg v-if="!showEditConfirmPassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 013.111-5.184M9.9 4.314A10.198 10.198 0 0112 4c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l3.59 3.59m0 0A9.956 9.956 0 016.59 2.59M9 13a3 3 0 013-3m0 3a1.5 1.5 0 011.5 1.5" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1847,6 +1943,11 @@ const isEditModalOpen = ref(false);
 const isSubmitting = ref(false);
 const modalError = ref('');
 
+const showCreatePassword = ref(false);
+const showCreateConfirmPassword = ref(false);
+const showEditPassword = ref(false);
+const showEditConfirmPassword = ref(false);
+
 const createForm = reactive({
   first_name: '',
   last_name: '',
@@ -2127,6 +2228,8 @@ const fetchUsers = async () => {
 
 const openCreateModal = () => {
   modalError.value = '';
+  showCreatePassword.value = false;
+  showCreateConfirmPassword.value = false;
   createForm.first_name = '';
   createForm.last_name = '';
   createForm.email = '';
@@ -2244,6 +2347,8 @@ const openEditModal = (user) => {
     return;
   }
   modalError.value = '';
+  showEditPassword.value = false;
+  showEditConfirmPassword.value = false;
   editForm.id = user.id;
   editForm.first_name = user.first_name || '';
   editForm.last_name = user.last_name || '';

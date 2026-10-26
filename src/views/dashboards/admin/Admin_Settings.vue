@@ -220,6 +220,43 @@
                 </div>
               </div>
 
+              <!-- Current Password -->
+              <div class="space-y-2.5 md:col-span-12">
+                <div class="flex items-center justify-between ml-1">
+                  <label class="block text-xs font-black text-slate-800 uppercase tracking-widest">Current Password</label>
+                  <span class="text-[11px] font-semibold text-slate-400">Required only if changing password</span>
+                </div>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <input
+                    v-model="form.oldPassword"
+                    :type="showOldPassword ? 'text' : 'password'"
+                    class="block w-full pl-11 pr-12 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                    placeholder="Enter current password to authorize change"
+                    autocomplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    @click="showOldPassword = !showOldPassword"
+                    class="absolute inset-y-0 right-0 w-12 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer touch-manipulation min-h-[44px]"
+                    aria-label="Toggle current password visibility"
+                  >
+                    <svg v-if="!showOldPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 013.111-5.184M9.9 4.314A10.198 10.198 0 0112 4c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l3.59 3.59m0 0A9.956 9.956 0 016.59 2.59M9 13a3 3 0 013-3m0 3a1.5 1.5 0 011.5 1.5" />
+                    </svg>
+                  </button>
+                </div>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest pl-1">Required to verify your identity before setting a new password.</p>
+              </div>
+
               <!-- New Password -->
               <div class="space-y-2.5 md:col-span-6" data-tour="admin-settings-password">
                 <label class="block text-xs font-black text-slate-800 uppercase tracking-widest ml-1">New Password</label>
@@ -231,17 +268,18 @@
                   </div>
                   <input
                     v-model="form.password"
-                    :type="showPassword ? 'text' : 'password'"
+                    :type="showNewPassword ? 'text' : 'password'"
                     class="block w-full pl-11 pr-12 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                     placeholder="Leave blank to keep current"
+                    autocomplete="new-password"
                   />
                   <button
                     type="button"
-                    @click="showPassword = !showPassword"
+                    @click="showNewPassword = !showNewPassword"
                     class="absolute inset-y-0 right-0 w-12 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer touch-manipulation min-h-[44px]"
-                    aria-label="Toggle password visibility"
+                    aria-label="Toggle new password visibility"
                   >
-                    <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg v-if="!showNewPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
@@ -269,10 +307,25 @@
                   </div>
                   <input
                     v-model="form.confirmPassword"
-                    :type="showPassword ? 'text' : 'password'"
-                    class="block w-full pl-11 pr-4 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
+                    :type="showConfirmPassword ? 'text' : 'password'"
+                    class="block w-full pl-11 pr-12 py-3 sm:py-3.5 min-h-[44px] bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                     placeholder="Re-type new password"
+                    autocomplete="new-password"
                   />
+                  <button
+                    type="button"
+                    @click="showConfirmPassword = !showConfirmPassword"
+                    class="absolute inset-y-0 right-0 w-12 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer touch-manipulation min-h-[44px]"
+                    aria-label="Toggle confirm password visibility"
+                  >
+                    <svg v-if="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 013.111-5.184M9.9 4.314A10.198 10.198 0 0112 4c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l3.59 3.59m0 0A9.956 9.956 0 016.59 2.59M9 13a3 3 0 013-3m0 3a1.5 1.5 0 011.5 1.5" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
@@ -471,11 +524,14 @@ const form = ref({
   email: '',
   emailNotificationsEnabled: false,
   isMfaEnabled: false,
+  oldPassword: '',
   password: '',
   confirmPassword: '',
 });
 
-const showPassword = ref(false);
+const showOldPassword = ref(false);
+const showNewPassword = ref(false);
+const showConfirmPassword = ref(false);
 const isSaving = ref(false);
 
 const unitCode = computed(() => {
@@ -596,13 +652,25 @@ const handleRemoveSignature = async () => {
 };
 
 const handleSave = async () => {
-  if (form.value.password) {
+  if (form.value.password || form.value.confirmPassword || form.value.oldPassword) {
+    if (!form.value.oldPassword) {
+      toast.error('Please enter your current password to set a new password.');
+      return;
+    }
+    if (!form.value.password) {
+      toast.error('Please enter your new password.');
+      return;
+    }
     if (form.value.password.length < 8) {
       toast.error('New password must be at least 8 characters long.');
       return;
     }
     if (form.value.password !== form.value.confirmPassword) {
       toast.error('New password and confirm password do not match.');
+      return;
+    }
+    if (form.value.password === form.value.oldPassword) {
+      toast.error('New password must be different from your current password.');
       return;
     }
   }
@@ -633,9 +701,13 @@ const handleSave = async () => {
     
     if (form.value.password) {
       await api.post('/auth/change-password', {
+        current_password: form.value.oldPassword,
+        old_password: form.value.oldPassword,
         new_password: form.value.password,
+        confirm_password: form.value.confirmPassword,
         new_password_confirm: form.value.confirmPassword,
       });
+      form.value.oldPassword = '';
       form.value.password = '';
       form.value.confirmPassword = '';
     }
