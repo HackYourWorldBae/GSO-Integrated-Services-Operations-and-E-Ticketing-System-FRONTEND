@@ -12,12 +12,13 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 const isOnline = ref(typeof navigator !== 'undefined' ? navigator.onLine : true);
 const isChecking = ref(false);
 const wasOffline = ref(false);
+const showRestoredNotice = ref(false);
 const lastOnlineTime = ref(Date.now());
 const lastOfflineTime = ref(null);
 
 const reconnectionCallbacks = new Set();
 let healthProbeTimer = null;
-let wasOfflineTimer = null;
+let restoredNoticeTimer = null;
 let consecutiveFailures = 0;
 const FAILURE_THRESHOLD = 2;
 
@@ -28,11 +29,9 @@ const FAILURE_THRESHOLD = 2;
 export const recordNetworkActivity = (success = true) => {
   if (success) {
     consecutiveFailures = 0;
-    if (!isOnline.value || wasOffline.value) {
+    lastOnlineTime.value = Date.now();
+    if (!isOnline.value) {
       handleConnectionRestored();
-    } else {
-      isOnline.value = true;
-      lastOnlineTime.value = Date.now();
     }
   }
 };
@@ -94,9 +93,11 @@ export const handleConnectionLost = () => {
     wasOffline.value = true;
     lastOfflineTime.value = Date.now();
 
-    if (wasOfflineTimer) {
-      clearTimeout(wasOfflineTimer);
-      wasOfflineTimer = null;
+    // Immediately cancel any active restored notice
+    showRestoredNotice.value = false;
+    if (restoredNoticeTimer) {
+      clearTimeout(restoredNoticeTimer);
+      restoredNoticeTimer = null;
     }
 
     if (typeof window !== 'undefined') {
@@ -108,36 +109,39 @@ export const handleConnectionLost = () => {
 };
 
 export const handleConnectionRestored = () => {
-  const previouslyOffline = !isOnline.value || wasOffline.value;
+  // If already online and not recovering from offline state, do nothing
+  if (isOnline.value && !wasOffline.value) {
+    return;
+  }
+
   isOnline.value = true;
+  wasOffline.value = false; // Reset immediately so concurrent API requests won't re-trigger
   lastOnlineTime.value = Date.now();
   consecutiveFailures = 0;
   stopPeriodicHealthProbe();
 
-  if (previouslyOffline) {
-    console.info('[NetworkMonitor] Network connectivity restored. Triggering application sync.');
-    wasOffline.value = true;
+  console.info('[NetworkMonitor] Network connectivity restored. Triggering application sync.');
 
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('network:online'));
-      window.dispatchEvent(new CustomEvent('network:reconnected'));
-    }
+  // Display restored banner for exactly 3 seconds
+  showRestoredNotice.value = true;
+  if (restoredNoticeTimer) clearTimeout(restoredNoticeTimer);
+  restoredNoticeTimer = setTimeout(() => {
+    showRestoredNotice.value = false;
+  }, 3000);
 
-    // Execute registered reconnection callbacks
-    reconnectionCallbacks.forEach((cb) => {
-      try {
-        cb();
-      } catch (err) {
-        console.error('[NetworkMonitor] Error in reconnection callback:', err);
-      }
-    });
-
-    // Reset wasOffline flag after 3.5 seconds so UI banner has time to confirm restored status
-    if (wasOfflineTimer) clearTimeout(wasOfflineTimer);
-    wasOfflineTimer = setTimeout(() => {
-      wasOffline.value = false;
-    }, 3500);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('network:online'));
+    window.dispatchEvent(new CustomEvent('network:reconnected'));
   }
+
+  // Execute registered reconnection callbacks
+  reconnectionCallbacks.forEach((cb) => {
+    try {
+      cb();
+    } catch (err) {
+      console.error('[NetworkMonitor] Error in reconnection callback:', err);
+    }
+  });
 };
 
 const startPeriodicHealthProbe = () => {
@@ -176,9 +180,7 @@ if (typeof window !== 'undefined') {
     console.info('[NetworkMonitor] Browser fired "online" event. Restoring connection...');
     consecutiveFailures = 0;
     // Fast path: immediately switch UI to restored state
-    if (!isOnline.value || wasOffline.value) {
-      handleConnectionRestored();
-    }
+    handleConnectionRestored();
     // Confirm reachability via server health check
     await checkServerHealth();
   });
@@ -204,6 +206,7 @@ export const useNetworkStatus = () => {
     isOnline: readonly(isOnline),
     isChecking: readonly(isChecking),
     wasOffline: readonly(wasOffline),
+    showRestoredNotice: readonly(showRestoredNotice),
     lastOnlineTime: readonly(lastOnlineTime),
     lastOfflineTime: readonly(lastOfflineTime),
     checkHealth: checkServerHealth,
@@ -217,6 +220,7 @@ export const networkMonitor = {
   isOnline,
   isChecking,
   wasOffline,
+  showRestoredNotice,
   checkServerHealth,
   onReconnected,
   handleConnectionLost,

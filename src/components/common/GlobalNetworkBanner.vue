@@ -2,11 +2,10 @@
 import { computed } from 'vue';
 import { useNetworkStatus } from '@/utils/networkMonitor';
 
-const { isOnline, isChecking, checkHealth, wasOffline } = useNetworkStatus();
+const { isOnline, isChecking, checkHealth, showRestoredNotice } = useNetworkStatus();
 
-// Automatically show the green restored banner for the duration that wasOffline remains true after coming back online
-const isRestored = computed(() => isOnline.value && wasOffline.value);
-const shouldShowBanner = computed(() => !isOnline.value || isRestored.value);
+// Automatically show the green restored banner for exactly 3s when connection returns
+const shouldShowBanner = computed(() => !isOnline.value || showRestoredNotice.value);
 
 const manualRetry = async () => {
   await checkHealth();
