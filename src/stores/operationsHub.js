@@ -279,7 +279,12 @@ export const useOperationsHubStore = defineStore('operationsHub', {
         }
         return { success: false, message: 'Invalid response' };
       } catch (err) {
-        const msg = err.response?.data?.message || 'Failed to add holiday';
+        const errors = err.response?.data?.errors;
+        let msg = err.response?.data?.message || 'Failed to add holiday';
+        if (errors && typeof errors === 'object') {
+          const details = Object.values(errors).flat().join(', ');
+          if (details) msg += `: ${details}`;
+        }
         return { success: false, message: msg };
       } finally {
         this.isSaving = false;
@@ -306,7 +311,12 @@ export const useOperationsHubStore = defineStore('operationsHub', {
         }
         return { success: false, message: 'Invalid response' };
       } catch (err) {
-        const msg = err.response?.data?.message || 'Failed to update holiday';
+        const errors = err.response?.data?.errors;
+        let msg = err.response?.data?.message || 'Failed to update holiday';
+        if (errors && typeof errors === 'object') {
+          const details = Object.values(errors).flat().join(', ');
+          if (details) msg += `: ${details}`;
+        }
         return { success: false, message: msg };
       } finally {
         this.isSaving = false;

@@ -19,7 +19,7 @@
                 @input="currentPage = 1"
                 data-tour="inventory-search-input"
                 type="text"
-                placeholder="Search tools &amp; equipment by name, model, serial, or location..."
+                :placeholder="searchPlaceholder"
                 class="w-full pl-10 pr-9 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-slate-50/50"
               />
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -506,11 +506,13 @@
             <form @submit.prevent="submitAddInventory" class="space-y-3.5">
               <!-- Item Name -->
               <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Item Name *</label>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">
+                  {{ isLeau ? 'Plant Name / Species *' : 'Item Name *' }}
+                </label>
                 <input
                   v-model="addForm.name"
                   required
-                  placeholder="e.g. Cordless Impact Drill, Heavy Duty Ladder, Grinder"
+                  :placeholder="isLeau ? 'e.g. San Francisco Plant, Golden Pothos, Snake Plant, Bougainvillea' : 'e.g. Cordless Impact Drill, Heavy Duty Ladder, Grinder'"
                   class="w-full px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -524,10 +526,9 @@
                     required
                     class="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer bg-white"
                   >
-                    <option value="tools">Tools</option>
-                    <option value="equipment">Equipment</option>
-                    <option value="materials">Materials</option>
-                    <option value="others">Others</option>
+                    <option v-for="cat in categoryOptions" :key="cat.value" :value="cat.value">
+                      {{ cat.label }}
+                    </option>
                   </select>
                 </div>
                 <div>
@@ -569,24 +570,28 @@
                   >
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
-                  <span>{{ showAddAdvanced ? 'Hide Additional Details' : '+ Add Model, Serial #, Condition, or Notes (Optional)' }}</span>
+                  <span>{{ showAddAdvanced ? 'Hide Additional Details' : (isLeau ? '+ Add Variety, Tag/Batch #, Condition, or Notes (Optional)' : '+ Add Model, Serial #, Condition, or Notes (Optional)') }}</span>
                 </button>
 
                 <div v-if="showAddAdvanced" class="mt-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-3">
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Model / Specification</label>
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">
+                        {{ isLeau ? 'Variety / Pot Size (Optional)' : 'Model / Specification' }}
+                      </label>
                       <input
                         v-model="addForm.model"
-                        placeholder="e.g. Bosch GSB 18V-50"
+                        :placeholder="isLeau ? 'e.g. Medium Pot, Variegated, 10-inch' : 'e.g. Bosch GSB 18V-50'"
                         class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
                     <div>
-                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Serial Number</label>
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">
+                        {{ isLeau ? 'Plant Tag / Batch # (Optional)' : 'Serial Number' }}
+                      </label>
                       <input
                         v-model="addForm.serial_number"
-                        placeholder="e.g. SN-882910"
+                        :placeholder="isLeau ? 'e.g. PL-2026-001' : 'e.g. SN-882910'"
                         class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
@@ -661,24 +666,29 @@
 
             <form @submit.prevent="submitEditInventory" class="space-y-4">
               <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Item Name *</label>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">
+                  {{ isLeau ? 'Plant Name / Species *' : 'Item Name *' }}
+                </label>
                 <input v-model="editForm.name" required class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
               <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Model / Specification</label>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">
+                  {{ isLeau ? 'Variety / Pot Size' : 'Model / Specification' }}
+                </label>
                 <input v-model="editForm.model" class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
               <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Category *</label>
                 <select v-model="editForm.category" required class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer bg-white">
-                  <option value="tools">Tools</option>
-                  <option value="equipment">Equipment</option>
-                  <option value="materials">Materials</option>
-                  <option value="others">Others</option>
+                  <option v-for="cat in categoryOptions" :key="cat.value" :value="cat.value">
+                    {{ cat.label }}
+                  </option>
                 </select>
               </div>
               <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Serial Number</label>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">
+                  {{ isLeau ? 'Plant Tag / Batch #' : 'Serial Number' }}
+                </label>
                 <input v-model="editForm.serial_number" class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
               <div>
@@ -839,6 +849,19 @@ const availabilityFilter = ref('all');
 const categoryFilter = ref('all');
 const inventoryItems = ref([]);
 const categories = computed(() => isLeau.value ? ['plants'] : ['tools', 'equipment', 'materials', 'others']);
+const categoryOptions = computed(() => {
+  if (isLeau.value) {
+    return [
+      { value: 'plants', label: 'Plants' },
+    ];
+  }
+  return [
+    { value: 'tools', label: 'Tools' },
+    { value: 'equipment', label: 'Equipment' },
+    { value: 'materials', label: 'Materials' },
+    { value: 'others', label: 'Others' },
+  ];
+});
 const loading = ref(false);
 const stats = ref({});
 const viewMode = ref('table');
@@ -864,7 +887,7 @@ const submittingEdit = ref(false);
 const editForm = reactive({
   name: '',
   model: '',
-  category: 'tools',
+  category: isLeau.value ? 'plants' : 'tools',
   serial_number: '',
   condition_status: 'good',
   location: '',
@@ -1009,6 +1032,7 @@ const submitAddInventory = async () => {
   try {
     const payload = {
       ...addForm,
+      category: isLeau.value ? 'plants' : addForm.category,
       unit: unitLower.value,
       condition_status: addForm.condition_status || 'good',
       quantity_total: Math.max(1, Number(addForm.quantity_total) || 1),
@@ -1031,7 +1055,7 @@ const openEditModal = (item) => {
   editingItem.value = item;
   editForm.name = item.name;
   editForm.model = item.model || '';
-  editForm.category = item.category;
+  editForm.category = isLeau.value ? 'plants' : (item.category || 'tools');
   editForm.serial_number = item.serial_number || '';
   editForm.condition_status = item.condition_status;
   editForm.location = item.location || '';
@@ -1048,6 +1072,7 @@ const submitEditInventory = async () => {
   try {
     await updateInventoryItem(editingItem.value.id, {
       ...editForm,
+      category: isLeau.value ? 'plants' : editForm.category,
       unit: unitLower.value,
     });
     toast.success('Inventory item updated successfully!');

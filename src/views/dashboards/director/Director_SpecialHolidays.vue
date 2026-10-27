@@ -422,6 +422,19 @@
                   </label>
                 </div>
 
+                <!-- Notes / Proclamation Reference (Optional) -->
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
+                    Notes / Proclamation Reference (Optional)
+                  </label>
+                  <input
+                    v-model="holidayForm.notes"
+                    type="text"
+                    placeholder="e.g., Presidential Proclamation No. 729, Baguio Day"
+                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
+                  />
+                </div>
+
                 <!-- Actions -->
                 <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                   <button
@@ -612,11 +625,11 @@ const openEditModal = (h) => {
 const handleSaveHolidaySubmit = async () => {
   const payload = {
     holiday_date: holidayForm.value.holiday_date,
-    name: holidayForm.value.name.trim(),
-    type: holidayForm.value.type,
+    name: (holidayForm.value.name || '').trim(),
+    type: holidayForm.value.type || 'special_non_working',
     is_recurring: holidayForm.value.is_recurring ? 1 : 0,
     is_active: 1,
-    notes: holidayForm.value.notes.trim(),
+    notes: (holidayForm.value.notes || '').trim(),
   };
 
   if (!payload.holiday_date) {
