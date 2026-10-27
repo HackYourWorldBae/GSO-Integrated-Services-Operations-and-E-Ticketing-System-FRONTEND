@@ -55,38 +55,6 @@
 
     <!-- Main Content wrapper -->
     <div class="flex-1 flex flex-col w-full h-[100dvh] overflow-hidden relative" style="transform: translateZ(0);">
-      <!-- Global Network Fault-Tolerance Status Banner -->
-      <Transition name="slide-down">
-        <div
-          v-if="!isNetworkOnline || showRestoredNotice"
-          :class="[
-            'fixed top-3 left-1/2 -translate-x-1/2 z-[120] px-4 py-2 rounded-2xl shadow-xl flex items-center gap-3 text-xs font-bold transition-all backdrop-blur-md border pointer-events-auto',
-            !isNetworkOnline
-              ? 'bg-rose-950/90 text-rose-100 border-rose-500/30'
-              : 'bg-emerald-950/90 text-emerald-100 border-emerald-500/30'
-          ]"
-        >
-          <span v-if="!isNetworkOnline" class="flex h-2.5 w-2.5 relative">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
-          </span>
-          <span v-else class="flex h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
-
-          <span>
-            {{ !isNetworkOnline ? 'Internet connection lost. Reconnecting...' : 'Connection restored! Synchronizing data...' }}
-          </span>
-
-          <button
-            v-if="!isNetworkOnline"
-            type="button"
-            @click="manualReconnectCheck"
-            :disabled="isCheckingNetwork"
-            class="ml-1 px-2.5 py-1 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer"
-          >
-            {{ isCheckingNetwork ? 'Checking...' : 'Retry Now' }}
-          </button>
-        </div>
-      </Transition>
 
       <!-- Superadmin Emergency Maintenance Active Global Banner -->
       <Transition name="slide-down">
@@ -541,14 +509,9 @@ const handleRevertToDirector = async () => {
   }
 };
 
-// Network Fault Tolerance & Status Monitoring
-const { isOnline: isNetworkOnline, isChecking: isCheckingNetwork, checkHealth: checkNetworkHealth, onReconnected } = useNetworkStatus();
-const showRestoredNotice = ref(false);
+// Network Fault Tolerance: Re-sync notifications when network restores
+const { onReconnected } = useNetworkStatus();
 let unregisterReconnected = null;
-
-const manualReconnectCheck = async () => {
-  await checkNetworkHealth();
-};
 
 const isSuperAdmin = computed(() => {
   const r = (authStore.role || userRole.value || '').toLowerCase();
@@ -1091,11 +1054,7 @@ onMounted(() => {
 
   // Fault Tolerance: Automatically re-sync notifications when network restores
   unregisterReconnected = onReconnected(() => {
-    showRestoredNotice.value = true;
     fetchNotifications();
-    setTimeout(() => {
-      showRestoredNotice.value = false;
-    }, 2800);
   });
 
   document.addEventListener('click', handleOutsideClick);

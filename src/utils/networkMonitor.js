@@ -17,10 +17,9 @@ const lastOfflineTime = ref(null);
 
 const reconnectionCallbacks = new Set();
 let healthProbeTimer = null;
-
+let wasOfflineTimer = null;
 let consecutiveFailures = 0;
-const FAILURE_THRESHOLD = 3;
-let offlineDebounceTimer = null;
+const FAILURE_THRESHOLD = 2;
 
 /**
  * Record successful real API communication from anywhere in the app.
@@ -29,10 +28,6 @@ let offlineDebounceTimer = null;
 export const recordNetworkActivity = (success = true) => {
   if (success) {
     consecutiveFailures = 0;
-    if (offlineDebounceTimer) {
-      clearTimeout(offlineDebounceTimer);
-      offlineDebounceTimer = null;
-    }
     if (!isOnline.value || wasOffline.value) {
       handleConnectionRestored();
     } else {
@@ -55,7 +50,7 @@ export const checkServerHealth = async () => {
   try {
     const healthUrl = `${BASE_URL.replace(/\/+$/, '')}/health?_probe=${Date.now()}`;
     const response = await axios.get(healthUrl, {
-      timeout: 8000, // 8s timeout to tolerate mobile cellular radio wake-ups
+      timeout: 4000, // 4s timeout for fast response
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
@@ -65,16 +60,7 @@ export const checkServerHealth = async () => {
     const isHealthy = response.status >= 200 && response.status < 300;
     if (isHealthy) {
       consecutiveFailures = 0;
-      if (offlineDebounceTimer) {
-        clearTimeout(offlineDebounceTimer);
-        offlineDebounceTimer = null;
-      }
-      if (!isOnline.value || wasOffline.value) {
-        handleConnectionRestored();
-      } else {
-        isOnline.value = true;
-        lastOnlineTime.value = Date.now();
-      }
+      handleConnectionRestored();
       return true;
     }
     
@@ -84,15 +70,15 @@ export const checkServerHealth = async () => {
     }
     return false;
   } catch (error) {
-    // If the server explicitly responded with any HTTP status code (even 4xx/5xx), network is alive
+    // If the server explicitly responded with any HTTP status code (even 4xx/5xx), network socket is alive
     if (error.response) {
       consecutiveFailures = 0;
-      if (!isOnline.value) handleConnectionRestored();
+      handleConnectionRestored();
       return true;
     }
     
     consecutiveFailures++;
-    if (consecutiveFailures >= FAILURE_THRESHOLD) {
+    if (consecutiveFailures >= FAILURE_THRESHOLD || (typeof navigator !== 'undefined' && !navigator.onLine)) {
       handleConnectionLost();
     }
     return false;
@@ -101,12 +87,17 @@ export const checkServerHealth = async () => {
   }
 };
 
-const handleConnectionLost = () => {
+export const handleConnectionLost = () => {
   if (isOnline.value) {
     console.warn('[NetworkMonitor] Connection to server lost. Entering offline resilience mode.');
     isOnline.value = false;
     wasOffline.value = true;
     lastOfflineTime.value = Date.now();
+
+    if (wasOfflineTimer) {
+      clearTimeout(wasOfflineTimer);
+      wasOfflineTimer = null;
+    }
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('network:offline'));
@@ -116,14 +107,16 @@ const handleConnectionLost = () => {
   }
 };
 
-const handleConnectionRestored = () => {
+export const handleConnectionRestored = () => {
   const previouslyOffline = !isOnline.value || wasOffline.value;
   isOnline.value = true;
   lastOnlineTime.value = Date.now();
+  consecutiveFailures = 0;
   stopPeriodicHealthProbe();
 
   if (previouslyOffline) {
     console.info('[NetworkMonitor] Network connectivity restored. Triggering application sync.');
+    wasOffline.value = true;
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('network:online'));
@@ -139,10 +132,11 @@ const handleConnectionRestored = () => {
       }
     });
 
-    // Reset wasOffline flag after a short grace period for UI confirmation
-    setTimeout(() => {
+    // Reset wasOffline flag after 3.5 seconds so UI banner has time to confirm restored status
+    if (wasOfflineTimer) clearTimeout(wasOfflineTimer);
+    wasOfflineTimer = setTimeout(() => {
       wasOffline.value = false;
-    }, 3000);
+    }, 3500);
   }
 };
 
@@ -150,10 +144,10 @@ const startPeriodicHealthProbe = () => {
   if (healthProbeTimer) return;
   healthProbeTimer = setInterval(async () => {
     if (typeof document !== 'undefined' && document.hidden) return;
-    if (navigator.onLine) {
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
       await checkServerHealth();
     }
-  }, 12000);
+  }, 8000);
 };
 
 const stopPeriodicHealthProbe = () => {
@@ -165,21 +159,28 @@ const stopPeriodicHealthProbe = () => {
 
 // Initialize event listeners
 if (typeof window !== 'undefined') {
-  window.addEventListener('online', () => {
-    console.info('[NetworkMonitor] Browser fired "online" event. Verifying server health...');
-    consecutiveFailures = 0;
-    checkServerHealth();
+  // 1. Instant offline event from browser/OS
+  window.addEventListener('offline', () => {
+    console.warn('[NetworkMonitor] Browser fired "offline" event. Immediately entering offline mode.');
+    handleConnectionLost();
   });
 
-  // Debounce offline events to prevent false alerts on mobile power-saving radio switches
-  window.addEventListener('offline', () => {
-    console.warn('[NetworkMonitor] Browser fired "offline" event. Verifying before entering offline mode...');
-    if (offlineDebounceTimer) clearTimeout(offlineDebounceTimer);
-    offlineDebounceTimer = setTimeout(async () => {
-      if (!navigator.onLine) {
-        await checkServerHealth();
-      }
-    }, 3000);
+  // 2. Instant suspected drop reported by API client (timeouts, network errors)
+  window.addEventListener('network:suspected-drop', () => {
+    console.warn('[NetworkMonitor] API client reported network error or timeout. Entering offline mode.');
+    handleConnectionLost();
+  });
+
+  // 3. Browser online event
+  window.addEventListener('online', async () => {
+    console.info('[NetworkMonitor] Browser fired "online" event. Restoring connection...');
+    consecutiveFailures = 0;
+    // Fast path: immediately switch UI to restored state
+    if (!isOnline.value || wasOffline.value) {
+      handleConnectionRestored();
+    }
+    // Confirm reachability via server health check
+    await checkServerHealth();
   });
 }
 
@@ -207,6 +208,8 @@ export const useNetworkStatus = () => {
     lastOfflineTime: readonly(lastOfflineTime),
     checkHealth: checkServerHealth,
     onReconnected,
+    setOffline: handleConnectionLost,
+    setOnline: handleConnectionRestored,
   };
 };
 
@@ -216,6 +219,8 @@ export const networkMonitor = {
   wasOffline,
   checkServerHealth,
   onReconnected,
+  handleConnectionLost,
+  handleConnectionRestored,
 };
 
 export default networkMonitor;

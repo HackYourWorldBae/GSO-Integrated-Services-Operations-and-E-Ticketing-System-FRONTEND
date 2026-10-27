@@ -6,6 +6,7 @@ import { useOperationsHubStore } from '@/stores/operationsHub';
 import { useIdleTimeout } from '@/composables/useIdleTimeout';
 import IdleTimeoutModal from '@/components/IdleTimeoutModal.vue';
 import MaintenanceEvictionModal from '@/components/MaintenanceEvictionModal.vue';
+import GlobalNetworkBanner from '@/components/common/GlobalNetworkBanner.vue';
 
 const authStore = useAuthStore();
 const operationsStore = useOperationsHubStore();
@@ -31,6 +32,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <GlobalNetworkBanner />
   <RouterView />
   <IdleTimeoutModal
     :is-open="isWarningVisible"

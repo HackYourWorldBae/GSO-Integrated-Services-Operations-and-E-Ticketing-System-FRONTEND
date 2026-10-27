@@ -432,6 +432,10 @@ const handleFocusOrVisibility = () => {
   }
 };
 
+const handleNetworkSync = () => {
+  fetchDashboardData();
+};
+
 onMounted(() => {
   userName.value = authStore.user?.first_name || authStore.fullName || 'User';
   fetchDashboardData();
@@ -442,6 +446,8 @@ onMounted(() => {
 
   window.addEventListener('focus', handleFocusOrVisibility);
   document.addEventListener('visibilitychange', handleFocusOrVisibility);
+  window.addEventListener('online', handleNetworkSync);
+  window.addEventListener('network:reconnected', handleNetworkSync);
 
   unregisterReconnected = onReconnected(() => {
     fetchDashboardData();
@@ -451,6 +457,8 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('focus', handleFocusOrVisibility);
   document.removeEventListener('visibilitychange', handleFocusOrVisibility);
+  window.removeEventListener('online', handleNetworkSync);
+  window.removeEventListener('network:reconnected', handleNetworkSync);
   if (unregisterReconnected) unregisterReconnected();
   if (pollingInterval) clearInterval(pollingInterval);
 });
