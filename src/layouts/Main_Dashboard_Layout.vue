@@ -326,7 +326,13 @@
                 class="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 pr-1.5 sm:pr-3 rounded-xl bg-slate-100 border border-slate-300 hover:border-emerald-500/60 text-slate-900 transition-all select-none min-h-[36px] sm:min-h-[44px] cursor-pointer"
               >
                 <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-xl overflow-hidden bg-emerald-500/10 text-emerald-700 flex items-center justify-center font-black text-xs sm:text-sm shrink-0 border border-emerald-500/20">
-                  <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar" class="w-full h-full object-cover" />
+                  <img 
+                    v-if="userAvatarUrl && !isAvatarImageError" 
+                    :src="userAvatarUrl" 
+                    @error="handleAvatarError" 
+                    alt="Avatar" 
+                    class="w-full h-full object-cover" 
+                  />
                   <span v-else>{{ userName ? userName.charAt(0).toUpperCase() : 'U' }}</span>
                 </div>
                 <span class="hidden sm:block text-sm font-bold text-slate-800 truncate max-w-[130px]">{{ userName || 'Profile' }}</span>
@@ -340,7 +346,13 @@
                 <div v-if="isDropdownOpen" class="absolute top-full right-0 mt-3 w-64 max-w-[calc(100vw-1.5rem)] bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-50 origin-top-right">
                   <div class="px-4 py-3.5 border-b border-slate-100 flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl overflow-hidden bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-base shrink-0 border border-emerald-200">
-                      <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar" class="w-full h-full object-cover" />
+                      <img 
+                        v-if="userAvatarUrl && !isAvatarImageError" 
+                        :src="userAvatarUrl" 
+                        @error="handleAvatarError" 
+                        alt="Avatar" 
+                        class="w-full h-full object-cover" 
+                      />
                       <span v-else>{{ userName ? userName.charAt(0).toUpperCase() : 'U' }}</span>
                     </div>
                     <div class="min-w-0">
@@ -560,10 +572,15 @@ const handleGlobalDeactivateMaintenance = async () => {
   }
 };
 
-const userAvatarUrl = computed(() => {
-  const user = authStore.user;
-  if (!user || !user.avatar_path) return null;
-  return `/api/v1/auth/avatar/${user.id}?v=${user.updated_at || ''}`;
+const userAvatarUrl = computed(() => authStore.avatarUrl);
+const isAvatarImageError = ref(false);
+
+const handleAvatarError = () => {
+  isAvatarImageError.value = true;
+};
+
+watch(userAvatarUrl, () => {
+  isAvatarImageError.value = false;
 });
 
 const confirmModalState = reactive({

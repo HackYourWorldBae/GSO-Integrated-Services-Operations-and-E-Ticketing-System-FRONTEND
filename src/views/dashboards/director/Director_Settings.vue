@@ -833,7 +833,8 @@ onMounted(() => {
     form.value.emailNotificationsEnabled = Boolean(user.email_notifications_enabled === 1 || user.email_notifications_enabled === '1' || user.email_notifications_enabled === true);
     form.value.isMfaEnabled = Boolean(user.is_mfa_enabled === 1 || user.is_mfa_enabled === '1' || user.is_mfa_enabled === true);
     if (user.avatar_path) {
-      avatarPreviewUrl.value = `/api/v1/auth/avatar/${user.id}?t=${Date.now()}`;
+      const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '');
+      avatarPreviewUrl.value = `${apiBase}/auth/avatar/${user.id}?t=${Date.now()}`;
     }
   }
 });
@@ -855,7 +856,9 @@ const handleAvatarFileChange = async (event) => {
     return;
   }
 
-  avatarPreviewUrl.value = URL.createObjectURL(file);
+  const blobUrl = URL.createObjectURL(file);
+  avatarPreviewUrl.value = blobUrl;
+  authStore.setAvatarBlobPreview(blobUrl);
 
   try {
     const formData = new FormData();
@@ -864,10 +867,11 @@ const handleAvatarFileChange = async (event) => {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     if (res.data?.data?.user) {
-      authStore.user = res.data.data.user;
+      authStore.updateAvatar(res.data.data.user);
       toast.success('Profile avatar updated successfully!');
     }
   } catch (err) {
+    authStore.setAvatarBlobPreview(null);
     console.error('Failed to upload avatar:', err);
     toast.error(err.response?.data?.message || 'Failed to upload avatar image.');
   }

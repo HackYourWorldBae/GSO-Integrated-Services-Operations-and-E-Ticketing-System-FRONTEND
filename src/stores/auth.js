@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import {
   login as apiLogin,
   logout as apiLogout,
@@ -74,6 +74,72 @@ export const useAuthStore = defineStore('auth', () => {
   // Legacy alias — Deactivated has been retired (migrated to Suspended). Keep for
   // backward-compat with cached payloads; always false for current data.
   const isDeactivated = computed(() => false);
+
+  // ---------------------------------------------------------------------------
+  // User Avatar & Dynamic Profile Picture Handling
+  // ---------------------------------------------------------------------------
+  const avatarVersion = ref(Date.now());
+  const avatarBlobPreview = ref(null);
+
+  const setAvatarBlobPreview = (blobUrl) => {
+    avatarBlobPreview.value = blobUrl || null;
+  };
+
+  const updateAvatar = (updatedUser) => {
+    avatarBlobPreview.value = null;
+    if (updatedUser) {
+      user.value = { ...(user.value || {}), ...updatedUser };
+      if (updatedUser.role) {
+        role.value = updatedUser.role;
+      }
+      if (Array.isArray(updatedUser.permissions)) {
+        permissions.value = updatedUser.permissions;
+      }
+    }
+    avatarVersion.value = Date.now();
+  };
+
+  const setUser = (updatedUser) => {
+    if (updatedUser) {
+      user.value = { ...(user.value || {}), ...updatedUser };
+      if (updatedUser.role) {
+        role.value = updatedUser.role;
+      }
+      if (Array.isArray(updatedUser.permissions)) {
+        permissions.value = updatedUser.permissions;
+      }
+      avatarVersion.value = Date.now();
+    }
+  };
+
+  watch(
+    () => user.value?.avatar_path,
+    (newPath, oldPath) => {
+      if (newPath !== oldPath) {
+        avatarVersion.value = Date.now();
+      }
+    }
+  );
+
+  const avatarUrl = computed(() => {
+    if (avatarBlobPreview.value) {
+      return avatarBlobPreview.value;
+    }
+    const u = user.value;
+    if (!u || !u.avatar_path) return null;
+    if (
+      typeof u.avatar_path === 'string' &&
+      (u.avatar_path.startsWith('http://') ||
+       u.avatar_path.startsWith('https://') ||
+       u.avatar_path.startsWith('data:') ||
+       u.avatar_path.startsWith('blob:'))
+    ) {
+      return u.avatar_path;
+    }
+    const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '');
+    const versionKey = encodeURIComponent(u.avatar_path || u.updated_at || avatarVersion.value);
+    return `${apiBase}/auth/avatar/${u.id}?v=${versionKey}&t=${avatarVersion.value}`;
+  });
 
   /**
    * Check whether current user has permission for a specific feature key.
@@ -652,6 +718,12 @@ export const useAuthStore = defineStore('auth', () => {
     actingUnitName,
     isDeactivated,
     hasPermission,
+    avatarUrl,
+    avatarVersion,
+    avatarBlobPreview,
+    setAvatarBlobPreview,
+    updateAvatar,
+    setUser,
     login,
     verifyMfa,
     resendMfa,
