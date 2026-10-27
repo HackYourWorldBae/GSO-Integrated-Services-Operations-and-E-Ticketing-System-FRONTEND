@@ -88,6 +88,45 @@
         </div>
       </Transition>
 
+      <!-- Superadmin Emergency Maintenance Active Global Banner -->
+      <Transition name="slide-down">
+        <div
+          v-if="isSuperAdmin && authStore.isMaintenanceActive"
+          class="bg-gradient-to-r from-rose-700 via-rose-800 to-rose-900 text-white px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-lg z-50 shrink-0 border-b border-rose-500/40"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase bg-rose-500 text-white shadow-xs shrink-0 animate-pulse">
+              <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+              Maintenance Mode Active
+            </span>
+            <div class="truncate text-xs sm:text-sm font-bold text-rose-50">
+              Campus users and public logins are locked out.
+              <span class="hidden md:inline font-normal text-rose-200 text-xs ml-1.5">
+                • Emergency system maintenance is running.
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0 ml-auto">
+            <button
+              type="button"
+              @click="handleGlobalDeactivateMaintenance"
+              :disabled="isDeactivatingGlobalMaintenance"
+              class="px-3.5 py-1.5 min-h-[32px] sm:min-h-[36px] bg-white hover:bg-rose-50 text-rose-900 active:scale-95 rounded-xl font-black text-xs shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg v-if="!isDeactivatingGlobalMaintenance" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+              <svg v-else class="animate-spin h-3.5 w-3.5 text-rose-900" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ isDeactivatingGlobalMaintenance ? 'Deactivating...' : 'Deactivate Maintenance Mode' }}</span>
+            </button>
+          </div>
+        </div>
+      </Transition>
+
       <!-- Acting Unit Head Mode Global Banner -->
       <Transition name="slide-down">
         <div
@@ -515,6 +554,48 @@ const isSuperAdmin = computed(() => {
   const r = (authStore.role || userRole.value || '').toLowerCase();
   return r === 'superadmin';
 });
+
+const isDeactivatingGlobalMaintenance = ref(false);
+const handleGlobalDeactivateMaintenance = async () => {
+  const { default: Swal } = await import('sweetalert2');
+  const result = await Swal.fire({
+    title: 'Deactivate Maintenance Mode?',
+    text: 'Regular users across all roles will immediately be allowed to sign back in.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#059669',
+    cancelButtonColor: '#64748b',
+    confirmButtonText: 'Yes, Deactivate Now',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    isDeactivatingGlobalMaintenance.value = true;
+    try {
+      const { updateMaintenanceStatus } = await import('@/api/superadmin');
+      const res = await updateMaintenanceStatus({ active: false });
+      if (res.data?.status) {
+        authStore.setMaintenanceStatus(false);
+        await Swal.fire({
+          icon: 'success',
+          title: 'Maintenance Deactivated',
+          text: 'Normal operations restored. Regular users can now sign in.',
+          confirmButtonColor: '#059669',
+          timer: 2500
+        });
+      }
+    } catch (err) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Action Failed',
+        text: err.response?.data?.message || 'Failed to deactivate maintenance mode.',
+        confirmButtonColor: '#059669'
+      });
+    } finally {
+      isDeactivatingGlobalMaintenance.value = false;
+    }
+  }
+};
 
 const userAvatarUrl = computed(() => {
   const user = authStore.user;
@@ -988,6 +1069,18 @@ onMounted(() => {
   if (!authStore.user && currentUser) {
     const currentToken = sessionStorage.getItem('token');
     authStore._setAuth(currentUser, currentUser.role, currentToken);
+  }
+
+  // Probe maintenance status for Superadmin so global banner syncs immediately
+  if (isSuperAdmin.value) {
+    import('@/api/superadmin').then(({ fetchMaintenanceStatus }) => {
+      fetchMaintenanceStatus().then((res) => {
+        const m = res.data?.data?.maintenance || res.data?.data;
+        if (m) {
+          authStore.setMaintenanceStatus(Boolean(m.active), m.message, m.countdown_seconds);
+        }
+      }).catch(() => {});
+    });
   }
 
   fetchNotifications();

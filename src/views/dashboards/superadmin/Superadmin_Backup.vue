@@ -103,7 +103,7 @@
 
             <!-- Maintenance Mode Status & Precaution Button -->
             <button
-              v-if="maintenance.active"
+              v-if="maintenance?.active"
               @click="confirmDeactivateMaintenance"
               :disabled="isUpdatingMaintenance"
               type="button"
@@ -616,8 +616,8 @@
               </div>
             </div>
 
-            <!-- Maintenance Precaution Alert if Inactive -->
-            <div v-if="!maintenance.active" class="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-xs text-amber-950 space-y-2">
+            <!-- Maintenance Precaution Alert -->
+            <div v-if="!maintenance?.active" class="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-xs text-amber-950 space-y-2">
               <div class="flex items-center gap-2 font-bold text-amber-900">
                 <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -630,10 +630,29 @@
               <button
                 type="button"
                 @click="openMaintenancePrecautionModal"
-                class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs cursor-pointer shadow-xs"
+                class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs cursor-pointer shadow-xs transition-all"
               >
                 Activate Website Maintenance First
               </button>
+            </div>
+            <div v-else class="bg-rose-50 border border-rose-300 rounded-2xl p-4 text-xs text-rose-950 space-y-2">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-2 font-bold text-rose-900">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping shrink-0"></span>
+                  <span>Emergency Maintenance Mode is Active</span>
+                </div>
+                <button
+                  type="button"
+                  @click="confirmDeactivateMaintenance"
+                  :disabled="isUpdatingMaintenance"
+                  class="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs cursor-pointer shadow-xs transition-all"
+                >
+                  {{ isUpdatingMaintenance ? 'Updating...' : 'Deactivate Now' }}
+                </button>
+              </div>
+              <p class="leading-relaxed text-rose-800">
+                All non-superadmin users are locked out. It is safe to proceed with database restoration or click above to restore normal operations.
+              </p>
             </div>
 
             <div class="space-y-2">
@@ -1463,9 +1482,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import { useAuthStore } from '@/stores/auth';
 import {
   fetchBackups,
   createBackup,
@@ -1487,6 +1507,7 @@ import Swal from 'sweetalert2';
 
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
 
 // ---------------------------------------------------------
 // Component State
@@ -1616,16 +1637,33 @@ onMounted(async () => {
   await Promise.all([loadBackups(), loadMaintenanceStatus()]);
 });
 
+const normalizeMaintenancePayload = (data) => {
+  const m = data?.maintenance || data || {};
+  return {
+    active: Boolean(m.active),
+    message: m.message || 'The website is currently undergoing emergency database restoration and maintenance. Please check back shortly.',
+    countdown_seconds: Number(m.countdown_seconds) || 30,
+    activated_at: m.activated_at || null
+  };
+};
+
+// Sync local maintenance state with authStore
+watch(() => authStore.isMaintenanceActive, (newVal) => {
+  maintenance.value.active = newVal;
+});
+
 const loadMaintenanceStatus = async () => {
   try {
     const res = await fetchMaintenanceStatus();
-    if (res.data?.status && res.data.data?.maintenance) {
-      maintenance.value = res.data.data.maintenance;
-      if (res.data.data.maintenance.message) {
-        maintenanceForm.value.message = res.data.data.maintenance.message;
+    if (res.data?.status && res.data.data) {
+      const parsed = normalizeMaintenancePayload(res.data.data);
+      maintenance.value = parsed;
+      authStore.setMaintenanceStatus(parsed.active, parsed.message, parsed.countdown_seconds);
+      if (parsed.message) {
+        maintenanceForm.value.message = parsed.message;
       }
-      if (res.data.data.maintenance.countdown_seconds) {
-        maintenanceForm.value.countdown_seconds = res.data.data.maintenance.countdown_seconds;
+      if (parsed.countdown_seconds) {
+        maintenanceForm.value.countdown_seconds = parsed.countdown_seconds;
       }
     }
   } catch {
@@ -1647,7 +1685,10 @@ const handleActivateMaintenance = async () => {
     });
     if (res.data?.status) {
       showMaintenancePrecautionModal.value = false;
-      maintenance.value = res.data.data.maintenance;
+      const parsed = normalizeMaintenancePayload(res.data.data);
+      parsed.active = true;
+      maintenance.value = parsed;
+      authStore.setMaintenanceStatus(true, parsed.message, parsed.countdown_seconds);
       toast.success('Emergency maintenance activated. Active users are now being notified and evicted.');
     }
   } catch (err) {
@@ -1673,7 +1714,10 @@ const confirmDeactivateMaintenance = async () => {
     try {
       const res = await updateMaintenanceStatus({ active: false });
       if (res.data?.status) {
-        maintenance.value = res.data.data.maintenance;
+        const parsed = normalizeMaintenancePayload(res.data.data);
+        parsed.active = false;
+        maintenance.value = parsed;
+        authStore.setMaintenanceStatus(false);
         toast.success('Maintenance mode deactivated. System restored to normal operations.');
       }
     } catch (err) {

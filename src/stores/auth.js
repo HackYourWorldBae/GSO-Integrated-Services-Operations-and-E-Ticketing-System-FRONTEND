@@ -188,6 +188,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  const setMaintenanceStatus = (isActive, msg = '', countdown = 30) => {
+    isMaintenanceActive.value = Boolean(isActive);
+    if (msg) maintenanceMessage.value = msg;
+    if (countdown) maintenanceCountdown.value = Number(countdown) || 30;
+  };
+
   // ---------------------------------------------------------------------------
   // Proactive Session Heartbeat & Verification
   // ---------------------------------------------------------------------------
@@ -231,15 +237,20 @@ export const useAuthStore = defineStore('auth', () => {
         user.value.is_verified = res.data.data.is_verified;
       }
 
-      // Check maintenance mode returned in check-session
+      // Synchronize maintenance mode state returned in check-session
       if (res.data?.data?.maintenance_mode) {
+        isMaintenanceActive.value = true;
+        maintenanceMessage.value = res.data.data.maintenance_details?.message || '';
+        maintenanceCountdown.value = Number(res.data.data.maintenance_details?.countdown_seconds) || 30;
         if (role.value !== 'superadmin') {
           triggerMaintenanceEviction(res.data.data.maintenance_details);
         }
-      } else if (showMaintenanceModal.value) {
-        stopMaintenanceTicker();
-        showMaintenanceModal.value = false;
+      } else {
         isMaintenanceActive.value = false;
+        if (showMaintenanceModal.value) {
+          stopMaintenanceTicker();
+          showMaintenanceModal.value = false;
+        }
       }
     } catch (error) {
       const status = error.response?.status;
@@ -248,6 +259,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (status === 401 && code === 'SESSION_SUPERSEDED') {
         stopSessionHeartbeat();
       } else if (status === 503 && (code === 'MAINTENANCE_MODE_ACTIVE' || error.response?.data?.maintenance_mode)) {
+        isMaintenanceActive.value = true;
         if (role.value !== 'superadmin') {
           triggerMaintenanceEviction(error.response?.data?.maintenance);
         }
@@ -266,6 +278,7 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const handleMaintenanceBroadcast = (e) => {
+    isMaintenanceActive.value = true;
     if (role.value !== 'superadmin') {
       triggerMaintenanceEviction(e.detail?.maintenance || e.detail?.data?.maintenance);
     }
@@ -656,6 +669,7 @@ export const useAuthStore = defineStore('auth', () => {
     triggerMaintenanceEviction,
     executeEvictionLogout,
     stopMaintenanceTicker,
+    setMaintenanceStatus,
     assumeUnitHead,
     revertToDirector,
     _setAuth,
