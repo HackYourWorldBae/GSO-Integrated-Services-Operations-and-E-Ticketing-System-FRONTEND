@@ -157,7 +157,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Loading inventory items...
+            Loading {{ isLeau ? 'plant inventory...' : 'inventory items...' }}
           </div>
         </div>
 
@@ -168,8 +168,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
-          <h4 class="text-sm font-black text-slate-700">No inventory items found</h4>
-          <p class="text-xs text-slate-400 mt-1">Try adjusting your search criteria or add new inventory items.</p>
+          <h4 class="text-sm font-black text-slate-700">{{ isLeau ? 'No plants found in inventory' : 'No inventory items found' }}</h4>
+          <p class="text-xs text-slate-400 mt-1">{{ isLeau ? 'Try adjusting your search criteria or add new plants.' : 'Try adjusting your search criteria or add new inventory items.' }}</p>
         </div>
 
         <!-- ═══ Table View (Desktop & Tablet) ═══ -->
@@ -178,7 +178,7 @@
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50/80 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-400">
-                  <th class="px-5 py-3">Item Particulars</th>
+                  <th class="px-5 py-3">{{ isLeau ? 'Plant Particulars' : 'Item Particulars' }}</th>
                   <th class="px-4 py-3">Category</th>
                   <th class="px-4 py-3">Stock &amp; Availability</th>
                   <th class="px-4 py-3">Condition</th>
@@ -462,7 +462,7 @@
         <!-- ═══ Pagination Controls (Table & Cards) ═══ -->
         <div v-if="filteredInventory.length > 0" class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs text-slate-500">
           <p class="font-medium">
-            Showing <strong class="text-slate-800">{{ paginationRange.start }}</strong> to <strong class="text-slate-800">{{ paginationRange.end }}</strong> of <strong class="text-slate-800">{{ filteredInventory.length }}</strong> items
+            Showing <strong class="text-slate-800">{{ paginationRange.start }}</strong> to <strong class="text-slate-800">{{ paginationRange.end }}</strong> of <strong class="text-slate-800">{{ filteredInventory.length }}</strong> {{ isLeau ? 'plants' : 'items' }}
           </p>
           <div class="flex items-center gap-1.5">
             <button
@@ -494,9 +494,9 @@
             <div class="flex items-center justify-between mb-5">
               <div>
                 <span class="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
-                  New Item
+                  {{ isLeau ? 'New Plant' : 'New Item' }}
                 </span>
-                <h3 class="text-xl font-black text-slate-900 mt-1">Add Tool or Equipment</h3>
+                <h3 class="text-xl font-black text-slate-900 mt-1">{{ isLeau ? 'Add Plant to Inventory' : 'Add Tool or Equipment' }}</h3>
               </div>
               <button @click="showAddModal = false" class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer touch-manipulation">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -548,7 +548,7 @@
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Storage Location (Optional)</label>
                 <input
                   v-model="addForm.location"
-                  placeholder="e.g. Tool Room A, Mechanical Workshop, General Storage"
+                  :placeholder="isLeau ? 'e.g. Greenhouse A, Nursery, Botanical Garden, Plant Nursery Bed #2' : 'e.g. Tool Room A, Mechanical Workshop, General Storage'"
                   class="w-full px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -640,7 +640,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>{{ submitting ? 'Adding...' : 'Add Item' }}</span>
+                  <span>{{ submitting ? 'Adding...' : (isLeau ? 'Add Plant' : 'Add Item') }}</span>
                 </button>
               </div>
             </form>
@@ -655,9 +655,9 @@
             <div class="flex items-center justify-between mb-6">
               <div>
                 <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-black uppercase tracking-wider">
-                  Edit Item
+                  {{ isLeau ? 'Edit Plant' : 'Edit Item' }}
                 </span>
-                <h3 class="text-xl font-black text-slate-900 mt-1">Edit Inventory Item</h3>
+                <h3 class="text-xl font-black text-slate-900 mt-1">{{ isLeau ? 'Edit Plant Details' : 'Edit Inventory Item' }}</h3>
               </div>
               <button @click="showEditModal = false" class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer touch-manipulation">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -703,7 +703,11 @@
               </div>
               <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Storage Location</label>
-                <input v-model="editForm.location" class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                <input
+                  v-model="editForm.location"
+                  :placeholder="isLeau ? 'e.g. Greenhouse A, Nursery, Botanical Garden' : 'e.g. Tool Room A, Mechanical Workshop, General Storage'"
+                  class="w-full px-4 py-3 min-h-[44px] rounded-xl border border-slate-200 text-base sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
               </div>
               <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Description</label>
@@ -740,7 +744,7 @@
             <div class="space-y-4">
               <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-black text-slate-400 uppercase tracking-wider">Item</span>
+                  <span class="text-xs font-black text-slate-400 uppercase tracking-wider">{{ isLeau ? 'Plant' : 'Item' }}</span>
                   <span class="font-bold text-slate-900">{{ adjustingItem.name }}</span>
                 </div>
                 <div class="flex items-center justify-between">
@@ -784,8 +788,8 @@
             <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
             </div>
-            <h4 class="text-base font-black text-slate-900 mb-1">Remove Inventory Item</h4>
-            <p class="text-xs text-slate-500 mb-6">Are you sure you want to remove <strong class="text-slate-800">{{ itemToDelete.name }}</strong> from inventory?</p>
+            <h4 class="text-base font-black text-slate-900 mb-1">{{ isLeau ? 'Remove Plant from Inventory' : 'Remove Inventory Item' }}</h4>
+            <p class="text-xs text-slate-500 mb-6">Are you sure you want to remove <strong class="text-slate-800">{{ itemToDelete.name }}</strong> from {{ isLeau ? 'plant inventory' : 'inventory' }}?</p>
             <p class="text-xs text-amber-600 font-medium mb-4">Only items with full quantity available and not in maintenance can be deleted.</p>
             <div class="flex items-center justify-center gap-3">
               <button @click="itemToDelete = null" class="px-5 py-3 min-h-[44px] rounded-xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 cursor-pointer touch-manipulation">Cancel</button>
@@ -1025,7 +1029,7 @@ const openAddModal = () => {
 
 const submitAddInventory = async () => {
   if (!addForm.name || !addForm.category) {
-    toast.error('Please enter an item name and select a category.');
+    toast.error(isLeau.value ? 'Please enter a plant name and select a category.' : 'Please enter an item name and select a category.');
     return;
   }
   submitting.value = true;
@@ -1038,7 +1042,7 @@ const submitAddInventory = async () => {
       quantity_total: Math.max(1, Number(addForm.quantity_total) || 1),
     };
     await createInventoryItem(payload);
-    toast.success('Inventory item added successfully!');
+    toast.success(isLeau.value ? 'Plant added to inventory successfully!' : 'Inventory item added successfully!');
     showAddModal.value = false;
     await fetchInventory();
     await fetchStats();
@@ -1075,7 +1079,7 @@ const submitEditInventory = async () => {
       category: isLeau.value ? 'plants' : editForm.category,
       unit: unitLower.value,
     });
-    toast.success('Inventory item updated successfully!');
+    toast.success(isLeau.value ? 'Plant details updated successfully!' : 'Inventory item updated successfully!');
     showEditModal.value = false;
     await fetchInventory();
   } catch (err) {
