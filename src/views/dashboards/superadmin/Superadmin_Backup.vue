@@ -616,58 +616,150 @@
               </div>
             </div>
 
-            <!-- Maintenance Precaution Alert -->
-            <div v-if="!maintenance?.active" class="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-xs text-amber-950 space-y-2">
-              <div class="flex items-center gap-2 font-bold text-amber-900">
-                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>Recommended: Activate Website Maintenance First</span>
-              </div>
-              <p class="leading-relaxed">
-                Emergency Maintenance Mode is currently <strong>Inactive</strong>. Active users logged into the system could submit tickets or modify data concurrently during database restoration.
-              </p>
-              <button
-                type="button"
-                @click="openMaintenancePrecautionModal"
-                class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs cursor-pointer shadow-xs transition-all"
-              >
-                Activate Website Maintenance First
-              </button>
-            </div>
-            <div v-else class="bg-rose-50 border border-rose-300 rounded-2xl p-4 text-xs text-rose-950 space-y-2">
+            <!-- Maintenance Mode & Eviction Countdown Requirement -->
+            <!-- STATE 1: Maintenance Inactive (Mandatory Alert) -->
+            <div v-if="!maintenance?.active" class="bg-red-50/90 border-2 border-red-300 rounded-2xl p-4 text-xs text-red-950 space-y-3">
               <div class="flex items-center justify-between gap-2 flex-wrap">
-                <div class="flex items-center gap-2 font-bold text-rose-900">
-                  <span class="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping shrink-0"></span>
-                  <span>Emergency Maintenance Mode is Active</span>
+                <div class="flex items-center gap-2 font-black text-red-900">
+                  <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span class="text-xs uppercase tracking-wider">Mandatory: Activate Website Maintenance</span>
                 </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-200 text-red-800">
+                  Required Prerequisite
+                </span>
+              </div>
+              <p class="leading-relaxed text-slate-700">
+                Emergency Website Maintenance Mode is currently <strong class="text-red-700">Inactive</strong>. You must activate maintenance before restoring to notify active users and allow the system's eviction countdown to finish, preventing concurrent data writes during restoration.
+              </p>
+              <div class="flex items-center gap-2 pt-1 flex-wrap">
                 <button
                   type="button"
-                  @click="confirmDeactivateMaintenance"
+                  @click="handleActivateMaintenance"
                   :disabled="isUpdatingMaintenance"
-                  class="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs cursor-pointer shadow-xs transition-all"
+                  class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-black text-xs cursor-pointer shadow-xs transition-all flex items-center gap-1.5"
                 >
-                  {{ isUpdatingMaintenance ? 'Updating...' : 'Deactivate Now' }}
+                  <svg v-if="isUpdatingMaintenance" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>{{ isUpdatingMaintenance ? 'Activating...' : `Activate Website Maintenance (${maintenanceForm.countdown_seconds || 30}s Eviction)` }}</span>
+                </button>
+                <button
+                  type="button"
+                  @click="openMaintenancePrecautionModal"
+                  class="px-3 py-2 rounded-xl border border-red-200 hover:bg-red-100/60 text-red-800 font-bold text-xs cursor-pointer transition-all"
+                >
+                  Customize Notice & Timer
                 </button>
               </div>
-              <p class="leading-relaxed text-rose-800">
-                All non-superadmin users are locked out. It is safe to proceed with database restoration or click above to restore normal operations.
+            </div>
+
+            <!-- STATE 2: Maintenance Active but Eviction Countdown Running -->
+            <div v-else-if="evictionCountdownRemaining > 0" class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 text-xs text-amber-950 space-y-3">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-2 font-black text-amber-900">
+                  <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                  </span>
+                  <span class="text-xs uppercase tracking-wider">Evicting Active Users — Please Wait</span>
+                </div>
+                <div class="flex items-center gap-1.5 px-3 py-1 rounded-full font-mono font-black text-xs bg-amber-200 text-amber-900 border border-amber-300">
+                  <svg class="w-3.5 h-3.5 text-amber-700 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>{{ evictionCountdownRemaining }}s remaining</span>
+                </div>
+              </div>
+              <p class="leading-relaxed text-amber-900">
+                Emergency maintenance broadcast has been dispatched. Logged-in users are being alerted and granted an eviction grace countdown before sessions terminate. System restoration is temporarily locked to prevent data corruption.
+              </p>
+              <div class="w-full bg-amber-200/60 rounded-full h-2 overflow-hidden">
+                <div
+                  class="bg-amber-600 h-2 rounded-full transition-all duration-1000 ease-linear"
+                  :style="{ width: `${Math.max(0, Math.min(100, ((evictionCountdownTotal - evictionCountdownRemaining) / evictionCountdownTotal) * 100))}%` }"
+                ></div>
+              </div>
+            </div>
+
+            <!-- STATE 3: Maintenance Active & Eviction Finished (Safe to Restore) -->
+            <div v-else class="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 text-xs text-emerald-950 space-y-2">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-2 font-black text-emerald-900">
+                  <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span class="text-xs uppercase tracking-wider">Website Maintenance Active & Users Evicted</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-800">
+                    Safe to Restore
+                  </span>
+                  <button
+                    type="button"
+                    @click="confirmDeactivateMaintenance"
+                    :disabled="isUpdatingMaintenance"
+                    class="px-2.5 py-0.5 rounded-lg border border-emerald-300 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] cursor-pointer transition-all"
+                  >
+                    {{ isUpdatingMaintenance ? 'Updating...' : 'Deactivate' }}
+                  </button>
+                </div>
+              </div>
+              <p class="leading-relaxed text-emerald-900">
+                All non-superadmin user sessions have been terminated. Concurrent database access is blocked. It is safe to proceed with database restoration.
               </p>
             </div>
 
+            <!-- Safety Confirmation Input -->
             <div class="space-y-2">
-              <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">
-                Type <span class="text-red-600 font-mono font-black">CONFIRM RESTORE</span> below to proceed:
-              </label>
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                  Type <span class="text-red-600 font-mono font-black">CONFIRM RESTORE</span> below to proceed:
+                </label>
+                <span
+                  v-if="isRestoreConfirmationValid"
+                  class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200"
+                >
+                  <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Verified
+                </span>
+              </div>
               <input
                 v-model="restoreConfirmationInput"
+                @input="restoreConfirmationInput = $event.target.value.toUpperCase()"
                 type="text"
                 placeholder="CONFIRM RESTORE"
-                class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-800 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none uppercase"
+                class="w-full px-4 py-3 bg-slate-50 border rounded-xl text-sm font-mono font-bold text-slate-800 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none uppercase transition-all"
+                :class="{
+                  'border-emerald-400 bg-emerald-50/20 ring-2 ring-emerald-500/20': isRestoreConfirmationValid,
+                  'border-slate-300': !isRestoreConfirmationValid
+                }"
                 :disabled="isRestoring"
               />
+              <p v-if="!maintenance?.active" class="text-[11px] text-red-600 font-semibold flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Activate Website Maintenance above to unlock database restoration.
+              </p>
+              <p v-else-if="evictionCountdownRemaining > 0" class="text-[11px] text-amber-600 font-semibold flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Waiting for active users to be evicted ({{ evictionCountdownRemaining }}s remaining)...
+              </p>
+              <p v-else-if="!isRestoreConfirmationValid && restoreConfirmationInput" class="text-[11px] text-slate-500">
+                Type the full phrase: <span class="font-mono font-bold text-red-600">CONFIRM RESTORE</span> (case-insensitive) to unlock.
+              </p>
             </div>
 
+            <!-- Modal Action Buttons -->
             <div class="flex items-center justify-end gap-3 pt-2">
               <button
                 @click="closeRestoreModal"
@@ -679,15 +771,34 @@
               </button>
               <button
                 @click="executeRestore"
-                :disabled="restoreConfirmationInput !== 'CONFIRM RESTORE' || isRestoring"
+                :disabled="!canExecuteRestore"
                 type="button"
-                class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shadow-md"
+                class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 disabled:text-slate-500 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shadow-md"
               >
                 <svg v-if="isRestoring" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>{{ isRestoring ? 'Restoring System...' : (restoreStorageSource === 'google_drive' ? 'Restore from Google Drive' : 'Restore from Local Storage') }}</span>
+                <svg v-else-if="!maintenance?.active" class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <svg v-else-if="evictionCountdownRemaining > 0" class="w-4 h-4 animate-spin text-slate-500" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>
+                  {{
+                    isRestoring
+                      ? 'Restoring System...'
+                      : (!maintenance?.active
+                        ? 'Maintenance Mode Required'
+                        : (evictionCountdownRemaining > 0
+                          ? `Evicting Users (${evictionCountdownRemaining}s)...`
+                          : (!isRestoreConfirmationValid
+                            ? 'Type CONFIRM RESTORE to Enable'
+                            : (restoreStorageSource === 'google_drive' ? 'Restore from Google Drive' : 'Restore from Local Storage'))))
+                  }}
+                </span>
               </button>
             </div>
           </div>
@@ -1482,7 +1593,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useAuthStore } from '@/stores/auth';
@@ -1587,6 +1698,79 @@ const restoreConfirmationInput = ref('');
 const restoreStorageSource = ref('local'); // 'local' | 'google_drive' | 'auto'
 const isRestoring = ref(false);
 
+// Eviction countdown state for safe database restoration
+const evictionCountdownRemaining = ref(0);
+const evictionCountdownTotal = ref(30);
+let evictionTimerId = null;
+
+const stopEvictionCountdown = () => {
+  if (evictionTimerId) {
+    clearInterval(evictionTimerId);
+    evictionTimerId = null;
+  }
+};
+
+const startEvictionCountdown = (seconds) => {
+  stopEvictionCountdown();
+  const duration = Math.max(1, Math.round(Number(seconds) || 30));
+  evictionCountdownTotal.value = Math.max(duration, Number(maintenance.value?.countdown_seconds) || 30);
+  evictionCountdownRemaining.value = duration;
+
+  evictionTimerId = setInterval(() => {
+    if (evictionCountdownRemaining.value > 1) {
+      evictionCountdownRemaining.value -= 1;
+    } else {
+      evictionCountdownRemaining.value = 0;
+      stopEvictionCountdown();
+    }
+  }, 1000);
+};
+
+const syncEvictionCountdown = () => {
+  if (!maintenance.value?.active) {
+    stopEvictionCountdown();
+    evictionCountdownRemaining.value = 0;
+    return;
+  }
+
+  const totalSeconds = Number(maintenance.value?.countdown_seconds) || 30;
+  evictionCountdownTotal.value = totalSeconds;
+
+  if (maintenance.value?.activated_at) {
+    const raw = String(maintenance.value.activated_at);
+    const isoStr = raw.includes('T') ? raw : raw.replace(' ', 'T');
+    const parsedDate = new Date(isoStr);
+    if (!isNaN(parsedDate.getTime())) {
+      const elapsedSec = Math.floor((Date.now() - parsedDate.getTime()) / 1000);
+      if (elapsedSec >= 0 && elapsedSec < totalSeconds) {
+        startEvictionCountdown(totalSeconds - elapsedSec);
+        return;
+      } else if (elapsedSec >= totalSeconds) {
+        stopEvictionCountdown();
+        evictionCountdownRemaining.value = 0;
+        return;
+      }
+    }
+  }
+
+  if (evictionCountdownRemaining.value <= 0 && !evictionTimerId) {
+    evictionCountdownRemaining.value = 0;
+  }
+};
+
+const isRestoreConfirmationValid = computed(() => {
+  return (restoreConfirmationInput.value || '').trim().toUpperCase() === 'CONFIRM RESTORE';
+});
+
+const canExecuteRestore = computed(() => {
+  return (
+    isRestoreConfirmationValid.value &&
+    Boolean(maintenance.value?.active) &&
+    evictionCountdownRemaining.value === 0 &&
+    !isRestoring.value
+  );
+});
+
 // Disaster Recovery Operations Logs State
 const recentLogs = ref([]);
 
@@ -1650,6 +1834,21 @@ const normalizeMaintenancePayload = (data) => {
 // Sync local maintenance state with authStore
 watch(() => authStore.isMaintenanceActive, (newVal) => {
   maintenance.value.active = newVal;
+  if (!newVal) {
+    stopEvictionCountdown();
+    evictionCountdownRemaining.value = 0;
+  }
+});
+
+watch(() => maintenance.value.active, (isActive) => {
+  if (!isActive) {
+    stopEvictionCountdown();
+    evictionCountdownRemaining.value = 0;
+  }
+});
+
+onUnmounted(() => {
+  stopEvictionCountdown();
 });
 
 const loadMaintenanceStatus = async () => {
@@ -1665,6 +1864,9 @@ const loadMaintenanceStatus = async () => {
       if (parsed.countdown_seconds) {
         maintenanceForm.value.countdown_seconds = parsed.countdown_seconds;
       }
+      if (parsed.active) {
+        syncEvictionCountdown();
+      }
     }
   } catch {
     // Non-blocking
@@ -1678,10 +1880,11 @@ const openMaintenancePrecautionModal = () => {
 const handleActivateMaintenance = async () => {
   isUpdatingMaintenance.value = true;
   try {
+    const duration = Number(maintenanceForm.value.countdown_seconds) || 30;
     const res = await updateMaintenanceStatus({
       active: true,
       message: maintenanceForm.value.message,
-      countdown_seconds: maintenanceForm.value.countdown_seconds
+      countdown_seconds: duration
     });
     if (res.data?.status) {
       showMaintenancePrecautionModal.value = false;
@@ -1689,7 +1892,11 @@ const handleActivateMaintenance = async () => {
       parsed.active = true;
       maintenance.value = parsed;
       authStore.setMaintenanceStatus(true, parsed.message, parsed.countdown_seconds);
-      toast.success('Emergency maintenance activated. Active users are now being notified and evicted.');
+      
+      // Start eviction countdown based on duration
+      startEvictionCountdown(parsed.countdown_seconds || duration);
+      
+      toast.success(`Emergency maintenance activated. Active users are now being evicted (${duration}s countdown).`);
     }
   } catch (err) {
     toast.error(formatErrorMessage(err.response?.data?.message || 'Failed to activate maintenance mode.'));
@@ -1718,6 +1925,8 @@ const confirmDeactivateMaintenance = async () => {
         parsed.active = false;
         maintenance.value = parsed;
         authStore.setMaintenanceStatus(false);
+        stopEvictionCountdown();
+        evictionCountdownRemaining.value = 0;
         toast.success('Maintenance mode deactivated. System restored to normal operations.');
       }
     } catch (err) {
@@ -1942,6 +2151,7 @@ const openRestoreModal = (item) => {
   restoreConfirmationInput.value = '';
   // Default to Auto-Resolve to always prefer the latest snapshot version
   restoreStorageSource.value = 'auto';
+  syncEvictionCountdown();
 };
 
 const closeRestoreModal = () => {
@@ -1951,7 +2161,17 @@ const closeRestoreModal = () => {
 };
 
 const executeRestore = async () => {
-  if (restoreConfirmationInput.value !== 'CONFIRM RESTORE') {
+  if (!maintenance.value?.active) {
+    toast.warning('Website Maintenance Mode must be active before restoring.');
+    return;
+  }
+
+  if (evictionCountdownRemaining.value > 0) {
+    toast.warning(`Please wait ${evictionCountdownRemaining.value}s for active users to be safely evicted.`);
+    return;
+  }
+
+  if (!isRestoreConfirmationValid.value) {
     toast.warning('Please type CONFIRM RESTORE to verify.');
     return;
   }
