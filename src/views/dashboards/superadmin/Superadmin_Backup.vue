@@ -429,38 +429,106 @@
         </div>
 
         <!-- ======================================================== -->
-        <!-- Disaster Recovery & Backup Operations Audit Trail        -->
+        <!-- Dedicated Disaster Recovery & Backup Audit Trail         -->
         <!-- ======================================================== -->
         <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
-          <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <!-- Card Header & Controls Toolbar -->
+          <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 <h3 class="text-base font-extrabold text-slate-900">Backup &amp; Disaster Recovery Activity Logs</h3>
-                <span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider border border-purple-200">
-                  {{ recentLogs.length }} Operations
+                <span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider border border-purple-200">
+                  {{ filteredLogs.length === recentLogs.length ? `${recentLogs.length} Operations` : `${filteredLogs.length} of ${recentLogs.length} Operations` }}
+                </span>
+                <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
+                  Dedicated DR Ledger
                 </span>
               </div>
-              <p class="text-xs text-slate-500 mt-0.5">Live chronological audit trail of all snapshots, cloud synchronizations, restorations, and purges</p>
+              <p class="text-xs text-slate-500 mt-0.5">Chronological audit trail of all snapshots, cloud synchronizations, restorations, and purges</p>
             </div>
-            
-            <router-link
-              to="/superadmin/logs"
-              class="self-start sm:self-auto px-3.5 py-2 rounded-xl border border-slate-200 text-purple-700 hover:text-purple-900 hover:bg-purple-50 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <span>View Full Operations Audit Trail</span>
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </router-link>
+
+            <!-- In-Page Audit Controls (Search, Event Filter & Page Size) -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
+              <!-- Search Input -->
+              <div class="relative flex-1 sm:w-60">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  v-model="logSearch"
+                  @input="handleLogSearchInput"
+                  type="text"
+                  placeholder="Filter logs by detail or actor..."
+                  class="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 focus:bg-white transition-all min-h-[38px]"
+                />
+                <button
+                  v-if="logSearch"
+                  @click="logSearch = ''; handleLogSearchInput()"
+                  class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                  title="Clear search"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Event Type Filter -->
+              <select
+                v-model="logEventTypeFilter"
+                @change="handleLogFilterChange"
+                class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 focus:bg-white transition-all min-h-[38px] cursor-pointer"
+              >
+                <option value="ALL">All Event Types</option>
+                <option value="SYSTEM_BACKUP_CREATED">Snapshot Created</option>
+                <option value="SYSTEM_RESTORE_EXECUTED">System Restored</option>
+                <option value="SYSTEM_BACKUP_SYNCED">Drive Synced</option>
+                <option value="SYSTEM_BACKUP_DELETED">Snapshot Deleted</option>
+                <option value="SYSTEM_BACKUP_SCHEDULE_UPDATED">Schedule Updated</option>
+                <option value="SYSTEM_BACKUP_PURGED_RETENTION">Retention Purged</option>
+              </select>
+
+              <!-- Page Size -->
+              <select
+                v-model="logPageSize"
+                @change="currentLogPage = 1"
+                class="px-2.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 focus:bg-white transition-all min-h-[38px] cursor-pointer"
+                title="Records per page"
+              >
+                <option :value="10">10 / page</option>
+                <option :value="25">25 / page</option>
+                <option :value="50">50 / page</option>
+              </select>
+            </div>
           </div>
 
-          <!-- Empty State -->
+          <!-- Empty State (No logs overall) -->
           <div v-if="recentLogs.length === 0" class="p-8 text-center">
-            <p class="text-xs text-slate-400 font-medium">No backup or disaster recovery operations recorded yet.</p>
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-3">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p class="text-sm font-bold text-slate-700">No backup or disaster recovery operations recorded yet.</p>
+            <p class="text-xs text-slate-400 mt-1">Actions such as creating snapshots, Google Drive syncing, and database restores will automatically be logged here.</p>
           </div>
 
-          <!-- Logs Table -->
-          <div v-else class="overflow-x-auto">
+          <!-- Filter Empty State -->
+          <div v-else-if="filteredLogs.length === 0" class="p-8 text-center">
+            <p class="text-sm font-bold text-slate-700">No logs match your filter criteria.</p>
+            <p class="text-xs text-slate-400 mt-1">Try searching with a different term or resetting the event filter.</p>
+            <button
+              @click="clearLogFilters"
+              class="mt-3 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
+            >
+              Reset Filters
+            </button>
+          </div>
+
+          <!-- Logs Desktop Table (Hidden on mobile < md) -->
+          <div v-else class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50/75 border-b border-slate-200/60 text-[11px] font-bold uppercase tracking-wider text-slate-500">
@@ -468,40 +536,121 @@
                   <th class="py-3 px-4">Event Type</th>
                   <th class="py-3 px-4">Initiated By</th>
                   <th class="py-3 px-6">Details &amp; Outcome</th>
+                  <th class="py-3 px-4 text-right">View</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-xs">
-                <tr v-for="log in recentLogs" :key="log.id" class="hover:bg-slate-50/60 transition-colors">
+                <tr
+                  v-for="log in paginatedLogs"
+                  :key="log.id"
+                  @click="openLogDetailModal(log)"
+                  class="hover:bg-purple-50/30 transition-colors cursor-pointer group"
+                >
                   <td class="py-3 px-6 font-mono text-slate-600 whitespace-nowrap">
                     {{ formatDate(log.created_at) }}
                   </td>
                   <td class="py-3 px-4 whitespace-nowrap">
                     <span
-                      class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border inline-flex items-center gap-1"
-                      :class="{
-                        'bg-emerald-100 text-emerald-800 border-emerald-200': log.event_type === 'SYSTEM_BACKUP_CREATED',
-                        'bg-amber-100 text-amber-800 border-amber-200': log.event_type === 'SYSTEM_RESTORE_EXECUTED',
-                        'bg-blue-100 text-blue-800 border-blue-200': log.event_type === 'SYSTEM_BACKUP_SYNCED',
-                        'bg-rose-100 text-rose-800 border-rose-200': log.event_type === 'SYSTEM_BACKUP_DELETED'
-                      }"
+                      class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border inline-flex items-center gap-1"
+                      :class="getLogBadgeClass(log.event_type)"
                     >
-                      {{
-                        log.event_type === 'SYSTEM_BACKUP_CREATED' ? 'Snapshot Created' :
-                        log.event_type === 'SYSTEM_RESTORE_EXECUTED' ? 'System Restored' :
-                        log.event_type === 'SYSTEM_BACKUP_SYNCED' ? 'Drive Synced' :
-                        log.event_type === 'SYSTEM_BACKUP_DELETED' ? 'Snapshot Deleted' : log.event_type
-                      }}
+                      {{ formatLogEventName(log.event_type) }}
                     </span>
                   </td>
                   <td class="py-3 px-4 font-semibold text-slate-700 whitespace-nowrap">
-                    {{ log.actor_name || 'System / Admin' }}
+                    <div class="flex items-center gap-2">
+                      <div class="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center">
+                        {{ (log.actor_name || 'System').charAt(0).toUpperCase() }}
+                      </div>
+                      <span>{{ log.actor_name || 'System / Admin' }}</span>
+                    </div>
                   </td>
                   <td class="py-3 px-6 text-slate-600">
-                    <p class="leading-relaxed">{{ log.details }}</p>
+                    <p class="leading-relaxed line-clamp-2 max-w-xl">{{ log.details }}</p>
+                  </td>
+                  <td class="py-3 px-4 text-right whitespace-nowrap">
+                    <button
+                      @click.stop="openLogDetailModal(log)"
+                      class="p-1.5 rounded-lg text-slate-400 group-hover:text-purple-600 group-hover:bg-purple-50 transition-colors cursor-pointer"
+                      title="Inspect Event"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Logs Mobile Card Stack (Visible on mobile < md) -->
+          <div v-if="filteredLogs.length > 0" class="block md:hidden divide-y divide-slate-100">
+            <div
+              v-for="log in paginatedLogs"
+              :key="'mob-' + log.id"
+              @click="openLogDetailModal(log)"
+              class="p-4 space-y-2 hover:bg-slate-50 transition-colors cursor-pointer"
+            >
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span
+                  class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border"
+                  :class="getLogBadgeClass(log.event_type)"
+                >
+                  {{ formatLogEventName(log.event_type) }}
+                </span>
+                <span class="text-[11px] font-mono text-slate-500">
+                  {{ formatDate(log.created_at) }}
+                </span>
+              </div>
+              <p class="text-xs text-slate-700 leading-relaxed font-medium">{{ log.details }}</p>
+              <div class="flex items-center justify-between pt-1 text-[11px] text-slate-500">
+                <span class="font-semibold">{{ log.actor_name || 'System / Admin' }}</span>
+                <span class="text-purple-600 font-bold flex items-center gap-1">
+                  Details
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination Footer -->
+          <div
+            v-if="filteredLogs.length > 0"
+            class="p-4 sm:px-6 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs"
+          >
+            <div class="text-slate-500 font-medium">
+              Showing
+              <span class="font-bold text-slate-700">{{ (currentLogPage - 1) * logPageSize + 1 }}</span>
+              to
+              <span class="font-bold text-slate-700">{{ Math.min(currentLogPage * logPageSize, filteredLogs.length) }}</span>
+              of
+              <span class="font-bold text-slate-700">{{ filteredLogs.length }}</span>
+              operations
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                @click="changeLogPage(currentLogPage - 1)"
+                :disabled="currentLogPage <= 1"
+                class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
+              >
+                Previous
+              </button>
+              <span class="px-2.5 py-1 text-slate-600 font-bold">
+                {{ currentLogPage }} / {{ totalLogPages }}
+              </span>
+              <button
+                @click="changeLogPage(currentLogPage + 1)"
+                :disabled="currentLogPage >= totalLogPages"
+                class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1588,6 +1737,111 @@
         </div>
       </Teleport>
 
+      <!-- ======================================================== -->
+      <!-- MODAL 7: Disaster Recovery Log Details Inspection Modal  -->
+      <!-- ======================================================== -->
+      <Teleport to="body">
+        <div
+          v-if="selectedLogForDetail"
+          class="fixed inset-0 z-[150] overflow-y-auto bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 pointer-events-auto animate-fade-in"
+          @click.self="closeLogDetailModal"
+        >
+          <div
+            class="my-auto bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-5 sm:p-6 animate-scale-up space-y-5 max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar pointer-events-auto"
+            @click.stop
+          >
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <div class="p-2.5 rounded-xl bg-purple-50 text-purple-700 shrink-0">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold text-slate-900 tracking-tight">Disaster Recovery Event Details</h3>
+                  <p class="text-[11px] text-slate-400 font-medium">Record ID: #{{ selectedLogForDetail.id }} • Dedicated DR Audit Trail</p>
+                </div>
+              </div>
+              <button
+                @click="closeLogDetailModal"
+                class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Close"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Modal Body Details -->
+            <div class="space-y-4">
+              <!-- Event Classification & Timestamp -->
+              <div class="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                <div>
+                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Event Type</div>
+                  <div class="mt-1">
+                    <span
+                      class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border inline-flex items-center"
+                      :class="getLogBadgeClass(selectedLogForDetail.event_type)"
+                    >
+                      {{ formatLogEventName(selectedLogForDetail.event_type) }}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Recorded At</div>
+                  <div class="text-xs font-bold text-slate-800 mt-1 font-mono">
+                    {{ formatDate(selectedLogForDetail.created_at) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Initiator & Security Info -->
+              <div class="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                <div>
+                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Initiated By</div>
+                  <div class="text-xs font-bold text-slate-800 mt-1">
+                    {{ selectedLogForDetail.actor_name || 'System Automation / Admin' }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Network IP</div>
+                  <div class="text-xs font-mono font-bold text-slate-700 mt-1">
+                    {{ selectedLogForDetail.ip_address || '127.0.0.1 (Local System)' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Operation Outcome & Description -->
+              <div class="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-1.5 shadow-2xs">
+                <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Operation Details &amp; Outcome</div>
+                <p class="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">
+                  {{ selectedLogForDetail.details || 'No additional details logged for this operation.' }}
+                </p>
+              </div>
+
+              <!-- Device / Environment Summary if available -->
+              <div v-if="selectedLogForDetail.device_summary" class="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Execution Environment</span>
+                <span class="font-mono text-[11px]">{{ selectedLogForDetail.device_summary }}</span>
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="pt-3 border-t border-slate-100 flex justify-end">
+              <button
+                @click="closeLogDetailModal"
+                type="button"
+                class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
+              >
+                Close Details
+              </button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
     </template>
   </MainLayout>
 </template>
@@ -1773,6 +2027,107 @@ const canExecuteRestore = computed(() => {
 
 // Disaster Recovery Operations Logs State
 const recentLogs = ref([]);
+const logSearch = ref('');
+const logEventTypeFilter = ref('ALL');
+const currentLogPage = ref(1);
+const logPageSize = ref(10);
+const selectedLogForDetail = ref(null);
+
+const filteredLogs = computed(() => {
+  let list = recentLogs.value || [];
+
+  if (logEventTypeFilter.value !== 'ALL') {
+    list = list.filter((log) => log.event_type === logEventTypeFilter.value);
+  }
+
+  const query = logSearch.value.trim().toLowerCase();
+  if (query) {
+    list = list.filter((log) => {
+      const details = (log.details || '').toLowerCase();
+      const actor = (log.actor_name || '').toLowerCase();
+      const eventType = (log.event_type || '').toLowerCase();
+      const ip = (log.ip_address || '').toLowerCase();
+      return details.includes(query) || actor.includes(query) || eventType.includes(query) || ip.includes(query);
+    });
+  }
+
+  return list;
+});
+
+const totalLogPages = computed(() => {
+  return Math.max(1, Math.ceil(filteredLogs.value.length / logPageSize.value));
+});
+
+const paginatedLogs = computed(() => {
+  const start = (currentLogPage.value - 1) * logPageSize.value;
+  return filteredLogs.value.slice(start, start + logPageSize.value);
+});
+
+const handleLogSearchInput = () => {
+  currentLogPage.value = 1;
+};
+
+const handleLogFilterChange = () => {
+  currentLogPage.value = 1;
+};
+
+const changeLogPage = (page) => {
+  if (page >= 1 && page <= totalLogPages.value) {
+    currentLogPage.value = page;
+  }
+};
+
+const clearLogFilters = () => {
+  logSearch.value = '';
+  logEventTypeFilter.value = 'ALL';
+  currentLogPage.value = 1;
+};
+
+const openLogDetailModal = (log) => {
+  selectedLogForDetail.value = log;
+};
+
+const closeLogDetailModal = () => {
+  selectedLogForDetail.value = null;
+};
+
+const formatLogEventName = (eventType) => {
+  switch (eventType) {
+    case 'SYSTEM_BACKUP_CREATED':
+      return 'Snapshot Created';
+    case 'SYSTEM_RESTORE_EXECUTED':
+      return 'System Restored';
+    case 'SYSTEM_BACKUP_SYNCED':
+      return 'Drive Synced';
+    case 'SYSTEM_BACKUP_DELETED':
+      return 'Snapshot Deleted';
+    case 'SYSTEM_BACKUP_SCHEDULE_UPDATED':
+      return 'Schedule Updated';
+    case 'SYSTEM_BACKUP_PURGED_RETENTION':
+      return 'Retention Purged';
+    default:
+      return eventType || 'System Event';
+  }
+};
+
+const getLogBadgeClass = (eventType) => {
+  switch (eventType) {
+    case 'SYSTEM_BACKUP_CREATED':
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    case 'SYSTEM_RESTORE_EXECUTED':
+      return 'bg-amber-50 text-amber-800 border-amber-200';
+    case 'SYSTEM_BACKUP_SYNCED':
+      return 'bg-blue-50 text-blue-700 border-blue-200';
+    case 'SYSTEM_BACKUP_DELETED':
+      return 'bg-rose-50 text-rose-700 border-rose-200';
+    case 'SYSTEM_BACKUP_SCHEDULE_UPDATED':
+      return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+    case 'SYSTEM_BACKUP_PURGED_RETENTION':
+      return 'bg-slate-100 text-slate-700 border-slate-200';
+    default:
+      return 'bg-slate-100 text-slate-700 border-slate-200';
+  }
+};
 
 // Google Drive Config Modal State
 const showDriveModal = ref(false);
