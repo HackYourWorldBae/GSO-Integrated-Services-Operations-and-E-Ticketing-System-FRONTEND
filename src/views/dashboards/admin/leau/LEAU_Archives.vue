@@ -402,9 +402,9 @@
                 <BorrowingDetailsSection :ticket="selectedTicket" />
               </div>
               <div v-else class="col-span-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Job Particulars / Description</p>
-                <div class="p-4 bg-white border border-slate-200 rounded-xl">
-                  <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Job Particulars / Description</p>
+                <div class="p-4 sm:p-5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs">
+                  <p class="text-base sm:text-lg font-medium text-slate-900 leading-relaxed">{{ selectedTicket.description }}</p>
                 </div>
               </div>
 

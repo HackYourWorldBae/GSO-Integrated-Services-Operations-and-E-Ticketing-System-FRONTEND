@@ -372,15 +372,15 @@
 
             <div class="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
               <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Ticket ID</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.ticketId }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Ticket ID</p>
+                <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.ticketId }}</p>
               </div>
               <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Requested By</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.requestedBy }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Requested By</p>
+                <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.requestedBy }}</p>
               </div>
               <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Reporter Contact</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Reporter Contact</p>
                 <a
                   v-if="(selectedTicket.contact_number || selectedTicket.contact) && (selectedTicket.contact_number || selectedTicket.contact) !== 'N/A'"
                   :href="`tel:${selectedTicket.contact_number || selectedTicket.contact}`"
@@ -399,13 +399,13 @@
                 </p>
               </div>
               <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.service_type || selectedTicket.service || selectedTicket.title }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Service Type</p>
+                <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.service_type || selectedTicket.service || selectedTicket.title }}</p>
               </div>
               <div class="col-span-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description / Report</p>
-                <div class="p-4 bg-white border border-slate-200 rounded-xl">
-                  <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Description / Report</p>
+                <div class="p-4 sm:p-5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs">
+                  <p class="text-base sm:text-lg font-medium text-slate-900 leading-relaxed">{{ selectedTicket.description }}</p>
                 </div>
               </div>
 
@@ -437,7 +437,7 @@
               
               <!-- Attachments / Photos -->
               <div v-if="selectedTicket.attachments && selectedTicket.attachments.length > 0" class="col-span-2 mt-2">
-                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Attachments / Photos</p>
+                 <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Attachments / Photos</p>
                  <div class="flex flex-col gap-2">
                    <a v-for="att in selectedTicket.attachments" :key="att.id" @click.prevent="downloadAttachment(att)" class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-colors shadow-sm cursor-pointer group">
                      <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
@@ -446,8 +446,8 @@
                        </svg>
                      </div>
                      <div class="flex flex-col overflow-hidden">
-                        <span class="text-xs font-bold text-slate-700 truncate group-hover:text-emerald-700 transition-colors">{{ att.file_name || 'Attachment' }}</span>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase">{{ att.file_size_bytes ? (att.file_size_bytes / 1024).toFixed(1) + ' KB' : 'Unknown Size' }}</span>
+                        <span class="text-sm font-bold text-slate-800 truncate group-hover:text-emerald-700 transition-colors">{{ att.file_name || 'Attachment' }}</span>
+                        <span class="text-xs font-semibold text-slate-400 uppercase">{{ att.file_size_bytes ? (att.file_size_bytes / 1024).toFixed(1) + ' KB' : 'Unknown Size' }}</span>
                      </div>
                    </a>
                  </div>
@@ -459,7 +459,7 @@
                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                </svg>
-               <p class="text-xs font-semibold">This ticket is archived and viewable in read-only mode for record-keeping purposes.</p>
+               <p class="text-sm font-semibold">This ticket is archived and viewable in read-only mode for record-keeping purposes.</p>
             </div>
           </div>
         </div>

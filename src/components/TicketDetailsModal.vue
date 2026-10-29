@@ -402,27 +402,27 @@ const statusBadgeClass = computed(() => {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <!-- Requester Profile -->
               <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">
                   {{ isBorrowing ? 'Borrower Profile' : 'Requester Profile' }}
                 </span>
                 
                 <div class="flex items-start justify-between gap-2">
-                  <p class="text-base font-black text-slate-900 leading-tight">
+                  <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">
                     {{ displayTicket.requesterName }}
                   </p>
                   <span
                     v-if="displayTicket.requesterRole"
-                    class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-200 text-slate-700 border border-slate-300 shrink-0"
+                    class="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-slate-200 text-slate-700 border border-slate-300 shrink-0"
                   >
                     {{ displayTicket.requesterRole }}
                   </span>
                 </div>
 
-                <div v-if="displayTicket.requesterOrg" class="text-xs text-slate-600 font-semibold truncate">
+                <div v-if="displayTicket.requesterOrg" class="text-sm text-slate-600 font-semibold truncate">
                   {{ displayTicket.requesterOrg }}
                 </div>
 
-                <div v-if="displayTicket.studentId" class="text-[11px] text-slate-500 font-mono">
+                <div v-if="displayTicket.studentId" class="text-xs text-slate-500 font-mono">
                   ID: <strong class="text-slate-800">{{ displayTicket.studentId }}</strong>
                 </div>
 
@@ -440,7 +440,7 @@ const statusBadgeClass = computed(() => {
                   </a>
 
                   <!-- Email -->
-                  <p v-if="displayTicket.requesterEmail" class="text-[11px] text-slate-600 font-medium flex items-center gap-1.5 truncate">
+                  <p v-if="displayTicket.requesterEmail" class="text-xs text-slate-600 font-medium flex items-center gap-1.5 truncate">
                     <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
@@ -453,11 +453,11 @@ const statusBadgeClass = computed(() => {
 
               <!-- Designated Location -->
               <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Designated Location</span>
-                <p class="text-base font-black text-slate-900 leading-tight">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Designated Location</span>
+                <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">
                   {{ displayTicket.building }}
                 </p>
-                <p class="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
+                <p class="text-sm text-slate-500 font-semibold flex items-center gap-1.5">
                   <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                   </svg>
@@ -470,10 +470,10 @@ const statusBadgeClass = computed(() => {
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 20V6a2 2 0 00-2-2H8a2 2 0 00-2 2v14 M2 20h20 M14 12v.01" />
                     </svg>
                     <span class="text-xs font-bold text-slate-500">Room / Office:</span>
-                    <span class="text-xs font-black text-slate-900">{{ displayTicket.room }}</span>
+                    <span class="text-sm font-black text-slate-900">{{ displayTicket.room }}</span>
                   </div>
                 </div>
-                <p v-else class="text-[11px] text-slate-400 font-medium italic pt-1">
+                <p v-else class="text-xs text-slate-400 font-medium italic pt-1">
                   No specific room designated
                 </p>
               </div>
@@ -488,21 +488,21 @@ const statusBadgeClass = computed(() => {
             <!-- Service & Job Particulars (for standard repair/maintenance/security work) -->
             <div v-else class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
               <div class="flex items-center justify-between gap-2 border-b border-slate-200/60 pb-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Nature of Work &amp; Description</span>
-                <span class="text-[11px] font-bold text-slate-500">{{ displayTicket.service_type }}</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Nature of Work &amp; Description</span>
+                <span class="text-xs font-bold text-slate-700 bg-slate-200/70 px-2.5 py-0.5 rounded-lg">{{ displayTicket.service_type }}</span>
               </div>
 
               <!-- Full description -->
               <div>
-                <p class="text-xs text-slate-700 leading-relaxed font-medium bg-white p-3.5 rounded-xl border border-slate-200 whitespace-pre-line">
+                <p class="text-base sm:text-lg text-slate-900 leading-relaxed font-medium bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs whitespace-pre-line">
                   {{ displayTicket.description }}
                 </p>
               </div>
 
               <!-- Dispatcher Direct Instructions / Task Notes -->
-              <div v-if="displayTicket.dispatcherNotes" class="p-3.5 rounded-xl bg-amber-50/90 border border-amber-300 text-xs text-amber-950 space-y-1">
-                <span class="text-[10px] font-black uppercase tracking-wider text-amber-900 block flex items-center gap-1.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div v-if="displayTicket.dispatcherNotes" class="p-3.5 sm:p-4 rounded-xl bg-amber-50/90 border border-amber-300 text-sm text-amber-950 space-y-1">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-900 block flex items-center gap-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   Dispatcher Instructions &amp; Task Notes
@@ -511,8 +511,8 @@ const statusBadgeClass = computed(() => {
               </div>
 
               <!-- Special Instructions -->
-              <div v-if="displayTicket.specialInstructions" class="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700 space-y-1">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block">Special Instructions</span>
+              <div v-if="displayTicket.specialInstructions" class="p-3.5 sm:p-4 rounded-xl bg-slate-100 border border-slate-200 text-sm text-slate-700 space-y-1">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Special Instructions</span>
                 <p class="font-medium leading-relaxed whitespace-pre-line">{{ displayTicket.specialInstructions }}</p>
               </div>
             </div>

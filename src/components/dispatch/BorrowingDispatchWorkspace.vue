@@ -49,16 +49,16 @@
       <!-- Schedule from form (read-only, no setup needed) -->
       <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
         <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
-          <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest block">Pickup Date (from form)</span>
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Pickup Date (from form)</span>
           <p class="text-base sm:text-lg font-black text-white mt-1">{{ formatDate(borrowing?.date_needed) }}</p>
         </div>
         <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
-          <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest block">Expected Return (from form)</span>
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Expected Return (from form)</span>
           <p class="text-base sm:text-lg font-black text-white mt-1">{{ formatDate(borrowing?.expected_return_date) }}</p>
         </div>
         <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
-          <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest block">Purpose / Project</span>
-          <p class="text-xs sm:text-sm font-semibold text-slate-200 mt-1 line-clamp-3">{{ borrowing?.purpose_project || '—' }}</p>
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Purpose / Project</span>
+          <p class="text-base sm:text-lg font-medium text-white mt-1 leading-relaxed">{{ borrowing?.purpose_project || '—' }}</p>
         </div>
       </div>
 
@@ -67,7 +67,7 @@
         <!-- Organized Borrower Information Card -->
         <div class="lg:col-span-7 bg-white/5 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-white/10 p-5 sm:p-6 space-y-4">
           <div class="flex items-center justify-between gap-3 flex-wrap">
-            <span class="text-[10px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
               <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -76,13 +76,13 @@
             <div class="flex items-center gap-2 flex-wrap">
               <span
                 v-if="resolvedBorrower.type"
-                class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black uppercase tracking-wider"
+                class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold uppercase tracking-wider"
               >
                 {{ resolvedBorrower.type }}
               </span>
               <span
                 v-if="resolvedBorrower.idNumber"
-                class="px-2.5 py-0.5 rounded-full bg-white/10 text-slate-200 border border-white/15 text-[10px] font-mono font-bold"
+                class="px-2.5 py-0.5 rounded-full bg-white/10 text-slate-200 border border-white/15 text-xs font-mono font-bold"
               >
                 ID: {{ resolvedBorrower.idNumber }}
               </span>
@@ -117,11 +117,11 @@
                 </svg>
               </div>
               <div class="min-w-0 flex-1">
-                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block leading-none mb-0.5">Email Address</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block leading-none mb-1">Email Address</span>
                 <a
                   v-if="resolvedBorrower.email && resolvedBorrower.email !== 'N/A'"
                   :href="`mailto:${resolvedBorrower.email}`"
-                  class="text-xs font-semibold text-slate-200 hover:text-white truncate block transition-colors"
+                  class="text-sm font-semibold text-slate-200 hover:text-white truncate block transition-colors"
                 >
                   {{ resolvedBorrower.email }}
                 </a>
@@ -137,11 +137,11 @@
                 </svg>
               </div>
               <div class="min-w-0 flex-1">
-                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block leading-none mb-0.5">Contact Number</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block leading-none mb-1">Contact Number</span>
                 <a
                   v-if="resolvedBorrower.contact && resolvedBorrower.contact !== 'N/A'"
                   :href="`tel:${resolvedBorrower.contact}`"
-                  class="text-xs font-mono font-bold text-emerald-300 hover:text-emerald-200 truncate block transition-colors"
+                  class="text-sm font-mono font-bold text-emerald-300 hover:text-emerald-200 truncate block transition-colors"
                 >
                   {{ resolvedBorrower.contact }}
                 </a>
@@ -154,7 +154,7 @@
         <!-- Assigned Inventory Summary Card -->
         <div class="lg:col-span-5 bg-white/5 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-white/10 p-5 sm:p-6 space-y-3 flex flex-col justify-between">
           <div class="space-y-2">
-            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300 block">Assigned Inventory</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 block">Assigned Inventory</span>
             <div v-if="borrowing?.assigned_inventory_id" class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
               <p class="text-sm font-black text-amber-300 leading-tight">
                 {{ assignedInventoryName }}

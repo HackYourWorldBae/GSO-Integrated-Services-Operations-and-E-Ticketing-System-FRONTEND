@@ -1324,7 +1324,7 @@
           <!-- Requester & Location Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Requester Profile</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Requester Profile</span>
               <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicketForModal.requestedBy }}</p>
               <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
                 <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
@@ -1349,7 +1349,7 @@
             </div>
 
             <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">
                 {{ isBorrowingService(selectedTicketForModal) ? 'Department / College' : 'Designated Location' }}
               </span>
               <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">
@@ -1450,7 +1450,7 @@
           <!-- Service & Particulars -->
           <div v-else class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
             <div class="flex items-center justify-between gap-3 flex-wrap">
-              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Job Particular &amp; Nature of Work</span>
               <div class="flex items-center gap-2">
                 <span class="px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-xs font-black uppercase tracking-wider border border-emerald-200">
                   {{ selectedTicketForModal.service }}
@@ -1469,7 +1469,7 @@
                 </button>
               </div>
             </div>
-            <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/70 shadow-2xs">
+            <p class="text-base sm:text-lg text-slate-900 leading-relaxed font-medium whitespace-pre-wrap bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
               {{ selectedTicketForModal.description || selectedTicketForModal.title || 'No additional job description provided.' }}
             </p>
             <div v-if="selectedTicketForModal.is_recategorized" class="p-2.5 rounded-xl bg-sky-50 border border-sky-200 text-[11px] text-sky-900 flex items-start gap-2">

@@ -754,7 +754,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <!-- Requester Profile -->
               <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Requester Profile</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Requester Profile</span>
                 <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicket.requester || 'End User' }}</p>
                 <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
                   <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -812,12 +812,12 @@
             <!-- Service & Job Particulars -->
             <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
               <div class="flex items-center justify-between gap-3">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Job Particular &amp; Nature of Work</span>
                 <span class="px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border bg-indigo-50 text-indigo-700 border-indigo-200">
                   {{ selectedTicket.service || selectedTicket.service_type || 'General Service' }}
                 </span>
               </div>
-              <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/70 shadow-2xs">
+              <p class="text-base sm:text-lg text-slate-900 leading-relaxed font-medium whitespace-pre-wrap bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
                 {{ selectedTicket.job_description || selectedTicket.description || selectedTicket.title || 'No detailed scope notes provided.' }}
               </p>
             </div>

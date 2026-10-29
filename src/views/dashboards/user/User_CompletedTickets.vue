@@ -361,15 +361,15 @@
 
             <div class="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
               <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Ticket ID</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.ticketId }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Ticket ID</p>
+                <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.ticketId }}</p>
               </div>
               <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Requested By</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.requestedBy }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Requested By</p>
+                <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.requestedBy }}</p>
               </div>
               <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Contact Number</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Contact Number</p>
                 <a
                   v-if="selectedTicket.contact_number && selectedTicket.contact_number !== 'N/A'"
                   :href="`tel:${selectedTicket.contact_number}`"
@@ -388,47 +388,47 @@
                 </p>
               </div>
               <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Unit Assigned</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.unit }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Unit Assigned</p>
+                <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.unit }}</p>
               </div>
               <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Service Type</p>
-                <p class="text-base font-semibold text-slate-900">{{ selectedTicket.service_type || selectedTicket.service || selectedTicket.title }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Service Type</p>
+                <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.service_type || selectedTicket.service || selectedTicket.title }}</p>
               </div>
               <div v-if="!isIncidentTicket(selectedTicket) && !isBorrowingService(selectedTicket) && selectedTicket.workingDays">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Duration</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Target Duration</p>
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <p class="text-base font-semibold text-emerald-800">{{ selectedTicket.workingDays }} Working Day(s)</p>
-                  <span v-if="selectedTicket.extension_days > 0" class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-100 text-amber-800 border border-amber-200">
+                  <p class="text-base sm:text-lg font-black text-emerald-800">{{ selectedTicket.workingDays }} Working Day(s)</p>
+                  <span v-if="selectedTicket.extension_days > 0" class="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
                     +{{ selectedTicket.extension_days }}d Ext
                   </span>
                 </div>
               </div>
               <div v-if="!isIncidentTicket(selectedTicket) && !isBorrowingService(selectedTicket) && (selectedTicket.effective_target_date || selectedTicket.target_completion_date)">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Completion Date</p>
-                <p class="text-base font-semibold text-slate-800">{{ formatDate(selectedTicket.effective_target_date || selectedTicket.target_completion_date) }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Target Completion Date</p>
+                <p class="text-base sm:text-lg font-black text-slate-800">{{ formatDate(selectedTicket.effective_target_date || selectedTicket.target_completion_date) }}</p>
               </div>
 
               <!-- Borrowing Details Summary if Borrowing Request -->
               <template v-if="isBorrowingService(selectedTicket)">
                 <div v-if="selectedTicket.borrowing?.item_name_requested || selectedTicket.item_name_requested">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Item(s) Borrowed</p>
-                  <p class="text-base font-semibold text-slate-900">{{ selectedTicket.borrowing?.item_name_requested || selectedTicket.item_name_requested }}</p>
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Item(s) Borrowed</p>
+                  <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.borrowing?.item_name_requested || selectedTicket.item_name_requested }}</p>
                 </div>
                 <div v-if="selectedTicket.borrowing?.assigned_quantity || selectedTicket.borrowing?.quantity_needed || selectedTicket.quantity_needed">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Quantity</p>
-                  <p class="text-base font-semibold text-slate-900">{{ selectedTicket.borrowing?.assigned_quantity || selectedTicket.borrowing?.quantity_needed || selectedTicket.quantity_needed || 1 }} unit(s)</p>
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Quantity</p>
+                  <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.borrowing?.assigned_quantity || selectedTicket.borrowing?.quantity_needed || selectedTicket.quantity_needed || 1 }} unit(s)</p>
                 </div>
                 <div v-if="selectedTicket.borrowing?.date_needed || selectedTicket.date_needed">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date Needed / Pickup</p>
-                  <p class="text-base font-semibold text-slate-900">{{ formatDate(selectedTicket.borrowing?.date_needed || selectedTicket.date_needed) }}</p>
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Date Needed / Pickup</p>
+                  <p class="text-base sm:text-lg font-black text-slate-900">{{ formatDate(selectedTicket.borrowing?.date_needed || selectedTicket.date_needed) }}</p>
                 </div>
                 <div v-if="selectedTicket.borrowing?.returned_at || selectedTicket.returned_at || selectedTicket.borrowing?.expected_return_date || selectedTicket.expected_return_date">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Return Date</p>
-                  <p class="text-base font-semibold text-slate-900">{{ formatDate(selectedTicket.borrowing?.returned_at || selectedTicket.returned_at || selectedTicket.borrowing?.expected_return_date || selectedTicket.expected_return_date) }}</p>
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Return Date</p>
+                  <p class="text-base sm:text-lg font-black text-slate-900">{{ formatDate(selectedTicket.borrowing?.returned_at || selectedTicket.returned_at || selectedTicket.borrowing?.expected_return_date || selectedTicket.expected_return_date) }}</p>
                 </div>
                 <div v-if="selectedTicket.borrowing?.return_condition" class="col-span-2">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Return Inspection Condition</p>
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Return Inspection Condition</p>
                   <span class="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-lg uppercase">
                     {{ selectedTicket.borrowing.return_condition }}
                   </span>
@@ -437,9 +437,9 @@
 
               <!-- Dedicated Job Particulars / Description Section -->
               <div v-if="selectedTicket.description" class="col-span-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{{ isBorrowingService(selectedTicket) ? 'Purpose of Use Details' : 'Job Particulars / Description' }}</p>
-                <div class="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
-                  <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ selectedTicket.description }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{{ isBorrowingService(selectedTicket) ? 'Purpose of Use Details' : 'Job Particulars / Description' }}</p>
+                <div class="p-4 sm:p-5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs">
+                  <p class="text-base sm:text-lg font-medium text-slate-900 leading-relaxed">{{ selectedTicket.description }}</p>
                 </div>
               </div>
 

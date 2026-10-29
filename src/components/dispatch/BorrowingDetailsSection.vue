@@ -100,20 +100,20 @@ const formatDate = (val) => {
     <!-- Section Header matching Job Particulars header -->
     <div class="flex items-center justify-between gap-3 flex-wrap">
       <div class="flex items-center gap-2">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
           Borrowing Request Particulars
         </span>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
-        <span class="px-3 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-black uppercase tracking-wider border border-amber-200">
+        <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-black uppercase tracking-wider border border-amber-200">
           {{ ticket.service || ticket.service_type || 'Borrowing Request' }}
         </span>
         <span
           v-if="borrowing.status && String(borrowing.status).toLowerCase() !== 'approved_director'"
-          :class="['px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border', statusBadgeClass]"
+          :class="['px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border', statusBadgeClass]"
         >
           {{ borrowingStatusLabel(borrowing.status) }}
         </span>
@@ -124,10 +124,10 @@ const formatDate = (val) => {
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <!-- Item/s Requested -->
       <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/70 shadow-2xs space-y-1">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Item/s Requested</span>
-        <p class="text-sm sm:text-base font-black text-slate-900 leading-tight">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Item/s Requested</span>
+        <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">
           {{ borrowing.item_name_requested || 'Unspecified Item' }}
-          <span v-if="borrowing.item_model_requested" class="text-xs font-semibold text-slate-500 block sm:inline sm:ml-1">
+          <span v-if="borrowing.item_model_requested" class="text-sm font-semibold text-slate-600 block sm:inline sm:ml-1">
             ({{ borrowing.item_model_requested }})
           </span>
         </p>
@@ -135,10 +135,10 @@ const formatDate = (val) => {
 
       <!-- Quantity Requested / Assigned -->
       <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/70 shadow-2xs space-y-1">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Quantity</span>
-        <p class="text-sm sm:text-base font-black text-slate-900 leading-tight">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Quantity</span>
+        <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">
           {{ borrowing.assigned_quantity || borrowing.quantity_needed || 1 }}
-          <span class="text-xs font-semibold text-slate-500">
+          <span class="text-sm font-semibold text-slate-600">
             {{ Number(borrowing.assigned_quantity || borrowing.quantity_needed || 1) === 1 ? 'unit' : 'units' }}
           </span>
           <span v-if="borrowing.assigned_quantity && borrowing.quantity_needed && borrowing.assigned_quantity !== borrowing.quantity_needed" class="text-xs font-bold text-amber-700 block mt-0.5">
@@ -151,44 +151,44 @@ const formatDate = (val) => {
     <!-- Row 2: Schedule (2 columns) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/70 shadow-2xs space-y-1">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Pickup Date</span>
-        <p class="text-sm sm:text-base font-black text-slate-900 leading-tight">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Pickup Date</span>
+        <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">
           {{ formatDate(borrowing.date_needed) }}
         </p>
       </div>
       <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/70 shadow-2xs space-y-1">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Expected Return Date</span>
-        <p class="text-sm sm:text-base font-black text-slate-900 leading-tight">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Expected Return Date</span>
+        <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">
           {{ formatDate(borrowing.expected_return_date) }}
         </p>
       </div>
     </div>
 
     <!-- Row 3: Purpose of Use Details (Full width) -->
-    <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/70 shadow-2xs space-y-1">
-      <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Purpose of Use Details</span>
-      <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">
+    <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-2">
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Purpose of Use Details</span>
+      <p class="text-base sm:text-lg text-slate-900 leading-relaxed font-medium whitespace-pre-wrap">
         {{ borrowing.purpose_project || ticket.description || 'No detailed purpose provided.' }}
       </p>
     </div>
 
     <!-- Row 4: Return Inspection (if recorded) -->
     <div v-if="borrowing.returned_at || borrowing.return_condition" class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/70 shadow-2xs space-y-2">
-      <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400">
+      <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500">
         <span class="flex items-center gap-1.5 text-emerald-700 font-bold">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
           </svg>
           Return Inspection
         </span>
-        <span v-if="borrowing.returned_at" class="text-slate-500 font-semibold">{{ formatDate(borrowing.returned_at) }}</span>
+        <span v-if="borrowing.returned_at" class="text-slate-600 font-semibold">{{ formatDate(borrowing.returned_at) }}</span>
       </div>
       <div v-if="borrowing.return_condition" class="flex items-center gap-2">
         <span class="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
           Condition: {{ borrowing.return_condition }}
         </span>
       </div>
-      <p v-if="borrowing.return_notes" class="text-xs text-slate-600 italic">
+      <p v-if="borrowing.return_notes" class="text-sm text-slate-700 italic">
         "{{ borrowing.return_notes }}"
       </p>
     </div>

@@ -988,9 +988,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <!-- Requester Profile -->
               <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Requester Profile</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Requester Profile</span>
                 <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicket.requester }}</p>
-                <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
+                <p class="text-xs sm:text-sm text-slate-600 font-semibold flex items-center gap-2">
                   <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                   </svg>
@@ -1016,11 +1016,11 @@
 
               <!-- Designated Location -->
               <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Designated Location</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Designated Location</span>
                 <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">
                   {{ selectedTicket.location || selectedTicket.college_building || 'Main Campus' }}
                 </p>
-                <p class="text-xs text-slate-500 font-semibold flex items-center gap-2">
+                <p class="text-xs sm:text-sm text-slate-500 font-semibold flex items-center gap-2">
                   <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                   </svg>
@@ -1053,7 +1053,7 @@
             <!-- Service & Job Particulars (Non-borrowing requests) -->
             <div v-else class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
               <div class="flex items-center justify-between gap-3">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Job Particular &amp; Nature of Work</span>
                 <span
                   :class="[
                     'px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border',
@@ -1063,7 +1063,7 @@
                   {{ selectedTicket.service || selectedTicket.type }}
                 </span>
               </div>
-              <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/70 shadow-2xs">
+              <p class="text-base sm:text-lg text-slate-900 leading-relaxed font-medium whitespace-pre-wrap bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
                 {{ selectedTicket.job_description || selectedTicket.description || 'No detailed scope notes provided by client.' }}
               </p>
             </div>

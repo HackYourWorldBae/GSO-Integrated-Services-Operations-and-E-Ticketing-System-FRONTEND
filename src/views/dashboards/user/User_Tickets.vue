@@ -1173,8 +1173,10 @@ const FormRow = defineComponent({
   props: { label: String, value: String, full: Boolean },
   setup(props) {
     return () => h('div', { class: props.full ? 'col-span-2' : '' }, [
-      h('p', { class: 'text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5' }, props.label),
-      h('p', { class: 'text-xs font-bold text-slate-700 leading-relaxed' }, props.value || 'N/A'),
+      h('p', { class: 'text-xs font-bold text-slate-500 uppercase tracking-wider mb-1' }, props.label),
+      props.full
+        ? h('p', { class: 'text-base sm:text-lg font-medium text-slate-900 leading-relaxed whitespace-pre-line p-3.5 sm:p-4 bg-white rounded-xl border border-slate-200/80 shadow-2xs' }, props.value || 'N/A')
+        : h('p', { class: 'text-sm font-bold text-slate-800 leading-relaxed' }, props.value || 'N/A'),
     ]);
   },
 });
@@ -1317,6 +1319,7 @@ const DigitalFormCard = defineComponent({
           ...((!isUnscheduledTicket(t) && t.implementationDate) ? [h(FormRow, { label: 'Implementation Date', value: t.implementationDate })] : []),
           ...((!isUnscheduledTicket(t) && t.workingDays) ? [h(FormRow, { label: 'Target Working Days', value: `${t.workingDays} Day(s)` + (t.extension_days > 0 ? ` (+${t.extension_days}d ext)` : '') })] : []),
           ...((!isUnscheduledTicket(t) && (t.effective_target_date || t.target_completion_date)) ? [h(FormRow, { label: 'Target Completion Date', value: formatDate(t.effective_target_date || t.target_completion_date) })] : []),
+          ...(t.description ? [h(FormRow, { label: 'Job Particular / Description', value: t.description, full: true })] : []),
         ]),
         ...(t.attachments?.length ? [h(AttachmentList, { attachments: t.attachments, onDownload: (att) => emit('download', att) })] : []),
       ]);

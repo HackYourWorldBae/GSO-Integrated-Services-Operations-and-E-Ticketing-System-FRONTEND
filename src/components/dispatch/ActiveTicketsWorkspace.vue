@@ -1239,7 +1239,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <!-- Requester Profile -->
               <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">{{ isModalBorrowing ? 'Borrower Profile' : 'Requester Profile' }}</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">{{ isModalBorrowing ? 'Borrower Profile' : 'Requester Profile' }}</span>
                 <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">{{ selectedTicketForModal.requester }}</p>
                 <p class="text-xs text-slate-600 font-semibold flex items-center gap-2">
                   <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1267,7 +1267,7 @@
 
               <!-- Designated Location -->
               <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">{{ isModalBorrowing ? 'Department / College' : 'Designated Location' }}</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">{{ isModalBorrowing ? 'Department / College' : 'Designated Location' }}</span>
                 <p class="text-base sm:text-lg font-black text-slate-900 leading-tight">
                   {{ selectedTicketForModal.location || selectedTicketForModal.college_building || 'Main Campus' }}
                 </p>
@@ -1327,7 +1327,7 @@
             <!-- Service & Job Particulars (Non-borrowing requests) -->
             <div v-else class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
               <div class="flex items-center justify-between gap-3">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Job Particular &amp; Nature of Work</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Job Particular &amp; Nature of Work</span>
                 <span
                   :class="[
                     'px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border',
@@ -1337,7 +1337,7 @@
                   {{ selectedTicketForModal.service || selectedTicketForModal.type }}
                 </span>
               </div>
-              <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/70 shadow-2xs">
+              <p class="text-base sm:text-lg text-slate-900 leading-relaxed font-medium whitespace-pre-wrap bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
                 {{ selectedTicketForModal.job_description || selectedTicketForModal.description || selectedTicketForModal.title || 'No detailed scope notes provided.' }}
               </p>
             </div>
