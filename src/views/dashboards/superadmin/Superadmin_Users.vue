@@ -198,7 +198,7 @@
                 <tr class="border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                   <th class="pb-3 px-3">User / Identity</th>
                   <th class="pb-3 px-3">Role</th>
-                  <th class="pb-3 px-3">Unit Affiliation</th>
+                  <th class="pb-3 px-3">Unit</th>
                   <th class="pb-3 px-3">Verification</th>
                   <th class="pb-3 px-3">Status</th>
                   <th class="pb-3 px-3">Session</th>
@@ -210,58 +210,49 @@
               <tbody class="divide-y divide-slate-50 text-xs">
                 <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50/70 transition-colors">
                   <!-- Name & Email -->
-                  <td class="py-3.5 px-3">
+                  <td class="py-3 px-3">
                     <div class="flex items-center gap-3">
                       <img
                         v-if="user.avatar_path"
                         :src="getAvatarUrl(user.id)"
                         alt="Avatar"
-                        class="w-9 h-9 rounded-xl object-cover border border-purple-200 shrink-0"
+                        class="w-8 h-8 rounded-xl object-cover border border-purple-200 shrink-0"
                       />
-                      <div v-else class="w-9 h-9 rounded-xl bg-purple-50 text-purple-700 font-bold flex items-center justify-center shrink-0 border border-purple-100">
+                      <div v-else class="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 font-bold flex items-center justify-center shrink-0 border border-purple-100 text-xs">
                         {{ user.first_name ? user.first_name.charAt(0).toUpperCase() : 'U' }}
                       </div>
                       <div class="flex flex-col min-w-0">
-                        <div class="flex items-center gap-1.5">
-                          <span class="font-bold text-slate-900 truncate">{{ user.first_name }} {{ user.last_name }}</span>
-                          <span v-if="user.student_id_number" class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 text-slate-600">
-                            {{ user.student_id_number }}
-                          </span>
-                        </div>
+                        <span class="font-bold text-slate-900 truncate">{{ user.first_name }} {{ user.last_name }}</span>
                         <span class="text-[11px] text-slate-500 truncate">{{ user.role === 'worker' ? (user.username || user.email ? '@' + (user.username || user.email) : 'No username') : (user.email || 'No email provided') }}</span>
-                        <span v-if="user.contact_number && (!isInternalRole(user.role) || user.role === 'worker')" class="text-[10px] text-slate-400 font-medium">📞 {{ user.contact_number }}</span>
                       </div>
                     </div>
                   </td>
 
                   <!-- Role -->
-                  <td class="py-3.5 px-3">
-                    <div class="flex flex-col gap-1 items-start">
-                      <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
+                  <td class="py-3 px-3 whitespace-nowrap">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
                         {{ formatRole(user.role) }}
                       </span>
-                      <span v-if="user.specialty" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200">
-                        {{ user.specialty }}
-                      </span>
-                      <span v-if="user.role === 'student' && getStudentTypeLabel(user.student_type)" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-purple-50 text-purple-700 border border-purple-200">
-                        {{ getStudentTypeLabel(user.student_type) }}
+                      <span v-if="user.specialty" class="text-[10px] font-bold text-slate-500">
+                        ({{ user.specialty }})
                       </span>
                     </div>
                   </td>
 
                   <!-- Unit -->
-                  <td class="py-3.5 px-3">
-                    <span v-if="user.unit_code" class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
+                  <td class="py-3 px-3 whitespace-nowrap">
+                    <span v-if="user.unit_code" class="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
                       {{ user.unit_code }}
                     </span>
-                    <span v-else class="text-[11px] text-slate-400 italic">None (Global)</span>
+                    <span v-else class="text-xs text-slate-400">Global</span>
                   </td>
 
                   <!-- Verification Column -->
-                  <td class="py-3.5 px-3">
+                  <td class="py-3 px-3 whitespace-nowrap">
                     <span 
                       v-if="user.status === 'Rejected'" 
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200"
+                      class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200"
                     >
                       <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
@@ -270,7 +261,7 @@
                     </span>
                     <span 
                       v-else-if="isUserVerified(user)" 
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"
                     >
                       <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -280,35 +271,36 @@
                     <button
                       v-else-if="canViewId(user)"
                       @click="openInspectModal(user)"
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 transition-colors"
+                      class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 transition-colors cursor-pointer"
+                      title="Inspect ID & verify credentials"
                     >
                       <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                       Pending ID
                     </button>
                     <span
                       v-else
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200"
+                      class="text-slate-400 text-xs px-2"
                     >
-                      N/A
+                      —
                     </span>
                   </td>
 
                   <!-- Status -->
-                  <td class="py-3.5 px-3">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getStatusBadgeClass(user.status)">
+                  <td class="py-3 px-3 whitespace-nowrap">
+                    <div class="flex items-center gap-1.5">
+                      <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getStatusBadgeClass(user.status)">
                         {{ user.status || 'Active' }}
                       </span>
                       <span
                         v-if="user.is_inactive_candidate"
-                        class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1"
+                        class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-100 text-amber-800 border border-amber-300"
                         title="Inactive: No service requests or login activity recorded for 6+ months"
                       >
-                        6+ Mo Inactive
+                        Inactive
                       </span>
                       <span
                         v-if="isUserLocked(user)"
-                        class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1 animate-pulse"
+                        class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-0.5"
                         title="Account temporarily locked due to failed login attempts"
                       >
                         <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -320,133 +312,97 @@
                   </td>
 
                   <!-- Live Session Tracking Column -->
-                  <td class="py-3.5 px-3">
-                    <div class="flex flex-col gap-1 items-start">
-                      <!-- Active Now / Online -->
-                      <span 
-                        v-if="user.session_status === 'online'" 
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        title="User is currently authenticated and actively using the system"
-                      >
-                        <span class="relative flex h-2 w-2">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </span>
-                        <span>Active Now</span>
+                  <td class="py-3 px-3 whitespace-nowrap">
+                    <!-- Active Now / Online -->
+                    <span 
+                      v-if="user.session_status === 'online'" 
+                      class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      title="User is currently authenticated and active in the system"
+                    >
+                      <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                       </span>
+                      <span>Active</span>
+                    </span>
 
-                      <!-- Idle -->
-                      <span 
-                        v-else-if="user.session_status === 'idle'" 
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200"
-                        :title="`Session active. ${user.session_label}`"
-                      >
-                        <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                        <span>{{ user.session_label }}</span>
-                      </span>
+                    <!-- Idle -->
+                    <span 
+                      v-else-if="user.session_status === 'idle'" 
+                      class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-amber-50 text-amber-700 border border-amber-200"
+                      :title="`Session idle: ${user.session_label}`"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                      <span>Idle</span>
+                    </span>
 
-                      <!-- Recent Session -->
-                      <span 
-                        v-else-if="user.session_status === 'recent'" 
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-slate-100 text-slate-600 border border-slate-200"
-                        :title="`Recent session. ${user.session_label}`"
-                      >
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                        <span>{{ user.session_label }}</span>
-                      </span>
+                    <!-- Recent Session -->
+                    <span 
+                      v-else-if="user.session_status === 'recent'" 
+                      class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-slate-100 text-slate-600 border border-slate-200"
+                      :title="`Recent session: ${user.session_label}`"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                      <span>Recent</span>
+                    </span>
 
-                      <!-- Offline -->
-                      <span 
-                        v-else 
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-50 text-slate-400 border border-slate-200/60"
-                        :title="user.resolved_last_login_at ? `Last login: ${new Date(user.resolved_last_login_at).toLocaleString()}` : 'No recorded login session'"
-                      >
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                        <span>Offline</span>
-                      </span>
-
-                      <!-- Subtext: Relative login time -->
-                      <span v-if="user.resolved_last_login_at && user.session_status !== 'online'" class="text-[9px] text-slate-400 font-medium pl-1 truncate max-w-[130px]">
-                        Last: {{ formatRelativeDate(user.resolved_last_login_at) }}
-                      </span>
-                      <span v-else-if="!user.resolved_last_login_at" class="text-[9px] text-slate-300 italic pl-1">
-                        Never logged in
-                      </span>
-                    </div>
+                    <!-- Offline -->
+                    <span 
+                      v-else 
+                      class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-50 text-slate-400 border border-slate-200/60"
+                      :title="user.resolved_last_login_at ? `Last login: ${new Date(user.resolved_last_login_at).toLocaleString()}` : 'Never logged in'"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                      <span>Offline</span>
+                    </span>
                   </td>
 
                   <!-- Request Tracking Count -->
-                  <td class="py-3.5 px-3 text-center">
+                  <td class="py-3 px-3 text-center">
                     <span 
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-black transition-all"
+                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold transition-all"
                       :class="(user.request_count || 0) > 0 ? 'bg-purple-50 text-purple-700 border border-purple-200/60' : 'bg-slate-50 text-slate-400 border border-slate-200/40'"
                       :title="`${user.first_name || 'User'} has filed ${user.request_count || 0} service requests`"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
                       {{ user.request_count || 0 }}
                     </span>
                   </td>
 
                   <!-- Joined Date -->
-                  <td class="py-3.5 px-3 text-slate-500 whitespace-nowrap">
+                  <td class="py-3 px-3 text-slate-500 whitespace-nowrap">
                     {{ user.created_at ? new Date(user.created_at).toLocaleDateString() : '—' }}
                   </td>
 
                   <!-- Action Buttons -->
-                  <td class="py-3.5 px-3 text-right">
+                  <td class="py-3 px-3 text-right whitespace-nowrap">
                     <div class="flex items-center justify-end gap-1.5">
                       <!-- Unlock Button if Account is Locked -->
                       <button
                         v-if="isUserLocked(user) && !isCurrentUser(user)"
                         @click="openUnlockModal(user)"
-                        class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs transition-colors cursor-pointer border border-emerald-300 flex items-center gap-1 shadow-xs"
-                        title="Unlock User Account (Reset failed attempts & lockout)"
+                        class="px-2 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs transition-colors cursor-pointer border border-emerald-300 flex items-center gap-1 shadow-2xs"
+                        title="Unlock User Account"
                       >
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
                         </svg>
-                        Unlock
+                        <span>Unlock</span>
                       </button>
 
-                      <!-- Quick Approve / Reject for Pending Users -->
-                      <template v-if="canViewId(user) && !isUserVerified(user) && user.status !== 'Rejected'">
-                        <button
-                          @click="openApproveModal(user)"
-                          class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors cursor-pointer border border-emerald-200/60"
-                          title="Quick Approve User Sign-Up"
-                        >
-                          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </button>
-                        <button
-                          @click="openRejectModal(user)"
-                          class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors cursor-pointer border border-rose-200/60"
-                          title="Quick Reject User Sign-Up"
-                        >
-                          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </template>
-
-                      <!-- Inspect ID Button (Hidden for Administrator & Provisioned Accounts) -->
+                      <!-- Full Info Button (changed from ID, available for all accounts) -->
                       <button
-                        v-if="canViewId(user)"
                         @click="openInspectModal(user)"
-                        class="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer border border-purple-200/50"
-                        title="Inspect Institutional ID Card"
+                        class="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-purple-200/60 shadow-2xs"
+                        title="View complete user profile, institutional credentials, and activity"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        ID
+                        <span>Full Info</span>
                       </button>
 
-                      <!-- Edit Button (Locked/Hidden for Student & Employee registered accounts) -->
+                      <!-- Edit Button (for non-student/employee editable accounts) -->
                       <button
                         v-if="!isRegisteredUser(user)"
                         @click="openEditModal(user)"
@@ -456,65 +412,32 @@
                         Edit
                       </button>
 
-                      <!-- Account Status Actions -->
+                      <!-- Quick Account Status Toggle (Active <-> Suspended / Reactivate Archived) -->
                       <template v-if="!isCurrentUser(user)">
-                        <!-- If Active -->
-                        <template v-if="user.status === 'Active'">
-                          <button
-                            @click="openStatusModal(user, 'Suspended')"
-                            class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer border border-rose-200/60"
-                            title="Suspend Account (Cannot log in, shows Account Suspended)"
-                          >
-                            Suspend
-                          </button>
-                          <button
-                            @click="openStatusModal(user, 'Archived')"
-                            class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors cursor-pointer border border-amber-200/60"
-                            title="Archive Account (Revokes sessions, blocks login, preserves records)"
-                          >
-                            Archive
-                          </button>
-                        </template>
-
-                        <!-- If Suspended -->
-                        <template v-else-if="user.status === 'Suspended'">
-                          <button
-                            @click="openStatusModal(user, 'Active')"
-                            class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition-colors cursor-pointer border border-emerald-200/60"
-                            title="Reactivate Account (Restore portal access)"
-                          >
-                            Reactivate
-                          </button>
-                          <button
-                            @click="openStatusModal(user, 'Archived')"
-                            class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors cursor-pointer border border-amber-200/60"
-                            title="Archive Account"
-                          >
-                            Archive
-                          </button>
-                        </template>
-
-                        <!-- If Archived -->
-                        <template v-else-if="user.status === 'Archived'">
-                          <button
-                            @click="openStatusModal(user, 'Active')"
-                            class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition-colors cursor-pointer border border-emerald-200/60"
-                            title="Reactivate Account (Restore full portal access)"
-                          >
-                            Reactivate
-                          </button>
-                        </template>
-
-                        <!-- Fallback for other statuses (e.g. Rejected) -->
-                        <template v-else>
-                          <button
-                            @click="openStatusModal(user, 'Suspended')"
-                            class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer border border-rose-200/60"
-                            title="Suspend Account"
-                          >
-                            Suspend
-                          </button>
-                        </template>
+                        <button
+                          v-if="user.status === 'Active'"
+                          @click="openStatusModal(user, 'Suspended')"
+                          class="px-2 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer border border-rose-200/60"
+                          title="Suspend Account"
+                        >
+                          Suspend
+                        </button>
+                        <button
+                          v-else-if="user.status === 'Suspended' || user.status === 'Archived'"
+                          @click="openStatusModal(user, 'Active')"
+                          class="px-2 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition-colors cursor-pointer border border-emerald-200/60"
+                          title="Reactivate Account"
+                        >
+                          Reactivate
+                        </button>
+                        <button
+                          v-else
+                          @click="openStatusModal(user, 'Suspended')"
+                          class="px-2 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer border border-rose-200/60"
+                          title="Suspend Account"
+                        >
+                          Suspend
+                        </button>
 
                         <!-- Strict Multistep Delete (Hidden by default, shown when option is enabled) -->
                         <button
@@ -545,45 +468,17 @@
           <!-- Mobile Cards View -->
           <div v-if="!isLoading && !fetchError" class="md:hidden space-y-3">
             <div v-for="user in users" :key="'mob-' + user.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 shadow-2xs">
-              <!-- Top Row: Role, Status, and Verification Badges -->
+              <!-- Top Row: Role and Status Badges -->
               <div class="flex items-center justify-between gap-2 flex-wrap">
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(user.role)">
                     {{ formatRole(user.role) }}
                   </span>
-                  <span v-if="user.specialty" class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
-                    {{ user.specialty }}
-                  </span>
-                  <span v-if="user.role === 'student' && getStudentTypeLabel(user.student_type)" class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
-                    {{ getStudentTypeLabel(user.student_type) }}
-                  </span>
-                  <span 
-                    v-if="user.status === 'Rejected'" 
-                    class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200"
-                  >
-                    Rejected
-                  </span>
-                  <span 
-                    v-else-if="isUserVerified(user)" 
-                    class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"
-                  >
-                    Verified
-                  </span>
-                  <span 
-                    v-else-if="canViewId(user)" 
-                    class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200"
-                  >
-                    Pending ID
-                  </span>
-                  <span 
-                    v-else 
-                    class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200"
-                  >
-                    N/A
+                  <span v-if="user.specialty" class="text-[10px] font-bold text-slate-500">
+                    ({{ user.specialty }})
                   </span>
                 </div>
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <!-- Mobile Live Session Badge -->
                   <span
                     v-if="user.session_status === 'online'"
                     class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"
@@ -592,28 +487,15 @@
                     <span>Online</span>
                   </span>
                   <span
-                    v-else-if="user.session_status === 'idle'"
-                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200"
-                  >
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    <span>Idle</span>
-                  </span>
-
-                  <span
                     v-if="user.is_inactive_candidate"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300"
-                    title="Inactive for 6+ months"
+                    class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-100 text-amber-800 border border-amber-300"
                   >
-                    6+ Mo Inactive
+                    Inactive
                   </span>
-
                   <span
                     v-if="isUserLocked(user)"
-                    class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1 animate-pulse"
+                    class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-rose-100 text-rose-800 border border-rose-300"
                   >
-                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
                     Locked
                   </span>
                   <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getStatusBadgeClass(user.status)">
@@ -628,132 +510,83 @@
                   v-if="user.avatar_path"
                   :src="getAvatarUrl(user.id)"
                   alt="Avatar"
-                  class="w-11 h-11 rounded-xl object-cover border border-purple-200 shrink-0"
+                  class="w-10 h-10 rounded-xl object-cover border border-purple-200 shrink-0"
                 />
-                <div v-else class="w-11 h-11 rounded-xl bg-purple-50 text-purple-700 font-bold flex items-center justify-center shrink-0 border border-purple-100 text-sm">
+                <div v-else class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 font-bold flex items-center justify-center shrink-0 border border-purple-100 text-xs">
                   {{ user.first_name ? user.first_name.charAt(0).toUpperCase() : 'U' }}
                 </div>
                 <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <h4 class="text-sm font-black text-slate-900 leading-snug">{{ user.first_name }} {{ user.last_name }}</h4>
-                    <span v-if="user.student_id_number" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200/60">
-                      {{ user.student_id_number }}
-                    </span>
-                  </div>
-                  <p class="text-xs text-slate-600 font-medium truncate mt-0.5">{{ user.role === 'worker' ? (user.username || user.email ? '@' + (user.username || user.email) : 'No username') : (user.email || 'No email provided') }}</p>
-                  <div class="flex items-center gap-2 text-[11px] text-slate-500 font-semibold mt-1">
-                    <span v-if="user.unit_code">Unit: <strong class="text-slate-800">{{ user.unit_code }}</strong></span>
-                    <span v-else class="italic text-slate-400">Global</span>
-                    <span v-if="user.contact_number && (!isInternalRole(user.role) || user.role === 'worker')">• {{ user.contact_number }}</span>
-                    <span>• <strong class="text-indigo-600">{{ user.request_count || 0 }} reqs</strong></span>
-                  </div>
+                  <h4 class="text-sm font-bold text-slate-900 leading-snug truncate">{{ user.first_name }} {{ user.last_name }}</h4>
+                  <p class="text-xs text-slate-500 truncate mt-0.5">{{ user.role === 'worker' ? (user.username || user.email ? '@' + (user.username || user.email) : 'No username') : (user.email || 'No email provided') }}</p>
+                  <p class="text-[11px] text-slate-400 mt-0.5">
+                    Unit: <span class="font-semibold text-slate-700">{{ user.unit_code || 'Global' }}</span> • {{ user.request_count || 0 }} reqs
+                  </p>
                 </div>
               </div>
 
               <!-- Mobile Actions Area -->
-              <div class="pt-3 border-t border-slate-200 flex flex-col gap-2">
-                <!-- If Unverified: Prompt quick verification (registered accounts only) -->
-                <div v-if="canViewId(user) && !isUserVerified(user) && user.status !== 'Rejected'" class="flex items-center gap-2">
-                  <button
-                    type="button"
-                    @click="openInspectModal(user)"
-                    class="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 min-h-[40px] touch-manipulation cursor-pointer"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    </svg>
-                    <span>Inspect ID</span>
-                  </button>
-                  <button
-                    type="button"
-                    @click="openApproveModal(user)"
-                    class="py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold transition-colors flex items-center gap-1 min-h-[40px] touch-manipulation cursor-pointer"
-                  >
-                    <span>✓</span>
-                    <span>Approve</span>
-                  </button>
-                  <button
-                    type="button"
-                    @click="openRejectModal(user)"
-                    class="py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-colors flex items-center gap-1 min-h-[40px] touch-manipulation cursor-pointer"
-                  >
-                    <span>✕</span>
-                    <span>Reject</span>
-                  </button>
-                </div>
+              <div class="pt-2 border-t border-slate-200/80 flex items-center gap-2 flex-wrap">
+                <!-- Full Info Button -->
+                <button
+                  type="button"
+                  @click="openInspectModal(user)"
+                  class="flex-1 py-2 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[38px] touch-manipulation"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span>Full Info</span>
+                </button>
 
-                <!-- Secondary actions bar -->
-                <div class="flex items-center gap-2 flex-wrap">
-                  <button
-                    v-if="canViewId(user) && (isUserVerified(user) || user.status === 'Rejected')"
-                    type="button"
-                    @click="openInspectModal(user)"
-                    class="py-2 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition-colors flex items-center justify-center gap-1 min-h-[40px] touch-manipulation cursor-pointer"
-                  >
-                    <span>View ID</span>
-                  </button>
-                  <button
-                    v-if="!isRegisteredUser(user)"
-                    type="button"
-                    @click="openEditModal(user)"
-                    class="py-2 px-3 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
-                  >
-                    Edit
-                  </button>
+                <button
+                  v-if="!isRegisteredUser(user)"
+                  type="button"
+                  @click="openEditModal(user)"
+                  class="py-2 px-3 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-colors cursor-pointer min-h-[38px] touch-manipulation"
+                >
+                  Edit
+                </button>
 
+                <button
+                  v-if="isUserLocked(user) && !isCurrentUser(user)"
+                  type="button"
+                  @click="openUnlockModal(user)"
+                  class="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer min-h-[38px] touch-manipulation"
+                >
+                  Unlock
+                </button>
+
+                <template v-if="!isCurrentUser(user)">
                   <button
-                    v-if="isUserLocked(user) && !isCurrentUser(user)"
+                    v-if="user.status === 'Active'"
                     type="button"
-                    @click="openUnlockModal(user)"
-                    class="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold transition-colors flex items-center gap-1 min-h-[40px] touch-manipulation cursor-pointer"
+                    @click="openStatusModal(user, 'Suspended')"
+                    class="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-colors min-h-[38px] touch-manipulation cursor-pointer"
                   >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                    </svg>
-                    <span>Unlock</span>
+                    Suspend
+                  </button>
+                  <button
+                    v-else-if="user.status === 'Suspended' || user.status === 'Archived'"
+                    type="button"
+                    @click="openStatusModal(user, 'Active')"
+                    class="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors min-h-[38px] touch-manipulation cursor-pointer"
+                  >
+                    Reactivate
                   </button>
 
-                  <template v-if="!isCurrentUser(user)">
-                    <button
-                      v-if="user.status === 'Active'"
-                      type="button"
-                      @click="openStatusModal(user, 'Suspended')"
-                      class="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
-                    >
-                      Suspend
-                    </button>
-                    <button
-                      v-if="user.status === 'Active' || user.status === 'Suspended'"
-                      type="button"
-                      @click="openStatusModal(user, 'Archived')"
-                      class="py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
-                    >
-                      Archive
-                    </button>
-                    <button
-                      v-if="user.status === 'Suspended' || user.status === 'Archived'"
-                      type="button"
-                      @click="openStatusModal(user, 'Active')"
-                      class="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors min-h-[40px] touch-manipulation cursor-pointer"
-                    >
-                      Reactivate
-                    </button>
-
-                    <!-- Delete button in mobile: only shown if showDeleteActions is true -->
-                    <button
-                      v-if="showDeleteActions"
-                      type="button"
-                      @click="openStrictDeleteModal(user)"
-                      class="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-colors ml-auto min-h-[40px] touch-manipulation cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                  </template>
-                  <span v-else class="text-[11px] font-bold text-slate-400 italic ml-auto py-2">
-                    Current User
-                  </span>
-                </div>
+                  <button
+                    v-if="showDeleteActions"
+                    type="button"
+                    @click="openStrictDeleteModal(user)"
+                    class="py-2 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs transition-colors ml-auto min-h-[38px] touch-manipulation cursor-pointer"
+                  >
+                    Delete
+                  </button>
+                </template>
+                <span v-else class="text-[11px] font-bold text-slate-400 italic ml-auto py-2">
+                  Current User
+                </span>
               </div>
             </div>
 
@@ -1220,17 +1053,38 @@
           class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar pointer-events-auto my-auto"
           @click.stop
         >
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div>
-              <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[10px] font-black uppercase tracking-wider mb-1">
-                Institutional ID Inspection
+          <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+              <img
+                v-if="inspectingUser.avatar_path"
+                :src="getAvatarUrl(inspectingUser.id)"
+                alt="Avatar"
+                class="w-12 h-12 rounded-2xl object-cover border border-purple-200 shrink-0 shadow-2xs"
+              />
+              <div v-else class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 font-extrabold flex items-center justify-center shrink-0 border border-purple-100 text-lg shadow-2xs">
+                {{ inspectingUser.first_name ? inspectingUser.first_name.charAt(0).toUpperCase() : 'U' }}
               </div>
-              <h3 class="text-lg font-black text-slate-900 tracking-tight">Verify Account Identity</h3>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                    {{ inspectingUser.first_name }} {{ inspectingUser.last_name }}
+                  </h3>
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(inspectingUser.role)">
+                    {{ formatRole(inspectingUser.role) }}
+                  </span>
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getStatusBadgeClass(inspectingUser.status)">
+                    {{ inspectingUser.status || 'Active' }}
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500 truncate mt-0.5 font-medium">
+                  {{ inspectingUser.email || (inspectingUser.username ? '@' + inspectingUser.username : 'No email provided') }}
+                </p>
+              </div>
             </div>
             <button 
               type="button"
               @click="isInspectModalOpen = false" 
-              class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+              class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1238,42 +1092,59 @@
             </button>
           </div>
 
-          <!-- User Details Summary Grid -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-xs">
+          <!-- User Full Profile Information Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs">
             <div>
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</p>
-              <p class="font-bold text-slate-900 mt-0.5 truncate">{{ inspectingUser.first_name }} {{ inspectingUser.last_name }}</p>
+              <p class="font-bold text-slate-900 mt-0.5 truncate">
+                {{ [inspectingUser.first_name, inspectingUser.middle_name, inspectingUser.last_name, inspectingUser.name_extension].filter(Boolean).join(' ') || (inspectingUser.first_name + ' ' + inspectingUser.last_name) }}
+              </p>
             </div>
             <div>
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Role</p>
-              <p class="font-bold text-slate-900 mt-0.5 capitalize">{{ inspectingUser.role }}</p>
+              <p class="font-bold text-slate-900 mt-0.5 capitalize">{{ formatRole(inspectingUser.role) }}</p>
             </div>
             <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ID Number</p>
-              <p class="font-bold text-emerald-700 mt-0.5">{{ inspectingUser.student_id_number || 'N/A' }}</p>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Unit Affiliation</p>
+              <p class="font-bold text-slate-800 mt-0.5">{{ inspectingUser.unit_name || inspectingUser.unit_code || 'Global (Campus-Wide)' }}</p>
             </div>
-            <div v-if="!isInternalRole(inspectingUser.role)">
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact</p>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ID / Student No.</p>
+              <p class="font-bold text-emerald-700 mt-0.5 font-mono">{{ inspectingUser.student_id_number || 'N/A' }}</p>
+            </div>
+
+            <div v-if="inspectingUser.specialty">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trade / Specialty</p>
+              <p class="font-bold text-amber-700 mt-0.5">{{ inspectingUser.specialty }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Classification</p>
+              <p class="font-bold text-slate-800 mt-0.5 truncate">
+                {{ getStudentTypeLabel(inspectingUser.student_type) || inspectingUser.employee_type || 'General Account' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">College / Dept</p>
+              <p class="font-bold text-slate-800 mt-0.5 truncate">
+                {{ inspectingUser.college || inspectingUser.department || inspectingUser.organization_name || 'N/A' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact Number</p>
               <a
                 v-if="inspectingUser.contact_number && inspectingUser.contact_number !== 'N/A'"
                 :href="`tel:${inspectingUser.contact_number}`"
-                class="inline-flex items-center gap-1.5 mt-1 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors group w-fit"
+                class="inline-flex items-center gap-1 mt-0.5 font-bold font-mono text-emerald-700 hover:text-emerald-800 hover:underline"
               >
-                <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                </svg>
-                <span class="text-sm font-black font-mono tracking-wide text-emerald-800 group-hover:text-emerald-900">{{ inspectingUser.contact_number }}</span>
+                <span>📞</span>
+                <span>{{ inspectingUser.contact_number }}</span>
               </a>
-              <p v-else class="text-xs font-semibold text-slate-400 mt-1 flex items-center gap-1">
-                <svg class="w-3.5 h-3.5 text-slate-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                </svg>
-                <span>N/A</span>
-              </p>
+              <p v-else class="text-slate-400 mt-0.5 font-medium">N/A</p>
             </div>
+
             <div class="col-span-2">
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</p>
-              <p class="font-medium text-slate-700 mt-0.5">{{ inspectingUser.email || 'None (Elderly / Offline User)' }}</p>
+              <p class="font-medium text-slate-800 mt-0.5 truncate">{{ inspectingUser.email || 'None' }}</p>
             </div>
             <div>
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Verification Status</p>
@@ -1281,21 +1152,34 @@
                 class="font-bold mt-0.5" 
                 :class="inspectingUser.status === 'Rejected' ? 'text-rose-600' : (isUserVerified(inspectingUser) ? 'text-emerald-700' : 'text-amber-600')"
               >
-                {{ inspectingUser.status === 'Rejected' ? 'Rejected' : (isUserVerified(inspectingUser) ? 'Verified' : 'Pending Verification') }}
+                {{ inspectingUser.status === 'Rejected' ? 'Rejected' : (isUserVerified(inspectingUser) ? 'Verified' : 'Pending ID') }}
               </p>
             </div>
             <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Requests Submitted</p>
-              <div class="flex items-center gap-1.5 mt-0.5">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-indigo-50 text-indigo-700 border border-indigo-200">
-                  {{ inspectingUser.request_count || 0 }} Requests
-                </span>
-              </div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Session / Activity</p>
+              <p class="font-bold mt-0.5" :class="inspectingUser.session_status === 'online' ? 'text-emerald-600' : 'text-slate-600'">
+                {{ inspectingUser.session_status === 'online' ? 'Active Now (Online)' : (inspectingUser.resolved_last_login_at ? formatRelativeDate(inspectingUser.resolved_last_login_at) : 'Never logged in') }}
+              </p>
+            </div>
+
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Requests Filed</p>
+              <p class="font-bold text-indigo-700 mt-0.5">{{ inspectingUser.request_count || 0 }} service requests</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Registration Date</p>
+              <p class="font-medium text-slate-700 mt-0.5">{{ inspectingUser.created_at ? new Date(inspectingUser.created_at).toLocaleDateString() : '—' }}</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Security State</p>
+              <p class="font-medium mt-0.5" :class="isUserLocked(inspectingUser) ? 'text-rose-600 font-bold' : 'text-slate-600'">
+                {{ isUserLocked(inspectingUser) ? 'Account Temporarily Locked (Failed Logins)' : 'Account Normal (Unlocked)' }}
+              </p>
             </div>
           </div>
 
-          <!-- Uploaded ID Card & Selfie High-Res Image Display -->
-          <div class="space-y-2">
+          <!-- Uploaded ID Card & Selfie High-Res Image Display (for registered accounts with IDs) -->
+          <div v-if="canViewId(inspectingUser)" class="space-y-2">
             <div class="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2">
               <!-- Dual Document Tabs -->
               <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
@@ -1345,8 +1229,23 @@
               </div>
             </div>
             <p class="text-[11px] text-slate-500 italic">
-              Verification check: ensure the photo, full name, and ID number match, and verify that the person in the selfie matches the ID card photo.
+              Verification check: verify that the photo, full name, and institutional ID number match.
             </p>
+          </div>
+
+          <!-- Internal Account Notice (for staff, admin, worker without ID uploads) -->
+          <div v-else class="p-4 rounded-2xl bg-purple-50/70 border border-purple-200/80 flex items-center gap-3.5 text-xs text-purple-950">
+            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-purple-900">Provisioned System Account</h4>
+              <p class="text-[11px] text-purple-800/90 mt-0.5 leading-relaxed">
+                Internal administrative, management, and personnel accounts are provisioned directly by system superadministrators. Institutional ID card verification is exempt.
+              </p>
+            </div>
           </div>
 
           <!-- Actions -->
@@ -1354,29 +1253,31 @@
             <button 
               type="button"
               @click="isInspectModalOpen = false" 
-              class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors"
+              class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer"
             >
-              Cancel
+              Close
             </button>
-            <button 
-              type="button"
-              :disabled="isActionLoading || inspectingUser.status === 'Rejected'"
-              @click="openRejectModal(inspectingUser)" 
-              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <span>{{ inspectingUser.status === 'Rejected' ? 'Already Rejected' : 'Reject / Invalidate' }}</span>
-            </button>
-            <button 
-              type="button"
-              :disabled="isActionLoading || isUserVerified(inspectingUser)"
-              @click="openApproveModal(inspectingUser)" 
-              class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <svg v-if="!isActionLoading" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{{ isUserVerified(inspectingUser) ? 'Already Verified' : 'Approve & Verify Identity' }}</span>
-            </button>
+            <template v-if="canViewId(inspectingUser)">
+              <button 
+                type="button"
+                :disabled="isActionLoading || inspectingUser.status === 'Rejected'"
+                @click="openRejectModal(inspectingUser)" 
+                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>{{ inspectingUser.status === 'Rejected' ? 'Already Rejected' : 'Reject Sign-Up' }}</span>
+              </button>
+              <button 
+                type="button"
+                :disabled="isActionLoading || isUserVerified(inspectingUser)"
+                @click="openApproveModal(inspectingUser)" 
+                class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <svg v-if="!isActionLoading" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>{{ isUserVerified(inspectingUser) ? 'Verified' : 'Approve & Verify' }}</span>
+              </button>
+            </template>
           </div>
         </div>
       </div>
@@ -1713,11 +1614,9 @@ const openUnlockModal = (user) => {
 };
 
 const openInspectModal = (user) => {
-  if (!canViewId(user)) {
-    toast.info('Institutional ID inspection is only available for registered student and employee accounts.');
-    return;
-  }
+  if (!user) return;
   inspectingUser.value = user;
+  activeInspectDocTab.value = 'front';
   isInspectModalOpen.value = true;
 };
 
