@@ -940,8 +940,9 @@ onMounted(async () => {
 let handledRouteQueryKey = null;
 
 const clearRouteQueryTicket = () => {
-  if (route.query.ticketId || route.query.highlight || route.query._t) {
+  if (route.query.ticket || route.query.ticketId || route.query.highlight || route.query._t) {
     const nextQuery = { ...route.query };
+    delete nextQuery.ticket;
     delete nextQuery.ticketId;
     delete nextQuery.highlight;
     delete nextQuery._t;
@@ -950,7 +951,7 @@ const clearRouteQueryTicket = () => {
 };
 
 const checkRouteTicket = () => {
-  const target = route.query.ticketId || route.query.highlight;
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
   const triggerKey = target ? `${target}_${route.query._t || 'init'}` : null;
   if (!target) {
     handledRouteQueryKey = null;
@@ -976,7 +977,7 @@ const checkRouteTicket = () => {
   }
 };
 
-watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
+watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t], () => {
   checkRouteTicket();
 });
 

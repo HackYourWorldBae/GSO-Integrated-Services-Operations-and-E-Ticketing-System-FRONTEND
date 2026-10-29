@@ -2802,7 +2802,7 @@ const downloadAttachment = async (att) => {
 };
 
 const isTicketHighlighted = (ticket) => {
-  const target = route.query.ticketId || route.query.highlight;
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!target || !ticket) return false;
   const targetStr = String(target).toLowerCase().trim().replace(/^#/, '');
   const idStr = String(ticket.id || '').toLowerCase().trim().replace(/^#/, '');
@@ -2811,7 +2811,7 @@ const isTicketHighlighted = (ticket) => {
 };
 
 const checkRouteQueryTicket = () => {
-  const targetId = route.query.ticketId || route.query.highlight;
+  const targetId = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!targetId || rawTickets.value.length === 0) return;
   const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
   const match = rawTickets.value.find(t => {
@@ -2838,7 +2838,7 @@ const checkRouteQueryTicket = () => {
   }
 };
 
-watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
+watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t], () => {
   checkRouteQueryTicket();
 });
 

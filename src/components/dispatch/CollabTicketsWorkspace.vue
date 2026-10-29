@@ -229,7 +229,11 @@
             <tr
               v-for="ticket in paginatedTickets"
               :key="ticket.id"
-              class="transition-all duration-150 group cursor-pointer relative hover:bg-indigo-50/50"
+              :id="'collab-ticket-' + ticket.id"
+              :class="[
+                'transition-all duration-150 group cursor-pointer relative hover:bg-indigo-50/50',
+                isTicketHighlighted(ticket) ? 'ring-2 ring-indigo-500 bg-indigo-50/80' : ''
+              ]"
               @click="openDetailsModal(ticket)"
             >
               <td class="px-4 py-2.5 whitespace-nowrap relative">
@@ -413,7 +417,11 @@
       <div
         v-for="ticket in paginatedTickets"
         :key="'mob-' + ticket.id"
-        class="bg-white rounded-xl border border-slate-200 p-3.5 cursor-pointer active:scale-[0.99] transition-all"
+        :id="'mob-collab-ticket-' + ticket.id"
+        :class="[
+          'bg-white rounded-xl border p-3.5 cursor-pointer active:scale-[0.99] transition-all',
+          isTicketHighlighted(ticket) ? 'border-indigo-500 ring-2 ring-indigo-500/50 bg-indigo-50/40' : 'border-slate-200'
+        ]"
         @click="openDetailsModal(ticket)"
       >
         <div class="flex items-center justify-between gap-2">
@@ -970,7 +978,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/client';
 import { fetchCollabTickets, respondCollaboration, getTicketCollaborations } from '@/api/collaborations';
@@ -1734,11 +1742,49 @@ watch(() => props.searchText, () => {
   currentPage.value = 1;
 });
 
-onMounted(() => {
-  fetchTickets();
+const isTicketHighlighted = (ticket) => {
+  const target = route?.query?.ticket || route?.query?.ticketId || route?.query?.highlight;
+  if (!target || !ticket) return false;
+  const targetStr = String(target).toLowerCase().trim().replace(/^#/, '');
+  const idStr = String(ticket.id || '').toLowerCase().trim().replace(/^#/, '');
+  const ticketIdStr = String(ticket.ticket_id || ticket.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+  return targetStr === idStr || targetStr === ticketIdStr;
+};
+
+const checkRouteQueryTicket = async () => {
+  const targetId = route?.query?.ticket || route?.query?.ticketId || route?.query?.highlight;
+  if (!targetId || tickets.value.length === 0) return;
+  const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
+  const match = tickets.value.find(t => {
+    const idStr = String(t.id || '').toLowerCase().trim().replace(/^#/, '');
+    const ticketIdStr = String(t.ticket_id || t.ticketId || '').toLowerCase().trim().replace(/^#/, '');
+    return idStr === targetStr || ticketIdStr === targetStr;
+  });
+
+  if (match) {
+    if (searchQuery.value) searchQuery.value = '';
+    await nextTick();
+    const idx = filteredTickets.value.findIndex(t => String(t.id) === String(match.id));
+    if (idx !== -1) {
+      currentPage.value = Math.floor(idx / perPage.value) + 1;
+    }
+    await nextTick();
+    const el = document.getElementById('collab-ticket-' + match.id) || document.getElementById('mob-collab-ticket-' + match.id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    openDetailsModal(match);
+  }
+};
+
+watch(() => [route?.query?.ticket, route?.query?.ticketId, route?.query?.highlight, route?.query?._t], () => {
+  checkRouteQueryTicket();
+});
+
+onMounted(async () => {
+  await fetchTickets();
   if (props.showStageTabs) {
     fetchStageCounts();
   }
+  await checkRouteQueryTicket();
 });
 
 defineExpose({ refresh: fetchTickets });

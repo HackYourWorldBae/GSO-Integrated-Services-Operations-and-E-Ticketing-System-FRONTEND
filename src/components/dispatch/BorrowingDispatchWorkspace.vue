@@ -710,12 +710,19 @@ const handleBeforeUnload = () => {
   }
 };
 
-watch(() => route.query.ticket, (v) => { selectTicketById(v); });
+const checkRouteTicket = async () => {
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
+  if (target) await selectTicketById(target);
+};
+
+watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t], () => {
+  checkRouteTicket();
+});
 
 onMounted(async () => {
   window.addEventListener('beforeunload', handleBeforeUnload);
   await Promise.all([fetchDispatchQueue(), fetchInventory()]);
-  if (route.query.ticket) await selectTicketById(route.query.ticket);
+  await checkRouteTicket();
 });
 </script>
 

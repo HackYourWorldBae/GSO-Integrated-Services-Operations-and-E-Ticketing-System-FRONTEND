@@ -2782,7 +2782,7 @@ const updateLiveWorkingDurations = () => {
 };
 
 const isTicketHighlighted = (ticket) => {
-  const target = route.query.ticketId || route.query.highlight;
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!target || !ticket) return false;
   const targetStr = String(target).toLowerCase().trim().replace(/^#/, '');
   const idStr = String(ticket.id || '').toLowerCase().trim().replace(/^#/, '');
@@ -2791,7 +2791,7 @@ const isTicketHighlighted = (ticket) => {
 };
 
 const checkRouteQueryTicket = () => {
-  const targetId = route.query.ticketId || route.query.highlight;
+  const targetId = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!targetId || handledRouteQueryTicketId === String(targetId)) return;
   const allTickets = Object.values(queuesData.value).flat();
   if (allTickets.length === 0) {
@@ -2864,8 +2864,8 @@ const checkRouteQueryTicket = () => {
   }
 };
 
-watch(() => [route.query.ticketId, route.query.highlight, route.query._t], ([newTicketId, newHighlight]) => {
-  if (newTicketId || newHighlight) {
+watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t], ([newTicket, newTicketId, newHighlight]) => {
+  if (newTicket || newTicketId || newHighlight) {
     handledRouteQueryTicketId = null;
     const allTickets = Object.values(queuesData.value).flat();
     if (allTickets.length === 0) {

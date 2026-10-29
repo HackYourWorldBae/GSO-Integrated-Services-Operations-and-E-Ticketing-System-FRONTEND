@@ -2372,7 +2372,7 @@ const downloadAttachment = async (att) => {
 };
 
 const isTicketHighlighted = (ticket) => {
-  const target = route.query.ticketId || route.query.highlight;
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!target || !ticket) return false;
   const targetStr = String(target).toLowerCase().trim().replace(/^#/, '');
   const idStr = String(ticket.id || '').toLowerCase().trim().replace(/^#/, '');
@@ -2381,7 +2381,7 @@ const isTicketHighlighted = (ticket) => {
 };
 
 const checkRouteQueryTicket = () => {
-  const targetId = route.query.ticketId || route.query.highlight;
+  const targetId = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!targetId || rawTickets.value.length === 0) return;
   const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
   const match = scheduledTickets.value.find(t => {
@@ -2405,9 +2405,9 @@ const checkRouteQueryTicket = () => {
       // If job has already started, redirect to Active Tickets where it lives
       const targetUnit = String(props.unitCode || '').toLowerCase();
       if (targetUnit === 'ssu') {
-        router.replace({ path: '/admin/ssu/collab-tickets', query: { tab: 'active', ticketId: match.id, highlight: match.id } }).catch(() => {});
+        router.replace({ path: '/admin/ssu/collab-tickets', query: { tab: 'active', ticket: match.id, ticketId: match.id, highlight: match.id } }).catch(() => {});
       } else {
-        router.replace({ path: `/admin/${targetUnit}/active-tickets`, query: { ticketId: match.id, highlight: match.id } }).catch(() => {});
+        router.replace({ path: `/admin/${targetUnit}/active-tickets`, query: { ticket: match.id, ticketId: match.id, highlight: match.id } }).catch(() => {});
       }
       return;
     }
@@ -2430,7 +2430,7 @@ const checkRouteQueryTicket = () => {
 // NOTE: array-of-getters (not a single getter returning an array) so this
 // only fires when one of the deep-link values actually changes — a plain
 // `?tab=` switch must never re-open the ticket modal.
-watch([() => route.query.ticketId, () => route.query.highlight, () => route.query._t], () => {
+watch([() => route.query.ticket, () => route.query.ticketId, () => route.query.highlight, () => route.query._t], () => {
   checkRouteQueryTicket();
 });
 

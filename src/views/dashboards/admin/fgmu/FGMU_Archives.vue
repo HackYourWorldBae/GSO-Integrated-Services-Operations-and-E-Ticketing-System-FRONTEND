@@ -776,7 +776,7 @@ const fetchArchives = async () => {
 };
 
 const checkRouteQueryTicket = () => {
-  const targetId = route.query.ticketId || route.query.highlight;
+  const targetId = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!targetId) return;
   const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
   const match = tickets.value.find(t => 
@@ -791,7 +791,7 @@ const checkRouteQueryTicket = () => {
   }
 };
 
-watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
+watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t], () => {
   checkRouteQueryTicket();
 });
 

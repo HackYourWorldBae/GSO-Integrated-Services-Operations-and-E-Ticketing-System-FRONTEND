@@ -278,7 +278,12 @@
                     v-for="ticket in paginatedAssignments"
                     :key="ticket.assignment_id || ticket.ticket_id"
                     :id="'ticket-' + ticket.ticket_id"
-                    class="even:bg-slate-50/40 hover:bg-emerald-50/70 hover:shadow-2xs transition-all duration-150 group cursor-pointer relative"
+                    :class="[
+                      'transition-all duration-150 group cursor-pointer relative',
+                      isHighlighted(ticket)
+                        ? 'bg-emerald-50/90 ring-2 ring-emerald-500'
+                        : 'even:bg-slate-50/40 hover:bg-emerald-50/70 hover:shadow-2xs'
+                    ]"
                     @click="openTicketDetails(ticket)"
                   >
                     <!-- Ticket Reference with Left Accent Line -->
@@ -479,7 +484,12 @@
               :key="'mob-' + (ticket.assignment_id || ticket.ticket_id)"
               :id="'mob-ticket-' + ticket.ticket_id"
               @click="openTicketDetails(ticket)"
-              class="group relative bg-white border border-slate-300 hover:border-emerald-500 rounded-2xl p-4 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-emerald-500/30 touch-manipulation"
+              :class="[
+                'group relative bg-white border rounded-2xl p-4 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-emerald-500/30 touch-manipulation',
+                isHighlighted(ticket)
+                  ? 'border-emerald-500 ring-2 ring-emerald-500/50 bg-emerald-50/30'
+                  : 'border-slate-300 hover:border-emerald-500'
+              ]"
             >
               <!-- Accent bar -->
               <div
@@ -811,7 +821,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { usePersonnelDashboardStore } from '@/stores/personnelDashboard';
@@ -830,10 +840,49 @@ const selectedTicket = ref(null);
 const currentPage = ref(1);
 const perPage = ref(10);
 
+const checkRouteTicket = async () => {
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
+  if (!target || !store.assignments || store.assignments.length === 0) return;
+  const cleanTarget = String(target).trim().toLowerCase().replace(/^#/, '');
+  const match = store.assignments.find(a => {
+    const tid = String(a.ticket_id || '').toLowerCase().trim().replace(/^#/, '');
+    const aid = String(a.assignment_id || '').toLowerCase().trim().replace(/^#/, '');
+    return tid === cleanTarget || aid === cleanTarget || tid.endsWith(`-${cleanTarget}`);
+  });
+  if (match) {
+    if (match.is_emergency && activeTab.value !== 'emergency') {
+      activeTab.value = 'emergency';
+    } else if (!match.is_emergency && activeTab.value === 'emergency') {
+      activeTab.value = 'active';
+    }
+    if (searchQuery.value) {
+      searchQuery.value = '';
+    }
+    await nextTick();
+    const matchIdx = filteredAssignments.value.findIndex(
+      a => String(a.ticket_id) === String(match.ticket_id)
+    );
+    if (matchIdx !== -1) {
+      currentPage.value = Math.floor(matchIdx / perPage.value) + 1;
+    }
+    await nextTick();
+    const el = document.getElementById(`ticket-${match.ticket_id}`) || document.getElementById(`mob-ticket-${match.ticket_id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    openTicketDetails(match);
+  }
+};
+
+watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t], () => {
+  checkRouteTicket();
+});
+
 const loadDashboard = async () => {
   try {
     const qPid = route.query.personnel_id ? String(route.query.personnel_id).trim() : null;
     await store.fetchDashboard(qPid);
+    await checkRouteTicket();
   } catch (_) {
     // Handled by store.errorMessage
   }
@@ -1058,6 +1107,15 @@ const formatDate = (dateStr) => {
 
 const openTicketDetails = (ticket) => {
   selectedTicket.value = ticket;
+};
+
+const isHighlighted = (ticket) => {
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
+  if (!target || !ticket) return false;
+  const cleanTarget = String(target).trim().toLowerCase().replace(/^#/, '');
+  const tid = String(ticket.ticket_id || '').toLowerCase().trim().replace(/^#/, '');
+  const aid = String(ticket.assignment_id || '').toLowerCase().trim().replace(/^#/, '');
+  return tid === cleanTarget || aid === cleanTarget || tid.endsWith(`-${cleanTarget}`);
 };
 
 const getTicketAccentClass = (ticket) => {

@@ -1287,7 +1287,7 @@ const getStatusDot = (status) => {
 
 // Route Query Handler
 const handleRouteTicket = () => {
-  const target = route.query.ticketId || route.query.highlight;
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!target) return;
 
   highlightedTicket.value = target;
@@ -1316,7 +1316,7 @@ const handleRouteTicket = () => {
   }, 300);
 };
 
-watch(() => [route.query.ticketId, route.query.highlight], () => {
+watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t], () => {
   handleRouteTicket();
 });
 

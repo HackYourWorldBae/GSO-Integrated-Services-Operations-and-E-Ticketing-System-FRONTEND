@@ -104,7 +104,11 @@
             <tr
               v-for="req in paginatedRequests"
               :key="req.ticket_id || req.id"
-              class="hover:bg-amber-50/30 transition-all duration-150 group cursor-pointer relative"
+              :id="'borrow-ticket-' + req.ticket_id"
+              :class="[
+                'transition-all duration-150 group cursor-pointer relative',
+                isRequestHighlighted(req) ? 'bg-amber-50/80 ring-2 ring-amber-500' : 'hover:bg-amber-50/30'
+              ]"
               @click="emitDetails(req)"
             >
               <!-- Ticket Ref -->
@@ -250,7 +254,11 @@
       <div
         v-for="req in paginatedRequests"
         :key="req.ticket_id || req.id"
-        class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 space-y-3 cursor-pointer transition-all hover:border-amber-300 active:scale-[0.99]"
+        :id="'mob-borrow-ticket-' + req.ticket_id"
+        :class="[
+          'bg-white rounded-2xl border p-4 space-y-3 cursor-pointer transition-all active:scale-[0.99]',
+          isRequestHighlighted(req) ? 'border-amber-500 ring-2 ring-amber-500/50 bg-amber-50/40' : 'border-slate-200/90 shadow-2xs hover:border-amber-300'
+        ]"
         @click="emitDetails(req)"
       >
         <!-- Top Row: Ref Mono Badge & Status -->
@@ -527,7 +535,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { useRoute } from 'vue-router';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import {
   getBorrowingQueue,
@@ -788,6 +797,53 @@ const doReturn = async () => {
   finally { actionLoading.value = false; }
 };
 
+const route = useRoute();
+
+const isRequestHighlighted = (req) => {
+  const target = route?.query?.ticket || route?.query?.ticketId || route?.query?.highlight;
+  if (!target || !req) return false;
+  const targetStr = String(target).toLowerCase().trim().replace(/^#/, '');
+  const tidStr = String(req.ticket_id || req.id || '').toLowerCase().trim().replace(/^#/, '');
+  return targetStr === tidStr;
+};
+
+const checkRouteQueryTicket = async () => {
+  const target = route?.query?.ticket || route?.query?.ticketId || route?.query?.highlight;
+  if (!target || requests.value.length === 0) return;
+  const targetStr = String(target).toLowerCase().trim().replace(/^#/, '');
+  const match = requests.value.find(r => {
+    const tidStr = String(r.ticket_id || r.id || '').toLowerCase().trim().replace(/^#/, '');
+    return tidStr === targetStr;
+  });
+
+  if (match) {
+    if (match.status === 'ready_for_pickup') {
+      activeTab.value = 'ready';
+    } else if (match.status === 'picked_up') {
+      activeTab.value = 'borrowed';
+    } else if (match.status === 'returned') {
+      activeTab.value = 'returned';
+    } else if (match.status === 'inventory_assigned') {
+      activeTab.value = 'assigned';
+    }
+
+    if (searchQuery.value) searchQuery.value = '';
+    await nextTick();
+    const idx = filteredRequests.value.findIndex(r => String(r.ticket_id || r.id) === String(match.ticket_id || match.id));
+    if (idx !== -1) {
+      currentPage.value = Math.floor(idx / perPage.value) + 1;
+    }
+    await nextTick();
+    const el = document.getElementById('borrow-ticket-' + match.ticket_id) || document.getElementById('mob-borrow-ticket-' + match.ticket_id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    emitDetails(match);
+  }
+};
+
+watch(() => [route?.query?.ticket, route?.query?.ticketId, route?.query?.highlight, route?.query?._t], () => {
+  checkRouteQueryTicket();
+});
+
 const emitDetails = (req) => {
   emit('view-details', req);
 };
@@ -797,7 +853,10 @@ defineExpose({
   refresh: refreshAll,
 });
 
-onMounted(refreshAll);
+onMounted(async () => {
+  await refreshAll();
+  await checkRouteQueryTicket();
+});
 </script>
 
 <style scoped>

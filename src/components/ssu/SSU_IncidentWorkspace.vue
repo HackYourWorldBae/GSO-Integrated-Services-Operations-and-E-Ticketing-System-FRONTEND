@@ -954,6 +954,8 @@ const props = defineProps({
   }
 });
 
+const emit = defineEmits(['update:activeQueue']);
+
 const router = useRouter();
 const route  = useRoute();
 const authStore = useAuthStore();
@@ -1294,7 +1296,7 @@ const handleManualRefresh = async () => {
 };
 
 const checkRouteHighlight = () => {
-  const targetId = route.query.ticketId || route.query.highlight;
+  const targetId = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!targetId) return;
 
   const targetStr = String(targetId).toLowerCase().trim().replace(/^#/, '');
@@ -1305,6 +1307,11 @@ const checkRouteHighlight = () => {
   });
 
   if (match) {
+    const isInvestigating = match.status === 'investigating' || String(match.status_label || '').toLowerCase().includes('investigat');
+    const targetQueue = isInvestigating ? 'investigating' : 'submitted';
+    if (props.activeQueue !== targetQueue) {
+      emit('update:activeQueue', targetQueue);
+    }
     highlightedTicketId.value = match.id;
     openDetailsModal(match);
     setTimeout(() => {
@@ -1317,7 +1324,7 @@ const checkRouteHighlight = () => {
 };
 
 watch(
-  () => [route.query.ticketId, route.query.highlight, route.query._t],
+  () => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t],
   () => {
     if (allTickets.value.length > 0) {
       checkRouteHighlight();

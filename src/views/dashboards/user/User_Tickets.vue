@@ -1609,8 +1609,9 @@ let ticketsAbort = null;
 let isTicketsAlive = true;
 
 const clearRouteQueryTicket = () => {
-  if (route.query.ticketId || route.query.highlight || route.query._t) {
+  if (route.query.ticket || route.query.ticketId || route.query.highlight || route.query._t) {
     const nextQuery = { ...route.query };
+    delete nextQuery.ticket;
     delete nextQuery.ticketId;
     delete nextQuery.highlight;
     delete nextQuery._t;
@@ -1619,7 +1620,7 @@ const clearRouteQueryTicket = () => {
 };
 
 const handleRouteTicket = () => {
-  const target = route.query.ticketId || route.query.highlight;
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
   const triggerKey = target ? `${target}_${route.query._t || 'init'}` : null;
 
   if (!target) {
@@ -1664,7 +1665,7 @@ const handleRouteTicket = () => {
     handledRouteQueryKey = triggerKey;
     router.replace({
       path: '/user/completed-tickets',
-      query: { ticketId: target, highlight: target, _t: Date.now() }
+      query: { ticket: target, ticketId: target, highlight: target, _t: Date.now() }
     }).catch(() => {});
     return;
   }
@@ -1675,7 +1676,7 @@ const handleRouteTicket = () => {
   }, 300);
 };
 
-watch(() => [route.query.ticketId, route.query.highlight, route.query._t], () => {
+watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t], () => {
   handleRouteTicket();
 });
 

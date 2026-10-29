@@ -198,7 +198,11 @@
                 <tr
                   v-for="ticket in paginatedCompletedJobs"
                   :key="ticket.assignment_id || ticket.ticket_id"
-                  class="group transition-all duration-200 cursor-pointer"
+                  :id="'hist-ticket-' + ticket.ticket_id"
+                  :class="[
+                    'group transition-all duration-200 cursor-pointer',
+                    isHighlighted(ticket) ? 'ring-2 ring-sky-500 bg-sky-50/50' : ''
+                  ]"
                   @click="openTicketDetails(ticket)"
                 >
                   <td class="py-5 px-6 bg-slate-50/80 border-y border-l border-slate-300 rounded-l-2xl group-hover:bg-white group-hover:border-sky-500 group-hover:shadow-md transition-all">
@@ -272,8 +276,14 @@
             <div
               v-for="ticket in paginatedCompletedJobs"
               :key="'m-' + (ticket.assignment_id || ticket.ticket_id)"
+              :id="'mob-hist-ticket-' + ticket.ticket_id"
               @click="openTicketDetails(ticket)"
-              class="p-4 rounded-2xl bg-white border border-slate-300 hover:border-sky-500 shadow-sm space-y-3 cursor-pointer transition-all active:scale-[0.99]"
+              :class="[
+                'p-4 rounded-2xl bg-white border shadow-sm space-y-3 cursor-pointer transition-all active:scale-[0.99]',
+                isHighlighted(ticket)
+                  ? 'border-sky-500 ring-2 ring-sky-500/50 bg-sky-50/30'
+                  : 'border-slate-300 hover:border-sky-500'
+              ]"
             >
               <div class="flex items-start justify-between gap-2">
                 <div>
@@ -566,7 +576,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { usePersonnelDashboardStore } from '@/stores/personnelDashboard';
@@ -588,18 +598,17 @@ const selectedTicket = ref(null);
 const currentPage = ref(1);
 const perPage = ref(10);
 
-const loadHistory = async () => {
-  try {
-    const qPid = route.query.personnel_id ? String(route.query.personnel_id).trim() : null;
-    await store.fetchDashboard(qPid);
-    checkRouteTicket();
-  } catch (_) {
-    // Handled by store.errorMessage
-  }
+const isHighlighted = (ticket) => {
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
+  if (!target || !ticket) return false;
+  const cleanTarget = String(target).trim().toLowerCase().replace(/^#/, '');
+  const tid = String(ticket.ticket_id || '').toLowerCase().trim().replace(/^#/, '');
+  const aid = String(ticket.assignment_id || '').toLowerCase().trim().replace(/^#/, '');
+  return tid === cleanTarget || aid === cleanTarget || tid.endsWith(`-${cleanTarget}`);
 };
 
-const checkRouteTicket = () => {
-  const target = route.query.ticketId || route.query.highlight;
+const checkRouteTicket = async () => {
+  const target = route.query.ticket || route.query.ticketId || route.query.highlight;
   if (!target || !store.completedAssignments || store.completedAssignments.length === 0) return;
   const cleanTarget = String(target).trim().toLowerCase().replace(/^#/, '');
   const match = store.completedAssignments.find(a => {
@@ -608,11 +617,38 @@ const checkRouteTicket = () => {
     return tid === cleanTarget || aid === cleanTarget || tid.endsWith(`-${cleanTarget}`);
   });
   if (match) {
+    if (searchQuery.value) searchQuery.value = '';
+    if (unitFilter.value !== 'all') unitFilter.value = 'all';
+    if (yearFilter.value !== 'all') yearFilter.value = 'all';
+    if (crewTypeFilter.value !== 'all') crewTypeFilter.value = 'all';
+
+    await nextTick();
+    const matchIdx = filteredCompletedJobs.value.findIndex(
+      a => String(a.ticket_id) === String(match.ticket_id)
+    );
+    if (matchIdx !== -1) {
+      currentPage.value = Math.floor(matchIdx / perPage.value) + 1;
+    }
+    await nextTick();
+    const el = document.getElementById(`hist-ticket-${match.ticket_id}`) || document.getElementById(`mob-hist-ticket-${match.ticket_id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
     openTicketDetails(match);
   }
 };
 
-watch(() => [route.query.ticketId, route.query.highlight, route.query._t], checkRouteTicket);
+watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, route.query._t], checkRouteTicket);
+
+const loadHistory = async () => {
+  try {
+    const qPid = route.query.personnel_id ? String(route.query.personnel_id).trim() : null;
+    await store.fetchDashboard(qPid);
+    await checkRouteTicket();
+  } catch (_) {
+    // Handled by store.errorMessage
+  }
+};
 
 onMounted(async () => {
   await loadHistory();
