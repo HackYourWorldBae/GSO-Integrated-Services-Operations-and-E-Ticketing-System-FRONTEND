@@ -270,7 +270,7 @@
                     </span>
                     <button
                       v-else-if="canViewId(user)"
-                      @click="openInspectModal(user)"
+                      @click="openInspectModal(user, 'documents')"
                       class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 transition-colors cursor-pointer"
                       title="Inspect ID & verify credentials"
                     >
@@ -391,7 +391,7 @@
 
                       <!-- Full Info Button (changed from ID, available for all accounts) -->
                       <button
-                        @click="openInspectModal(user)"
+                        @click="openInspectModal(user, 'overview')"
                         class="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-purple-200/60 shadow-2xs"
                         title="View complete user profile, institutional credentials, and activity"
                       >
@@ -529,7 +529,7 @@
                 <!-- Full Info Button -->
                 <button
                   type="button"
-                  @click="openInspectModal(user)"
+                  @click="openInspectModal(user, 'overview')"
                   class="flex-1 py-2 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[38px] touch-manipulation"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1043,37 +1043,51 @@
         </div>
       </div>
 
-      <!-- Inspect ID Card & Verification Modal -->
+      <!-- User Profile & Full Info Modal -->
       <div 
         v-if="isInspectModalOpen && inspectingUser" 
         class="fixed inset-0 z-[160] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 pointer-events-auto overflow-y-auto"
         @click.self="isInspectModalOpen = false"
       >
         <div 
-          class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-200 animate-scale-up max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto custom-scrollbar pointer-events-auto my-auto"
+          class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-4 border border-slate-200 animate-scale-up max-h-[calc(100dvh-2rem)] sm:max-h-[90vh] overflow-y-auto custom-scrollbar pointer-events-auto my-auto"
           @click.stop
         >
-          <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-            <div class="flex items-center gap-3">
-              <img
-                v-if="inspectingUser.avatar_path"
-                :src="getAvatarUrl(inspectingUser.id)"
-                alt="Avatar"
-                class="w-12 h-12 rounded-2xl object-cover border border-purple-200 shrink-0 shadow-2xs"
-              />
-              <div v-else class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 font-extrabold flex items-center justify-center shrink-0 border border-purple-100 text-lg shadow-2xs">
-                {{ inspectingUser.first_name ? inspectingUser.first_name.charAt(0).toUpperCase() : 'U' }}
+          <!-- Modal Header: User Identity & Close -->
+          <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="relative shrink-0">
+                <img
+                  v-if="inspectingUser.avatar_path"
+                  :src="getAvatarUrl(inspectingUser.id)"
+                  alt="Avatar"
+                  class="w-12 h-12 rounded-2xl object-cover border border-purple-200 shadow-2xs"
+                />
+                <div v-else class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 font-extrabold flex items-center justify-center border border-purple-100 text-lg shadow-2xs">
+                  {{ inspectingUser.first_name ? inspectingUser.first_name.charAt(0).toUpperCase() : 'U' }}
+                </div>
+                <span 
+                  class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white"
+                  :class="inspectingUser.session_status === 'online' ? 'bg-emerald-500' : 'bg-slate-300'"
+                  :title="inspectingUser.session_status === 'online' ? 'Online' : 'Offline'"
+                ></span>
               </div>
-              <div class="min-w-0">
+              <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                    {{ inspectingUser.first_name }} {{ inspectingUser.last_name }}
+                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
+                    {{ [inspectingUser.first_name, inspectingUser.middle_name, inspectingUser.last_name, inspectingUser.name_extension].filter(Boolean).join(' ') || (inspectingUser.first_name + ' ' + inspectingUser.last_name) }}
                   </h3>
                   <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getRoleBadgeClass(inspectingUser.role)">
                     {{ formatRole(inspectingUser.role) }}
                   </span>
                   <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border" :class="getStatusBadgeClass(inspectingUser.status)">
                     {{ inspectingUser.status || 'Active' }}
+                  </span>
+                  <span 
+                    v-if="isUserLocked(inspectingUser)"
+                    class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300"
+                  >
+                    Locked
                   </span>
                 </div>
                 <p class="text-xs text-slate-500 truncate mt-0.5 font-medium">
@@ -1084,7 +1098,8 @@
             <button 
               type="button"
               @click="isInspectModalOpen = false" 
-              class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              title="Close modal"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1092,102 +1107,214 @@
             </button>
           </div>
 
-          <!-- User Full Profile Information Grid -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs">
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</p>
-              <p class="font-bold text-slate-900 mt-0.5 truncate">
-                {{ [inspectingUser.first_name, inspectingUser.middle_name, inspectingUser.last_name, inspectingUser.name_extension].filter(Boolean).join(' ') || (inspectingUser.first_name + ' ' + inspectingUser.last_name) }}
-              </p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Role</p>
-              <p class="font-bold text-slate-900 mt-0.5 capitalize">{{ formatRole(inspectingUser.role) }}</p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Unit Affiliation</p>
-              <p class="font-bold text-slate-800 mt-0.5">{{ inspectingUser.unit_name || inspectingUser.unit_code || 'Global (Campus-Wide)' }}</p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ID / Student No.</p>
-              <p class="font-bold text-emerald-700 mt-0.5 font-mono">{{ inspectingUser.student_id_number || 'N/A' }}</p>
-            </div>
+          <!-- Segmented Navigation Tabs (if account has institutional ID documents) -->
+          <div v-if="canViewId(inspectingUser)" class="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <button
+              type="button"
+              @click="activeInspectMainTab = 'overview'"
+              class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              :class="activeInspectMainTab === 'overview' ? 'bg-purple-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>Profile & Account</span>
+            </button>
 
-            <div v-if="inspectingUser.specialty">
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trade / Specialty</p>
-              <p class="font-bold text-amber-700 mt-0.5">{{ inspectingUser.specialty }}</p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Classification</p>
-              <p class="font-bold text-slate-800 mt-0.5 truncate">
-                {{ getStudentTypeLabel(inspectingUser.student_type) || inspectingUser.employee_type || 'General Account' }}
-              </p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">College / Dept</p>
-              <p class="font-bold text-slate-800 mt-0.5 truncate">
-                {{ inspectingUser.college || inspectingUser.department || inspectingUser.organization_name || 'N/A' }}
-              </p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact Number</p>
-              <a
-                v-if="inspectingUser.contact_number && inspectingUser.contact_number !== 'N/A'"
-                :href="`tel:${inspectingUser.contact_number}`"
-                class="inline-flex items-center gap-1 mt-0.5 font-bold font-mono text-emerald-700 hover:text-emerald-800 hover:underline"
+            <button
+              type="button"
+              @click="activeInspectMainTab = 'documents'"
+              class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer relative"
+              :class="activeInspectMainTab === 'documents' ? 'bg-purple-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>ID Documents</span>
+              <span 
+                v-if="!isUserVerified(inspectingUser) && inspectingUser.status !== 'Rejected'"
+                class="px-1.5 py-0.2 rounded-full text-[9px] font-black uppercase tracking-wider"
+                :class="activeInspectMainTab === 'documents' ? 'bg-amber-300 text-amber-950' : 'bg-amber-100 text-amber-800'"
               >
-                <span>📞</span>
-                <span>{{ inspectingUser.contact_number }}</span>
-              </a>
-              <p v-else class="text-slate-400 mt-0.5 font-medium">N/A</p>
-            </div>
+                Pending
+              </span>
+            </button>
+          </div>
 
-            <div class="col-span-2">
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</p>
-              <p class="font-medium text-slate-800 mt-0.5 truncate">{{ inspectingUser.email || 'None' }}</p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Verification Status</p>
-              <p 
-                class="font-bold mt-0.5" 
-                :class="inspectingUser.status === 'Rejected' ? 'text-rose-600' : (isUserVerified(inspectingUser) ? 'text-emerald-700' : 'text-amber-600')"
+          <!-- TAB 1: Profile & Account Overview -->
+          <div v-if="activeInspectMainTab === 'overview'" class="space-y-3.5">
+            <!-- Account Locked Banner (with direct unlock action) -->
+            <div v-if="isUserLocked(inspectingUser)" class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2.5 text-rose-800">
+                <span class="text-base">🔒</span>
+                <div>
+                  <p class="font-bold">Account Temporarily Locked</p>
+                  <p class="text-[11px] text-rose-600">Locked due to 5 consecutive failed login attempts.</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                @click="openUnlockModal(inspectingUser)"
+                class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer shrink-0"
               >
-                {{ inspectingUser.status === 'Rejected' ? 'Rejected' : (isUserVerified(inspectingUser) ? 'Verified' : 'Pending ID') }}
-              </p>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Session / Activity</p>
-              <p class="font-bold mt-0.5" :class="inspectingUser.session_status === 'online' ? 'text-emerald-600' : 'text-slate-600'">
-                {{ inspectingUser.session_status === 'online' ? 'Active Now (Online)' : (inspectingUser.resolved_last_login_at ? formatRelativeDate(inspectingUser.resolved_last_login_at) : 'Never logged in') }}
-              </p>
+                Unlock Now
+              </button>
             </div>
 
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Requests Filed</p>
-              <p class="font-bold text-indigo-700 mt-0.5">{{ inspectingUser.request_count || 0 }} service requests</p>
+            <!-- Pending Verification Alert Banner (prompting to review documents) -->
+            <div 
+              v-if="canViewId(inspectingUser) && !isUserVerified(inspectingUser) && inspectingUser.status !== 'Rejected'" 
+              class="p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 text-xs"
+            >
+              <div class="flex items-center gap-2 text-amber-800 min-w-0">
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                <span class="font-bold">Verification Pending:</span>
+                <span class="text-amber-700 truncate">Identity credentials await approval.</span>
+              </div>
+              <button
+                type="button"
+                @click="activeInspectMainTab = 'documents'"
+                class="text-xs font-bold text-amber-900 underline hover:no-underline shrink-0 cursor-pointer"
+              >
+                Review Documents →
+              </button>
             </div>
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Registration Date</p>
-              <p class="font-medium text-slate-700 mt-0.5">{{ inspectingUser.created_at ? new Date(inspectingUser.created_at).toLocaleDateString() : '—' }}</p>
+
+            <!-- Card 1: Institutional & Academic Identity -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5 text-slate-800 font-bold text-xs uppercase tracking-wider">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  <span>Institutional Affiliation</span>
+                </div>
+                <span v-if="!canViewId(inspectingUser)" class="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                  Provisioned Account
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ID / Student No.</span>
+                  <span class="font-bold font-mono text-emerald-700 mt-0.5 block truncate">
+                    {{ inspectingUser.student_id_number || 'N/A' }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Classification</span>
+                  <span class="font-bold text-slate-800 mt-0.5 block truncate">
+                    {{ getStudentTypeLabel(inspectingUser.student_type) || inspectingUser.employee_type || 'General Account' }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">College / Department</span>
+                  <span class="font-bold text-slate-800 mt-0.5 block truncate" :title="inspectingUser.college || inspectingUser.department || inspectingUser.organization_name">
+                    {{ inspectingUser.college || inspectingUser.department || inspectingUser.organization_name || 'N/A' }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Assigned Unit</span>
+                  <span class="font-bold text-slate-800 mt-0.5 block truncate">
+                    {{ inspectingUser.unit_name || inspectingUser.unit_code || 'Global (Campus-Wide)' }}
+                  </span>
+                </div>
+                <div v-if="inspectingUser.specialty">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trade / Specialty</span>
+                  <span class="font-bold text-amber-700 mt-0.5 block truncate">
+                    {{ inspectingUser.specialty }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Verification</span>
+                  <span 
+                    class="font-bold mt-0.5 block" 
+                    :class="inspectingUser.status === 'Rejected' ? 'text-rose-600' : (isUserVerified(inspectingUser) ? 'text-emerald-700' : 'text-amber-600')"
+                  >
+                    {{ inspectingUser.status === 'Rejected' ? 'Rejected' : (isUserVerified(inspectingUser) ? 'Verified' : 'Pending ID') }}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div class="col-span-2">
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Security State</p>
-              <p class="font-medium mt-0.5" :class="isUserLocked(inspectingUser) ? 'text-rose-600 font-bold' : 'text-slate-600'">
-                {{ isUserLocked(inspectingUser) ? 'Account Temporarily Locked (Failed Logins)' : 'Account Normal (Unlocked)' }}
+
+            <!-- Card 2: Contact, Activity & Account Health -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div class="flex items-center gap-1.5 text-slate-800 font-bold text-xs uppercase tracking-wider">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Contact & Account Health</span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                <div class="col-span-2 sm:col-span-1">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Email Address</span>
+                  <a 
+                    v-if="inspectingUser.email"
+                    :href="`mailto:${inspectingUser.email}`"
+                    class="font-medium text-purple-700 hover:text-purple-900 hover:underline mt-0.5 block truncate"
+                    :title="inspectingUser.email"
+                  >
+                    {{ inspectingUser.email }}
+                  </a>
+                  <span v-else class="text-slate-400 mt-0.5 block">None</span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Contact Phone</span>
+                  <a
+                    v-if="inspectingUser.contact_number && inspectingUser.contact_number !== 'N/A'"
+                    :href="`tel:${inspectingUser.contact_number}`"
+                    class="inline-flex items-center gap-1 mt-0.5 font-bold font-mono text-emerald-700 hover:text-emerald-800 hover:underline"
+                  >
+                    <span>📞</span>
+                    <span>{{ inspectingUser.contact_number }}</span>
+                  </a>
+                  <span v-else class="text-slate-400 mt-0.5 block">N/A</span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Service Requests</span>
+                  <span class="font-bold text-indigo-700 mt-0.5 block">
+                    {{ inspectingUser.request_count || 0 }} filed
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Member Since</span>
+                  <span class="font-medium text-slate-700 mt-0.5 block">
+                    {{ inspectingUser.created_at ? new Date(inspectingUser.created_at).toLocaleDateString() : '—' }}
+                  </span>
+                </div>
+                <div class="col-span-2">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Session Activity</span>
+                  <span class="font-medium text-slate-700 mt-0.5 block">
+                    {{ inspectingUser.session_status === 'online' ? 'Active Now (Online)' : (inspectingUser.resolved_last_login_at ? formatRelativeDate(inspectingUser.resolved_last_login_at) : 'Never logged in') }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3 (for provisioned accounts): System Status Notice -->
+            <div v-if="!canViewId(inspectingUser)" class="p-3.5 rounded-2xl bg-purple-50/70 border border-purple-200/80 flex items-center gap-3 text-xs text-purple-950">
+              <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <p class="text-[11px] text-purple-900/90 leading-relaxed">
+                Directly provisioned internal account. Institutional ID verification is exempt.
               </p>
             </div>
           </div>
 
-          <!-- Uploaded ID Card & Selfie High-Res Image Display (for registered accounts with IDs) -->
-          <div v-if="canViewId(inspectingUser)" class="space-y-2">
-            <div class="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2">
-              <!-- Dual Document Tabs -->
-              <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+          <!-- TAB 2: Identity Documents & Verification Inspection -->
+          <div v-else-if="activeInspectMainTab === 'documents' && canViewId(inspectingUser)" class="space-y-3.5">
+            <!-- Document Switcher Bar -->
+            <div class="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 p-2 bg-slate-50 rounded-2xl border border-slate-200/80">
+              <div class="flex items-center gap-1.5 p-1 bg-white rounded-xl border border-slate-200">
                 <button
                   type="button"
                   @click="activeInspectDocTab = 'front'"
                   class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                  :class="activeInspectDocTab === 'front' ? 'bg-white text-purple-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                  :class="activeInspectDocTab === 'front' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
                 >
                   <span>1. Front ID Card</span>
                 </button>
@@ -1195,7 +1322,7 @@
                   type="button"
                   @click="activeInspectDocTab = 'selfie'"
                   class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                  :class="activeInspectDocTab === 'selfie' ? 'bg-white text-purple-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                  :class="activeInspectDocTab === 'selfie' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
                 >
                   <span>2. Selfie with ID</span>
                 </button>
@@ -1204,80 +1331,106 @@
               <a 
                 :href="getIdCardUrl(inspectingUser.id, activeInspectDocTab)" 
                 target="_blank" 
-                class="text-[11px] font-bold text-purple-700 hover:text-purple-900 hover:underline inline-flex items-center gap-1"
+                class="text-xs font-bold text-purple-700 hover:text-purple-900 hover:underline inline-flex items-center gap-1 px-2 py-1"
               >
-                Open In New Tab
+                <span>Open Full Resolution</span>
                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-slate-900 overflow-hidden flex items-center justify-center p-2 min-h-[220px]">
+            <!-- Document Image Box -->
+            <div class="rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden flex items-center justify-center p-2 min-h-[200px] max-h-[300px]">
               <img 
                 :key="inspectingUser.id + '-' + activeInspectDocTab"
                 :src="getIdCardUrl(inspectingUser.id, activeInspectDocTab)" 
                 :alt="activeInspectDocTab === 'selfie' ? 'Selfie Holding ID' : 'Institutional ID Card'" 
-                class="max-h-[380px] w-full object-contain rounded-xl"
+                class="max-h-[285px] w-full object-contain rounded-xl"
                 @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='block'"
               />
-              <div style="display:none" class="text-slate-400 text-xs text-center py-10">
-                <svg class="h-10 w-10 text-slate-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div style="display:none" class="text-slate-400 text-xs text-center py-8">
+                <svg class="h-8 w-8 text-slate-500 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Document image not found or could not be loaded.
+                Document image not found or failed to load.
               </div>
             </div>
-            <p class="text-[11px] text-slate-500 italic">
-              Verification check: verify that the photo, full name, and institutional ID number match.
-            </p>
-          </div>
 
-          <!-- Internal Account Notice (for staff, admin, worker without ID uploads) -->
-          <div v-else class="p-4 rounded-2xl bg-purple-50/70 border border-purple-200/80 flex items-center gap-3.5 text-xs text-purple-950">
-            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <div>
-              <h4 class="font-bold text-purple-900">Provisioned System Account</h4>
-              <p class="text-[11px] text-purple-800/90 mt-0.5 leading-relaxed">
-                Internal administrative, management, and personnel accounts are provisioned directly by system superadministrators. Institutional ID card verification is exempt.
-              </p>
+            <!-- Checklist & Details Match Banner -->
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2 text-slate-700 flex-wrap">
+                <span class="font-bold text-slate-900">Registered ID:</span>
+                <span class="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  {{ inspectingUser.student_id_number || 'N/A' }}
+                </span>
+                <span class="text-slate-400">•</span>
+                <span class="font-bold text-slate-900">Name:</span>
+                <span class="text-slate-700">{{ inspectingUser.first_name }} {{ inspectingUser.last_name }}</span>
+              </div>
+              <span class="text-[11px] text-slate-500 italic">
+                Confirm ID photo and name match before approval.
+              </span>
             </div>
           </div>
 
-          <!-- Actions -->
-          <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-3">
-            <button 
-              type="button"
-              @click="isInspectModalOpen = false" 
-              class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer"
-            >
-              Close
-            </button>
-            <template v-if="canViewId(inspectingUser)">
+          <!-- Modal Footer: Contextual Actions & Verification Controls -->
+          <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <!-- Left Side: Contextual Edit Button -->
+            <div class="w-full sm:w-auto flex items-center gap-2">
+              <button
+                v-if="!isRegisteredUser(inspectingUser)"
+                type="button"
+                @click="isInspectModalOpen = false; openEditModal(inspectingUser)"
+                class="w-full sm:w-auto px-4 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition-colors cursor-pointer"
+              >
+                Edit Account
+              </button>
+            </div>
+
+            <!-- Right Side: Close and Verification Actions -->
+            <div class="w-full sm:w-auto flex items-center justify-end gap-2.5">
               <button 
                 type="button"
-                :disabled="isActionLoading || inspectingUser.status === 'Rejected'"
-                @click="openRejectModal(inspectingUser)" 
-                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                @click="isInspectModalOpen = false" 
+                class="w-full sm:w-auto px-5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer"
               >
-                <span>{{ inspectingUser.status === 'Rejected' ? 'Already Rejected' : 'Reject Sign-Up' }}</span>
+                Close
               </button>
-              <button 
+
+              <!-- Quick Link from Overview to ID Documents (if unverified) -->
+              <button
+                v-if="canViewId(inspectingUser) && activeInspectMainTab === 'overview' && !isUserVerified(inspectingUser) && inspectingUser.status !== 'Rejected'"
                 type="button"
-                :disabled="isActionLoading || isUserVerified(inspectingUser)"
-                @click="openApproveModal(inspectingUser)" 
-                class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                @click="activeInspectMainTab = 'documents'"
+                class="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <svg v-if="!isActionLoading" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>{{ isUserVerified(inspectingUser) ? 'Verified' : 'Approve & Verify' }}</span>
+                <span>Review ID Documents ›</span>
               </button>
-            </template>
+
+              <!-- Verification Approval / Rejection Controls (when viewing documents) -->
+              <template v-if="canViewId(inspectingUser) && activeInspectMainTab === 'documents'">
+                <button 
+                  type="button"
+                  :disabled="isActionLoading || inspectingUser.status === 'Rejected'"
+                  @click="openRejectModal(inspectingUser)" 
+                  class="w-full sm:w-auto px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>{{ inspectingUser.status === 'Rejected' ? 'Already Rejected' : 'Reject Sign-Up' }}</span>
+                </button>
+                <button 
+                  type="button"
+                  :disabled="isActionLoading || isUserVerified(inspectingUser)"
+                  @click="openApproveModal(inspectingUser)" 
+                  class="w-full sm:w-auto px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <svg v-if="!isActionLoading" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{{ isUserVerified(inspectingUser) ? 'Verified' : 'Approve & Verify' }}</span>
+                </button>
+              </template>
+            </div>
           </div>
         </div>
       </div>
@@ -1506,6 +1659,7 @@ const extractErrorMessage = (err, fallback) => {
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '');
 
 const activeInspectDocTab = ref('front'); // 'front' | 'selfie'
+const activeInspectMainTab = ref('overview'); // 'overview' | 'documents'
 
 const getIdCardUrl = (userId, type = 'front') => {
   if (!userId) return '';
@@ -1613,10 +1767,11 @@ const openUnlockModal = (user) => {
   confirmModal.isOpen = true;
 };
 
-const openInspectModal = (user) => {
+const openInspectModal = (user, initialTab = 'overview') => {
   if (!user) return;
   inspectingUser.value = user;
   activeInspectDocTab.value = 'front';
+  activeInspectMainTab.value = (initialTab === 'documents' && canViewId(user)) ? 'documents' : 'overview';
   isInspectModalOpen.value = true;
 };
 
@@ -1737,6 +1892,11 @@ const handleConfirmAction = async () => {
     } else if (confirmModal.actionType === 'unlock') {
       const res = await apiUnlockUser(user.id);
       toast.success(res.data?.message || 'User account unlocked successfully!');
+      if (inspectingUser.value && inspectingUser.value.id === user.id) {
+        inspectingUser.value.is_locked = false;
+        inspectingUser.value.lockout_until = null;
+        inspectingUser.value.failed_login_attempts = 0;
+      }
       closeConfirmModal(true);
       await fetchUsers();
     }
