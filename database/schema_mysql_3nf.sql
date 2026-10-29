@@ -1,688 +1,703 @@
 -- ============================================================================
 -- GSO Integrated Services Operations and E-Ticketing System
--- Optimised Database Schema (Third Normal Form - 3NF) for MySQL
+-- Pure Database Definition Language (DDL) Schema (Third Normal Form - 3NF)
+-- Target RDBMS: MySQL 8.0+ / MariaDB 10.4+
+-- 
+-- ZERO DATA DUMPS: Pure structural definitions only (no INSERT/DML statements).
 -- ============================================================================
 -- 3NF COMPLIANCE HIGHLIGHTS:
--- 1. 1NF (First Normal Form): All multi-valued attributes and JSON arrays (such as
---    SSU incident types/issues/roles, ticket attachments, job materials, and
---    feedback delay reasons) have been atomicized into separate bridge/lookup tables.
--- 2. 2NF (Second Normal Form): Every non-key column is fully functionally dependent
---    on the primary key of its respective table without any partial dependencies.
+-- 1. 1NF (First Normal Form): All multi-valued attributes and repetitive groups
+--    (such as SSU incident types/issues/roles, ticket attachments, materials,
+--    and feedback delay reasons) are normalized into distinct atomic tables.
+-- 2. 2NF (Second Normal Form): Every non-key attribute is fully functionally
+--    dependent on the whole primary key without any partial functional dependencies.
 -- 3. 3NF (Third Normal Form): All transitive dependencies have been removed.
---    Repeated unit details, vehicle metadata, and user/personnel profiles are cleanly
---    isolated via foreign keys (unit_id, user_id, vehicle_id, ticket_id).
+--    Entity metadata (users, units, inventory, personnel) are partitioned cleanly
+--    and accessed strictly via explicit foreign keys.
 -- ============================================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+08:00";
 
 -- ----------------------------------------------------------------------------
--- 1. CORE & REFERENCE TABLES
+-- 1. CORE ORGANIZATIONAL & USER ENTITIES
 -- ----------------------------------------------------------------------------
 
--- Units Table (FGMU, LEAU, SSU)
-CREATE TABLE IF NOT EXISTS units (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(20) NOT NULL UNIQUE,
-    name VARCHAR(150) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- Table 1: Operating Units (FGMU, LEAU, SSU)
+CREATE TABLE IF NOT EXISTS `units` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `code` varchar(20) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_units_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Users Table (Supports Students, Employees, Admins, Staff, Directors, Superadmins)
-CREATE TABLE IF NOT EXISTS users (
-    id VARCHAR(36) PRIMARY KEY, -- CHAR(36) UUID
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    name_extension VARCHAR(20) NULL DEFAULT NULL,
-    username VARCHAR(100) NULL DEFAULT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    contact_number VARCHAR(30),
-    role ENUM('student', 'employee', 'admin', 'staff', 'director', 'superadmin', 'worker') NOT NULL DEFAULT 'student',
-    unit_id INT UNSIGNED NULL, -- NULL for students/general employees, FK for unit admins/staff
-    student_id_number VARCHAR(50) NULL UNIQUE,
-    student_type VARCHAR(50) NULL,
-    employee_type VARCHAR(100) NULL,
-    organization_name VARCHAR(150) NULL,
-    college VARCHAR(150) NULL,
-    id_card_image TEXT NULL,
-    id_selfie_image TEXT NULL,
-    avatar_path VARCHAR(255) NULL,
-    signature_path VARCHAR(255) NULL DEFAULT NULL,
-    status ENUM('Active', 'Pending', 'Rejected', 'Suspended', 'Archived') NOT NULL DEFAULT 'Active',
-    is_verified TINYINT(1) NOT NULL DEFAULT 1,
-    email_notifications_enabled TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Per-account opt-in for ticket/request email updates (SSU alerts, dispatch, etc.)',
-    failed_login_attempts INT UNSIGNED NOT NULL DEFAULT 0,
-    lockout_until DATETIME NULL DEFAULT NULL,
-    last_login_at DATETIME NULL DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_users_unit FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE SET NULL,
-    INDEX idx_users_role (role),
-    INDEX idx_users_status (status),
-    INDEX idx_users_username (username),
-    INDEX idx_users_last_login (last_login_at)
+-- Table 2: User Accounts (Role-Based Access Control)
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` varchar(36) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `name_extension` varchar(20) DEFAULT NULL,
+  `username` varchar(100) DEFAULT NULL,
+  `email` varchar(255) NOT NULL,
+  `password_hash` text NOT NULL,
+  `contact_number` varchar(30) DEFAULT NULL,
+  `role` enum('student','employee','admin','staff','director','superadmin','worker') NOT NULL DEFAULT 'student',
+  `unit_id` int(11) UNSIGNED DEFAULT NULL,
+  `student_id_number` varchar(50) DEFAULT NULL,
+  `student_type` varchar(50) DEFAULT NULL,
+  `employee_type` varchar(100) DEFAULT NULL,
+  `organization_name` varchar(150) DEFAULT NULL,
+  `college` varchar(150) DEFAULT NULL,
+  `id_card_image` text DEFAULT NULL,
+  `id_selfie_image` text DEFAULT NULL,
+  `avatar_path` varchar(255) DEFAULT NULL,
+  `signature_path` varchar(255) DEFAULT NULL,
+  `status` enum('Active','Pending','Rejected','Suspended','Archived') NOT NULL DEFAULT 'Active',
+  `is_verified` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+  `email_notifications_enabled` tinyint(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Per-account opt-in for email notifications',
+  `is_mfa_enabled` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Two-factor authentication via email OTP',
+  `failed_login_attempts` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `lockout_until` datetime DEFAULT NULL,
+  `last_login_at` datetime DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_users_email` (`email`),
+  KEY `idx_users_role` (`role`),
+  KEY `idx_users_status` (`status`),
+  KEY `idx_users_unit` (`unit_id`),
+  KEY `idx_users_username` (`username`),
+  KEY `idx_users_last_login` (`last_login_at`),
+  CONSTRAINT `fk_users_unit` FOREIGN KEY (`unit_id`) REFERENCES `units` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Personnel Table (Field Staff, Plumbers, Electricians, Gardeners)
-CREATE TABLE IF NOT EXISTS personnel (
-    id VARCHAR(36) PRIMARY KEY,
-    unit_id INT UNSIGNED NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    specialty VARCHAR(100) NOT NULL, -- e.g., Plumber, Electrician, Landscaper
-    status ENUM('available', 'working', 'on_leave') NOT NULL DEFAULT 'available',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_personnel_unit FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE,
-    INDEX idx_personnel_unit_status (unit_id, status)
+-- Table 3: Field & Technical Personnel
+CREATE TABLE IF NOT EXISTS `personnel` (
+  `id` varchar(36) NOT NULL,
+  `user_id` varchar(36) DEFAULT NULL,
+  `unit_id` int(11) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `specialty` varchar(100) NOT NULL,
+  `status` enum('available','working','on_leave') NOT NULL DEFAULT 'available',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_personnel_unit` (`unit_id`),
+  KEY `idx_personnel_status` (`status`),
+  KEY `idx_personnel_user` (`user_id`),
+  CONSTRAINT `fk_personnel_unit` FOREIGN KEY (`unit_id`) REFERENCES `units` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_personnel_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Personnel Categories Table
-CREATE TABLE IF NOT EXISTS personnel_categories (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    unit_id INT UNSIGNED NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    is_system TINYINT(1) NOT NULL DEFAULT 0,
-    supported_services TEXT NULL DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_category_unit (unit_id, name),
-    CONSTRAINT fk_categories_unit FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
--- ----------------------------------------------------------------------------
--- 2. CORE TICKET SYSTEM (Base Entity)
--- ----------------------------------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS tickets (
-    id VARCHAR(60) PRIMARY KEY, -- e.g., FGMU-TIC-42-2026
-    user_id VARCHAR(36) NOT NULL,
-    unit_id INT UNSIGNED NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    service_type VARCHAR(150) NOT NULL,
-    is_recategorized TINYINT(1) NOT NULL DEFAULT 0,
-    original_service_type VARCHAR(150) NULL DEFAULT NULL,
-    recategorized_at DATETIME NULL DEFAULT NULL,
-    recategorized_by VARCHAR(36) NULL DEFAULT NULL,
-    recategorization_reason TEXT NULL DEFAULT NULL,
-    description TEXT NOT NULL,
-    status ENUM('pending', 'approved', 'processing', 'resolved', 'closed', 'declined', 'cancelled') NOT NULL DEFAULT 'pending',
-    status_label VARCHAR(100) NOT NULL DEFAULT 'Pending Approval',
-    is_emergency TINYINT(1) NOT NULL DEFAULT 0,
-    is_approval_delayed TINYINT(1) NOT NULL DEFAULT 0,
-    approval_delay_reason TEXT NULL,
-    approval_delayed_at DATETIME NULL,
-    approval_delayed_by VARCHAR(36) NULL,
-    verification_status ENUM('pending_report', 'pending_verification', 'verified_closed') NOT NULL DEFAULT 'pending_report',
-    accomplishment_report_path VARCHAR(255) NULL,
-    accomplishment_notes TEXT NULL,
-    verified_by_user_id VARCHAR(36) NULL,
-    verified_at DATETIME NULL,
-    decline_reason TEXT NULL,
-    current_step INT NOT NULL DEFAULT 1, -- 1: Pending, 2: Queued/Approved, 3: Processing/On Route, 4: Completed
-    eodb_tier VARCHAR(50) NULL,
-    eodb_days INT DEFAULT 3,
-    target_completion_date DATETIME NULL,
-    location VARCHAR(255) NULL,
-    office_room VARCHAR(100) NULL,
-    is_archived TINYINT(1) NOT NULL DEFAULT 0,
-    materials_logged TINYINT(1) NOT NULL DEFAULT 0,
-    is_labor_only TINYINT(1) NOT NULL DEFAULT 0,
-    materials_stage VARCHAR(20) NOT NULL DEFAULT 'none',
-    -- SSU Incident Report workflow columns
-    is_under_investigation TINYINT(1) NOT NULL DEFAULT 0,
-    ssu_notation TEXT NULL,
-    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    reviewed_at TIMESTAMP NULL,
-    reviewed_by VARCHAR(36) NULL,
-    completed_at TIMESTAMP NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    is_project TINYINT(1) NOT NULL DEFAULT 0,
-    project_title VARCHAR(255) NULL,
-    project_target_duration VARCHAR(100) NULL,
-    project_target_date DATE NULL,
-    project_manpower VARCHAR(255) NULL,
-    project_remarks TEXT NULL,
-    project_actual_start DATE NULL,
-    project_actual_completion DATE NULL,
-    project_working_days INT NULL,
-    extension_days INT NOT NULL DEFAULT 0,
-    extended_completion_date DATE NULL,
-    extension_reason TEXT NULL,
-    overtime_hours DECIMAL(6,2) NOT NULL DEFAULT 0.00,
-    CONSTRAINT fk_tickets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_tickets_unit FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE,
-    CONSTRAINT fk_tickets_reviewer FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
-    CONSTRAINT fk_tickets_verified_by FOREIGN KEY (verified_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
-    CONSTRAINT fk_tickets_delayed_by FOREIGN KEY (approval_delayed_by) REFERENCES users(id) ON DELETE SET NULL,
-    CONSTRAINT fk_tickets_recategorized_by FOREIGN KEY (recategorized_by) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_tickets_user (user_id),
-    INDEX idx_tickets_unit_status (unit_id, status),
-    INDEX idx_tickets_archived (is_archived),
-    INDEX idx_tickets_approval_delayed (is_approval_delayed),
-    INDEX idx_tickets_submitted (submitted_at),
-    INDEX idx_tickets_investigating (unit_id, is_under_investigation, is_archived)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Atomic Ticket Attachments (1NF Compliance)
-CREATE TABLE IF NOT EXISTS ticket_attachments (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    ticket_id VARCHAR(60) NOT NULL,
-    file_name VARCHAR(255) NOT NULL,
-    file_path TEXT NOT NULL,
-    file_type VARCHAR(100) NULL,
-    file_size_bytes BIGINT UNSIGNED NULL,
-    is_encrypted TINYINT(1) NOT NULL DEFAULT 0,
-    encryption_iv VARCHAR(64) NULL DEFAULT NULL,
-    encryption_tag VARCHAR(64) NULL DEFAULT NULL,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_attachments_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
-    INDEX idx_attachments_ticket (ticket_id)
+-- Table 4: Personnel Categories (Specialty Classifications)
+CREATE TABLE IF NOT EXISTS `personnel_categories` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `unit_id` int(11) UNSIGNED NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `is_system` tinyint(1) NOT NULL DEFAULT 0,
+  `supported_services` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_categories_unit` (`unit_id`),
+  CONSTRAINT `fk_categories_unit` FOREIGN KEY (`unit_id`) REFERENCES `units` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
--- 3. UNIT-SPECIFIC REQUEST DETAILS (1-to-1 Subtypes)
+-- 2. CORE TICKETING SUBSYSTEM (TABLE INHERITANCE PATTERN)
 -- ----------------------------------------------------------------------------
 
--- FGMU Specific Details
-CREATE TABLE IF NOT EXISTS fgmu_ticket_details (
-    ticket_id VARCHAR(60) PRIMARY KEY,
-    college_building VARCHAR(255) NOT NULL,
-    office_room VARCHAR(100) NOT NULL,
-    source_of_fund VARCHAR(150) NULL,
-    jr_no VARCHAR(60) NULL, -- Job Request Number assigned by FGMU admin
-    CONSTRAINT fk_fgmu_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
+-- Table 5: Base Tickets Table
+CREATE TABLE IF NOT EXISTS `tickets` (
+  `id` varchar(60) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `unit_id` int(11) UNSIGNED NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `service_type` varchar(150) NOT NULL,
+  `is_recategorized` tinyint(1) NOT NULL DEFAULT 0,
+  `original_service_type` varchar(150) DEFAULT NULL,
+  `recategorized_at` datetime DEFAULT NULL,
+  `recategorized_by` varchar(36) DEFAULT NULL,
+  `recategorization_reason` text DEFAULT NULL,
+  `description` text NOT NULL,
+  `status` enum('pending','approved','processing','resolved','closed','declined','cancelled') NOT NULL DEFAULT 'pending',
+  `status_label` varchar(100) NOT NULL DEFAULT 'Pending Approval',
+  `is_emergency` tinyint(1) NOT NULL DEFAULT 0,
+  `is_approval_delayed` tinyint(1) NOT NULL DEFAULT 0,
+  `approval_delay_reason` text DEFAULT NULL,
+  `approval_delayed_at` datetime DEFAULT NULL,
+  `approval_delayed_by` varchar(36) DEFAULT NULL,
+  `is_escalated_to_director` tinyint(1) NOT NULL DEFAULT 0,
+  `escalation_reason` text DEFAULT NULL,
+  `escalated_at` datetime DEFAULT NULL,
+  `escalated_by` varchar(36) DEFAULT NULL,
+  `verification_status` enum('pending_report','pending_verification','verified_closed') NOT NULL DEFAULT 'pending_report',
+  `accomplishment_report_path` varchar(255) DEFAULT NULL,
+  `accomplishment_notes` text DEFAULT NULL,
+  `verified_by_user_id` varchar(36) DEFAULT NULL,
+  `verified_at` datetime DEFAULT NULL,
+  `decline_reason` text DEFAULT NULL,
+  `current_step` int(1) NOT NULL DEFAULT 1,
+  `eodb_tier` varchar(50) DEFAULT NULL,
+  `eodb_days` int(11) DEFAULT 3,
+  `target_completion_date` datetime DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `office_room` varchar(100) DEFAULT NULL,
+  `is_archived` tinyint(1) NOT NULL DEFAULT 0,
+  `materials_logged` tinyint(1) NOT NULL DEFAULT 0,
+  `is_labor_only` tinyint(1) NOT NULL DEFAULT 0,
+  `materials_stage` varchar(20) NOT NULL DEFAULT 'none',
+  `is_under_investigation` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'SSU only: active investigation flag',
+  `ssu_notation` text DEFAULT NULL COMMENT 'SSU staff recommendation notation',
+  `staff_notation` text DEFAULT NULL COMMENT 'Staff notation/update communicated to requester',
+  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `reviewed_at` timestamp NULL DEFAULT NULL,
+  `reviewed_by` varchar(36) DEFAULT NULL,
+  `completed_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_project` tinyint(1) NOT NULL DEFAULT 0,
+  `project_title` varchar(255) DEFAULT NULL,
+  `project_target_duration` varchar(100) DEFAULT NULL,
+  `project_target_date` date DEFAULT NULL,
+  `project_manpower` varchar(255) DEFAULT NULL,
+  `project_remarks` text DEFAULT NULL,
+  `project_actual_start` date DEFAULT NULL,
+  `project_actual_completion` date DEFAULT NULL,
+  `project_working_days` int(11) DEFAULT NULL,
+  `extension_days` int(11) NOT NULL DEFAULT 0,
+  `extended_completion_date` date DEFAULT NULL,
+  `extension_reason` text DEFAULT NULL,
+  `overtime_hours` decimal(6,2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (`id`),
+  KEY `idx_tickets_user` (`user_id`),
+  KEY `idx_tickets_unit_status` (`unit_id`,`status`),
+  KEY `idx_tickets_archived` (`is_archived`),
+  KEY `idx_tickets_approval_delayed` (`is_approval_delayed`),
+  KEY `idx_tickets_escalated` (`is_escalated_to_director`),
+  KEY `idx_tickets_submitted` (`submitted_at`),
+  KEY `idx_tickets_verification_status` (`verification_status`),
+  CONSTRAINT `fk_tickets_unit` FOREIGN KEY (`unit_id`) REFERENCES `units` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_tickets_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_tickets_reviewed_by` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_tickets_verified_by` FOREIGN KEY (`verified_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- LEAU Specific Details
-CREATE TABLE IF NOT EXISTS leau_ticket_details (
-    ticket_id VARCHAR(60) PRIMARY KEY,
-    college_building VARCHAR(255) NOT NULL,
-    office_room VARCHAR(100) NOT NULL,
-    source_of_fund VARCHAR(150) NULL,
-    CONSTRAINT fk_leau_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
+-- Table 6: Ticket File Attachments (Encrypted Uploads)
+CREATE TABLE IF NOT EXISTS `ticket_attachments` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_id` varchar(60) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `file_size_bytes` bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+  `is_encrypted` tinyint(1) NOT NULL DEFAULT 0,
+  `encryption_iv` varchar(64) DEFAULT NULL,
+  `encryption_tag` varchar(64) DEFAULT NULL,
+  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_attachments_ticket` (`ticket_id`),
+  CONSTRAINT `fk_attachments_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-
--- SSU Incident Reports Base Details
-CREATE TABLE IF NOT EXISTS ssu_incident_details (
-    ticket_id VARCHAR(60) PRIMARY KEY,
-    other_incident TEXT NULL,
-    other_information TEXT NULL,
-    follow_up TINYINT(1) NOT NULL DEFAULT 0,
-    who_involved TEXT NULL,
-    where_occurred TEXT NOT NULL,
-    when_occurred VARCHAR(150) NOT NULL,
-    how_narrative TEXT NOT NULL,
-    reporter_name VARCHAR(255) NOT NULL,
-    reporter_signature LONGTEXT NULL,
-    CONSTRAINT fk_ssu_incident_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
+-- Table 7: FGMU Ticket Details (1:1 Extension Table)
+CREATE TABLE IF NOT EXISTS `fgmu_ticket_details` (
+  `ticket_id` varchar(60) NOT NULL,
+  `college_building` varchar(255) DEFAULT NULL,
+  `office_room` varchar(100) DEFAULT NULL,
+  `source_of_fund` varchar(150) DEFAULT NULL,
+  `jr_no` varchar(60) DEFAULT NULL,
+  PRIMARY KEY (`ticket_id`),
+  CONSTRAINT `fk_fgmu_details_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Lookup Table for Incident Types (Normalized 1NF/3NF)
-CREATE TABLE IF NOT EXISTS ssu_incident_types (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    type_name VARCHAR(150) UNIQUE NOT NULL
+-- Table 8: LEAU Ticket Details (1:1 Extension Table)
+CREATE TABLE IF NOT EXISTS `leau_ticket_details` (
+  `ticket_id` varchar(60) NOT NULL,
+  `college_building` varchar(255) DEFAULT NULL,
+  `office_room` varchar(100) DEFAULT NULL,
+  `source_of_fund` varchar(150) DEFAULT NULL,
+  PRIMARY KEY (`ticket_id`),
+  CONSTRAINT `fk_leau_details_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Bridge Table: Ticket to Incident Types
-CREATE TABLE IF NOT EXISTS ssu_incident_type_items (
-    ticket_id VARCHAR(60) NOT NULL,
-    incident_type_id INT NOT NULL,
-    PRIMARY KEY (ticket_id, incident_type_id),
-    CONSTRAINT fk_incident_item_ticket FOREIGN KEY (ticket_id) REFERENCES ssu_incident_details(ticket_id) ON DELETE CASCADE,
-    CONSTRAINT fk_incident_item_type FOREIGN KEY (incident_type_id) REFERENCES ssu_incident_types(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Lookup Table for Incident Issues/Information
-CREATE TABLE IF NOT EXISTS ssu_incident_issues (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    issue_name VARCHAR(150) UNIQUE NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Bridge Table: Ticket to Incident Issues
-CREATE TABLE IF NOT EXISTS ssu_incident_issue_items (
-    ticket_id VARCHAR(60) NOT NULL,
-    issue_id INT NOT NULL,
-    PRIMARY KEY (ticket_id, issue_id),
-    CONSTRAINT fk_issue_item_ticket FOREIGN KEY (ticket_id) REFERENCES ssu_incident_details(ticket_id) ON DELETE CASCADE,
-    CONSTRAINT fk_issue_item_issue FOREIGN KEY (issue_id) REFERENCES ssu_incident_issues(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Lookup Table for Reporter Roles
-CREATE TABLE IF NOT EXISTS ssu_incident_roles (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    role_name VARCHAR(150) UNIQUE NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Bridge Table: Ticket to Reporter Roles
-CREATE TABLE IF NOT EXISTS ssu_incident_role_items (
-    ticket_id VARCHAR(60) NOT NULL,
-    role_id INT NOT NULL,
-    PRIMARY KEY (ticket_id, role_id),
-    CONSTRAINT fk_role_item_ticket FOREIGN KEY (ticket_id) REFERENCES ssu_incident_details(ticket_id) ON DELETE CASCADE,
-    CONSTRAINT fk_role_item_role FOREIGN KEY (role_id) REFERENCES ssu_incident_roles(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
--- ----------------------------------------------------------------------------
--- 4. DISPATCHING, ASSIGNMENTS & MATERIALS
--- ----------------------------------------------------------------------------
-
--- Ticket Collaborations (Facilitates cross-unit participation and shared manpower)
-CREATE TABLE IF NOT EXISTS ticket_collaborations (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    ticket_id VARCHAR(60) NOT NULL,
-    requesting_unit_id INT UNSIGNED NOT NULL,
-    collaborating_unit_id INT UNSIGNED NOT NULL,
-    requested_by VARCHAR(36) NULL,
-    reason TEXT NOT NULL,
-    scope_of_work TEXT NULL,
-    status ENUM('pending', 'accepted', 'declined', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
-    response_notes TEXT NULL,
-    responded_by VARCHAR(36) NULL,
-    responded_at DATETIME NULL,
-    completed_at DATETIME NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_collab_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
-    CONSTRAINT fk_collab_req_unit FOREIGN KEY (requesting_unit_id) REFERENCES units(id) ON DELETE CASCADE,
-    CONSTRAINT fk_collab_collab_unit FOREIGN KEY (collaborating_unit_id) REFERENCES units(id) ON DELETE CASCADE,
-    INDEX idx_collab_ticket (ticket_id),
-    INDEX idx_collab_collab_unit (collaborating_unit_id, status),
-    INDEX idx_collab_req_unit (requesting_unit_id, status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Ticket Assignments (Connects tickets to personnel)
-CREATE TABLE IF NOT EXISTS ticket_assignments (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    ticket_id VARCHAR(60) NOT NULL,
-    personnel_id VARCHAR(36) NOT NULL,
-    implementation_date VARCHAR(100) NULL, -- Schedule/Date of work
-    working_days INT NULL DEFAULT NULL,
-    overtime_hours DECIMAL(6,2) NOT NULL DEFAULT 0.00,
-    is_reassigned TINYINT(1) NOT NULL DEFAULT 0,
-    reassigned_from_id VARCHAR(36) NULL DEFAULT NULL,
-    reassigned_reason TEXT NULL DEFAULT NULL,
-    dispatcher_notes TEXT NULL,
-    task_notes VARCHAR(255) NULL,
-    is_emergency TINYINT(1) NOT NULL DEFAULT 0,
-    queue_order INT NOT NULL DEFAULT 1,
-    status VARCHAR(30) NOT NULL DEFAULT 'active',
-    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    dispatched_at TIMESTAMP NULL,
-    completed_at TIMESTAMP NULL,
-    CONSTRAINT fk_assignment_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
-    CONSTRAINT fk_assignment_personnel FOREIGN KEY (personnel_id) REFERENCES personnel(id) ON DELETE CASCADE,
-    CONSTRAINT fk_assignment_reassigned_from FOREIGN KEY (reassigned_from_id) REFERENCES personnel(id) ON DELETE SET NULL ON UPDATE CASCADE,
-    INDEX idx_assignments_ticket (ticket_id),
-    INDEX idx_assignments_personnel (personnel_id),
-    INDEX idx_assignments_reassigned_from (reassigned_from_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Atomic Job Materials Used (1NF Compliance - replaces materials JSON array)
-CREATE TABLE IF NOT EXISTS ticket_materials (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    ticket_id VARCHAR(60) NULL DEFAULT NULL,
-    assignment_id INT UNSIGNED NULL DEFAULT NULL,
-    material_name VARCHAR(200) NOT NULL,
-    quantity DECIMAL(10,2) NOT NULL DEFAULT 1.00,
-    unit_measurement VARCHAR(50) NULL, -- e.g., pcs, meters, liters
-    unit_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    total_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    stage VARCHAR(20) NOT NULL DEFAULT 'assessment',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_materials_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
-    CONSTRAINT fk_materials_assignment FOREIGN KEY (assignment_id) REFERENCES ticket_assignments(id) ON DELETE SET NULL ON UPDATE CASCADE,
-    INDEX idx_materials_ticket (ticket_id),
-    INDEX idx_materials_assignment (assignment_id)
+-- Table 9: SSU Incident Details (1:1 Extension Table)
+CREATE TABLE IF NOT EXISTS `ssu_incident_details` (
+  `ticket_id` varchar(60) NOT NULL,
+  `where_occurred` text DEFAULT NULL,
+  `when_occurred` varchar(150) DEFAULT NULL,
+  `how_narrative` text DEFAULT NULL,
+  `reporter_name` varchar(255) DEFAULT NULL,
+  `reporter_signature` longtext DEFAULT NULL,
+  `other_incident` text DEFAULT NULL,
+  `other_information` text DEFAULT NULL,
+  `follow_up` tinyint(1) NOT NULL DEFAULT 0,
+  `who_involved` text DEFAULT NULL,
+  PRIMARY KEY (`ticket_id`),
+  CONSTRAINT `fk_ssu_details_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
--- 5. PERFORMANCE EVALUATION & FEEDBACK (3NF Normalized)
+-- 3. 1NF NORMALIZED LOOKUP & BRIDGE ENTITIES
 -- ----------------------------------------------------------------------------
 
--- Unified Ticket Feedbacks Table (Applies to FGMU, LEAU, TASU, SSU without duplication)
-CREATE TABLE IF NOT EXISTS ticket_feedbacks (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    ticket_id VARCHAR(60) NOT NULL UNIQUE,
-    user_id VARCHAR(36) NOT NULL,
-    completion_status ENUM('early', 'on-time', 'beyond-time', 'not-completed') NOT NULL,
-    courtesy_rating TINYINT UNSIGNED NOT NULL DEFAULT 5,
-    quality_rating TINYINT UNSIGNED NOT NULL DEFAULT 5,
-    efficiency_rating TINYINT UNSIGNED NOT NULL DEFAULT 5,
-    timeliness_rating TINYINT UNSIGNED NOT NULL DEFAULT 5,
-    cleanliness_rating TINYINT UNSIGNED NOT NULL DEFAULT 5,
-    remarks TEXT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_feedback_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
-    CONSTRAINT fk_feedback_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_feedbacks_ticket (ticket_id),
-    INDEX idx_feedbacks_user (user_id)
+-- Table 10: SSU Incident Types (Lookup Table)
+CREATE TABLE IF NOT EXISTS `ssu_incident_types` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `type_name` varchar(150) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Lookup Table for Feedback Delay / Failure Reasons
-CREATE TABLE IF NOT EXISTS feedback_delay_reasons (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    reason_code VARCHAR(60) UNIQUE NOT NULL, -- e.g., personnelAbsent, lackMaterials
-    reason_label VARCHAR(200) NOT NULL
+-- Table 11: SSU Incident Type Items (1NF Bridge Table)
+CREATE TABLE IF NOT EXISTS `ssu_incident_type_items` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_id` varchar(60) NOT NULL,
+  `type_id` int(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_ssu_type_items_ticket` (`ticket_id`),
+  KEY `idx_ssu_type_items_type` (`type_id`),
+  CONSTRAINT `fk_ssu_type_items_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_ssu_type_items_type` FOREIGN KEY (`type_id`) REFERENCES `ssu_incident_types` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Bridge Table: Feedback to Delay Reasons (Replaces JSON array in feedback)
-CREATE TABLE IF NOT EXISTS ticket_feedback_delay_items (
-    feedback_id INT NOT NULL,
-    delay_reason_id INT NOT NULL,
-    PRIMARY KEY (feedback_id, delay_reason_id),
-    CONSTRAINT fk_delay_item_feedback FOREIGN KEY (feedback_id) REFERENCES ticket_feedbacks(id) ON DELETE CASCADE,
-    CONSTRAINT fk_delay_item_reason FOREIGN KEY (delay_reason_id) REFERENCES feedback_delay_reasons(id) ON DELETE CASCADE
+-- Table 12: SSU Incident Issues (Lookup Table)
+CREATE TABLE IF NOT EXISTS `ssu_incident_issues` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `issue_name` varchar(150) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------------------
--- 6. AUDIT TRAILS & SYSTEM HISTORY LOGS
--- ----------------------------------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS ticket_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    ticket_id VARCHAR(60) NOT NULL,
-    user_id VARCHAR(36) NULL, -- Actor who performed the action
-    action VARCHAR(150) NOT NULL, -- e.g., Status Changed, Personnel Assigned, Feedback Submitted
-    details TEXT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_logs_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
-    CONSTRAINT fk_logs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_logs_ticket (ticket_id),
-    INDEX idx_logs_created (created_at)
+-- Table 13: SSU Incident Issue Items (1NF Bridge Table)
+CREATE TABLE IF NOT EXISTS `ssu_incident_issue_items` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_id` varchar(60) NOT NULL,
+  `issue_id` int(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_ssu_issue_items_ticket` (`ticket_id`),
+  KEY `idx_ssu_issue_items_issue` (`issue_id`),
+  CONSTRAINT `fk_ssu_issue_items_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_ssu_issue_items_issue` FOREIGN KEY (`issue_id`) REFERENCES `ssu_incident_issues` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Account Activities & Authentication Security Audit Trail (RA 10173 Compliant)
-CREATE TABLE IF NOT EXISTS account_activity_logs (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    actor_id VARCHAR(36) NULL,
-    target_user_id VARCHAR(36) NULL,
-    event_type VARCHAR(60) NOT NULL,
-    severity ENUM('info', 'notice', 'warning', 'critical') NOT NULL DEFAULT 'info',
-    ip_address VARCHAR(45) NULL,
-    user_agent VARCHAR(255) NULL,
-    device_summary VARCHAR(100) NULL,
-    details TEXT NULL,
-    metadata TEXT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_act_logs_actor (actor_id),
-    INDEX idx_act_logs_target (target_user_id),
-    INDEX idx_act_logs_event (event_type),
-    INDEX idx_act_logs_severity (severity),
-    INDEX idx_act_logs_created (created_at),
-    CONSTRAINT fk_act_logs_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL,
-    CONSTRAINT fk_act_logs_target FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE SET NULL
+-- Table 14: SSU Incident Roles (Lookup Table)
+CREATE TABLE IF NOT EXISTS `ssu_incident_roles` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(150) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table 15: SSU Incident Role Items (1NF Bridge Table)
+CREATE TABLE IF NOT EXISTS `ssu_incident_role_items` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_id` varchar(60) NOT NULL,
+  `role_id` int(11) UNSIGNED NOT NULL,
+  `person_name` varchar(255) NOT NULL,
+  `contact_details` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_ssu_role_items_ticket` (`ticket_id`),
+  KEY `idx_ssu_role_items_role` (`role_id`),
+  CONSTRAINT `fk_ssu_role_items_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_ssu_role_items_role` FOREIGN KEY (`role_id`) REFERENCES `ssu_incident_roles` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
--- 6b. BORROWING SYSTEM (LEAU: Borrowing of Plants / Tools & Equipment)
+-- 4. OPERATIONS, ASSIGNMENTS & MASTER CATALOG
 -- ----------------------------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS inventory_items (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    unit_id INT UNSIGNED NOT NULL DEFAULT 2,
-    name VARCHAR(255) NOT NULL,
-    model VARCHAR(255) NULL,
-    category ENUM('tools', 'equipment', 'plants', 'materials', 'others') NOT NULL DEFAULT 'tools',
-    serial_number VARCHAR(150) NULL,
-    quantity_total INT UNSIGNED NOT NULL DEFAULT 1,
-    quantity_available INT UNSIGNED NOT NULL DEFAULT 1,
-    condition_status ENUM('excellent', 'good', 'fair', 'needs_repair', 'retired') NOT NULL DEFAULT 'good',
-    location VARCHAR(255) NULL,
-    description TEXT NULL,
-    is_active TINYINT(1) NOT NULL DEFAULT 1,
-    created_by VARCHAR(36) NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_inventory_unit (unit_id),
-    INDEX idx_inventory_category (category),
-    INDEX idx_inventory_available (quantity_available),
-    CONSTRAINT fk_inventory_unit FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE,
-    CONSTRAINT fk_inventory_creator FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+-- Table 16: Inter-Unit Ticket Collaborations
+CREATE TABLE IF NOT EXISTS `ticket_collaborations` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_id` varchar(60) NOT NULL,
+  `collaborating_unit_id` int(11) UNSIGNED NOT NULL,
+  `status` enum('pending','accepted','declined','completed') NOT NULL DEFAULT 'pending',
+  `reason` text NOT NULL,
+  `response_notes` text DEFAULT NULL,
+  `service_type` varchar(150) DEFAULT NULL,
+  `requested_by` varchar(36) NOT NULL,
+  `responded_by` varchar(36) DEFAULT NULL,
+  `requested_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `responded_at` datetime DEFAULT NULL,
+  `completed_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_collab_ticket` (`ticket_id`),
+  KEY `idx_collab_unit` (`collaborating_unit_id`),
+  KEY `idx_collab_requested_by` (`requested_by`),
+  KEY `idx_collab_responded_by` (`responded_by`),
+  CONSTRAINT `fk_collab_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_collab_unit` FOREIGN KEY (`collaborating_unit_id`) REFERENCES `units` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_collab_requested_by` FOREIGN KEY (`requested_by`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_collab_responded_by` FOREIGN KEY (`responded_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS borrowing_requests (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    ticket_id VARCHAR(60) NOT NULL UNIQUE,
-    borrower_name VARCHAR(255) NOT NULL,
-    borrower_id_number VARCHAR(50) NOT NULL,
-    borrower_type ENUM('student', 'faculty', 'staff') NOT NULL,
-    department_major VARCHAR(150) NULL,
-    borrower_email VARCHAR(255) NOT NULL,
-    borrower_contact VARCHAR(30) NOT NULL,
-    item_name_requested VARCHAR(255) NOT NULL,
-    item_model_requested VARCHAR(255) NULL,
-    quantity_needed INT UNSIGNED NOT NULL DEFAULT 1,
-    purpose_project TEXT NOT NULL,
-    date_needed DATE NOT NULL,
-    expected_return_date DATE NOT NULL,
-    terms_agreed TINYINT(1) NOT NULL DEFAULT 0,
-    terms_agreed_at DATETIME NULL,
-    status ENUM('pending_director', 'approved_director', 'inventory_assigned', 'ready_for_pickup', 'picked_up', 'overdue', 'returned', 'cancelled') NOT NULL DEFAULT 'pending_director',
-    assigned_inventory_id INT UNSIGNED NULL,
-    assigned_quantity INT UNSIGNED NULL,
-    picked_up_at DATETIME NULL,
-    picked_up_by VARCHAR(36) NULL,
-    returned_at DATETIME NULL,
-    returned_by VARCHAR(36) NULL,
-    return_condition ENUM('excellent', 'good', 'fair', 'damaged', 'lost') NULL,
-    return_notes TEXT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_borrowing_status (status),
-    INDEX idx_borrowing_dates (date_needed, expected_return_date),
-    INDEX idx_borrowing_inventory (assigned_inventory_id),
-    CONSTRAINT fk_borrowing_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
-    CONSTRAINT fk_borrowing_inventory FOREIGN KEY (assigned_inventory_id) REFERENCES inventory_items(id) ON DELETE SET NULL,
-    CONSTRAINT fk_borrowing_picked_by FOREIGN KEY (picked_up_by) REFERENCES users(id) ON DELETE SET NULL,
-    CONSTRAINT fk_borrowing_returned_by FOREIGN KEY (returned_by) REFERENCES users(id) ON DELETE SET NULL
+-- Table 17: Ticket Personnel Assignments
+CREATE TABLE IF NOT EXISTS `ticket_assignments` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_id` varchar(60) NOT NULL,
+  `personnel_id` varchar(36) NOT NULL,
+  `assigned_by` varchar(36) NOT NULL,
+  `assigned_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `completed_at` datetime DEFAULT NULL,
+  `status` enum('assigned','in_progress','completed') NOT NULL DEFAULT 'assigned',
+  `notes` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_assignments_ticket` (`ticket_id`),
+  KEY `idx_assignments_personnel` (`personnel_id`),
+  KEY `idx_assignments_assigned_by` (`assigned_by`),
+  CONSTRAINT `fk_assignments_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_assignments_personnel` FOREIGN KEY (`personnel_id`) REFERENCES `personnel` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_assignments_assigned_by` FOREIGN KEY (`assigned_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS borrowing_attachments (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    borrowing_request_id INT UNSIGNED NOT NULL,
-    file_name VARCHAR(255) NOT NULL,
-    file_path TEXT NOT NULL,
-    file_type VARCHAR(100) NULL,
-    file_size_bytes BIGINT UNSIGNED NULL,
-    attachment_type ENUM('usage_photos', 'event_documents', 'project_docs', 'others') NOT NULL DEFAULT 'others',
-    uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_borrowing_attach_request (borrowing_request_id),
-    CONSTRAINT fk_borrowing_attach_request FOREIGN KEY (borrowing_request_id) REFERENCES borrowing_requests(id) ON DELETE CASCADE
+-- Table 18: Ticket Materials Log
+CREATE TABLE IF NOT EXISTS `ticket_materials` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_id` varchar(60) NOT NULL,
+  `material_name` varchar(255) NOT NULL,
+  `quantity` int(10) UNSIGNED NOT NULL DEFAULT 1,
+  `unit` varchar(50) NOT NULL DEFAULT 'pcs',
+  `unit_price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `total_price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `stage` varchar(20) NOT NULL DEFAULT 'assessment',
+  `logged_by` varchar(36) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_materials_ticket` (`ticket_id`),
+  KEY `idx_materials_logged_by` (`logged_by`),
+  CONSTRAINT `fk_materials_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_materials_logged_by` FOREIGN KEY (`logged_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS borrowing_history (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    borrowing_request_id INT UNSIGNED NOT NULL,
-    action VARCHAR(50) NOT NULL,
-    performed_by VARCHAR(36) NULL,
-    details TEXT NULL,
-    previous_status VARCHAR(50) NULL,
-    new_status VARCHAR(50) NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_history_request (borrowing_request_id),
-    INDEX idx_history_action (action),
-    INDEX idx_history_performed_by (performed_by),
-    CONSTRAINT fk_history_request FOREIGN KEY (borrowing_request_id) REFERENCES borrowing_requests(id) ON DELETE CASCADE,
-    CONSTRAINT fk_history_performed_by FOREIGN KEY (performed_by) REFERENCES users(id) ON DELETE SET NULL
+-- Table 19: Master Catalog Materials (Unit Standard Items)
+CREATE TABLE IF NOT EXISTS `catalog_materials` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `unit_code` enum('FGMU','LEAU') NOT NULL,
+  `category` varchar(60) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `unit` varchar(50) NOT NULL,
+  `default_price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_catalog_materials_unit` (`unit_code`,`is_active`),
+  KEY `idx_catalog_materials_category` (`category`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table 20: Institutional Work Calendar & Special Non-Working Holidays
+CREATE TABLE IF NOT EXISTS `special_holidays` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `holiday_date` date NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `type` varchar(50) NOT NULL DEFAULT 'special_non_working',
+  `is_recurring` tinyint(1) NOT NULL DEFAULT 0,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_special_holidays_date` (`holiday_date`, `is_active`),
+  KEY `idx_special_holidays_recurring` (`is_recurring`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
--- 7. INITIAL REFERENCE SEEDS
+-- 5. QUALITY ASSURANCE, FEEDBACK & DELAYS
 -- ----------------------------------------------------------------------------
 
-INSERT IGNORE INTO units (id, code, name, description) VALUES 
-(1, 'FGMU', 'Facilities and Grounds Management Unit', 'Manages structure, finishes, utilities, mechanical, and carpentry repairs across BSU campus.'),
-(2, 'LEAU', 'Landscape and Environment Aesthetics Unit', 'Responsible for campus landscaping, janitorial services, lawn mowing, and disinfection operations.'),
-(3, 'SSU', 'Security Service Unit', 'Handles university security, campus safety coordination, and campus incident reporting.');
+-- Table 21: Ticket Customer Feedbacks
+CREATE TABLE IF NOT EXISTS `ticket_feedbacks` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_id` varchar(60) NOT NULL,
+  `client_id` varchar(36) NOT NULL,
+  `overall_rating` int(1) NOT NULL,
+  `quality_rating` int(1) DEFAULT NULL,
+  `timeliness_rating` int(1) DEFAULT NULL,
+  `professionalism_rating` int(1) DEFAULT NULL,
+  `comments` text DEFAULT NULL,
+  `completion_status` enum('early','on-time','beyond-time','not-completed') NOT NULL DEFAULT 'on-time',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_feedbacks_ticket` (`ticket_id`),
+  KEY `idx_feedbacks_client` (`client_id`),
+  CONSTRAINT `fk_feedbacks_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_feedbacks_client` FOREIGN KEY (`client_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO ssu_incident_types (id, type_name) VALUES
-(1, 'Theft / Robbery'),
-(2, 'Vandalism / Property Damage'),
-(3, 'Physical Assault / Altercation'),
-(4, 'Trespassing / Unauthorized Entry'),
-(5, 'Road Accident / Vehicular Collision'),
-(6, 'Medical Emergency / Injury'),
-(7, 'Fire / Hazard Alert'),
-(8, 'Other Security Concern');
+-- Table 22: Feedback Delay Reasons (Lookup Table)
+CREATE TABLE IF NOT EXISTS `feedback_delay_reasons` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `reason_code` varchar(60) NOT NULL,
+  `reason_label` varchar(200) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_delay_reason_code` (`reason_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO ssu_incident_issues (id, issue_name) VALUES
-(1, 'Lost / Stolen Personal Belongings'),
-(2, 'Damaged University Facilities / Equipment'),
-(3, 'Safety Policy Violation'),
-(4, 'Traffic Regulation Violation'),
-(5, 'Suspicious Activity Observed');
-
-INSERT IGNORE INTO ssu_incident_roles (id, role_name) VALUES
-(1, 'Victim / Complainant'),
-(2, 'Eyewitness'),
-(3, 'Security Officer on Duty'),
-(4, 'Responding Personnel');
-
-INSERT IGNORE INTO feedback_delay_reasons (id, reason_code, reason_label) VALUES
-(1, 'personnelAbsent', 'Assigned personnel was absent or unavailable'),
-(2, 'extendedBreak', 'Personnel took extended breaks during the repair/task'),
-(3, 'additionalWork', 'Unexpected additional work or complications arose'),
-(4, 'lackDays', 'Insufficient number of days allotted for the job scope'),
-(5, 'lackMaterials', 'Delay due to lack of replacement parts or materials'),
-(6, 'lackSkills', 'Required specialized tools or external expertise');
-
-
+-- Table 23: Ticket Feedback Delay Items (1NF Bridge Table)
+CREATE TABLE IF NOT EXISTS `ticket_feedback_delay_items` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `feedback_id` int(11) UNSIGNED NOT NULL,
+  `delay_reason_id` int(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_delay_items_feedback` (`feedback_id`),
+  KEY `idx_delay_items_reason` (`delay_reason_id`),
+  CONSTRAINT `fk_delay_items_feedback` FOREIGN KEY (`feedback_id`) REFERENCES `ticket_feedbacks` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_delay_items_reason` FOREIGN KEY (`delay_reason_id`) REFERENCES `feedback_delay_reasons` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
--- 8. SYSTEM / INFRASTRUCTURE TABLES
+-- 6. BORROWING & INVENTORY MANAGEMENT SUBSYSTEM
 -- ----------------------------------------------------------------------------
 
--- Notifications (no FK on user_id — users can be deleted independently)
-CREATE TABLE IF NOT EXISTS notifications (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    user_id VARCHAR(36) NOT NULL,
-    type VARCHAR(50) NOT NULL DEFAULT 'info',    -- success | warning | info
-    title VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    is_read TINYINT(1) NOT NULL DEFAULT 0,
-    created_at DATETIME NULL,
-    updated_at DATETIME NULL,
-    PRIMARY KEY (id)
+-- Table 24: Equipment, Tools & Botanical Inventory
+CREATE TABLE IF NOT EXISTS `inventory_items` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `unit_id` int(11) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `model` varchar(255) DEFAULT NULL,
+  `category` enum('tools','equipment','plants','materials','others') NOT NULL DEFAULT 'tools',
+  `serial_number` varchar(100) DEFAULT NULL,
+  `quantity_total` int(11) UNSIGNED NOT NULL DEFAULT 1,
+  `quantity_available` int(11) UNSIGNED NOT NULL DEFAULT 1,
+  `condition_status` enum('excellent','good','fair','needs_repair','retired') NOT NULL DEFAULT 'good',
+  `location` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_by` varchar(36) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_inventory_unit` (`unit_id`),
+  KEY `idx_inventory_category` (`category`),
+  KEY `idx_inventory_status` (`condition_status`),
+  KEY `idx_inventory_active` (`is_active`),
+  CONSTRAINT `fk_inventory_unit` FOREIGN KEY (`unit_id`) REFERENCES `units` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_inventory_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- OTP Codes (email-based one-time password for registration/login)
-CREATE TABLE IF NOT EXISTS otp_codes (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    email VARCHAR(255) NOT NULL,
-    code VARCHAR(50) NOT NULL,
-    expires_at DATETIME NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    user_data TEXT NULL,   -- JSON blob of pending registration payload
-    PRIMARY KEY (id),
-    INDEX email (email)
+-- Table 25: Item Borrowing Requests (Normalized 3NF Extension)
+CREATE TABLE IF NOT EXISTS `borrowing_requests` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_id` varchar(60) NOT NULL,
+  `borrower_name` varchar(255) NOT NULL,
+  `borrower_id_number` varchar(50) NOT NULL,
+  `borrower_type` enum('student','faculty','staff') NOT NULL DEFAULT 'student',
+  `department_major` varchar(150) DEFAULT NULL,
+  `borrower_email` varchar(255) NOT NULL,
+  `borrower_contact` varchar(30) NOT NULL,
+  `item_name_requested` varchar(255) NOT NULL,
+  `item_model_requested` varchar(255) DEFAULT NULL,
+  `quantity_needed` int(11) UNSIGNED NOT NULL DEFAULT 1,
+  `purpose_project` text NOT NULL,
+  `date_needed` date NOT NULL,
+  `expected_return_date` date NOT NULL,
+  `terms_agreed` tinyint(1) NOT NULL DEFAULT 1,
+  `terms_agreed_at` datetime DEFAULT NULL,
+  `status` enum('pending_director','approved_director','declined_director','inventory_assigned','ready_for_pickup','picked_up','returned','overdue','cancelled') NOT NULL DEFAULT 'pending_director',
+  `assigned_inventory_id` int(11) UNSIGNED DEFAULT NULL,
+  `assigned_quantity` int(11) UNSIGNED DEFAULT NULL,
+  `picked_up_at` datetime DEFAULT NULL,
+  `picked_up_by` varchar(36) DEFAULT NULL,
+  `returned_at` datetime DEFAULT NULL,
+  `returned_by` varchar(36) DEFAULT NULL,
+  `return_condition` enum('excellent','good','fair','damaged','lost') DEFAULT NULL,
+  `return_notes` text DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_borrowing_ticket` (`ticket_id`),
+  KEY `idx_borrowing_status` (`status`),
+  KEY `idx_borrowing_inventory` (`assigned_inventory_id`),
+  KEY `idx_borrowing_date_needed` (`date_needed`),
+  KEY `idx_borrowing_return_date` (`expected_return_date`),
+  CONSTRAINT `fk_borrowing_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_borrowing_inventory` FOREIGN KEY (`assigned_inventory_id`) REFERENCES `inventory_items` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_borrowing_picked_up_by` FOREIGN KEY (`picked_up_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_borrowing_returned_by` FOREIGN KEY (`returned_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Single Active User Sessions (One session per user enforcement)
-CREATE TABLE IF NOT EXISTS user_sessions (
-    id VARCHAR(36) PRIMARY KEY,
-    user_id VARCHAR(36) NOT NULL,
-    session_id VARCHAR(64) NOT NULL,
-    ip_address VARCHAR(45) NULL,
-    user_agent VARCHAR(255) NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_activity TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_user_sessions_user (user_id),
-    INDEX idx_user_sessions_sid (session_id),
-    CONSTRAINT fk_user_sessions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+-- Table 26: Borrowing Identification & Supporting Attachments
+CREATE TABLE IF NOT EXISTS `borrowing_attachments` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `borrowing_request_id` int(11) UNSIGNED NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `file_size_bytes` bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+  `attachment_type` enum('borrower_id','approval_letter','other') NOT NULL DEFAULT 'borrower_id',
+  `uploaded_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_borrowing_attachments_req` (`borrowing_request_id`),
+  CONSTRAINT `fk_borrowing_attachments_req` FOREIGN KEY (`borrowing_request_id`) REFERENCES `borrowing_requests` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Account Activity Logs (Security & Authentication events, RA 10173 compliant)
-CREATE TABLE IF NOT EXISTS account_activity_logs (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    actor_id VARCHAR(36) NULL,
-    target_user_id VARCHAR(36) NULL,
-    event_type VARCHAR(60) NOT NULL,
-    severity ENUM('info', 'notice', 'warning', 'critical') NOT NULL DEFAULT 'info',
-    ip_address VARCHAR(45) NULL,
-    user_agent VARCHAR(255) NULL,
-    device_summary VARCHAR(100) NULL,
-    details TEXT NULL,
-    metadata TEXT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_act_logs_actor (actor_id),
-    INDEX idx_act_logs_target (target_user_id),
-    INDEX idx_act_logs_event (event_type),
-    INDEX idx_act_logs_severity (severity),
-    INDEX idx_act_logs_created (created_at),
-    CONSTRAINT fk_act_logs_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL,
-    CONSTRAINT fk_act_logs_target FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE SET NULL
+-- Table 27: Borrowing Request Lifecycle Audit History
+CREATE TABLE IF NOT EXISTS `borrowing_history` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `borrowing_request_id` int(11) UNSIGNED NOT NULL,
+  `status` varchar(50) NOT NULL,
+  `notes` text DEFAULT NULL,
+  `action_by` varchar(36) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_borrowing_history_req` (`borrowing_request_id`),
+  KEY `idx_borrowing_history_user` (`action_by`),
+  CONSTRAINT `fk_borrowing_history_req` FOREIGN KEY (`borrowing_request_id`) REFERENCES `borrowing_requests` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_borrowing_history_user` FOREIGN KEY (`action_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- User Sessions (One Active Session Per User & Real-Time Presence)
-CREATE TABLE IF NOT EXISTS user_sessions (
-    id VARCHAR(36) PRIMARY KEY,
-    user_id VARCHAR(36) NOT NULL,
-    session_id VARCHAR(64) NOT NULL,
-    ip_address VARCHAR(45) NULL,
-    user_agent VARCHAR(255) NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_activity TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_user_sessions_user (user_id),
-    INDEX idx_user_sessions_sid (session_id),
-    CONSTRAINT fk_user_sessions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+-- ----------------------------------------------------------------------------
+-- 7. AUDITING, SESSIONS & SECURITY SUBSYSTEM
+-- ----------------------------------------------------------------------------
+
+-- Table 28: Ticket Action Logs (Operational Audit Trail)
+CREATE TABLE IF NOT EXISTS `ticket_logs` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_id` varchar(60) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `action` varchar(100) NOT NULL,
+  `details` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_logs_ticket` (`ticket_id`),
+  KEY `idx_logs_user` (`user_id`),
+  CONSTRAINT `fk_logs_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_logs_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- System Settings
-CREATE TABLE IF NOT EXISTS system_settings (
-    `key` VARCHAR(100) NOT NULL PRIMARY KEY,
-    value TEXT NULL,
-    description VARCHAR(255) NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- Table 29: Account Activity Logs (Security & Compliance Trail)
+CREATE TABLE IF NOT EXISTS `account_activity_logs` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `actor_id` varchar(36) DEFAULT NULL,
+  `target_user_id` varchar(36) DEFAULT NULL,
+  `event_type` varchar(100) NOT NULL,
+  `description` text NOT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `metadata` json DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_activity_actor` (`actor_id`),
+  KEY `idx_activity_target` (`target_user_id`),
+  KEY `idx_activity_event` (`event_type`),
+  KEY `idx_activity_created` (`created_at`),
+  CONSTRAINT `fk_activity_actor` FOREIGN KEY (`actor_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_activity_target` FOREIGN KEY (`target_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO system_settings (`key`, value, description) VALUES
-('resend_api_key', NULL, 'API Key from Resend.com for transactional email delivery'),
-('resend_from_email', 'GSO E-Ticketing <onboarding@resend.dev>', 'Sender email address for outgoing system emails'),
-('resend_notifications_enabled', '1', 'Global toggle for email notification dispatch (1 = active, 0 = paused)'),
-('google_drive_folder_id', NULL, 'Target Google Drive folder ID for cloud database backups'),
-('google_drive_credentials_json', NULL, 'Google Cloud Service Account JSON credentials');
-
--- Password Resets
-CREATE TABLE IF NOT EXISTS password_resets (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    token VARCHAR(128) NOT NULL,
-    expires_at DATETIME NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_password_resets_email (email),
-    INDEX idx_password_resets_token (token)
+-- Table 30: User Sessions (Single Active Session Enforcement)
+CREATE TABLE IF NOT EXISTS `user_sessions` (
+  `id` varchar(36) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `session_id` varchar(64) NOT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `last_activity` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_user_sessions_user` (`user_id`),
+  KEY `idx_user_sessions_sid` (`session_id`),
+  CONSTRAINT `fk_user_sessions_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- System Backups (Dual-Vault: Onsite Local + Google Drive Cloud Storage)
-CREATE TABLE IF NOT EXISTS system_backups (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    file_name VARCHAR(255) NOT NULL,
-    file_path VARCHAR(500) NOT NULL,
-    file_size_bytes BIGINT UNSIGNED NOT NULL DEFAULT 0,
-    backup_type ENUM('manual', 'scheduled') NOT NULL DEFAULT 'manual',
-    tables_included TEXT NULL,
-    google_drive_file_id VARCHAR(255) NULL,
-    google_drive_link TEXT NULL,
-    google_drive_status ENUM('not_configured', 'pending', 'uploaded', 'failed') NOT NULL DEFAULT 'not_configured',
-    google_drive_error TEXT NULL,
-    status ENUM('completed', 'in_progress', 'failed') NOT NULL DEFAULT 'completed',
-    notes VARCHAR(255) NULL,
-    created_by VARCHAR(36) NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_backups_created (created_at),
-    INDEX idx_backups_status (status),
-    INDEX fk_backups_user (created_by),
-    CONSTRAINT fk_backups_user FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+-- Table 31: User MFA Email OTP Challenges
+CREATE TABLE IF NOT EXISTS `user_mfa_challenges` (
+  `id` varchar(36) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `temp_token` varchar(64) NOT NULL,
+  `otp_code` varchar(10) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `attempts` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_mfa_temp_token` (`temp_token`),
+  KEY `idx_mfa_user_id` (`user_id`),
+  KEY `idx_mfa_expires_at` (`expires_at`),
+  CONSTRAINT `fk_mfa_challenges_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table 32: In-App User Notifications
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(36) NOT NULL,
+  `type` varchar(50) NOT NULL DEFAULT 'info',
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `related_entity_type` varchar(50) DEFAULT NULL,
+  `related_entity_id` varchar(60) DEFAULT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_notifications_user_read` (`user_id`,`is_read`),
+  KEY `idx_notifications_created` (`created_at`),
+  CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table 33: One-Time Password (OTP) Verification Codes
+CREATE TABLE IF NOT EXISTS `otp_codes` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `code` varchar(10) NOT NULL,
+  `type` enum('registration','login','password_reset') NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `is_used` tinyint(1) NOT NULL DEFAULT 0,
+  `user_data` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_otp_email_type_code` (`email`,`type`,`code`),
+  KEY `idx_otp_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table 34: Global System Key-Value Settings
+CREATE TABLE IF NOT EXISTS `system_settings` (
+  `key` varchar(100) NOT NULL,
+  `value` text DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table 35: Password Reset Tokens
+CREATE TABLE IF NOT EXISTS `password_resets` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `token` varchar(128) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_password_resets_email` (`email`),
+  KEY `idx_password_resets_token` (`token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table 36: System Backups (Dual-Vault Registry: Local + Google Drive)
+CREATE TABLE IF NOT EXISTS `system_backups` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `file_size_bytes` bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+  `backup_type` enum('manual','scheduled') NOT NULL DEFAULT 'manual',
+  `backup_category` enum('database','media','full') NOT NULL DEFAULT 'database',
+  `tables_included` text DEFAULT NULL,
+  `google_drive_file_id` varchar(255) DEFAULT NULL,
+  `google_drive_link` text DEFAULT NULL,
+  `google_drive_status` enum('not_configured','pending','uploaded','failed') NOT NULL DEFAULT 'not_configured',
+  `google_drive_error` text DEFAULT NULL,
+  `status` enum('completed','in_progress','failed') NOT NULL DEFAULT 'completed',
+  `notes` varchar(255) DEFAULT NULL,
+  `created_by` varchar(36) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_backups_created` (`created_at`),
+  KEY `idx_backups_status` (`status`),
+  KEY `idx_backups_category` (`backup_category`),
+  KEY `fk_backups_user` (`created_by`),
+  CONSTRAINT `fk_backups_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
-

@@ -74,7 +74,7 @@
         </div>
 
         <!-- Action Control Bar -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-slate-900 text-emerald-400 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,8 +82,8 @@
               </svg>
             </div>
             <div>
-              <h3 class="text-base font-extrabold text-slate-900">Database Snapshot Operations</h3>
-              <p class="text-xs text-slate-500">Initiate live snapshots or configure your Google Drive integration parameters</p>
+              <h3 class="text-base font-extrabold text-slate-900">Backup Operations</h3>
+              <p class="text-xs text-slate-500">Manage snapshots, schedule auto-backups, and cloud sync</p>
             </div>
           </div>
 
@@ -92,13 +92,13 @@
             <button
               @click="openScheduleModal"
               type="button"
-              class="px-4 py-2.5 rounded-xl border border-indigo-200 text-indigo-900 bg-indigo-50/80 hover:bg-indigo-100 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
-              title="Configure automated weekly/monthly backup schedule and rolling retention policy"
+              class="px-3.5 py-2.5 rounded-xl border border-indigo-200 text-indigo-900 bg-indigo-50/80 hover:bg-indigo-100 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+              title="Configure backup schedule & retention"
             >
               <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span>Auto-Backup ({{ schedule.enabled ? (schedule.frequency === 'weekly' ? 'Weekly' : 'Monthly') : 'Off' }})</span>
+              <span>Schedule: {{ schedule.enabled ? (schedule.frequency === 'weekly' ? 'Weekly' : 'Monthly') : 'Off' }}</span>
             </button>
 
             <!-- Maintenance Mode Status & Precaution Button -->
@@ -107,30 +107,31 @@
               @click="confirmDeactivateMaintenance"
               :disabled="isUpdatingMaintenance"
               type="button"
-              class="px-4 py-2.5 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs animate-pulse"
-              title="Click to turn off emergency maintenance and allow user logins"
+              class="px-3.5 py-2.5 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs animate-pulse"
+              title="Click to turn off emergency maintenance"
             >
               <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-              <span>Maintenance ACTIVE (Turn Off)</span>
+              <span>Maintenance Active (Turn Off)</span>
             </button>
             <button
               v-else
               @click="openMaintenancePrecautionModal"
               type="button"
-              class="px-4 py-2.5 rounded-xl border border-amber-300 bg-amber-50/80 hover:bg-amber-100 text-amber-900 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
-              title="Activate website maintenance mode with live user countdown & eviction"
+              class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50/80 hover:bg-amber-100 text-amber-900 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+              title="Configure website maintenance mode"
             >
               <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <span>Website in Maintenance</span>
+              <span>Maintenance Mode</span>
             </button>
 
             <!-- Configure Google Drive Button -->
             <button
               @click="openDriveConfigModal"
               type="button"
-              class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 bg-slate-50 hover:bg-slate-100 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+              class="px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-700 bg-slate-50 hover:bg-slate-100 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+              title="Google Drive integration settings"
             >
               <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -139,19 +140,18 @@
               <span>Drive Settings</span>
             </button>
 
-
             <!-- Quick Restore Latest Snapshot Button -->
             <button
               v-if="backups.length > 0"
               @click="openRestoreModal(backups[0])"
               type="button"
-              class="px-4 py-2.5 rounded-xl border border-purple-300 bg-purple-50/90 hover:bg-purple-100 text-purple-900 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
-              title="Quickly recover the most recent full system snapshot"
+              class="px-3.5 py-2.5 rounded-xl border border-purple-300 bg-purple-50/90 hover:bg-purple-100 text-purple-900 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+              title="Restore the most recent system snapshot"
             >
               <svg class="w-4 h-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Restore Latest Snapshot</span>
+              <span>Restore Latest</span>
             </button>
 
             <!-- Create Full Backup Now Button -->
@@ -160,7 +160,7 @@
               @click="openCreateBackupModal"
               :disabled="isCreatingBackup"
               type="button"
-              class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+              class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
             >
               <svg v-if="!isCreatingBackup" class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -169,7 +169,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span>{{ isCreatingBackup ? 'Generating Backup...' : 'Create Backup Snapshot' }}</span>
+              <span>{{ isCreatingBackup ? 'Backing Up...' : 'Create Backup' }}</span>
             </button>
           </div>
         </div>
@@ -182,17 +182,16 @@
             </svg>
           </div>
           <div class="flex-1">
-            <h4 class="text-sm font-bold text-amber-900">Google Drive Cloud Synchronization Not Connected</h4>
-            <p class="text-xs text-amber-800/80 mt-0.5 leading-relaxed">
-              Backups will be created and kept in local onsite storage (<code class="bg-amber-100 px-1 py-0.5 rounded text-[11px] font-mono">writable/backups/</code>).
-              To enable automatic Google Drive cloud backup for your demo, click <strong>Drive Settings</strong> above and attach your Google Service Account JSON key.
+            <h4 class="text-xs font-bold text-amber-900">Google Drive Cloud Sync Not Connected</h4>
+            <p class="text-xs text-amber-800/90 mt-0.5 leading-relaxed">
+              Backups are currently saved to local storage only. Connect Google Drive in Drive Settings for off-site cloud replication.
             </p>
           </div>
           <button
             @click="openDriveConfigModal"
             class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg shrink-0 cursor-pointer shadow-xs"
           >
-            Configure Now
+            Configure
           </button>
         </div>
 
@@ -200,8 +199,8 @@
         <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
           <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 class="text-base font-extrabold text-slate-900">Backup Repository &amp; Snapshot History</h3>
-              <p class="text-xs text-slate-500">Historical database state archives available for instant disaster recovery and downloads</p>
+              <h3 class="text-base font-extrabold text-slate-900">Backup History</h3>
+              <p class="text-xs text-slate-500">Database snapshots available for recovery and download</p>
             </div>
             
             <button
@@ -228,8 +227,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7zm0 4h16M8 4v4m8-4v4" />
               </svg>
             </div>
-            <h4 class="text-base font-bold text-slate-800">No database backups generated yet</h4>
-            <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-5">Create your first database snapshot now to protect your tickets, personnel, logs, and system data.</p>
+            <h4 class="text-base font-bold text-slate-800">No backups generated yet</h4>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-5">Create your first database snapshot to safeguard your system data.</p>
             <button
               @click="handleCreateBackup"
               class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold transition-all shadow-xs"
@@ -243,11 +242,11 @@
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50/75 border-b border-slate-200/60 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  <th class="py-3.5 px-6">File Name &amp; Description</th>
+                  <th class="py-3.5 px-6">File Name</th>
                   <th class="py-3.5 px-4">Size</th>
-                  <th class="py-3.5 px-4">Storage Locations</th>
-                  <th class="py-3.5 px-4">Created Date</th>
-                  <th class="py-3.5 px-4">Initiated By</th>
+                  <th class="py-3.5 px-4">Storage</th>
+                  <th class="py-3.5 px-4">Date</th>
+                  <th class="py-3.5 px-4">Created By</th>
                   <th class="py-3.5 px-6 text-right">Actions</th>
                 </tr>
               </thead>
@@ -261,118 +260,117 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
-                      <div>
-                        <div class="font-bold text-slate-900 font-mono text-xs flex items-center gap-2 flex-wrap">
-                          <span>{{ item.file_name }}</span>
+                      <div class="min-w-0">
+                        <div class="font-bold text-slate-900 font-mono text-xs flex items-center gap-1.5 flex-wrap">
+                          <span class="truncate max-w-xs">{{ item.file_name }}</span>
                           <span
                             v-if="index === 0"
-                            class="px-2 py-0.5 rounded text-[10px] font-sans font-black uppercase tracking-wider bg-emerald-600 text-white shadow-xs"
+                            class="px-1.5 py-0.5 rounded text-[10px] font-sans font-black uppercase tracking-wider bg-emerald-600 text-white shadow-xs"
                           >
                             LATEST
                           </span>
-                          <!-- Slot Rank Badge (1 to 5) -->
+                          <!-- Slot Rank Badge -->
                           <span
-                            class="px-2 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border"
+                            class="px-1.5 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border"
                             :class="(index >= 4 || (index === backups.length - 1 && backups.length >= 5))
                               ? 'bg-amber-50 text-amber-800 border-amber-300'
-                              : 'bg-slate-100 text-slate-700 border-slate-200'"
-                            :title="(index >= 4 || (index === backups.length - 1 && backups.length >= 5)) ? 'Oldest 5th snapshot: will automatically be deleted when a new snapshot is created' : 'Active disaster recovery snapshot slot'"
+                              : 'bg-slate-100 text-slate-600 border-slate-200'"
+                            :title="(index >= 4 || (index === backups.length - 1 && backups.length >= 5)) ? 'Oldest 5th snapshot: automatically recycled when a new snapshot is created' : 'Disaster recovery slot'"
                           >
-                            {{ (index >= 4 || (index === backups.length - 1 && backups.length >= 5)) ? 'Slot 5/5 (Oldest - Recycled Next)' : `Slot ${index + 1}/5` }}
+                            {{ (index >= 4 || (index === backups.length - 1 && backups.length >= 5)) ? 'Slot 5/5 (Oldest)' : `Slot ${index + 1}/5` }}
                           </span>
+                          <!-- Category Badge (shown only if not full) -->
                           <span
-                            class="px-2 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border"
+                            v-if="item.backup_category && item.backup_category !== 'full'"
+                            class="px-1.5 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border"
                             :class="{
-                              'bg-purple-100 text-purple-700 border-purple-200': item.backup_category === 'full',
                               'bg-emerald-100 text-emerald-700 border-emerald-200': item.backup_category === 'media',
-                              'bg-blue-100 text-blue-700 border-blue-200': !item.backup_category || item.backup_category === 'database'
+                              'bg-blue-100 text-blue-700 border-blue-200': item.backup_category === 'database'
                             }"
                           >
-                            {{ item.backup_category === 'full' ? 'Full System' : (item.backup_category === 'media' ? 'Media Zip' : 'Database Dump') }}
+                            {{ item.backup_category === 'media' ? 'Media' : 'Database' }}
                           </span>
-                          <!-- Automated vs Manual Type Badge -->
+                          <!-- Automated Type Badge (shown only when scheduled) -->
                           <span
-                            class="px-2 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border inline-flex items-center gap-1"
-                            :class="item.backup_type === 'scheduled'
-                              ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                              : 'bg-slate-100 text-slate-700 border-slate-200'"
+                            v-if="item.backup_type === 'scheduled'"
+                            class="px-1.5 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 border-indigo-200"
+                            title="Automated scheduled snapshot"
                           >
-                            <svg v-if="item.backup_type === 'scheduled'" class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <svg v-else class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span>{{ item.backup_type === 'scheduled' ? 'Automated' : 'Manual' }}</span>
+                            <span>Auto</span>
                           </span>
                         </div>
-                        <p class="text-xs text-slate-500 mt-0.5">{{ item.notes || 'System backup snapshot' }}</p>
+                        <p v-if="item.notes && item.notes.trim() !== 'System backup snapshot'" class="text-[11px] text-slate-500 mt-0.5 truncate max-w-sm">
+                          {{ item.notes }}
+                        </p>
                       </div>
                     </div>
                   </td>
 
                   <!-- Size -->
-                  <td class="py-4 px-4 font-semibold text-slate-700 text-xs">
+                  <td class="py-4 px-4 font-semibold text-slate-700 text-xs whitespace-nowrap">
                     {{ formatBytes(item.file_size_bytes) }}
                   </td>
 
                   <!-- Storage Badges (Local + Drive) -->
-                  <td class="py-4 px-4">
-                    <div class="flex flex-col gap-1.5">
+                  <td class="py-4 px-4 whitespace-nowrap">
+                    <div class="flex flex-col gap-1 text-xs">
                       <!-- Onsite / Local Badge -->
-                      <div class="flex items-center gap-1.5 text-xs font-semibold">
-                        <span class="w-2 h-2 rounded-full" :class="item.local_exists ? 'bg-emerald-500' : 'bg-red-500'"></span>
-                        <span :class="item.local_exists ? 'text-slate-700' : 'text-red-600'">
-                          {{ item.local_exists ? 'Onsite (Local)' : 'Local File Missing' }}
+                      <div class="flex items-center gap-1.5 font-medium">
+                        <span class="w-2 h-2 rounded-full shrink-0" :class="item.local_exists ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                        <span :class="item.local_exists ? 'text-slate-700' : 'text-rose-600'">
+                          {{ item.local_exists ? 'Local' : 'Missing' }}
                         </span>
                       </div>
 
                       <!-- Cloud / Drive Badge -->
-                      <div class="flex items-center gap-1.5 text-xs font-semibold">
+                      <div class="flex items-center gap-1.5 font-medium">
                         <template v-if="item.google_drive_status === 'uploaded'">
-                          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                          <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
                           <a
                             v-if="item.google_drive_link"
                             :href="item.google_drive_link"
                             target="_blank"
-                            class="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                            class="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
                           >
-                            <span>Google Drive</span>
+                            <span>Drive</span>
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                           </a>
-                          <span v-else class="text-blue-600">Google Drive Synced</span>
+                          <span v-else class="text-blue-600">Drive</span>
                         </template>
                         <template v-else-if="item.google_drive_status === 'pending'">
-                          <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
-                          <span class="text-amber-600">Uploading to Drive...</span>
+                          <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0"></span>
+                          <span class="text-amber-600">Syncing...</span>
                         </template>
                         <template v-else-if="item.google_drive_status === 'failed'">
-                          <span class="w-2 h-2 rounded-full bg-red-400"></span>
-                          <span class="text-red-500 text-[11px]" :title="item.google_drive_error">Drive Sync Failed</span>
+                          <span class="w-2 h-2 rounded-full bg-rose-400 shrink-0"></span>
+                          <span class="text-rose-500 text-[11px]" :title="item.google_drive_error">Sync Failed</span>
                         </template>
                         <template v-else>
-                          <span class="w-2 h-2 rounded-full bg-slate-300"></span>
-                          <span class="text-slate-400 text-[11px]">Drive Not Configured</span>
+                          <span class="w-2 h-2 rounded-full bg-slate-300 shrink-0"></span>
+                          <span class="text-slate-400 text-[11px]">No Cloud</span>
                         </template>
                       </div>
                     </div>
                   </td>
 
                   <!-- Created Date -->
-                  <td class="py-4 px-4 text-xs text-slate-600 font-medium">
+                  <td class="py-4 px-4 text-xs text-slate-600 font-medium whitespace-nowrap">
                     {{ formatDate(item.created_at) }}
                   </td>
 
                   <!-- Creator -->
-                  <td class="py-4 px-4">
+                  <td class="py-4 px-4 whitespace-nowrap">
                     <span class="text-xs font-semibold text-slate-800">{{ item.creator_name || 'System Admin' }}</span>
-                    <p class="text-[10px] text-slate-400 font-mono">{{ item.creator_email || 'root' }}</p>
+                    <p v-if="item.creator_email && item.creator_email !== 'root'" class="text-[10px] text-slate-400 font-mono">{{ item.creator_email }}</p>
                   </td>
 
                   <!-- Actions Dropdown / Group -->
-                  <td class="py-4 px-6 text-right">
+                  <td class="py-4 px-6 text-right whitespace-nowrap">
                     <div class="flex items-center justify-end gap-1.5">
                       <!-- Download -->
                       <button
@@ -436,15 +434,12 @@
           <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="text-base font-extrabold text-slate-900">Backup &amp; Disaster Recovery Activity Logs</h3>
-                <span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider border border-purple-200">
-                  {{ filteredLogs.length === recentLogs.length ? `${recentLogs.length} Operations` : `${filteredLogs.length} of ${recentLogs.length} Operations` }}
-                </span>
-                <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
-                  Dedicated DR Ledger
+                <h3 class="text-base font-extrabold text-slate-900">Activity Logs</h3>
+                <span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[10px] font-bold uppercase tracking-wider border border-purple-200">
+                  {{ filteredLogs.length === recentLogs.length ? `${recentLogs.length} Events` : `${filteredLogs.length} of ${recentLogs.length} Events` }}
                 </span>
               </div>
-              <p class="text-xs text-slate-500 mt-0.5">Chronological audit trail of all snapshots, cloud synchronizations, restorations, and purges</p>
+              <p class="text-xs text-slate-500 mt-0.5">Audit trail of database snapshot, cloud sync, and restoration events</p>
             </div>
 
             <!-- In-Page Audit Controls (Search, Event Filter & Page Size) -->
@@ -460,7 +455,7 @@
                   v-model="logSearch"
                   @input="handleLogSearchInput"
                   type="text"
-                  placeholder="Filter logs by detail or actor..."
+                  placeholder="Filter logs..."
                   class="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 focus:bg-white transition-all min-h-[38px]"
                 />
                 <button
@@ -511,14 +506,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p class="text-sm font-bold text-slate-700">No backup or disaster recovery operations recorded yet.</p>
-            <p class="text-xs text-slate-400 mt-1">Actions such as creating snapshots, Google Drive syncing, and database restores will automatically be logged here.</p>
+            <p class="text-sm font-bold text-slate-700">No activity logs recorded yet.</p>
+            <p class="text-xs text-slate-400 mt-1">Snapshot creation, syncs, and database restores will automatically appear here.</p>
           </div>
 
           <!-- Filter Empty State -->
           <div v-else-if="filteredLogs.length === 0" class="p-8 text-center">
             <p class="text-sm font-bold text-slate-700">No logs match your filter criteria.</p>
-            <p class="text-xs text-slate-400 mt-1">Try searching with a different term or resetting the event filter.</p>
+            <p class="text-xs text-slate-400 mt-1">Try adjusting your search or resetting the event filter.</p>
             <button
               @click="clearLogFilters"
               class="mt-3 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
@@ -533,9 +528,9 @@
               <thead>
                 <tr class="bg-slate-50/75 border-b border-slate-200/60 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   <th class="py-3 px-6">Timestamp</th>
-                  <th class="py-3 px-4">Event Type</th>
+                  <th class="py-3 px-4">Event</th>
                   <th class="py-3 px-4">Initiated By</th>
-                  <th class="py-3 px-6">Details &amp; Outcome</th>
+                  <th class="py-3 px-6">Details</th>
                   <th class="py-3 px-4 text-right">View</th>
                 </tr>
               </thead>
@@ -551,7 +546,7 @@
                   </td>
                   <td class="py-3 px-4 whitespace-nowrap">
                     <span
-                      class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border inline-flex items-center gap-1"
+                      class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border inline-flex items-center gap-1"
                       :class="getLogBadgeClass(log.event_type)"
                     >
                       {{ formatLogEventName(log.event_type) }}
@@ -566,7 +561,7 @@
                     </div>
                   </td>
                   <td class="py-3 px-6 text-slate-600">
-                    <p class="leading-relaxed line-clamp-2 max-w-xl">{{ log.details }}</p>
+                    <p class="leading-relaxed line-clamp-1 max-w-xl" :title="log.details">{{ log.details }}</p>
                   </td>
                   <td class="py-3 px-4 text-right whitespace-nowrap">
                     <button
@@ -670,59 +665,54 @@
             @click.stop
           >
             <div class="flex items-center gap-3 text-red-600">
-              <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-black text-slate-900 tracking-tight">System State Restoration</h3>
-                <p class="text-xs text-red-600 font-bold uppercase tracking-wider">Disaster Recovery Rollback</p>
+                <h3 class="text-base font-extrabold text-slate-900 tracking-tight">Restore Database State</h3>
+                <p class="text-xs text-red-600 font-semibold">Rollback to selected snapshot</p>
               </div>
             </div>
 
-            <div class="bg-red-50 border border-red-200/80 rounded-2xl p-4 text-xs text-red-900 space-y-2 leading-relaxed">
-              <p>
-                You are about to restore the system state from snapshot:
-              </p>
-              <div class="p-2.5 bg-white/80 rounded-xl border border-red-200 font-mono text-[11px] font-bold text-slate-800 break-all flex items-center justify-between">
+            <div class="bg-red-50 border border-red-200/80 rounded-2xl p-3.5 text-xs text-red-950 space-y-2 leading-relaxed">
+              <p class="text-slate-700">Restoring will overwrite current database records and media files with snapshot state:</p>
+              <div class="p-2.5 bg-white/90 rounded-xl border border-red-200 font-mono text-[11px] font-bold text-slate-800 break-all flex items-center justify-between">
                 <span>{{ selectedBackupForRestore.file_name }}</span>
                 <span v-if="backups[0]?.id === selectedBackupForRestore.id" class="px-2 py-0.5 rounded text-[10px] font-sans font-black bg-emerald-600 text-white uppercase tracking-wider">LATEST</span>
               </div>
-              <p class="font-bold text-red-700">
-                Notice: The system will automatically extract and restore all database tables and uploaded media assets (<code class="bg-red-100 px-1 py-0.5 rounded font-mono text-[10px]">writable/uploads/</code>).
-              </p>
             </div>
 
             <!-- Storage Source Selection -->
             <div class="space-y-2">
-              <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">
-                Select Storage Source to Fetch Snapshot:
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Storage Source
               </label>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <!-- Auto Prefer Latest Card -->
                 <div
                   @click="restoreStorageSource = 'auto'"
-                  class="p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2 select-none cursor-pointer"
+                  class="p-3 rounded-2xl border transition-all flex flex-col justify-between gap-1.5 select-none cursor-pointer"
                   :class="{
                     'border-purple-500 bg-purple-50/80 ring-2 ring-purple-500/20 shadow-xs': restoreStorageSource === 'auto',
                     'border-slate-200 bg-white hover:border-slate-300': restoreStorageSource !== 'auto'
                   }"
                 >
                   <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">Auto (Latest)</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">Auto</span>
                     <span v-if="restoreStorageSource === 'auto'" class="w-2 h-2 rounded-full bg-purple-600"></span>
                   </div>
                   <div>
                     <span class="text-xs font-bold text-slate-900 block">Auto-Resolve</span>
-                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">Compares timestamps; always restores the newest version.</p>
+                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">Restores newest copy.</p>
                   </div>
                 </div>
 
                 <!-- Local Onsite Storage Card -->
                 <div
                   @click="selectedBackupForRestore.local_exists ? restoreStorageSource = 'local' : null"
-                  class="p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2 select-none"
+                  class="p-3 rounded-2xl border transition-all flex flex-col justify-between gap-1.5 select-none"
                   :class="{
                     'border-emerald-500 bg-emerald-50/70 ring-2 ring-emerald-500/20 cursor-pointer shadow-xs': restoreStorageSource === 'local' && selectedBackupForRestore.local_exists,
                     'border-slate-200 bg-white hover:border-slate-300 cursor-pointer': restoreStorageSource !== 'local' && selectedBackupForRestore.local_exists,
@@ -730,13 +720,13 @@
                   }"
                 >
                   <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">Onsite Disk</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">Local</span>
                     <span v-if="restoreStorageSource === 'local' && selectedBackupForRestore.local_exists" class="w-2 h-2 rounded-full bg-emerald-500"></span>
                   </div>
                   <div>
-                    <span class="text-xs font-bold text-slate-900 block">Local Server</span>
+                    <span class="text-xs font-bold text-slate-900 block">Onsite Disk</span>
                     <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">
-                      {{ selectedBackupForRestore.local_exists ? 'Fastest, read from local disk' : 'Local file missing' }}
+                      {{ selectedBackupForRestore.local_exists ? 'Fastest, from local disk.' : 'Local file missing.' }}
                     </p>
                   </div>
                 </div>
@@ -744,7 +734,7 @@
                 <!-- Google Drive Cloud Card -->
                 <div
                   @click="selectedBackupForRestore.google_drive_status === 'uploaded' ? restoreStorageSource = 'google_drive' : null"
-                  class="p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2 select-none"
+                  class="p-3 rounded-2xl border transition-all flex flex-col justify-between gap-1.5 select-none"
                   :class="{
                     'border-blue-500 bg-blue-50/70 ring-2 ring-blue-500/20 cursor-pointer shadow-xs': restoreStorageSource === 'google_drive' && selectedBackupForRestore.google_drive_status === 'uploaded',
                     'border-slate-200 bg-white hover:border-slate-300 cursor-pointer': restoreStorageSource !== 'google_drive' && selectedBackupForRestore.google_drive_status === 'uploaded',
@@ -752,13 +742,13 @@
                   }"
                 >
                   <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">Cloud Parity</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">Cloud</span>
                     <span v-if="restoreStorageSource === 'google_drive' && selectedBackupForRestore.google_drive_status === 'uploaded'" class="w-2 h-2 rounded-full bg-blue-500"></span>
                   </div>
                   <div>
                     <span class="text-xs font-bold text-slate-900 block">Google Drive</span>
                     <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">
-                      {{ selectedBackupForRestore.google_drive_status === 'uploaded' ? 'Download fresh copy from Drive' : 'Not synced to Drive' }}
+                      {{ selectedBackupForRestore.google_drive_status === 'uploaded' ? 'Download from Drive.' : 'Not synced to Drive.' }}
                     </p>
                   </div>
                 </div>
@@ -766,56 +756,56 @@
             </div>
 
             <!-- Maintenance Mode & Eviction Countdown Requirement -->
-            <!-- STATE 1: Maintenance Inactive (Mandatory Alert) -->
-            <div v-if="!maintenance?.active" class="bg-red-50/90 border-2 border-red-300 rounded-2xl p-4 text-xs text-red-950 space-y-3">
+            <!-- STATE 1: Maintenance Inactive -->
+            <div v-if="!maintenance?.active" class="bg-red-50/90 border border-red-300 rounded-2xl p-3.5 text-xs text-red-950 space-y-2.5">
               <div class="flex items-center justify-between gap-2 flex-wrap">
-                <div class="flex items-center gap-2 font-black text-red-900">
-                  <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-2 font-bold text-red-900">
+                  <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
-                  <span class="text-xs uppercase tracking-wider">Mandatory: Activate Website Maintenance</span>
+                  <span>Maintenance Mode Required</span>
                 </div>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-200 text-red-800">
-                  Required Prerequisite
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-200 text-red-800">
+                  Prerequisite
                 </span>
               </div>
-              <p class="leading-relaxed text-slate-700">
-                Emergency Website Maintenance Mode is currently <strong class="text-red-700">Inactive</strong>. You must activate maintenance before restoring to notify active users and allow the system's eviction countdown to finish, preventing concurrent data writes during restoration.
+              <p class="text-slate-700">
+                Maintenance mode must be active to disconnect users and prevent database writes during restoration.
               </p>
-              <div class="flex items-center gap-2 pt-1 flex-wrap">
+              <div class="flex items-center gap-2 pt-0.5 flex-wrap">
                 <button
                   type="button"
                   @click="handleActivateMaintenance"
                   :disabled="isUpdatingMaintenance"
-                  class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-black text-xs cursor-pointer shadow-xs transition-all flex items-center gap-1.5"
+                  class="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-bold text-xs cursor-pointer shadow-xs transition-all flex items-center gap-1.5"
                 >
                   <svg v-if="isUpdatingMaintenance" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>{{ isUpdatingMaintenance ? 'Activating...' : `Activate Website Maintenance (${maintenanceForm.countdown_seconds || 30}s Eviction)` }}</span>
+                  <span>{{ isUpdatingMaintenance ? 'Activating...' : `Activate Maintenance (${maintenanceForm.countdown_seconds || 30}s)` }}</span>
                 </button>
                 <button
                   type="button"
                   @click="openMaintenancePrecautionModal"
-                  class="px-3 py-2 rounded-xl border border-red-200 hover:bg-red-100/60 text-red-800 font-bold text-xs cursor-pointer transition-all"
+                  class="px-3 py-1.5 rounded-xl border border-red-200 hover:bg-red-100/60 text-red-800 font-bold text-xs cursor-pointer transition-all"
                 >
-                  Customize Notice & Timer
+                  Customize Notice
                 </button>
               </div>
             </div>
 
             <!-- STATE 2: Maintenance Active but Eviction Countdown Running -->
-            <div v-else-if="evictionCountdownRemaining > 0" class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 text-xs text-amber-950 space-y-3">
+            <div v-else-if="evictionCountdownRemaining > 0" class="bg-amber-50 border border-amber-300 rounded-2xl p-3.5 text-xs text-amber-950 space-y-2.5">
               <div class="flex items-center justify-between gap-2 flex-wrap">
-                <div class="flex items-center gap-2 font-black text-amber-900">
-                  <span class="relative flex h-3 w-3">
+                <div class="flex items-center gap-2 font-bold text-amber-900">
+                  <span class="relative flex h-2.5 w-2.5">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
                   </span>
-                  <span class="text-xs uppercase tracking-wider">Evicting Active Users — Please Wait</span>
+                  <span>Disconnecting Users</span>
                 </div>
-                <div class="flex items-center gap-1.5 px-3 py-1 rounded-full font-mono font-black text-xs bg-amber-200 text-amber-900 border border-amber-300">
+                <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono font-bold text-xs bg-amber-200 text-amber-900 border border-amber-300">
                   <svg class="w-3.5 h-3.5 text-amber-700 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -823,50 +813,50 @@
                   <span>{{ evictionCountdownRemaining }}s remaining</span>
                 </div>
               </div>
-              <p class="leading-relaxed text-amber-900">
-                Emergency maintenance broadcast has been dispatched. Logged-in users are being alerted and granted an eviction grace countdown before sessions terminate. System restoration is temporarily locked to prevent data corruption.
+              <p class="text-amber-900">
+                User sessions are being closed. Restoration will unlock once the countdown completes.
               </p>
-              <div class="w-full bg-amber-200/60 rounded-full h-2 overflow-hidden">
+              <div class="w-full bg-amber-200/60 rounded-full h-1.5 overflow-hidden">
                 <div
-                  class="bg-amber-600 h-2 rounded-full transition-all duration-1000 ease-linear"
+                  class="bg-amber-600 h-1.5 rounded-full transition-all duration-1000 ease-linear"
                   :style="{ width: `${Math.max(0, Math.min(100, ((evictionCountdownTotal - evictionCountdownRemaining) / evictionCountdownTotal) * 100))}%` }"
                 ></div>
               </div>
             </div>
 
             <!-- STATE 3: Maintenance Active & Eviction Finished (Safe to Restore) -->
-            <div v-else class="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 text-xs text-emerald-950 space-y-2">
+            <div v-else class="bg-emerald-50 border border-emerald-300 rounded-2xl p-3 text-xs text-emerald-950 space-y-1.5">
               <div class="flex items-center justify-between gap-2 flex-wrap">
-                <div class="flex items-center gap-2 font-black text-emerald-900">
+                <div class="flex items-center gap-2 font-bold text-emerald-900">
                   <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
-                  <span class="text-xs uppercase tracking-wider">Website Maintenance Active & Users Evicted</span>
+                  <span>Safe for Restoration</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-800">
-                    Safe to Restore
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-200 text-emerald-800">
+                    Ready
                   </span>
                   <button
                     type="button"
                     @click="confirmDeactivateMaintenance"
                     :disabled="isUpdatingMaintenance"
-                    class="px-2.5 py-0.5 rounded-lg border border-emerald-300 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] cursor-pointer transition-all"
+                    class="px-2 py-0.5 rounded-lg border border-emerald-300 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] cursor-pointer transition-all"
                   >
                     {{ isUpdatingMaintenance ? 'Updating...' : 'Deactivate' }}
                   </button>
                 </div>
               </div>
-              <p class="leading-relaxed text-emerald-900">
-                All non-superadmin user sessions have been terminated. Concurrent database access is blocked. It is safe to proceed with database restoration.
+              <p class="text-emerald-900/90 text-[11px]">
+                Non-admin sessions are disconnected. Concurrent access is blocked.
               </p>
             </div>
 
             <!-- Safety Confirmation Input -->
-            <div class="space-y-2">
+            <div class="space-y-1.5">
               <div class="flex items-center justify-between">
-                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">
-                  Type <span class="text-red-600 font-mono font-black">CONFIRM RESTORE</span> below to proceed:
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Type <span class="text-red-600 font-mono font-bold">CONFIRM RESTORE</span> to proceed:
                 </label>
                 <span
                   v-if="isRestoreConfirmationValid"
@@ -883,7 +873,7 @@
                 @input="restoreConfirmationInput = $event.target.value.toUpperCase()"
                 type="text"
                 placeholder="CONFIRM RESTORE"
-                class="w-full px-4 py-3 bg-slate-50 border rounded-xl text-sm font-mono font-bold text-slate-800 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none uppercase transition-all"
+                class="w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm font-mono font-bold text-slate-800 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none uppercase transition-all"
                 :class="{
                   'border-emerald-400 bg-emerald-50/20 ring-2 ring-emerald-500/20': isRestoreConfirmationValid,
                   'border-slate-300': !isRestoreConfirmationValid
@@ -894,17 +884,14 @@
                 <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                Activate Website Maintenance above to unlock database restoration.
+                Activate maintenance mode to unlock restoration.
               </p>
               <p v-else-if="evictionCountdownRemaining > 0" class="text-[11px] text-amber-600 font-semibold flex items-center gap-1">
                 <svg class="w-3.5 h-3.5 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Waiting for active users to be evicted ({{ evictionCountdownRemaining }}s remaining)...
-              </p>
-              <p v-else-if="!isRestoreConfirmationValid && restoreConfirmationInput" class="text-[11px] text-slate-500">
-                Type the full phrase: <span class="font-mono font-bold text-red-600">CONFIRM RESTORE</span> (case-insensitive) to unlock.
+                Waiting for user eviction ({{ evictionCountdownRemaining }}s remaining)...
               </p>
             </div>
 
@@ -922,7 +909,7 @@
                 @click="executeRestore"
                 :disabled="!canExecuteRestore"
                 type="button"
-                class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 disabled:text-slate-500 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shadow-md"
+                class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 disabled:text-slate-500 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shadow-md"
               >
                 <svg v-if="isRestoring" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -945,7 +932,7 @@
                           ? `Evicting Users (${evictionCountdownRemaining}s)...`
                           : (!isRestoreConfirmationValid
                             ? 'Type CONFIRM RESTORE to Enable'
-                            : (restoreStorageSource === 'google_drive' ? 'Restore from Google Drive' : 'Restore from Local Storage'))))
+                            : (restoreStorageSource === 'google_drive' ? 'Restore from Drive' : 'Restore from Local Disk'))))
                   }}
                 </span>
               </button>
@@ -975,8 +962,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-extrabold text-slate-900">Google Drive Cloud Setup</h3>
-                  <p class="text-xs text-slate-500">Configure automated cloud database backup storage</p>
+                  <h3 class="text-base font-extrabold text-slate-900">Google Drive Integration</h3>
+                  <p class="text-xs text-slate-500">Configure automated cloud database backups</p>
                 </div>
               </div>
               <button @click="showDriveModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
@@ -989,7 +976,7 @@
             <!-- Connection Status Card -->
             <div class="p-4 rounded-2xl border flex items-center justify-between gap-4" :class="googleDrive.connected ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'">
               <div class="flex items-center gap-2.5 min-w-0">
-                <span class="w-3 h-3 rounded-full shrink-0" :class="googleDrive.connected ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+                <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="googleDrive.connected ? 'bg-emerald-500' : 'bg-slate-400'"></span>
                 <div class="min-w-0">
                   <h4 class="text-xs font-bold text-slate-900">
                     {{ googleDrive.connected ? (googleDrive.auth_type === 'oauth' ? 'Personal Google Drive Active' : 'Service Account Active') : 'Not Connected' }}
@@ -1011,7 +998,7 @@
                 <svg :class="{ 'animate-spin': isTestingDrive }" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                <span>Test Now</span>
+                <span>Test</span>
               </button>
             </div>
 
@@ -1046,17 +1033,12 @@
             <!-- ============================================== -->
             <div v-if="authTab === 'oauth'" class="space-y-4">
               <!-- Informational Banner -->
-              <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-300/70 text-xs text-emerald-950 space-y-1.5 leading-relaxed">
-                <div class="flex items-center gap-2 font-bold text-emerald-900">
-                  <span class="px-2 py-0.5 rounded-full bg-emerald-200/90 text-[10px] font-extrabold uppercase tracking-wider">Recommended for @gmail.com</span>
-                </div>
-                <p class="text-[11px] text-slate-700">
-                  Personal accounts store backups directly under your own Google Drive quota (15 GB / 5 TB).
-                </p>
+              <div class="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-300/70 text-xs text-emerald-950 space-y-1">
+                <p class="font-bold text-emerald-900">Recommended for Personal Accounts (@gmail.com)</p>
                 <ol class="list-decimal list-inside space-y-0.5 text-[11px] text-slate-700 pt-0.5">
-                  <li>In Google Cloud Console &rarr; <strong>APIs &amp; Services</strong> &rarr; <strong>Credentials</strong>, create an <strong>OAuth client ID</strong> (Web application).</li>
-                  <li>Copy and paste the <strong>Authorized redirect URI</strong> below into your OAuth Client.</li>
-                  <li>Enter your <strong>Client ID</strong> and <strong>Client Secret</strong>, then click <strong>Authorize with Google</strong>.</li>
+                  <li>In Google Cloud Console, create an <strong>OAuth Client ID</strong> (Web application).</li>
+                  <li>Add the <strong>Authorized Redirect URI</strong> below to your client.</li>
+                  <li>Enter your Client ID and Client Secret, then click <strong>Authorize with Google</strong>.</li>
                 </ol>
               </div>
 
@@ -1100,7 +1082,7 @@
                   <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                   </svg>
-                  <span>{{ selectedDriveFileName ? `Loaded: ${selectedDriveFileName}` : 'Or click to upload downloaded client_secret_xxx.json' }}</span>
+                  <span>{{ selectedDriveFileName ? `Loaded: ${selectedDriveFileName}` : 'Upload client_secret.json' }}</span>
                 </button>
               </div>
 
@@ -1234,10 +1216,9 @@
                   {{ detectedServiceAccountEmail }}
                 </div>
 
-                <div class="text-[11px] text-amber-950/90 space-y-1 pt-1 leading-relaxed">
-                  <p class="font-bold text-amber-950">Important note for Service Accounts:</p>
+                <div class="text-[11px] text-amber-950/90 pt-1 leading-relaxed">
                   <p class="text-slate-700">
-                    Google restricts Service Accounts to <strong>Google Workspace Shared Drives (Team Drives)</strong>. If using a personal @gmail.com account, please switch to the <strong>Personal Drive (OAuth 2.0)</strong> tab.
+                    Service accounts require a <strong>Google Workspace Shared Drive</strong>. For personal @gmail.com accounts, use the <strong>Personal Drive (OAuth 2.0)</strong> tab.
                   </p>
                 </div>
               </div>
@@ -1246,7 +1227,7 @@
               <div>
                 <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                   <span>Shared Drive / Folder ID <span class="text-rose-500">*</span></span>
-                  <span class="text-[10px] font-bold text-amber-700 normal-case bg-amber-100/70 px-2 py-0.5 rounded-full">Required for Service Accounts</span>
+                  <span class="text-[10px] font-bold text-amber-700 normal-case bg-amber-100/70 px-2 py-0.5 rounded-full">Required</span>
                 </label>
                 <input
                   v-model="driveForm.folderId"
@@ -1274,9 +1255,9 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                     <p class="text-xs font-bold text-slate-700">
-                      {{ selectedDriveFileName ? selectedDriveFileName : 'Click to browse service-account.json' }}
+                      {{ selectedDriveFileName ? selectedDriveFileName : 'Upload service-account.json' }}
                     </p>
-                    <p class="text-[10px] text-slate-400">Google Cloud Console &rarr; IAM &amp; Admin &rarr; Service Accounts &rarr; Keys</p>
+                    <p class="text-[10px] text-slate-400">Google Cloud Console &rarr; Service Accounts &rarr; Keys</p>
                   </div>
                 </div>
               </div>
@@ -1339,14 +1320,14 @@
             <!-- Header -->
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0">
-                  <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-11 h-11 rounded-2xl bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-extrabold text-slate-900">Website in Maintenance</h3>
-                  <p class="text-xs text-amber-700 font-bold uppercase tracking-wider">Emergency Precaution Controls</p>
+                  <h3 class="text-base font-extrabold text-slate-900">Maintenance Mode Settings</h3>
+                  <p class="text-xs text-slate-500">User eviction and lockout controls</p>
                 </div>
               </div>
               <button @click="showMaintenancePrecautionModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
@@ -1357,22 +1338,21 @@
             </div>
 
             <!-- Precautionary Explanations -->
-            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-2 leading-relaxed">
+            <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-2 leading-relaxed">
               <p class="font-bold text-amber-900">
-                What happens when Maintenance Mode is activated?
+                When Maintenance Mode is activated:
               </p>
-              <ul class="list-disc list-inside space-y-1 text-slate-700 font-medium">
-                <li><strong>Active User Notification:</strong> All logged-in users (Staff, Students, Employees, Workers, Admins, Directors) will receive an instant emergency notification modal.</li>
-                <li><strong>Automated Countdown Eviction:</strong> Users will see a live countdown timer before being securely logged out automatically.</li>
-                <li><strong>Public Login Lockout:</strong> Any attempt to sign in will display an Emergency Maintenance Notice explaining that operations are paused.</li>
-                <li><strong>Superadmin Exemption:</strong> You retain full Superadmin access to execute backups, restores, or database updates.</li>
+              <ul class="list-disc list-inside space-y-1 text-slate-700">
+                <li>Active users will receive a notice and countdown timer before logout.</li>
+                <li>Public sign-in is disabled during maintenance.</li>
+                <li>Superadmin access remains active for database maintenance and recovery.</li>
               </ul>
             </div>
 
             <!-- Maintenance Notice Message -->
             <div class="space-y-1.5">
               <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                Public Announcement Notice
+                Announcement Notice
               </label>
               <textarea
                 v-model="maintenanceForm.message"
@@ -1399,7 +1379,7 @@
                   {{ dur }}s
                 </button>
               </div>
-              <p class="text-[11px] text-slate-400">Seconds given to active users to read the notice before automatic logout.</p>
+              <p class="text-[11px] text-slate-400">Grace period before active user sessions are disconnected.</p>
             </div>
 
             <!-- Actions -->
@@ -1415,13 +1395,13 @@
                 @click="handleActivateMaintenance"
                 :disabled="isUpdatingMaintenance"
                 type="button"
-                class="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                class="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:bg-slate-300 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
               >
                 <svg v-if="isUpdatingMaintenance" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>{{ isUpdatingMaintenance ? 'Activating...' : 'Activate Maintenance Mode' }}</span>
+                <span>{{ isUpdatingMaintenance ? 'Activating...' : 'Activate Maintenance' }}</span>
               </button>
             </div>
           </div>
@@ -1443,14 +1423,14 @@
           >
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-11 h-11 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-extrabold text-slate-900">Create Full System Snapshot</h3>
-                  <p class="text-xs text-purple-700 font-bold uppercase tracking-wider">Unified Disaster Recovery Backup</p>
+                  <h3 class="text-base font-extrabold text-slate-900">Create System Backup</h3>
+                  <p class="text-xs text-slate-500">Database &amp; media assets snapshot</p>
                 </div>
               </div>
               <button @click="showCreateBackupModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
@@ -1462,44 +1442,41 @@
 
             <!-- Unified Snapshot Scope Box -->
             <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-4 text-xs text-purple-950 space-y-2.5">
-              <div class="flex items-center gap-2 font-bold text-purple-900">
+              <p class="font-bold text-purple-900 flex items-center gap-2">
                 <svg class="w-4 h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Complete Database &amp; Media Assets Snapshot</span>
-              </div>
-              <p class="leading-relaxed text-purple-900/90">
-                To eliminate partial restore conflicts, all backups are created as a complete snapshot package containing:
+                <span>Snapshot Package Scope</span>
               </p>
-              <ul class="space-y-1.5 pl-1 font-medium text-purple-900/90">
-                <li class="flex items-center gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-                  <span><strong>Full MySQL Database:</strong> Schema, users, tickets, assignments, logs, and settings.</span>
-                </li>
-                <li class="flex items-center gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-                  <span><strong>All Uploaded Media:</strong> Evidentiary ticket attachments, photos, documents (<code class="bg-purple-100/80 px-1 py-0.5 rounded text-[11px] font-mono">writable/uploads/</code>).</span>
-                </li>
-                <li class="flex items-center gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-                  <span><strong>Cloud Parity:</strong> Automatically synced to your Google Drive main folder (direct snapshot storage with no subfolders).</span>
-                </li>
-                <li class="flex items-center gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-                  <span><strong>Direct Restoration:</strong> Automatic archive extraction restoring schema, rows, and media assets with latest-version priority.</span>
-                </li>
-              </ul>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-purple-900 font-medium">
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
+                  <span>MySQL database tables</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
+                  <span>Uploaded attachments &amp; files</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
+                  <span>Local storage archive</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
+                  <span>Google Drive sync (if enabled)</span>
+                </div>
+              </div>
             </div>
 
             <!-- Notes field -->
             <div class="space-y-1.5">
               <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                Snapshot Description / Notes (Optional)
+                Notes (Optional)
               </label>
               <input
                 v-model="backupForm.notes"
                 type="text"
-                placeholder="e.g. Regular pre-demo system backup"
+                placeholder="e.g. Routine system backup"
                 class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none"
               />
             </div>
@@ -1517,13 +1494,13 @@
                 @click="handleGenerateBackup"
                 :disabled="isCreatingBackup"
                 type="button"
-                class="px-6 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                class="px-6 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 disabled:bg-slate-300 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
               >
                 <svg v-if="isCreatingBackup" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>{{ isCreatingBackup ? 'Generating Full Snapshot...' : 'Start Full Snapshot Now' }}</span>
+                <span>{{ isCreatingBackup ? 'Generating...' : 'Start Backup' }}</span>
               </button>
             </div>
           </div>
@@ -1546,14 +1523,14 @@
             <!-- Header -->
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-11 h-11 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-extrabold text-slate-900">Automated Backup Schedule</h3>
-                  <p class="text-xs text-indigo-700 font-bold uppercase tracking-wider">Disaster Recovery Retention</p>
+                  <h3 class="text-base font-extrabold text-slate-900">Backup Schedule</h3>
+                  <p class="text-xs text-slate-500">Configure automated snapshot frequency</p>
                 </div>
               </div>
               <button @click="showScheduleModal = false" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
@@ -1566,8 +1543,8 @@
             <!-- Enable / Pause Toggle -->
             <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-2xl">
               <div>
-                <span class="text-xs font-bold text-slate-900 block">Automated Snapshot Generation</span>
-                <p class="text-[11px] text-slate-500">Automatically take full database &amp; media backups on schedule</p>
+                <span class="text-xs font-bold text-slate-900 block">Automated Snapshots</span>
+                <p class="text-[11px] text-slate-500">Generate database backups on schedule</p>
               </div>
               <button
                 type="button"
@@ -1585,44 +1562,44 @@
             <!-- Frequency Selection (Weekly default vs Monthly) -->
             <div class="space-y-2">
               <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                Backup Frequency (Default: Weekly)
+                Frequency
               </label>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <!-- Weekly Card -->
                 <div
                   @click="scheduleForm.frequency = 'weekly'"
-                  class="p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-2 select-none cursor-pointer"
+                  class="p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-1.5 select-none cursor-pointer"
                   :class="{
                     'border-indigo-600 bg-indigo-50/70 ring-2 ring-indigo-500/20 shadow-xs': scheduleForm.frequency === 'weekly',
                     'border-slate-200 bg-white hover:border-slate-300': scheduleForm.frequency !== 'weekly'
                   }"
                 >
                   <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-100 text-indigo-700">Recommended</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-100 text-indigo-700">Recommended</span>
                     <span v-if="scheduleForm.frequency === 'weekly'" class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
                   </div>
                   <div>
-                    <span class="text-xs font-bold text-slate-900 block">Weekly (Default)</span>
-                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">Generates a complete disaster recovery snapshot every 7 days.</p>
+                    <span class="text-xs font-bold text-slate-900 block">Weekly</span>
+                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">Full snapshot every 7 days.</p>
                   </div>
                 </div>
 
                 <!-- Monthly Card -->
                 <div
                   @click="scheduleForm.frequency = 'monthly'"
-                  class="p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-2 select-none cursor-pointer"
+                  class="p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-1.5 select-none cursor-pointer"
                   :class="{
                     'border-indigo-600 bg-indigo-50/70 ring-2 ring-indigo-500/20 shadow-xs': scheduleForm.frequency === 'monthly',
                     'border-slate-200 bg-white hover:border-slate-300': scheduleForm.frequency !== 'monthly'
                   }"
                 >
                   <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700">Monthly</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700">Monthly</span>
                     <span v-if="scheduleForm.frequency === 'monthly'" class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
                   </div>
                   <div>
                     <span class="text-xs font-bold text-slate-900 block">Monthly</span>
-                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">Generates a complete snapshot on a selected date each month.</p>
+                    <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">Full snapshot once per month.</p>
                   </div>
                 </div>
               </div>
@@ -1639,7 +1616,7 @@
                   v-model="scheduleForm.day"
                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none"
                 >
-                  <option value="Sunday">Sunday (Default)</option>
+                  <option value="Sunday">Sunday</option>
                   <option value="Monday">Monday</option>
                   <option value="Tuesday">Tuesday</option>
                   <option value="Wednesday">Wednesday</option>
@@ -1657,7 +1634,7 @@
                   v-model="scheduleForm.day"
                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none"
                 >
-                  <option value="1">1st of Month (Default)</option>
+                  <option value="1">1st of Month</option>
                   <option value="5">5th of Month</option>
                   <option value="10">10th of Month</option>
                   <option value="15">15th of Month</option>
@@ -1681,14 +1658,14 @@
             </div>
 
             <!-- Schedule Status Box -->
-            <div class="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 text-xs space-y-2">
+            <div class="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-3.5 text-xs space-y-1.5">
               <div class="flex items-center justify-between text-[11px] font-semibold text-purple-900">
-                <span>Next Scheduled Execution:</span>
+                <span>Next Run:</span>
                 <span class="font-mono font-bold">{{ schedule.next_run ? formatDate(schedule.next_run) : 'Calculated upon save' }}</span>
               </div>
               <div class="flex items-center justify-between text-[11px] font-semibold text-purple-900">
-                <span>Last Automated Run:</span>
-                <span class="font-mono">{{ schedule.last_run ? formatDate(schedule.last_run) : 'Never executed yet' }}</span>
+                <span>Last Run:</span>
+                <span class="font-mono">{{ schedule.last_run ? formatDate(schedule.last_run) : 'Never' }}</span>
               </div>
             </div>
 
@@ -1698,8 +1675,8 @@
                 @click="handleRunAutoBackup"
                 :disabled="isRunningAutoBackup"
                 type="button"
-                class="px-4 py-2.5 rounded-xl border border-indigo-200 text-indigo-700 hover:bg-indigo-50 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                title="Immediately run an automated snapshot to test the configuration and retention pruning"
+                class="px-3.5 py-2 rounded-xl border border-indigo-200 text-indigo-700 hover:bg-indigo-50 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                title="Run immediate scheduled test"
               >
                 <svg v-if="!isRunningAutoBackup" class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -1708,7 +1685,7 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>{{ isRunningAutoBackup ? 'Running...' : 'Run Auto Now (Test)' }}</span>
+                <span>{{ isRunningAutoBackup ? 'Running...' : 'Run Test Now' }}</span>
               </button>
 
               <div class="flex items-center gap-2">
@@ -1723,7 +1700,7 @@
                   @click="handleSaveSchedule"
                   :disabled="isSavingSchedule"
                   type="button"
-                  class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                  class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
                 >
                   <svg v-if="isSavingSchedule" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -1738,7 +1715,7 @@
       </Teleport>
 
       <!-- ======================================================== -->
-      <!-- MODAL 7: Disaster Recovery Log Details Inspection Modal  -->
+      <!-- MODAL 6: Disaster Recovery Log Details Inspection Modal  -->
       <!-- ======================================================== -->
       <Teleport to="body">
         <div
@@ -1759,8 +1736,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-extrabold text-slate-900 tracking-tight">Disaster Recovery Event Details</h3>
-                  <p class="text-[11px] text-slate-400 font-medium">Record ID: #{{ selectedLogForDetail.id }} • Dedicated DR Audit Trail</p>
+                  <h3 class="text-base font-extrabold text-slate-900 tracking-tight">Log Details</h3>
+                  <p class="text-[11px] text-slate-400 font-medium">Record #{{ selectedLogForDetail.id }}</p>
                 </div>
               </div>
               <button
@@ -1779,10 +1756,10 @@
               <!-- Event Classification & Timestamp -->
               <div class="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Event Type</div>
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Event</div>
                   <div class="mt-1">
                     <span
-                      class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border inline-flex items-center"
+                      class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border inline-flex items-center"
                       :class="getLogBadgeClass(selectedLogForDetail.event_type)"
                     >
                       {{ formatLogEventName(selectedLogForDetail.event_type) }}
@@ -1790,7 +1767,7 @@
                   </div>
                 </div>
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Recorded At</div>
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Recorded At</div>
                   <div class="text-xs font-bold text-slate-800 mt-1 font-mono">
                     {{ formatDate(selectedLogForDetail.created_at) }}
                   </div>
@@ -1800,30 +1777,30 @@
               <!-- Initiator & Security Info -->
               <div class="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Initiated By</div>
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Initiated By</div>
                   <div class="text-xs font-bold text-slate-800 mt-1">
-                    {{ selectedLogForDetail.actor_name || 'System Automation / Admin' }}
+                    {{ selectedLogForDetail.actor_name || 'System' }}
                   </div>
                 </div>
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Network IP</div>
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Network IP</div>
                   <div class="text-xs font-mono font-bold text-slate-700 mt-1">
-                    {{ selectedLogForDetail.ip_address || '127.0.0.1 (Local System)' }}
+                    {{ selectedLogForDetail.ip_address || '127.0.0.1' }}
                   </div>
                 </div>
               </div>
 
               <!-- Operation Outcome & Description -->
               <div class="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-1.5 shadow-2xs">
-                <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Operation Details &amp; Outcome</div>
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Details</div>
                 <p class="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">
-                  {{ selectedLogForDetail.details || 'No additional details logged for this operation.' }}
+                  {{ selectedLogForDetail.details || 'No additional details logged.' }}
                 </p>
               </div>
 
               <!-- Device / Environment Summary if available -->
               <div v-if="selectedLogForDetail.device_summary" class="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
-                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Execution Environment</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Environment</span>
                 <span class="font-mono text-[11px]">{{ selectedLogForDetail.device_summary }}</span>
               </div>
             </div>
@@ -1835,7 +1812,7 @@
                 type="button"
                 class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
               >
-                Close Details
+                Close
               </button>
             </div>
           </div>
