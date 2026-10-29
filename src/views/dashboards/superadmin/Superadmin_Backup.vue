@@ -151,7 +151,7 @@
               <svg class="w-4 h-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Restore Latest</span>
+              <span>Restore Latest (#1)</span>
             </button>
 
             <!-- Create Full Backup Now Button -->
@@ -199,8 +199,13 @@
         <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
           <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 class="text-base font-extrabold text-slate-900">Backup History</h3>
-              <p class="text-xs text-slate-500">Database snapshots available for recovery and download</p>
+              <div class="flex items-center gap-2.5">
+                <h3 class="text-base font-extrabold text-slate-900">Backup History</h3>
+                <span v-if="backups.length > 0" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                  {{ backups.length }} / 5 Slots
+                </span>
+              </div>
+              <p class="text-xs text-slate-500">Database snapshots available for recovery and download (5-slot rolling pool)</p>
             </div>
             
             <button
@@ -242,43 +247,57 @@
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50/75 border-b border-slate-200/60 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  <th class="py-3.5 px-6">File Name</th>
+                  <th class="py-3.5 px-6">Snapshot</th>
                   <th class="py-3.5 px-4">Size</th>
                   <th class="py-3.5 px-4">Storage</th>
-                  <th class="py-3.5 px-4">Date</th>
+                  <th class="py-3.5 px-4">Created Date</th>
                   <th class="py-3.5 px-4">Created By</th>
                   <th class="py-3.5 px-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-sm">
                 <tr v-for="(item, index) in backups" :key="item.id" class="hover:bg-slate-50/60 transition-colors">
-                  <!-- File Info -->
+                  <!-- Snapshot Info -->
                   <td class="py-4 px-6">
                     <div class="flex items-center gap-3">
-                      <div class="w-9 h-9 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                      <!-- Snapshot Number Tile -->
+                      <div
+                        class="w-10 h-10 rounded-xl border flex flex-col items-center justify-center shrink-0 select-none shadow-2xs transition-colors"
+                        :class="index === 0
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                          : (index >= 4 || (index === backups.length - 1 && backups.length >= 5))
+                            ? 'bg-amber-50 border-amber-300 text-amber-800'
+                            : 'bg-slate-50 border-slate-200 text-slate-700'"
+                        :title="index === 0 ? 'Snapshot #1: Most recent backup' : (index >= 4 || (index === backups.length - 1 && backups.length >= 5)) ? 'Snapshot #5: Oldest snapshot in 5-slot retention pool (recycled next)' : `Snapshot #${index + 1}`"
+                      >
+                        <span class="text-[9px] uppercase tracking-wider font-extrabold leading-none" :class="index === 0 ? 'text-emerald-600' : 'text-slate-400'">SNAP</span>
+                        <span class="text-xs font-black leading-none mt-0.5">#{{ index + 1 }}</span>
                       </div>
+
                       <div class="min-w-0">
-                        <div class="font-bold text-slate-900 font-mono text-xs flex items-center gap-1.5 flex-wrap">
-                          <span class="truncate max-w-xs">{{ item.file_name }}</span>
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <!-- User-Friendly Snapshot Name -->
+                          <span class="font-bold text-slate-900 text-sm">
+                            {{ getFriendlySnapshotName(item, index) }}
+                          </span>
+
+                          <!-- Latest Badge -->
                           <span
                             v-if="index === 0"
-                            class="px-1.5 py-0.5 rounded text-[10px] font-sans font-black uppercase tracking-wider bg-emerald-600 text-white shadow-xs"
+                            class="px-1.5 py-0.5 rounded text-[10px] font-sans font-black uppercase tracking-wider bg-emerald-600 text-white shadow-2xs"
                           >
                             LATEST
                           </span>
-                          <!-- Slot Rank Badge -->
+
+                          <!-- Oldest Slot Recycling Alert Badge -->
                           <span
-                            class="px-1.5 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border"
-                            :class="(index >= 4 || (index === backups.length - 1 && backups.length >= 5))
-                              ? 'bg-amber-50 text-amber-800 border-amber-300'
-                              : 'bg-slate-100 text-slate-600 border-slate-200'"
-                            :title="(index >= 4 || (index === backups.length - 1 && backups.length >= 5)) ? 'Oldest 5th snapshot: automatically recycled when a new snapshot is created' : 'Disaster recovery slot'"
+                            v-else-if="index >= 4 || (index === backups.length - 1 && backups.length >= 5)"
+                            class="px-1.5 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider border bg-amber-50 text-amber-800 border-amber-300"
+                            title="Oldest 5th snapshot: automatically recycled when a new snapshot is created"
                           >
-                            {{ (index >= 4 || (index === backups.length - 1 && backups.length >= 5)) ? 'Slot 5/5 (Oldest)' : `Slot ${index + 1}/5` }}
+                            Oldest (Recycled Next)
                           </span>
+
                           <!-- Category Badge (shown only if not full) -->
                           <span
                             v-if="item.backup_category && item.backup_category !== 'full'"
@@ -290,6 +309,7 @@
                           >
                             {{ item.backup_category === 'media' ? 'Media' : 'Database' }}
                           </span>
+
                           <!-- Automated Type Badge (shown only when scheduled) -->
                           <span
                             v-if="item.backup_type === 'scheduled'"
@@ -302,9 +322,19 @@
                             <span>Auto</span>
                           </span>
                         </div>
-                        <p v-if="item.notes && item.notes.trim() !== 'System backup snapshot'" class="text-[11px] text-slate-500 mt-0.5 truncate max-w-sm">
-                          {{ item.notes }}
-                        </p>
+
+                        <!-- Technical Filename & Optional Custom Note Subtitle -->
+                        <div class="flex items-center gap-2 text-[11px] text-slate-400 font-mono mt-0.5 flex-wrap">
+                          <span class="truncate max-w-[220px] sm:max-w-xs text-slate-500" :title="item.file_name">
+                            {{ item.file_name }}
+                          </span>
+                          <template v-if="hasCustomNote(item)">
+                            <span class="text-slate-300 font-sans">•</span>
+                            <span class="font-sans text-slate-600 italic truncate max-w-xs" :title="item.notes">
+                              "{{ item.notes }}"
+                            </span>
+                          </template>
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -678,9 +708,26 @@
 
             <div class="bg-red-50 border border-red-200/80 rounded-2xl p-3.5 text-xs text-red-950 space-y-2 leading-relaxed">
               <p class="text-slate-700">Restoring will overwrite current database records and media files with snapshot state:</p>
-              <div class="p-2.5 bg-white/90 rounded-xl border border-red-200 font-mono text-[11px] font-bold text-slate-800 break-all flex items-center justify-between">
-                <span>{{ selectedBackupForRestore.file_name }}</span>
-                <span v-if="backups[0]?.id === selectedBackupForRestore.id" class="px-2 py-0.5 rounded text-[10px] font-sans font-black bg-emerald-600 text-white uppercase tracking-wider">LATEST</span>
+              <div class="p-3 bg-white/95 rounded-xl border border-red-200 flex items-center justify-between gap-3 shadow-2xs">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-extrabold text-slate-900 text-sm">
+                      {{ getFriendlySnapshotName(selectedBackupForRestore, getBackupIndex(selectedBackupForRestore)) }}
+                    </span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                      #{{ getBackupIndex(selectedBackupForRestore) + 1 }}
+                    </span>
+                    <span 
+                      v-if="backups[0]?.id === selectedBackupForRestore.id" 
+                      class="px-2 py-0.5 rounded text-[10px] font-sans font-black bg-emerald-600 text-white uppercase tracking-wider"
+                    >
+                      LATEST
+                    </span>
+                  </div>
+                  <p class="font-mono text-[11px] text-slate-500 font-normal truncate mt-1">
+                    {{ selectedBackupForRestore.file_name }}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -1468,17 +1515,21 @@
               </div>
             </div>
 
-            <!-- Notes field -->
+            <!-- Snapshot Name / Label field -->
             <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                Notes (Optional)
-              </label>
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  Snapshot Name / Label (Optional)
+                </label>
+                <span class="text-[11px] text-slate-400">Default: Full System Snapshot</span>
+              </div>
               <input
                 v-model="backupForm.notes"
                 type="text"
-                placeholder="e.g. Routine system backup"
+                placeholder="e.g. Pre-Upgrade Backup, Routine Monthly Archival"
                 class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none"
               />
+              <p class="text-[11px] text-slate-400">Leave blank for default auto-numbering (e.g. Full System Snapshot #1).</p>
             </div>
 
             <!-- Actions -->
@@ -2452,9 +2503,10 @@ const handleSyncDrive = async (item) => {
 };
 
 const handleDelete = async (item) => {
+  const friendlyName = getFriendlySnapshotName(item, getBackupIndex(item));
   const result = await Swal.fire({
     title: 'Delete Backup?',
-    text: `Are you sure you want to remove ${item.file_name}? This deletes it locally and from Google Drive.`,
+    text: `Are you sure you want to remove ${friendlyName} (${item.file_name})? This deletes it locally and from Google Drive.`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#e11d48',
@@ -2753,6 +2805,60 @@ const formatDate = (dateStr) => {
     minute: 'numeric',
     hour12: true
   });
+};
+
+/**
+ * Filter out system boilerplate notes so custom admin labels take priority.
+ */
+const isBoilerplateNote = (note) => {
+  if (!note || typeof note !== 'string') return true;
+  const t = note.trim().toLowerCase();
+  return (
+    !t ||
+    t === 'system backup snapshot' ||
+    t === 'manual on-demand full snapshot' ||
+    t.startsWith('full system snapshot:') ||
+    t.startsWith('media backup archive:') ||
+    t.startsWith('automated weekly') ||
+    t.startsWith('automated monthly') ||
+    t.startsWith('automated backup') ||
+    t.startsWith('routine system backup')
+  );
+};
+
+const hasCustomNote = (item) => {
+  return !!(item?.notes && !isBoilerplateNote(item.notes));
+};
+
+/**
+ * Generate a clean, human-readable snapshot title with user-friendly numbering.
+ */
+const getFriendlySnapshotName = (item, index = 0) => {
+  if (!item) return 'System Snapshot';
+
+  // 1. If an admin entered a custom label, display that as the prominent title
+  if (hasCustomNote(item)) {
+    return item.notes.trim();
+  }
+
+  // 2. Otherwise provide clean, category-aware descriptive naming with snapshot number
+  const category = (item.backup_category || 'full').toLowerCase();
+  const isScheduled = item.backup_type === 'scheduled';
+  const numSuffix = typeof index === 'number' ? ` #${index + 1}` : '';
+
+  if (category === 'media') {
+    return isScheduled ? `Automated Media Backup${numSuffix}` : `Media Assets Backup${numSuffix}`;
+  }
+  if (category === 'database') {
+    return isScheduled ? `Automated Database Snapshot${numSuffix}` : `Database Snapshot${numSuffix}`;
+  }
+  return isScheduled ? `Automated System Backup${numSuffix}` : `Full System Snapshot${numSuffix}`;
+};
+
+const getBackupIndex = (item) => {
+  if (!item || !Array.isArray(backups.value)) return 0;
+  const idx = backups.value.findIndex((b) => b.id === item.id);
+  return idx >= 0 ? idx : 0;
 };
 </script>
 
