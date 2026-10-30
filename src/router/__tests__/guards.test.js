@@ -234,17 +234,33 @@ describe('Router Page Guards & RBAC Boundaries', () => {
     });
 
     it('allows Superadmin to access Superadmin portal and other workspaces', () => {
-      const next = vi.fn();
-      checkRouteAccess({ path: '/superadmin/users', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
-      expect(next).toHaveBeenCalledWith();
-
+      // User Management
       const nextUsers = vi.fn();
       checkRouteAccess({ path: '/superadmin/users', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextUsers);
       expect(nextUsers).toHaveBeenCalledWith();
 
+      const nextQueues = vi.fn();
+      checkRouteAccess({ path: '/superadmin/queues', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextQueues);
+      expect(nextQueues).toHaveBeenCalledWith();
+
+      // Audit Trails
+      const nextLogs = vi.fn();
+      checkRouteAccess({ path: '/superadmin/logs', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextLogs);
+      expect(nextLogs).toHaveBeenCalledWith();
+
+      const nextAccountLogs = vi.fn();
+      checkRouteAccess({ path: '/superadmin/account-logs', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextAccountLogs);
+      expect(nextAccountLogs).toHaveBeenCalledWith();
+
+      // Disaster Recovery
       const nextBackups = vi.fn();
       checkRouteAccess({ path: '/superadmin/backups', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextBackups);
       expect(nextBackups).toHaveBeenCalledWith();
+
+      // Account
+      const nextSettings = vi.fn();
+      checkRouteAccess({ path: '/superadmin/settings', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextSettings);
+      expect(nextSettings).toHaveBeenCalledWith();
     });
 
     it('blocks non-superadmin users from accessing /superadmin/backups', () => {
@@ -262,6 +278,31 @@ describe('Router Page Guards & RBAC Boundaries', () => {
       const nextStudent = vi.fn();
       checkRouteAccess({ path: '/superadmin/backups', meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, nextStudent);
       expect(nextStudent).toHaveBeenCalledWith('/user/dashboard');
+    });
+
+    it('blocks non-superadmin users from accessing all superadmin sections', () => {
+      const superadminRoutes = [
+        '/superadmin/users',
+        '/superadmin/queues',
+        '/superadmin/logs',
+        '/superadmin/account-logs',
+        '/superadmin/backups',
+        '/superadmin/settings',
+      ];
+
+      setSession('student');
+      for (const routePath of superadminRoutes) {
+        const next = vi.fn();
+        checkRouteAccess({ path: routePath, meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
+        expect(next).toHaveBeenCalledWith('/user/dashboard');
+      }
+
+      setSession('admin', 'FGMU', 1);
+      for (const routePath of superadminRoutes) {
+        const next = vi.fn();
+        checkRouteAccess({ path: routePath, meta: { requiresAuth: true, roles: ['superadmin'] } }, {}, next);
+        expect(next).toHaveBeenCalledWith('/admin/fgmu');
+      }
     });
   });
 });

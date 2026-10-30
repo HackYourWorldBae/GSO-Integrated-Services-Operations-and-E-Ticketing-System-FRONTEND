@@ -72,6 +72,15 @@ const isItemActive = (item) => {
   if (targetPath === '/superadmin/logs') {
     return currentPath === '/superadmin/logs';
   }
+  if (targetPath === '/superadmin/account-logs') {
+    return currentPath === '/superadmin/account-logs';
+  }
+  if (targetPath === '/superadmin/backups') {
+    return currentPath === '/superadmin/backups';
+  }
+  if (targetPath === '/superadmin/settings') {
+    return currentPath === '/superadmin/settings';
+  }
   if (targetPath === '/director/ssu/queues') {
     return ['/director/ssu/queues', '/director/queues/ssu', '/admin/ssu/queues/incidents'].includes(currentPath);
   }
@@ -98,7 +107,7 @@ const rawNavGroups = computed(() => {
   if (role === 'superadmin') {
     return [
       {
-        title: 'Superadmin Controls',
+        title: 'User Management',
         items: [
           {
             label: 'User Accounts',
@@ -111,9 +120,14 @@ const rawNavGroups = computed(() => {
             label: 'User Queues',
             to: '/superadmin/queues',
             exact: true,
-            icon: 'shield',
+            icon: 'queue',
             permission: 'users.provision'
-          },
+          }
+        ]
+      },
+      {
+        title: 'Audit Trails',
+        items: [
           {
             label: 'Business Audit Trail',
             to: '/superadmin/logs',
@@ -121,17 +135,27 @@ const rawNavGroups = computed(() => {
             icon: 'archive'
           },
           {
-            label: 'Account Activity Audit',
+            label: 'Account Activity',
             to: '/superadmin/account-logs',
             exact: true,
             icon: 'shield'
-          },
+          }
+        ]
+      },
+      {
+        title: 'Disaster Recovery',
+        items: [
           {
             label: 'Backup & Recovery',
             to: '/superadmin/backups',
             exact: true,
             icon: 'database'
-          },
+          }
+        ]
+      },
+      {
+        title: 'Account',
+        items: [
           {
             label: 'Account Settings',
             to: '/superadmin/settings',

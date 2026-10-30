@@ -2520,7 +2520,7 @@ export const pageGuidesCatalog = {
           {
             title: 'How to Investigate Suspicious Authentication Attempts',
             steps: [
-              'Click "Account Activity Audit" in the Superadmin sidebar.',
+              'Click "Account Activity" in the Superadmin sidebar.',
               'Filter by Severity dropdown to "Warning" or "Critical".',
               'Search for the user\'s masked email or ID number.',
               'Click the Eye Icon on the entry to review client browser, OS, and timestamp anomalies.'
