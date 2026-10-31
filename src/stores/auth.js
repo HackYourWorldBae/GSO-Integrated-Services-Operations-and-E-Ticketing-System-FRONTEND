@@ -203,7 +203,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     isMaintenanceActive.value = true;
-    maintenanceMessage.value  = details?.message || 'Emergency maintenance is active. All user sessions are being safely logged out.';
+    maintenanceMessage.value  = details?.message || 'The system is undergoing scheduled maintenance.';
 
     // If modal is already ticking, don't restart ticker unless not running
     if (showMaintenanceModal.value && maintenanceTickerId) {

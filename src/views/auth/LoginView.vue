@@ -128,7 +128,7 @@ const stopMfaTimers = () => {
 onMounted(() => {
   if (route.query?.maintenance === '1' || route.query?.maintenance === 'true') {
     isMaintenanceActive.value = true;
-    maintenanceNotice.value = 'The website is under emergency maintenance. Your active session was safely closed. Please check back shortly.';
+    maintenanceNotice.value = 'The system is currently undergoing maintenance. Please check back shortly.';
   } else if (route.query?.timeout === '1' || route.query?.timeout === 'true') {
     timeoutMessage.value = 'Your session has ended due to 15 minutes of inactivity. Please sign in again to continue.';
   } else if (route.query?.registered === '1' || route.query?.registered === 'true') {
@@ -143,7 +143,7 @@ onMounted(() => {
     const maint = res.data?.data?.maintenance;
     if (maint?.active) {
       isMaintenanceActive.value = true;
-      maintenanceNotice.value = maint.message || 'The website is currently under emergency maintenance. Please check back shortly.';
+      maintenanceNotice.value = maint.message || 'The system is currently undergoing maintenance. Please check back shortly.';
     }
   }).catch(() => {});
 });
@@ -220,7 +220,7 @@ const handleLogin = async () => {
 
       if (result.isMaintenance) {
         isMaintenanceActive.value = true;
-        maintenanceNotice.value = result.maintenance?.message || result.message || 'The website is currently under emergency maintenance. Regular logins are temporarily suspended.';
+        maintenanceNotice.value = result.maintenance?.message || result.message || 'The system is currently undergoing maintenance. Please check back shortly.';
         errorMessage.value = '';
         return;
       }
@@ -387,26 +387,18 @@ const cancelMfa = () => {
 
       <!-- Standard Login Flow (When NOT in MFA Step) -->
       <template v-if="!isMfaStep">
-        <!-- Emergency Maintenance Mode Banner -->
-        <div v-if="isMaintenanceActive" class="mb-6 p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-300 text-amber-950 animate-fade-in shrink-0 shadow-sm text-left backdrop-blur-sm">
-          <div class="flex items-start gap-3.5">
-            <div class="p-2.5 rounded-2xl bg-amber-100 text-amber-700 shrink-0 mt-0.5 border border-amber-200/80 shadow-xs">
-              <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Maintenance Mode Banner -->
+        <div v-if="isMaintenanceActive" class="mb-5 p-3.5 sm:p-4 rounded-2xl bg-amber-500/10 border border-amber-300 text-amber-950 animate-fade-in shrink-0 shadow-xs text-left backdrop-blur-sm">
+          <div class="flex items-start gap-3">
+            <div class="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5 border border-amber-200/80 shadow-xs">
+              <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
             <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-2 flex-wrap">
-                <h3 class="text-sm font-black text-amber-950">Website Under Emergency Maintenance</h3>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-200/80 text-amber-900 font-bold text-[10px] tracking-wider uppercase border border-amber-300">
-                  Notice
-                </span>
-              </div>
-              <p class="text-xs text-amber-900 mt-1.5 leading-relaxed font-semibold">
+              <h3 class="text-xs sm:text-sm font-bold text-amber-950">System Under Maintenance</h3>
+              <p class="text-xs text-amber-900 mt-1 leading-relaxed font-medium">
                 {{ maintenanceNotice }}
-              </p>
-              <p class="text-[11px] text-amber-800/80 mt-1.5 font-medium">
-                Regular user logins are temporarily suspended. Super Administrators may sign in with authorized credentials to manage maintenance.
               </p>
             </div>
           </div>
