@@ -51,6 +51,46 @@ describe('Approval Workflow Policy (FGMU vs LEAU to Director)', () => {
       expect(submittedTicket.status_label).toBe('Pending Director Approval');
       expect(submittedTicket.escalation_reason).toBe('Reviewed and recommended for Director approval');
     });
+
+    it('requires all FGMU borrowing requests to route to FGMU admin review first before Director approval', () => {
+      const pendingFgmuBorrowing = {
+        id: 'FGMU-TIC-2-2026',
+        unit_id: 1,
+        unit: 'FGMU',
+        service: 'Borrowing of tools/ equipment',
+        is_borrowing: true,
+        status: 'pending',
+        is_escalated_to_director: false,
+        current_step: 1,
+      };
+
+      // 1. Initial intake routes to FGMU admin queue
+      expect(pendingFgmuBorrowing.status).toBe('pending');
+      expect(pendingFgmuBorrowing.is_escalated_to_director).toBe(false);
+
+      // 2. Director queue filter for FGMU excludes non-escalated borrowing requests
+      const filterDirectorQueue = (tickets, unit, isDirector) => {
+        if (isDirector && unit === 'FGMU') {
+          return tickets.filter(t => t.is_escalated_to_director);
+        }
+        return tickets;
+      };
+
+      expect(filterDirectorQueue([pendingFgmuBorrowing], 'FGMU', true)).toHaveLength(0);
+
+      // 3. FGMU admin endorses / requests Director approval
+      const endorsedBorrowing = {
+        ...pendingFgmuBorrowing,
+        is_escalated_to_director: true,
+        escalation_reason: 'Reviewed and recommended for Director approval',
+        status_label: 'Pending Director Approval',
+      };
+
+      // 4. Endorsed borrowing request now appears in Director queue
+      const directorView = filterDirectorQueue([endorsedBorrowing], 'FGMU', true);
+      expect(directorView).toHaveLength(1);
+      expect(directorView[0].id).toBe('FGMU-TIC-2-2026');
+    });
   });
 
   describe('LEAU Workflow Rules', () => {

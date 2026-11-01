@@ -423,15 +423,15 @@
               <option value="">All Services</option>
               <option v-for="service in serviceCategories" :key="service" :value="service">{{ service }}</option>
             </select>
-            <!-- Escalation Filter Pills (Job Requests on Pending tab only, for Unit Head) -->
-            <div v-if="selectedCategory === 'job' && activeTab === 'pending' && !isDirector" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0">
+            <!-- Escalation Filter Pills (Pending tab for Unit Head) -->
+            <div v-if="activeTab === 'pending' && !isDirector" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0">
               <button
                 type="button"
                 @click="selectedEscalationFilter = 'all'; currentPage = 1"
                 class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer"
                 :class="selectedEscalationFilter === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
               >
-                All ({{ jobPendingCount }})
+                All ({{ pendingTabTotalCount }})
               </button>
               <button
                 type="button"
@@ -441,7 +441,7 @@
               >
                 <span>{{ isFgmu ? 'With Director' : 'Escalated' }}</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black" :class="selectedEscalationFilter === 'escalated' ? 'bg-purple-800 text-white' : 'bg-purple-200 text-purple-900'">
-                  {{ escalatedPendingCount }}
+                  {{ pendingTabEscalatedCount }}
                 </span>
               </button>
               <button
@@ -450,11 +450,11 @@
                 class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer"
                 :class="selectedEscalationFilter === 'routine' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
               >
-                {{ isFgmu ? 'To Review' : 'Routine' }}
+                {{ isFgmu ? 'To Review' : 'Routine' }} ({{ pendingTabRoutineCount }})
               </button>
             </div>
-            <!-- Executive Status Badge (Job Requests on Pending tab for Director) -->
-            <div v-else-if="selectedCategory === 'job' && activeTab === 'pending' && isDirector" class="inline-flex items-center px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold shrink-0">
+            <!-- Executive Status Badge (Pending tab for Director) -->
+            <div v-else-if="activeTab === 'pending' && isDirector" class="inline-flex items-center px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold shrink-0">
               <span>Requests for Director Approval</span>
             </div>
             <!-- Refresh -->
@@ -743,7 +743,7 @@
                         </button>
 
                         <span
-                          v-if="selectedCategory === 'job' && ticket.is_escalated_to_director"
+                          v-if="ticket.is_escalated_to_director"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-purple-200 bg-purple-50 text-purple-800 text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-2xs select-none"
                           title="This ticket has been escalated and is awaiting the Director's executive approval."
                         >
@@ -767,9 +767,9 @@
                             <span>Delay</span>
                           </button>
 
-                          <!-- For FGMU Job: Request Director Approval -->
+                          <!-- For FGMU (Both Job and Borrowing): Request Director Approval -->
                           <button
-                            v-if="selectedCategory === 'job' && isFgmu"
+                            v-if="isFgmu"
                             @click="openEscalateModal(ticket)"
                             class="px-3.5 py-2 min-h-[44px] rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
                             title="Request Director Approval"
@@ -778,7 +778,7 @@
                             <span>Request Director Approval</span>
                           </button>
 
-                          <!-- For LEAU Job or Borrowing: Direct Approve -->
+                          <!-- For LEAU: Direct Approve -->
                           <button
                             v-else
                             data-tour="director-btn-approve"
@@ -816,7 +816,7 @@
                           <span>Decline</span>
                         </button>
                         <button
-                          v-if="selectedCategory === 'job' && ticket.is_escalated_to_director"
+                          v-if="ticket.is_escalated_to_director"
                           disabled
                           class="px-3.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-80 select-none shadow-2xs"
                         >
@@ -827,7 +827,7 @@
                         </button>
                         <template v-else>
                           <button
-                            v-if="selectedCategory === 'job' && isFgmu"
+                            v-if="isFgmu"
                             @click="openEscalateModal(ticket)"
                             class="px-3 py-1.5 rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
                             title="Request Director Approval"
@@ -1618,9 +1618,18 @@
           <!-- Director Actions: Delay, Decline, and Approve -->
           <template v-if="isDirector">
             <!-- Approval Requests (Pending) -->
-            <div v-if="activeTab === 'pending' && ((selectedCategory === 'job' && selectedTicketForModal?.is_escalated_to_director) || selectedCategory === 'borrowing')" class="flex items-center gap-2 flex-wrap">
+            <div v-if="activeTab === 'pending' && ((selectedCategory === 'job' && selectedTicketForModal?.is_escalated_to_director) || (selectedCategory === 'borrowing' && (!isFgmu || selectedTicketForModal?.is_escalated_to_director)))" class="flex items-center gap-2 flex-wrap">
+              <!-- Return to Unit (Unit Head) -->
               <button
-                v-if="selectedCategory === 'job'"
+                v-if="selectedTicketForModal?.is_escalated_to_director"
+                @click="openDeescalateModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold hover:bg-purple-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Return Request to Unit Head"
+              >
+                <svg class="h-4 w-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                <span>Return to Unit</span>
+              </button>
+              <button
                 @click="openDelayModal(selectedTicketForModal); closeDetailsModal()"
                 class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1"
                 title="Delay Approval"
@@ -1679,8 +1688,8 @@
 
           <!-- Non-Director Actions -->
           <template v-else>
-            <!-- Job Pending Actions -->
-            <div v-if="selectedCategory === 'job' && activeTab === 'pending'" class="flex items-center gap-2 flex-wrap">
+            <!-- Pending Tab Actions (Job and Borrowing) -->
+            <div v-if="activeTab === 'pending'" class="flex items-center gap-2 flex-wrap">
               <!-- Request Director Approval (For LEAU: formerly Escalate to Director) -->
               <button
                 v-if="!selectedTicketForModal.is_escalated_to_director && !isFgmu"
@@ -1703,7 +1712,7 @@
               </button>
 
               <button
-                v-if="!selectedTicketForModal.is_escalated_to_director"
+                v-if="selectedCategory === 'job' && !selectedTicketForModal.is_escalated_to_director"
                 @click="openRecategorizeModal(selectedTicketForModal); closeDetailsModal()"
                 class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
                 title="Change Nature of Work / Recategorize Ticket"
@@ -1736,7 +1745,7 @@
                 </svg>
                 <span>Awaiting Director's Approval</span>
               </button>
-              <!-- For FGMU: Approve button changed to Request Director Approval -->
+              <!-- For FGMU (Both Job & Borrowing): Request Director Approval -->
               <button
                 v-else-if="isFgmu"
                 @click="openEscalateModal(selectedTicketForModal); closeDetailsModal()"
@@ -1756,8 +1765,8 @@
               </button>
             </div>
 
-            <!-- Job Delayed Actions -->
-            <div v-else-if="selectedCategory === 'job' && activeTab === 'delayed'" class="flex items-center gap-2">
+            <!-- Delayed Actions (Job and Borrowing) -->
+            <div v-else-if="activeTab === 'delayed'" class="flex items-center gap-2">
               <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
                 Decline
               </button>
@@ -1796,30 +1805,6 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Extend Timeline</span>
-              </button>
-            </div>
-
-            <!-- Borrowing Pending & Delayed Actions (Non-Director) -->
-            <div v-else-if="selectedCategory === 'borrowing' && (activeTab === 'pending' || activeTab === 'delayed')" class="flex items-center gap-2">
-              <button
-                @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()"
-                class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer flex items-center gap-1.5"
-                title="Decline Request"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <span>Decline Request</span>
-              </button>
-              <button
-                @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
-                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center gap-1.5"
-                title="Approve Request"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Approve Request</span>
               </button>
             </div>
           </template>
@@ -2373,10 +2358,30 @@ const borrowingPendingTickets = computed(() => {
   });
   (queuesData.value.pending || []).forEach(t => {
     if (t.is_borrowing || isBorrowingService(t)) {
-      map.set(String(t.id || t.ticketId), t);
+      const existing = map.get(String(t.id || t.ticketId));
+      if (existing) {
+        map.set(String(t.id || t.ticketId), {
+          ...existing,
+          ...t,
+          borrowing: existing.borrowing || t.borrowing,
+          is_escalated_to_director: Boolean(t.is_escalated_to_director ?? existing.is_escalated_to_director),
+          escalation_reason: t.escalation_reason || existing.escalation_reason || '',
+          escalated_at: t.escalated_at || existing.escalated_at || null,
+          escalated_by: t.escalated_by || existing.escalated_by || null,
+          escalated_by_name: t.escalated_by_name || existing.escalated_by_name || null,
+        });
+      } else {
+        map.set(String(t.id || t.ticketId), t);
+      }
     }
   });
-  return Array.from(map.values());
+  let list = Array.from(map.values());
+  if (isDirector.value && isFgmu.value) {
+    // All borrowing requests for FGMU must first go to the FGMU admin dashboard before requesting approval to the Director.
+    // In Director view, only requests endorsed/escalated to the Director appear.
+    list = list.filter(t => t.is_escalated_to_director);
+  }
+  return list;
 });
 
 const borrowingDelayedTickets = computed(() => {
@@ -2459,6 +2464,25 @@ const totalBorrowingRequestsCount = computed(() => {
     return borrowingPendingCount.value + borrowingDelayedCount.value;
   }
   return borrowingPendingCount.value + borrowingDelayedCount.value + borrowingApprovedCount.value + borrowingAssignedCount.value + borrowingReturnCount.value;
+});
+
+// Pending tab composite counts for Unit Head filter pills (Job & Borrowing)
+const pendingTabTotalCount = computed(() => {
+  if (selectedCategory.value === 'job') {
+    return jobPendingCount.value;
+  }
+  return borrowingPendingCount.value;
+});
+
+const pendingTabEscalatedCount = computed(() => {
+  if (selectedCategory.value === 'job') {
+    return escalatedPendingCount.value;
+  }
+  return borrowingPendingTickets.value.filter(t => t.is_escalated_to_director).length;
+});
+
+const pendingTabRoutineCount = computed(() => {
+  return Math.max(0, pendingTabTotalCount.value - pendingTabEscalatedCount.value);
 });
 
 // Borrowing status badge styling
@@ -2650,10 +2674,12 @@ const serviceCategories = computed(() => {
 const filteredTickets = computed(() => {
   let list = currentTabTickets.value;
 
-  // Escalation filter for Job Pending (when viewed by Unit Head)
-  if (selectedCategory.value === 'job' && activeTab.value === 'pending') {
+  // Escalation filter for Pending tab
+  if (activeTab.value === 'pending') {
     if (isDirector.value) {
-      list = list.filter(t => t.is_escalated_to_director);
+      if (selectedCategory.value === 'job' || isFgmu.value) {
+        list = list.filter(t => t.is_escalated_to_director);
+      }
     } else if (selectedEscalationFilter.value !== 'all') {
       if (selectedEscalationFilter.value === 'escalated') {
         list = list.filter(t => t.is_escalated_to_director);
@@ -2830,7 +2856,14 @@ const mapBorrowingTicket = (r) => {
     is_borrowing: true,
     borrowing: r,
     is_emergency: false,
-    is_escalated_to_director: false,
+    is_escalated_to_director: Boolean(Number(r.is_escalated_to_director) === 1 || r.is_escalated_to_director === true),
+    escalation_reason: r.escalation_reason || '',
+    escalated_at: r.escalated_at || null,
+    escalated_by: r.escalated_by || null,
+    escalated_by_name: r.escalated_by_name || (r.escalated_by_first_name ? `${r.escalated_by_first_name} ${r.escalated_by_last_name || ''}`.trim() : ''),
+    is_approval_delayed: Boolean(Number(r.is_approval_delayed) === 1 || r.is_approval_delayed === true),
+    approval_delay_reason: r.approval_delay_reason || '',
+    approval_delayed_at: r.approval_delayed_at || null,
     date: r.created_at || r.submitted_at
       ? new Date(r.created_at || r.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       : 'N/A',
@@ -3229,6 +3262,14 @@ const fgmuEscalationPresets = [
   'Other / Custom Justification'
 ];
 
+const fgmuBorrowingEscalationPresets = [
+  'Reviewed and recommended for Director approval',
+  'High-value tools/equipment borrowing authorization',
+  'Official university event / institutional borrowing requirement',
+  'Multi-day / specialized equipment checkout',
+  'Other / Custom Justification'
+];
+
 const leauEscalationPresets = [
   'High-cost procurement / specialized landscaping equipment',
   'Large-scale campus grounds overhaul requiring executive budget',
@@ -3238,11 +3279,18 @@ const leauEscalationPresets = [
   'Other / Custom Justification'
 ];
 
-const escalationPresets = computed(() => isFgmu.value ? fgmuEscalationPresets : leauEscalationPresets);
+const escalationPresets = computed(() => {
+  const isBorrowing = selectedCategory.value === 'borrowing' || Boolean(ticketToEscalate.value?.is_borrowing || isBorrowingService(ticketToEscalate.value));
+  if (isBorrowing) return fgmuBorrowingEscalationPresets;
+  return isFgmu.value ? fgmuEscalationPresets : leauEscalationPresets;
+});
 
 const openEscalateModal = (ticket) => {
   ticketToEscalate.value = ticket;
-  const presets = isFgmu.value ? fgmuEscalationPresets : leauEscalationPresets;
+  const isBorrowing = selectedCategory.value === 'borrowing' || Boolean(ticket?.is_borrowing || isBorrowingService(ticket));
+  const presets = isBorrowing
+    ? fgmuBorrowingEscalationPresets
+    : (isFgmu.value ? fgmuEscalationPresets : leauEscalationPresets);
   selectedEscalationPreset.value = presets[0];
   escalateReasonInput.value = presets[0];
   showEscalateModal.value = true;
