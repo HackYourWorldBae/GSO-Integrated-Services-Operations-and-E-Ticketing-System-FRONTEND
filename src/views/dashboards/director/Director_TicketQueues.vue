@@ -42,165 +42,345 @@
     <template #main-content>
       <div class="space-y-4 animate-fade-in relative pb-12" :class="isLeau ? 'theme-unit-leau' : 'theme-unit-fgmu'">
 
-        <!-- ═══ Unified Compact Toolbar: Tabs + Search + Filter ═══ -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs">
-          <!-- Top row: Stage Tabs -->
-          <!-- Top row: Stage Tabs (Flat, Accessible, Single-Click for Senior Administrators) -->
-          <div :class="['grid gap-2 p-2 border-b border-slate-200 bg-slate-50/50 rounded-t-2xl', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6']">
-            <!-- Tab 1: Pending / Escalated Approval -->
+        <!-- ═══ Unified Compact Toolbar: Request Type Category + Process Tabs + Search + Filter ═══ -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          
+          <!-- ══ 1. TOP BAR: Request Type Selector (Job Requests vs Borrowing Requests) ══ -->
+          <div class="p-3 bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 border-b border-slate-200">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              
+              <!-- Primary Request Type Switcher -->
+              <div class="inline-flex p-1.5 rounded-2xl bg-slate-200/80 border border-slate-300/80 shadow-inner w-full sm:w-auto">
+                <!-- Job Requests Button -->
+                <button
+                  type="button"
+                  data-tour="director-type-job"
+                  @click="selectCategory('job')"
+                  :class="[
+                    'flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                    isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
+                    selectedCategory === 'job'
+                      ? (isLeau ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20' : 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20')
+                      : 'text-slate-700 hover:text-slate-900 hover:bg-white/60'
+                  ]"
+                >
+                  <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <span>Job Requests</span>
+                  <span
+                    :class="[
+                      'px-2 py-0.5 rounded-full text-xs font-black leading-none min-w-[22px] text-center transition-all',
+                      selectedCategory === 'job'
+                        ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                        : 'bg-slate-300/80 text-slate-800'
+                    ]"
+                  >
+                    {{ totalJobRequestsCount }}
+                  </span>
+                </button>
+
+                <!-- Borrowing Requests Button -->
+                <button
+                  type="button"
+                  data-tour="director-type-borrowing"
+                  @click="selectCategory('borrowing')"
+                  :class="[
+                    'flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                    isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
+                    selectedCategory === 'borrowing'
+                      ? (isLeau ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20' : 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20')
+                      : 'text-slate-700 hover:text-slate-900 hover:bg-white/60'
+                  ]"
+                >
+                  <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                  <span>Borrowing Requests</span>
+                  <span
+                    :class="[
+                      'px-2 py-0.5 rounded-full text-xs font-black leading-none min-w-[22px] text-center transition-all',
+                      selectedCategory === 'borrowing'
+                        ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                        : 'bg-slate-300/80 text-slate-800'
+                    ]"
+                  >
+                    {{ totalBorrowingRequestsCount }}
+                  </span>
+                </button>
+              </div>
+
+              <!-- Overview Context Tag -->
+              <div class="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-500 px-2">
+                <span class="inline-block w-2 h-2 rounded-full" :class="isLeau ? 'bg-amber-500' : 'bg-emerald-500'"></span>
+                <span>{{ currentUnit }} {{ selectedCategory === 'job' ? 'Job Services' : 'Equipment & Tools Borrowing' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ 2. WORKFLOW PROCESS TABS ══ -->
+          <!-- Under Job Requests -->
+          <div
+            v-if="selectedCategory === 'job'"
+            :class="['grid gap-2 p-2 border-b border-slate-200 bg-slate-50/50', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5']"
+          >
+            <!-- 1. Approval Requests (renamed from escalated approvals) -->
             <button
               data-tour="director-tab-pending"
               @click="switchTab('pending')"
               :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
                 isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
                 activeTab === 'pending'
                   ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
                   : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
-              <span class="truncate">{{ isPendingOnlyMode ? 'Pending Approval' : (isDirector ? 'Escalated Approvals' : 'Pending Approval') }}</span>
+              <span class="truncate">Approval Requests</span>
+              <span
+                :class="[
+                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  activeTab === 'pending'
+                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    : 'bg-slate-200 text-slate-800'
+                ]"
+              >
+                {{ jobPendingCount }}
+              </span>
             </button>
 
-            <!-- Tab 2: Approval Delayed -->
+            <!-- 2. Approval Delays -->
             <button
               data-tour="director-tab-delayed"
               @click="switchTab('delayed')"
               :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
                 activeTab === 'delayed'
                   ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20'
                   : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
-              <span class="truncate">Approval Delayed</span>
+              <span class="truncate">Approval Delays</span>
+              <span
+                :class="[
+                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  activeTab === 'delayed'
+                    ? 'bg-amber-800 text-white'
+                    : 'bg-slate-200 text-slate-800'
+                ]"
+              >
+                {{ jobDelayedCount }}
+              </span>
             </button>
 
-            <!-- Tab 3: Approved (Awaiting Dispatch) -->
+            <!-- 3. Approved -->
             <button
               v-if="!isPendingOnlyMode"
               data-tour="director-tab-approved"
               @click="switchTab('approved')"
               :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
                 isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
                 activeTab === 'approved'
                   ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
                   : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
-              <span class="truncate">Approved (Ready)</span>
+              <span class="truncate">Approved</span>
+              <span
+                :class="[
+                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  activeTab === 'approved'
+                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    : 'bg-slate-200 text-slate-800'
+                ]"
+              >
+                {{ jobApprovedCount }}
+              </span>
             </button>
 
-            <!-- Tab 4: Dispatched / Scheduled -->
+            <!-- 4. Dispatched (renamed from scheduled) -->
             <button
               v-if="!isPendingOnlyMode"
               data-tour="director-tab-dispatched"
               @click="switchTab('dispatched')"
               :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
                 isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
                 activeTab === 'dispatched'
                   ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
                   : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
-              <span class="truncate">Scheduled</span>
+              <span class="truncate">Dispatched</span>
+              <span
+                :class="[
+                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  activeTab === 'dispatched'
+                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    : 'bg-slate-200 text-slate-800'
+                ]"
+              >
+                {{ jobDispatchedCount }}
+              </span>
             </button>
 
-            <!-- Tab 5: Active Work Orders (In Progress) -->
+            <!-- 5. Work in Progress (renamed from in progress) -->
             <button
               v-if="!isPendingOnlyMode"
               data-tour="director-tab-active"
               @click="switchTab('active')"
               :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
                 isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
                 activeTab === 'active'
                   ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
                   : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
-              <span class="truncate">In Progress</span>
-            </button>
-
-            <!-- Tab 6: Borrowing Queue -->
-            <button
-              v-if="!isPendingOnlyMode"
-              data-tour="director-tab-borrowing"
-              @click="switchTab('borrowing')"
-              :class="[
-                'w-full flex items-center justify-center px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
-                isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
-                activeTab === 'borrowing'
-                  ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
-                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
-              ]"
-            >
-              <span class="truncate">Borrowing</span>
+              <span class="truncate">Work in Progress</span>
+              <span
+                :class="[
+                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  activeTab === 'active'
+                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    : 'bg-slate-200 text-slate-800'
+                ]"
+              >
+                {{ jobActiveCount }}
+              </span>
             </button>
           </div>
 
-          <!-- Sub-tabs: Job Request vs Borrowing Request (under Pending Approval and Approval Delayed) -->
+          <!-- Under Borrowing Requests -->
           <div
-            v-if="showPendingSubTabs"
-            class="flex items-center gap-2 p-2 border-b border-slate-200 bg-white flex-wrap"
+            v-else
+            :class="['grid gap-2 p-2 border-b border-slate-200 bg-slate-50/50', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5']"
           >
-            <!-- Sub-tab 1: Job Requests -->
+            <!-- 1. Approval Requests (renamed from escalated approvals) -->
             <button
-              type="button"
-              data-tour="director-subtab-job"
-              @click="setPendingCategoryTab('job')"
+              data-tour="director-tab-borrowing-pending"
+              @click="switchTab('pending')"
               :class="[
-                'flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer min-h-[40px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
                 isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
-                pendingCategoryTab === 'job'
+                activeTab === 'pending'
                   ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
                   : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              <span>Job Requests</span>
+              <span class="truncate">Approval Requests</span>
               <span
                 :class="[
-                  'ml-1 px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center transition-all',
-                  pendingCategoryTab === 'job'
+                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  activeTab === 'pending'
                     ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
-                {{ pendingJobRequestsCount }}
+                {{ borrowingPendingCount }}
               </span>
             </button>
 
-            <!-- Sub-tab 2: Borrowing Requests -->
+            <!-- 2. Approval Delays -->
             <button
-              type="button"
-              data-tour="director-subtab-borrowing"
-              @click="setPendingCategoryTab('borrowing')"
+              data-tour="director-tab-borrowing-delayed"
+              @click="switchTab('delayed')"
               :class="[
-                'flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer min-h-[40px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
+                activeTab === 'delayed'
+                  ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20'
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
+              ]"
+            >
+              <span class="truncate">Approval Delays</span>
+              <span
+                :class="[
+                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  activeTab === 'delayed'
+                    ? 'bg-amber-800 text-white'
+                    : 'bg-slate-200 text-slate-800'
+                ]"
+              >
+                {{ borrowingDelayedCount }}
+              </span>
+            </button>
+
+            <!-- 3. Approved -->
+            <button
+              v-if="!isPendingOnlyMode"
+              data-tour="director-tab-borrowing-approved"
+              @click="switchTab('approved')"
+              :class="[
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
                 isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
-                pendingCategoryTab === 'borrowing'
+                activeTab === 'approved'
                   ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
                   : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
               ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-              <span>Borrowing Requests</span>
+              <span class="truncate">Approved</span>
               <span
                 :class="[
-                  'ml-1 px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center transition-all',
-                  pendingCategoryTab === 'borrowing'
+                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  activeTab === 'approved'
                     ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
-                {{ pendingBorrowingRequestsCount }}
+                {{ borrowingApprovedCount }}
+              </span>
+            </button>
+
+            <!-- 4. Inventory Assigned (Waiting Pickup) -->
+            <button
+              v-if="!isPendingOnlyMode"
+              data-tour="director-tab-borrowing-assigned"
+              @click="switchTab('assigned')"
+              :class="[
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
+                activeTab === 'assigned'
+                  ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
+              ]"
+            >
+              <span class="truncate">Inventory Assigned (Waiting Pickup)</span>
+              <span
+                :class="[
+                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  activeTab === 'assigned'
+                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    : 'bg-slate-200 text-slate-800'
+                ]"
+              >
+                {{ borrowingAssignedCount }}
+              </span>
+            </button>
+
+            <!-- 5. Awaiting Return -->
+            <button
+              v-if="!isPendingOnlyMode"
+              data-tour="director-tab-borrowing-return"
+              @click="switchTab('return')"
+              :class="[
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
+                activeTab === 'return'
+                  ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
+              ]"
+            >
+              <span class="truncate">Awaiting Return</span>
+              <span
+                :class="[
+                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  activeTab === 'return'
+                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    : 'bg-slate-200 text-slate-800'
+                ]"
+              >
+                {{ borrowingReturnCount }}
               </span>
             </button>
           </div>
@@ -219,7 +399,7 @@
                 v-model="searchQuery"
                 @input="currentPage = 1"
                 type="text"
-                placeholder="Search tickets..."
+                :placeholder="selectedCategory === 'job' ? 'Search job tickets...' : 'Search borrowing requests...'"
                 class="w-full pl-8 pr-8 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all"
               />
               <button
@@ -232,9 +412,9 @@
                 </svg>
               </button>
             </div>
-            <!-- Service Filter (hidden on borrowing tab and borrowing sub-tab) -->
+            <!-- Service Filter (Job Requests only) -->
             <select
-              v-if="activeTab !== 'borrowing' && !(showPendingSubTabs && pendingCategoryTab === 'borrowing')"
+              v-if="selectedCategory === 'job'"
               data-tour="director-service-filter"
               v-model="selectedServiceFilter"
               @change="currentPage = 1"
@@ -243,15 +423,15 @@
               <option value="">All Services</option>
               <option v-for="service in serviceCategories" :key="service" :value="service">{{ service }}</option>
             </select>
-            <!-- Escalation Filter Pills (Pending tab only, for Unit Head on Job Requests) -->
-            <div v-if="activeTab === 'pending' && !isDirector && pendingCategoryTab !== 'borrowing'" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0">
+            <!-- Escalation Filter Pills (Job Requests on Pending tab only, for Unit Head) -->
+            <div v-if="selectedCategory === 'job' && activeTab === 'pending' && !isDirector" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0">
               <button
                 type="button"
                 @click="selectedEscalationFilter = 'all'; currentPage = 1"
                 class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer"
                 :class="selectedEscalationFilter === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
               >
-                All ({{ queueCounts.pending }})
+                All ({{ jobPendingCount }})
               </button>
               <button
                 type="button"
@@ -273,68 +453,9 @@
                 {{ isFgmu ? 'To Review' : 'Routine' }}
               </button>
             </div>
-            <!-- Executive Status Badge (Pending tab for Director) -->
-            <div v-else-if="activeTab === 'pending' && isDirector" class="inline-flex items-center px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold shrink-0">
+            <!-- Executive Status Badge (Job Requests on Pending tab for Director) -->
+            <div v-else-if="selectedCategory === 'job' && activeTab === 'pending' && isDirector" class="inline-flex items-center px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold shrink-0">
               <span>Escalated for Executive Approval</span>
-            </div>
-            <!-- Borrowing Sub-filter Pills (Borrowing tab: clearly separated stages) -->
-            <div v-else-if="activeTab === 'borrowing'" class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 shadow-inner shrink-0 flex-wrap gap-1">
-              <button
-                type="button"
-                @click="selectedBorrowingFilter = 'pending_approval'; currentPage = 1"
-                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
-                :class="selectedBorrowingFilter === 'pending_approval' ? 'bg-purple-600 text-white shadow-xs' : 'text-purple-800 hover:text-purple-950 hover:bg-slate-200/60'"
-              >
-                <span>Pending Approval</span>
-                <span
-                  class="px-1.5 py-0.2 rounded-full text-[10px] font-black"
-                  :class="selectedBorrowingFilter === 'pending_approval' ? 'bg-purple-800 text-white' : 'bg-purple-200 text-purple-900'"
-                >
-                  {{ borrowingPendingApprovalCount }}
-                </span>
-              </button>
-              <button
-                type="button"
-                @click="selectedBorrowingFilter = 'approved'; currentPage = 1"
-                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
-                :class="selectedBorrowingFilter === 'approved' ? 'bg-blue-600 text-white shadow-xs' : 'text-blue-800 hover:text-blue-950 hover:bg-slate-200/60'"
-              >
-                <span>Approved</span>
-                <span
-                  class="px-1.5 py-0.2 rounded-full text-[10px] font-black"
-                  :class="selectedBorrowingFilter === 'approved' ? 'bg-blue-800 text-white' : 'bg-blue-200 text-blue-900'"
-                >
-                  {{ borrowingApprovedCount }}
-                </span>
-              </button>
-              <button
-                type="button"
-                @click="selectedBorrowingFilter = 'awaiting_pickup'; currentPage = 1"
-                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
-                :class="selectedBorrowingFilter === 'awaiting_pickup' ? 'bg-amber-600 text-white shadow-xs' : 'text-amber-800 hover:text-amber-950 hover:bg-slate-200/60'"
-              >
-                <span>Awaiting Pickup</span>
-                <span
-                  class="px-1.5 py-0.2 rounded-full text-[10px] font-black"
-                  :class="selectedBorrowingFilter === 'awaiting_pickup' ? 'bg-amber-800 text-white' : 'bg-amber-200 text-amber-900'"
-                >
-                  {{ borrowingAwaitingPickupCount }}
-                </span>
-              </button>
-              <button
-                type="button"
-                @click="selectedBorrowingFilter = 'awaiting_return'; currentPage = 1"
-                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
-                :class="selectedBorrowingFilter === 'awaiting_return' ? 'bg-emerald-600 text-white shadow-xs' : 'text-emerald-800 hover:text-emerald-950 hover:bg-slate-200/60'"
-              >
-                <span>Awaiting Return</span>
-                <span
-                  class="px-1.5 py-0.2 rounded-full text-[10px] font-black"
-                  :class="selectedBorrowingFilter === 'awaiting_return' ? 'bg-emerald-800 text-white' : 'bg-emerald-200 text-emerald-900'"
-                >
-                  {{ borrowingReturnsCount }}
-                </span>
-              </button>
             </div>
             <!-- Refresh -->
             <button
@@ -358,14 +479,14 @@
                 <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 text-xs sm:text-sm font-black uppercase tracking-wider">
                   <th class="px-4 py-3 text-slate-700">Ticket Ref</th>
                   <th class="px-3 py-3 text-slate-700">Requester</th>
-                  <th v-if="((activeTab === 'pending' || activeTab === 'delayed') && pendingCategoryTab !== 'borrowing') || activeTab === 'approved' || activeTab === 'dispatched'" class="px-3 py-3 text-slate-700">Location</th>
+                  <th v-if="selectedCategory === 'job'" class="px-3 py-3 text-slate-700">Location</th>
                   <th v-if="activeTab === 'delayed'" class="px-3 py-3 text-amber-800">Delay Reason</th>
-                  <th v-if="activeTab === 'pending'" class="px-2 py-3 text-slate-700 text-center">Files</th>
-                  <th v-if="activeTab === 'dispatched'" class="px-3 py-3 text-slate-700">Scheduled Date &amp; Staff</th>
-                  <th v-if="activeTab === 'borrowing' || ((activeTab === 'pending' || activeTab === 'delayed') && pendingCategoryTab === 'borrowing')" class="px-3 py-3 text-slate-700">Item Requested</th>
-                  <th v-if="activeTab === 'borrowing' || ((activeTab === 'pending' || activeTab === 'delayed') && pendingCategoryTab === 'borrowing')" class="px-3 py-3 text-slate-700">Date Needed</th>
-                  <th v-if="activeTab === 'borrowing'" class="px-3 py-3 text-slate-700">Borrowing Status</th>
-                  <th v-if="activeTab === 'active'" class="px-3 py-3 text-slate-700">Elapsed Duration</th>
+                  <th v-if="selectedCategory === 'job' && activeTab === 'pending'" class="px-2 py-3 text-slate-700 text-center">Files</th>
+                  <th v-if="selectedCategory === 'job' && activeTab === 'dispatched'" class="px-3 py-3 text-slate-700">Scheduled Date &amp; Staff</th>
+                  <th v-if="selectedCategory === 'job' && activeTab === 'active'" class="px-3 py-3 text-slate-700">Elapsed Duration</th>
+                  <th v-if="selectedCategory === 'borrowing'" class="px-3 py-3 text-slate-700">Item Requested</th>
+                  <th v-if="selectedCategory === 'borrowing'" class="px-3 py-3 text-slate-700">Date Needed</th>
+                  <th v-if="selectedCategory === 'borrowing'" class="px-3 py-3 text-slate-700">Borrowing Status</th>
                   <th class="px-3 py-3 text-slate-700 text-right">Actions</th>
                 </tr>
               </thead>
@@ -394,15 +515,7 @@
                       </div>
                       <p class="text-sm font-bold text-slate-700">No Tickets in {{ activeTabLabel }}</p>
                       <p class="text-xs text-slate-400 mt-1">
-                        {{ isDirector && activeTab === 'pending'
-                          ? 'No tickets currently escalated for Director approval.'
-                          : (showPendingSubTabs
-                              ? (pendingCategoryTab === 'borrowing'
-                                  ? 'No borrowing requests matching current filters.'
-                                  : 'No job requests matching current filters.')
-                              : (activeTab === 'borrowing'
-                                  ? borrowingEmptyMessage
-                                  : 'There are no records matching your current filter criteria.')) }}
+                        {{ emptyTabMessage }}
                       </p>
                     </div>
                   </td>
@@ -468,8 +581,8 @@
                     </div>
                   </td>
 
-                  <!-- Location (Job Requests in Pending, Approved, Delayed & Dispatched) -->
-                  <td v-if="((activeTab === 'pending' || activeTab === 'delayed') && pendingCategoryTab !== 'borrowing') || activeTab === 'approved' || activeTab === 'dispatched'" class="px-3 py-2.5 whitespace-nowrap">
+                  <!-- Location (Job Requests) -->
+                  <td v-if="selectedCategory === 'job'" class="px-3 py-2.5 whitespace-nowrap">
                     <div class="text-xs font-semibold text-slate-700">{{ ticket.location || 'Main Campus' }}</div>
                     <div class="text-[10px] text-slate-400">{{ ticket.office_room ? `Rm ${ticket.office_room}` : '—' }}</div>
                   </td>
@@ -487,8 +600,8 @@
                     </div>
                   </td>
 
-                  <!-- Pending: Files -->
-                  <td v-if="activeTab === 'pending'" class="px-2 py-2.5 text-center">
+                  <!-- Pending: Files (Job Requests) -->
+                  <td v-if="selectedCategory === 'job' && activeTab === 'pending'" class="px-2 py-2.5 text-center">
                     <span
                       v-if="ticket.attachments && ticket.attachments.length > 0"
                       class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
@@ -500,8 +613,8 @@
                     <span v-else class="text-[10px] text-slate-300">—</span>
                   </td>
 
-                  <!-- Dispatched: Scheduled Date & Personnel -->
-                  <td v-if="activeTab === 'dispatched'" class="px-3 py-2.5 whitespace-nowrap">
+                  <!-- Dispatched: Scheduled Date & Personnel (Job Requests) -->
+                  <td v-if="selectedCategory === 'job' && activeTab === 'dispatched'" class="px-3 py-2.5 whitespace-nowrap">
                     <div class="text-xs font-bold text-slate-800">
                       {{ formatDate(ticket.assignment?.implementation_date || ticket.implementation_date) }}
                     </div>
@@ -510,36 +623,8 @@
                     </div>
                   </td>
 
-                  <!-- Borrowing: Item Requested -->
-                  <td v-if="activeTab === 'borrowing' || ((activeTab === 'pending' || activeTab === 'delayed') && pendingCategoryTab === 'borrowing')" class="px-3 py-2.5">
-                    <div class="text-xs font-black text-slate-900 truncate max-w-[200px]" :title="ticket.item_requested || ticket.item_name_requested || ticket.borrowing?.item_name_requested || 'Tools / Equipment'">
-                      {{ ticket.item_requested || ticket.item_name_requested || ticket.borrowing?.item_name_requested || 'Tools / Equipment' }}
-                      <span v-if="ticket.item_model || ticket.item_model_requested" class="font-semibold text-slate-500">({{ ticket.item_model || ticket.item_model_requested }})</span>
-                    </div>
-                    <div class="text-[10px] text-sky-700 font-semibold">
-                      Qty: {{ ticket.quantity_needed || ticket.quantity || ticket.borrowing?.quantity_needed || 1 }}
-                    </div>
-                  </td>
-
-                  <!-- Borrowing: Schedule & Return -->
-                  <td v-if="activeTab === 'borrowing' || ((activeTab === 'pending' || activeTab === 'delayed') && pendingCategoryTab === 'borrowing')" class="px-3 py-2.5 whitespace-nowrap">
-                    <div class="text-xs font-semibold text-slate-800">
-                      {{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}
-                    </div>
-                    <div v-if="ticket.expected_return_date || ticket.borrowing?.expected_return_date" class="text-[10px] text-slate-400">
-                      Until: {{ formatDate(ticket.expected_return_date || ticket.borrowing?.expected_return_date) }}
-                    </div>
-                  </td>
-
-                  <!-- Borrowing: Status -->
-                  <td v-if="activeTab === 'borrowing'" class="px-3 py-2.5 whitespace-nowrap">
-                    <span :class="['px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border inline-flex items-center gap-1 shadow-2xs', borrowingStatusBadgeClass(ticket.borrowing_status || ticket.status)]">
-                      {{ formatBorrowingStatus(ticket.borrowing_status || ticket.status) }}
-                    </span>
-                  </td>
-
-                  <!-- Active: Elapsed Duration & Target Days -->
-                  <td v-if="activeTab === 'active'" class="px-3 py-2.5 whitespace-nowrap">
+                  <!-- Active: Elapsed Duration & Target Days (Job Requests) -->
+                  <td v-if="selectedCategory === 'job' && activeTab === 'active'" class="px-3 py-2.5 whitespace-nowrap">
                     <div class="flex items-center gap-2.5">
                       <div>
                         <div class="text-xs font-bold text-slate-900">{{ liveWorkingDurations[ticket.id] || ticket.computed_working_duration || 'Counting...' }}</div>
@@ -553,6 +638,34 @@
                         <span v-if="ticket.extension_days > 0" class="ml-1 text-amber-600 font-black">+{{ ticket.extension_days }}d</span>
                       </span>
                     </div>
+                  </td>
+
+                  <!-- Borrowing: Item Requested -->
+                  <td v-if="selectedCategory === 'borrowing'" class="px-3 py-2.5">
+                    <div class="text-xs font-black text-slate-900 truncate max-w-[200px]" :title="ticket.item_requested || ticket.item_name_requested || ticket.borrowing?.item_name_requested || 'Tools / Equipment'">
+                      {{ ticket.item_requested || ticket.item_name_requested || ticket.borrowing?.item_name_requested || 'Tools / Equipment' }}
+                      <span v-if="ticket.item_model || ticket.item_model_requested" class="font-semibold text-slate-500">({{ ticket.item_model || ticket.item_model_requested }})</span>
+                    </div>
+                    <div class="text-[10px] text-sky-700 font-semibold">
+                      Qty: {{ ticket.quantity_needed || ticket.quantity || ticket.borrowing?.quantity_needed || 1 }}
+                    </div>
+                  </td>
+
+                  <!-- Borrowing: Schedule & Return -->
+                  <td v-if="selectedCategory === 'borrowing'" class="px-3 py-2.5 whitespace-nowrap">
+                    <div class="text-xs font-semibold text-slate-800">
+                      {{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}
+                    </div>
+                    <div v-if="ticket.expected_return_date || ticket.borrowing?.expected_return_date" class="text-[10px] text-slate-400">
+                      Until: {{ formatDate(ticket.expected_return_date || ticket.borrowing?.expected_return_date) }}
+                    </div>
+                  </td>
+
+                  <!-- Borrowing: Status -->
+                  <td v-if="selectedCategory === 'borrowing'" class="px-3 py-2.5 whitespace-nowrap">
+                    <span :class="['px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border inline-flex items-center gap-1 shadow-2xs', borrowingStatusBadgeClass(ticket.borrowing_status || ticket.status)]">
+                      {{ formatBorrowingStatus(ticket.borrowing_status || ticket.status) }}
+                    </span>
                   </td>
 
                   <!-- Actions -->
@@ -573,11 +686,11 @@
                         </button>
 
                         <button
-                          v-if="ticket.is_escalated_to_director && activeTab === 'pending'"
+                          v-if="(selectedCategory === 'job' && ticket.is_escalated_to_director && activeTab === 'pending') || (selectedCategory === 'borrowing' && activeTab === 'pending')"
                           data-tour="director-btn-delay"
                           @click="openDelayModal(ticket)"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
-                          title="Delay Approval (e.g. Awaiting procurement of materials, budget clearance, or site assessment)"
+                          title="Delay Approval"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -586,7 +699,7 @@
                         </button>
 
                         <button
-                          v-if="(ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')) || (activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase()))"
+                          v-if="(selectedCategory === 'job' && ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')) || (selectedCategory === 'borrowing' && (activeTab === 'pending' || activeTab === 'delayed'))"
                           data-tour="director-btn-decline"
                           @click="openDeclineModal(ticket)"
                           class="px-3 py-2 min-h-[44px] rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
@@ -599,7 +712,7 @@
                         </button>
 
                         <button
-                          v-if="(ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')) || (activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase()))"
+                          v-if="(selectedCategory === 'job' && ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')) || (selectedCategory === 'borrowing' && (activeTab === 'pending' || activeTab === 'delayed'))"
                           data-tour="director-btn-approve"
                           @click="initiateApproval(ticket)"
                           class="px-4 py-2 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
@@ -615,12 +728,12 @@
 
                     <!-- Non-Director (Unit Head / Staff / Admin) Actions -->
                     <template v-else>
-                      <!-- Pending Tab Actions: Senior-Friendly Streamlined (Option A) -->
+                      <!-- Pending Tab Actions -->
                       <div v-if="activeTab === 'pending'" class="flex items-center justify-end gap-2 flex-wrap">
                         <button
                           @click="openDetailsModal(ticket)"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer select-none"
-                          title="View Full Ticket Details, Attachments & Secondary Actions"
+                          title="View Details"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -630,7 +743,7 @@
                         </button>
 
                         <span
-                          v-if="ticket.is_escalated_to_director"
+                          v-if="selectedCategory === 'job' && ticket.is_escalated_to_director"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-purple-200 bg-purple-50 text-purple-800 text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-2xs select-none"
                           title="This ticket has been escalated and is awaiting the Director's executive approval."
                         >
@@ -641,13 +754,12 @@
                         </span>
 
                         <template v-else>
-                          <!-- Delay Approval: For Director (on escalated approvals) and Unit Head (on routine pending) -->
+                          <!-- Delay Approval -->
                           <button
                             data-tour="director-btn-delay"
-                            v-if="!ticket.is_escalated_to_director"
                             @click="openDelayModal(ticket)"
                             class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
-                            title="Delay Approval (e.g. Awaiting procurement of materials, budget clearance, or site assessment)"
+                            title="Delay Approval"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -655,9 +767,9 @@
                             <span>Delay</span>
                           </button>
 
-                          <!-- For FGMU: Cannot approve directly; Request Director Approval -->
+                          <!-- For FGMU Job: Request Director Approval -->
                           <button
-                            v-if="isFgmu"
+                            v-if="selectedCategory === 'job' && isFgmu"
                             @click="openEscalateModal(ticket)"
                             class="px-3.5 py-2 min-h-[44px] rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
                             title="Request Director Approval"
@@ -665,13 +777,14 @@
                             <svg class="h-4 w-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
                             <span>Request Director Approval</span>
                           </button>
-                          <!-- For LEAU: Direct Unit Head Approve -->
+
+                          <!-- For LEAU Job or Borrowing: Direct Approve -->
                           <button
                             v-else
                             data-tour="director-btn-approve"
                             @click="initiateApproval(ticket)"
                             class="px-4 py-2 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                            title="Direct Unit Head Approve"
+                            title="Approve Request"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -703,10 +816,9 @@
                           <span>Decline</span>
                         </button>
                         <button
-                          v-if="ticket.is_escalated_to_director"
+                          v-if="selectedCategory === 'job' && ticket.is_escalated_to_director"
                           disabled
                           class="px-3.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-80 select-none shadow-2xs"
-                          title="This ticket has been escalated and is awaiting the Director's executive approval."
                         >
                           <svg class="h-3.5 w-3.5 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -715,7 +827,7 @@
                         </button>
                         <template v-else>
                           <button
-                            v-if="isFgmu"
+                            v-if="selectedCategory === 'job' && isFgmu"
                             @click="openEscalateModal(ticket)"
                             class="px-3 py-1.5 rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
                             title="Request Director Approval"
@@ -727,7 +839,7 @@
                             v-else
                             @click="initiateApproval(ticket)"
                             class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
-                            title="Direct Approve"
+                            title="Approve"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -737,7 +849,7 @@
                         </template>
                       </div>
 
-                      <!-- Approved Tab Actions -->
+                      <!-- Approved Tab Actions (Job and Borrowing) -->
                       <div v-else-if="activeTab === 'approved'" class="flex items-center justify-end gap-2">
                         <button
                           @click="openDetailsModal(ticket)"
@@ -751,7 +863,7 @@
                         </button>
                       </div>
 
-                      <!-- Dispatched Tab Actions -->
+                      <!-- Dispatched Tab Actions (Job) -->
                       <div v-else-if="activeTab === 'dispatched'" class="flex items-center justify-end gap-2">
                         <button
                           @click="openRescheduleModal(ticket)"
@@ -785,43 +897,7 @@
                         </button>
                       </div>
 
-                      <!-- Borrowing Tab Actions -->
-                      <div v-else-if="activeTab === 'borrowing'" class="flex items-center justify-end gap-2">
-                        <template v-if="['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase())">
-                          <button
-                            @click.stop="openDeclineModal(ticket)"
-                            class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
-                            title="Decline request"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            <span>Decline</span>
-                          </button>
-                          <button
-                            @click.stop="initiateApproval(ticket)"
-                            class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1 cursor-pointer"
-                            title="Direct Approve"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span>Approve</span>
-                          </button>
-                        </template>
-                        <button
-                          @click="openDetailsModal(ticket)"
-                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-400 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                          <span>Full Info</span>
-                        </button>
-                      </div>
-
-                      <!-- Active Tab Actions: Details + Update + Grant Extension -->
+                      <!-- Active Tab Actions (Job) -->
                       <div v-else-if="activeTab === 'active'" class="flex items-center justify-end gap-2">
                         <button
                           @click="openNotationModal(ticket)"
@@ -843,6 +919,21 @@
                           </svg>
                           <span>Extend</span>
                         </button>
+                        <button
+                          @click="openDetailsModal(ticket)"
+                          class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                          title="View Full Details"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Full Info</span>
+                        </button>
+                      </div>
+
+                      <!-- Inventory Assigned or Return (Borrowing) -->
+                      <div v-else-if="activeTab === 'assigned' || activeTab === 'return'" class="flex items-center justify-end gap-2">
                         <button
                           @click="openDetailsModal(ticket)"
                           class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
@@ -954,98 +1045,109 @@
               </span>
             </div>
 
-            <!-- Location for Job Requests (Pending, Approved, Delayed, and Dispatched) -->
-            <div
-              v-if="(((activeTab === 'pending' || activeTab === 'delayed') && pendingCategoryTab !== 'borrowing') || activeTab === 'approved' || activeTab === 'dispatched') && !ticket.is_borrowing && !isBorrowingService(ticket)"
-              class="mt-2 flex items-center justify-between text-xs text-slate-600"
-            >
-              <div class="flex items-center gap-1.5 truncate">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span class="truncate">{{ ticket.location || 'Main Campus' }}{{ ticket.office_room ? ` (Rm ${ticket.office_room})` : '' }}</span>
+            <!-- ================= JOB REQUEST DETAILS ================= -->
+            <template v-if="selectedCategory === 'job'">
+              <!-- Location & Attachments (Pending, Delayed, Approved, Dispatched) -->
+              <div
+                v-if="['pending', 'delayed', 'approved', 'dispatched'].includes(activeTab)"
+                class="mt-2 flex items-center justify-between text-xs text-slate-600"
+              >
+                <div class="flex items-center gap-1.5 truncate">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span class="truncate">{{ ticket.location || 'Main Campus' }}{{ ticket.office_room ? ` (Rm ${ticket.office_room})` : '' }}</span>
+                </div>
+                <span v-if="ticket.attachments && ticket.attachments.length > 0" class="text-[10px] font-bold text-slate-400 shrink-0">
+                  {{ ticket.attachments.length }} files
+                </span>
               </div>
-              <span v-if="ticket.attachments && ticket.attachments.length > 0" class="text-[10px] font-bold text-slate-400 shrink-0">
-                {{ ticket.attachments.length }} files
-              </span>
-            </div>
 
-            <!-- Item details for Borrowing Requests (Pending & Delayed) -->
-            <div
-              v-if="(activeTab === 'pending' || activeTab === 'delayed') && (pendingCategoryTab === 'borrowing' || ticket.is_borrowing || isBorrowingService(ticket))"
-              class="mt-2 p-2.5 rounded-xl bg-sky-50/70 border border-sky-200/70 text-xs space-y-1"
-            >
-              <div class="flex items-center justify-between gap-2">
-                <span class="font-bold text-slate-900 truncate">{{ ticket.item_requested || ticket.item_name_requested || ticket.borrowing?.item_name_requested || 'Tools / Equipment' }}</span>
-                <span class="text-[10px] text-sky-800 font-bold shrink-0">Qty: {{ ticket.quantity_needed || ticket.borrowing?.quantity_needed || 1 }}</span>
+              <!-- Dispatched: Scheduled Date & Assigned Personnel -->
+              <div v-if="activeTab === 'dispatched'" class="mt-2 flex items-center justify-between text-xs">
+                <span class="text-slate-600 font-medium">Scheduled: <strong class="text-slate-900 font-bold ml-1">{{ formatDate(ticket.assignment?.implementation_date || ticket.implementation_date) }}</strong></span>
+                <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
+                  {{ getAssignedWorkers(ticket).length ? `${getAssignedWorkers(ticket).length} worker(s)` : (ticket.assignment?.personnel_name || 'Dispatched') }}
+                </span>
               </div>
-              <div class="flex items-center justify-between text-[11px] text-slate-500">
-                <span>Needed: <strong class="text-slate-800">{{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}</strong></span>
-                <span v-if="ticket.expected_return_date || ticket.borrowing?.expected_return_date">Return: {{ formatDate(ticket.expected_return_date || ticket.borrowing?.expected_return_date) }}</span>
+
+              <!-- Delayed Notice -->
+              <div v-if="activeTab === 'delayed'" class="mt-2 p-2 rounded-xl bg-amber-50 border border-amber-200/80 text-xs">
+                <div class="flex items-center gap-1.5 font-bold text-amber-900">
+                  <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <span class="truncate">{{ ticket.approval_delay_reason || 'Awaiting Procurement' }}</span>
+                </div>
+                <div v-if="ticket.delayed_by_first_name" class="text-[10px] text-amber-700 mt-0.5">
+                  by {{ ticket.delayed_by_first_name }} {{ ticket.delayed_by_last_name }} &bull; {{ formatDate(ticket.approval_delayed_at) }}
+                </div>
               </div>
-            </div>
 
-            <!-- Dispatched row -->
-            <div v-if="activeTab === 'dispatched'" class="mt-2 flex items-center justify-between text-xs">
-              <span class="text-slate-600 font-medium">Scheduled: <strong class="text-slate-900 font-bold ml-1">{{ formatDate(ticket.assignment?.implementation_date || ticket.implementation_date) }}</strong></span>
-              <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
-                {{ getAssignedWorkers(ticket).length ? `${getAssignedWorkers(ticket).length} worker(s)` : (ticket.assignment?.personnel_name || 'Dispatched') }}
-              </span>
-            </div>
+              <!-- Work in Progress (Active): Elapsed Duration + Target Days -->
+              <div v-if="activeTab === 'active'" class="mt-2 flex items-center justify-between text-xs">
+                <span class="text-slate-600 font-medium">Elapsed: <strong class="text-emerald-700 font-bold ml-1">{{ liveWorkingDurations[ticket.id] || ticket.computed_working_duration || 'Counting...' }}</strong></span>
+                <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
+                  {{ ticket.working_days || ticket.assignment?.working_days || 1 }} Target {{ (ticket.working_days || ticket.assignment?.working_days || 1) === 1 ? 'Day' : 'Days' }}
+                  <span v-if="ticket.extension_days > 0" class="text-amber-600 ml-0.5">+{{ ticket.extension_days }}d</span>
+                </span>
+              </div>
+            </template>
 
-            <!-- Borrowing info for Borrowing tab -->
-            <div v-if="activeTab === 'borrowing'" class="mt-2 p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-200/80 text-xs space-y-1.5">
-              <div class="flex items-center justify-between gap-2">
-                <span class="font-bold text-slate-900 truncate">{{ ticket.item_requested || ticket.item_name_requested }} ({{ ticket.quantity || ticket.quantity_needed || 1 }}x)</span>
-                <span :class="['px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border shrink-0', borrowingStatusBadgeClass(ticket.borrowing_status || ticket.status)]">
+            <!-- ================= BORROWING REQUEST DETAILS ================= -->
+            <template v-else>
+              <!-- Borrowing Item & Dates -->
+              <div class="mt-2 p-2.5 rounded-xl bg-sky-50/70 border border-sky-200/70 text-xs space-y-1">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-bold text-slate-900 truncate">{{ ticket.item_requested || ticket.item_name_requested || 'Tools / Equipment' }}</span>
+                  <span class="text-[10px] text-sky-800 font-bold shrink-0">
+                    Qty: {{ ticket.assigned_quantity || ticket.quantity_needed || ticket.quantity || 1 }}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-slate-600">
+                  <span>Needed: <strong class="text-slate-800">{{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}</strong></span>
+                  <span v-if="ticket.expected_return_date || ticket.borrowing?.expected_return_date">
+                    Return: <strong class="text-slate-800">{{ formatDate(ticket.expected_return_date || ticket.borrowing?.expected_return_date) }}</strong>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Borrowing Delayed Reason -->
+              <div v-if="activeTab === 'delayed'" class="mt-2 p-2 rounded-xl bg-amber-50 border border-amber-200/80 text-xs">
+                <div class="flex items-center gap-1.5 font-bold text-amber-900">
+                  <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <span class="truncate">{{ ticket.approval_delay_reason || 'Approval Delayed' }}</span>
+                </div>
+              </div>
+
+              <!-- Borrowing Status Badge on Approved / Assigned / Return -->
+              <div v-if="['approved', 'assigned', 'return'].includes(activeTab)" class="mt-2 flex items-center justify-between text-xs">
+                <span class="text-slate-500 font-medium">Borrowing Status:</span>
+                <span :class="['px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shrink-0', borrowingStatusBadgeClass(ticket.borrowing_status || ticket.status)]">
                   {{ formatBorrowingStatus(ticket.borrowing_status || ticket.status) }}
                 </span>
               </div>
-              <div class="flex items-center justify-between text-[11px] text-slate-600">
-                <span>Needed: {{ formatDate(ticket.date_needed || ticket.borrowing?.date_needed) }}</span>
-                <span>Return: {{ formatDate(ticket.expected_return_date || ticket.borrowing?.expected_return_date) }}</span>
-              </div>
-            </div>
-
-            <!-- Delayed Notice for Delayed tab -->
-            <div v-if="activeTab === 'delayed'" class="mt-2 p-2 rounded-xl bg-amber-50 border border-amber-200/80 text-xs">
-              <div class="flex items-center gap-1.5 font-bold text-amber-900">
-                <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <span class="truncate">{{ ticket.approval_delay_reason || 'Awaiting Procurement' }}</span>
-              </div>
-              <div v-if="ticket.delayed_by_first_name" class="text-[10px] text-amber-700 mt-0.5">
-                by {{ ticket.delayed_by_first_name }} {{ ticket.delayed_by_last_name }} &bull; {{ formatDate(ticket.approval_delayed_at) }}
-              </div>
-            </div>
-
-            <!-- Active tab: Elapsed Duration + Target Days (job/service and staff/schedule removed) -->
-            <div v-if="activeTab === 'active'" class="mt-2 flex items-center justify-between text-xs">
-              <span class="text-slate-600 font-medium">Elapsed: <strong class="text-emerald-700 font-bold ml-1">{{ liveWorkingDurations[ticket.id] || ticket.computed_working_duration || 'Counting...' }}</strong></span>
-              <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
-                {{ ticket.working_days || ticket.assignment?.working_days || 1 }} Target {{ (ticket.working_days || ticket.assignment?.working_days || 1) === 1 ? 'Day' : 'Days' }}
-                <span v-if="ticket.extension_days > 0" class="text-amber-600 ml-0.5">+{{ ticket.extension_days }}d</span>
-              </span>
-            </div>
+            </template>
 
             <!-- Actions -->
             <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end gap-1.5 flex-wrap" @click.stop>
-              <!-- Director View: Full Info + Delay (escalated pending) + Decline + Approve -->
-              <template v-if="isDirector">
-                <button
-                  @click="openDetailsModal(ticket)"
-                  class="px-3.5 py-1.5 min-h-[36px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1.5 shadow-2xs"
-                  title="View Full Ticket Details"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  <span>Full Info</span>
-                </button>
+              <!-- Full Info always available -->
+              <button
+                @click="openDetailsModal(ticket)"
+                class="px-3.5 py-1.5 min-h-[36px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                title="View Full Ticket Details"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span>Full Info</span>
+              </button>
 
+              <!-- Director View Actions -->
+              <template v-if="isDirector">
+                <!-- Delay button (Job approval requests) -->
                 <button
-                  v-if="ticket.is_escalated_to_director && activeTab === 'pending'"
+                  v-if="selectedCategory === 'job' && activeTab === 'pending' && ticket.is_escalated_to_director"
                   @click="openDelayModal(ticket)"
                   class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
                   title="Delay Approval"
@@ -1056,8 +1158,9 @@
                   <span>Delay</span>
                 </button>
 
+                <!-- Decline button -->
                 <button
-                  v-if="(ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')) || (activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase()))"
+                  v-if="(selectedCategory === 'job' && (activeTab === 'pending' || activeTab === 'delayed') && ticket.is_escalated_to_director) || (selectedCategory === 'borrowing' && (activeTab === 'pending' || activeTab === 'delayed'))"
                   @click="openDeclineModal(ticket)"
                   class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
                   title="Decline Request"
@@ -1068,8 +1171,9 @@
                   <span>Decline</span>
                 </button>
 
+                <!-- Approve button -->
                 <button
-                  v-if="(ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')) || (activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase()))"
+                  v-if="(selectedCategory === 'job' && (activeTab === 'pending' || activeTab === 'delayed') && ticket.is_escalated_to_director) || (selectedCategory === 'borrowing' && (activeTab === 'pending' || activeTab === 'delayed'))"
                   @click="initiateApproval(ticket)"
                   class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-sm"
                   title="Executive Approve Request"
@@ -1083,8 +1187,8 @@
 
               <!-- Non-Director Mobile Actions -->
               <template v-else>
-                <!-- Pending Actions -->
-                <template v-if="activeTab === 'pending'">
+                <!-- Job Pending Actions -->
+                <template v-if="selectedCategory === 'job' && activeTab === 'pending'">
                   <!-- For LEAU: Request Director Approval button -->
                   <button
                     v-if="!ticket.is_escalated_to_director && !isFgmu"
@@ -1094,7 +1198,7 @@
                     <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
                     <span>Request Director Approval</span>
                   </button>
-                  <button v-if="ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">{{ isFgmu ? 'Recall' : 'Recall' }}</button>
+                  <button v-if="ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Recall</button>
                   <button v-if="!ticket.is_escalated_to_director" @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
                   <button @click="openDeclineModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
 
@@ -1105,7 +1209,6 @@
                   >
                     Awaiting Director's Approval
                   </button>
-                  <!-- For FGMU: Approve button changed to Request Director Approval -->
                   <button
                     v-else-if="isFgmu"
                     @click="openEscalateModal(ticket)"
@@ -1114,7 +1217,6 @@
                     <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
                     <span>Request Director Approval</span>
                   </button>
-                  <!-- For LEAU: Direct Approve button -->
                   <button
                     v-else
                     @click="initiateApproval(ticket)"
@@ -1124,27 +1226,29 @@
                   </button>
                 </template>
 
-                <!-- Delayed Actions -->
-                <button v-if="activeTab === 'delayed'" @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
-                <button
-                  v-if="activeTab === 'delayed' && ticket.is_escalated_to_director"
-                  disabled
-                  class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80"
-                >
-                  Awaiting Director's Approval
-                </button>
-                <button
-                  v-else-if="activeTab === 'delayed' && isFgmu"
-                  @click="openEscalateModal(ticket)"
-                  class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
-                >
-                  <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                  <span>Request Director Approval</span>
-                </button>
-                <button v-else-if="activeTab === 'delayed'" @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
+                <!-- Job Delayed Actions -->
+                <template v-else-if="selectedCategory === 'job' && activeTab === 'delayed'">
+                  <button @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+                  <button
+                    v-if="ticket.is_escalated_to_director"
+                    disabled
+                    class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80"
+                  >
+                    Awaiting Director's Approval
+                  </button>
+                  <button
+                    v-else-if="isFgmu"
+                    @click="openEscalateModal(ticket)"
+                    class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
+                  >
+                    <svg class="h-3.5 w-3.5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                    <span>Request Director Approval</span>
+                  </button>
+                  <button v-else @click="initiateApproval(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Approve</button>
+                </template>
 
-                <!-- Dispatched Actions -->
-                <template v-if="activeTab === 'dispatched'">
+                <!-- Job Dispatched Actions -->
+                <template v-else-if="selectedCategory === 'job' && activeTab === 'dispatched'">
                   <button
                     @click="openRescheduleModal(ticket)"
                     class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
@@ -1165,8 +1269,8 @@
                   </button>
                 </template>
 
-                <!-- Active Actions -->
-                <template v-if="activeTab === 'active'">
+                <!-- Job Active Actions -->
+                <template v-else-if="selectedCategory === 'job' && activeTab === 'active'">
                   <button
                     @click="openNotationModal(ticket)"
                     class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
@@ -1179,8 +1283,8 @@
                   <button @click="openExtensionModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer">Extend</button>
                 </template>
 
-                <!-- Borrowing Pending Actions -->
-                <template v-if="activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(ticket.borrowing_status || ticket.status).toLowerCase())">
+                <!-- Borrowing Pending & Delayed Actions -->
+                <template v-else-if="selectedCategory === 'borrowing' && (activeTab === 'pending' || activeTab === 'delayed')">
                   <button
                     @click="openDeclineModal(ticket)"
                     class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer"
@@ -1194,9 +1298,6 @@
                     Approve
                   </button>
                 </template>
-
-                <!-- Details (All Tabs) -->
-                <button @click="openDetailsModal(ticket)" class="px-3.5 py-1.5 min-h-[36px] rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Full Info</button>
               </template>
             </div>
           </div>
@@ -1514,11 +1615,12 @@
             Close Full Info
           </button>
 
-          <!-- Director Actions: Delay, Decline, and Approve for Escalated / Borrowing tickets -->
+          <!-- Director Actions: Delay, Decline, and Approve -->
           <template v-if="isDirector">
-            <!-- Escalated Pending Tab Actions -->
-            <div v-if="activeTab === 'pending' && selectedTicketForModal?.is_escalated_to_director" class="flex items-center gap-2 flex-wrap">
+            <!-- Approval Requests (Pending) -->
+            <div v-if="activeTab === 'pending' && ((selectedCategory === 'job' && selectedTicketForModal?.is_escalated_to_director) || selectedCategory === 'borrowing')" class="flex items-center gap-2 flex-wrap">
               <button
+                v-if="selectedCategory === 'job'"
                 @click="openDelayModal(selectedTicketForModal); closeDetailsModal()"
                 class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1"
                 title="Delay Approval"
@@ -1541,7 +1643,7 @@
               <button
                 @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
                 class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center gap-1.5"
-                title="Executive Approve Escalated Ticket"
+                title="Executive Approve Request"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -1550,8 +1652,8 @@
               </button>
             </div>
 
-            <!-- Escalated Delayed Tab Actions -->
-            <div v-else-if="activeTab === 'delayed' && selectedTicketForModal?.is_escalated_to_director" class="flex items-center gap-2">
+            <!-- Approval Delays (Delayed) -->
+            <div v-else-if="activeTab === 'delayed' && ((selectedCategory === 'job' && selectedTicketForModal?.is_escalated_to_director) || selectedCategory === 'borrowing')" class="flex items-center gap-2">
               <button
                 @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()"
                 class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer flex items-center gap-1.5"
@@ -1565,31 +1667,7 @@
               <button
                 @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
                 class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center gap-1.5"
-                title="Executive Approve Escalated Ticket"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Approve Request</span>
-              </button>
-            </div>
-
-            <!-- Borrowing Pending Actions -->
-            <div v-else-if="activeTab === 'borrowing' && ['pending_director', 'pending'].includes(String(selectedTicketForModal?.borrowing_status || selectedTicketForModal?.status).toLowerCase())" class="flex items-center gap-2">
-              <button
-                @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()"
-                class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer flex items-center gap-1.5"
-                title="Decline Request"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <span>Decline Request</span>
-              </button>
-              <button
-                @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
-                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center gap-1.5"
-                title="Approve Request"
+                title="Executive Approve Request"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -1601,7 +1679,8 @@
 
           <!-- Non-Director Actions -->
           <template v-else>
-            <div v-if="activeTab === 'pending'" class="flex items-center gap-2 flex-wrap">
+            <!-- Job Pending Actions -->
+            <div v-if="selectedCategory === 'job' && activeTab === 'pending'" class="flex items-center gap-2 flex-wrap">
               <!-- Request Director Approval (For LEAU: formerly Escalate to Director) -->
               <button
                 v-if="!selectedTicketForModal.is_escalated_to_director && !isFgmu"
@@ -1676,7 +1755,9 @@
                 Approve Request
               </button>
             </div>
-            <div v-else-if="activeTab === 'delayed'" class="flex items-center gap-2">
+
+            <!-- Job Delayed Actions -->
+            <div v-else-if="selectedCategory === 'job' && activeTab === 'delayed'" class="flex items-center gap-2">
               <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
                 Decline
               </button>
@@ -1707,12 +1788,38 @@
                 Approve
               </button>
             </div>
-            <div v-else-if="activeTab === 'active'">
+
+            <!-- Job Active Actions -->
+            <div v-else-if="selectedCategory === 'job' && activeTab === 'active'">
               <button @click="openExtensionModal(selectedTicketForModal); closeDetailsModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-amber-600/20 transition-all cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Extend Timeline</span>
+              </button>
+            </div>
+
+            <!-- Borrowing Pending & Delayed Actions (Non-Director) -->
+            <div v-else-if="selectedCategory === 'borrowing' && (activeTab === 'pending' || activeTab === 'delayed')" class="flex items-center gap-2">
+              <button
+                @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Decline Request"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Decline Request</span>
+              </button>
+              <button
+                @click="initiateApproval(selectedTicketForModal); closeDetailsModal()"
+                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Approve Request"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Approve Request</span>
               </button>
             </div>
           </template>
@@ -2109,7 +2216,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
 import { escalateTicketToDirector, deescalateTicketFromDirector } from '@/api/tickets';
-import { getBorrowingQueue } from '@/api/borrowing';
+import { getBorrowingQueue, directorApproveBorrowing, directorRejectBorrowing } from '@/api/borrowing';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from '@/views/dashboards/director/DirectorSidebar.vue';
@@ -2147,24 +2254,27 @@ const servicesList = computed(() => isLeau.value ? LEAU_SERVICES : FGMU_SERVICES
 const isDirector = computed(() => authStore.role === 'director' || route.path.startsWith('/director'));
 const isPendingOnlyMode = computed(() => !isDirector.value || route.path.startsWith('/admin'));
 
-// 3 Primary Stage Tabs: Pending -> Delayed -> Dropdown Ticket List (Approved / Dispatched / Active / Borrowing)
-const activeTab = ref('pending'); // 'pending' | 'delayed' | 'approved' | 'dispatched' | 'active' | 'borrowing'
-const queueCounts = ref({ pending: 0, delayed: 0, approved: 0, dispatched: 0, active: 0, borrowing: 0 });
+// Request Type Category Selection: Job Requests ('job') vs Borrowing Requests ('borrowing')
+const selectedCategory = ref('job');
 
-// Dropdown Ticket List Selection
-const selectedTicketListKey = ref('approved');
-const isListsDropdownOpen = ref(false);
-const dropdownContainerRef = ref(null);
+// Process Stages for Job Requests: 'pending' | 'delayed' | 'approved' | 'dispatched' | 'active'
+// Process Stages for Borrowing Requests: 'pending' | 'delayed' | 'approved' | 'assigned' | 'return'
+const activeTab = ref('pending');
 
-watch(
-  isPendingOnlyMode,
-  (pendingOnly) => {
-    if (pendingOnly && ['approved', 'dispatched', 'active', 'borrowing'].includes(activeTab.value)) {
-      activeTab.value = 'pending';
-    }
-  },
-  { immediate: true }
-);
+// Queues data cache
+const queuesData = ref({
+  pending: [],
+  delayed: [],
+  approved: [],
+  dispatched: [],
+  active: [],
+  borrowing: [],
+});
+
+const isLoading = ref(false);
+const searchQuery = ref('');
+const selectedServiceFilter = ref('');
+const selectedEscalationFilter = ref('all'); // 'all' | 'escalated' | 'routine'
 
 let handledRouteQueryTicketId = null;
 let isInitialFetch = true;
@@ -2184,78 +2294,141 @@ const closeDetailsModal = () => {
   clearRouteQueryTicket();
 };
 
-const isDropdownTabActive = computed(() => {
-  return ['approved', 'dispatched', 'active', 'borrowing'].includes(activeTab.value);
-});
-
-const ticketListOptions = computed(() => [
-  {
-    key: 'approved',
-    label: 'Approved (Awaiting Dispatch)',
-    shortLabel: 'Approved (Dispatch)',
-    description: 'Awaiting personnel assignment & dispatch',
-    count: queueCounts.value.approved || 0,
+watch(
+  isPendingOnlyMode,
+  (pendingOnly) => {
+    if (pendingOnly && ['approved', 'dispatched', 'active', 'assigned', 'return'].includes(activeTab.value)) {
+      activeTab.value = 'pending';
+    }
   },
-  {
-    key: 'dispatched',
-    label: 'Approved (Dispatched)',
-    shortLabel: 'Approved (Dispatched)',
-    description: 'Scheduled implementation awaiting work',
-    count: queueCounts.value.dispatched || 0,
-  },
-  {
-    key: 'active',
-    label: 'Active Tickets',
-    shortLabel: 'Active Tickets',
-    description: 'Work ongoing / in-progress with live tracking',
-    count: queueCounts.value.active || 0,
-  },
-  {
-    key: 'borrowing',
-    label: 'Borrowing Requests',
-    shortLabel: 'Borrowing Requests',
-    description: 'Pending approval, approved, awaiting pickup & return',
-    count: queueCounts.value.borrowing || 0,
-  },
-]);
+  { immediate: true }
+);
 
-const currentDropdownItem = computed(() => {
-  const currentKey = ['approved', 'dispatched', 'active', 'borrowing'].includes(activeTab.value)
-    ? activeTab.value
-    : selectedTicketListKey.value;
-  return ticketListOptions.value.find(opt => opt.key === currentKey) || ticketListOptions.value[0];
-});
-
-const currentDropdownCount = computed(() => currentDropdownItem.value?.count ?? 0);
-
-const toggleTicketListDropdown = () => {
-  if (!isDropdownTabActive.value) {
-    activeTab.value = selectedTicketListKey.value || 'approved';
-    isListsDropdownOpen.value = true;
-  } else {
-    isListsDropdownOpen.value = !isListsDropdownOpen.value;
-  }
-};
-
-const selectTicketList = (key) => {
-  selectedTicketListKey.value = key;
-  activeTab.value = key;
-  isListsDropdownOpen.value = false;
+// Switch category between Job Requests and Borrowing Requests
+const selectCategory = (cat) => {
+  if (selectedCategory.value === cat) return;
+  selectedCategory.value = cat;
   currentPage.value = 1;
   searchQuery.value = '';
-  selectedBorrowingFilter.value = 'pending_approval';
-  if (key === 'borrowing') {
+  selectedServiceFilter.value = '';
+  selectedEscalationFilter.value = 'all';
+
+  // Normalize active tab across categories
+  if (cat === 'job' && ['assigned', 'return'].includes(activeTab.value)) {
+    activeTab.value = 'pending';
+  } else if (cat === 'borrowing' && ['dispatched', 'active'].includes(activeTab.value)) {
+    activeTab.value = 'pending';
+  }
+};
+
+// Switch process stage tab
+const switchTab = (tab) => {
+  activeTab.value = tab;
+  currentPage.value = 1;
+  searchQuery.value = '';
+  selectedEscalationFilter.value = 'all';
+  if (selectedCategory.value === 'borrowing') {
     selectedServiceFilter.value = '';
   }
+  clearRouteQueryTicket();
 };
 
-const handleDocumentClick = (e) => {
-  if (dropdownContainerRef.value && !dropdownContainerRef.value.contains(e.target)) {
-    isListsDropdownOpen.value = false;
+// ======================= JOB REQUESTS COUNTS =======================
+const jobPendingCount = computed(() => {
+  const list = (queuesData.value.pending || []).filter(t => !t.is_borrowing && !isBorrowingService(t));
+  return isDirector.value ? list.filter(t => t.is_escalated_to_director).length : list.length;
+});
+const jobDelayedCount = computed(() => (queuesData.value.delayed || []).filter(t => !t.is_borrowing && !isBorrowingService(t)).length);
+const jobApprovedCount = computed(() => (queuesData.value.approved || []).filter(t => !t.is_borrowing && !isBorrowingService(t)).length);
+const jobDispatchedCount = computed(() => (queuesData.value.dispatched || []).filter(t => !t.is_borrowing && !isBorrowingService(t)).length);
+const jobActiveCount = computed(() => (queuesData.value.active || []).filter(t => !t.is_borrowing && !isBorrowingService(t)).length);
+const totalJobRequestsCount = computed(() => {
+  if (isPendingOnlyMode.value) {
+    return jobPendingCount.value + jobDelayedCount.value;
   }
-};
+  return jobPendingCount.value + jobDelayedCount.value + jobApprovedCount.value + jobDispatchedCount.value + jobActiveCount.value;
+});
 
-// Borrowing status helpers (Active statuses: Pending Pickups & Awaiting Return)
+const escalatedPendingCount = computed(() => {
+  return (queuesData.value.pending || []).filter(t => !t.is_borrowing && !isBorrowingService(t) && t.is_escalated_to_director).length;
+});
+
+// ======================= BORROWING REQUESTS COLLECTIONS & COUNTS =======================
+const borrowingPendingTickets = computed(() => {
+  const map = new Map();
+  (queuesData.value.borrowing || []).forEach(t => {
+    const s = String(t.status || t.borrowing_status || '').toLowerCase();
+    if (['pending_director', 'pending'].includes(s)) {
+      map.set(String(t.id || t.ticketId), t);
+    }
+  });
+  (queuesData.value.pending || []).forEach(t => {
+    if (t.is_borrowing || isBorrowingService(t)) {
+      map.set(String(t.id || t.ticketId), t);
+    }
+  });
+  return Array.from(map.values());
+});
+
+const borrowingDelayedTickets = computed(() => {
+  const map = new Map();
+  (queuesData.value.delayed || []).forEach(t => {
+    if (t.is_borrowing || isBorrowingService(t)) {
+      map.set(String(t.id || t.ticketId), t);
+    }
+  });
+  (queuesData.value.borrowing || []).forEach(t => {
+    const s = String(t.status || t.borrowing_status || '').toLowerCase();
+    if (['delayed', 'approval_delayed'].includes(s)) {
+      map.set(String(t.id || t.ticketId), t);
+    }
+  });
+  return Array.from(map.values());
+});
+
+const borrowingApprovedTickets = computed(() => {
+  const map = new Map();
+  (queuesData.value.borrowing || []).forEach(t => {
+    const s = String(t.status || t.borrowing_status || '').toLowerCase();
+    if (['approved_director', 'approved'].includes(s)) {
+      map.set(String(t.id || t.ticketId), t);
+    }
+  });
+  (queuesData.value.approved || []).forEach(t => {
+    if (t.is_borrowing || isBorrowingService(t)) {
+      map.set(String(t.id || t.ticketId), t);
+    }
+  });
+  return Array.from(map.values());
+});
+
+const borrowingAssignedTickets = computed(() => {
+  return (queuesData.value.borrowing || []).filter(t => {
+    const s = String(t.status || t.borrowing_status || '').toLowerCase();
+    return ['ready_for_pickup', 'inventory_assigned'].includes(s);
+  });
+});
+
+const borrowingReturnTickets = computed(() => {
+  return (queuesData.value.borrowing || []).filter(t => {
+    const s = String(t.status || t.borrowing_status || '').toLowerCase();
+    return ['picked_up', 'overdue'].includes(s);
+  });
+});
+
+const borrowingPendingCount = computed(() => borrowingPendingTickets.value.length);
+const borrowingDelayedCount = computed(() => borrowingDelayedTickets.value.length);
+const borrowingApprovedCount = computed(() => borrowingApprovedTickets.value.length);
+const borrowingAssignedCount = computed(() => borrowingAssignedTickets.value.length);
+const borrowingReturnCount = computed(() => borrowingReturnTickets.value.length);
+const totalBorrowingRequestsCount = computed(() => {
+  if (isPendingOnlyMode.value) {
+    return borrowingPendingCount.value + borrowingDelayedCount.value;
+  }
+  return borrowingPendingCount.value + borrowingDelayedCount.value + borrowingApprovedCount.value + borrowingAssignedCount.value + borrowingReturnCount.value;
+});
+
+// Borrowing status badge styling
 const borrowingStatusBadgeClass = (status) => {
   switch (String(status || '').toLowerCase()) {
     case 'pending_director':
@@ -2290,52 +2463,6 @@ const formatBorrowingStatus = (status) => {
   return String(status).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 };
 
-// Borrowing sub-filter state
-const selectedBorrowingFilter = ref('pending_approval'); // 'pending_approval' | 'approved' | 'awaiting_pickup' | 'awaiting_return'
-
-const borrowingActiveCount = computed(() => (queuesData.value.borrowing || []).length);
-
-const borrowingPendingApprovalCount = computed(() => {
-  return (queuesData.value.borrowing || []).filter(t => 
-    ['pending_director', 'pending'].includes(String(t.status || t.borrowing_status).toLowerCase())
-  ).length;
-});
-
-const borrowingApprovedCount = computed(() => {
-  return (queuesData.value.borrowing || []).filter(t => 
-    ['approved_director', 'approved'].includes(String(t.status || t.borrowing_status).toLowerCase())
-  ).length;
-});
-
-const borrowingAwaitingPickupCount = computed(() => {
-  return (queuesData.value.borrowing || []).filter(t => 
-    ['ready_for_pickup', 'inventory_assigned'].includes(String(t.status || t.borrowing_status).toLowerCase())
-  ).length;
-});
-
-const borrowingReturnsCount = computed(() => {
-  return (queuesData.value.borrowing || []).filter(t => 
-    ['picked_up', 'overdue'].includes(String(t.status || t.borrowing_status).toLowerCase())
-  ).length;
-});
-
-const borrowingEmptyMessage = computed(() => {
-  switch (selectedBorrowingFilter.value) {
-    case 'pending_approval':
-      return 'No borrowing requests currently pending approval.';
-    case 'approved':
-      return 'No approved borrowing requests awaiting inventory assignment.';
-    case 'awaiting_pickup':
-    case 'pickups':
-      return 'No borrowing requests awaiting pickup.';
-    case 'awaiting_return':
-    case 'returns':
-      return 'No active borrowing requests awaiting return.';
-    default:
-      return 'No borrowing requests matching this filter.';
-  }
-});
-
 // Collaboration helper: checks if ticket is a cross-unit collaboration
 const isCollabTicket = (ticket) => {
   if (!ticket) return false;
@@ -2348,42 +2475,6 @@ const isCollabTicket = (ticket) => {
   const s = String(ticket.service || ticket.service_type || ticket.title || '').toLowerCase();
   return s.includes('collab') || s.includes('joint');
 };
-
-// Queues data cache
-const queuesData = ref({
-  pending: [],
-  delayed: [],
-  approved: [],
-  dispatched: [],
-  active: [],
-  borrowing: [],
-});
-
-const isLoading = ref(false);
-const searchQuery = ref('');
-const selectedServiceFilter = ref('');
-const selectedEscalationFilter = ref('all'); // 'all' | 'escalated' | 'routine'
-const escalatedPendingCount = computed(() => queuesData.value.pending.filter(t => t.is_escalated_to_director).length);
-
-// Sub-tabs for Pending Approval & Approval Delayed (Job Requests vs Borrowing Requests)
-const pendingCategoryTab = ref('job'); // 'job' | 'borrowing'
-const showPendingSubTabs = computed(() => activeTab.value === 'pending' || activeTab.value === 'delayed');
-
-const setPendingCategoryTab = (cat) => {
-  pendingCategoryTab.value = cat;
-  currentPage.value = 1;
-  searchQuery.value = '';
-};
-
-const pendingJobRequestsCount = computed(() => {
-  const list = currentTabTickets.value;
-  return list.filter(t => !t.is_borrowing && !isBorrowingService(t)).length;
-});
-
-const pendingBorrowingRequestsCount = computed(() => {
-  const list = currentTabTickets.value;
-  return list.filter(t => t.is_borrowing || isBorrowingService(t)).length;
-});
 
 // Pagination state
 const currentPage = ref(1);
@@ -2428,36 +2519,70 @@ const liveWorkingDurations = ref({});
 let pollingInterval = null;
 let durationInterval = null;
 
-const activeTabCount = computed(() => queueCounts.value[activeTab.value] || 0);
-
 const activeTabLabel = computed(() => {
-  switch (activeTab.value) {
-    case 'pending': return isDirector.value ? 'Escalated for Executive Approval' : 'Pending Approval';
-    case 'delayed': return 'Approval Delayed';
-    case 'approved': return 'Approved (Awaiting Dispatch)';
-    case 'dispatched': return 'Approved (Dispatched)';
-    case 'active': return 'Dispatched & In Progress';
-    case 'borrowing': {
-      switch (selectedBorrowingFilter.value) {
-        case 'pending_approval': return 'Borrowing (Pending Approval)';
-        case 'approved': return 'Borrowing (Approved)';
-        case 'awaiting_pickup':
-        case 'pickups': return 'Borrowing (Awaiting Pickup)';
-        case 'awaiting_return':
-        case 'returns': return 'Borrowing (Awaiting Return)';
-        default: return 'Borrowing Requests';
-      }
+  if (selectedCategory.value === 'job') {
+    switch (activeTab.value) {
+      case 'pending': return isDirector.value ? 'Executive Approval Requests' : 'Approval Requests';
+      case 'delayed': return 'Approval Delays';
+      case 'approved': return 'Approved Requests';
+      case 'dispatched': return 'Dispatched Requests';
+      case 'active': return 'Work in Progress';
+      default: return 'Job Requests';
     }
-    default: return 'Tickets';
+  } else {
+    switch (activeTab.value) {
+      case 'pending': return 'Borrowing Approval Requests';
+      case 'delayed': return 'Borrowing Approval Delays';
+      case 'approved': return 'Approved Borrowing Requests';
+      case 'assigned': return 'Inventory Assigned (Waiting Pickup)';
+      case 'return': return 'Awaiting Return';
+      default: return 'Borrowing Requests';
+    }
   }
 });
 
 const currentTabTickets = computed(() => {
-  const list = queuesData.value[activeTab.value] || [];
-  if (isDirector.value && activeTab.value === 'pending') {
-    return list.filter(t => t.is_escalated_to_director);
+  if (selectedCategory.value === 'job') {
+    let list = [];
+    switch (activeTab.value) {
+      case 'pending':
+        list = (queuesData.value.pending || []).filter(t => !t.is_borrowing && !isBorrowingService(t));
+        if (isDirector.value) {
+          list = list.filter(t => t.is_escalated_to_director);
+        }
+        break;
+      case 'delayed':
+        list = (queuesData.value.delayed || []).filter(t => !t.is_borrowing && !isBorrowingService(t));
+        break;
+      case 'approved':
+        list = (queuesData.value.approved || []).filter(t => !t.is_borrowing && !isBorrowingService(t));
+        break;
+      case 'dispatched':
+        list = (queuesData.value.dispatched || []).filter(t => !t.is_borrowing && !isBorrowingService(t));
+        break;
+      case 'active':
+        list = (queuesData.value.active || []).filter(t => !t.is_borrowing && !isBorrowingService(t));
+        break;
+      default:
+        list = [];
+    }
+    return list;
+  } else {
+    switch (activeTab.value) {
+      case 'pending':
+        return borrowingPendingTickets.value;
+      case 'delayed':
+        return borrowingDelayedTickets.value;
+      case 'approved':
+        return borrowingApprovedTickets.value;
+      case 'assigned':
+        return borrowingAssignedTickets.value;
+      case 'return':
+        return borrowingReturnTickets.value;
+      default:
+        return [];
+    }
   }
-  return list;
 });
 
 const serviceCategories = computed(() => {
@@ -2474,18 +2599,11 @@ const serviceCategories = computed(() => {
 const filteredTickets = computed(() => {
   let list = currentTabTickets.value;
 
-  if (activeTab.value === 'pending' || activeTab.value === 'delayed') {
-    if (pendingCategoryTab.value === 'borrowing') {
-      list = list.filter(t => t.is_borrowing || isBorrowingService(t));
-    } else {
-      list = list.filter(t => !t.is_borrowing && !isBorrowingService(t));
-    }
-  }
-
-  if (activeTab.value === 'pending') {
+  // Escalation filter for Job Pending (when viewed by Unit Head)
+  if (selectedCategory.value === 'job' && activeTab.value === 'pending') {
     if (isDirector.value) {
       list = list.filter(t => t.is_escalated_to_director);
-    } else if (pendingCategoryTab.value !== 'borrowing' && selectedEscalationFilter.value !== 'all') {
+    } else if (selectedEscalationFilter.value !== 'all') {
       if (selectedEscalationFilter.value === 'escalated') {
         list = list.filter(t => t.is_escalated_to_director);
       } else if (selectedEscalationFilter.value === 'routine') {
@@ -2494,27 +2612,8 @@ const filteredTickets = computed(() => {
     }
   }
 
-  if (activeTab.value === 'borrowing') {
-    if (selectedBorrowingFilter.value === 'pending_approval') {
-      list = list.filter(t => 
-        ['pending_director', 'pending'].includes(String(t.status || t.borrowing_status).toLowerCase())
-      );
-    } else if (selectedBorrowingFilter.value === 'approved') {
-      list = list.filter(t => 
-        ['approved_director', 'approved'].includes(String(t.status || t.borrowing_status).toLowerCase())
-      );
-    } else if (selectedBorrowingFilter.value === 'awaiting_pickup' || selectedBorrowingFilter.value === 'pickups') {
-      list = list.filter(t => 
-        ['ready_for_pickup', 'inventory_assigned'].includes(String(t.status || t.borrowing_status).toLowerCase())
-      );
-    } else if (selectedBorrowingFilter.value === 'awaiting_return' || selectedBorrowingFilter.value === 'returns') {
-      list = list.filter(t => 
-        ['picked_up', 'overdue'].includes(String(t.status || t.borrowing_status).toLowerCase())
-      );
-    }
-  }
-
-  if (activeTab.value !== 'borrowing' && !(showPendingSubTabs.value && pendingCategoryTab.value === 'borrowing') && selectedServiceFilter.value) {
+  // Service filter (Job Requests only)
+  if (selectedCategory.value === 'job' && selectedServiceFilter.value) {
     const target = selectedServiceFilter.value.trim().toLowerCase();
     list = list.filter(t => {
       const s = (t.service || t.service_type || '').trim().toLowerCase();
@@ -2522,6 +2621,7 @@ const filteredTickets = computed(() => {
     });
   }
 
+  // Search query
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.toLowerCase().trim();
     list = list.filter(t => 
@@ -2561,19 +2661,6 @@ const paginationRange = computed(() => {
 const changePage = (page) => {
   if (page < 1 || page > totalPages.value) return;
   currentPage.value = page;
-};
-
-const switchTab = (tab) => {
-  activeTab.value = tab;
-  isListsDropdownOpen.value = false;
-  currentPage.value = 1;
-  searchQuery.value = '';
-  selectedEscalationFilter.value = 'all';
-  selectedBorrowingFilter.value = 'pending_approval';
-  if (tab === 'borrowing') {
-    selectedServiceFilter.value = '';
-  }
-  clearRouteQueryTicket();
 };
 
 const getInitials = (name) => {
@@ -2812,24 +2899,33 @@ const checkRouteQueryTicket = () => {
     handledRouteQueryTicketId = String(targetId);
     selectedTicketForModal.value = match;
 
-    if (queuesData.value.pending?.some(t => String(t.id) === String(match.id))) {
-      activeTab.value = 'pending';
-      pendingCategoryTab.value = (match.is_borrowing || isBorrowingService(match)) ? 'borrowing' : 'job';
-    } else if (queuesData.value.delayed?.some(t => String(t.id) === String(match.id))) {
-      activeTab.value = 'delayed';
-      pendingCategoryTab.value = (match.is_borrowing || isBorrowingService(match)) ? 'borrowing' : 'job';
-    } else if (queuesData.value.active?.some(t => String(t.id) === String(match.id))) {
-      activeTab.value = isPendingOnlyMode.value ? 'pending' : 'active';
-    } else if (queuesData.value.dispatched?.some(t => String(t.id) === String(match.id))) {
-      activeTab.value = isPendingOnlyMode.value ? 'pending' : 'dispatched';
-    } else if (queuesData.value.approved?.some(t => String(t.id) === String(match.id))) {
-      activeTab.value = isPendingOnlyMode.value ? 'pending' : 'approved';
-    } else if (queuesData.value.borrowing?.some(t => String(t.id) === String(match.id))) {
-      activeTab.value = isPendingOnlyMode.value ? 'pending' : 'borrowing';
-      if (isPendingOnlyMode.value) {
-        pendingCategoryTab.value = 'borrowing';
+    const isBorrowing = Boolean(match.is_borrowing || isBorrowingService(match));
+    if (isBorrowing) {
+      selectedCategory.value = 'borrowing';
+      if (borrowingPendingTickets.value.some(t => String(t.id) === String(match.id))) {
+        activeTab.value = 'pending';
+      } else if (borrowingDelayedTickets.value.some(t => String(t.id) === String(match.id))) {
+        activeTab.value = 'delayed';
+      } else if (borrowingApprovedTickets.value.some(t => String(t.id) === String(match.id))) {
+        activeTab.value = isPendingOnlyMode.value ? 'pending' : 'approved';
+      } else if (borrowingAssignedTickets.value.some(t => String(t.id) === String(match.id))) {
+        activeTab.value = isPendingOnlyMode.value ? 'pending' : 'assigned';
+      } else if (borrowingReturnTickets.value.some(t => String(t.id) === String(match.id))) {
+        activeTab.value = isPendingOnlyMode.value ? 'pending' : 'return';
       }
-      selectedTicketListKey.value = 'borrowing';
+    } else {
+      selectedCategory.value = 'job';
+      if (queuesData.value.pending?.some(t => String(t.id) === String(match.id))) {
+        activeTab.value = 'pending';
+      } else if (queuesData.value.delayed?.some(t => String(t.id) === String(match.id))) {
+        activeTab.value = 'delayed';
+      } else if (queuesData.value.active?.some(t => String(t.id) === String(match.id))) {
+        activeTab.value = isPendingOnlyMode.value ? 'pending' : 'active';
+      } else if (queuesData.value.dispatched?.some(t => String(t.id) === String(match.id))) {
+        activeTab.value = isPendingOnlyMode.value ? 'pending' : 'dispatched';
+      } else if (queuesData.value.approved?.some(t => String(t.id) === String(match.id))) {
+        activeTab.value = isPendingOnlyMode.value ? 'pending' : 'approved';
+      }
     }
 
     clearRouteQueryTicket();
@@ -2852,6 +2948,7 @@ const checkRouteQueryTicket = () => {
               queueCounts.value.pending = queuesData.value.pending.length;
             }
             activeTab.value = 'pending';
+            selectedCategory.value = (mapped.is_borrowing || isBorrowingService(mapped)) ? 'borrowing' : 'job';
           }
           clearRouteQueryTicket();
         } else {
@@ -2919,7 +3016,7 @@ const openDetailsModal = async (ticket) => {
 };
 
 const isApprovingBorrowingTicket = computed(() => {
-  return Boolean(ticketToApprove.value?.is_borrowing || isBorrowingService(ticketToApprove.value));
+  return selectedCategory.value === 'borrowing' || Boolean(ticketToApprove.value?.is_borrowing || isBorrowingService(ticketToApprove.value));
 });
 
 const initiateApproval = (ticket) => {
@@ -2932,7 +3029,8 @@ const initiateApproval = (ticket) => {
     return;
   }
   ticketToApprove.value = ticket;
-  isEmergencyApproval.value = isApprovingBorrowingTicket.value ? false : Boolean(ticket?.is_emergency || ticket?.urgency === 'Emergency' || ticket?.urgency === 'High');
+  const isBorrowing = selectedCategory.value === 'borrowing' || Boolean(ticket?.is_borrowing || isBorrowingService(ticket));
+  isEmergencyApproval.value = isBorrowing ? false : Boolean(ticket?.is_emergency || ticket?.urgency === 'Emergency' || ticket?.urgency === 'High');
   showConfirmModal.value = true;
 };
 
@@ -2980,16 +3078,22 @@ const handleTicketRecategorized = ({ ticketId, newService, reason, data }) => {
 
 const confirmApproval = async () => {
   if (ticketToApprove.value) {
-    const finalEmergency = isApprovingBorrowingTicket.value ? false : Boolean(isEmergencyApproval.value);
+    const isBorrowing = selectedCategory.value === 'borrowing' || Boolean(ticketToApprove.value?.is_borrowing || isBorrowingService(ticketToApprove.value));
+    const finalEmergency = isBorrowing ? false : Boolean(isEmergencyApproval.value);
     try {
-      await api.patch(`tickets/${ticketToApprove.value.id}/approve`, {
-        is_emergency: finalEmergency ? 1 : 0,
-      });
-      toast.success(`Approved ticket #${ticketToApprove.value.ticketId}${finalEmergency ? ' (Emergency Priority)' : ''}`);
+      if (isBorrowing) {
+        await directorApproveBorrowing(ticketToApprove.value.id || ticketToApprove.value.ticketId);
+        toast.success(`Approved borrowing request #${ticketToApprove.value.ticketId}`);
+      } else {
+        await api.patch(`tickets/${ticketToApprove.value.id}/approve`, {
+          is_emergency: finalEmergency ? 1 : 0,
+        });
+        toast.success(`Approved ticket #${ticketToApprove.value.ticketId}${finalEmergency ? ' (Emergency Priority)' : ''}`);
+      }
       closeConfirmModal();
       fetchAllQueues();
     } catch (error) {
-      toast.error('Failed to approve ticket');
+      toast.error('Failed to approve request');
     }
   }
 };
@@ -3001,13 +3105,19 @@ const openDeclineModal = (ticket) => {
 
 const confirmDecline = async () => {
   if (ticketToDecline.value && declineReasonInput.value.trim()) {
+    const isBorrowing = selectedCategory.value === 'borrowing' || Boolean(ticketToDecline.value?.is_borrowing || isBorrowingService(ticketToDecline.value));
     try {
-      await api.patch(`tickets/${ticketToDecline.value.id}/decline`, { decline_reason: declineReasonInput.value.trim() });
-      toast.error(`Declined ticket #${ticketToDecline.value.ticketId}`);
+      if (isBorrowing) {
+        await directorRejectBorrowing(ticketToDecline.value.id || ticketToDecline.value.ticketId, declineReasonInput.value.trim());
+        toast.error(`Declined borrowing request #${ticketToDecline.value.ticketId}`);
+      } else {
+        await api.patch(`tickets/${ticketToDecline.value.id}/decline`, { decline_reason: declineReasonInput.value.trim() });
+        toast.error(`Declined ticket #${ticketToDecline.value.ticketId}`);
+      }
       ticketToDecline.value = null;
       fetchAllQueues();
     } catch (error) {
-      toast.error('Failed to decline ticket');
+      toast.error('Failed to decline request');
     }
   }
 };
@@ -3201,13 +3311,11 @@ onMounted(() => {
   durationInterval = setInterval(updateLiveWorkingDurations, 60000);
   window.addEventListener('focus', handleFocusOrVisibility);
   document.addEventListener('visibilitychange', handleFocusOrVisibility);
-  document.addEventListener('click', handleDocumentClick);
 });
 
 onUnmounted(() => {
   window.removeEventListener('focus', handleFocusOrVisibility);
   document.removeEventListener('visibilitychange', handleFocusOrVisibility);
-  document.removeEventListener('click', handleDocumentClick);
   if (pollingInterval) clearInterval(pollingInterval);
   if (durationInterval) clearInterval(durationInterval);
 });
