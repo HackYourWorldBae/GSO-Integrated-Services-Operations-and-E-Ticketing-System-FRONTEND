@@ -113,7 +113,7 @@
               <!-- Overview Context Tag -->
               <div class="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-500 px-2">
                 <span class="inline-block w-2 h-2 rounded-full" :class="isLeau ? 'bg-amber-500' : 'bg-emerald-500'"></span>
-                <span>{{ currentUnit }} {{ selectedCategory === 'job' ? 'Job Services' : 'Equipment & Tools Borrowing' }}</span>
+                <span>{{ currentUnit }} {{ selectedCategory === 'job' ? 'Job Services' : (isLeau ? 'Plants Borrowing' : 'Equipment & Tools Borrowing') }}</span>
               </div>
             </div>
           </div>
@@ -455,7 +455,7 @@
             </div>
             <!-- Executive Status Badge (Job Requests on Pending tab for Director) -->
             <div v-else-if="selectedCategory === 'job' && activeTab === 'pending' && isDirector" class="inline-flex items-center px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold shrink-0">
-              <span>Escalated for Executive Approval</span>
+              <span>Requests for Director Approval</span>
             </div>
             <!-- Refresh -->
             <button
@@ -993,7 +993,7 @@
           <div v-else-if="paginatedTickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
             <p class="text-sm font-bold text-slate-600">No Tickets in {{ activeTabLabel }}</p>
             <p class="text-xs text-slate-400 mt-1">
-              {{ isDirector && activeTab === 'pending' ? 'No tickets currently escalated for Director approval.' : 'No matching records found.' }}
+              {{ emptyTabMessage }}
             </p>
           </div>
 
@@ -2271,6 +2271,15 @@ const queuesData = ref({
   borrowing: [],
 });
 
+const queueCounts = ref({
+  pending: 0,
+  delayed: 0,
+  approved: 0,
+  dispatched: 0,
+  active: 0,
+  borrowing: 0,
+});
+
 const isLoading = ref(false);
 const searchQuery = ref('');
 const selectedServiceFilter = ref('');
@@ -2403,17 +2412,41 @@ const borrowingApprovedTickets = computed(() => {
 });
 
 const borrowingAssignedTickets = computed(() => {
-  return (queuesData.value.borrowing || []).filter(t => {
+  const map = new Map();
+  (queuesData.value.borrowing || []).forEach(t => {
     const s = String(t.status || t.borrowing_status || '').toLowerCase();
-    return ['ready_for_pickup', 'inventory_assigned'].includes(s);
+    if (['ready_for_pickup', 'inventory_assigned'].includes(s)) {
+      map.set(String(t.id || t.ticketId), t);
+    }
   });
+  (queuesData.value.dispatched || []).forEach(t => {
+    if (t.is_borrowing || isBorrowingService(t)) {
+      const s = String(t.status || t.borrowing_status || '').toLowerCase();
+      if (['ready_for_pickup', 'inventory_assigned'].includes(s) || t.current_step == 4) {
+        map.set(String(t.id || t.ticketId), t);
+      }
+    }
+  });
+  return Array.from(map.values());
 });
 
 const borrowingReturnTickets = computed(() => {
-  return (queuesData.value.borrowing || []).filter(t => {
+  const map = new Map();
+  (queuesData.value.borrowing || []).forEach(t => {
     const s = String(t.status || t.borrowing_status || '').toLowerCase();
-    return ['picked_up', 'overdue'].includes(s);
+    if (['picked_up', 'overdue'].includes(s)) {
+      map.set(String(t.id || t.ticketId), t);
+    }
   });
+  (queuesData.value.active || []).forEach(t => {
+    if (t.is_borrowing || isBorrowingService(t)) {
+      const s = String(t.status || t.borrowing_status || '').toLowerCase();
+      if (['picked_up', 'overdue'].includes(s) || t.current_step != 4) {
+        map.set(String(t.id || t.ticketId), t);
+      }
+    }
+  });
+  return Array.from(map.values());
 });
 
 const borrowingPendingCount = computed(() => borrowingPendingTickets.value.length);
@@ -2522,7 +2555,7 @@ let durationInterval = null;
 const activeTabLabel = computed(() => {
   if (selectedCategory.value === 'job') {
     switch (activeTab.value) {
-      case 'pending': return isDirector.value ? 'Executive Approval Requests' : 'Approval Requests';
+      case 'pending': return isDirector.value ? 'Requests for Director Approval' : 'Approval Requests';
       case 'delayed': return 'Approval Delays';
       case 'approved': return 'Approved Requests';
       case 'dispatched': return 'Dispatched Requests';
@@ -2531,13 +2564,31 @@ const activeTabLabel = computed(() => {
     }
   } else {
     switch (activeTab.value) {
-      case 'pending': return 'Borrowing Approval Requests';
+      case 'pending': return isDirector.value ? 'Borrowing Requests for Director Approval' : 'Borrowing Approval Requests';
       case 'delayed': return 'Borrowing Approval Delays';
       case 'approved': return 'Approved Borrowing Requests';
       case 'assigned': return 'Inventory Assigned (Waiting Pickup)';
       case 'return': return 'Awaiting Return';
       default: return 'Borrowing Requests';
     }
+  }
+});
+
+const emptyTabMessage = computed(() => {
+  if (selectedCategory.value === 'job') {
+    if (activeTab.value === 'pending') {
+      return isDirector.value
+        ? 'No job tickets currently awaiting Director approval.'
+        : 'No pending job requests matching current filters.';
+    }
+    return `No ${activeTabLabel.value.toLowerCase()} matching current filters.`;
+  } else {
+    if (activeTab.value === 'pending') {
+      return isDirector.value
+        ? 'No borrowing requests currently awaiting Director approval.'
+        : 'No pending borrowing requests matching current filters.';
+    }
+    return `No borrowing records in ${activeTabLabel.value.toLowerCase()}.`;
   }
 });
 
@@ -2800,9 +2851,7 @@ const fetchAllQueues = async (isManual = false) => {
 
     if (pendingRes.status === 'fulfilled' && pendingRes.value.data?.data?.tickets) {
       const allPending = pendingRes.value.data.data.tickets.map(mapTicket);
-      queuesData.value.pending = isDirector.value
-        ? allPending.filter(t => t.is_escalated_to_director)
-        : allPending;
+      queuesData.value.pending = allPending;
       queueCounts.value.pending = queuesData.value.pending.length;
     }
 
