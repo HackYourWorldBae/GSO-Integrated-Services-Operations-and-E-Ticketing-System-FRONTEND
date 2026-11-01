@@ -343,6 +343,11 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
     summary: `Review new service requests for ${U}. Check photos and details, then approve, decline, delay, or forward them to the Director.`,
     sections: [
       {
+        title: 'Request Type Switcher & Toolbar',
+        desc: 'Top-level category selector and process stage navigation',
+        details: 'Switch between Job Requests and Borrowing Requests at the top of the toolbar, then navigate through the distinct workflow process tabs for each category.'
+      },
+      {
         title: 'Filter & Search Toolbar',
         desc: 'Keyword search and service filtering',
         details: 'Search by Ticket Ref, Requester name, College/Building, or problem particulars. Filter by service category dropdown, and narrow by All, Escalated, or Routine urgency badges.'
@@ -365,16 +370,28 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
     ],
     tabs: [
       {
-        name: 'Pending Approval',
+        name: 'Job Requests: Approval Requests',
         badge: 'Default Queue',
-        desc: 'Active queue of newly filed tickets waiting for initial administrative assessment.',
-        criteria: 'Tickets filed by requesters enter here immediately upon digital submission.'
+        desc: 'Active queue of newly filed job tickets waiting for initial administrative assessment.',
+        criteria: 'Job requests filed by requesters enter here immediately upon digital submission.'
       },
       {
-        name: 'Approval Delayed',
+        name: 'Job Requests: Approval Delays',
         badge: 'On Hold',
         desc: 'Tickets temporarily held for material procurement, budget clearance, ocular inspection, or client specs.',
         criteria: 'Remains in this tab until explicitly approved or declined. If escalated to Director, carries a Director Review tag.'
+      },
+      {
+        name: isLeau ? 'Plants Borrowing: Approval Requests' : 'Borrowing Requests: Approval Requests',
+        badge: 'Borrowing Queue',
+        desc: isLeau ? 'Newly submitted plant borrowing requests awaiting review.' : 'Newly submitted tools and equipment borrowing requests awaiting review.',
+        criteria: 'Borrowing requests enter here upon submission.'
+      },
+      {
+        name: isLeau ? 'Plants Borrowing: Approval Delays' : 'Borrowing Requests: Approval Delays',
+        badge: 'On Hold',
+        desc: 'Borrowing requests on temporary hold for event schedule confirmation or logistics.',
+        criteria: 'Remains in this tab until approved or declined.'
       }
     ],
     buttons: [
@@ -463,12 +480,13 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '[data-tour="admin-page-header"]', title: '1. Pending Approvals Queue', desc: `Review newly submitted ${U} service tickets awaiting administrative verification.` },
-      { element: '[data-tour="director-tab-pending"]', title: '2. Pending Queue Tab', desc: 'View newly submitted requests awaiting administrative review and verification.' },
-      { element: '[data-tour="director-subtab-job"], [data-tour="director-subtab-borrowing"]', title: '3. Job vs Borrowing Sub-tabs', desc: 'Switch between Job Requests and Borrowing Requests within the Pending queue.' },
-      { element: '[data-tour="director-search-input"]', title: '4. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
-      { element: '[data-tour="director-btn-fullinfo"]', title: '5. Full Scope & Photos Inspection', desc: 'Click "View Details" / "Full Info" to inspect problem particulars, client contacts, and uploaded photos before deciding.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"], [data-tour="director-btn-decline"]', title: '6. Decision Controls', desc: 'Approve to proceed to dispatch, Delay with justification, or Decline invalid requests.' },
-      { element: '[data-tour="director-tab-delayed"]', title: '7. Approval Delayed Tab', desc: 'View tickets on hold for procurement, budget clearance, or inspection until explicitly approved or declined.' }
+      { element: '[data-tour="director-type-job"]', title: '2. Job Requests Switcher', desc: 'Select Job Requests to review and process facilities repairs and routine service tasks.' },
+      { element: '[data-tour="director-type-borrowing"]', title: '3. Borrowing Requests Switcher', desc: isLeau ? 'Select Borrowing Requests to review and process nursery plant borrowing.' : 'Select Borrowing Requests to review and process tools and equipment borrowing.' },
+      { element: '[data-tour="director-tab-pending"]', title: '4. Approval Requests Tab', desc: 'View newly submitted requests awaiting administrative review and verification.' },
+      { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets on hold for procurement, budget clearance, or inspection until explicitly approved or declined.' },
+      { element: '[data-tour="director-search-input"]', title: '6. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
+      { element: '[data-tour="director-btn-fullinfo"]', title: '7. Full Scope & Photos Inspection', desc: 'Click "View Details" / "Full Info" to inspect problem particulars, client contacts, and uploaded photos before deciding.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"], [data-tour="director-btn-decline"]', title: '8. Decision Controls', desc: 'Approve to proceed to dispatch, Delay with justification, or Decline invalid requests.' }
     ]
   };
 };
@@ -3015,51 +3033,45 @@ export const pageGuidesCatalog = {
       },
       {
         id: 'director-fgmu',
-        name: 'FGMU Ticket Overview & Escalations',
+        name: 'FGMU Ticket Overview & Approvals',
         route: '/director/fgmu/queues',
         icon: '🛠️',
-        manualSection: 'Section G5: FGMU Ticket Overview',
+        manualSection: 'Section G4: FGMU Ticket Overview',
         roleBadge: 'Director Console',
-        summary: 'Review FGMU requests and approve major repairs or high-cost jobs escalated by the unit head.',
+        summary: 'Review FGMU facilities requests and equipment borrowing. Switch between Job Requests and Borrowing Requests on top, with dedicated workflow process tabs for each category.',
         sections: [
           {
-            title: 'Stage 1 - Escalated Approval Tab',
-            desc: 'Heavy requests awaiting executive clearance',
-            details: 'Displays tickets escalated by the FGMU Head with Director Review tags. Clicking View Details reveals the justification, who escalated it, and date.'
+            title: 'Request Type Switcher',
+            desc: 'Job Requests vs Tools & Equipment Borrowing',
+            details: 'Use the top-level switcher to toggle between standard facilities Job Requests and Tools & Equipment Borrowing requests.'
           },
           {
-            title: 'Approval Delayed Tab',
-            desc: 'Tickets held under Director review',
-            details: 'Lists tickets delayed by the Director (tagged Flagged by GSO Director) with delay reasons and notes.'
+            title: 'Job Requests Workflow (5 Stages)',
+            desc: 'Requests for Director Approval, Approval Delays, Approved, Dispatched, and Work in Progress',
+            details: 'Follow facilities maintenance from initial executive clearance through delayed reviews, technician dispatch, and live working durations with timeline extension controls.'
           },
           {
-            title: 'Stage 2 - Approved (Ready)',
-            desc: 'Tickets cleared for worker assignment',
-            details: 'Read-only view of tickets approved by the Director or unit, awaiting FGMU Admin worker assignment.'
+            title: 'Borrowing Requests Workflow (5 Stages)',
+            desc: 'Approval Requests, Approval Delays, Approved, Inventory Assigned, and Awaiting Return',
+            details: 'Manage equipment borrowing lifecycle from Director approval through inventory allocation, pickup prep, and safe campus return.'
           },
           {
-            title: 'Stage 3 - Scheduled',
-            desc: 'Dispatched jobs awaiting implementation date',
-            details: 'View assigned personnel, scheduled work dates, and official Job Order document.'
-          },
-          {
-            title: 'Stage 4 - Borrowing',
-            desc: 'Equipment borrowing requests',
-            details: 'Filter by Pending Approval, Approved, Awaiting Pickup, and Awaiting Return.'
-          },
-          {
-            title: 'Stage 5 - In Progress',
-            desc: 'Active jobs with live elapsed working hours',
-            details: 'Monitor active execution and grant timeline extensions if unforeseen delays occur.'
+            title: 'Decision & Executive Controls',
+            desc: 'Approve, Delay, Decline, Return to Unit, or Extend',
+            details: 'Grant executive approval (with Emergency priority), delay with standardized presets, return to FGMU Head with notes, decline ineligible requests, or grant working-day extensions for active jobs.'
           }
         ],
         tabs: [
-          { name: 'Escalated Approval', badge: 'Action Required', desc: 'Heavy requests sent by FGMU Head requiring executive budget or structural approval.' },
-          { name: 'Approval Delayed', badge: 'Held by Director', desc: 'Tickets delayed by Director pending ocular inspections or budget.' },
-          { name: 'Approved (Ready)', badge: 'Awaiting Workers', desc: 'Approved tickets ready for FGMU staff assignment.' },
-          { name: 'Scheduled', badge: 'Upcoming', desc: 'Tickets scheduled with assigned workers.' },
-          { name: 'Borrowing', badge: 'Equipment Borrowing', desc: 'Tools and equipment borrowing requests.' },
-          { name: 'In Progress', badge: 'Active Site Work', desc: 'Jobs actively being serviced on campus.' }
+          { name: 'Job: Requests for Director Approval', badge: 'Action Required', desc: 'Facilities repair requests escalated by FGMU Head requiring executive budget or structural approval.' },
+          { name: 'Job: Approval Delays', badge: 'Held by Director', desc: 'Tickets delayed by Director pending ocular inspections, materials, or budget.' },
+          { name: 'Job: Approved', badge: 'Awaiting Workers', desc: 'Approved tickets ready for FGMU admin technician assignment.' },
+          { name: 'Job: Dispatched', badge: 'Scheduled', desc: 'Tickets scheduled with assigned workers, implementation dates, and official Job Orders.' },
+          { name: 'Job: Work in Progress', badge: 'Active Site Work', desc: 'Jobs actively being serviced on campus with live institutional working hour tracking.' },
+          { name: 'Borrowing: Approval Requests', badge: 'Action Required', desc: 'Tools and equipment borrowing requests awaiting Director approval.' },
+          { name: 'Borrowing: Approval Delays', badge: 'Held', desc: 'Equipment borrowing requests temporarily on hold.' },
+          { name: 'Borrowing: Approved', badge: 'Prepping', desc: 'Approved borrowing requests ready for inventory allocation.' },
+          { name: 'Borrowing: Inventory Assigned', badge: 'Waiting Pickup', desc: 'Items prepped and ready for borrower pickup at the unit office.' },
+          { name: 'Borrowing: Awaiting Return', badge: 'In Use', desc: 'Equipment currently in use by borrower on campus, tracked until checked back in.' }
         ],
         buttons: [
           {
@@ -3100,10 +3112,20 @@ export const pageGuidesCatalog = {
           {
             title: 'How the Director Approves an Escalated Project',
             steps: [
-              'Click the "Escalated Approval" tab in the FGMU Overview.',
-              'Click "View Details" to review the FGMU Head\'s justification and attached scope photos.',
+              'Ensure "Job Requests" is selected on the top request type switcher.',
+              'Click the "Approval Requests" tab (badge: Requests for Director Approval).',
+              'Click "View Details" / "Full Info" to review the FGMU Head\'s justification and attached scope photos.',
               'Click "Approve Request" (mark Emergency if priority preemption is needed).',
-              'Click "Confirm Approval". The ticket transitions to Approved (Ready) for FGMU staff assignment.'
+              'Click "Confirm Approval". The ticket transitions to Approved for FGMU staff assignment.'
+            ]
+          },
+          {
+            title: 'How the Director Approves an Equipment Borrowing Request',
+            steps: [
+              'Click "Borrowing Requests" on the top request type switcher.',
+              'Click the "Approval Requests" tab.',
+              'Click "Full Info" to review requested equipment, quantity, date needed, and return schedule.',
+              'Click "Approve" and confirm. The request moves to Approved for inventory preparation.'
             ]
           },
           {
@@ -3111,22 +3133,32 @@ export const pageGuidesCatalog = {
             steps: [
               'Inside Full Info, click "Return to Unit".',
               'Add instructions (e.g., "Approved to proceed at unit level using current supplies").',
-              'Click "Confirm Return to Unit".'
+              'Click "Confirm Return to Unit". The ticket returns to the FGMU Admin queue.'
+            ]
+          },
+          {
+            title: 'How to Grant Timeline Extension for Active Jobs',
+            steps: [
+              'Under Job Requests, click the "Work in Progress" tab.',
+              'Click "Extend" on the active ticket row or inside Full Info.',
+              'Select working days (+1, +2, +3, or +5 days) and the unforeseen delay reason.',
+              'Click "Grant Extension". The target completion date updates automatically, skipping weekends and holidays.'
             ]
           }
         ],
         tourSteps: [
-      { element: '[data-tour="admin-page-header"]', title: '1. FGMU Executive Overview', desc: 'Review facilities projects needing executive approval.' },
-      { element: '[data-tour="director-tab-pending"]', title: '2. Pending Escalations Queue', desc: 'Review facilities repairs needing executive authorization.' },
-      { element: '[data-tour="director-tab-delayed"]', title: '3. Approval Delayed', desc: 'View tickets held pending materials, budget, or inspection.' },
-      { element: '[data-tour="director-tab-approved"]', title: '4. Approved (Ready)', desc: 'See approved tickets awaiting worker assignment.' },
-      { element: '[data-tour="director-tab-dispatched"]', title: '5. Scheduled / Dispatched', desc: 'Check tickets with assigned workers and work dates.' },
-      { element: '[data-tour="director-tab-active"]', title: '6. In Progress', desc: 'Monitor active jobs on campus.' },
-      { element: '[data-tour="director-tab-borrowing"]', title: '7. Borrowing', desc: 'Review equipment and tool borrowing requests.' },
-      { element: '[data-tour="director-search-input"]', title: '8. Search Escalated Tickets', desc: 'Filter escalated tickets by reference ID, requester, or building.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '9. Executive Authorization', desc: 'Approve repairs, delay with a reason, or return for scope changes.' },
-      { element: '[data-tour="director-btn-fullinfo"]', title: '10. Detailed Scope Inspection', desc: 'View full repair details, requester contacts, and uploaded photos.' }
-    ]
+          { element: '[data-tour="admin-page-header"]', title: '1. FGMU Executive Overview', desc: 'Review facilities maintenance, structural repairs, and equipment borrowing.' },
+          { element: '[data-tour="director-type-job"]', title: '2. Job Requests Switcher', desc: 'Toggle to review and manage facilities maintenance, repairs, and infrastructure work orders.' },
+          { element: '[data-tour="director-type-borrowing"]', title: '3. Equipment Borrowing Switcher', desc: 'Toggle to review tools and equipment borrowing requests.' },
+          { element: '[data-tour="director-tab-pending"]', title: '4. Requests for Director Approval', desc: 'Review facilities repairs needing executive authorization and budget clearance.' },
+          { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets held pending materials, budget clearance, or ocular inspection.' },
+          { element: '[data-tour="director-tab-approved"]', title: '6. Approved Requests', desc: 'See approved tickets ready for FGMU technician and staff assignment.' },
+          { element: '[data-tour="director-tab-dispatched"]', title: '7. Dispatched Requests', desc: 'Check tickets with assigned workers, scheduled implementation dates, and generated Job Orders.' },
+          { element: '[data-tour="director-tab-active"]', title: '8. Work in Progress', desc: 'Monitor active jobs on campus with live elapsed working durations and grant extensions.' },
+          { element: '[data-tour="director-search-input"]', title: '9. Search & Filter', desc: 'Filter tickets by reference ID, requester name, building, room, or issue description.' },
+          { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '10. Executive Decision Controls', desc: 'Approve repairs, delay with justification presets, or return to unit head.' },
+          { element: '[data-tour="director-btn-fullinfo"]', title: '11. Detailed Scope Inspection', desc: 'View full repair details, requester contacts, building locations, and uploaded photos.' }
+        ]
       },
       {
         id: 'director-leau-analytics',
@@ -3171,33 +3203,42 @@ export const pageGuidesCatalog = {
         name: 'LEAU Ticket Overview & Plant Approvals',
         route: '/director/leau/queues',
         icon: '🌿',
-        manualSection: 'Section G6: LEAU Ticket Overview',
+        manualSection: 'Section G5: LEAU Ticket Overview',
         roleBadge: 'Director Console',
-        summary: 'Review LEAU requests and approve large landscaping, tree trimming, or bulk plant borrowing projects.',
+        summary: 'Review LEAU groundskeeping requests and nursery plant borrowing. Switch between Job Requests and Plants Borrowing on top, with dedicated workflow process tabs for each category.',
         sections: [
           {
-            title: 'Stage 1 - Escalated Approval Tab',
-            desc: 'Major landscaping and bulk plant borrowing escalations',
-            details: 'Examine justification notes, plant quantities requested, event venues, and attached documents.'
+            title: 'Request Type Switcher',
+            desc: 'Job Requests vs LEAU Plants Borrowing',
+            details: 'Use the top-level switcher to toggle between campus groundskeeping Job Requests and nursery Plants Borrowing for university events.'
           },
           {
-            title: 'Approval Delayed Tab',
-            desc: 'Delayed environmental projects',
-            details: 'Delayed tickets held pending vehicle/equipment inspections or bulk procurement cycles.'
+            title: 'Job Requests Workflow (5 Stages)',
+            desc: 'Requests for Director Approval, Approval Delays, Approved, Dispatched, and Work in Progress',
+            details: 'Track landscaping, lawn mowing, and tree trimming from executive clearance through staff dispatch and active site execution.'
           },
           {
-            title: 'Stages 2 through 5 (Ready, Scheduled, Borrowing, In Progress)',
-            desc: 'Full operational visibility',
-            details: 'Inspect approved plant borrowing, scheduled lawn mowing, and active groundskeeping dispatches.'
+            title: 'Plants Borrowing Workflow (5 Stages)',
+            desc: 'Approval Requests, Approval Delays, Approved, Inventory Assigned, and Awaiting Return',
+            details: 'Supervise university ceremonial plant allocations from Director approval through nursery allocation, event pickup, and return inspection.'
+          },
+          {
+            title: 'Decision & Executive Controls',
+            desc: 'Approve, Delay, Decline, Return to Unit, or Extend',
+            details: 'Authorize plant borrowing, delay pending vehicle/equipment checks, return to LEAU Head with directives, or grant timeline extensions.'
           }
         ],
         tabs: [
-          { name: 'Escalated Approval', badge: 'Action Required', desc: 'Major landscaping and ceremonial plant requests sent to the Director.' },
-          { name: 'Approval Delayed', badge: 'Held', desc: 'Tickets delayed pending inspection or materials.' },
-          { name: 'Approved (Ready)', badge: 'Awaiting Staff', desc: 'Approved tickets ready for LEAU staff assignment.' },
-          { name: 'Scheduled', badge: 'Upcoming', desc: 'Scheduled grounds visits.' },
-          { name: 'Borrowing', badge: 'Plant Borrowing', desc: 'Nursery plant borrowing for ceremonies and exhibits.' },
-          { name: 'In Progress', badge: 'Active Site Work', desc: 'Ongoing grounds and beautification work.' }
+          { name: 'Job: Requests for Director Approval', badge: 'Action Required', desc: 'Major landscaping and tree trimming requests needing executive approval.' },
+          { name: 'Job: Approval Delays', badge: 'Held', desc: 'Tickets delayed pending weather clearance, equipment checks, or materials.' },
+          { name: 'Job: Approved', badge: 'Awaiting Staff', desc: 'Approved tickets ready for LEAU grounds staff assignment.' },
+          { name: 'Job: Dispatched', badge: 'Scheduled', desc: 'Scheduled grounds visits with assigned personnel and implementation dates.' },
+          { name: 'Job: Work in Progress', badge: 'Active Site Work', desc: 'Active groundskeeping and campus beautification work in progress.' },
+          { name: 'Plants Borrowing: Approval Requests', badge: 'Action Required', desc: 'Nursery plant borrowing for ceremonies and exhibits awaiting Director approval.' },
+          { name: 'Plants Borrowing: Approval Delays', badge: 'Held', desc: 'Plant borrowing requests temporarily on hold.' },
+          { name: 'Plants Borrowing: Approved', badge: 'Prepping', desc: 'Approved requests cleared for nursery staff pot and plant preparation.' },
+          { name: 'Plants Borrowing: Inventory Assigned', badge: 'Waiting Pickup', desc: 'Selected plants prepped and waiting for borrower pickup at the LEAU nursery.' },
+          { name: 'Plants Borrowing: Awaiting Return', badge: 'In Use', desc: 'Plants currently placed at event venues, tracked until safely returned.' }
         ],
         buttons: [
           {
@@ -3229,24 +3270,44 @@ export const pageGuidesCatalog = {
           {
             title: 'How to Authorize Major Plant Borrowing for Ceremonies',
             steps: [
-              'Click the "Escalated Approval" tab in the LEAU Overview.',
-              'Click "View Details" to check requested plant quantities, venue, and return dates.',
-              'Click "Approve Request" and confirm. The ticket moves to Approved (Ready) for nursery staff to reserve inventory.'
+              'Click "Plants Borrowing" on the top request type switcher.',
+              'Click the "Approval Requests" tab in the LEAU Overview.',
+              'Click "View Details" / "Full Info" to check requested plant varieties, quantities, venue, and return dates.',
+              'Click "Approve Request" and confirm. The ticket moves to Approved for nursery staff to allocate inventory.'
+            ]
+          },
+          {
+            title: 'How the Director Approves Landscaping Job Orders',
+            steps: [
+              'Ensure "Job Requests" is selected on the top request type switcher.',
+              'Click the "Approval Requests" tab (badge: Requests for Director Approval).',
+              'Inspect groundskeeping particulars, tree trimming hazard assessments, and scope photos.',
+              'Click "Approve Request" (mark Emergency if fallen trees or severe storm hazards exist).',
+              'Click "Confirm Approval".'
+            ]
+          },
+          {
+            title: 'How to Return a Request to the Unit Head',
+            steps: [
+              'Inside Full Info, click "Return to Unit".',
+              'Add instructions (e.g., "Approved for local trimming by unit personnel").',
+              'Click "Confirm Return to Unit". The ticket returns to the LEAU Admin queue.'
             ]
           }
         ],
         tourSteps: [
-      { element: '[data-tour="admin-page-header"]', title: '1. Landscape & Plant Authorizations', desc: 'Review plant borrowing requests and campus beautification projects.' },
-      { element: '[data-tour="director-tab-borrowing"]', title: '2. Borrowing (Plants)', desc: 'Review nursery plant borrowing for ceremonies and exhibits.' },
-      { element: '[data-tour="director-tab-pending"]', title: '3. Pending Escalations', desc: 'Review landscaping requests needing executive authorization.' },
-      { element: '[data-tour="director-tab-delayed"]', title: '4. Approval Delayed', desc: 'View tickets held pending materials, budget, or inspection.' },
-      { element: '[data-tour="director-tab-approved"]', title: '5. Approved (Ready)', desc: 'See approved tickets awaiting staff assignment.' },
-      { element: '[data-tour="director-tab-dispatched"]', title: '6. Scheduled / Dispatched', desc: 'Check tickets with assigned workers and work dates.' },
-      { element: '[data-tour="director-tab-active"]', title: '7. In Progress', desc: 'Monitor active grounds and beautification work.' },
-      { element: '[data-tour="director-search-input"]', title: '8. Search Landscape Requests', desc: 'Search requests by event title, organizer, or venue.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '9. Authorize Plant Borrowing', desc: 'Approve plant borrowing allocations for university ceremonies and events.' },
-      { element: '[data-tour="director-btn-fullinfo"]', title: '10. Review Event Particulars', desc: 'View event details, return schedules, and handling instructions.' }
-    ]
+          { element: '[data-tour="admin-page-header"]', title: '1. Landscape & Plant Authorizations', desc: 'Review groundskeeping work orders and university ceremony plant borrowing.' },
+          { element: '[data-tour="director-type-job"]', title: '2. Job Requests Switcher', desc: 'Toggle to review and manage campus groundskeeping, lawn care, and tree trimming.' },
+          { element: '[data-tour="director-type-borrowing"]', title: '3. Plants Borrowing Switcher', desc: 'Toggle to review nursery plant borrowing requests for university ceremonies and exhibits.' },
+          { element: '[data-tour="director-tab-pending"]', title: '4. Requests for Director Approval', desc: 'Review landscaping and environmental requests needing executive authorization.' },
+          { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets held pending weather clearance, equipment checks, or materials.' },
+          { element: '[data-tour="director-tab-approved"]', title: '6. Approved Requests', desc: 'See approved tickets ready for LEAU grounds staff assignment.' },
+          { element: '[data-tour="director-tab-dispatched"]', title: '7. Dispatched Requests', desc: 'Check scheduled grounds visits with assigned personnel and implementation dates.' },
+          { element: '[data-tour="director-tab-active"]', title: '8. Work in Progress', desc: 'Monitor active groundskeeping work on campus with live elapsed working durations.' },
+          { element: '[data-tour="director-search-input"]', title: '9. Search & Filter', desc: 'Search requests by ticket ID, event title, organizer, or campus location.' },
+          { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '10. Executive Decision Controls', desc: 'Authorize plant borrowing, approve grounds work, or delay with justification presets.' },
+          { element: '[data-tour="director-btn-fullinfo"]', title: '11. Detailed Scope Inspection', desc: 'View full event details, requested plant quantities, schedules, and attached documents.' }
+        ]
       },
       {
         id: 'director-ssu',
