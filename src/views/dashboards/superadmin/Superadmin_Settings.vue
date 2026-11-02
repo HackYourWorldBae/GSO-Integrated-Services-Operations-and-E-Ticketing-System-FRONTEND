@@ -177,10 +177,29 @@
                       <span v-if="form.isMfaEnabled" class="px-2 py-0.5 bg-emerald-200/80 text-emerald-900 text-[10px] font-black uppercase tracking-wider rounded-md">Enabled</span>
                       <span v-else class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[10px] font-bold uppercase tracking-wider rounded-md">Off</span>
                     </div>
-                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                      <input type="checkbox" v-model="form.isMfaEnabled" class="sr-only peer" />
-                      <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                    </label>
+                    <button
+                      type="button"
+                      role="switch"
+                      :aria-checked="form.isMfaEnabled"
+                      :disabled="isInitiatingMfa"
+                      @click="handleToggleMfa"
+                      class="relative inline-flex items-center cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed group focus:outline-none"
+                    >
+                      <div
+                        class="w-11 h-6 rounded-full transition-colors relative"
+                        :class="form.isMfaEnabled ? 'bg-emerald-600' : 'bg-slate-300 group-hover:bg-slate-400'"
+                      >
+                        <span
+                          class="absolute top-[2px] left-[2px] bg-white border border-slate-300 rounded-full h-5 w-5 transition-transform flex items-center justify-center shadow-xs"
+                          :class="form.isMfaEnabled ? 'translate-x-5 border-emerald-600' : 'translate-x-0'"
+                        >
+                          <svg v-if="isInitiatingMfa" class="animate-spin h-3 w-3 text-emerald-600" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </span>
+                      </div>
+                    </button>
                   </div>
                   <p class="text-xs leading-relaxed font-medium" :class="form.isMfaEnabled ? 'text-emerald-800/80' : 'text-slate-500'">
                     When on, signing in needs both your password and a 6-digit code sent to <span class="font-bold">{{ form.email || 'your email' }}</span>.
@@ -500,6 +519,30 @@
             </button>
           </div>
         </div>
+
+        <!-- 2FA Setup OTP Verification Modal -->
+        <MfaSetupModal
+          :isOpen="isMfaModalOpen"
+          :maskedEmail="mfaMaskedEmail"
+          :tempToken="mfaSetupToken"
+          :expiresIn="mfaExpiresIn"
+          @close="isMfaModalOpen = false"
+          @verified="handleMfaVerified"
+          @token-updated="mfaSetupToken = $event"
+        />
+
+        <!-- Disable 2FA Confirmation Modal -->
+        <ConfirmModal
+          :isOpen="isDisableMfaModalOpen"
+          title="Disable Two-Factor Authentication"
+          message="Are you sure you want to turn off Two-Factor Authentication? Your account will only be protected by your password when logging in."
+          confirmText="Disable 2FA"
+          cancelText="Keep Enabled"
+          type="warning"
+          :isLoading="isDisablingMfa"
+          @confirm="handleConfirmDisableMfa"
+          @cancel="isDisableMfaModalOpen = false"
+        />
       </div>
     </template>
   </MainLayout>
@@ -511,9 +554,12 @@ import { useAuthStore } from '@/stores/auth';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import api from '@/api/client';
 import { getResendConfig, updateResendConfig, testResendEmail } from '@/api/settings';
+import { send2faSetupOtp, disable2fa } from '@/api/auth';
 import { toast } from 'vue3-toastify';
 import Swal from 'sweetalert2';
 import { STANDARD_NAME_EXTENSIONS } from '@/constants/nameExtensions';
+import MfaSetupModal from '@/components/common/MfaSetupModal.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 const authStore = useAuthStore();
 const avatarInputRef = ref(null);
@@ -536,6 +582,75 @@ const showOldPassword = ref(false);
 const showNewPassword = ref(false);
 const showConfirmPassword = ref(false);
 const isSaving = ref(false);
+
+// 2FA Setup & Security Controls
+const isMfaModalOpen        = ref(false);
+const mfaSetupToken         = ref('');
+const mfaMaskedEmail        = ref('');
+const mfaExpiresIn          = ref(600);
+const isInitiatingMfa       = ref(false);
+const isDisableMfaModalOpen = ref(false);
+const isDisablingMfa        = ref(false);
+
+const handleToggleMfa = async () => {
+  if (isInitiatingMfa.value || isDisablingMfa.value) return;
+
+  if (form.value.isMfaEnabled) {
+    isDisableMfaModalOpen.value = true;
+  } else {
+    const emailToVerify = form.value.email?.trim() || authStore.user?.email;
+    if (!emailToVerify || !emailToVerify.includes('@')) {
+      toast.error('A valid email address is required to enable Two-Factor Authentication.');
+      return;
+    }
+
+    isInitiatingMfa.value = true;
+    try {
+      const res = await send2faSetupOtp();
+      const data = res.data?.data || {};
+      mfaSetupToken.value  = data.temp_token || '';
+      mfaMaskedEmail.value = data.masked_email || emailToVerify;
+      mfaExpiresIn.value   = data.expires_in || 600;
+      isMfaModalOpen.value = true;
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to dispatch 2FA setup verification code.';
+      toast.error(msg);
+    } finally {
+      isInitiatingMfa.value = false;
+    }
+  }
+};
+
+const handleMfaVerified = (data) => {
+  form.value.isMfaEnabled = true;
+  if (data?.user) {
+    authStore.user = { ...authStore.user, ...data.user, is_mfa_enabled: 1 };
+  } else if (authStore.user) {
+    authStore.user.is_mfa_enabled = 1;
+  }
+  isMfaModalOpen.value = false;
+  toast.success('Two-Factor Authentication has been successfully enabled on your account!');
+};
+
+const handleConfirmDisableMfa = async () => {
+  isDisablingMfa.value = true;
+  try {
+    const res = await disable2fa();
+    form.value.isMfaEnabled = false;
+    if (res.data?.data?.user) {
+      authStore.user = { ...authStore.user, ...res.data.data.user, is_mfa_enabled: 0 };
+    } else if (authStore.user) {
+      authStore.user.is_mfa_enabled = 0;
+    }
+    isDisableMfaModalOpen.value = false;
+    toast.success('Two-Factor Authentication has been disabled.');
+  } catch (err) {
+    const msg = err.response?.data?.message || 'Failed to disable Two-Factor Authentication.';
+    toast.error(msg);
+  } finally {
+    isDisablingMfa.value = false;
+  }
+};
 
 // Resend Configuration State
 const resendState = ref({

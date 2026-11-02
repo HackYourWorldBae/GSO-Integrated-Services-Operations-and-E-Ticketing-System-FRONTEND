@@ -121,5 +121,33 @@ export const verifyMfa = (payload) =>
 export const resendMfa = (payload) =>
   apiClient.post('/auth/resend-mfa', payload);
 
+/**
+ * Initiate Two-Factor Authentication (2FA) setup for authenticated user.
+ * Sends a 6-digit OTP to the user's institutional email address.
+ */
+export const send2faSetupOtp = () =>
+  apiClient.post('/auth/2fa/send-otp');
+
+/**
+ * Resend 2FA setup verification code.
+ * @param {{ temp_token: string }} payload
+ */
+export const resend2faSetupOtp = (payload) =>
+  apiClient.post('/auth/2fa/resend-otp', payload);
+
+/**
+ * Verify 2FA setup OTP and activate 2FA on the user's account.
+ * @param {{ temp_token: string, otp_code: string }} payload
+ */
+export const verify2faSetupOtp = (payload) =>
+  apiClient.post('/auth/2fa/verify-otp', payload);
+
+/**
+ * Disable Two-Factor Authentication on the authenticated user's account.
+ */
+export const disable2fa = () =>
+  apiClient.post('/auth/2fa/disable');
+
+
 
 
