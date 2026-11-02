@@ -127,6 +127,7 @@ const handleOtpInput = (e) => {
 };
 
 const handleVerify = async () => {
+  if (isVerifying.value) return;
   const code = otpCode.value.trim();
   if (code.length !== 6) {
     errorMessage.value = 'Please enter all 6 digits of the verification code.';
@@ -235,7 +236,7 @@ const handleResend = async () => {
           </div>
 
           <!-- Form -->
-          <form @submit.prevent="handleVerify" class="space-y-4">
+          <form @submit.prevent.stop="handleVerify" class="space-y-4">
             <div>
               <label class="block text-xs font-black text-slate-800 uppercase tracking-widest mb-2 text-center">
                 Enter 6-Digit Verification Code

@@ -624,7 +624,11 @@ const handleToggleMfa = async () => {
 const handleMfaVerified = (data) => {
   form.value.isMfaEnabled = true;
   if (data?.user) {
-    authStore.user = { ...authStore.user, ...data.user, is_mfa_enabled: 1 };
+    if (typeof authStore.setUser === 'function') {
+      authStore.setUser({ ...(authStore.user || {}), ...data.user, is_mfa_enabled: 1 });
+    } else {
+      authStore.user = { ...authStore.user, ...data.user, is_mfa_enabled: 1 };
+    }
   } else if (authStore.user) {
     authStore.user.is_mfa_enabled = 1;
   }
@@ -637,8 +641,13 @@ const handleConfirmDisableMfa = async () => {
   try {
     const res = await disable2fa();
     form.value.isMfaEnabled = false;
-    if (res.data?.data?.user) {
-      authStore.user = { ...authStore.user, ...res.data.data.user, is_mfa_enabled: 0 };
+    const updatedUser = res.data?.data?.user;
+    if (updatedUser) {
+      if (typeof authStore.setUser === 'function') {
+        authStore.setUser({ ...(authStore.user || {}), ...updatedUser, is_mfa_enabled: 0 });
+      } else {
+        authStore.user = { ...authStore.user, ...updatedUser, is_mfa_enabled: 0 };
+      }
     } else if (authStore.user) {
       authStore.user.is_mfa_enabled = 0;
     }

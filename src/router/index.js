@@ -991,9 +991,9 @@ if (typeof window !== 'undefined') {
     // If a session-superseded notice is already active, suppress generic unauthorized redirects
     if (window.__gso_session_superseded || isNotifyingSuperseded) return;
 
-    // Ignore 401s that originate from the login endpoint itself
+    // Ignore 401s that originate from the login or 2FA setup verification endpoints
     const requestUrl = event.detail?.config?.url || '';
-    if (requestUrl.includes('auth/login')) return;
+    if (requestUrl.includes('auth/login') || requestUrl.includes('auth/2fa')) return;
 
     // Only clear and redirect if a session state actually existed
     const hadUser = (() => {
