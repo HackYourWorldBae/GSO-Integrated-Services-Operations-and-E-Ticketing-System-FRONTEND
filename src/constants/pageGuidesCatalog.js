@@ -119,7 +119,7 @@ export const createUnitAdminDashboardGuide = (unitCode = 'fgmu') => {
     ],
     tourSteps: [
       { element: '#tour-page-header', title: `1. ${U} Dashboard Overview`, desc: `Your ${unitName} home screen. See key metrics and take quick actions.` },
-      { element: '[data-tour="admin-timeframe-tabs"]', title: '2. Time Period Filter', desc: 'Switch the analytics view: All Time, Annual, Quarterly, Monthly, or Daily.' },
+      { element: '[data-tour="admin-timeframe-tabs"]', title: '2. Time Period Filter', desc: 'Switch the analytics view: Daily, Monthly, Quarterly, Annual, or All Time.' },
       { element: '[data-tour="admin-kpi-gauges"]', title: '3. Key Numbers', desc: 'See unresolved, resolved, declined, and total request counts at a glance.' },
       { element: '[data-tour="admin-daily-tracker"]', title: '4. 7-Day Activity Tracker', desc: 'Review daily requests vs. completed work for the past week.' },
       { element: '[data-tour="admin-workload-status"]', title: '5. Live Workload Status', desc: 'Check pending approvals, dispatched, scheduled, and active jobs.' },

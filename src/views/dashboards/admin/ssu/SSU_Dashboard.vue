@@ -464,17 +464,17 @@ const formatDateToYMD = (date) => {
 const currentYear = new Date().getFullYear();
 const todayDateString = formatDateToYMD(new Date());
 
-const selectedPeriod = ref('all');
+const selectedPeriod = ref('day');
 const selectedMonth = ref(new Date().getMonth() + 1);
 const selectedQuarter = ref(Math.ceil((new Date().getMonth() + 1) / 3));
 const selectedDate = ref(todayDateString);
 
 const periodOptions = [
-  { key: 'all', label: 'All Time' },
-  { key: 'year', label: `Annually (${currentYear})` },
-  { key: 'quarter', label: 'Quarterly' },
+  { key: 'day', label: 'Daily' },
   { key: 'month', label: 'Monthly' },
-  { key: 'day', label: 'Daily' }
+  { key: 'quarter', label: 'Quarterly' },
+  { key: 'year', label: `Annually (${currentYear})` },
+  { key: 'all', label: 'All Time' }
 ];
 
 const quarterOptions = [
@@ -560,6 +560,7 @@ const fetchStats = async () => {
 };
 
 onMounted(() => {
+  isAlive = true;
   fetchStats();
 });
 
