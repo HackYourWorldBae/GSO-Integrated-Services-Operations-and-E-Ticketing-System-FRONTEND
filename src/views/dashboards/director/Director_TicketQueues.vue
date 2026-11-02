@@ -70,10 +70,10 @@
                   <span>Job Requests</span>
                   <span
                     :class="[
-                      'px-2 py-0.5 rounded-full text-xs font-black leading-none min-w-[22px] text-center transition-all',
+                      'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                       selectedCategory === 'job'
-                        ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
-                        : 'bg-slate-300/80 text-slate-800'
+                        ? 'bg-white text-slate-950 font-black'
+                        : 'bg-slate-200 text-slate-800'
                     ]"
                   >
                     {{ totalJobRequestsCount }}
@@ -99,10 +99,10 @@
                   <span>Borrowing Requests</span>
                   <span
                     :class="[
-                      'px-2 py-0.5 rounded-full text-xs font-black leading-none min-w-[22px] text-center transition-all',
+                      'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                       selectedCategory === 'borrowing'
-                        ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
-                        : 'bg-slate-300/80 text-slate-800'
+                        ? 'bg-white text-slate-950 font-black'
+                        : 'bg-slate-200 text-slate-800'
                     ]"
                   >
                     {{ totalBorrowingRequestsCount }}
@@ -139,9 +139,9 @@
               <span class="truncate">Approval Requests</span>
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                   activeTab === 'pending'
-                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    ? 'bg-white text-slate-950 font-black'
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
@@ -163,9 +163,9 @@
               <span class="truncate">Approval Delays</span>
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                   activeTab === 'delayed'
-                    ? 'bg-amber-800 text-white'
+                    ? 'bg-white text-slate-950 font-black'
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
@@ -189,9 +189,9 @@
               <span class="truncate">Approved</span>
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                   activeTab === 'approved'
-                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    ? 'bg-white text-slate-950 font-black'
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
@@ -215,9 +215,9 @@
               <span class="truncate">Dispatched</span>
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                   activeTab === 'dispatched'
-                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    ? 'bg-white text-slate-950 font-black'
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
@@ -241,9 +241,9 @@
               <span class="truncate">Work in Progress</span>
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                   activeTab === 'active'
-                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    ? 'bg-white text-slate-950 font-black'
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
@@ -272,9 +272,9 @@
               <span class="truncate">Approval Requests</span>
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                   activeTab === 'pending'
-                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    ? 'bg-white text-slate-950 font-black'
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
@@ -296,9 +296,9 @@
               <span class="truncate">Approval Delays</span>
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                   activeTab === 'delayed'
-                    ? 'bg-amber-800 text-white'
+                    ? 'bg-white text-slate-950 font-black'
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
@@ -322,9 +322,9 @@
               <span class="truncate">Approved</span>
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                   activeTab === 'approved'
-                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    ? 'bg-white text-slate-950 font-black'
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
@@ -348,9 +348,9 @@
               <span class="truncate">Inventory Assigned (Waiting Pickup)</span>
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                   activeTab === 'assigned'
-                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    ? 'bg-white text-slate-950 font-black'
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
@@ -374,9 +374,9 @@
               <span class="truncate">Awaiting Return</span>
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-lg text-xs font-black leading-none min-w-[20px] text-center',
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
                   activeTab === 'return'
-                    ? (isLeau ? 'bg-amber-800 text-white' : 'bg-emerald-800 text-white')
+                    ? 'bg-white text-slate-950 font-black'
                     : 'bg-slate-200 text-slate-800'
                 ]"
               >
@@ -440,7 +440,12 @@
                 :class="selectedEscalationFilter === 'escalated' ? 'bg-purple-600 text-white shadow-xs' : 'text-purple-700 hover:text-purple-900'"
               >
                 <span>{{ isFgmu ? 'With Director' : 'Escalated' }}</span>
-                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black" :class="selectedEscalationFilter === 'escalated' ? 'bg-purple-800 text-white' : 'bg-purple-200 text-purple-900'">
+                <span
+                  :class="[
+                    'ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-black leading-none transition-all',
+                    selectedEscalationFilter === 'escalated' ? 'bg-white text-purple-950 font-black' : 'bg-purple-200 text-purple-900'
+                  ]"
+                >
                   {{ pendingTabEscalatedCount }}
                 </span>
               </button>
