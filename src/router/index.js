@@ -999,7 +999,7 @@ if (typeof window !== 'undefined') {
     const hadUser = (() => {
       try {
         const raw = JSON.parse(sessionStorage.getItem('auth') || '{}');
-        return !!(raw?.user || raw?.state?.user || sessionStorage.getItem('token'));
+        return !!(raw?.user || raw?.state?.user);
       } catch { return false; }
     })();
 

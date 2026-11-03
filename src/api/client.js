@@ -7,7 +7,7 @@ import { recordNetworkActivity } from '@/utils/networkMonitor';
 //
 // This is the single Axios instance used by all api/* module files.
 // It automatically:
-//   1. Attaches the JWT Bearer token from Pinia persisted store (sessionStorage).
+//   1. Manages secure in-memory JWT Bearer tokens and HttpOnly cookie sessions.
 //   2. Sanitizes outgoing JSON payloads against XSS injection.
 //   3. Adds security headers (X-Requested-With, X-Content-Type-Options).
 //   4. Dispatches a global 'auth:unauthorized' event on 401 so the router
@@ -15,6 +15,14 @@ import { recordNetworkActivity } from '@/utils/networkMonitor';
 // ============================================================================
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
+
+let inMemoryAuthToken = null;
+
+export const setClientAuthToken = (token) => {
+  inMemoryAuthToken = token || null;
+};
+
+export const getClientAuthToken = () => inMemoryAuthToken;
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -77,19 +85,13 @@ apiClient.interceptors.request.use(
     const securityHeaders = getSecurityHeaders?.() ?? {};
     Object.assign(config.headers, securityHeaders);
 
-    // 2. Attach Authorization header if a Bearer token is provided
-    try {
-      const piniaAuth = JSON.parse(sessionStorage.getItem('auth') || '{}');
-      const token     = piniaAuth?.token || sessionStorage.getItem('token');
-      if (token) {
-        if (typeof config.headers.set === 'function') {
-          config.headers.set('Authorization', `Bearer ${token}`);
-        } else {
-          config.headers['Authorization'] = `Bearer ${token}`;
-        }
+    // 2. Attach Authorization header if an in-memory Bearer token is provided
+    if (inMemoryAuthToken) {
+      if (typeof config.headers.set === 'function') {
+        config.headers.set('Authorization', `Bearer ${inMemoryAuthToken}`);
+      } else {
+        config.headers['Authorization'] = `Bearer ${inMemoryAuthToken}`;
       }
-    } catch {
-      // Fail silently — the HttpOnly cookie will be automatically used by the browser
     }
 
     // 3. Sanitize outgoing JSON payloads (skip FormData — file uploads handled separately)

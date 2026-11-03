@@ -11,29 +11,39 @@ import {
   verifyMfa as apiVerifyMfa,
   resendMfa as apiResendMfa,
 } from '@/api/auth';
+import { setClientAuthToken } from '@/api/client';
 
 /**
  * Auth Store — Pinia
  *
- * Manages authentication state: authenticated user profile, role, and JWT token.
- * Persisted to sessionStorage so each browser tab/window maintains its own session credentials.
+ * Manages authentication state: authenticated user profile, role, and in-memory JWT token.
+ * Tokens are securely held in memory and via HttpOnly cookies (inaccessible to JS).
+ * Safe user metadata is persisted to sessionStorage for fast UI rendering across navigations.
  * Includes proactive session heartbeat monitoring for strictly enforcing 1 session per user.
  */
 export const useAuthStore = defineStore('auth', () => {
   const user        = ref(null);
   const role        = ref(null);
-  const token       = ref(typeof window !== 'undefined' ? sessionStorage.getItem('token') || null : null);
+  const token       = ref(null);
   const permissions = ref(
     typeof window !== 'undefined'
       ? JSON.parse(sessionStorage.getItem('permissions') || '[]')
       : []
   );
 
+  watch(
+    token,
+    (newToken) => {
+      setClientAuthToken(newToken);
+    },
+    { immediate: true }
+  );
+
   // ---------------------------------------------------------------------------
   // Computed
   // ---------------------------------------------------------------------------
 
-  const isAuthenticated = computed(() => !!user.value && !!token.value);
+  const isAuthenticated = computed(() => !!user.value);
 
   const fullName = computed(() => {
     if (!user.value) return 'Not Provided';
@@ -277,8 +287,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (typeof window === 'undefined') return;
     if (window.__gso_session_superseded) return;
 
-    const currentToken = token.value || sessionStorage.getItem('token');
-    if (!currentToken || !user.value) {
+    if (!user.value) {
       stopSessionHeartbeat();
       return;
     }
@@ -427,9 +436,6 @@ export const useAuthStore = defineStore('auth', () => {
       permissions.value = userPerms;
       token.value       = jwtToken;
 
-      if (jwtToken) {
-        sessionStorage.setItem('token', jwtToken);
-      }
       sessionStorage.setItem('permissions', JSON.stringify(userPerms));
 
       window.__gso_session_superseded = false;
@@ -485,9 +491,6 @@ export const useAuthStore = defineStore('auth', () => {
       permissions.value = userPerms;
       token.value       = jwtToken;
 
-      if (jwtToken) {
-        sessionStorage.setItem('token', jwtToken);
-      }
       sessionStorage.setItem('permissions', JSON.stringify(userPerms));
 
       window.__gso_session_superseded = false;
@@ -634,9 +637,6 @@ export const useAuthStore = defineStore('auth', () => {
       permissions.value = userPerms;
       token.value       = jwtToken;
 
-      if (jwtToken) {
-        sessionStorage.setItem('token', jwtToken);
-      }
       sessionStorage.setItem('permissions', JSON.stringify(userPerms));
 
       startSessionHeartbeat();
@@ -668,9 +668,6 @@ export const useAuthStore = defineStore('auth', () => {
       permissions.value = userPerms;
       token.value       = jwtToken;
 
-      if (jwtToken) {
-        sessionStorage.setItem('token', jwtToken);
-      }
       sessionStorage.setItem('permissions', JSON.stringify(userPerms));
 
       startSessionHeartbeat();
@@ -694,7 +691,6 @@ export const useAuthStore = defineStore('auth', () => {
     sessionStorage.setItem('permissions', JSON.stringify(permissions.value));
     if (authToken) {
       token.value = authToken;
-      sessionStorage.setItem('token', authToken);
     }
     startSessionHeartbeat();
   };
@@ -749,6 +745,6 @@ export const useAuthStore = defineStore('auth', () => {
 }, {
   persist: {
     storage: typeof window !== 'undefined' && typeof sessionStorage !== 'undefined' ? sessionStorage : undefined,
-    pick: ['user', 'role', 'token', 'permissions'],
+    pick: ['user', 'role', 'permissions'],
   },
 });

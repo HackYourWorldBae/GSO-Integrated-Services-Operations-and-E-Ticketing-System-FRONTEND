@@ -1046,8 +1046,7 @@ onMounted(() => {
   }
 
   if (!authStore.user && currentUser) {
-    const currentToken = sessionStorage.getItem('token');
-    authStore._setAuth(currentUser, currentUser.role, currentToken);
+    authStore._setAuth(currentUser, currentUser.role);
   }
 
   // Probe maintenance status for Superadmin so global banner syncs immediately

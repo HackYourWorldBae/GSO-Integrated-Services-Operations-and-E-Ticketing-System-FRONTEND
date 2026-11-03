@@ -64,7 +64,6 @@ describe('Auth Store — Sub-Unit Head Delegation Actions', () => {
     expect(store.isActingHead).toBe(true);
     expect(store.actingUnitCode).toBe('FGMU');
     expect(store.token).toBe('mock-delegated-jwt');
-    expect(sessionStorage.getItem('token')).toBe('mock-delegated-jwt');
   });
 
   it('revertToDirector restores director role and clears acting head flags', async () => {

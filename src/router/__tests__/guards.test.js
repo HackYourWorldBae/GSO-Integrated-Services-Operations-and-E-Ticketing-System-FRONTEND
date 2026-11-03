@@ -32,12 +32,10 @@ describe('Router Page Guards & RBAC Boundaries', () => {
       ],
       ...extra,
     };
-    globalThis.sessionStorage.setItem('token', 'mock-jwt-token');
     globalThis.sessionStorage.setItem('permissions', JSON.stringify(user.permissions));
     globalThis.sessionStorage.setItem('auth', JSON.stringify({
       user,
       role,
-      token: 'mock-jwt-token',
     }));
   };
 

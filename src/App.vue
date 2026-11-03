@@ -16,12 +16,10 @@ onMounted(() => {
   // Initialize dynamic institutional working calendar & material catalogs
   operationsStore.initOperationsHub();
 
-  // If user has an active session (e.g. restored from sessionStorage across refreshes),
-  // start proactive session heartbeat immediately.
-  const hasToken = !!(authStore.token || sessionStorage.getItem('token'));
-  const hasUser  = !!(authStore.user  || sessionStorage.getItem('auth'));
+  // If user has an active session, start proactive session heartbeat immediately.
+  const hasUser = !!(authStore.user || sessionStorage.getItem('auth'));
 
-  if (hasToken && hasUser) {
+  if (hasUser) {
     authStore.startSessionHeartbeat();
   }
 });
