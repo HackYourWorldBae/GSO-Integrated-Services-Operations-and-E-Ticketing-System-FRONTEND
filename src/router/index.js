@@ -453,7 +453,8 @@ const router = createRouter({
       redirect: to => {
         let unit = 'fgmu';
         try {
-          const raw = sessionStorage.getItem('auth');
+          const raw = (typeof localStorage !== 'undefined' ? localStorage.getItem('auth') : null) ||
+                      (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('auth') : null);
           if (raw) {
             const parsed = JSON.parse(raw);
             const user = parsed.user || parsed;
@@ -469,7 +470,8 @@ const router = createRouter({
       redirect: to => {
         let unit = 'fgmu';
         try {
-          const raw = sessionStorage.getItem('auth');
+          const raw = (typeof localStorage !== 'undefined' ? localStorage.getItem('auth') : null) ||
+                      (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('auth') : null);
           if (raw) {
             const parsed = JSON.parse(raw);
             const user = parsed.user || parsed;
@@ -733,7 +735,8 @@ export const checkRouteAccess = (to, from, next) => {
   let unit = '';
 
   try {
-    const raw = sessionStorage.getItem('auth');
+    const raw = (typeof localStorage !== 'undefined' ? localStorage.getItem('auth') : null) ||
+                (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('auth') : null);
     if (raw) {
       const stored = JSON.parse(raw);
       user  = stored?.user  || stored?.state?.user  || null;
@@ -742,7 +745,8 @@ export const checkRouteAccess = (to, from, next) => {
       unit  = String(user?.unit_code || user?.unit || unitMap[user?.unit_id] || '').toUpperCase();
     }
   } catch {
-    sessionStorage.removeItem('auth');
+    if (typeof localStorage !== 'undefined') localStorage.removeItem('auth');
+    if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('auth');
   }
 
   // Fallback to Pinia auth store if user was not in sessionStorage directly
@@ -939,8 +943,16 @@ if (typeof window !== 'undefined') {
     window.__gso_session_superseded = true;
 
     // Clear client-side session cache immediately
-    sessionStorage.removeItem('auth');
-    sessionStorage.removeItem('token');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('auth');
+      localStorage.removeItem('token');
+      localStorage.removeItem('permissions');
+    }
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('auth');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('permissions');
+    }
 
     // Cleanly reset Pinia auth store state and stop heartbeat
     try {
@@ -998,7 +1010,11 @@ if (typeof window !== 'undefined') {
     // Only clear and redirect if a session state actually existed
     const hadUser = (() => {
       try {
-        const raw = JSON.parse(sessionStorage.getItem('auth') || '{}');
+        const raw = JSON.parse(
+          (typeof localStorage !== 'undefined' ? localStorage.getItem('auth') : null) ||
+          (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('auth') : null) ||
+          '{}'
+        );
         return !!(raw?.user || raw?.state?.user);
       } catch { return false; }
     })();
@@ -1006,8 +1022,16 @@ if (typeof window !== 'undefined') {
     if (!hadUser) return;
 
     // Clear session and redirect to login
-    sessionStorage.removeItem('auth');
-    sessionStorage.removeItem('token');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('auth');
+      localStorage.removeItem('token');
+      localStorage.removeItem('permissions');
+    }
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('auth');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('permissions');
+    }
 
     try {
       const authStore = useAuthStore();
@@ -1021,6 +1045,79 @@ if (typeof window !== 'undefined') {
 
     if (router.currentRoute.value && router.currentRoute.value.name !== 'login') {
       router.push({ name: 'login' });
+    }
+  });
+
+  // Listen for Cross-Tab Logout Event (Single Active Identity per Browser Profile)
+  window.addEventListener('auth:cross-tab-logout', () => {
+    if (window.__gso_session_superseded || isNotifyingSuperseded) return;
+
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('auth');
+      localStorage.removeItem('token');
+      localStorage.removeItem('permissions');
+    }
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('auth');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('permissions');
+    }
+
+    if (router.currentRoute.value && router.currentRoute.value.name !== 'login') {
+      router.push({ name: 'login' });
+      showSwal({
+        icon: 'info',
+        title: 'Signed Out',
+        text: 'You have been signed out because your session was logged out in another tab.',
+        confirmButtonColor: '#059669',
+        confirmButtonText: 'OK',
+        timer: 4000,
+        timerProgressBar: true,
+      });
+    }
+  });
+
+  // Listen for Cross-Tab Session Changed Event (Multi-tab role / identity synchronization)
+  window.addEventListener('auth:session-changed', (event) => {
+    const detail = event?.detail || {};
+    const newRole = detail.newRole || '';
+    const newUser = detail.newUser || detail.user;
+    const unitMap = { 1: 'FGMU', 2: 'LEAU', 3: 'SSU' };
+    const unit = String(newUser?.unit_code || newUser?.unit || unitMap[newUser?.unit_id] || '').toUpperCase();
+
+    const homeRoute = getCanonicalHomeRoute(newRole, unit);
+    const currentRoute = router.currentRoute.value;
+    const currentPath = currentRoute?.path || '/';
+
+    // If currently on an unauthenticated route, navigate to dashboard
+    const authRoutes = ['login', 'register', 'forgot-password', 'reset-password'];
+    if (authRoutes.includes(currentRoute?.name)) {
+      router.push(homeRoute);
+      return;
+    }
+
+    // Check if the route is valid for the new role
+    const isStillAuthorized = (() => {
+      if (newRole === 'superadmin') return true;
+      if (currentPath.startsWith('/superadmin') && newRole !== 'superadmin') return false;
+      if (currentPath.startsWith('/director') && !['director', 'superadmin'].includes(newRole) && !newUser?.is_acting_head) return false;
+      if (currentPath.startsWith('/admin') && ['student', 'employee', 'worker'].includes(newRole)) return false;
+      if (currentPath.startsWith('/user') && ['admin', 'staff', 'director'].includes(newRole)) return false;
+      return true;
+    })();
+
+    if (!isStillAuthorized) {
+      showSwal({
+        icon: 'info',
+        title: 'Account Switched',
+        text: `Your active account was changed in another tab. Redirecting to your ${newRole} dashboard...`,
+        confirmButtonColor: '#059669',
+        timer: 3500,
+        timerProgressBar: true,
+      });
+      router.push(homeRoute);
+    } else {
+      router.replace({ path: currentPath, query: { ...currentRoute.query, _sync: Date.now() } });
     }
   });
 }

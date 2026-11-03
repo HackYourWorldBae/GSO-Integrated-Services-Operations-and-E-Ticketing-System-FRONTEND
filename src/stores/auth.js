@@ -12,13 +12,46 @@ import {
   resendMfa as apiResendMfa,
 } from '@/api/auth';
 import { setClientAuthToken } from '@/api/client';
+import { broadcastAuthEvent, setupCrossTabSessionSync } from '@/utils/sessionSync';
+
+/**
+ * Storage Helpers — guarantees consistent synchronization across both localStorage
+ * and legacy/isolated sessionStorage while preserving clean cross-tab coordination.
+ */
+const savePermissionsCache = (perms) => {
+  const list = Array.isArray(perms) ? perms : [];
+  if (typeof localStorage !== 'undefined') {
+    try { localStorage.setItem('permissions', JSON.stringify(list)); } catch {}
+  }
+  if (typeof sessionStorage !== 'undefined') {
+    try { sessionStorage.setItem('permissions', JSON.stringify(list)); } catch {}
+  }
+};
+
+const clearAuthStorage = () => {
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('auth');
+      localStorage.removeItem('permissions');
+    } catch {}
+  }
+  if (typeof sessionStorage !== 'undefined') {
+    try {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('auth');
+      sessionStorage.removeItem('permissions');
+    } catch {}
+  }
+};
 
 /**
  * Auth Store — Pinia
  *
  * Manages authentication state: authenticated user profile, role, and in-memory JWT token.
  * Tokens are securely held in memory and via HttpOnly cookies (inaccessible to JS).
- * Safe user metadata is persisted to sessionStorage for fast UI rendering across navigations.
+ * Safe user metadata is persisted to localStorage for fast UI rendering across navigations
+ * and real-time synchronization across browser tabs (Single Active Identity per browser profile).
  * Includes proactive session heartbeat monitoring for strictly enforcing 1 session per user.
  */
 export const useAuthStore = defineStore('auth', () => {
@@ -27,7 +60,11 @@ export const useAuthStore = defineStore('auth', () => {
   const token       = ref(null);
   const permissions = ref(
     typeof window !== 'undefined'
-      ? JSON.parse(sessionStorage.getItem('permissions') || '[]')
+      ? JSON.parse(
+          (typeof localStorage !== 'undefined' ? localStorage.getItem('permissions') : null) ||
+          (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('permissions') : null) ||
+          '[]'
+        )
       : []
   );
 
@@ -297,10 +334,35 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const res = await checkSessionApi();
+      const serverUserId = res.data?.data?.user_id;
+      const serverRole = res.data?.data?.role;
       const serverPermissions = res.data?.data?.permissions;
+
+      // Cross-tab session mismatch detection:
+      // If the HttpOnly cookie session now belongs to a different user than this tab's memory,
+      // update state immediately and notify the application to prevent session bleeding.
+      if (serverUserId && user.value?.id && String(serverUserId) !== String(user.value.id)) {
+        console.warn(`[Auth Store] Active server session user (${serverUserId}) does not match local tab user (${user.value.id}). Synchronizing state...`);
+        await checkAuth();
+        broadcastAuthEvent('AUTH_SESSION_CHANGED', {
+          userId: serverUserId,
+          role: serverRole,
+          user: user.value,
+        });
+        window.dispatchEvent(new CustomEvent('auth:session-changed', {
+          detail: {
+            previousRole: role.value,
+            newRole: serverRole,
+            newUser: user.value,
+            reason: 'server_cookie_mismatch',
+          }
+        }));
+        return;
+      }
+
       if (Array.isArray(serverPermissions)) {
         permissions.value = serverPermissions;
-        sessionStorage.setItem('permissions', JSON.stringify(serverPermissions));
+        savePermissionsCache(serverPermissions);
         if (user.value) {
           user.value.permissions = serverPermissions;
         }
@@ -398,6 +460,73 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   // ---------------------------------------------------------------------------
+  // Cross-Tab Session Synchronization Protocol
+  // ---------------------------------------------------------------------------
+  let isCrossTabSyncInitialized = false;
+
+  const initCrossTabSync = () => {
+    if (typeof window === 'undefined' || isCrossTabSyncInitialized) return;
+    isCrossTabSyncInitialized = true;
+
+    setupCrossTabSessionSync({
+      onLogout: () => {
+        // Another tab triggered logout: cleanly evict this tab's memory and notify
+        if (user.value) {
+          stopSessionHeartbeat();
+          user.value        = null;
+          role.value        = null;
+          permissions.value = [];
+          token.value       = null;
+          clearAuthStorage();
+          window.dispatchEvent(new CustomEvent('auth:cross-tab-logout'));
+        }
+      },
+      onLogin: (data) => {
+        // Another tab logged in: update this tab to reflect the new authenticated identity
+        const incomingUser = data.user;
+        const incomingRole = data.role;
+        const isDifferentUser = !user.value || String(user.value.id) !== String(data.userId);
+
+        if (incomingUser) {
+          user.value = incomingUser;
+          role.value = incomingRole || incomingUser.role;
+          permissions.value = incomingUser.permissions || [];
+          savePermissionsCache(permissions.value);
+        } else {
+          checkAuth();
+        }
+
+        window.__gso_session_superseded = false;
+        startSessionHeartbeat();
+
+        if (isDifferentUser) {
+          window.dispatchEvent(new CustomEvent('auth:session-changed', {
+            detail: {
+              newRole: incomingRole || user.value?.role,
+              newUser: user.value,
+              reason: 'login_in_other_tab',
+            }
+          }));
+        }
+      },
+      onSessionChanged: (data) => {
+        // Role assumption or session adjustment happened in another tab
+        checkAuth().then(() => {
+          window.dispatchEvent(new CustomEvent('auth:session-changed', {
+            detail: {
+              newRole: data.role || role.value,
+              newUser: user.value,
+              reason: 'session_changed_in_other_tab',
+            }
+          }));
+        });
+      },
+    });
+  };
+
+  initCrossTabSync();
+
+  // ---------------------------------------------------------------------------
   // Actions
   // ---------------------------------------------------------------------------
 
@@ -436,12 +565,19 @@ export const useAuthStore = defineStore('auth', () => {
       permissions.value = userPerms;
       token.value       = jwtToken;
 
-      sessionStorage.setItem('permissions', JSON.stringify(userPerms));
+      savePermissionsCache(userPerms);
 
       window.__gso_session_superseded = false;
 
       // Start proactive session heartbeat
       startSessionHeartbeat();
+
+      // Broadcast authentication event so all other open tabs synchronize immediately
+      broadcastAuthEvent('AUTH_LOGIN', {
+        userId: userData.id,
+        role: userData.role,
+        user: userData,
+      });
 
       return { success: true, role: userData.role };
     } catch (err) {
@@ -491,12 +627,19 @@ export const useAuthStore = defineStore('auth', () => {
       permissions.value = userPerms;
       token.value       = jwtToken;
 
-      sessionStorage.setItem('permissions', JSON.stringify(userPerms));
+      savePermissionsCache(userPerms);
 
       window.__gso_session_superseded = false;
 
       // Start proactive session heartbeat
       startSessionHeartbeat();
+
+      // Broadcast authentication event so all other open tabs synchronize immediately
+      broadcastAuthEvent('AUTH_LOGIN', {
+        userId: userData.id,
+        role: userData?.role,
+        user: userData,
+      });
 
       return { success: true, role: userData?.role };
     } catch (err) {
@@ -536,7 +679,8 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   /**
-   * Logout — clears local user state, notifies backend, stops heartbeat.
+   * Logout — clears local user state, notifies backend, stops heartbeat,
+   * clears cross-tab storage, and broadcasts auth termination to all tabs.
    */
   const logout = async () => {
     stopSessionHeartbeat();
@@ -549,9 +693,8 @@ export const useAuthStore = defineStore('auth', () => {
       role.value        = null;
       permissions.value = [];
       token.value       = null;
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('auth');
-      sessionStorage.removeItem('permissions');
+      clearAuthStorage();
+      broadcastAuthEvent('AUTH_LOGOUT');
     }
   };
 
@@ -565,7 +708,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value        = userData;
       role.value        = userData.role;
       permissions.value = userData.permissions || [];
-      sessionStorage.setItem('permissions', JSON.stringify(permissions.value));
+      savePermissionsCache(permissions.value);
       startSessionHeartbeat();
       return true;
     } catch {
@@ -574,9 +717,7 @@ export const useAuthStore = defineStore('auth', () => {
       role.value        = null;
       permissions.value = [];
       token.value       = null;
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('auth');
-      sessionStorage.removeItem('permissions');
+      clearAuthStorage();
       return false;
     }
   };
@@ -592,7 +733,7 @@ export const useAuthStore = defineStore('auth', () => {
       role.value = userData.role;
       if (Array.isArray(userData.permissions)) {
         permissions.value = userData.permissions;
-        sessionStorage.setItem('permissions', JSON.stringify(userData.permissions));
+        savePermissionsCache(userData.permissions);
       }
     } catch {
       // Silently fail — non-critical profile sync
@@ -610,7 +751,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = userData;
       if (Array.isArray(userData.permissions)) {
         permissions.value = userData.permissions;
-        sessionStorage.setItem('permissions', JSON.stringify(userData.permissions));
+        savePermissionsCache(userData.permissions);
       }
       return { success: true };
     } catch (err) {
@@ -637,9 +778,15 @@ export const useAuthStore = defineStore('auth', () => {
       permissions.value = userPerms;
       token.value       = jwtToken;
 
-      sessionStorage.setItem('permissions', JSON.stringify(userPerms));
+      savePermissionsCache(userPerms);
 
       startSessionHeartbeat();
+
+      broadcastAuthEvent('AUTH_SESSION_CHANGED', {
+        userId: userData.id,
+        role: userData?.role || 'admin',
+        user: userData,
+      });
 
       return {
         success: true,
@@ -668,9 +815,15 @@ export const useAuthStore = defineStore('auth', () => {
       permissions.value = userPerms;
       token.value       = jwtToken;
 
-      sessionStorage.setItem('permissions', JSON.stringify(userPerms));
+      savePermissionsCache(userPerms);
 
       startSessionHeartbeat();
+
+      broadcastAuthEvent('AUTH_SESSION_CHANGED', {
+        userId: userData.id,
+        role: userData?.role || 'director',
+        user: userData,
+      });
 
       return {
         success: true,
@@ -688,7 +841,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value        = userData;
     role.value        = userRole;
     permissions.value = userPermissions || userData?.permissions || [];
-    sessionStorage.setItem('permissions', JSON.stringify(permissions.value));
+    savePermissionsCache(permissions.value);
     if (authToken) {
       token.value = authToken;
     }
@@ -744,7 +897,7 @@ export const useAuthStore = defineStore('auth', () => {
   };
 }, {
   persist: {
-    storage: typeof window !== 'undefined' && typeof sessionStorage !== 'undefined' ? sessionStorage : undefined,
+    storage: typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage : undefined,
     pick: ['user', 'role', 'permissions'],
   },
 });

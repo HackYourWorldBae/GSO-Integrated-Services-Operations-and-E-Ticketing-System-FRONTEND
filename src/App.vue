@@ -17,7 +17,11 @@ onMounted(() => {
   operationsStore.initOperationsHub();
 
   // If user has an active session, start proactive session heartbeat immediately.
-  const hasUser = !!(authStore.user || sessionStorage.getItem('auth'));
+  const hasUser = !!(
+    authStore.user ||
+    (typeof localStorage !== 'undefined' && localStorage.getItem('auth')) ||
+    (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('auth'))
+  );
 
   if (hasUser) {
     authStore.startSessionHeartbeat();
