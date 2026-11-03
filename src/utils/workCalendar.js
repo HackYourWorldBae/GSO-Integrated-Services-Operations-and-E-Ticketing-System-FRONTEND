@@ -15,6 +15,25 @@ export let LUNCH_START_HOUR = 12;
 export let LUNCH_END_HOUR = 13;
 export let STANDARD_DAILY_HOURS = 8.0;
 
+// Automatic daily job continuation settings
+export let DAILY_CONTINUATION_ENABLED = true;
+export let CONTINUATION_START_TIME = '08:00';
+export let CONTINUATION_CUTOFF_TIME = '17:00';
+
+// Institutional time breaks
+export let LUNCH_BREAK_ENABLED = true;
+export let MORNING_BREAK_ENABLED = false;
+export let MORNING_BREAK_START = '10:00';
+export let MORNING_BREAK_END = '10:15';
+export let AFTERNOON_BREAK_ENABLED = false;
+export let AFTERNOON_BREAK_START = '15:00';
+export let AFTERNOON_BREAK_END = '15:15';
+
+// Weekend work & exclusion policies
+export let EXCLUDE_WEEKENDS = true;
+export let EXCLUDE_SATURDAY = true;
+export let EXCLUDE_SUNDAY = true;
+
 // Internal runtime state for dynamically configured special non-working holidays
 let customHolidaysRegistry = [];
 
@@ -37,7 +56,7 @@ export const FIXED_PHILIPPINE_HOLIDAYS = {
 };
 
 /**
- * Configure dynamic working hours and special holidays from the Central Editing Hub.
+ * Configure dynamic working hours, automatic continuation, time breaks, and special holidays from the Central Editing Hub.
  */
 export function configureWorkCalendar(options = {}) {
   if (options.workStartHour !== undefined) {
@@ -74,6 +93,44 @@ export function configureWorkCalendar(options = {}) {
     STANDARD_DAILY_HOURS = Number(options.standard_daily_hours) || 8.0;
   }
 
+  // Automatic daily continuation
+  if (options.daily_continuation_enabled !== undefined) {
+    DAILY_CONTINUATION_ENABLED = Boolean(Number(options.daily_continuation_enabled));
+  }
+  if (options.continuation_start_time) {
+    CONTINUATION_START_TIME = options.continuation_start_time;
+  }
+  if (options.continuation_cutoff_time) {
+    CONTINUATION_CUTOFF_TIME = options.continuation_cutoff_time;
+  }
+
+  // Time breaks
+  if (options.lunch_break_enabled !== undefined) {
+    LUNCH_BREAK_ENABLED = Boolean(Number(options.lunch_break_enabled));
+  }
+  if (options.morning_break_enabled !== undefined) {
+    MORNING_BREAK_ENABLED = Boolean(Number(options.morning_break_enabled));
+  }
+  if (options.morning_break_start) MORNING_BREAK_START = options.morning_break_start;
+  if (options.morning_break_end) MORNING_BREAK_END = options.morning_break_end;
+
+  if (options.afternoon_break_enabled !== undefined) {
+    AFTERNOON_BREAK_ENABLED = Boolean(Number(options.afternoon_break_enabled));
+  }
+  if (options.afternoon_break_start) AFTERNOON_BREAK_START = options.afternoon_break_start;
+  if (options.afternoon_break_end) AFTERNOON_BREAK_END = options.afternoon_break_end;
+
+  // Weekend exclusion
+  if (options.exclude_weekends !== undefined) {
+    EXCLUDE_WEEKENDS = Boolean(Number(options.exclude_weekends));
+  }
+  if (options.exclude_saturday !== undefined) {
+    EXCLUDE_SATURDAY = Boolean(Number(options.exclude_saturday));
+  }
+  if (options.exclude_sunday !== undefined) {
+    EXCLUDE_SUNDAY = Boolean(Number(options.exclude_sunday));
+  }
+
   if (Array.isArray(options.holidays)) {
     customHolidaysRegistry = options.holidays.filter(h => h && h.is_active !== 0 && h.is_active !== false);
   }
@@ -88,6 +145,19 @@ export function resetWorkCalendarConfig() {
   LUNCH_START_HOUR = 12;
   LUNCH_END_HOUR = 13;
   STANDARD_DAILY_HOURS = 8.0;
+  DAILY_CONTINUATION_ENABLED = true;
+  CONTINUATION_START_TIME = '08:00';
+  CONTINUATION_CUTOFF_TIME = '17:00';
+  LUNCH_BREAK_ENABLED = true;
+  MORNING_BREAK_ENABLED = false;
+  MORNING_BREAK_START = '10:00';
+  MORNING_BREAK_END = '10:15';
+  AFTERNOON_BREAK_ENABLED = false;
+  AFTERNOON_BREAK_START = '15:00';
+  AFTERNOON_BREAK_END = '15:15';
+  EXCLUDE_WEEKENDS = true;
+  EXCLUDE_SATURDAY = true;
+  EXCLUDE_SUNDAY = true;
   customHolidaysRegistry = [];
 }
 
@@ -101,6 +171,19 @@ export function getWorkCalendarConfig() {
     lunchStartHour: LUNCH_START_HOUR,
     lunchEndHour: LUNCH_END_HOUR,
     standardDailyHours: STANDARD_DAILY_HOURS,
+    dailyContinuationEnabled: DAILY_CONTINUATION_ENABLED,
+    continuationStartTime: CONTINUATION_START_TIME,
+    continuationCutoffTime: CONTINUATION_CUTOFF_TIME,
+    lunchBreakEnabled: LUNCH_BREAK_ENABLED,
+    morningBreakEnabled: MORNING_BREAK_ENABLED,
+    morningBreakStart: MORNING_BREAK_START,
+    morningBreakEnd: MORNING_BREAK_END,
+    afternoonBreakEnabled: AFTERNOON_BREAK_ENABLED,
+    afternoonBreakStart: AFTERNOON_BREAK_START,
+    afternoonBreakEnd: AFTERNOON_BREAK_END,
+    excludeWeekends: EXCLUDE_WEEKENDS,
+    excludeSaturday: EXCLUDE_SATURDAY,
+    excludeSunday: EXCLUDE_SUNDAY,
     holidaysCount: customHolidaysRegistry.length,
   };
 }
@@ -127,12 +210,15 @@ function getEasterSunday(year) {
 }
 
 /**
- * Check if a date falls on a weekend (Saturday or Sunday)
+ * Check if a date falls on a weekend, respecting institutional exclusion policy
  */
 export function isWeekend(date) {
+  if (!EXCLUDE_WEEKENDS) return false;
   const d = new Date(date);
-  const day = d.getDay();
-  return day === 0 || day === 6; // 0 = Sunday, 6 = Saturday
+  const day = d.getDay(); // 0 = Sunday, 6 = Saturday
+  if (day === 6) return EXCLUDE_SATURDAY;
+  if (day === 0) return EXCLUDE_SUNDAY;
+  return false;
 }
 
 /**
@@ -326,7 +412,7 @@ export function calculateWorkingHoursElapsed(startDateInput, endDateInput = new 
         let diffMs = windowEnd.getTime() - windowStart.getTime();
 
         // Check lunch break overlap
-        if (LUNCH_START_HOUR < LUNCH_END_HOUR) {
+        if (LUNCH_BREAK_ENABLED && LUNCH_START_HOUR < LUNCH_END_HOUR) {
           const lunchStart = new Date(year, month, date, LUNCH_START_HOUR, 0, 0);
           const lunchEnd = new Date(year, month, date, LUNCH_END_HOUR, 0, 0);
 
@@ -335,6 +421,36 @@ export function calculateWorkingHoursElapsed(startDateInput, endDateInput = new 
             const overlapEnd = windowEnd < lunchEnd ? windowEnd : lunchEnd;
             const lunchMs = overlapEnd.getTime() - overlapStart.getTime();
             diffMs = Math.max(0, diffMs - lunchMs);
+          }
+        }
+
+        // Check morning break overlap
+        if (MORNING_BREAK_ENABLED && MORNING_BREAK_START && MORNING_BREAK_END) {
+          const [mSh, mSm] = MORNING_BREAK_START.split(':').map(Number);
+          const [mEh, mEm] = MORNING_BREAK_END.split(':').map(Number);
+          const mBreakStart = new Date(year, month, date, mSh, mSm || 0, 0);
+          const mBreakEnd   = new Date(year, month, date, mEh, mEm || 0, 0);
+
+          if (windowStart < mBreakEnd && windowEnd > mBreakStart) {
+            const overlapStart = windowStart > mBreakStart ? windowStart : mBreakStart;
+            const overlapEnd   = windowEnd < mBreakEnd ? windowEnd : mBreakEnd;
+            const mBreakMs = overlapEnd.getTime() - overlapStart.getTime();
+            diffMs = Math.max(0, diffMs - mBreakMs);
+          }
+        }
+
+        // Check afternoon break overlap
+        if (AFTERNOON_BREAK_ENABLED && AFTERNOON_BREAK_START && AFTERNOON_BREAK_END) {
+          const [aSh, aSm] = AFTERNOON_BREAK_START.split(':').map(Number);
+          const [aEh, aEm] = AFTERNOON_BREAK_END.split(':').map(Number);
+          const aBreakStart = new Date(year, month, date, aSh, aSm || 0, 0);
+          const aBreakEnd   = new Date(year, month, date, aEh, aEm || 0, 0);
+
+          if (windowStart < aBreakEnd && windowEnd > aBreakStart) {
+            const overlapStart = windowStart > aBreakStart ? windowStart : aBreakStart;
+            const overlapEnd   = windowEnd < aBreakEnd ? windowEnd : aBreakEnd;
+            const aBreakMs = overlapEnd.getTime() - overlapStart.getTime();
+            diffMs = Math.max(0, diffMs - aBreakMs);
           }
         }
 

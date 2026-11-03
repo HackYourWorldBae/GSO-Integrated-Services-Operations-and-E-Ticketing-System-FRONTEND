@@ -11,6 +11,19 @@ export const useOperationsHubStore = defineStore('operationsHub', {
       lunch_start_time: '12:00',
       lunch_end_time: '13:00',
       standard_daily_hours: 8.0,
+      daily_continuation_enabled: true,
+      continuation_start_time: '08:00',
+      continuation_cutoff_time: '17:00',
+      lunch_break_enabled: true,
+      morning_break_enabled: false,
+      morning_break_start: '10:00',
+      morning_break_end: '10:15',
+      afternoon_break_enabled: false,
+      afternoon_break_start: '15:00',
+      afternoon_break_end: '15:15',
+      exclude_weekends: true,
+      exclude_saturday: true,
+      exclude_sunday: true,
     },
     holidays: [],
     materials: [...COMMON_MATERIALS],
@@ -158,11 +171,7 @@ export const useOperationsHubStore = defineStore('operationsHub', {
 
         // Synchronize workCalendar.js calculations with the loaded config
         configureWorkCalendar({
-          work_start_time: this.workingHours.work_start_time,
-          work_end_time: this.workingHours.work_end_time,
-          lunch_start_time: this.workingHours.lunch_start_time,
-          lunch_end_time: this.workingHours.lunch_end_time,
-          standard_daily_hours: this.workingHours.standard_daily_hours,
+          ...this.workingHours,
           holidays: this.holidays,
         });
 
@@ -353,11 +362,8 @@ export const useOperationsHubStore = defineStore('operationsHub', {
           this.workingHours = { ...this.workingHours, ...res.data.data };
 
           configureWorkCalendar({
-            work_start_time: this.workingHours.work_start_time,
-            work_end_time: this.workingHours.work_end_time,
-            lunch_start_time: this.workingHours.lunch_start_time,
-            lunch_end_time: this.workingHours.lunch_end_time,
-            standard_daily_hours: this.workingHours.standard_daily_hours,
+            ...this.workingHours,
+            holidays: this.holidays,
           });
 
           return { success: true, data: this.workingHours, message: res.data.message };

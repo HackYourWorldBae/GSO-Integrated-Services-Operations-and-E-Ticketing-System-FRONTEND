@@ -192,4 +192,48 @@ describe('Operations Hub Store & Dynamic Calendar Tests', () => {
     expect(delRes.success).toBe(true);
     expect(store.materials.some(m => m.id === 501)).toBe(false);
   });
+
+  it('saves full schedule configuration including continuation, breaks, and weekend exclusions', async () => {
+    const store = useOperationsHubStore();
+
+    const schedulePayload = {
+      work_start_time: '08:00',
+      work_end_time: '17:00',
+      lunch_start_time: '12:00',
+      lunch_end_time: '13:00',
+      standard_daily_hours: 8.0,
+      daily_continuation_enabled: true,
+      continuation_start_time: '08:00',
+      continuation_cutoff_time: '17:00',
+      lunch_break_enabled: true,
+      morning_break_enabled: true,
+      morning_break_start: '10:00',
+      morning_break_end: '10:15',
+      afternoon_break_enabled: true,
+      afternoon_break_start: '15:00',
+      afternoon_break_end: '15:15',
+      exclude_weekends: true,
+      exclude_saturday: true,
+      exclude_sunday: false,
+    };
+
+    api.post.mockResolvedValueOnce({
+      data: {
+        status: true,
+        message: 'Operational schedule, job continuation, time breaks, and weekend policies successfully updated.',
+        data: schedulePayload,
+      },
+    });
+
+    const res = await store.saveWorkingHours(schedulePayload);
+    expect(res.success).toBe(true);
+    expect(store.workingHours.daily_continuation_enabled).toBe(true);
+    expect(store.workingHours.continuation_start_time).toBe('08:00');
+    expect(store.workingHours.continuation_cutoff_time).toBe('17:00');
+    expect(store.workingHours.morning_break_enabled).toBe(true);
+    expect(store.workingHours.morning_break_start).toBe('10:00');
+    expect(store.workingHours.afternoon_break_enabled).toBe(true);
+    expect(store.workingHours.exclude_saturday).toBe(true);
+    expect(store.workingHours.exclude_sunday).toBe(false);
+  });
 });
