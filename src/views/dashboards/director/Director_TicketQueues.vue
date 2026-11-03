@@ -491,7 +491,6 @@
                   <th v-if="selectedCategory === 'job' && activeTab === 'active'" class="px-3 py-3 text-slate-700">Elapsed Duration</th>
                   <th v-if="selectedCategory === 'borrowing'" class="px-3 py-3 text-slate-700">Item Requested</th>
                   <th v-if="selectedCategory === 'borrowing'" class="px-3 py-3 text-slate-700">Date Needed</th>
-                  <th v-if="selectedCategory === 'borrowing'" class="px-3 py-3 text-slate-700">Borrowing Status</th>
                   <th class="px-3 py-3 text-slate-700 text-right">Actions</th>
                 </tr>
               </thead>
@@ -664,13 +663,6 @@
                     <div v-if="ticket.expected_return_date || ticket.borrowing?.expected_return_date" class="text-[10px] text-slate-400">
                       Until: {{ formatDate(ticket.expected_return_date || ticket.borrowing?.expected_return_date) }}
                     </div>
-                  </td>
-
-                  <!-- Borrowing: Status -->
-                  <td v-if="selectedCategory === 'borrowing'" class="px-3 py-2.5 whitespace-nowrap">
-                    <span :class="['px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border inline-flex items-center gap-1 shadow-2xs', borrowingStatusBadgeClass(ticket.borrowing_status || ticket.status)]">
-                      {{ formatBorrowingStatus(ticket.borrowing_status || ticket.status) }}
-                    </span>
                   </td>
 
                   <!-- Actions -->
