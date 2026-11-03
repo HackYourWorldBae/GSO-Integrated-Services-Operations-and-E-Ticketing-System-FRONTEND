@@ -65,6 +65,71 @@ const ALLOWED_STUDENT_SERVICES = [
   'Stage & Hall Decoration',
 ];
 
+const SERVICE_UNIT_MAP = {
+  "Concrete Works": "fgmu",
+  "Masonry Works": "fgmu",
+  "Welding & Tinsmith Works": "fgmu",
+  "Carpentry & Joinery": "fgmu",
+  "Glass & Glazing Works": "fgmu",
+  "Painting Works": "fgmu",
+  "Electrical Work": "fgmu",
+  "Plumbing & Sanitary Works": "fgmu",
+  "Electronics & Communication Works": "fgmu",
+  "Mechanical Works": "fgmu",
+  "Disinfection": "fgmu",
+  "Cleaning/ Grubbing": "fgmu",
+  "Hauling": "fgmu",
+  "Borrowing of tools/ equipment": "fgmu",
+  "Mowing/ Weeding": "leau",
+  "Planting/ Landscaping": "leau",
+  "Pruning/ Cutting": "leau",
+  "Stage & Hall Decoration": "leau",
+  "Borrowing of plants": "leau",
+  "Incident Report": "ssu"
+};
+
+const unitMeta = {
+  fgmu: {
+    id: 'fgmu',
+    name: 'FGMU',
+    fullName: 'Facilities and Ground Management Unit',
+    accentText: 'text-slate-300',
+    accentBg: 'bg-slate-100',
+    accentIcon: 'text-slate-600',
+    accentBorder: 'border-slate-200',
+    accentHover: 'hover:border-slate-300',
+    accentBadge: 'bg-slate-100 text-slate-700 border-slate-200',
+    badgeClass: 'bg-slate-100 text-slate-700 border border-slate-200'
+  },
+  leau: {
+    id: 'leau',
+    name: 'LEAU',
+    fullName: 'Landscaping and Environmental Aesthetics Unit',
+    accentText: 'text-emerald-300',
+    accentBg: 'bg-emerald-50',
+    accentIcon: 'text-emerald-600',
+    accentBorder: 'border-emerald-200',
+    accentHover: 'hover:border-emerald-300',
+    accentBadge: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+    badgeClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+  },
+  ssu: {
+    id: 'ssu',
+    name: 'SSU',
+    fullName: 'Security Services Unit',
+    accentText: 'text-stone-300',
+    accentBg: 'bg-stone-50',
+    accentIcon: 'text-stone-600',
+    accentBorder: 'border-stone-200',
+    accentHover: 'hover:border-stone-300',
+    accentBadge: 'bg-stone-100 text-stone-700 border-stone-200',
+    badgeClass: 'bg-stone-100 text-stone-700 border border-stone-200'
+  }
+};
+
+const getServiceUnitId = (serviceName) => SERVICE_UNIT_MAP[serviceName] || 'fgmu';
+const getServiceUnit = (serviceName) => unitMeta[getServiceUnitId(serviceName)] || unitMeta.fgmu;
+
 const isServiceAllowed = (unitId, serviceName) => {
   if (!isStudentUser.value) return true; // Faculty, staff, and employees have full access
   // Hauling and Borrowing of tools/equipment are authorized for student organizations even though handled by FGMU
@@ -76,8 +141,8 @@ const isServiceAllowed = (unitId, serviceName) => {
   return ALLOWED_STUDENT_SERVICES.includes(serviceName);
 };
 
-const categoryHasAllowed = (unitId, category) => {
-  return category.services.some(s => isServiceAllowed(unitId, s));
+const categoryHasAllowed = (category) => {
+  return category.services.some(s => isServiceAllowed(getServiceUnitId(s), s));
 };
 
 // Toggle to show all services (for student users to reveal restricted services)
@@ -260,117 +325,118 @@ const getServiceIcon = (service) => {
   return icons[service] || defaultIcon;
 };
 
-// --- SUB-UNIT DATA ---
-// Colors kept muted/soft — only LEAU uses emerald, others use slate-based tones.
-const subUnits = ref([
+// --- SERVICE CATEGORIES DEFINITION ---
+// Grouped into clean categories where Borrowing Services unites all institutional borrowing items (Tools & Plants)
+// while explicitly tracking their responsible sub-unit.
+const serviceCategoriesList = ref([
   {
-    id: 'fgmu',
-    name: 'FGMU',
-    fullName: 'Facilities and Ground Management Unit',
-    description: 'Handles all physical infrastructure, facilities maintenance, and janitorial operations across the campus, including structural, finishing, mechanical systems repair, disinfection, and cleaning upkeep.',
-    // Soft slate-indigo, not sharp
-    headerClass: 'bg-slate-800',
-    accentText: 'text-slate-300',
+    id: 'structure-finishes',
+    title: "Structure & Finishes",
+    filterGroup: 'facilities',
+    unitId: 'fgmu',
+    description: "Repair and renovation of building structures and surface finishes.",
     accentBg: 'bg-slate-100',
     accentIcon: 'text-slate-600',
-    accentBorder: 'border-slate-200',
-    accentHover: 'hover:border-slate-300',
-    accentBadge: 'bg-slate-100 text-slate-600 border-slate-200',
-    unitInitialBg: 'bg-slate-700',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
-    categories: [
-      {
-        title: "Structure & Finishes",
-        description: "Repair and renovation of building structures and surface finishes.",
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
-        services: ["Concrete Works", "Masonry Works", "Welding & Tinsmith Works", "Carpentry & Joinery", "Glass & Glazing Works", "Painting Works"]
-      },
-      {
-        title: "Utilities & Mechanical",
-        description: "Installation, repair, and maintenance of electrical, plumbing, and mechanical systems.",
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a2 2 0 0 1-2.79-2.79L14.7 6.3Z"/><path d="m20 13 2 2"/><path d="m5 22 5-5"/><path d="M17 14.7c-.35 2.2-2.15 4-4.35 4.35L8.5 22.25c-1.12.37-2.12-.63-1.75-1.75l3.2-4.15c.35-2.2 2.15-4 4.35-4.35l4.15-3.2c1.12-.37 2.12.63 1.75 1.75l-3.2 4.15Z"/></svg>`,
-        services: ["Electrical Work", "Plumbing & Sanitary Works", "Electronics & Communication Works", "Mechanical Works"]
-      },
-      {
-        title: "Janitorial",
-        description: "Campus-wide disinfection, sanitization, deep cleaning, and grounds grubbing operations.",
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a1.2 1.2 0 0 1 1.7 0l2.33 2.33a1.2 1.2 0 0 1 0 1.7l-8.06 8.07"/><path d="m7.07 13.89 5.04 5.05"/><path d="m3.12 17.84 4.87-4.87c.39-.39 1.03-.39 1.42 0l2.62 2.63c.39.39.39 1.03 0 1.42l-4.87 4.87a1 1 0 0 1-1.41 0l-2.63-2.62a1 1 0 0 1 0-1.43Z"/></svg>`,
-        services: ["Disinfection", "Cleaning/ Grubbing"]
-      },
-      {
-        title: "Hauling",
-        description: "Relocation and hauling of university furniture, equipment, materials, and heavy items.",
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-5h-7v7Z"/><path d="M13 9h4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
-        services: ["Hauling"]
-      },
-      {
-        title: "Borrowing Services",
-        description: "Reservation and borrowing of institutional tools, maintenance equipment, and materials.",
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a2 2 0 0 1-2.79-2.79L14.7 6.3Z"/><path d="m20 13 2 2"/><path d="m5 22 5-5"/><path d="M17 14.7c-.35 2.2-2.15 4-4.35 4.35L8.5 22.25c-1.12.37-2.12-.63-1.75-1.75l3.2-4.15c.35-2.2 2.15-4 4.35-4.35l4.15-3.2c1.12-.37 2.12.63 1.75 1.75l-3.2 4.15Z"/></svg>`,
-        services: ["Borrowing of tools/ equipment"]
-      }
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+    services: [
+      "Concrete Works",
+      "Masonry Works",
+      "Welding & Tinsmith Works",
+      "Carpentry & Joinery",
+      "Glass & Glazing Works",
+      "Painting Works"
     ]
   },
   {
-    id: 'leau',
-    name: 'LEAU',
-    fullName: 'Landscaping and Environmental Aesthetics Unit',
-    description: 'Responsible for campus landscaping, grounds beautification, plant propagation, tree care, event staging, and plant borrowing services.',
-    // Emerald — kept as-is, user said this one is good
-    headerClass: 'bg-emerald-700',
-    accentText: 'text-emerald-300',
+    id: 'utilities-mechanical',
+    title: "Utilities & Mechanical",
+    filterGroup: 'facilities',
+    unitId: 'fgmu',
+    description: "Installation, repair, and maintenance of electrical, plumbing, and mechanical systems.",
+    accentBg: 'bg-slate-100',
+    accentIcon: 'text-slate-600',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a2 2 0 0 1-2.79-2.79L14.7 6.3Z"/><path d="m20 13 2 2"/><path d="m5 22 5-5"/><path d="M17 14.7c-.35 2.2-2.15 4-4.35 4.35L8.5 22.25c-1.12.37-2.12-.63-1.75-1.75l3.2-4.15c.35-2.2 2.15-4 4.35-4.35l4.15-3.2c1.12-.37 2.12.63 1.75 1.75l-3.2 4.15Z"/></svg>`,
+    services: [
+      "Electrical Work",
+      "Plumbing & Sanitary Works",
+      "Electronics & Communication Works",
+      "Mechanical Works"
+    ]
+  },
+  {
+    id: 'janitorial',
+    title: "Janitorial",
+    filterGroup: 'janitorial',
+    unitId: 'fgmu',
+    description: "Campus-wide disinfection, sanitization, deep cleaning, and grounds grubbing operations.",
+    accentBg: 'bg-slate-100',
+    accentIcon: 'text-slate-600',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a1.2 1.2 0 0 1 1.7 0l2.33 2.33a1.2 1.2 0 0 1 0 1.7l-8.06 8.07"/><path d="m7.07 13.89 5.04 5.05"/><path d="m3.12 17.84 4.87-4.87c.39-.39 1.03-.39 1.42 0l2.62 2.63c.39.39.39 1.03 0 1.42l-4.87 4.87a1 1 0 0 1-1.41 0l-2.63-2.62a1 1 0 0 1 0-1.43Z"/></svg>`,
+    services: [
+      "Disinfection",
+      "Cleaning/ Grubbing"
+    ]
+  },
+  {
+    id: 'hauling',
+    title: "Hauling",
+    filterGroup: 'hauling',
+    unitId: 'fgmu',
+    description: "Relocation and hauling of university furniture, equipment, materials, and heavy items.",
+    accentBg: 'bg-slate-100',
+    accentIcon: 'text-slate-600',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-5h-7v7Z"/><path d="M13 9h4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
+    services: [
+      "Hauling"
+    ]
+  },
+  {
+    id: 'landscaping',
+    title: "Landscaping",
+    filterGroup: 'landscaping',
+    unitId: 'leau',
+    description: "Grounds beautification, lawn mowing, weeding, planting, tree pruning, and event staging.",
     accentBg: 'bg-emerald-50',
     accentIcon: 'text-emerald-600',
-    accentBorder: 'border-emerald-200',
-    accentHover: 'hover:border-emerald-300',
-    accentBadge: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    unitInitialBg: 'bg-emerald-600',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`,
-    categories: [
-      {
-        title: "Landscaping",
-        description: "Grounds beautification, lawn mowing, weeding, planting, tree pruning, and event staging.",
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`,
-        services: ["Mowing/ Weeding", "Planting/ Landscaping", "Pruning/ Cutting", "Stage & Hall Decoration"]
-      },
-      {
-        title: "Borrowing Services",
-        description: "Reservation and borrowing of potted and ornamental plants for campus events.",
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 4.24-4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="M14 8h8"/><path d="M2 8h8"/><path d="m9.17 14.83-4.24 4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="M12 22v-8"/><circle cx="12" cy="12" r="4"/></svg>`,
-        services: ["Borrowing of plants"]
-      }
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`,
+    services: [
+      "Mowing/ Weeding",
+      "Planting/ Landscaping",
+      "Pruning/ Cutting",
+      "Stage & Hall Decoration"
     ]
   },
   {
-    id: 'ssu',
-    name: 'SSU',
-    fullName: 'Security Services Unit',
-    description: 'Manages campus security operations including access control, campus safety, and official incident documentation for the university community.',
-    // Muted warm-stone — not sharp amber
-    headerClass: 'bg-stone-700',
-    accentText: 'text-stone-300',
+    id: 'borrowing',
+    title: "Borrowing Services",
+    filterGroup: 'borrowing',
+    unitId: 'shared',
+    description: "Reservation and borrowing of institutional tools, maintenance equipment, and potted/ornamental plants.",
+    accentBg: 'bg-emerald-50',
+    accentIcon: 'text-emerald-700',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a2 2 0 0 1-2.79-2.79L14.7 6.3Z"/><path d="m20 13 2 2"/><path d="m5 22 5-5"/><path d="M17 14.7c-.35 2.2-2.15 4-4.35 4.35L8.5 22.25c-1.12.37-2.12-.63-1.75-1.75l3.2-4.15c.35-2.2 2.15-4 4.35-4.35l4.15-3.2c1.12-.37 2.12.63 1.75 1.75l-3.2 4.15Z"/></svg>`,
+    services: [
+      "Borrowing of tools/ equipment",
+      "Borrowing of plants"
+    ]
+  },
+  {
+    id: 'security',
+    title: "Security Services",
+    filterGroup: 'ssu',
+    unitId: 'ssu',
+    description: "Official incident report documentation and campus safety services.",
     accentBg: 'bg-stone-50',
     accentIcon: 'text-stone-600',
-    accentBorder: 'border-stone-200',
-    accentHover: 'hover:border-stone-300',
-    accentBadge: 'bg-stone-100 text-stone-600 border-stone-200',
-    unitInitialBg: 'bg-stone-600',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="M12 22V2"/></svg>`,
-    categories: [
-      {
-        title: "Security Services",
-        description: "Official incident report documentation and campus safety services.",
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>`,
-        services: ["Incident Report"]
-      }
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>`,
+    services: [
+      "Incident Report"
     ]
   }
 ]);
 
-// Flat list of all categories (used for init + toggles)
-const serviceCategories = computed(() =>
-  subUnits.value.flatMap(u => u.categories)
-);
+// Flat list alias for backward compatibility
+const serviceCategories = computed(() => serviceCategoriesList.value);
 
 // Total selected count for the sticky bar
 const totalSelected = computed(() =>
@@ -396,11 +462,13 @@ const tokensMatch = (a, b) => {
 // - direct service-name hit (generic: "plumbing", specific: "faucet")
 // - category / unit hit surfaces the whole group (generic: "facilities", "grounds", "security")
 // - keyword alias hit, full-phrase first then per-token (generic: "repair", specific: "pipe leak")
-const serviceMatchesQuery = (service, cat, unit, query, queryTokens) => {
+const serviceMatchesQuery = (service, cat, query, queryTokens) => {
   if (!query) return true;
   const serviceNorm = normalizeSearchText(service);
   const catNorm = normalizeSearchText(cat.title);
   const catDescNorm = normalizeSearchText(cat.description);
+  const unitId = getServiceUnitId(service);
+  const unit = unitMeta[unitId] || unitMeta.fgmu;
   const unitNorm = `${normalizeSearchText(unit.name)} ${normalizeSearchText(unit.fullName)} ${normalizeSearchText(unit.id)}`;
 
   // 1. Direct full-phrase hits (service, category, unit)
@@ -409,9 +477,7 @@ const serviceMatchesQuery = (service, cat, unit, query, queryTokens) => {
   if (catDescNorm && (catDescNorm.includes(query) || query.includes(catDescNorm))) return true;
   if (unitNorm.includes(query) || query.includes(unitNorm)) return true;
 
-  // 2. Generic unit-level aliases (e.g. "facilities" -> all FGMU services).
-  // Short aliases (<=2 chars like "ac", "cr") require an exact token hit
-  // to avoid substring false positives ("crack" should not hit "cr").
+  // 2. Generic unit-level aliases
   const uAliases = unitKeywords[unit.id] || [];
   if (uAliases.some(al => {
     const alNorm = normalizeSearchText(al);
@@ -419,7 +485,7 @@ const serviceMatchesQuery = (service, cat, unit, query, queryTokens) => {
     return alNorm.includes(query) || query.includes(alNorm);
   })) return true;
 
-  // 3. Generic category-level aliases (e.g. "utilities" -> whole Utilities & Mechanical group)
+  // 3. Generic category-level aliases
   const cAliases = categoryKeywords[cat.title] || [];
   if (cAliases.some(al => {
     const alNorm = normalizeSearchText(al);
@@ -427,7 +493,7 @@ const serviceMatchesQuery = (service, cat, unit, query, queryTokens) => {
     return alNorm.includes(query) || query.includes(alNorm);
   })) return true;
 
-  // 4. Service keyword aliases: full-phrase first (e.g. "pipe leak", "broken door", "aircon")
+  // 4. Service keyword aliases: full-phrase first
   const keywords = serviceKeywords[service] || [];
   if (keywords.some(kw => {
     const kwNorm = normalizeSearchText(kw);
@@ -436,106 +502,83 @@ const serviceMatchesQuery = (service, cat, unit, query, queryTokens) => {
   })) return true;
 
   // 5. Token-level fallback so multi-word problems still hit
-  // (e.g. "leaking pipe" -> leak + pipe; "no power" -> power).
   const serviceTokens = serviceNorm.split(' ').filter(t => t.length >= 2);
   const keywordTokens = keywords.flatMap(kw => normalizeSearchText(kw).split(' ').filter(t => t.length >= 2));
   const haystack = [...serviceTokens, ...keywordTokens];
   return queryTokens.some(qt => qt.length >= 3 && haystack.some(ht => ht.length <= 2 ? qt === ht : tokensMatch(qt, ht)));
 };
 
-// Filtered sub-units based on search query, category tabs, and student restriction visibility
-const filteredSubUnits = computed(() => {
+// Filtered categories based on search query, category tabs, and student restriction visibility
+const filteredCategories = computed(() => {
   const query = normalizeSearchText(debouncedSearchQuery.value);
   const queryTokens = tokenizeSearch(debouncedSearchQuery.value);
   const filter = activeCategoryFilter.value;
 
-  // Base list filtered by category tab or unit ID
-  let units = subUnits.value.filter(unit => {
+  // Base list filtered by category tab or unit filter
+  let categories = serviceCategoriesList.value.filter(cat => {
     if (filter === 'all') return true;
-    if (filter === 'fgmu' && unit.id === 'fgmu') return true;
-    if (filter === 'leau' && unit.id === 'leau') return true;
-    if (filter === 'ssu' && unit.id === 'ssu') return true;
-    if (['facilities', 'janitorial', 'hauling', 'borrowing'].includes(filter) && unit.id === 'fgmu') return true;
-    if (['landscaping', 'borrowing'].includes(filter) && unit.id === 'leau') return true;
-    if (filter === 'security' && unit.id === 'ssu') return true;
+    if (cat.filterGroup === filter) return true;
+    if (filter === 'fgmu' && (cat.unitId === 'fgmu' || cat.unitId === 'shared')) return true;
+    if (filter === 'leau' && (cat.unitId === 'leau' || cat.unitId === 'shared')) return true;
+    if (filter === 'ssu' && cat.unitId === 'ssu') return true;
+    if (filter === 'facilities' && cat.filterGroup === 'facilities') return true;
+    if (filter === 'janitorial' && cat.filterGroup === 'janitorial') return true;
+    if (filter === 'hauling' && cat.filterGroup === 'hauling') return true;
+    if (filter === 'landscaping' && cat.filterGroup === 'landscaping') return true;
+    if (filter === 'borrowing' && cat.filterGroup === 'borrowing') return true;
+    if (filter === 'security' && cat.filterGroup === 'ssu') return true;
     return false;
   });
 
-  // If student user: sort sub-units so units with enabled services are on top
+  const result = categories.map(cat => {
+    // For student users: if showAllServices is false, hide services that are not for students
+    let availableServices = cat.services;
+    if (isStudentUser.value && !showAllServices.value) {
+      availableServices = availableServices.filter(service => isServiceAllowed(getServiceUnitId(service), service));
+    }
+
+    // Search matching
+    const matchingServices = availableServices.filter(service =>
+      serviceMatchesQuery(service, cat, query, queryTokens)
+    );
+
+    // For student users: sort services in each category so enabled ones are always on top
+    let sortedServices = matchingServices;
+    if (isStudentUser.value) {
+      sortedServices = [...matchingServices].sort((a, b) => {
+        const aAllowed = isServiceAllowed(getServiceUnitId(a), a);
+        const bAllowed = isServiceAllowed(getServiceUnitId(b), b);
+        if (aAllowed && !bAllowed) return -1;
+        if (!aAllowed && bAllowed) return 1;
+        return 0;
+      });
+    }
+
+    return {
+      ...cat,
+      services: sortedServices
+    };
+  }).filter(cat => cat.services.length > 0);
+
+  // If student user: sort categories so categories with enabled services are on top
   if (isStudentUser.value) {
-    units = [...units].sort((unitA, unitB) => {
-      const aAllowedCount = unitA.categories.reduce((acc, cat) =>
-        acc + cat.services.filter(s => isServiceAllowed(unitA.id, s)).length, 0
-      );
-      const bAllowedCount = unitB.categories.reduce((acc, cat) =>
-        acc + cat.services.filter(s => isServiceAllowed(unitB.id, s)).length, 0
-      );
-      if (aAllowedCount > 0 && bAllowedCount === 0) return -1;
-      if (aAllowedCount === 0 && bAllowedCount > 0) return 1;
-      return bAllowedCount - aAllowedCount;
+    result.sort((catA, catB) => {
+      const aAllowed = categoryHasAllowed(catA);
+      const bAllowed = categoryHasAllowed(catB);
+      if (aAllowed && !bAllowed) return -1;
+      if (!aAllowed && bAllowed) return 1;
+      return 0;
     });
   }
 
-  return units
-    .map(unit => {
-      let candidateCategories = unit.categories;
-
-      // Filter to specific category if a category tab is selected
-      if (filter === 'facilities') {
-        candidateCategories = candidateCategories.filter(c => c.title === 'Structure & Finishes' || c.title === 'Utilities & Mechanical');
-      } else if (filter === 'janitorial') {
-        candidateCategories = candidateCategories.filter(c => c.title === 'Janitorial');
-      } else if (filter === 'hauling') {
-        candidateCategories = candidateCategories.filter(c => c.title === 'Hauling');
-      } else if (filter === 'landscaping') {
-        candidateCategories = candidateCategories.filter(c => c.title === 'Landscaping');
-      } else if (filter === 'borrowing') {
-        candidateCategories = candidateCategories.filter(c => c.title === 'Borrowing Services');
-      } else if (filter === 'security') {
-        candidateCategories = candidateCategories.filter(c => c.title === 'Security Services');
-      }
-
-      const filteredCategories = candidateCategories.map(cat => {
-        // For student users: if showAllServices is false, hide services that are not for students
-        let availableServices = cat.services;
-        if (isStudentUser.value && !showAllServices.value) {
-          availableServices = availableServices.filter(service => isServiceAllowed(unit.id, service));
-        }
-
-        // Search matching: generic (unit/category/service family) + specific (problem keywords)
-        const matchingServices = availableServices.filter(service =>
-          serviceMatchesQuery(service, cat, unit, query, queryTokens)
-        );
-
-        // For student users: sort services in each category so enabled ones are always on top
-        let sortedServices = matchingServices;
-        if (isStudentUser.value) {
-          sortedServices = [...matchingServices].sort((a, b) => {
-            const aAllowed = isServiceAllowed(unit.id, a);
-            const bAllowed = isServiceAllowed(unit.id, b);
-            if (aAllowed && !bAllowed) return -1;
-            if (!aAllowed && bAllowed) return 1;
-            return 0; // preserve relative order within same allowed state
-          });
-        }
-
-        return {
-          ...cat,
-          services: sortedServices
-        };
-      }).filter(cat => cat.services.length > 0);
-
-      return {
-        ...unit,
-        categories: filteredCategories
-      };
-    }).filter(unit => unit.categories.length > 0);
+  return result;
 });
 
+// Backward-compatibility alias if referenced anywhere
+const filteredSubUnits = filteredCategories;
+
 const totalVisibleServices = computed(() => {
-  return filteredSubUnits.value.reduce((total, unit) => {
-    return total + unit.categories.reduce((catTotal, cat) => catTotal + cat.services.length, 0);
-  }, 0);
+  return filteredCategories.value.reduce((total, cat) => total + cat.services.length, 0);
 });
 
 // --- INIT ---
@@ -842,80 +885,82 @@ const handleSubmit = () => {
       </div>
 
       <form @submit.prevent="handleSubmit">
-        <div v-if="filteredSubUnits.length > 0" class="space-y-8 sm:space-y-12">
+        <div v-if="filteredCategories.length > 0" class="space-y-8 sm:space-y-12">
 
-          <!-- ── One section per Sub-Unit ── -->
-          <section v-for="unit in filteredSubUnits" :key="unit.id">
+          <!-- Category Sections -->
+          <section v-for="category in filteredCategories" :key="category.id">
 
-            <!-- Categories within the Unit -->
-            <div class="space-y-6 sm:space-y-10">
-              <div v-for="(category, catIdx) in unit.categories" :key="catIdx">
-
-                <!-- Category Sub-Header -->
-                <div class="flex items-center justify-between mb-3.5 sm:mb-5">
-                  <div class="flex items-center gap-2.5 sm:gap-3">
-                    <div :class="['w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0', unit.accentBg, unit.accentIcon]" v-html="category.icon"></div>
-                    <div class="flex items-center gap-2">
-                      <h3 class="text-sm sm:text-lg font-black text-slate-900 leading-tight">{{ category.title }}</h3>
-                      <span v-if="isStudentUser && showAllServices && !categoryHasAllowed(unit.id, category)" class="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-wider">Faculty Only</span>
-                    </div>
-                  </div>
-                  <div class="flex-1 h-px bg-slate-200 ml-4 hidden sm:block"></div>
+            <!-- Category Sub-Header -->
+            <div class="flex items-center justify-between mb-3.5 sm:mb-5">
+              <div class="flex items-center gap-2.5 sm:gap-3">
+                <div :class="['w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0', category.accentBg, category.accentIcon]" v-html="category.icon"></div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm sm:text-lg font-black text-slate-900 leading-tight">{{ category.title }}</h3>
+                  <span v-if="isStudentUser && showAllServices && !categoryHasAllowed(category)" class="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-wider">Faculty Only</span>
                 </div>
-
-                <!-- Service Cards Grid — 2 cols on mobile, 3 on sm, 4 on lg -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
-                  <template v-for="service in category.services" :key="service">
-
-                    <!-- Service Card (Interactive or Restricted) -->
-                    <div
-                      data-tour="services-card-item"
-                      @click="toggleService(unit.id, category.title, service)"
-                      class="group relative select-none rounded-2xl sm:rounded-[1.5rem] p-3.5 sm:p-5 transition-all duration-300 border-2 flex flex-col items-center justify-center gap-2 sm:gap-3 text-center min-h-[120px] sm:min-h-[145px] active:scale-[0.98]"
-                      :class="[
-                        !isServiceAllowed(unit.id, service)
-                          ? 'opacity-50 cursor-not-allowed bg-slate-100/70 border-dashed border-slate-200 text-slate-400 hover:border-slate-300'
-                          : selectedServices[`${category.title}-${service}`]
-                            ? 'cursor-pointer bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20 -translate-y-0.5'
-                            : ['cursor-pointer bg-white border-slate-100 text-slate-600 shadow-sm hover:-translate-y-0.5 hover:shadow-md', unit.accentHover]
-                      ]"
-                    >
-                      <!-- Icon -->
-                      <div
-                        class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all duration-300 shrink-0"
-                        :class="selectedServices[`${category.title}-${service}`]
-                          ? 'text-white bg-white/15'
-                          : [unit.accentBg, unit.accentIcon, isServiceAllowed(unit.id, service) ? 'group-hover:scale-110' : '']"
-                        v-html="getServiceIcon(service)"
-                      ></div>
-
-                      <div class="flex flex-col items-center gap-1">
-                        <span class="text-[11px] sm:text-xs font-bold leading-tight line-clamp-2">{{ service }}</span>
-                      </div>
-
-                      <!-- Restricted Lock Badge or Check Indicator -->
-                      <div
-                        v-if="!isServiceAllowed(unit.id, service)"
-                        class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-slate-200/90 text-slate-600 text-[9px] font-bold flex items-center gap-1 border border-slate-300/60 shadow-xs"
-                      >
-                        <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        <span>Faculty Only</span>
-                      </div>
-                      <div
-                        v-else
-                        class="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300"
-                        :class="selectedServices[`${category.title}-${service}`] ? 'bg-white/25 scale-100' : 'scale-0 group-hover:scale-100 bg-slate-100'"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" :class="selectedServices[`${category.title}-${service}`] ? 'text-white' : 'text-slate-400'"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
-                      </div>
-                    </div>
-
-                  </template>
-                </div>
-
               </div>
+              <div class="flex-1 h-px bg-slate-200 ml-4 hidden sm:block"></div>
+            </div>
+
+            <!-- Service Cards Grid — 2 cols on mobile, 3 on sm, 4 on lg -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+              <template v-for="service in category.services" :key="service">
+
+                <!-- Service Card (Interactive or Restricted) -->
+                <div
+                  data-tour="services-card-item"
+                  @click="toggleService(getServiceUnitId(service), category.title, service)"
+                  class="group relative select-none rounded-2xl sm:rounded-[1.5rem] p-3.5 sm:p-5 transition-all duration-300 border-2 flex flex-col items-center justify-center gap-2 sm:gap-3 text-center min-h-[120px] sm:min-h-[145px] active:scale-[0.98]"
+                  :class="[
+                    !isServiceAllowed(getServiceUnitId(service), service)
+                      ? 'opacity-50 cursor-not-allowed bg-slate-100/70 border-dashed border-slate-200 text-slate-400 hover:border-slate-300'
+                      : selectedServices[`${category.title}-${service}`]
+                        ? 'cursor-pointer bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20 -translate-y-0.5'
+                        : ['cursor-pointer bg-white border-slate-100 text-slate-600 shadow-sm hover:-translate-y-0.5 hover:shadow-md', getServiceUnit(service).accentHover]
+                  ]"
+                >
+                  <!-- Icon -->
+                  <div
+                    class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all duration-300 shrink-0"
+                    :class="selectedServices[`${category.title}-${service}`]
+                      ? 'text-white bg-white/15'
+                      : [getServiceUnit(service).accentBg, getServiceUnit(service).accentIcon, isServiceAllowed(getServiceUnitId(service), service) ? 'group-hover:scale-110' : '']"
+                    v-html="getServiceIcon(service)"
+                  ></div>
+
+                  <div class="flex flex-col items-center gap-1.5">
+                    <span class="text-[11px] sm:text-xs font-bold leading-tight line-clamp-2">{{ service }}</span>
+                    <!-- Handling Sub-Unit Badge -->
+                    <span
+                      class="text-[9px] font-extrabold px-1.5 py-0.5 rounded tracking-wider uppercase transition-colors"
+                      :class="selectedServices[`${category.title}-${service}`]
+                        ? 'bg-white/20 text-white'
+                        : getServiceUnit(service).badgeClass"
+                    >
+                      {{ getServiceUnit(service).name }}
+                    </span>
+                  </div>
+
+                  <!-- Restricted Lock Badge or Check Indicator -->
+                  <div
+                    v-if="!isServiceAllowed(getServiceUnitId(service), service)"
+                    class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-slate-200/90 text-slate-600 text-[9px] font-bold flex items-center gap-1 border border-slate-300/60 shadow-xs"
+                  >
+                    <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <span>Faculty Only</span>
+                  </div>
+                  <div
+                    v-else
+                    class="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300"
+                    :class="selectedServices[`${category.title}-${service}`] ? 'bg-white/25 scale-100' : 'scale-0 group-hover:scale-100 bg-slate-100'"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" :class="selectedServices[`${category.title}-${service}`] ? 'text-white' : 'text-slate-400'"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                </div>
+
+              </template>
             </div>
 
           </section>
