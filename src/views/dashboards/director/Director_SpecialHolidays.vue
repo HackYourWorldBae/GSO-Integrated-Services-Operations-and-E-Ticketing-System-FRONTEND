@@ -11,30 +11,30 @@
     </template>
 
     <template #main-content>
-      <div class="space-y-6 sm:space-y-8 animate-fade-in pb-16">
+      <div class="space-y-6 sm:space-y-7 animate-fade-in pb-16">
         <!-- Hero Banner Header -->
         <div
           data-tour="admin-page-header"
-          class="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-850 to-amber-950 text-white shadow-xl border border-amber-900/40 relative overflow-hidden"
+          class="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-850 to-amber-950 text-white shadow-xl border border-amber-900/40 relative overflow-hidden"
         >
           <!-- Background Ambient Glow -->
           <div class="absolute -right-20 -top-20 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
           <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div class="relative z-10 max-w-3xl space-y-3">
+          <div class="relative z-10 max-w-3xl space-y-2.5">
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-400/30">
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-400/30">
                 Operations Hub
               </span>
-              <span class="px-3 py-1 rounded-full bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider border border-white/10">
-                Institutional Calendar &amp; Continuity
+              <span class="px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider border border-white/10">
+                Calendar &amp; Work Continuity
               </span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
               Calendar &amp; Operational Schedule
             </h1>
             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
-              Manage non-working holiday declarations, automatic daily continuation of ongoing jobs, institutional rest breaks, and weekend exclusion policies across all service units.
+              Configure non-working holiday declarations, automatic daily continuation of jobs, institutional breaks, and weekend exclusions.
             </p>
           </div>
         </div>
@@ -84,7 +84,7 @@
           <!-- Quick status indicator in tabs bar -->
           <div class="hidden md:flex items-center gap-2 px-3 text-xs font-semibold text-slate-500">
             <span class="inline-block w-2 h-2 rounded-full" :class="scheduleForm.daily_continuation_enabled ? 'bg-emerald-500' : 'bg-slate-400'"></span>
-            <span>Auto-Continuation: <strong class="text-slate-800">{{ scheduleForm.daily_continuation_enabled ? 'Enabled' : 'Disabled' }}</strong></span>
+            <span>Continuation: <strong class="text-slate-800">{{ scheduleForm.daily_continuation_enabled ? 'On' : 'Off' }}</strong></span>
             <span class="text-slate-300">•</span>
             <span>Weekends: <strong class="text-slate-800">{{ scheduleForm.exclude_weekends ? 'Excluded' : 'Included' }}</strong></span>
           </div>
@@ -93,9 +93,9 @@
         <!-- ================================================================= -->
         <!-- TAB 1: SPECIAL NON-WORKING HOLIDAYS REGISTRY                      -->
         <!-- ================================================================= -->
-        <div v-if="activeTab === 'holidays'" class="space-y-6 sm:space-y-8 animate-fade-in">
+        <div v-if="activeTab === 'holidays'" class="space-y-6 sm:space-y-7 animate-fade-in">
           <!-- Action Bar: Search, Type Filters, and Add Button -->
-          <div class="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
             <!-- Filters -->
             <div class="flex-1 grid grid-cols-1 sm:grid-cols-12 gap-3">
               <!-- Search Keyword -->
@@ -400,161 +400,135 @@
         <!-- ================================================================= -->
         <!-- TAB 2: WORK SCHEDULE, CONTINUITY & BREAKS EDITOR                  -->
         <!-- ================================================================= -->
-        <div v-else-if="activeTab === 'schedule'" class="space-y-6 sm:space-y-8 animate-fade-in">
+        <div v-else-if="activeTab === 'schedule'" class="space-y-6 sm:space-y-7 animate-fade-in">
           <!-- CARD 1: AUTOMATIC DAILY CONTINUATION & SHIFT WINDOW -->
-          <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 sm:p-8 space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-              <div class="flex items-start gap-3.5">
-                <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 sm:p-7 space-y-5">
+            <!-- Header -->
+            <div class="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                    Automatic Daily Continuation of Jobs
+                  <h3 class="text-base font-black text-slate-900 tracking-tight">
+                    Automatic Daily Continuation
                   </h3>
-                  <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                    Governs how ongoing tickets carry forward daily across multi-day operations without requiring manual re-dispatch.
+                  <p class="text-xs text-slate-500 font-medium">
+                    Carry forward ongoing multi-day jobs without manual re-dispatch.
                   </p>
                 </div>
               </div>
 
-              <div class="flex items-center gap-2">
-                <span
-                  class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 border"
-                  :class="scheduleForm.daily_continuation_enabled
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-slate-100 text-slate-600 border-slate-200'"
-                >
-                  <span class="w-2 h-2 rounded-full" :class="scheduleForm.daily_continuation_enabled ? 'bg-emerald-500' : 'bg-slate-400'"></span>
-                  {{ scheduleForm.daily_continuation_enabled ? 'Continuation Active' : 'Continuation Disabled' }}
-                </span>
-              </div>
+              <span
+                class="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider inline-flex items-center gap-1.5 border shrink-0"
+                :class="scheduleForm.daily_continuation_enabled
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-slate-100 text-slate-600 border-slate-200'"
+              >
+                <span class="w-1.5 h-1.5 rounded-full" :class="scheduleForm.daily_continuation_enabled ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+                {{ scheduleForm.daily_continuation_enabled ? 'Active' : 'Disabled' }}
+              </span>
             </div>
 
             <!-- Master Toggle Switch: Daily Continuation -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div class="space-y-1">
-                <div class="text-sm font-black text-slate-900">
-                  Enable Automatic Multi-Day Job Continuation
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-4">
+              <div>
+                <div class="text-sm font-bold text-slate-900">
+                  Enable Multi-Day Continuation
                 </div>
-                <div class="text-xs text-slate-500 leading-relaxed font-medium">
-                  When enabled, tickets marked In Progress pause at the daily cutoff time and automatically resume ticking at morning resume time on the next working day.
+                <div class="text-xs text-slate-500 font-medium mt-0.5">
+                  Pauses active jobs at evening cutoff and resumes them next work morning.
                 </div>
               </div>
 
-              <label class="relative inline-flex items-center cursor-pointer shrink-0 min-h-[44px]">
-                <input
-                  v-model="scheduleForm.daily_continuation_enabled"
-                  type="checkbox"
-                  class="sr-only peer"
+              <!-- Centered Toggle Switch Button -->
+              <button
+                type="button"
+                role="switch"
+                :aria-checked="scheduleForm.daily_continuation_enabled"
+                @click="scheduleForm.daily_continuation_enabled = !scheduleForm.daily_continuation_enabled"
+                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                :class="scheduleForm.daily_continuation_enabled ? 'bg-emerald-600' : 'bg-slate-300'"
+              >
+                <span
+                  aria-hidden="true"
+                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                  :class="scheduleForm.daily_continuation_enabled ? 'translate-x-5' : 'translate-x-0'"
                 />
-                <div class="w-14 h-8 bg-slate-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[8px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-600"></div>
-              </label>
+              </button>
             </div>
 
-            <!-- Continuation & Working Hours Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            <!-- Continuation & Working Hours Grid (No Text Clutter) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
               <!-- Continuation Morning Resume Time -->
-              <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
-                <div class="flex items-center justify-between">
-                  <label class="text-xs font-black text-slate-800 uppercase tracking-wider">
-                    Morning Resume Time
-                  </label>
-                  <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                    24h format
-                  </span>
-                </div>
+              <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700">
+                  Morning Resume Time
+                </label>
                 <input
                   v-model="scheduleForm.continuation_start_time"
                   type="time"
                   required
                   :disabled="!scheduleForm.daily_continuation_enabled"
-                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
+                  class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 disabled:cursor-not-allowed min-h-[40px]"
                 />
-                <p class="text-[11px] text-slate-400 font-medium">
-                  When daily jobs automatically pick up on the next work morning.
-                </p>
               </div>
 
               <!-- Continuation Evening Cutoff Time -->
-              <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
-                <div class="flex items-center justify-between">
-                  <label class="text-xs font-black text-slate-800 uppercase tracking-wider">
-                    Evening Cutoff Time
-                  </label>
-                  <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                    24h format
-                  </span>
-                </div>
+              <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700">
+                  Evening Cutoff Time
+                </label>
                 <input
                   v-model="scheduleForm.continuation_cutoff_time"
                   type="time"
                   required
                   :disabled="!scheduleForm.daily_continuation_enabled"
-                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
+                  class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 disabled:cursor-not-allowed min-h-[40px]"
                 />
-                <p class="text-[11px] text-slate-400 font-medium">
-                  When daily operations pause until the next business morning.
-                </p>
               </div>
 
               <!-- Core Shift Start Time -->
-              <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
-                <div class="flex items-center justify-between">
-                  <label class="text-xs font-black text-slate-800 uppercase tracking-wider">
-                    Core Shift Start
-                  </label>
-                  <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                    Work Start
-                  </span>
-                </div>
+              <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700">
+                  Core Shift Start
+                </label>
                 <input
                   v-model="scheduleForm.work_start_time"
                   type="time"
                   required
-                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
+                  class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[40px]"
                 />
-                <p class="text-[11px] text-slate-400 font-medium">
-                  Official daily opening time for physical office and dispatch.
-                </p>
               </div>
 
-              <!-- Core Shift End Time & Standard Daily Hours -->
-              <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
-                <div class="flex items-center justify-between">
-                  <label class="text-xs font-black text-slate-800 uppercase tracking-wider">
-                    Core Shift End
-                  </label>
-                  <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                    Work End
-                  </span>
-                </div>
+              <!-- Core Shift End Time -->
+              <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700">
+                  Core Shift End
+                </label>
                 <input
                   v-model="scheduleForm.work_end_time"
                   type="time"
                   required
-                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
+                  class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[40px]"
                 />
-                <p class="text-[11px] text-slate-400 font-medium">
-                  Official daily closing time for dispatch counters.
-                </p>
               </div>
             </div>
 
             <!-- Standard Net Daily Hours Field -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div class="space-y-1">
-                <div class="text-xs font-black text-slate-900 uppercase tracking-wider">
-                  Standard Daily Working Hours per Shift Day
+            <div class="p-3.5 sm:p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 flex items-center justify-between gap-4">
+              <div>
+                <div class="text-xs font-bold text-slate-800">
+                  Standard Daily Shift Hours
                 </div>
-                <div class="text-xs text-slate-500 font-medium">
-                  Net working hours credited per business day (standard is 8.0 hours after break deductions).
+                <div class="text-xs text-slate-500 font-medium mt-0.5">
+                  Net credited working hours per business shift.
                 </div>
               </div>
 
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 shrink-0">
                 <input
                   v-model.number="scheduleForm.standard_daily_hours"
                   type="number"
@@ -562,343 +536,367 @@
                   min="1"
                   max="24"
                   required
-                  class="w-24 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-black text-slate-900 text-center focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
+                  class="w-20 px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-black text-slate-900 text-center focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[38px]"
                 />
-                <span class="text-xs font-bold text-slate-600">Hours / Day</span>
+                <span class="text-xs font-bold text-slate-600">Hours</span>
               </div>
             </div>
           </div>
 
           <!-- CARD 2: INSTITUTIONAL TIME BREAKS (TURNAROUND DEDUCTIONS) -->
-          <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 sm:p-8 space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-              <div class="flex items-start gap-3.5">
-                <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 sm:p-7 space-y-5">
+            <!-- Header -->
+            <div class="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                    Institutional Time Breaks (Turnaround Deductions)
+                  <h3 class="text-base font-black text-slate-900 tracking-tight">
+                    Institutional Time Breaks
                   </h3>
-                  <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                    Designate formal rest and meal intervals that are automatically deducted from turnaround times, ticket SLAs, and labor duration.
+                  <p class="text-xs text-slate-500 font-medium">
+                    Breaks deducted from active ticket SLA and turnaround timers.
                   </p>
                 </div>
               </div>
 
-              <div class="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200/70">
-                Total Breaks Enabled: <strong class="text-amber-700">{{ activeBreakCount }}</strong>
-              </div>
+              <span class="text-xs font-bold text-slate-600 bg-slate-50 px-3 py-1 rounded-full border border-slate-200/70 shrink-0">
+                Active Breaks: <strong class="text-amber-700">{{ activeBreakCount }}</strong>
+              </span>
             </div>
 
             <!-- Breaks List (Lunch, Morning, Afternoon) -->
-            <div class="space-y-4">
+            <div class="space-y-3">
               <!-- 1. Lunch Break -->
               <div
-                class="p-5 rounded-2xl border transition-all"
+                class="p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5"
                 :class="scheduleForm.lunch_break_enabled
                   ? 'bg-amber-50/30 border-amber-200/70'
-                  : 'bg-slate-50/60 border-slate-200 opacity-80'"
+                  : 'bg-slate-50/60 border-slate-200 opacity-70'"
               >
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div class="flex items-start gap-3 flex-1">
-                    <div class="p-2 rounded-xl bg-amber-100 text-amber-800 mt-0.5 shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="flex items-center gap-2">
-                        <span class="text-sm font-black text-slate-900">Mandatory Lunch Break</span>
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800">
-                          Midday Meal
-                        </span>
-                      </div>
-                      <p class="text-xs text-slate-500 font-medium mt-0.5">
-                        Deducts 1 hour from turnaround counting across all campus units during lunch hours.
-                      </p>
-                    </div>
+                <div class="flex items-center gap-3">
+                  <div class="p-2 rounded-xl bg-amber-100 text-amber-800 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Mandatory Lunch Break</div>
+                    <div class="text-xs text-slate-500 font-medium">Standard 1-hour midday pause</div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between sm:justify-end gap-3">
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model="scheduleForm.lunch_start_time"
+                      type="time"
+                      :disabled="!scheduleForm.lunch_break_enabled"
+                      class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[38px]"
+                    />
+                    <span class="text-xs text-slate-400 font-bold">to</span>
+                    <input
+                      v-model="scheduleForm.lunch_end_time"
+                      type="time"
+                      :disabled="!scheduleForm.lunch_break_enabled"
+                      class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[38px]"
+                    />
                   </div>
 
-                  <div class="flex flex-wrap items-center gap-3">
-                    <div class="flex items-center gap-2">
-                      <input
-                        v-model="scheduleForm.lunch_start_time"
-                        type="time"
-                        :disabled="!scheduleForm.lunch_break_enabled"
-                        class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[44px]"
-                      />
-                      <span class="text-xs text-slate-400 font-bold">to</span>
-                      <input
-                        v-model="scheduleForm.lunch_end_time"
-                        type="time"
-                        :disabled="!scheduleForm.lunch_break_enabled"
-                        class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[44px]"
-                      />
-                    </div>
-
-                    <label class="relative inline-flex items-center cursor-pointer shrink-0 min-h-[44px]">
-                      <input
-                        v-model="scheduleForm.lunch_break_enabled"
-                        type="checkbox"
-                        class="sr-only peer"
-                      />
-                      <div class="w-12 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[8px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
-                    </label>
-                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    :aria-checked="scheduleForm.lunch_break_enabled"
+                    @click="scheduleForm.lunch_break_enabled = !scheduleForm.lunch_break_enabled"
+                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
+                    :class="scheduleForm.lunch_break_enabled ? 'bg-amber-600' : 'bg-slate-300'"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                      :class="scheduleForm.lunch_break_enabled ? 'translate-x-5' : 'translate-x-0'"
+                    />
+                  </button>
                 </div>
               </div>
 
               <!-- 2. Morning Rest Break -->
               <div
-                class="p-5 rounded-2xl border transition-all"
+                class="p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5"
                 :class="scheduleForm.morning_break_enabled
                   ? 'bg-amber-50/30 border-amber-200/70'
-                  : 'bg-slate-50/60 border-slate-200 opacity-80'"
+                  : 'bg-slate-50/60 border-slate-200 opacity-70'"
               >
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div class="flex items-start gap-3 flex-1">
-                    <div class="p-2 rounded-xl bg-slate-100 text-slate-700 mt-0.5 shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="flex items-center gap-2">
-                        <span class="text-sm font-black text-slate-900">Morning Rest Break (Optional)</span>
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-200 text-slate-700">
-                          15 Mins
-                        </span>
-                      </div>
-                      <p class="text-xs text-slate-500 font-medium mt-0.5">
-                        Deducts morning institutional pause from active ticket duration when enabled.
-                      </p>
-                    </div>
+                <div class="flex items-center gap-3">
+                  <div class="p-2 rounded-xl bg-slate-100 text-slate-700 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Morning Break (Optional)</div>
+                    <div class="text-xs text-slate-500 font-medium">Optional 15-minute institutional pause</div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between sm:justify-end gap-3">
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model="scheduleForm.morning_break_start"
+                      type="time"
+                      :disabled="!scheduleForm.morning_break_enabled"
+                      class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[38px]"
+                    />
+                    <span class="text-xs text-slate-400 font-bold">to</span>
+                    <input
+                      v-model="scheduleForm.morning_break_end"
+                      type="time"
+                      :disabled="!scheduleForm.morning_break_enabled"
+                      class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[38px]"
+                    />
                   </div>
 
-                  <div class="flex flex-wrap items-center gap-3">
-                    <div class="flex items-center gap-2">
-                      <input
-                        v-model="scheduleForm.morning_break_start"
-                        type="time"
-                        :disabled="!scheduleForm.morning_break_enabled"
-                        class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[44px]"
-                      />
-                      <span class="text-xs text-slate-400 font-bold">to</span>
-                      <input
-                        v-model="scheduleForm.morning_break_end"
-                        type="time"
-                        :disabled="!scheduleForm.morning_break_enabled"
-                        class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[44px]"
-                      />
-                    </div>
-
-                    <label class="relative inline-flex items-center cursor-pointer shrink-0 min-h-[44px]">
-                      <input
-                        v-model="scheduleForm.morning_break_enabled"
-                        type="checkbox"
-                        class="sr-only peer"
-                      />
-                      <div class="w-12 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[8px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
-                    </label>
-                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    :aria-checked="scheduleForm.morning_break_enabled"
+                    @click="scheduleForm.morning_break_enabled = !scheduleForm.morning_break_enabled"
+                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
+                    :class="scheduleForm.morning_break_enabled ? 'bg-amber-600' : 'bg-slate-300'"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                      :class="scheduleForm.morning_break_enabled ? 'translate-x-5' : 'translate-x-0'"
+                    />
+                  </button>
                 </div>
               </div>
 
               <!-- 3. Afternoon Rest Break -->
               <div
-                class="p-5 rounded-2xl border transition-all"
+                class="p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5"
                 :class="scheduleForm.afternoon_break_enabled
                   ? 'bg-amber-50/30 border-amber-200/70'
-                  : 'bg-slate-50/60 border-slate-200 opacity-80'"
+                  : 'bg-slate-50/60 border-slate-200 opacity-70'"
               >
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div class="flex items-start gap-3 flex-1">
-                    <div class="p-2 rounded-xl bg-slate-100 text-slate-700 mt-0.5 shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="flex items-center gap-2">
-                        <span class="text-sm font-black text-slate-900">Afternoon Rest Break (Optional)</span>
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-200 text-slate-700">
-                          15 Mins
-                        </span>
-                      </div>
-                      <p class="text-xs text-slate-500 font-medium mt-0.5">
-                        Deducts afternoon institutional pause from active ticket duration when enabled.
-                      </p>
-                    </div>
+                <div class="flex items-center gap-3">
+                  <div class="p-2 rounded-xl bg-slate-100 text-slate-700 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Afternoon Break (Optional)</div>
+                    <div class="text-xs text-slate-500 font-medium">Optional 15-minute institutional pause</div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between sm:justify-end gap-3">
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model="scheduleForm.afternoon_break_start"
+                      type="time"
+                      :disabled="!scheduleForm.afternoon_break_enabled"
+                      class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[38px]"
+                    />
+                    <span class="text-xs text-slate-400 font-bold">to</span>
+                    <input
+                      v-model="scheduleForm.afternoon_break_end"
+                      type="time"
+                      :disabled="!scheduleForm.afternoon_break_enabled"
+                      class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[38px]"
+                    />
                   </div>
 
-                  <div class="flex flex-wrap items-center gap-3">
-                    <div class="flex items-center gap-2">
-                      <input
-                        v-model="scheduleForm.afternoon_break_start"
-                        type="time"
-                        :disabled="!scheduleForm.afternoon_break_enabled"
-                        class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[44px]"
-                      />
-                      <span class="text-xs text-slate-400 font-bold">to</span>
-                      <input
-                        v-model="scheduleForm.afternoon_break_end"
-                        type="time"
-                        :disabled="!scheduleForm.afternoon_break_enabled"
-                        class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-40 min-h-[44px]"
-                      />
-                    </div>
-
-                    <label class="relative inline-flex items-center cursor-pointer shrink-0 min-h-[44px]">
-                      <input
-                        v-model="scheduleForm.afternoon_break_enabled"
-                        type="checkbox"
-                        class="sr-only peer"
-                      />
-                      <div class="w-12 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[8px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
-                    </label>
-                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    :aria-checked="scheduleForm.afternoon_break_enabled"
+                    @click="scheduleForm.afternoon_break_enabled = !scheduleForm.afternoon_break_enabled"
+                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
+                    :class="scheduleForm.afternoon_break_enabled ? 'bg-amber-600' : 'bg-slate-300'"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                      :class="scheduleForm.afternoon_break_enabled ? 'translate-x-5' : 'translate-x-0'"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- CARD 3: WEEKEND EXCLUSION POLICY & DAYS CONFIGURATION -->
-          <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 sm:p-8 space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-              <div class="flex items-start gap-3.5">
-                <div class="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 sm:p-7 space-y-5">
+            <!-- Header -->
+            <div class="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                  <h3 class="text-base font-black text-slate-900 tracking-tight">
                     Weekend Exclusion Policy
                   </h3>
-                  <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                    Configure whether weekend days are paused and omitted from resolution deadlines, turnaround hours, and SLA aging metrics.
+                  <p class="text-xs text-slate-500 font-medium">
+                    Configure weekend pauses for ticket turnaround and deadlines.
                   </p>
                 </div>
               </div>
 
               <!-- Policy Badge -->
-              <div>
-                <span
-                  class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 border"
-                  :class="scheduleForm.exclude_weekends
-                    ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                    : 'bg-emerald-50 text-emerald-700 border-emerald-200'"
-                >
-                  <span class="w-2 h-2 rounded-full" :class="scheduleForm.exclude_weekends ? 'bg-indigo-500' : 'bg-emerald-500'"></span>
-                  {{ weekendPolicySummaryTitle }}
-                </span>
-              </div>
+              <span
+                class="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider inline-flex items-center gap-1.5 border shrink-0"
+                :class="scheduleForm.exclude_weekends
+                  ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'"
+              >
+                <span class="w-1.5 h-1.5 rounded-full" :class="scheduleForm.exclude_weekends ? 'bg-indigo-500' : 'bg-emerald-500'"></span>
+                {{ weekendPolicySummaryTitle }}
+              </span>
             </div>
 
             <!-- Master Toggle: Exclude Weekends -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div class="space-y-1">
-                <div class="text-sm font-black text-slate-900">
-                  Exclude Weekends from Deadlines &amp; Turnaround Calculations
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-4">
+              <div>
+                <div class="text-sm font-bold text-slate-900">
+                  Exclude Weekends from Deadlines &amp; Turnaround
                 </div>
-                <div class="text-xs text-slate-500 leading-relaxed font-medium">
-                  When enabled, non-operational weekend days do not count toward service turnarounds or ticket resolution deadlines.
+                <div class="text-xs text-slate-500 font-medium mt-0.5">
+                  Weekend days will not count against SLA resolution times or promised delivery dates.
                 </div>
               </div>
 
-              <label class="relative inline-flex items-center cursor-pointer shrink-0 min-h-[44px]">
-                <input
-                  v-model="scheduleForm.exclude_weekends"
-                  type="checkbox"
-                  class="sr-only peer"
+              <!-- Centered Toggle Switch Button -->
+              <button
+                type="button"
+                role="switch"
+                :aria-checked="scheduleForm.exclude_weekends"
+                @click="scheduleForm.exclude_weekends = !scheduleForm.exclude_weekends"
+                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                :class="scheduleForm.exclude_weekends ? 'bg-indigo-600' : 'bg-slate-300'"
+              >
+                <span
+                  aria-hidden="true"
+                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                  :class="scheduleForm.exclude_weekends ? 'translate-x-5' : 'translate-x-0'"
                 />
-                <div class="w-14 h-8 bg-slate-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[8px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
-              </label>
+              </button>
             </div>
 
             <!-- Granular Weekend Days Selection (Saturday / Sunday) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <!-- Saturday Toggle -->
-              <label
-                class="p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-4 select-none min-h-[44px]"
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <!-- Saturday Toggle Card -->
+              <div
+                @click="scheduleForm.exclude_weekends && (scheduleForm.exclude_saturday = !scheduleForm.exclude_saturday)"
                 :class="[
+                  'p-4 rounded-2xl border transition-all flex items-center justify-between gap-4 select-none min-h-[56px]',
                   !scheduleForm.exclude_weekends
                     ? 'bg-slate-50 border-slate-200 opacity-50 cursor-not-allowed'
                     : scheduleForm.exclude_saturday
-                      ? 'bg-indigo-50/40 border-indigo-200 shadow-2xs'
-                      : 'bg-white border-slate-200 hover:bg-slate-50'
+                      ? 'bg-indigo-50/40 border-indigo-200 cursor-pointer shadow-2xs'
+                      : 'bg-white border-slate-200 hover:bg-slate-50 cursor-pointer'
                 ]"
               >
-                <div class="space-y-1">
+                <div>
                   <div class="flex items-center gap-2">
-                    <span class="text-sm font-black text-slate-900">Exclude Saturdays</span>
+                    <span class="text-sm font-bold text-slate-900">Exclude Saturdays</span>
                     <span
-                      class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider"
+                      class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider"
                       :class="scheduleForm.exclude_weekends && scheduleForm.exclude_saturday ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-600'"
                     >
-                      {{ scheduleForm.exclude_weekends && scheduleForm.exclude_saturday ? 'Non-Working' : 'Active Day' }}
+                      {{ scheduleForm.exclude_weekends && scheduleForm.exclude_saturday ? 'Non-Working' : 'Active' }}
                     </span>
                   </div>
-                  <p class="text-xs text-slate-500 font-medium leading-snug">
-                    Saturdays are paused and will not accumulate turnaround hours or reduce ticket deadlines.
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">
+                    Saturdays do not accumulate turnaround hours.
                   </p>
                 </div>
 
-                <input
-                  v-model="scheduleForm.exclude_saturday"
-                  type="checkbox"
+                <button
+                  type="button"
+                  role="switch"
+                  :aria-checked="scheduleForm.exclude_saturday"
                   :disabled="!scheduleForm.exclude_weekends"
-                  class="w-5 h-5 mt-1 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer disabled:cursor-not-allowed"
-                />
-              </label>
+                  @click.stop="scheduleForm.exclude_saturday = !scheduleForm.exclude_saturday"
+                  class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                  :class="[
+                    !scheduleForm.exclude_weekends ? 'opacity-40 cursor-not-allowed' : '',
+                    scheduleForm.exclude_weekends && scheduleForm.exclude_saturday ? 'bg-indigo-600' : 'bg-slate-300'
+                  ]"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                    :class="scheduleForm.exclude_weekends && scheduleForm.exclude_saturday ? 'translate-x-5' : 'translate-x-0'"
+                  />
+                </button>
+              </div>
 
-              <!-- Sunday Toggle -->
-              <label
-                class="p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-4 select-none min-h-[44px]"
+              <!-- Sunday Toggle Card -->
+              <div
+                @click="scheduleForm.exclude_weekends && (scheduleForm.exclude_sunday = !scheduleForm.exclude_sunday)"
                 :class="[
+                  'p-4 rounded-2xl border transition-all flex items-center justify-between gap-4 select-none min-h-[56px]',
                   !scheduleForm.exclude_weekends
                     ? 'bg-slate-50 border-slate-200 opacity-50 cursor-not-allowed'
                     : scheduleForm.exclude_sunday
-                      ? 'bg-indigo-50/40 border-indigo-200 shadow-2xs'
-                      : 'bg-white border-slate-200 hover:bg-slate-50'
+                      ? 'bg-indigo-50/40 border-indigo-200 cursor-pointer shadow-2xs'
+                      : 'bg-white border-slate-200 hover:bg-slate-50 cursor-pointer'
                 ]"
               >
-                <div class="space-y-1">
+                <div>
                   <div class="flex items-center gap-2">
-                    <span class="text-sm font-black text-slate-900">Exclude Sundays</span>
+                    <span class="text-sm font-bold text-slate-900">Exclude Sundays</span>
                     <span
-                      class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider"
+                      class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider"
                       :class="scheduleForm.exclude_weekends && scheduleForm.exclude_sunday ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-600'"
                     >
-                      {{ scheduleForm.exclude_weekends && scheduleForm.exclude_sunday ? 'Non-Working' : 'Active Day' }}
+                      {{ scheduleForm.exclude_weekends && scheduleForm.exclude_sunday ? 'Non-Working' : 'Active' }}
                     </span>
                   </div>
-                  <p class="text-xs text-slate-500 font-medium leading-snug">
-                    Sundays are paused and will not accumulate turnaround hours or reduce ticket deadlines.
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">
+                    Sundays do not accumulate turnaround hours.
                   </p>
                 </div>
 
-                <input
-                  v-model="scheduleForm.exclude_sunday"
-                  type="checkbox"
+                <button
+                  type="button"
+                  role="switch"
+                  :aria-checked="scheduleForm.exclude_sunday"
                   :disabled="!scheduleForm.exclude_weekends"
-                  class="w-5 h-5 mt-1 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer disabled:cursor-not-allowed"
-                />
-              </label>
+                  @click.stop="scheduleForm.exclude_sunday = !scheduleForm.exclude_sunday"
+                  class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                  :class="[
+                    !scheduleForm.exclude_weekends ? 'opacity-40 cursor-not-allowed' : '',
+                    scheduleForm.exclude_weekends && scheduleForm.exclude_sunday ? 'bg-indigo-600' : 'bg-slate-300'
+                  ]"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                    :class="scheduleForm.exclude_weekends && scheduleForm.exclude_sunday ? 'translate-x-5' : 'translate-x-0'"
+                  />
+                </button>
+              </div>
             </div>
 
-            <!-- Policy Explanation Callout Box -->
+            <!-- Compact Policy Banner -->
             <div
-              class="p-4 sm:p-5 rounded-2xl border flex items-start gap-3.5 transition-colors"
+              class="p-3.5 rounded-2xl border flex items-center gap-3 transition-colors"
               :class="scheduleForm.exclude_weekends
-                ? 'bg-indigo-50/30 border-indigo-200 text-indigo-950'
-                : 'bg-emerald-50/40 border-emerald-200 text-emerald-950'"
+                ? 'bg-indigo-50/40 border-indigo-200/80 text-indigo-950'
+                : 'bg-emerald-50/40 border-emerald-200/80 text-emerald-950'"
             >
               <div
-                class="p-2 rounded-xl mt-0.5 shrink-0"
+                class="p-1.5 rounded-lg shrink-0"
                 :class="scheduleForm.exclude_weekends ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -906,31 +904,26 @@
                 </svg>
               </div>
 
-              <div class="space-y-1">
-                <div class="text-xs font-black uppercase tracking-wider">
-                  Operational Impact Assessment
-                </div>
-                <div class="text-xs leading-relaxed font-medium">
-                  {{ weekendPolicyExplanation }}
-                </div>
+              <div class="text-xs font-semibold leading-relaxed">
+                {{ weekendPolicyExplanation }}
               </div>
             </div>
           </div>
 
           <!-- CARD 4: SAVE & RESTORE ACTION BAR -->
-          <div class="p-4 sm:p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3 w-full sm:w-auto">
+          <div class="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 w-full sm:w-auto">
               <button
                 type="button"
                 @click="handleRestoreStandardDefaults"
-                class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95 cursor-pointer min-h-[44px]"
+                class="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95 cursor-pointer min-h-[40px]"
               >
-                Restore Standard GSO Defaults
+                Restore Defaults
               </button>
               <button
                 type="button"
                 @click="syncScheduleFormFromStore"
-                class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all active:scale-95 cursor-pointer min-h-[44px]"
+                class="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all active:scale-95 cursor-pointer min-h-[40px]"
               >
                 Reset to Saved
               </button>
@@ -941,7 +934,7 @@
                 type="button"
                 @click="handleSaveSchedule"
                 :disabled="operationsStore.isSaving"
-                class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50 min-h-[44px]"
+                class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50 min-h-[42px]"
               >
                 <svg v-if="operationsStore.isSaving" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -950,7 +943,7 @@
                 <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
-                <span>{{ operationsStore.isSaving ? 'Saving Configuration...' : 'Save Schedule Settings' }}</span>
+                <span>{{ operationsStore.isSaving ? 'Saving...' : 'Save Schedule Settings' }}</span>
               </button>
             </div>
           </div>
@@ -1163,7 +1156,7 @@ const weekendPolicySummaryTitle = computed(() => {
     return '7-Day Continuous';
   }
   if (scheduleForm.value.exclude_saturday && scheduleForm.value.exclude_sunday) {
-    return 'Standard 5-Day Week';
+    return 'Standard 5-Day';
   }
   if (scheduleForm.value.exclude_saturday) {
     return '6-Day (Sun Working)';
@@ -1176,18 +1169,18 @@ const weekendPolicySummaryTitle = computed(() => {
 
 const weekendPolicyExplanation = computed(() => {
   if (!scheduleForm.value.exclude_weekends) {
-    return 'Continuous 7-Day Operations: Saturday and Sunday are counted as active working days. Turnaround times and SLA resolution clocks run without pause.';
+    return '7-Day Continuous Operations: Saturdays and Sundays are counted as active working days; SLA timers run without pause.';
   }
   if (scheduleForm.value.exclude_saturday && scheduleForm.value.exclude_sunday) {
-    return 'Standard 5-Day Work Week: Both Saturday and Sunday are treated as official non-working days. SLA timers and completion turnaround pause over the entire weekend.';
+    return 'Standard 5-Day Work Week: Both Saturday and Sunday are paused from turnaround and SLA deadline calculations.';
   }
   if (scheduleForm.value.exclude_saturday && !scheduleForm.value.exclude_sunday) {
-    return '6-Day Operations (Sundays Active): Saturdays are non-working and paused, while Sunday service and maintenance dispatch count toward turnaround hours.';
+    return '6-Day Work Week (Sundays Active): Saturdays are paused; Sundays count toward turnaround hours.';
   }
   if (!scheduleForm.value.exclude_saturday && scheduleForm.value.exclude_sunday) {
-    return '6-Day Operations (Saturdays Active): Sundays are non-working and paused, while Saturday operations and dispatch count toward turnaround hours.';
+    return '6-Day Work Week (Saturdays Active): Sundays are paused; Saturdays count toward turnaround hours.';
   }
-  return 'Weekend exclusion is toggled on, but neither Saturday nor Sunday is selected. Both days remain active.';
+  return 'Weekend exclusion is enabled, but neither Saturday nor Sunday is selected.';
 });
 
 const handleSaveSchedule = async () => {
