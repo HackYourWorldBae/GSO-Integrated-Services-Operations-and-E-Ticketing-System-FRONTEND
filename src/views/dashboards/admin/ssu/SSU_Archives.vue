@@ -115,7 +115,13 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="ticket in paginatedTickets" :key="ticket.id" class="group transition-all duration-200">
+                <tr
+                  v-for="ticket in paginatedTickets"
+                  :key="ticket.id"
+                  @click="viewDetails(ticket)"
+                  class="group transition-all duration-200 cursor-pointer"
+                  title="Click anywhere on this ticket to view full details"
+                >
                   <td class="py-5 px-6 bg-slate-50/60 border-y border-l border-slate-200 rounded-l-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all">
                     <span class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-lg inline-block tabular-nums shadow-2xs">#{{ ticket.ticketId }}</span>
                   </td>
@@ -133,8 +139,12 @@
                   <td class="py-5 px-4 bg-slate-50/60 border-y border-slate-200 group-hover:bg-white group-hover:border-emerald-500 transition-all">
                     <span class="text-xs font-bold text-slate-500">{{ ticket.date }}</span>
                   </td>
-                  <td class="py-5 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all text-right">
-                    <button @click="viewDetails(ticket)" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-sm active:scale-95 inline-flex items-center gap-2">
+                  <td class="py-5 px-6 bg-slate-50/60 border-y border-r border-slate-200 rounded-r-2xl group-hover:bg-white group-hover:border-emerald-500 group-hover:shadow-md transition-all text-right" @click.stop>
+                    <button
+                      type="button"
+                      @click.stop="viewDetails(ticket)"
+                      class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-sm active:scale-95 inline-flex items-center gap-2 cursor-pointer touch-manipulation"
+                    >
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -163,7 +173,8 @@
             <div
               v-for="ticket in paginatedTickets"
               :key="'m-' + ticket.id"
-              class="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3"
+              @click="viewDetails(ticket)"
+              class="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3 cursor-pointer hover:border-emerald-400 hover:shadow-sm active:scale-[0.99] transition-all"
             >
               <div class="flex items-start justify-between gap-2">
                 <div>
@@ -197,17 +208,19 @@
                 </div>
               </div>
 
-              <button
-                type="button"
-                @click="viewDetails(ticket)"
-                class="w-full min-h-[44px] py-2.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-slate-700 hover:text-emerald-700 text-xs font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-[0.99]"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <span>View Details</span>
-              </button>
+              <div @click.stop>
+                <button
+                  type="button"
+                  @click.stop="viewDetails(ticket)"
+                  class="w-full min-h-[44px] py-2.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-slate-700 hover:text-emerald-700 text-xs font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-[0.99]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span>View Details</span>
+                </button>
+              </div>
             </div>
 
             <div v-if="filteredTickets.length === 0" class="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl">

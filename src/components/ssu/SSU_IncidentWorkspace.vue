@@ -133,13 +133,16 @@
               v-for="ticket in paginatedTickets"
               :key="ticket.id"
               :id="'ticket-' + ticket.id"
+              @click="openDetailsModal(ticket)"
               :class="[
-                'group hover:bg-slate-50/70 transition-colors',
+                'group hover:bg-rose-50/40 hover:shadow-2xs transition-all duration-150 cursor-pointer relative',
                 highlightedTicketId === ticket.id ? 'bg-rose-50/60 ring-2 ring-rose-400/40' : ''
               ]"
+              title="Click anywhere on this ticket to view full details"
             >
               <!-- 1. Ticket Ref -->
-              <td class="px-4 py-3.5 align-middle w-44">
+              <td class="px-4 py-3.5 align-middle w-44 relative">
+                <span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-sm bg-rose-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></span>
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span
                     class="text-base font-black text-slate-900 bg-slate-100 border border-slate-300 px-3 py-1 rounded-lg shadow-2xs group-hover:border-slate-400 group-hover:bg-slate-200/90 transition-colors whitespace-nowrap tabular-nums"
@@ -185,14 +188,14 @@
               </td>
 
               <!-- 4. Actions Column (shrink-to-fit, right-packed) -->
-              <td class="px-4 py-3.5 align-middle text-right whitespace-nowrap w-[1%]">
-                <div class="flex items-center justify-end gap-1.5">
+              <td class="px-4 py-3.5 align-middle text-right whitespace-nowrap w-[1%]" @click.stop>
+                <div class="flex items-center justify-end gap-1.5" @click.stop>
 
                   <!-- Director Dashboard View: ONLY Full Info Button -->
                   <template v-if="isDirector">
                     <button
                       type="button"
-                      @click="openDetailsModal(ticket)"
+                      @click.stop="openDetailsModal(ticket)"
                       class="px-3.5 py-1.5 min-h-[38px] rounded-xl border border-slate-200 bg-white hover:border-rose-300 hover:bg-rose-50 text-slate-700 hover:text-rose-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95 touch-manipulation"
                       title="View Full Case Details"
                     >
@@ -212,7 +215,7 @@
                       <button
                         data-tour="ssu-btn-investigate"
                         type="button"
-                        @click="openInvestigateModal(ticket)"
+                        @click.stop="openInvestigateModal(ticket)"
                         class="px-3 py-2 min-h-[38px] rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
                         title="Flag as Under Investigation"
                       >
@@ -227,7 +230,7 @@
                       <button
                         data-tour="ssu-btn-notation"
                         type="button"
-                        @click="openNotationModal(ticket)"
+                        @click.stop="openNotationModal(ticket)"
                         class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
                         :title="ticket.hasNotation ? 'Update Notation' : 'Add Recommendation / Notation'"
                       >
@@ -241,7 +244,7 @@
                       <button
                         data-tour="ssu-btn-dismiss"
                         type="button"
-                        @click="openDismissModal(ticket)"
+                        @click.stop="openDismissModal(ticket)"
                         class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
                         title="Dismiss Report"
                       >
@@ -259,7 +262,7 @@
                       <button
                         data-tour="ssu-btn-notation"
                         type="button"
-                        @click="openNotationModal(ticket)"
+                        @click.stop="openNotationModal(ticket)"
                         class="px-3 py-2 min-h-[38px] rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
                         :title="ticket.hasNotation ? 'Update Notation' : 'Add Recommendation / Notation'"
                       >
@@ -273,7 +276,7 @@
                       <button
                         data-tour="ssu-btn-resolve"
                         type="button"
-                        @click="initiateResolve(ticket)"
+                        @click.stop="initiateResolve(ticket)"
                         class="px-3.5 py-2 min-h-[38px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
                         title="Mark as Resolved & Archive"
                       >
@@ -288,7 +291,7 @@
                     <button
                       data-tour="ssu-btn-fullinfo"
                       type="button"
-                      @click="openDetailsModal(ticket)"
+                      @click.stop="openDetailsModal(ticket)"
                       class="p-2 min-h-[38px] min-w-[38px] rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 transition-all flex items-center justify-center cursor-pointer touch-manipulation"
                       title="View Full Case Details"
                     >
@@ -342,8 +345,9 @@
       <div
         v-for="ticket in paginatedTickets"
         :key="'mob-' + ticket.id"
+        @click="openDetailsModal(ticket)"
         :class="[
-          'p-4 sm:p-5 rounded-2xl bg-white border shadow-xs space-y-3.5',
+          'p-4 sm:p-5 rounded-2xl bg-white border shadow-xs space-y-3.5 cursor-pointer hover:border-rose-300 hover:shadow-sm active:scale-[0.99] transition-all relative',
           highlightedTicketId === ticket.id ? 'border-rose-400 ring-2 ring-rose-400/30' : 'border-slate-200'
         ]"
       >
@@ -378,12 +382,12 @@
         </div>
 
         <!-- Actions -->
-        <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2">
+        <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2" @click.stop>
           <!-- Director Mobile View: ONLY Full Info button -->
           <template v-if="isDirector">
             <button
               type="button"
-              @click="openDetailsModal(ticket)"
+              @click.stop="openDetailsModal(ticket)"
               class="w-full px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 bg-white hover:border-rose-300 hover:bg-rose-50 text-slate-700 hover:text-rose-800 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer touch-manipulation active:scale-95"
               title="View Full Case Details"
             >
@@ -401,7 +405,7 @@
             <template v-if="activeQueue === 'submitted'">
               <button
                 type="button"
-                @click="openInvestigateModal(ticket)"
+                @click.stop="openInvestigateModal(ticket)"
                 class="flex-1 px-3 py-2.5 min-h-[44px] rounded-xl bg-violet-600 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -411,14 +415,14 @@
               </button>
               <button
                 type="button"
-                @click="openNotationModal(ticket)"
+                @click.stop="openNotationModal(ticket)"
                 class="px-3 py-2.5 min-h-[44px] rounded-xl bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
               >
                 <span>{{ ticket.hasNotation ? 'Edit Note' : 'Add Note' }}</span>
               </button>
               <button
                 type="button"
-                @click="openDismissModal(ticket)"
+                @click.stop="openDismissModal(ticket)"
                 class="px-3 py-2.5 min-h-[44px] rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
               >
                 <span>Dismiss</span>
@@ -429,14 +433,14 @@
             <template v-else>
               <button
                 type="button"
-                @click="openNotationModal(ticket)"
+                @click.stop="openNotationModal(ticket)"
                 class="flex-1 px-3 py-2.5 min-h-[44px] rounded-xl bg-blue-50 text-blue-700 border border-blue-300 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
               >
                 <span>{{ ticket.hasNotation ? 'Edit Notation' : 'Add Notation' }}</span>
               </button>
               <button
                 type="button"
-                @click="initiateResolve(ticket)"
+                @click.stop="initiateResolve(ticket)"
                 class="flex-1 px-3 py-2.5 min-h-[44px] rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 touch-manipulation active:scale-95"
               >
                 <span>Resolve</span>
@@ -446,7 +450,7 @@
 
             <button
               type="button"
-              @click="openDetailsModal(ticket)"
+              @click.stop="openDetailsModal(ticket)"
               class="px-3 py-2.5 min-h-[44px] rounded-xl border border-slate-200 text-slate-600 text-xs font-bold touch-manipulation active:scale-95"
             >
               Details
