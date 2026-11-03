@@ -722,7 +722,7 @@
                 </div>
               </div>
 
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Request Progress</p>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{{ isIncidentTicket(selectedTimelineTicket) ? 'Report Progress' : 'Request Progress' }}</p>
               <div class="relative space-y-6">
                 <!-- Vertical connecting line behind all dots -->
                 <div class="absolute top-4 bottom-4 left-4 -translate-x-1/2 w-0.5 bg-slate-200 pointer-events-none"></div>

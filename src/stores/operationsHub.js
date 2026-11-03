@@ -272,24 +272,37 @@ export const useOperationsHubStore = defineStore('operationsHub', {
     },
 
     /**
-     * Save / Add a special non-working holiday
+     * Save / Add a non-working day or date range (working break)
      */
     async saveHoliday(holidayData) {
       this.isSaving = true;
       try {
         const res = await api.post('operations/holidays', holidayData);
         if (res.data?.data) {
-          const created = res.data.data;
-          this.holidays.push(created);
+          const data = res.data.data;
+          const items = Array.isArray(data)
+            ? data
+            : (Array.isArray(data.created) ? data.created : [data]);
+
+          for (const item of items) {
+            if (item && item.holiday_date) {
+              const existingIdx = this.holidays.findIndex(h => h.id === item.id || h.holiday_date === item.holiday_date);
+              if (existingIdx !== -1) {
+                this.holidays[existingIdx] = item;
+              } else {
+                this.holidays.push(item);
+              }
+            }
+          }
           this.holidays.sort((a, b) => (a.holiday_date || '').localeCompare(b.holiday_date || ''));
 
           configureWorkCalendar({ holidays: this.holidays });
-          return { success: true, holiday: created, message: res.data.message };
+          return { success: true, holidays: items, message: res.data.message };
         }
         return { success: false, message: 'Invalid response' };
       } catch (err) {
         const errors = err.response?.data?.errors;
-        let msg = err.response?.data?.message || 'Failed to add holiday';
+        let msg = err.response?.data?.message || 'Failed to add non-working day';
         if (errors && typeof errors === 'object') {
           const details = Object.values(errors).flat().join(', ');
           if (details) msg += `: ${details}`;

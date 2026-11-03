@@ -133,7 +133,7 @@
                 >
                   <option value="">All Non-Working Days</option>
                   <option value="special_non_working">Special Non-Working Day</option>
-                  <option value="institutional">University Non-Working Day</option>
+                  <option value="institutional">University Working Break</option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -971,7 +971,7 @@
           </div>
         </div>
 
-        <!-- Add / Edit Holiday Modal -->
+        <!-- Add / Edit Non-Working Day / Working Break Modal -->
         <Teleport to="body">
           <div
             v-if="showModal"
@@ -982,10 +982,10 @@
               <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                 <div>
                   <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                    {{ editingHoliday ? 'Edit Non-Working Day' : 'Add Non-Working Day' }}
+                    {{ editingHoliday ? 'Edit Non-Working Day' : (dateMode === 'range' ? 'Register Working Break Period' : 'Add Non-Working Day') }}
                   </h3>
                   <p class="text-xs text-slate-500 font-medium">
-                    Service requests automatically pause on registered non-working dates.
+                    {{ dateMode === 'range' ? 'Define a multi-day university break where ticket SLAs pause.' : 'Service requests automatically pause on registered non-working dates.' }}
                   </p>
                 </div>
                 <button
@@ -999,8 +999,34 @@
               </div>
 
               <form @submit.prevent="handleSaveHolidaySubmit" class="p-6 space-y-4">
-                <!-- Date -->
-                <div class="space-y-1.5">
+                <!-- Date Mode Segmented Control (Only when adding) -->
+                <div v-if="!editingHoliday" class="p-1 bg-slate-100 rounded-xl flex items-center gap-1 border border-slate-200/80">
+                  <button
+                    type="button"
+                    @click="dateMode = 'single'"
+                    class="flex-1 py-2 px-3 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    :class="dateMode === 'single' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Single Day</span>
+                  </button>
+                  <button
+                    type="button"
+                    @click="dateMode = 'range'; holidayForm.type = 'institutional'"
+                    class="flex-1 py-2 px-3 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    :class="dateMode === 'range' ? 'bg-white text-indigo-900 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-slate-900'"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Date Range / Working Break</span>
+                  </button>
+                </div>
+
+                <!-- Single Date Mode -->
+                <div v-if="dateMode === 'single'" class="space-y-1.5">
                   <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
                     Date
                   </label>
@@ -1012,18 +1038,82 @@
                   />
                 </div>
 
-                <!-- Name -->
+                <!-- Date Range Mode (Multi-day Break) -->
+                <div v-else class="space-y-2.5">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                      <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
+                        Start Date
+                      </label>
+                      <input
+                        v-model="holidayForm.holiday_date"
+                        type="date"
+                        required
+                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
+                      />
+                    </div>
+                    <div class="space-y-1.5">
+                      <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
+                        End Date
+                      </label>
+                      <input
+                        v-model="holidayForm.end_date"
+                        type="date"
+                        :min="holidayForm.holiday_date"
+                        required
+                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Break duration preview badge -->
+                  <div v-if="rangeCalculation" class="p-3 rounded-xl bg-indigo-50/80 border border-indigo-200/70 text-xs text-indigo-900 space-y-1.5">
+                    <div class="flex items-center justify-between font-bold">
+                      <span class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>Break Duration:</span>
+                      </span>
+                      <span class="text-indigo-800 font-black">
+                        {{ rangeCalculation.totalDays }} calendar days ({{ rangeCalculation.workingDays }} business days)
+                      </span>
+                    </div>
+                    <label class="flex items-center gap-2 pt-0.5 cursor-pointer select-none">
+                      <input
+                        v-model="holidayForm.skip_weekends"
+                        type="checkbox"
+                        class="w-3.5 h-3.5 text-indigo-600 rounded border-indigo-300 focus:ring-indigo-500 cursor-pointer"
+                      />
+                      <span class="text-[11px] font-semibold text-indigo-700">Skip Saturdays &amp; Sundays (weekends already paused in operations)</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Name & Quick Break Presets -->
                 <div class="space-y-1.5">
                   <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
-                    Non-Working Day Name
+                    {{ dateMode === 'range' ? 'Working Break / Period Name' : 'Non-Working Day Name' }}
                   </label>
                   <input
                     v-model="holidayForm.name"
                     type="text"
                     required
-                    placeholder="e.g., Benguet Foundation Day, Baguio Charter Day, University Foundation Day"
+                    :placeholder="dateMode === 'range' ? 'e.g., Semestral Break, Mid-Year Break, Christmas Break' : 'e.g., Benguet Foundation Day, Baguio Charter Day, University Foundation Day'"
                     class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
                   />
+                  <!-- Quick Working Break Presets Chips -->
+                  <div v-if="dateMode === 'range'" class="flex items-center gap-1.5 flex-wrap pt-1">
+                    <span class="text-[10px] font-bold text-slate-400">Presets:</span>
+                    <button
+                      v-for="preset in workingBreakPresets"
+                      :key="preset"
+                      type="button"
+                      @click="holidayForm.name = preset; holidayForm.type = 'institutional'"
+                      class="px-2 py-0.5 rounded-md text-[10px] font-bold border transition-colors cursor-pointer"
+                      :class="holidayForm.name === preset ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'"
+                    >
+                      {{ preset }}
+                    </button>
+                  </div>
                 </div>
 
                 <!-- Classification Type -->
@@ -1037,12 +1127,12 @@
                     class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px] cursor-pointer"
                   >
                     <option value="special_non_working">Special Non-Working Day</option>
-                    <option value="institutional">University Non-Working Day</option>
+                    <option value="institutional">University Working Break</option>
                   </select>
                 </div>
 
-                <!-- Recurrence Checkbox -->
-                <div class="pt-1">
+                <!-- Recurrence Checkbox (Only for single days) -->
+                <div v-if="dateMode === 'single'" class="pt-1">
                   <label class="flex items-center gap-2.5 cursor-pointer">
                     <input
                       v-model="holidayForm.is_recurring"
@@ -1053,15 +1143,15 @@
                   </label>
                 </div>
 
-                <!-- Notes / Proclamation Reference (Optional) -->
+                <!-- Notes / Reference (Optional) -->
                 <div class="space-y-1.5">
                   <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
-                    Notes / Proclamation Reference (Optional)
+                    Notes / Reference (Optional)
                   </label>
                   <input
                     v-model="holidayForm.notes"
                     type="text"
-                    placeholder="e.g., Presidential Proclamation No. 729, Baguio Day"
+                    :placeholder="dateMode === 'range' ? 'e.g., BOR Resolution, Academic Calendar Memo' : 'e.g., Presidential Proclamation No. 729, Baguio Day'"
                     class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
                   />
                 </div>
@@ -1078,9 +1168,9 @@
                   <button
                     type="submit"
                     :disabled="operationsStore.isSaving"
-                    class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 min-h-[40px]"
+                    class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 min-h-[40px]"
                   >
-                    {{ operationsStore.isSaving ? 'Saving...' : (editingHoliday ? 'Update Non-Working Day' : 'Save Non-Working Day') }}
+                    {{ operationsStore.isSaving ? 'Saving...' : (editingHoliday ? 'Update Non-Working Day' : (dateMode === 'range' ? 'Register Working Break' : 'Save Non-Working Day')) }}
                   </button>
                 </div>
               </form>
@@ -1386,27 +1476,67 @@ const getTypeBadgeClass = (type) => {
     case 'special_non_working':
       return 'bg-amber-50 text-amber-800 border-amber-200';
     case 'institutional':
-      return 'bg-blue-50 text-blue-800 border-blue-200';
+      return 'bg-indigo-50 text-indigo-800 border-indigo-200';
     default:
       return 'bg-slate-100 text-slate-700 border-slate-200';
   }
 };
 
-// Modal State & Logic for Holidays
+// Modal State & Logic for Non-Working Days & Working Breaks
 const showModal = ref(false);
 const editingHoliday = ref(null);
+const dateMode = ref('single'); // 'single' | 'range'
+
+const workingBreakPresets = [
+  'Semestral Break',
+  'Mid-Year Break',
+  'Christmas / Year-End Break',
+  'Holy Week Break',
+  'University Academic Break'
+];
+
 const holidayForm = ref({
   holiday_date: '',
+  end_date: '',
+  skip_weekends: true,
   name: '',
   type: 'special_non_working',
   is_recurring: false,
   notes: '',
 });
 
+const rangeCalculation = computed(() => {
+  if (dateMode.value !== 'range' || !holidayForm.value.holiday_date || !holidayForm.value.end_date) {
+    return null;
+  }
+  const start = new Date(holidayForm.value.holiday_date + 'T00:00:00');
+  const end = new Date(holidayForm.value.end_date + 'T00:00:00');
+  if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) {
+    return null;
+  }
+  const totalDays = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+  let workingDays = 0;
+  const cur = new Date(start);
+  while (cur <= end) {
+    const day = cur.getDay();
+    if (day !== 0 && day !== 6) {
+      workingDays++;
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+  return {
+    totalDays,
+    workingDays,
+  };
+});
+
 const openAddModal = () => {
   editingHoliday.value = null;
+  dateMode.value = 'single';
   holidayForm.value = {
     holiday_date: formatDateToYmd(new Date()),
+    end_date: formatDateToYmd(new Date()),
+    skip_weekends: true,
     name: '',
     type: 'special_non_working',
     is_recurring: false,
@@ -1417,8 +1547,11 @@ const openAddModal = () => {
 
 const openEditModal = (h) => {
   editingHoliday.value = h;
+  dateMode.value = 'single';
   holidayForm.value = {
     holiday_date: h.holiday_date,
+    end_date: h.holiday_date,
+    skip_weekends: true,
     name: h.name,
     type: h.type || 'special_non_working',
     is_recurring: !!h.is_recurring,
@@ -1428,25 +1561,25 @@ const openEditModal = (h) => {
 };
 
 const handleSaveHolidaySubmit = async () => {
-  const payload = {
-    holiday_date: holidayForm.value.holiday_date,
-    name: (holidayForm.value.name || '').trim(),
-    type: holidayForm.value.type || 'special_non_working',
-    is_recurring: holidayForm.value.is_recurring ? 1 : 0,
-    is_active: 1,
-    notes: (holidayForm.value.notes || '').trim(),
-  };
-
-  if (!payload.holiday_date) {
-    toast.error('Date is required.');
-    return;
-  }
-  if (!payload.name) {
-    toast.error('Non-working day name is required.');
-    return;
-  }
-
   if (editingHoliday.value?.id) {
+    const payload = {
+      holiday_date: holidayForm.value.holiday_date,
+      name: (holidayForm.value.name || '').trim(),
+      type: holidayForm.value.type || 'special_non_working',
+      is_recurring: holidayForm.value.is_recurring ? 1 : 0,
+      is_active: 1,
+      notes: (holidayForm.value.notes || '').trim(),
+    };
+
+    if (!payload.holiday_date) {
+      toast.error('Date is required.');
+      return;
+    }
+    if (!payload.name) {
+      toast.error('Non-working day name is required.');
+      return;
+    }
+
     const res = await operationsStore.updateHoliday(editingHoliday.value.id, payload);
     if (res.success) {
       toast.success(res.message || 'Non-working day updated successfully.');
@@ -1455,9 +1588,38 @@ const handleSaveHolidaySubmit = async () => {
       toast.error(res.message || 'Failed to update non-working day.');
     }
   } else {
+    const isRange = dateMode.value === 'range' && Boolean(holidayForm.value.end_date);
+    const payload = {
+      holiday_date: holidayForm.value.holiday_date,
+      end_date: isRange ? holidayForm.value.end_date : undefined,
+      skip_weekends: isRange ? (holidayForm.value.skip_weekends !== false ? 1 : 0) : 0,
+      name: (holidayForm.value.name || '').trim(),
+      type: holidayForm.value.type || (isRange ? 'institutional' : 'special_non_working'),
+      is_recurring: !isRange && holidayForm.value.is_recurring ? 1 : 0,
+      is_active: 1,
+      notes: (holidayForm.value.notes || '').trim(),
+    };
+
+    if (!payload.holiday_date) {
+      toast.error(isRange ? 'Start date is required.' : 'Date is required.');
+      return;
+    }
+    if (isRange && !payload.end_date) {
+      toast.error('End date is required for date ranges.');
+      return;
+    }
+    if (isRange && payload.end_date < payload.holiday_date) {
+      toast.error('End date must be on or after start date.');
+      return;
+    }
+    if (!payload.name) {
+      toast.error('Non-working day / break name is required.');
+      return;
+    }
+
     const res = await operationsStore.saveHoliday(payload);
     if (res.success) {
-      toast.success(res.message || 'Non-working day added to calendar.');
+      toast.success(res.message || (isRange ? 'Working break period registered.' : 'Non-working day added to calendar.'));
       showModal.value = false;
     } else {
       toast.error(res.message || 'Failed to add non-working day.');
