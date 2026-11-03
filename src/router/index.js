@@ -820,18 +820,18 @@ export const checkRouteAccess = (to, from, next) => {
         showSwal({
           icon: 'warning',
           title: 'Account Verification Pending',
-          text: 'Your uploaded ID is currently being reviewed by the Super Administrator. You will be able to submit service requests once verified.',
+          text: 'Your uploaded ID is currently being reviewed by the System Administrator. You will be able to submit service requests once verified.',
           confirmButtonColor: '#059669',
         });
         return redirectToHome();
       }
     }
 
-    // 2.2 Superadmin Domain Guard (/superadmin/*)
-    // ONLY Superadmin is allowed to access any superadmin portal views
+    // 2.2 System Admin Domain Guard (/superadmin/*)
+    // ONLY System Admin is allowed to access any system admin portal views
     if (normalizedPath.startsWith('/superadmin')) {
       if (normalizedRole !== 'superadmin') {
-        console.warn(`[Router Guard] Access denied to ${to.path}. Role '${role}' lacks superadmin authority.`);
+        console.warn(`[Router Guard] Access denied to ${to.path}. Role '${role}' lacks system admin authority.`);
         return redirectToHome();
       }
     }

@@ -102,7 +102,7 @@
               <option value="director">Director</option>
               <option value="employee">Employee</option>
               <option value="student">Student</option>
-              <option value="superadmin">Superadmin</option>
+              <option value="superadmin">System Admin</option>
             </select>
 
             <select
@@ -739,7 +739,7 @@
                   <option value="staff">Staff (Sub-Unit Personnel)</option>
                   <option value="worker">Personnel (Field Worker)</option>
                   <option value="director">Director (Executive)</option>
-                  <option value="superadmin">Superadmin (Master)</option>
+                  <option value="superadmin">System Admin (Master)</option>
                 </select>
               </div>
 
@@ -915,7 +915,7 @@
                   <option value="staff">Staff</option>
                   <option value="worker">Personnel (Field Worker)</option>
                   <option value="director">Director</option>
-                  <option value="superadmin">Superadmin</option>
+                  <option value="superadmin">System Admin</option>
                 </select>
               </div>
 
@@ -1820,7 +1820,7 @@ const openRejectModal = (user) => {
 const openStatusModal = (user, newStatus) => {
   if (!user) return;
   if (isCurrentUser(user)) {
-    toast.error('Cannot modify the status of your own active Superadmin account.');
+    toast.error('Cannot modify the status of your own active System Admin account.');
     return;
   }
 
@@ -1918,7 +1918,7 @@ const strictDeleteModal = reactive({
 const openStrictDeleteModal = (user) => {
   if (!user) return;
   if (isCurrentUser(user)) {
-    toast.error('Cannot delete your own active Superadmin account.');
+    toast.error('Cannot delete your own active System Admin account.');
     return;
   }
   strictDeleteModal.user = user;
@@ -1981,7 +1981,7 @@ const formatRole = (role) => {
     director: 'Director',
     employee: 'Employee',
     student: 'Student',
-    superadmin: 'Superadmin'
+    superadmin: 'System Admin'
   };
   return map[role] || (role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Unknown');
 };
@@ -1994,7 +1994,7 @@ const roleOptions = [
   { value: 'director', label: 'Directors' },
   { value: 'employee', label: 'Employees' },
   { value: 'student', label: 'Students' },
-  { value: 'superadmin', label: 'Superadmin' }
+  { value: 'superadmin', label: 'System Admin' }
 ];
 
 const isCreateModalOpen = ref(false);
@@ -2402,7 +2402,7 @@ const submitCreateUser = async () => {
 
 const openEditModal = (user) => {
   if (isRegisteredUser(user)) {
-    toast.warning('Registered user accounts (Student / Employee) are self-managed and cannot be edited by Superadmin. You can Suspend their access instead.');
+    toast.warning('Registered user accounts (Student / Employee) are self-managed and cannot be edited by System Admin. You can Suspend their access instead.');
     return;
   }
   modalError.value = '';
@@ -2425,7 +2425,7 @@ const openEditModal = (user) => {
 
 const submitEditUser = async () => {
   if (isRegisteredUser(editForm)) {
-    toast.error('Registered user accounts cannot have their profile details modified by Superadmin.');
+    toast.error('Registered user accounts cannot have their profile details modified by System Admin.');
     return;
   }
 

@@ -192,6 +192,8 @@ const handleLogin = async () => {
     const adminMockAccounts = [
       'director',
       'superadmin',
+      'systemadmin',
+      'sysadmin',
       'fgmu-admin',
       'leau-admin',
       'ssu-admin'

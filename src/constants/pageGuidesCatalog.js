@@ -2248,10 +2248,10 @@ export const pageGuidesCatalog = {
     pages: [] // Dynamically generated in useTutorial.js based on active unit
   },
 
-  // ─── 3. SUPERADMINISTRATOR (System Governance) ───────────────────────────
+  // ─── 3. SYSTEM ADMINISTRATOR (System Governance) ───────────────────────────
   superadmin: {
     roleKey: 'superadmin',
-    roleLabel: 'Super Administrator Console',
+    roleLabel: 'System Administrator Console',
     roleIcon: '🛡️',
     roleBadge: 'System Governance',
     roleSummary: 'Manage user accounts, verify student and employee IDs, monitor system logs, create backups, and configure settings.',
@@ -2262,7 +2262,7 @@ export const pageGuidesCatalog = {
         route: '/superadmin/users',
         icon: '👥',
         manualSection: 'Section F1: User Accounts',
-        roleBadge: 'Superadmin Console',
+        roleBadge: 'System Admin Console',
         summary: 'Manage all user accounts, assign user roles, create staff accounts, and activate or suspend users.',
         sections: [
           {
@@ -2273,12 +2273,12 @@ export const pageGuidesCatalog = {
           {
             title: 'Search & Role Tabs Filter',
             desc: 'Targeted user segmenting',
-            details: 'Search by name, email, employee ID, or student ID. Filter by role tabs: All Roles, Personnel, Admins, Staff, Directors, Employees, Students, Superadmin. Additional dropdowns for Units and Statuses.'
+            details: 'Search by name, email, employee ID, or student ID. Filter by role tabs: All Roles, Personnel, Admins, Staff, Directors, Employees, Students, System Admin. Additional dropdowns for Units and Statuses.'
           },
           {
             title: 'Provision Internal Account Modal',
             desc: 'Creating staff and administrative credentials',
-            details: 'Creates internal accounts (Admin, Staff, Personnel, Director, Superadmin) with assigned unit affiliation, trade specialty, email, and initial password. Students and employees self-register.'
+            details: 'Creates internal accounts (Admin, Staff, Personnel, Director, System Admin) with assigned unit affiliation, trade specialty, email, and initial password. Students and employees self-register.'
           },
           {
             title: 'Archive Inactive Users Tool',
@@ -2293,7 +2293,7 @@ export const pageGuidesCatalog = {
           { name: 'Directors', badge: 'Executive', desc: 'GSO Director and executive officers.' },
           { name: 'Employees', badge: 'Faculty & Staff', desc: 'University faculty and support staff requesters.' },
           { name: 'Students', badge: 'RSO / SSG', desc: 'Accredited student organization representatives.' },
-          { name: 'Superadmin', badge: 'Root Security', desc: 'System governance master accounts.' }
+          { name: 'System Admin', badge: 'Root Security', desc: 'System governance master accounts.' }
         ],
         buttons: [
           {
@@ -2327,7 +2327,7 @@ export const pageGuidesCatalog = {
             steps: [
               'Click "Provision User" in the top action bar.',
               'Enter First Name, Last Name, and institutional email address.',
-              'Select the System Role (Admin, Staff, Personnel, Director, Superadmin).',
+              'Select the System Role (Admin, Staff, Personnel, Director, System Admin).',
               'Select the Assigned Sub-Unit (Facilities, Landscaping, Security, or Global).',
               'For personnel: specify their trade specialty (e.g., Plumber, Electrician).',
               'Set initial password (min 8 characters) and click "Confirm & Create".'
@@ -2356,7 +2356,7 @@ export const pageGuidesCatalog = {
         route: '/superadmin/queues',
         icon: '🛡️',
         manualSection: 'Section F2: User Queues',
-        roleBadge: 'Superadmin Console',
+        roleBadge: 'System Admin Console',
         summary: 'Check uploaded school IDs and selfies to approve or reject new user registrations.',
         sections: [
           {
@@ -2376,7 +2376,7 @@ export const pageGuidesCatalog = {
           }
         ],
         tabs: [
-          { name: 'Pending Verification', badge: 'Queue', desc: 'Accounts awaiting Superadmin identity review.' }
+          { name: 'Pending Verification', badge: 'Queue', desc: 'Accounts awaiting System Admin identity review.' }
         ],
         buttons: [
           {
@@ -2403,7 +2403,7 @@ export const pageGuidesCatalog = {
           {
             title: 'How to Review and Approve an Identity Verification',
             steps: [
-              'Click "User Queues" in the Superadmin sidebar.',
+              'Click "User Queues" in the System Admin sidebar.',
               'Click "Inspect & Verify" on a pending registrant card.',
               'Review applicant details: student 7-digit ID or employee ID, RSO affiliation, and college.',
               'Inspect Photo 1 (Front ID Card) and Photo 2 (Selfie with ID) to verify face and text legibility.',
@@ -2432,7 +2432,7 @@ export const pageGuidesCatalog = {
         route: '/superadmin/logs',
         icon: '📜',
         manualSection: 'Section F3: Business Audit Trail',
-        roleBadge: 'Superadmin Console',
+        roleBadge: 'System Admin Console',
         summary: 'View system activity logs for ticket updates, dispatches, cancellations, and status changes.',
         sections: [
           {
@@ -2498,7 +2498,7 @@ export const pageGuidesCatalog = {
         route: '/superadmin/account-logs',
         icon: '🔒',
         manualSection: 'Section F4: Account Activity Audit Trail',
-        roleBadge: 'Superadmin Console',
+        roleBadge: 'System Admin Console',
         summary: 'View security logs for user logins, logouts, password resets, and account registrations.',
         sections: [
           {
@@ -2538,7 +2538,7 @@ export const pageGuidesCatalog = {
           {
             title: 'How to Investigate Suspicious Authentication Attempts',
             steps: [
-              'Click "Account Activity" in the Superadmin sidebar.',
+              'Click "Account Activity" in the System Admin sidebar.',
               'Filter by Severity dropdown to "Warning" or "Critical".',
               'Search for the user\'s masked email or ID number.',
               'Click the Eye Icon on the entry to review client browser, OS, and timestamp anomalies.'
@@ -2560,7 +2560,7 @@ export const pageGuidesCatalog = {
         route: '/superadmin/backups',
         icon: '💾',
         manualSection: 'Section F5: Backup & Recovery',
-        roleBadge: 'Superadmin Console',
+        roleBadge: 'System Admin Console',
         summary: 'Create database backups, set up Google Drive sync, and restore previous system copies when needed.',
         sections: [
           {
@@ -2581,7 +2581,7 @@ export const pageGuidesCatalog = {
           {
             title: 'Website Maintenance Mode & User Eviction',
             desc: 'Safe data migration lockdown',
-            details: 'Locks the system before restores. Broadcasts emergency notices to logged-in users with an eviction countdown (15s, 30s, 60s, 120s), logs them out automatically, and blocks non-superadmin logins.'
+            details: 'Locks the system before restores. Broadcasts emergency notices to logged-in users with an eviction countdown (15s, 30s, 60s, 120s), logs them out automatically, and blocks non-system-admin logins.'
           },
           {
             title: 'System State Restoration Dialog',
@@ -2610,7 +2610,7 @@ export const pageGuidesCatalog = {
             label: 'Website in Maintenance',
             type: 'warning',
             desc: 'Activates Maintenance Mode with eviction countdown (15s-120s) to safely isolate the system during restores.',
-            result: 'Evicts active sessions and locks login for non-superadmins.'
+            result: 'Evicts active sessions and locks login for non-system admins.'
           },
           {
             label: 'Drive Settings',
@@ -2656,13 +2656,13 @@ export const pageGuidesCatalog = {
         route: '/superadmin/settings',
         icon: '⚙️',
         manualSection: 'Section F6: Account Settings & Email Service',
-        roleBadge: 'Superadmin Console',
+        roleBadge: 'System Admin Console',
         summary: 'Update admin profile, configure email service keys and domains, and send test emails.',
         sections: [
           {
             title: 'Root Administrator Profile Card',
             desc: 'Master security credentials',
-            details: 'Role badge (Root Superadmin) and Root Level Authority tag. Update name, email address, password, and superadmin email notifications.'
+            details: 'Role badge (Root System Admin) and Root Level Authority tag. Update name, email address, password, and system admin email notifications.'
           },
           {
             title: 'Email Service Integration (Resend API)',
@@ -2681,7 +2681,7 @@ export const pageGuidesCatalog = {
           }
         ],
         tabs: [
-          { name: 'Root Profile', badge: 'Superadmin', desc: 'Personal credentials and security settings.' },
+          { name: 'Root Profile', badge: 'System Admin', desc: 'Personal credentials and security settings.' },
           { name: 'Email Pipeline', badge: 'Resend API', desc: 'Transactional mail delivery settings and API keys.' }
         ],
         buttons: [
@@ -2708,7 +2708,7 @@ export const pageGuidesCatalog = {
           {
             title: 'How to Configure and Test the Email Delivery Pipeline',
             steps: [
-              'Navigate to Superadmin Settings.',
+              'Navigate to System Admin Settings.',
               'Paste your valid Resend API key (beginning with re_) in the Resend API Key field.',
               'Set the Sender Email Address (From) using your verified campus domain.',
               'Ensure "Enable Transactional Emails" toggle is switched On.',
@@ -2719,7 +2719,7 @@ export const pageGuidesCatalog = {
         ],
         tourSteps: [
       { element: '[data-tour="admin-page-header"]', title: '1. Platform Configuration', desc: 'Manage email pipelines, API credentials, and global system parameters.' },
-      { element: '[data-tour="superadmin-settings-profile"]', title: '2. Superadmin Account & Security', desc: 'Update root administrator profile credentials and multi-factor settings.' },
+      { element: '[data-tour="superadmin-settings-profile"]', title: '2. System Admin Account & Security', desc: 'Update root administrator profile credentials and multi-factor settings.' },
       { element: '[data-tour="superadmin-settings-resend-card"]', title: '3. Email Pipeline (Resend.com)', desc: 'Configure Resend API key and sender identity for campus notification delivery.' },
       { element: '[data-tour="superadmin-settings-btn-save"]', title: '4. Save Configuration', desc: 'Save all platform and profile updates securely.' }
     ]

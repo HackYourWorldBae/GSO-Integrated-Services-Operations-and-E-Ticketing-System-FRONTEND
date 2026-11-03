@@ -2,7 +2,7 @@
   <MainLayout>
     <template #header-title>
       <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight truncate">
-        Superadmin Account Settings
+        System Admin Account Settings
       </h2>
     </template>
 
@@ -35,7 +35,7 @@
                 <div class="flex items-center gap-2 flex-wrap">
                   <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">System Administrator Profile</h3>
                   <span class="px-2.5 py-0.5 bg-slate-900 text-emerald-400 text-[10px] font-black uppercase tracking-wider rounded-md border border-slate-800">
-                    Root Superadmin
+                    Root System Admin
                   </span>
                 </div>
                 <p class="text-xs text-slate-500 font-medium mt-0.5">Manage your system administrator identity and login details.</p>
@@ -205,7 +205,7 @@
                     When on, signing in needs both your password and a 6-digit code sent to <span class="font-bold">{{ form.email || 'your email' }}</span>.
                   </p>
                   <p v-if="!form.isMfaEnabled" class="text-[11px] font-medium text-slate-500">
-                    Extra login protection is off. Turn it on to keep your superadmin account safe.
+                    Extra login protection is off. Turn it on to keep your system admin account safe.
                   </p>
                 </div>
               </div>
@@ -748,7 +748,7 @@ const handleAvatarFileChange = async (event) => {
     });
     if (res.data?.data?.user) {
       authStore.updateAvatar(res.data.data.user);
-      toast.success('Superadmin avatar updated successfully!');
+      toast.success('System Admin avatar updated successfully!');
     }
   } catch (err) {
     authStore.setAvatarBlobPreview(null);
@@ -819,7 +819,7 @@ const handleSave = async () => {
     }
 
     if (result.success) {
-      toast.success('Superadmin profile updated successfully!');
+      toast.success('System Admin profile updated successfully!');
     } else {
       toast.error(result.message || 'Failed to update profile.');
     }

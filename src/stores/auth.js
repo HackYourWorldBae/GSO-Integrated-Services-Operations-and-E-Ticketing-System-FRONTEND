@@ -99,6 +99,9 @@ export const useAuthStore = defineStore('auth', () => {
   const capitalizedRole = computed(() => {
     if (!role.value) return 'User';
     const r = role.value.toLowerCase();
+    if (r === 'superadmin') {
+      return 'System Admin';
+    }
     if (r === 'student') {
       const type = (user.value?.student_type || '').toLowerCase().trim();
       if (type === 'ssg') return 'SSG Member';

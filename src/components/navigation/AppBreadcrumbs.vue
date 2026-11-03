@@ -29,7 +29,7 @@ const breadcrumbs = computed(() => {
 
   // Level 1: Contextual Portal / Unit
   if (path.startsWith('/superadmin')) {
-    crumbs.push({ label: 'Superadmin Portal', to: '/superadmin/users' });
+    crumbs.push({ label: 'System Admin Portal', to: '/superadmin/users' });
   } else if (path.startsWith('/admin/fgmu')) {
     crumbs.push({ label: 'FGMU Admin', to: '/admin/fgmu' });
   } else if (path.startsWith('/admin/leau')) {

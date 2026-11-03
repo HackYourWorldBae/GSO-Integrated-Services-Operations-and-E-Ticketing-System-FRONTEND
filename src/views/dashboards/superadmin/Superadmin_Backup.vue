@@ -1392,7 +1392,7 @@
               <ul class="list-disc list-inside space-y-1 text-slate-700">
                 <li>Active users will receive a notice and countdown timer before logout.</li>
                 <li>Public sign-in is disabled during maintenance.</li>
-                <li>Superadmin access remains active for database maintenance and recovery.</li>
+                <li>System Admin access remains active for database maintenance and recovery.</li>
               </ul>
             </div>
 
