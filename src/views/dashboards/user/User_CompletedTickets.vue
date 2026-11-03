@@ -365,7 +365,7 @@
                 <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.ticketId }}</p>
               </div>
               <div>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Requested By</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{{ isIncidentTicket(selectedTicket) ? 'Reported By' : 'Requested By' }}</p>
                 <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.requestedBy }}</p>
               </div>
               <div>
@@ -435,9 +435,29 @@
                 </div>
               </template>
 
+              <!-- Incident Particulars if SSU Incident Report -->
+              <template v-if="isIncidentTicket(selectedTicket)">
+                <div>
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Incident Type</p>
+                  <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.incident_type || selectedTicket.title || 'Security Incident' }}</p>
+                </div>
+                <div v-if="selectedTicket.who">
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Person(s) Involved</p>
+                  <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.who }}</p>
+                </div>
+                <div v-if="selectedTicket.when">
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">When</p>
+                  <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.when }}</p>
+                </div>
+                <div v-if="selectedTicket.where">
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Where</p>
+                  <p class="text-base sm:text-lg font-black text-slate-900">{{ selectedTicket.where }}</p>
+                </div>
+              </template>
+
               <!-- Dedicated Job Particulars / Description Section -->
               <div v-if="selectedTicket.description" class="col-span-2">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{{ isBorrowingService(selectedTicket) ? 'Purpose of Use Details' : 'Job Particulars / Description' }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{{ isIncidentTicket(selectedTicket) ? 'Narrative Statement (How)' : (isBorrowingService(selectedTicket) ? 'Purpose of Use Details' : 'Job Particulars / Description') }}</p>
                 <div class="p-4 sm:p-5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs">
                   <p class="text-base sm:text-lg font-medium text-slate-900 leading-relaxed">{{ selectedTicket.description }}</p>
                 </div>
@@ -864,33 +884,62 @@ onMounted(async () => {
       tickets.value = response.data.data.tickets.map(t => {
         const isIncident = isIncidentTicket(t);
 
-          const rawWorkingDays = (!isIncident && (t.working_days || t.project_working_days || t.assignment?.working_days))
-            ? Number(t.working_days || t.project_working_days || t.assignment?.working_days)
-            : null;
-          const extensionDays = (!isIncident && rawWorkingDays) ? (Number(t.extension_days) || 0) : 0;
+        const detailObj = t.details || {};
+        const rawIncidents = detailObj.incidents || t.incidents || [];
+        const incTypesList = Array.isArray(rawIncidents)
+          ? [...rawIncidents]
+          : (rawIncidents ? [rawIncidents] : []);
+        const otherInc = detailObj.other_incident || t.other_incident || t.otherIncident || '';
+        if (otherInc && !incTypesList.includes(otherInc)) {
+          incTypesList.push(otherInc);
+        }
+        const resolvedIncidentType = incTypesList.length > 0
+          ? incTypesList.join(', ')
+          : (t.incident_type || t.incidentType || (t.title && t.title !== 'Incident Report' ? t.title : '') || (isIncident ? 'Security Incident' : ''));
 
-          return {
-            id: t.id,
-            ticketId: t.id,
-            ticket_number: t.ticket_number || t.reference_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
-            reference_number: t.reference_number || t.ticket_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
-            title: t.title,
-            service: t.service_type,
-            service_type: t.service_type,
-            unit: t.unit_code,
-            unit_code: t.unit_code,
-            unit_id: t.unit_id,
-            description: t.description,
-            status: t.status,
-            statusLabel: isBorrowingService(t) ? getBorrowingStatusLabel(t) : t.status_label,
-            date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            submitted_at: t.submitted_at,
-            completed_at: t.completed_at || null,
-            requestedBy: userName.value,
-            contact_number: t.contact_number || t.requester_contact || t.user?.contact_number || t.details?.contact_number || t.details?.contact_no || authStore.user?.contact_number || 'N/A',
-            location: t.location || t.details?.college_building || 'N/A',
-            office_room: t.office_room || t.details?.office_room || 'N/A',
-            attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
+        const resolvedWhen = detailObj.when_occurred || detailObj.when || t.when_occurred || t.when || (t.submitted_at ? formatDate(t.submitted_at) : '');
+        const resolvedWhere = detailObj.where_occurred || detailObj.where || t.where_occurred || t.location || t.where || (t.office_room ? `Room ${t.office_room}` : '');
+        const resolvedHow = detailObj.how_narrative || detailObj.how || t.how_narrative || t.how || t.description || '';
+        const resolvedWho = detailObj.who_involved || detailObj.who || t.who_involved || t.who || '';
+        const rawIssues = detailObj.information || t.information || detailObj.incidentIssues || [];
+        const resolvedIssues = Array.isArray(rawIssues) ? rawIssues.join(', ') : (rawIssues || '');
+
+        const rawWorkingDays = (!isIncident && (t.working_days || t.project_working_days || t.assignment?.working_days))
+          ? Number(t.working_days || t.project_working_days || t.assignment?.working_days)
+          : null;
+        const extensionDays = (!isIncident && rawWorkingDays) ? (Number(t.extension_days) || 0) : 0;
+
+        return {
+          id: t.id,
+          ticketId: t.id,
+          ticket_number: t.ticket_number || t.reference_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
+          reference_number: t.reference_number || t.ticket_number || (t.unit_code ? `${t.unit_code}-TIC-${t.id}` : `TIC-${t.id}`),
+          title: t.title,
+          service: t.service_type,
+          service_type: t.service_type,
+          unit: t.unit_code,
+          unit_code: t.unit_code,
+          unit_id: t.unit_id,
+          description: t.description,
+          status: t.status,
+          statusLabel: isBorrowingService(t) ? getBorrowingStatusLabel(t) : t.status_label,
+          date: new Date(t.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          submitted_at: t.submitted_at,
+          completed_at: t.completed_at || null,
+          requestedBy: userName.value,
+          contact_number: t.contact_number || t.requester_contact || t.user?.contact_number || t.details?.contact_number || t.details?.contact_no || authStore.user?.contact_number || 'N/A',
+          location: t.location || t.details?.college_building || 'N/A',
+          office_room: t.office_room || t.details?.office_room || 'N/A',
+          attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
+          // SSU Incident particulars
+          incident_type:        resolvedIncidentType,
+          incidentTypes:        incTypesList,
+          when:                 resolvedWhen,
+          where:                resolvedWhere,
+          how:                  resolvedHow,
+          who:                  resolvedWho,
+          incident_issues:      resolvedIssues,
+          reporter_name:        detailObj.reportedBy?.printedName || detailObj.reporter_name || t.reporter_name || '',
             isDeclining: false,
             declineReason: t.decline_reason || t.cancellation_reason || '',
             cancellationReason: (t.status === 'cancelled' || String(t.status_label || '').toLowerCase().includes('cancel')) ? (t.cancellation_reason || t.decline_reason || '') : '',

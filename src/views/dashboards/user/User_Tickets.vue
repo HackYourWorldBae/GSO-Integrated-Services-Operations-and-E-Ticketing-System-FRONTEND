@@ -195,7 +195,7 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                       </svg>
-                      <span>Requested: <strong class="text-slate-800 font-semibold">{{ ticket.date }}</strong></span>
+                      <span>{{ isIncidentTicket(ticket) ? 'Reported:' : 'Requested:' }} <strong class="text-slate-800 font-semibold">{{ ticket.date }}</strong></span>
                     </span>
 
                     <!-- Scheduled Date -->
@@ -324,12 +324,12 @@
                     v-if="ticket.status === 'pending'"
                     @click="promptCancelTicket(ticket)"
                     class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 font-black rounded-xl border border-rose-200 transition-all text-xs sm:text-sm active:scale-95 whitespace-nowrap min-h-[44px] cursor-pointer"
-                    title="Cancel this pending request"
+                    :title="isIncidentTicket(ticket) ? 'Cancel this pending incident report' : 'Cancel this pending request'"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    Cancel Request
+                    {{ isIncidentTicket(ticket) ? 'Cancel Report' : 'Cancel Request' }}
                   </button>
 
                   <button
@@ -715,7 +715,7 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                      Cancel Request
+                      {{ isIncidentTicket(selectedTicket) ? 'Cancel Report' : 'Cancel Request' }}
                     </button>
                     <button @click="closeTimeline" class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all active:scale-95 flex-shrink-0">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -824,7 +824,7 @@
                       </div>
                     </div>
 
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Request Progress</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{{ isIncidentTicket(selectedTicket) ? 'Report Progress' : 'Request Progress' }}</p>
                     <div class="relative space-y-6">
                       <!-- Continuous vertical connecting line behind all dots -->
                       <div class="absolute top-4 bottom-4 left-4 -translate-x-1/2 w-0.5 bg-slate-200 pointer-events-none"></div>
@@ -877,7 +877,7 @@
                           </template>
 
                           <!-- ---- SSU: Incident Report (Step 1) ---- -->
-                          <template v-if="selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && index === 0">
+                          <template v-if="(selectedTicket.unit === 'SSU' || isIncidentTicket(selectedTicket)) && index === 0">
                             <button v-if="selectedTicket.currentStep >= 1" @click="showDigitalForm = !showDigitalForm" class="mt-3 px-3.5 py-2 bg-white border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-slate-600 hover:text-rose-700 text-xs font-bold rounded-lg transition-all flex items-center gap-2 shadow-sm active:scale-95">
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -886,16 +886,21 @@
                             </button>
                             <div v-if="showDigitalForm" class="mt-3 animate-fade-in">
                               <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                                <FormRow label="Incident Type" :value="selectedTicket.incident_type" />
-                                <FormRow label="When" :value="selectedTicket.when" />
-                                <FormRow label="Where" :value="selectedTicket.where" />
-                                <FormRow label="Narrative (How)" :value="selectedTicket.how" full />
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  <FormRow label="Incident Type" :value="selectedTicket.incident_type || selectedTicket.title || 'Security Incident'" />
+                                  <FormRow v-if="selectedTicket.who" label="Person(s) Involved" :value="selectedTicket.who" />
+                                  <FormRow label="When" :value="selectedTicket.when" />
+                                  <FormRow label="Where" :value="selectedTicket.where" />
+                                  <FormRow v-if="selectedTicket.incident_issues" label="Related Issues" :value="selectedTicket.incident_issues" />
+                                  <FormRow label="Narrative (How)" :value="selectedTicket.how || selectedTicket.description" full />
+                                </div>
+                                <AttachmentList v-if="selectedTicket.attachments?.length" :attachments="selectedTicket.attachments" @download="downloadAttachment" />
                               </div>
                             </div>
                           </template>
 
                           <!-- ---- SSU: Incident Report Step 3 — Dynamic investigation/notation tags ---- -->
-                          <template v-if="selectedTicket.unit === 'SSU' && selectedTicket.service === 'Incident Report' && index === 2 && selectedTicket.currentStep >= 3">
+                          <template v-if="(selectedTicket.unit === 'SSU' || isIncidentTicket(selectedTicket)) && index === 2 && selectedTicket.currentStep >= 3">
                             <div class="mt-3 flex flex-wrap gap-2">
                               <span
                                 v-if="selectedTicket.isUnderInvestigation"
@@ -1428,6 +1433,30 @@ const mapTicketData = (t) => {
   const rawWorkingDays = !isUnscheduled ? (Number(t.working_days || t.project_working_days || t.assignment?.working_days) || null) : null;
   const extensionDays = !isUnscheduled ? (Number(t.extension_days) || 0) : 0;
 
+  const detailObj = t.details || {};
+
+  // Incident particulars for SSU Incident Reports
+  const rawIncidents = detailObj.incidents || t.incidents || [];
+  const incTypesList = Array.isArray(rawIncidents)
+    ? [...rawIncidents]
+    : (rawIncidents ? [rawIncidents] : []);
+  const otherInc = detailObj.other_incident || t.other_incident || t.otherIncident || '';
+  if (otherInc && !incTypesList.includes(otherInc)) {
+    incTypesList.push(otherInc);
+  }
+  const resolvedIncidentType = incTypesList.length > 0
+    ? incTypesList.join(', ')
+    : (t.incident_type || t.incidentType || (t.title && t.title !== 'Incident Report' ? t.title : '') || (isIncident ? 'Security Incident' : ''));
+
+  const resolvedWhen = detailObj.when_occurred || detailObj.when || t.when_occurred || t.when || (t.submitted_at ? formatDate(t.submitted_at) : '');
+  const resolvedWhere = detailObj.where_occurred || detailObj.where || t.where_occurred || t.location || t.where || (t.office_room ? `Room ${t.office_room}` : '');
+  const resolvedHow = detailObj.how_narrative || detailObj.how || t.how_narrative || t.how || t.description || '';
+  const resolvedWho = detailObj.who_involved || detailObj.who || t.who_involved || t.who || '';
+  const rawIssues = detailObj.information || t.information || detailObj.incidentIssues || [];
+  const resolvedIssues = Array.isArray(rawIssues) ? rawIssues.join(', ') : (rawIssues || '');
+  const rawRoles = detailObj.roles || t.roles || [];
+  const resolvedRoles = Array.isArray(rawRoles) ? rawRoles.join(', ') : (rawRoles || '');
+
   return {
     id: t.id,
     ticketId: t.id,
@@ -1445,6 +1474,16 @@ const mapTicketData = (t) => {
     attachments: (t.attachments || []).filter(att => !isInternalStaffDocument(att.file_name)),
     declineReason: t.decline_reason || t.cancellation_reason || '',
     cancellationReason: t.cancellation_reason || (t.status === 'cancelled' ? t.decline_reason : '') || '',
+    // SSU Incident particulars
+    incident_type:        resolvedIncidentType,
+    incidentTypes:        incTypesList,
+    when:                 resolvedWhen,
+    where:                resolvedWhere,
+    how:                  resolvedHow,
+    who:                  resolvedWho,
+    incident_issues:      resolvedIssues,
+    incident_roles:       resolvedRoles,
+    reporter_name:        detailObj.reportedBy?.printedName || detailObj.reporter_name || t.reporter_name || '',
     currentStep: (() => {
       if (isBorrowingService(t)) {
         return getBorrowingCurrentStep(t);
