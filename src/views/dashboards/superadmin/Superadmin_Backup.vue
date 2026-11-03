@@ -1599,14 +1599,21 @@
               </div>
               <button
                 type="button"
+                role="switch"
+                :aria-checked="scheduleForm.enabled"
                 @click="scheduleForm.enabled = !scheduleForm.enabled"
-                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-                :class="scheduleForm.enabled ? 'bg-emerald-600' : 'bg-slate-300'"
+                class="relative inline-flex items-center cursor-pointer shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 rounded-full p-1 -m-1"
               >
-                <span
-                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
-                  :class="scheduleForm.enabled ? 'translate-x-5' : 'translate-x-0'"
-                />
+                <div
+                  class="w-11 h-6 rounded-full transition-colors duration-200 ease-in-out relative shrink-0"
+                  :class="scheduleForm.enabled ? 'bg-emerald-600' : 'bg-slate-300'"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="absolute top-[2px] left-[2px] inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"
+                    :class="scheduleForm.enabled ? 'translate-x-5' : 'translate-x-0'"
+                  />
+                </div>
               </button>
             </div>
 

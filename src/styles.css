@@ -109,7 +109,7 @@ a,
 }
 
 /* Base minimum target size reinforcement */
-button:not(.inline-icon-btn),
+button:not(.inline-icon-btn):not([role="switch"]):not(.toggle-switch),
 a.btn,
 select,
 input[type="text"],
@@ -118,6 +118,11 @@ input[type="password"],
 input[type="date"],
 input[type="search"] {
   min-height: 40px;
+}
+
+button[role="switch"],
+.toggle-switch {
+  min-height: auto !important;
 }
 
 /* ==========================================================================
@@ -195,7 +200,7 @@ html.comfort-view table td {
 
 /* Tactile inputs and buttons (WCAG 2.5.8 Target Size ≥ 44px) */
 /* Exclude inline badges, absolute icon buttons (e.g. search clear), and compact action groups */
-html.comfort-view button:not(.btn-compact):not(.absolute):not([class*="w-8"]):not([class*="w-7"]):not([class*="p-1"]):not([class*="p-0"]),
+html.comfort-view button:not(.btn-compact):not(.absolute):not([role="switch"]):not(.toggle-switch):not([class*="w-8"]):not([class*="w-7"]):not([class*="p-1"]):not([class*="p-0"]),
 html.comfort-view a[role="button"]:not([class*="w-8"]):not([class*="w-7"]):not([class*="p-1"]),
 html.comfort-view input:not([type="checkbox"]):not([type="radio"]),
 html.comfort-view select,

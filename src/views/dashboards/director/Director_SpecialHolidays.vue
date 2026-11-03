@@ -449,14 +449,18 @@
                 role="switch"
                 :aria-checked="scheduleForm.daily_continuation_enabled"
                 @click="scheduleForm.daily_continuation_enabled = !scheduleForm.daily_continuation_enabled"
-                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
-                :class="scheduleForm.daily_continuation_enabled ? 'bg-emerald-600' : 'bg-slate-300'"
+                class="relative inline-flex items-center cursor-pointer shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 rounded-full p-1 -m-1"
               >
-                <span
-                  aria-hidden="true"
-                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-                  :class="scheduleForm.daily_continuation_enabled ? 'translate-x-5' : 'translate-x-0'"
-                />
+                <div
+                  class="w-11 h-6 rounded-full transition-colors duration-200 ease-in-out relative shrink-0"
+                  :class="scheduleForm.daily_continuation_enabled ? 'bg-emerald-600' : 'bg-slate-300'"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="absolute top-[2px] left-[2px] inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"
+                    :class="scheduleForm.daily_continuation_enabled ? 'translate-x-5' : 'translate-x-0'"
+                  />
+                </div>
               </button>
             </div>
 
@@ -611,14 +615,18 @@
                     role="switch"
                     :aria-checked="scheduleForm.lunch_break_enabled"
                     @click="scheduleForm.lunch_break_enabled = !scheduleForm.lunch_break_enabled"
-                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
-                    :class="scheduleForm.lunch_break_enabled ? 'bg-amber-600' : 'bg-slate-300'"
+                    class="relative inline-flex items-center cursor-pointer shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-full p-1 -m-1"
                   >
-                    <span
-                      aria-hidden="true"
-                      class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-                      :class="scheduleForm.lunch_break_enabled ? 'translate-x-5' : 'translate-x-0'"
-                    />
+                    <div
+                      class="w-11 h-6 rounded-full transition-colors duration-200 ease-in-out relative shrink-0"
+                      :class="scheduleForm.lunch_break_enabled ? 'bg-amber-600' : 'bg-slate-300'"
+                    >
+                      <span
+                        aria-hidden="true"
+                        class="absolute top-[2px] left-[2px] inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"
+                        :class="scheduleForm.lunch_break_enabled ? 'translate-x-5' : 'translate-x-0'"
+                      />
+                    </div>
                   </button>
                 </div>
               </div>
@@ -664,14 +672,18 @@
                     role="switch"
                     :aria-checked="scheduleForm.morning_break_enabled"
                     @click="scheduleForm.morning_break_enabled = !scheduleForm.morning_break_enabled"
-                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
-                    :class="scheduleForm.morning_break_enabled ? 'bg-amber-600' : 'bg-slate-300'"
+                    class="relative inline-flex items-center cursor-pointer shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-full p-1 -m-1"
                   >
-                    <span
-                      aria-hidden="true"
-                      class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-                      :class="scheduleForm.morning_break_enabled ? 'translate-x-5' : 'translate-x-0'"
-                    />
+                    <div
+                      class="w-11 h-6 rounded-full transition-colors duration-200 ease-in-out relative shrink-0"
+                      :class="scheduleForm.morning_break_enabled ? 'bg-amber-600' : 'bg-slate-300'"
+                    >
+                      <span
+                        aria-hidden="true"
+                        class="absolute top-[2px] left-[2px] inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"
+                        :class="scheduleForm.morning_break_enabled ? 'translate-x-5' : 'translate-x-0'"
+                      />
+                    </div>
                   </button>
                 </div>
               </div>
@@ -717,14 +729,18 @@
                     role="switch"
                     :aria-checked="scheduleForm.afternoon_break_enabled"
                     @click="scheduleForm.afternoon_break_enabled = !scheduleForm.afternoon_break_enabled"
-                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
-                    :class="scheduleForm.afternoon_break_enabled ? 'bg-amber-600' : 'bg-slate-300'"
+                    class="relative inline-flex items-center cursor-pointer shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-full p-1 -m-1"
                   >
-                    <span
-                      aria-hidden="true"
-                      class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-                      :class="scheduleForm.afternoon_break_enabled ? 'translate-x-5' : 'translate-x-0'"
-                    />
+                    <div
+                      class="w-11 h-6 rounded-full transition-colors duration-200 ease-in-out relative shrink-0"
+                      :class="scheduleForm.afternoon_break_enabled ? 'bg-amber-600' : 'bg-slate-300'"
+                    >
+                      <span
+                        aria-hidden="true"
+                        class="absolute top-[2px] left-[2px] inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"
+                        :class="scheduleForm.afternoon_break_enabled ? 'translate-x-5' : 'translate-x-0'"
+                      />
+                    </div>
                   </button>
                 </div>
               </div>
@@ -780,14 +796,18 @@
                 role="switch"
                 :aria-checked="scheduleForm.exclude_weekends"
                 @click="scheduleForm.exclude_weekends = !scheduleForm.exclude_weekends"
-                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-                :class="scheduleForm.exclude_weekends ? 'bg-indigo-600' : 'bg-slate-300'"
+                class="relative inline-flex items-center cursor-pointer shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-full p-1 -m-1"
               >
-                <span
-                  aria-hidden="true"
-                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-                  :class="scheduleForm.exclude_weekends ? 'translate-x-5' : 'translate-x-0'"
-                />
+                <div
+                  class="w-11 h-6 rounded-full transition-colors duration-200 ease-in-out relative shrink-0"
+                  :class="scheduleForm.exclude_weekends ? 'bg-indigo-600' : 'bg-slate-300'"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="absolute top-[2px] left-[2px] inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"
+                    :class="scheduleForm.exclude_weekends ? 'translate-x-5' : 'translate-x-0'"
+                  />
+                </div>
               </button>
             </div>
 
@@ -826,17 +846,19 @@
                   :aria-checked="scheduleForm.exclude_saturday"
                   :disabled="!scheduleForm.exclude_weekends"
                   @click.stop="scheduleForm.exclude_saturday = !scheduleForm.exclude_saturday"
-                  class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-                  :class="[
-                    !scheduleForm.exclude_weekends ? 'opacity-40 cursor-not-allowed' : '',
-                    scheduleForm.exclude_weekends && scheduleForm.exclude_saturday ? 'bg-indigo-600' : 'bg-slate-300'
-                  ]"
+                  class="relative inline-flex items-center cursor-pointer shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-full p-1 -m-1"
+                  :class="!scheduleForm.exclude_weekends ? 'opacity-40 cursor-not-allowed' : ''"
                 >
-                  <span
-                    aria-hidden="true"
-                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-                    :class="scheduleForm.exclude_weekends && scheduleForm.exclude_saturday ? 'translate-x-5' : 'translate-x-0'"
-                  />
+                  <div
+                    class="w-11 h-6 rounded-full transition-colors duration-200 ease-in-out relative shrink-0"
+                    :class="scheduleForm.exclude_weekends && scheduleForm.exclude_saturday ? 'bg-indigo-600' : 'bg-slate-300'"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="absolute top-[2px] left-[2px] inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"
+                      :class="scheduleForm.exclude_weekends && scheduleForm.exclude_saturday ? 'translate-x-5' : 'translate-x-0'"
+                    />
+                  </div>
                 </button>
               </div>
 
@@ -873,17 +895,19 @@
                   :aria-checked="scheduleForm.exclude_sunday"
                   :disabled="!scheduleForm.exclude_weekends"
                   @click.stop="scheduleForm.exclude_sunday = !scheduleForm.exclude_sunday"
-                  class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-                  :class="[
-                    !scheduleForm.exclude_weekends ? 'opacity-40 cursor-not-allowed' : '',
-                    scheduleForm.exclude_weekends && scheduleForm.exclude_sunday ? 'bg-indigo-600' : 'bg-slate-300'
-                  ]"
+                  class="relative inline-flex items-center cursor-pointer shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-full p-1 -m-1"
+                  :class="!scheduleForm.exclude_weekends ? 'opacity-40 cursor-not-allowed' : ''"
                 >
-                  <span
-                    aria-hidden="true"
-                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-                    :class="scheduleForm.exclude_weekends && scheduleForm.exclude_sunday ? 'translate-x-5' : 'translate-x-0'"
-                  />
+                  <div
+                    class="w-11 h-6 rounded-full transition-colors duration-200 ease-in-out relative shrink-0"
+                    :class="scheduleForm.exclude_weekends && scheduleForm.exclude_sunday ? 'bg-indigo-600' : 'bg-slate-300'"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="absolute top-[2px] left-[2px] inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"
+                      :class="scheduleForm.exclude_weekends && scheduleForm.exclude_sunday ? 'translate-x-5' : 'translate-x-0'"
+                    />
+                  </div>
                 </button>
               </div>
             </div>
