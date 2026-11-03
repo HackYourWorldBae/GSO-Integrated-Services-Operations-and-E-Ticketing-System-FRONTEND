@@ -2103,7 +2103,58 @@
   <!-- ======================= ESCALATE TO DIRECTOR MODAL ======================= -->
   <Teleport to="body">
     <div v-if="showEscalateModal" class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto" @click.self="closeEscalateModal">
-      <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col my-auto overflow-hidden">
+      <!-- FGMU: Confirmation Modal (Direct confirmation without justification requirement) -->
+      <div v-if="isFgmu" class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 animate-scale-up space-y-6 my-auto">
+        <div class="w-14 h-14 bg-purple-100 text-purple-700 rounded-2xl flex items-center justify-center mx-auto">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+        </div>
+        <div class="text-center">
+          <h3 class="text-xl font-black text-slate-900">
+            Request Director Approval?
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">
+            Ticket <strong class="text-slate-800 font-bold">#{{ ticketToEscalate?.ticketId || ticketToEscalate?.id }}</strong>
+            will be submitted to the Executive Director for approval.
+          </p>
+        </div>
+
+        <!-- Ticket Summary -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 text-left text-xs sm:text-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500 font-medium">Requester</span>
+            <span class="font-bold text-slate-800 truncate max-w-[200px]">{{ ticketToEscalate?.requester || ticketToEscalate?.name || 'N/A' }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500 font-medium">Service / Task</span>
+            <span class="font-bold text-slate-800 truncate max-w-[200px]">{{ ticketToEscalate?.service_type || ticketToEscalate?.service || 'N/A' }}</span>
+          </div>
+          <div v-if="ticketToEscalate?.location" class="flex items-center justify-between">
+            <span class="text-slate-500 font-medium">Location</span>
+            <span class="font-bold text-slate-800 truncate max-w-[200px]">{{ ticketToEscalate?.location }}</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3">
+          <button
+            @click="closeEscalateModal"
+            class="w-full px-5 py-3 bg-slate-100 text-slate-700 text-xs sm:text-sm font-bold rounded-xl hover:bg-slate-200 cursor-pointer transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            @click="submitEscalation"
+            :disabled="isSubmittingEscalate"
+            class="w-full px-5 py-3 bg-purple-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider rounded-xl shadow-lg shadow-purple-600/20 hover:bg-purple-500 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-2"
+          >
+            <svg v-if="isSubmittingEscalate" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+            <span>{{ isSubmittingEscalate ? 'Requesting...' : 'Confirm Request' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Non-FGMU (LEAU): Justification Presets & Notes Modal -->
+      <div v-else class="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 animate-scale-up flex flex-col my-auto overflow-hidden">
         <div class="p-5 sm:p-6 pb-4 border-b border-slate-100 flex items-start justify-between gap-3 bg-gradient-to-r from-purple-50/50 to-white">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
@@ -3332,12 +3383,17 @@ const escalationPresets = computed(() => {
 
 const openEscalateModal = (ticket) => {
   ticketToEscalate.value = ticket;
-  const isBorrowing = selectedCategory.value === 'borrowing' || Boolean(ticket?.is_borrowing || isBorrowingService(ticket));
-  const presets = isBorrowing
-    ? fgmuBorrowingEscalationPresets
-    : (isFgmu.value ? fgmuEscalationPresets : leauEscalationPresets);
-  selectedEscalationPreset.value = presets[0];
-  escalateReasonInput.value = presets[0];
+  if (isFgmu.value) {
+    selectedEscalationPreset.value = 'Reviewed and recommended for Director approval.';
+    escalateReasonInput.value = 'Reviewed and recommended for Director approval.';
+  } else {
+    const isBorrowing = selectedCategory.value === 'borrowing' || Boolean(ticket?.is_borrowing || isBorrowingService(ticket));
+    const presets = isBorrowing
+      ? fgmuBorrowingEscalationPresets
+      : leauEscalationPresets;
+    selectedEscalationPreset.value = presets[0];
+    escalateReasonInput.value = presets[0];
+  }
   showEscalateModal.value = true;
 };
 
@@ -3350,10 +3406,16 @@ const closeEscalateModal = () => {
 };
 
 const submitEscalation = async () => {
-  if (!ticketToEscalate.value || !escalateReasonInput.value.trim()) return;
+  if (!ticketToEscalate.value) return;
+  if (!isFgmu.value && !escalateReasonInput.value.trim()) return;
+
+  const reason = isFgmu.value
+    ? (escalateReasonInput.value?.trim() || 'Reviewed and recommended for Director approval.')
+    : escalateReasonInput.value.trim();
+
   isSubmittingEscalate.value = true;
   try {
-    await escalateTicketToDirector(ticketToEscalate.value.id, escalateReasonInput.value.trim());
+    await escalateTicketToDirector(ticketToEscalate.value.id, reason);
     toast.success(`Ticket #${ticketToEscalate.value.ticketId || ticketToEscalate.value.id} submitted for Director approval.`);
     closeEscalateModal();
     if (selectedTicketForModal.value) closeDetailsModal();
