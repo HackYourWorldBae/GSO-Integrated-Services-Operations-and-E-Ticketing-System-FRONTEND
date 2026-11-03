@@ -545,7 +545,7 @@ const router = createRouter({
     },
     {
       path: '/director/holidays',
-      alias: ['/director/special-holidays', '/director/calendar-holidays'],
+      alias: ['/director/special-holidays', '/director/calendar-holidays', '/director/non-working-days'],
       name: 'director-special-holidays',
       component: Director_SpecialHolidays,
       meta: { requiresAuth: true, roles: ['director', 'superadmin'] }

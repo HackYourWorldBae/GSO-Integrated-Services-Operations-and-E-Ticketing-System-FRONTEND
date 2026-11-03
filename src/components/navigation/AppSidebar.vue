@@ -315,7 +315,7 @@ const rawNavGroups = computed(() => {
             icon: 'home'
           },
           {
-            label: 'Special Non-Working Holidays',
+            label: 'Non-Working Days Registry',
             to: '/director/holidays',
             exact: true,
             icon: 'calendar'

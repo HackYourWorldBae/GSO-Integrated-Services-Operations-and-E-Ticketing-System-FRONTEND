@@ -2934,63 +2934,63 @@ export const pageGuidesCatalog = {
       },
       {
         id: 'director-holidays',
-        name: 'Special Non-Working Holidays Registry',
+        name: 'Non-Working Days Registry',
         route: '/director/holidays',
         icon: '📅',
-        manualSection: 'Section G4: Special Non-Working Holidays',
+        manualSection: 'Section G4: Non-Working Days Registry',
         roleBadge: 'Director Console',
-        summary: 'Set official non-working holidays and school suspensions so deadlines skip those days automatically.',
+        summary: 'Set official special non-working days and university declarations so deadlines skip those days automatically.',
         sections: [
           {
-            title: 'Holiday Registry Table',
-            desc: 'Registered institutional and national holidays',
-            details: 'Displays holiday date, title/name, classification (National, Local, Institutional, Suspension), recurrence rule, proclamation notes, and active status.'
+            title: 'Non-Working Days Registry Table',
+            desc: 'Registered institutional and special non-working days',
+            details: 'Displays date, title/name, classification (Special Non-Working Day, University Non-Working Day), recurrence rule, proclamation notes, and active status.'
           },
           {
-            title: 'Register Special Holiday Form',
-            desc: 'Add executive suspensions or holidays',
-            details: 'Add one-time suspensions (e.g., typhoon suspension) or annual recurring holidays with official proclamation reference.'
+            title: 'Register Non-Working Day Form',
+            desc: 'Add executive non-working declarations',
+            details: 'Add one-time non-working days or annual recurring special days with official proclamation reference.'
           },
           {
             title: 'Working Duration Simulator',
             desc: 'Interactive verification calculator',
-            details: 'Proves that registered holiday dates and weekends are completely discounted from ticket target turnaround calculations.'
+            details: 'Proves that registered non-working dates and weekends are completely discounted from ticket target turnaround calculations.'
           }
         ],
         tabs: [
-          { name: 'Holiday Calendar', badge: 'Exclusions', desc: 'Official non-working dates discounted from ticket SLA durations.' }
+          { name: 'Non-Working Calendar', badge: 'Exclusions', desc: 'Official non-working dates discounted from ticket SLA durations.' }
         ],
         buttons: [
           {
-            label: '+ Register Special Holiday',
+            label: '+ Register Non-Working Day',
             type: 'primary',
-            desc: 'Registers a new national holiday, local suspension, or university non-working day in the database.',
-            result: 'Adds holiday to calendar calculations.'
+            desc: 'Registers a new special non-working day or university non-working day in the database.',
+            result: 'Adds date to calendar calculations.'
           },
           {
             label: 'Delete / Deactivate',
             type: 'danger',
-            desc: 'Deactivates a holiday entry if an official suspension is lifted.',
+            desc: 'Deactivates a non-working day entry if an official declaration is lifted.',
             result: 'Restores working day status.'
           }
         ],
         procedures: [
           {
-            title: 'How to Register a Campus Suspension or Holiday',
+            title: 'How to Register a Non-Working Day',
             steps: [
-              'Click "+ Register Special Holiday".',
-              'Select the holiday date and enter the official Proclamation Name (e.g., Typhoon Executive Suspension).',
-              'Specify whether it is a one-time event or annual recurring holiday.',
-              'Click "Save Holiday". All active and scheduled ticket deadlines automatically recalculate to exclude this date.'
+              'Click "+ Register Non-Working Day".',
+              'Select the date and enter the official Proclamation Name (e.g., Benguet Foundation Day).',
+              'Specify whether it is a one-time event or annual recurring non-working day.',
+              'Click "Save Non-Working Day". All active and scheduled ticket deadlines automatically recalculate to exclude this date.'
             ]
           }
         ],
         tourSteps: [
-      { element: '[data-tour="admin-page-header"]', title: '1. Special Non-Working Holidays', desc: 'Set official non-working dates that are excluded from ticket deadlines.' },
-      { element: '[data-tour="holidays-search-input"]', title: '2. Search Holiday Calendar', desc: 'Find holidays or suspensions by name or year.' },
-      { element: '[data-tour="holidays-filter-type"]', title: '3. Filter by Holiday Type', desc: 'Show National Holidays, Local Suspensions, or University Non-Working Days.' },
-      { element: '[data-tour="holidays-btn-add"]', title: '4. Add Special Holiday', desc: 'Register a holiday to exclude it from business day calculations.' },
-      { element: '[data-tour="holidays-table"]', title: '5. Holiday Registry Table', desc: 'View active holidays and update or remove suspension dates.' }
+      { element: '[data-tour="admin-page-header"]', title: '1. Non-Working Days Registry', desc: 'Set official non-working dates that are excluded from ticket deadlines.' },
+      { element: '[data-tour="holidays-search-input"]', title: '2. Search Non-Working Calendar', desc: 'Find registered non-working days by name or year.' },
+      { element: '[data-tour="holidays-filter-type"]', title: '3. Filter by Classification', desc: 'Show Special Non-Working Days or University Non-Working Days.' },
+      { element: '[data-tour="holidays-btn-add"]', title: '4. Add Non-Working Day', desc: 'Register a non-working day to exclude it from business day calculations.' },
+      { element: '[data-tour="holidays-table"]', title: '5. Non-Working Days Registry Table', desc: 'View active non-working days and update or remove dates.' }
     ]
       },
       {

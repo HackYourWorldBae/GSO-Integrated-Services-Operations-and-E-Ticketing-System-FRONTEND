@@ -55,7 +55,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span>Special Holidays Registry</span>
+              <span>Non-Working Days Registry</span>
               <span
                 class="px-2 py-0.5 rounded-full text-[10px] font-black"
                 :class="activeTab === 'holidays' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600'"
@@ -91,7 +91,7 @@
         </div>
 
         <!-- ================================================================= -->
-        <!-- TAB 1: SPECIAL NON-WORKING HOLIDAYS REGISTRY                      -->
+        <!-- TAB 1: NON-WORKING DAYS REGISTRY                                  -->
         <!-- ================================================================= -->
         <div v-if="activeTab === 'holidays'" class="space-y-6 sm:space-y-7 animate-fade-in">
           <!-- Action Bar: Search, Type Filters, and Add Button -->
@@ -104,7 +104,7 @@
                   v-model="searchQuery"
                   data-tour="holidays-search-input"
                   type="text"
-                  placeholder="Search holiday name, notes, or date..."
+                  placeholder="Search non-working day name, notes, or date..."
                   class="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
                 />
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -131,11 +131,9 @@
                   data-tour="holidays-filter-type"
                   class="w-full appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer min-h-[44px]"
                 >
-                  <option value="">All Holiday Types</option>
-                  <option value="special_non_working">Special Non-Working Holiday</option>
-                  <option value="regular">Regular Holiday</option>
-                  <option value="local_suspension">Local / Class Suspension</option>
-                  <option value="institutional">University Holiday</option>
+                  <option value="">All Non-Working Days</option>
+                  <option value="special_non_working">Special Non-Working Day</option>
+                  <option value="institutional">University Non-Working Day</option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +153,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                 </svg>
-                <span>Add Special Holiday</span>
+                <span>Add Non-Working Day</span>
               </button>
             </div>
           </div>
@@ -167,8 +165,8 @@
                 <thead>
                   <tr data-tour="holidays-table" class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-500 uppercase tracking-widest">
                     <th class="py-3.5 px-4 w-12 text-center">#</th>
-                    <th class="py-3.5 px-4 w-48">Holiday Date</th>
-                    <th class="py-3.5 px-4">Holiday Name &amp; Executive Proclamation</th>
+                    <th class="py-3.5 px-4 w-48">Date</th>
+                    <th class="py-3.5 px-4">Proclamation / Non-Working Day Name</th>
                     <th class="py-3.5 px-4 w-44 text-center">Classification</th>
                     <th class="py-3.5 px-4 w-36 text-center">Recurrence</th>
                     <th class="py-3.5 px-4 w-28 text-center">Actions</th>
@@ -181,8 +179,8 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <p class="font-bold text-sm text-slate-700">No holiday records match your criteria.</p>
-                        <p class="text-xs text-slate-400">Add a new special holiday above or adjust your search term.</p>
+                        <p class="font-bold text-sm text-slate-700">No non-working day records match your criteria.</p>
+                        <p class="text-xs text-slate-400">Add a new non-working day above or adjust your search term.</p>
                       </div>
                     </td>
                   </tr>
@@ -234,7 +232,7 @@
                       <div class="flex items-center justify-center gap-1">
                         <button
                           @click="openEditModal(h)"
-                          title="Edit Holiday"
+                          title="Edit Non-Working Day"
                           class="p-2 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -243,7 +241,7 @@
                         </button>
                         <button
                           @click="handleDeleteHoliday(h)"
-                          title="Delete Holiday"
+                          title="Delete Non-Working Day"
                           class="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -261,8 +259,8 @@
           <!-- Holidays Mobile Cards -->
           <div class="space-y-3 md:hidden">
             <div v-if="filteredHolidays.length === 0" class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400">
-              <p class="font-bold text-sm text-slate-700">No holidays found.</p>
-              <p class="text-xs text-slate-400 mt-1">Add a new special holiday above.</p>
+              <p class="font-bold text-sm text-slate-700">No non-working days found.</p>
+              <p class="text-xs text-slate-400 mt-1">Add a new non-working day above.</p>
             </div>
 
             <div
@@ -984,10 +982,10 @@
               <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                 <div>
                   <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                    {{ editingHoliday ? 'Edit Special Holiday' : 'Add Special Non-Working Holiday' }}
+                    {{ editingHoliday ? 'Edit Non-Working Day' : 'Add Non-Working Day' }}
                   </h3>
                   <p class="text-xs text-slate-500 font-medium">
-                    Service requests automatically pause on registered dates.
+                    Service requests automatically pause on registered non-working dates.
                   </p>
                 </div>
                 <button
@@ -1001,10 +999,10 @@
               </div>
 
               <form @submit.prevent="handleSaveHolidaySubmit" class="p-6 space-y-4">
-                <!-- Holiday Date -->
+                <!-- Date -->
                 <div class="space-y-1.5">
                   <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
-                    Holiday Date
+                    Date
                   </label>
                   <input
                     v-model="holidayForm.holiday_date"
@@ -1017,18 +1015,18 @@
                 <!-- Name -->
                 <div class="space-y-1.5">
                   <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
-                    Holiday Name
+                    Non-Working Day Name
                   </label>
                   <input
                     v-model="holidayForm.name"
                     type="text"
                     required
-                    placeholder="e.g., Benguet Foundation Day, Baguio Charter Day, Suspension"
+                    placeholder="e.g., Benguet Foundation Day, Baguio Charter Day, University Foundation Day"
                     class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px]"
                   />
                 </div>
 
-                <!-- Holiday Type -->
+                <!-- Classification Type -->
                 <div class="space-y-1.5">
                   <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
                     Classification Type
@@ -1038,10 +1036,8 @@
                     required
                     class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px] cursor-pointer"
                   >
-                    <option value="special_non_working">Special Non-Working Holiday</option>
-                    <option value="regular">Regular Holiday</option>
-                    <option value="local_suspension">Local / Executive Suspension</option>
-                    <option value="institutional">University Holiday</option>
+                    <option value="special_non_working">Special Non-Working Day</option>
+                    <option value="institutional">University Non-Working Day</option>
                   </select>
                 </div>
 
@@ -1084,7 +1080,7 @@
                     :disabled="operationsStore.isSaving"
                     class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 min-h-[40px]"
                   >
-                    {{ operationsStore.isSaving ? 'Saving...' : (editingHoliday ? 'Update Holiday' : 'Save Holiday') }}
+                    {{ operationsStore.isSaving ? 'Saving...' : (editingHoliday ? 'Update Non-Working Day' : 'Save Non-Working Day') }}
                   </button>
                 </div>
               </form>
@@ -1296,7 +1292,7 @@ const searchQuery = ref('');
 const selectedType = ref('');
 
 const filteredHolidays = computed(() => {
-  let list = operationsStore.holidays || [];
+  let list = (operationsStore.holidays || []).filter(h => h.type !== 'regular' && h.type !== 'local_suspension');
 
   if (selectedType.value) {
     list = list.filter(h => h.type === selectedType.value);
@@ -1379,11 +1375,9 @@ const formatWeekday = (dateStr) => {
 
 const formatHolidayType = (type) => {
   switch (type) {
-    case 'special_non_working': return 'Special Non-Working';
-    case 'regular': return 'Regular Holiday';
-    case 'local_suspension': return 'Executive Suspension';
-    case 'institutional': return 'University Holiday';
-    default: return type || 'Special Non-Working';
+    case 'special_non_working': return 'Special Non-Working Day';
+    case 'institutional': return 'University Non-Working Day';
+    default: return type === 'regular' || type === 'local_suspension' ? 'Special Non-Working Day' : (type || 'Special Non-Working Day');
   }
 };
 
@@ -1391,10 +1385,6 @@ const getTypeBadgeClass = (type) => {
   switch (type) {
     case 'special_non_working':
       return 'bg-amber-50 text-amber-800 border-amber-200';
-    case 'regular':
-      return 'bg-rose-50 text-rose-800 border-rose-200';
-    case 'local_suspension':
-      return 'bg-purple-50 text-purple-800 border-purple-200';
     case 'institutional':
       return 'bg-blue-50 text-blue-800 border-blue-200';
     default:
@@ -1448,36 +1438,36 @@ const handleSaveHolidaySubmit = async () => {
   };
 
   if (!payload.holiday_date) {
-    toast.error('Holiday date is required.');
+    toast.error('Date is required.');
     return;
   }
   if (!payload.name) {
-    toast.error('Holiday name is required.');
+    toast.error('Non-working day name is required.');
     return;
   }
 
   if (editingHoliday.value?.id) {
     const res = await operationsStore.updateHoliday(editingHoliday.value.id, payload);
     if (res.success) {
-      toast.success(res.message || 'Holiday updated successfully.');
+      toast.success(res.message || 'Non-working day updated successfully.');
       showModal.value = false;
     } else {
-      toast.error(res.message || 'Failed to update holiday.');
+      toast.error(res.message || 'Failed to update non-working day.');
     }
   } else {
     const res = await operationsStore.saveHoliday(payload);
     if (res.success) {
-      toast.success(res.message || 'Special holiday added to calendar.');
+      toast.success(res.message || 'Non-working day added to calendar.');
       showModal.value = false;
     } else {
-      toast.error(res.message || 'Failed to add holiday.');
+      toast.error(res.message || 'Failed to add non-working day.');
     }
   }
 };
 
 const handleDeleteHoliday = async (h) => {
   const result = await Swal.fire({
-    title: 'Remove Special Holiday?',
+    title: 'Remove Non-Working Day?',
     html: `Are you sure you want to remove <strong>${h.name}</strong> (${formatHolidayDate(h.holiday_date)}) from the calendar registry?`,
     icon: 'warning',
     showCancelButton: true,
@@ -1491,9 +1481,9 @@ const handleDeleteHoliday = async (h) => {
     if (h.id) {
       const res = await operationsStore.deleteHoliday(h.id);
       if (res.success) {
-        toast.success(res.message || 'Holiday removed.');
+        toast.success(res.message || 'Non-working day removed.');
       } else {
-        toast.error(res.message || 'Failed to remove holiday.');
+        toast.error(res.message || 'Failed to remove non-working day.');
       }
     } else {
       operationsStore.holidays = (operationsStore.holidays || []).filter(item => item.holiday_date !== h.holiday_date);
