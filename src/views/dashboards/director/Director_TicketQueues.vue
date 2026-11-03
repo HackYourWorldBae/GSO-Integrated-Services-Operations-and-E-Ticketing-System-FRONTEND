@@ -1653,9 +1653,9 @@
           <template v-if="isDirector">
             <!-- Approval Requests (Pending) -->
             <div v-if="activeTab === 'pending' && selectedTicketForModal?.is_escalated_to_director" class="flex items-center gap-2 flex-wrap">
-              <!-- Return to Unit (Unit Head) -->
+              <!-- Return to Unit (Unit Head) - Shown only on LEAU -->
               <button
-                v-if="selectedTicketForModal?.is_escalated_to_director"
+                v-if="selectedTicketForModal?.is_escalated_to_director && isTicketLeau(selectedTicketForModal)"
                 @click="openDeescalateModal(selectedTicketForModal); closeDetailsModal()"
                 class="px-3.5 py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold hover:bg-purple-100 transition-all cursor-pointer flex items-center gap-1.5"
                 title="Return Request to Unit Head"
@@ -2320,6 +2320,32 @@ const isLeau = computed(() => currentUnit.value === 'LEAU');
 const isFgmu = computed(() => currentUnit.value === 'FGMU');
 const unitLower = computed(() => currentUnit.value.toLowerCase());
 const servicesList = computed(() => isLeau.value ? LEAU_SERVICES : FGMU_SERVICES);
+
+const isTicketLeau = (ticket) => {
+  if (!ticket) return isLeau.value;
+  const unit = (ticket.unit_code || ticket.unit || '').toUpperCase();
+  if (unit === 'LEAU') return true;
+  if (unit === 'FGMU') return false;
+  if (Number(ticket.unit_id) === 2) return true;
+  if (Number(ticket.unit_id) === 1) return false;
+  const idStr = String(ticket.ticketId || ticket.id || '').toUpperCase();
+  if (idStr.startsWith('LEAU-')) return true;
+  if (idStr.startsWith('FGMU-')) return false;
+  return isLeau.value;
+};
+
+const isTicketFgmu = (ticket) => {
+  if (!ticket) return isFgmu.value;
+  const unit = (ticket.unit_code || ticket.unit || '').toUpperCase();
+  if (unit === 'FGMU') return true;
+  if (unit === 'LEAU') return false;
+  if (Number(ticket.unit_id) === 1) return true;
+  if (Number(ticket.unit_id) === 2) return false;
+  const idStr = String(ticket.ticketId || ticket.id || '').toUpperCase();
+  if (idStr.startsWith('FGMU-')) return true;
+  if (idStr.startsWith('LEAU-')) return false;
+  return isFgmu.value;
+};
 
 const isDirector = computed(() => authStore.role === 'director' || route.path.startsWith('/director'));
 const isPendingOnlyMode = computed(() => !isDirector.value || route.path.startsWith('/admin'));

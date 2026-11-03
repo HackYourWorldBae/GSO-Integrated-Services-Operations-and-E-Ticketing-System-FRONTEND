@@ -3057,8 +3057,8 @@ export const pageGuidesCatalog = {
           },
           {
             title: 'Decision & Executive Controls',
-            desc: 'Approve, Delay, Decline, Return to Unit, or Extend',
-            details: 'Grant executive approval (with Emergency priority), delay with standardized presets, return to FGMU Head with notes, decline ineligible requests, or grant working-day extensions for active jobs.'
+            desc: 'Approve, Delay, Decline, or Extend',
+            details: 'Grant executive approval (with Emergency priority), delay with standardized presets, decline ineligible requests, or grant working-day extensions for active jobs.'
           }
         ],
         tabs: [
@@ -3079,13 +3079,6 @@ export const pageGuidesCatalog = {
             type: 'success',
             desc: 'Grants executive approval for escalated requests (option to check Emergency Request).',
             result: 'Clears ticket and routes it back to the FGMU Admin for worker assignment.'
-          },
-          {
-            label: 'Return to Unit / Return Request to Unit Head',
-            type: 'info',
-            desc: 'Returns ticket to FGMU Head with executive instructions when the project can proceed at the unit level.',
-            fields: 'Notes / Instructions for Unit Head.',
-            result: 'Returns ticket to the FGMU Admin pending approvals queue.'
           },
           {
             label: 'Delay',
@@ -3129,14 +3122,6 @@ export const pageGuidesCatalog = {
             ]
           },
           {
-            title: 'How to Return a Request to the Unit Head',
-            steps: [
-              'Inside Full Info, click "Return to Unit".',
-              'Add instructions (e.g., "Approved to proceed at unit level using current supplies").',
-              'Click "Confirm Return to Unit". The ticket returns to the FGMU Admin queue.'
-            ]
-          },
-          {
             title: 'How to Grant Timeline Extension for Active Jobs',
             steps: [
               'Under Job Requests, click the "Work in Progress" tab.',
@@ -3156,7 +3141,7 @@ export const pageGuidesCatalog = {
           { element: '[data-tour="director-tab-dispatched"]', title: '7. Dispatched Requests', desc: 'Check tickets with assigned workers, scheduled implementation dates, and generated Job Orders.' },
           { element: '[data-tour="director-tab-active"]', title: '8. Work in Progress', desc: 'Monitor active jobs on campus with live elapsed working durations and grant extensions.' },
           { element: '[data-tour="director-search-input"]', title: '9. Search & Filter', desc: 'Filter tickets by reference ID, requester name, building, room, or issue description.' },
-          { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '10. Executive Decision Controls', desc: 'Approve repairs, delay with justification presets, or return to unit head.' },
+          { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"]', title: '10. Executive Decision Controls', desc: 'Approve repairs or delay approval with justification presets.' },
           { element: '[data-tour="director-btn-fullinfo"]', title: '11. Detailed Scope Inspection', desc: 'View full repair details, requester contacts, building locations, and uploaded photos.' }
         ]
       },
