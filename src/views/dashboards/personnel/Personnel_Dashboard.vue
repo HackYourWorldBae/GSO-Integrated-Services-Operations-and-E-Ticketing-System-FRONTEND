@@ -223,6 +223,7 @@
         <!-- Empty State -->
         <div
           v-else-if="filteredAssignments.length === 0"
+          data-tour="worker-empty-state"
           class="py-16 px-6 text-center bg-white rounded-3xl border border-dashed border-slate-200 max-w-2xl mx-auto shadow-xs"
         >
           <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-inner">

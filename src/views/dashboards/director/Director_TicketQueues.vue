@@ -477,7 +477,7 @@
         </div>
 
         <!-- ======================= DESKTOP TABULAR VIEW ======================= -->
-        <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div data-tour="director-queues-table" class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
@@ -509,7 +509,7 @@
                 </tr>
 
                 <!-- Empty State -->
-                <tr v-else-if="paginatedTickets.length === 0">
+                <tr v-else-if="paginatedTickets.length === 0" data-tour="director-empty-state">
                   <td colspan="9" class="py-16 text-center">
                     <div class="max-w-sm mx-auto flex flex-col items-center">
                       <div class="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
@@ -996,7 +996,7 @@
             <p class="text-xs font-bold text-slate-400">Loading...</p>
           </div>
 
-          <div v-else-if="paginatedTickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
+          <div v-else-if="paginatedTickets.length === 0" data-tour="director-empty-state" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
             <p class="text-sm font-bold text-slate-600">No Tickets in {{ activeTabLabel }}</p>
             <p class="text-xs text-slate-400 mt-1">
               {{ emptyTabMessage }}

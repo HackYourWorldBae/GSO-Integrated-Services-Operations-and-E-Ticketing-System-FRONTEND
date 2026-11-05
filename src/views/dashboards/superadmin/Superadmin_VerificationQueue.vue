@@ -75,7 +75,7 @@
         </div>
 
         <!-- Pending Cards Grid -->
-        <div v-else-if="filteredPendingUsers.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div v-else-if="filteredPendingUsers.length > 0" data-tour="verify-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <div 
             v-for="user in filteredPendingUsers" 
             :key="'queue-' + user.id"
@@ -178,7 +178,7 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else class="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm">
+        <div v-else data-tour="verify-empty-state" class="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm">
           <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />

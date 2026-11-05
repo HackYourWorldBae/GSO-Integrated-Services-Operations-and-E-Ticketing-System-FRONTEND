@@ -108,7 +108,6 @@ export function useTutorial() {
           createUnitAdminPersonnelGuide(unit),
           createUnitAdminInventoryGuide(unit),
           createUnitAdminMaterialsGuide(unit),
-          createUnitAdminCollabGuide(unit),
           createUnitAdminArchivesGuide(unit),
           createUnitAdminSettingsGuide(unit)
         ];
@@ -233,7 +232,7 @@ export function useTutorial() {
       { element: '#tour-main-workspace', title: page.name, desc: page.summary }
     ];
 
-    // Format steps for v-onboarding with deterministic target pinpointing & fallback
+    // Format steps for v-onboarding with deterministic target pinpointing & content-first resolution
     const formattedSteps = rawSteps.map(s => {
       const targetSelector = s.element || '#tour-page-header';
 
@@ -243,47 +242,70 @@ export function useTutorial() {
             let el = null;
             if (targetSelector) {
               const candidates = targetSelector.split(',').map(sel => sel.trim()).filter(Boolean);
+
+              // 1. First pass: try non-navbar candidates in order
               for (const cand of candidates) {
-                const found = document.querySelector(cand);
-                if (found && (found.offsetWidth > 0 || found.offsetHeight > 0 || found.getClientRects().length > 0)) {
-                  el = found;
-                  break;
+                if (candidates.length > 1 && (cand === '#tour-page-header' || cand === '[data-tour="admin-page-header"]')) {
+                  continue;
+                }
+                try {
+                  const found = document.querySelector(cand);
+                  if (found && (found.offsetWidth > 0 || found.offsetHeight > 0 || found.getClientRects().length > 0)) {
+                    el = found;
+                    break;
+                  }
+                } catch {
+                  // ignore selector parsing issues
                 }
               }
+
+              // 2. Second pass: if still not found, try all candidates including navbar anchors
               if (!el) {
-                el = document.querySelector(targetSelector);
+                for (const cand of candidates) {
+                  try {
+                    const found = document.querySelector(cand);
+                    if (found && (found.offsetWidth > 0 || found.offsetHeight > 0 || found.getClientRects().length > 0)) {
+                      el = found;
+                      break;
+                    }
+                  } catch {
+                    // ignore
+                  }
+                }
+              }
+
+              // 3. Third pass: try raw targetSelector directly
+              if (!el) {
+                try {
+                  const found = document.querySelector(targetSelector);
+                  if (found && (found.offsetWidth > 0 || found.offsetHeight > 0 || found.getClientRects().length > 0)) {
+                    el = found;
+                  }
+                } catch {
+                  // ignore
+                }
               }
             }
 
-            // If the element is #tour-main-workspace, main, body, or an excessively tall container,
-            // resolve it to a compact, prominent top heading/banner so the spotlight focuses cleanly
-            // and the user never has to scroll down through thousands of pixels.
-            const isBroadWorkspace = !el ||
-              targetSelector === '#tour-main-workspace' ||
-              targetSelector === 'main' ||
-              targetSelector === 'body';
-
-            if (isBroadWorkspace || (el && el.offsetHeight > (window.innerHeight * 0.55))) {
-              // Try finding the dedicated header or topmost prominent heading first
-              const compactAnchor = 
-                document.querySelector('#tour-page-header') ||
-                (el && el.querySelector('h1, h2, h3, [data-tour-header], .page-heading, .sidebar-header')) ||
-                document.querySelector('header h2, header h1, main h2, main h1');
-
-              if (compactAnchor && (compactAnchor.offsetWidth > 0 || compactAnchor.offsetHeight > 0)) {
-                return compactAnchor;
-              }
-            }
-
+            // 4. Deterministic match: if element was found and is rendered, return it directly!
+            // Never hijack or replace the intended selector with the navbar title.
             if (el && (el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0)) {
               return el;
             }
 
-            // Fallbacks: compact header first, then workspace, then body
+            // 5. If element was NOT found, look for prominent main content anchors first
+            const mainAnchor = document.querySelector(
+              'main [data-tour], main h2, main h1, main h3, main .page-heading, main > div'
+            );
+            if (mainAnchor && (mainAnchor.offsetWidth > 0 || mainAnchor.offsetHeight > 0)) {
+              return mainAnchor;
+            }
+
+            // 6. Final graceful fallbacks
             return (
               document.querySelector('#tour-page-header') ||
-              document.querySelector('header h2') ||
-              document.querySelector('main h2') ||
+              document.querySelector('header h2, header h1') ||
+              document.querySelector('main') ||
               document.body
             );
           },

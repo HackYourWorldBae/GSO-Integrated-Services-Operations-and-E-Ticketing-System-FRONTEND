@@ -137,6 +137,7 @@
         <!-- Empty State -->
         <div
           v-else-if="filteredCompletedJobs.length === 0"
+          data-tour="history-empty-state"
           class="py-16 px-6 text-center bg-white rounded-3xl border border-dashed border-slate-200 max-w-2xl mx-auto shadow-xs"
         >
           <div class="w-16 h-16 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center mx-auto mb-3 shadow-inner">

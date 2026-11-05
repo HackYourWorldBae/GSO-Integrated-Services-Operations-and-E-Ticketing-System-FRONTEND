@@ -232,7 +232,7 @@
           <div v-if="stats.daily_breakdown && stats.daily_breakdown.length > 0" class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-slate-200 pb-3">
               <div>
-                <h4 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                <h4 data-tour="admin-daily-tracker" class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
                   Daily Activity Tracker (Last 7 Days)
                 </h4>
               </div>
@@ -303,7 +303,7 @@
         <div class="space-y-4">
           <div class="flex items-center justify-between px-1">
             <div>
-              <h3 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
+              <h3 data-tour="admin-workload-status" class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
                 <span class="w-2.5 h-5 rounded-full bg-rose-600 shrink-0"></span>
                 Live Workload &amp; Operations Status
               </h3>
@@ -348,7 +348,7 @@
           
           <!-- Incident Distribution -->
           <div class="p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200/80 shadow-md flex flex-col min-h-[300px] sm:min-h-[350px] lg:h-[400px]">
-            <h4 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2 italic">
+            <h4 data-tour="ssu-incident-heatmap" class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2 italic">
               <div class="w-2.5 h-6 bg-rose-500 rounded-full shrink-0"></div>
               Incident Heatmap (By Category)
             </h4>
