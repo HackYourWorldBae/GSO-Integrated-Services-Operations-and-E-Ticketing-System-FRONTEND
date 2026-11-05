@@ -22,7 +22,9 @@ const form = ref({
   role: 'student', // 'student' or 'employee'
   student_type: 'rso', // 'rso' or 'ssg'
   organization_name: '',
-  employee_type: '', // 'Teaching Staff', 'Research and Extension Staff', 'Support / Administrative Staff'
+  staff_category: '', // 'Teaching Staff' or 'Non-teaching Staff'
+  employee_subtype: '', // 'Research and Extension Staff' or 'Support / Administrative Staff'
+  employee_type: '', // Resolved: 'Teaching Staff', 'Research and Extension Staff', or 'Support / Administrative Staff'
   college: '',
   student_id_number: '',
   contact_number: '',
@@ -41,12 +43,12 @@ const showDisclaimerModal = ref(false);
 const hasAgreedToDisclaimer = ref(false);
 const isDisclaimerTouched = ref(false);
 
-// Password criteria checks (Elder-friendly: minimum 8 chars, letters and numbers, no special symbols required)
+// Password criteria checks (8+ chars, capital letter, small letter, number)
 const passwordCriteria = computed(() => checkPasswordCriteria(form.value.password));
 const passwordStrengthScore = computed(() => calculatePasswordStrength(form.value.password));
 const isPasswordValid = computed(() => {
   const c = passwordCriteria.value;
-  return c.hasLength && c.hasLetter && c.hasNumber;
+  return c.hasLength && c.hasUppercase && c.hasLowercase && c.hasNumber;
 });
 
 const isConfirmPasswordTouched = computed(() => form.value.password_confirm.length > 0);
@@ -64,23 +66,51 @@ const handleRoleSelect = (selectedRole) => {
   form.value.college = '';
   form.value.organization_name = '';
   form.value.student_type = 'rso'; // Reset to default
+  form.value.staff_category = '';
+  form.value.employee_subtype = '';
   form.value.employee_type = '';
   
   // Clear related field errors
   if (fieldErrors.value.college) delete fieldErrors.value.college;
+  if (fieldErrors.value.staff_category) delete fieldErrors.value.staff_category;
+  if (fieldErrors.value.employee_subtype) delete fieldErrors.value.employee_subtype;
   if (fieldErrors.value.employee_type) delete fieldErrors.value.employee_type;
   if (fieldErrors.value.student_id_number) delete fieldErrors.value.student_id_number;
   if (fieldErrors.value.student_type) delete fieldErrors.value.student_type;
   if (fieldErrors.value.organization_name) delete fieldErrors.value.organization_name;
 };
 
-// Employee / Staff Type Switcher Handler
-const handleEmployeeTypeSelect = (selectedType) => {
-  if (form.value.employee_type === selectedType) return;
-  form.value.employee_type = selectedType;
+// Staff Category Handler ('Teaching Staff' or 'Non-teaching Staff')
+const handleStaffCategorySelect = (selectedCategory) => {
+  if (form.value.staff_category === selectedCategory) return;
+  form.value.staff_category = selectedCategory;
   form.value.college = '';
-  if (fieldErrors.value.college) delete fieldErrors.value.college;
+  
+  if (selectedCategory === 'Teaching Staff') {
+    form.value.employee_subtype = '';
+    form.value.employee_type = 'Teaching Staff';
+  } else {
+    // Non-teaching Staff: await user choosing a subtype
+    form.value.employee_subtype = '';
+    form.value.employee_type = '';
+  }
+  
+  if (fieldErrors.value.staff_category) delete fieldErrors.value.staff_category;
   if (fieldErrors.value.employee_type) delete fieldErrors.value.employee_type;
+  if (fieldErrors.value.employee_subtype) delete fieldErrors.value.employee_subtype;
+  if (fieldErrors.value.college) delete fieldErrors.value.college;
+};
+
+// Non-teaching Staff Subtype Handler
+const handleEmployeeSubtypeSelect = (selectedSubtype) => {
+  if (form.value.employee_subtype === selectedSubtype) return;
+  form.value.employee_subtype = selectedSubtype;
+  form.value.employee_type = selectedSubtype;
+  form.value.college = '';
+  
+  if (fieldErrors.value.employee_subtype) delete fieldErrors.value.employee_subtype;
+  if (fieldErrors.value.employee_type) delete fieldErrors.value.employee_type;
+  if (fieldErrors.value.college) delete fieldErrors.value.college;
 };
 
 const handleCollegeChange = () => {
@@ -307,6 +337,9 @@ const handleRegister = async () => {
       formData.append('college', form.value.college);
     } else if (form.value.role === 'employee') {
       formData.append('employee_type', form.value.employee_type);
+      if (form.value.employee_subtype) {
+        formData.append('employee_subtype', form.value.employee_subtype);
+      }
       if (form.value.college) {
         formData.append('college', form.value.college);
       }
@@ -544,38 +577,81 @@ const acceptDisclaimer = () => {
 
           <!-- Employee Fields -->
           <template v-if="form.role === 'employee'">
-            <!-- Staff Type -->
+            <!-- Primary Staff Type -->
             <div data-field="employee_type">
               <label class="block text-slate-700 text-xs font-bold mb-1.5">
                 Staff Type <span class="text-rose-500">*</span>
               </label>
-              <div class="space-y-2">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
-                  v-for="opt in [
-                    { value: 'Teaching Staff', label: 'Teaching Staff', desc: 'Faculty & Instructors' },
-                    { value: 'Research and Extension Staff', label: 'Research & Extension', desc: 'Research Centers & Extension' },
-                    { value: 'Support / Administrative Staff', label: 'Support / Admin', desc: 'Administrative & Support' }
-                  ]"
-                  :key="opt.value"
                   type="button"
-                  @click="handleEmployeeTypeSelect(opt.value)"
-                  :class="form.employee_type === opt.value ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50 text-emerald-900' : 'border-slate-200 hover:border-slate-300 text-slate-600'"
-                  class="w-full min-h-[44px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between"
+                  @click="handleStaffCategorySelect('Teaching Staff')"
+                  :class="form.staff_category === 'Teaching Staff' ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50 text-emerald-900' : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'"
+                  class="min-h-[48px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between"
                 >
                   <div>
-                    <div class="text-xs font-bold">{{ opt.label }}</div>
-                    <p class="text-[10px] text-slate-500 mt-0.5">{{ opt.desc }}</p>
+                    <div class="text-xs font-bold">Teaching Staff</div>
+                    <p class="text-[10px] text-slate-500 mt-0.5">Faculty & Instructors</p>
                   </div>
-                  <div v-if="form.employee_type === opt.value" class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0">
+                  <div v-if="form.staff_category === 'Teaching Staff'" class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 ml-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  @click="handleStaffCategorySelect('Non-teaching Staff')"
+                  :class="form.staff_category === 'Non-teaching Staff' ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50 text-emerald-900' : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'"
+                  class="min-h-[48px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between"
+                >
+                  <div>
+                    <div class="text-xs font-bold">Non-teaching Staff</div>
+                    <p class="text-[10px] text-slate-500 mt-0.5">Research, Admin & Support</p>
+                  </div>
+                  <div v-if="form.staff_category === 'Non-teaching Staff'" class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 ml-2">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
                   </div>
                 </button>
               </div>
-              <p v-if="fieldErrors.employee_type" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.employee_type }}</p>
+              <p v-if="fieldErrors.staff_category || fieldErrors.employee_type" class="mt-1 text-xs text-rose-500 font-medium">
+                {{ fieldErrors.staff_category || fieldErrors.employee_type }}
+              </p>
             </div>
 
-            <!-- College / Center / Building (conditional based on staff type) -->
-            <div v-if="form.employee_type === 'Teaching Staff'" data-field="college">
+            <!-- Non-Teaching Staff Subtype (Revealed when Non-teaching Staff is selected) -->
+            <div v-if="form.staff_category === 'Non-teaching Staff'" data-field="employee_subtype" class="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/90 space-y-2.5 transition-all">
+              <div class="flex items-center justify-between">
+                <label class="block text-slate-700 text-xs font-bold">
+                  Non-Teaching Staff Subtype <span class="text-rose-500">*</span>
+                </label>
+                <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">Subtype</span>
+              </div>
+              <div class="space-y-2">
+                <button
+                  v-for="sub in [
+                    { value: 'Research and Extension Staff', label: 'Research and Extension Staff', desc: 'Research Centers & Extension Units' },
+                    { value: 'Support / Administrative Staff', label: 'Support / Administrative Staff', desc: 'Administrative & Campus Facilities' }
+                  ]"
+                  :key="sub.value"
+                  type="button"
+                  @click="handleEmployeeSubtypeSelect(sub.value)"
+                  :class="form.employee_subtype === sub.value ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50 text-emerald-900' : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'"
+                  class="w-full min-h-[44px] p-3 rounded-xl border text-left transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between"
+                >
+                  <div>
+                    <div class="text-xs font-bold">{{ sub.label }}</div>
+                    <p class="text-[10px] text-slate-500 mt-0.5">{{ sub.desc }}</p>
+                  </div>
+                  <div v-if="form.employee_subtype === sub.value" class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 ml-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                </button>
+              </div>
+              <p v-if="fieldErrors.employee_subtype" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.employee_subtype }}</p>
+            </div>
+
+            <!-- College / Center / Building (conditional based on staff type and subtype) -->
+            <div v-if="form.staff_category === 'Teaching Staff'" data-field="college">
               <label class="block text-slate-700 text-xs font-bold mb-1.5">
                 Assigned College <span class="text-rose-500">*</span>
               </label>
@@ -593,7 +669,7 @@ const acceptDisclaimer = () => {
               <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.college }}</p>
             </div>
 
-            <div v-if="form.employee_type === 'Research and Extension Staff'" data-field="college">
+            <div v-if="form.staff_category === 'Non-teaching Staff' && form.employee_subtype === 'Research and Extension Staff'" data-field="college">
               <label class="block text-slate-700 text-xs font-bold mb-1.5">
                 Assigned Center <span class="text-rose-500">*</span>
               </label>
@@ -611,7 +687,7 @@ const acceptDisclaimer = () => {
               <p v-if="fieldErrors.college" class="mt-1 text-xs text-rose-500 font-medium">{{ fieldErrors.college }}</p>
             </div>
 
-            <div v-if="form.employee_type === 'Support / Administrative Staff'" data-field="college">
+            <div v-if="form.staff_category === 'Non-teaching Staff' && form.employee_subtype === 'Support / Administrative Staff'" data-field="college">
               <label class="block text-slate-700 text-xs font-bold mb-1.5">
                 Assigned Building <span class="text-rose-500">*</span>
               </label>
@@ -771,25 +847,31 @@ const acceptDisclaimer = () => {
             <div class="flex items-center gap-2">
               <span class="text-[11px] font-semibold text-slate-600">Password strength:</span>
               <div class="flex gap-1 flex-1">
-                <div :class="passwordStrengthScore >= 1 ? 'bg-amber-500' : 'bg-slate-200'" class="h-1 rounded-full flex-1 transition-colors"></div>
-                <div :class="passwordStrengthScore >= 2 ? 'bg-amber-500' : 'bg-slate-200'" class="h-1 rounded-full flex-1 transition-colors"></div>
-                <div :class="passwordStrengthScore === 3 ? 'bg-emerald-500' : 'bg-slate-200'" class="h-1 rounded-full flex-1 transition-colors"></div>
+                <div :class="passwordStrengthScore >= 1 ? (passwordStrengthScore >= 4 ? 'bg-emerald-500' : 'bg-amber-500') : 'bg-slate-200'" class="h-1 rounded-full flex-1 transition-colors"></div>
+                <div :class="passwordStrengthScore >= 2 ? (passwordStrengthScore >= 4 ? 'bg-emerald-500' : 'bg-amber-500') : 'bg-slate-200'" class="h-1 rounded-full flex-1 transition-colors"></div>
+                <div :class="passwordStrengthScore >= 3 ? (passwordStrengthScore >= 4 ? 'bg-emerald-500' : 'bg-amber-500') : 'bg-slate-200'" class="h-1 rounded-full flex-1 transition-colors"></div>
+                <div :class="passwordStrengthScore >= 4 ? 'bg-emerald-500' : 'bg-slate-200'" class="h-1 rounded-full flex-1 transition-colors"></div>
               </div>
               <span class="text-[10px] text-slate-500 font-bold whitespace-nowrap">
-                {{ passwordStrengthScore === 0 ? 'None' : passwordStrengthScore === 3 ? 'Strong' : passwordStrengthScore === 2 ? 'Medium' : 'Weak' }}
+                {{ passwordStrengthScore === 0 ? 'None' : passwordStrengthScore === 4 ? 'Strong' : passwordStrengthScore >= 2 ? 'Medium' : 'Weak' }}
               </span>
             </div>
 
-            <div class="flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+            <div class="flex flex-wrap gap-x-3.5 gap-y-1 text-[11px]">
               <span :class="passwordCriteria.hasLength ? 'text-emerald-600 font-semibold' : 'text-slate-400'" class="flex items-center gap-1 transition-colors">
                 <svg v-if="passwordCriteria.hasLength" class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                 <span v-else class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
                 8+ characters
               </span>
-              <span :class="passwordCriteria.hasLetter ? 'text-emerald-600 font-semibold' : 'text-slate-400'" class="flex items-center gap-1 transition-colors">
-                <svg v-if="passwordCriteria.hasLetter" class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+              <span :class="passwordCriteria.hasUppercase ? 'text-emerald-600 font-semibold' : 'text-slate-400'" class="flex items-center gap-1 transition-colors">
+                <svg v-if="passwordCriteria.hasUppercase" class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                 <span v-else class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                At least one letter
+                Capital letter (A-Z)
+              </span>
+              <span :class="passwordCriteria.hasLowercase ? 'text-emerald-600 font-semibold' : 'text-slate-400'" class="flex items-center gap-1 transition-colors">
+                <svg v-if="passwordCriteria.hasLowercase" class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                <span v-else class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                Small letter (a-z)
               </span>
               <span :class="passwordCriteria.hasNumber ? 'text-emerald-600 font-semibold' : 'text-slate-400'" class="flex items-center gap-1 transition-colors">
                 <svg v-if="passwordCriteria.hasNumber" class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>

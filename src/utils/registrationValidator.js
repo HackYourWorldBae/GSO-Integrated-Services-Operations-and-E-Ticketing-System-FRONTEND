@@ -7,35 +7,38 @@
  */
 
 /**
- * Validates password criteria: Elder-friendly rules:
+ * Validates password criteria:
  * - Minimum 8 characters
- * - At least one letter (a-z, A-Z)
+ * - At least one capital letter (A-Z)
+ * - At least one small letter (a-z)
  * - At least one number (0-9)
- * - No special symbol required
  *
  * @param {string} pwd
- * @returns {{ hasLength: boolean, hasLetter: boolean, hasNumber: boolean }}
+ * @returns {{ hasLength: boolean, hasUppercase: boolean, hasLowercase: boolean, hasLetter: boolean, hasNumber: boolean }}
  */
 export const checkPasswordCriteria = (pwd = '') => {
   const val = String(pwd || '');
   return {
     hasLength: val.length >= 8,
+    hasUppercase: /[A-Z]/.test(val),
+    hasLowercase: /[a-z]/.test(val),
     hasLetter: /[a-zA-Z]/.test(val),
     hasNumber: /[0-9]/.test(val),
   };
 };
 
 /**
- * Calculates a 0-3 password strength score based on satisfied criteria.
+ * Calculates a 0-4 password strength score based on satisfied criteria.
  * @param {string} pwd
- * @returns {number} 0, 1, 2, or 3
+ * @returns {number} 0, 1, 2, 3, or 4
  */
 export const calculatePasswordStrength = (pwd = '') => {
   if (!pwd) return 0;
   const criteria = checkPasswordCriteria(pwd);
   let score = 0;
   if (criteria.hasLength) score++;
-  if (criteria.hasLetter) score++;
+  if (criteria.hasUppercase) score++;
+  if (criteria.hasLowercase) score++;
   if (criteria.hasNumber) score++;
   return score;
 };
@@ -103,7 +106,22 @@ export const validateRegistrationForm = (form = {}, options = {}) => {
       errors.college = 'Please select your college.';
     }
   } else if (form.role === 'employee') {
-    if (!form.employee_type) {
+    if (form.staff_category) {
+      if (form.staff_category === 'Non-teaching Staff' && !form.employee_subtype && form.employee_type !== 'Research and Extension Staff' && form.employee_type !== 'Support / Administrative Staff') {
+        errors.employee_subtype = 'Please select a non-teaching staff subtype.';
+      } else {
+        const resolvedType = form.employee_subtype || form.employee_type;
+        if (!resolvedType) {
+          errors.employee_type = 'Please select your staff classification.';
+        } else if (!form.college) {
+          errors.college = resolvedType === 'Teaching Staff'
+            ? 'Please select your assigned college.'
+            : resolvedType === 'Research and Extension Staff'
+            ? 'Please select your assigned center.'
+            : 'Please select your assigned building.';
+        }
+      }
+    } else if (!form.employee_type) {
       errors.employee_type = 'Please select your staff classification.';
     } else if (!form.college) {
       errors.college = form.employee_type === 'Teaching Staff'
@@ -169,8 +187,10 @@ export const validateRegistrationForm = (form = {}, options = {}) => {
     errors.password = 'Password is required.';
   } else if (pwd.length < 8) {
     errors.password = 'Must be at least 8 characters.';
-  } else if (!/[a-zA-Z]/.test(pwd)) {
-    errors.password = 'Must include at least one letter.';
+  } else if (!/[A-Z]/.test(pwd)) {
+    errors.password = 'Must include at least one capital letter (A-Z).';
+  } else if (!/[a-z]/.test(pwd)) {
+    errors.password = 'Must include at least one small letter (a-z).';
   } else if (!/[0-9]/.test(pwd)) {
     errors.password = 'Must include at least one number.';
   }
