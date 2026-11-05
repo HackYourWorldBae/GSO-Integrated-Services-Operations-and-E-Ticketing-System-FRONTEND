@@ -111,6 +111,41 @@
           </div>
         </div>
 
+        <!-- Action Required Callout Banner (Awaiting Rating) -->
+        <div
+          v-if="awaitingRatingCount > 0"
+          class="p-4 sm:p-5 bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-50/50 border-2 border-amber-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-fade-in"
+        >
+          <div class="flex items-start sm:items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/30 font-black text-lg">
+              ★
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200 text-amber-900 border border-amber-300">
+                  Action Required
+                </span>
+                <span class="text-xs font-mono font-bold text-amber-900">
+                  {{ awaitingRatingCount }} Service Ticket{{ awaitingRatingCount > 1 ? 's' : '' }} Ready
+                </span>
+              </div>
+              <p class="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                Your service job has been finished by staff. Please complete your rating evaluation to close and archive the ticket.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            @click="focusAwaitingRatingTicket"
+            class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm shrink-0 flex items-center justify-center gap-1.5 cursor-pointer self-start sm:self-center"
+          >
+            <span>Rate Now</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </div>
+
         <!-- ===================== EMPTY STATE ===================== -->
         <div v-if="filteredTickets.length === 0" data-tour="user-empty-state" class="bg-white border border-slate-300 rounded-2xl p-12 sm:p-16 flex flex-col items-center text-center shadow-sm">
           <div class="w-16 h-16 bg-slate-100 border border-slate-300 rounded-2xl flex items-center justify-center mb-5">
@@ -685,7 +720,11 @@
                           Recategorized
                         </span>
                         <!-- Live Tracking Pulse Indicator -->
-                        <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
+                        <span v-if="syncDegraded" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-300">
+                          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                          <span>Reconnecting...</span>
+                        </span>
+                        <span v-else class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200">
                           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                           <span>Live Sync</span>
                         </span>
@@ -696,7 +735,7 @@
                     <!-- Manual Sync Button -->
                     <button
                       type="button"
-                      @click="syncOpenTicket()"
+                      @click="syncOpenTicket(null, { manual: true })"
                       :disabled="isSyncingTicket"
                       class="px-3 py-1.5 bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 text-xs font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer disabled:opacity-60"
                       title="Force refresh status from server"
@@ -929,7 +968,7 @@
                   <!-- ========== AWAITING RATING NOTICE IN TIMELINE ========== -->
                   <div
                     v-if="isFeedbackEligible(selectedTicket) && !selectedTicket.isClosed"
-                    class="bg-amber-50/90 border-2 border-amber-200 rounded-3xl p-5 sm:p-6 text-left space-y-4 shadow-sm"
+                    class="bg-amber-50/90 border-2 border-amber-200 rounded-3xl p-5 sm:p-6 text-left space-y-4 shadow-sm animate-fade-in"
                   >
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div class="flex items-start gap-3.5">
@@ -943,18 +982,160 @@
                             <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200/80 text-amber-900 border border-amber-300">Action Required</span>
                           </div>
                           <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight">Service Complete — Evaluation Required</h4>
-                          <p class="text-xs sm:text-sm text-slate-600 mt-1">The service has been completed by the assigned team. Please rate the service using the evaluation extension on the ticket card to finalize and close this ticket.</p>
+                          <p class="text-xs sm:text-sm text-slate-600 mt-1">The service has been completed by the assigned team. Please rate the service below or on the ticket card to finalize and close this ticket.</p>
                         </div>
                       </div>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          @click="inModalRatingOpen = !inModalRatingOpen"
+                          class="px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <span>{{ inModalRatingOpen ? 'Hide Form' : 'Rate Here' }}</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform" :class="{ 'rotate-180': inModalRatingOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          @click="triggerRatingFromModal(selectedTicket)"
+                          class="px-3 py-2 bg-white hover:bg-amber-100 text-amber-900 font-bold text-xs uppercase tracking-wider rounded-xl border border-amber-300 transition-all flex items-center gap-1 cursor-pointer"
+                          title="Rate on Ticket Card in main list"
+                        >
+                          <span>On Card</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Direct In-Modal Rating Form -->
+                    <div v-if="inModalRatingOpen" class="mt-4 pt-4 border-t border-amber-200/80 space-y-4 animate-fade-in">
+                      <!-- 1. Job Completion Status -->
+                      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                          <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">
+                            1. Job Completion Status <span class="text-rose-500">*</span>
+                          </label>
+                          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Required</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <label
+                            v-for="option in completionOptions"
+                            :key="option.value"
+                            :class="[
+                              'flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all duration-150 select-none group text-xs sm:text-sm',
+                              satisfactionForm.completionStatus === option.value
+                                ? option.activeClass
+                                : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50/80'
+                            ]"
+                          >
+                            <input type="radio" v-model="satisfactionForm.completionStatus" :value="option.value" class="hidden" />
+                            <div
+                              class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+                              :class="satisfactionForm.completionStatus === option.value ? option.indicatorClass : 'border-slate-300 bg-white group-hover:border-slate-400'"
+                            >
+                              <div v-if="satisfactionForm.completionStatus === option.value" class="w-2 h-2 rounded-full bg-white"></div>
+                            </div>
+                            <span class="font-bold leading-snug min-w-0 break-words">{{ option.label }}</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <!-- 2. Ratings: Quality, Efficiency, Timeliness -->
+                      <div
+                        v-if="satisfactionForm.completionStatus === 'early' || satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'"
+                        class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3.5 animate-fade-in"
+                      >
+                        <div class="flex items-center justify-between gap-3 pb-2.5 border-b border-slate-200">
+                          <div>
+                            <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">
+                              2. Service Quality Rating <span class="text-rose-500">*</span>
+                            </label>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Rate each parameter from 1 (Poor) to 5 (Outstanding)</p>
+                          </div>
+                        </div>
+
+                        <div class="space-y-3">
+                          <div
+                            v-for="(label, key) in ratingCriteria"
+                            :key="key"
+                            class="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-2"
+                          >
+                            <div class="flex items-center justify-between gap-2">
+                              <span class="text-xs font-bold text-slate-800">{{ label }}</span>
+                              <span
+                                v-if="satisfactionForm.ratings[key] > 0"
+                                class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300"
+                              >
+                                {{ getRatingLabel(satisfactionForm.ratings[key]) }}
+                              </span>
+                            </div>
+
+                            <div class="grid grid-cols-5 gap-1.5">
+                              <button
+                                v-for="star in 5"
+                                :key="star"
+                                type="button"
+                                @click="satisfactionForm.ratings[key] = star"
+                                :class="[
+                                  'py-2 rounded-lg border flex flex-col items-center justify-center transition-all cursor-pointer',
+                                  satisfactionForm.ratings[key] === star
+                                    ? 'bg-amber-500 text-white font-black border-amber-500 shadow-xs scale-[1.02]'
+                                    : 'bg-white border-slate-200 text-slate-700 hover:bg-amber-50/60 hover:border-amber-300'
+                                ]"
+                              >
+                                <span class="text-xs font-black">{{ star }}</span>
+                                <span class="text-xs leading-none" :class="satisfactionForm.ratings[key] === star ? 'text-white' : 'text-amber-400'">★</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- 3. Beyond Time Reasons -->
+                      <div v-if="satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2 animate-fade-in">
+                        <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide mb-2">
+                          Reasons for beyond time completion
+                        </label>
+                        <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.personnelAbsent" label="Personnel absent / unavailable" />
+                        <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.extendedBreak" label="Extended breaks" />
+                        <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.additionalWork" label="Additional work / scope expansion" />
+                      </div>
+
+                      <!-- 4. Not Completed Reasons -->
+                      <div v-if="satisfactionForm.completionStatus === 'not-completed'" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2 animate-fade-in">
+                        <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide mb-2">
+                          Reasons for not completed / performed
+                        </label>
+                        <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackWorkingDays" label="Lack of working days / time" />
+                        <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackMaterials" label="Lack of materials / supplies" />
+                        <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackSkills" label="Lack of required skills / tools" />
+                      </div>
+
+                      <!-- 5. Remarks -->
+                      <div v-if="satisfactionForm.completionStatus" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2 animate-fade-in">
+                        <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide mb-1">
+                          Remarks / Commendations (Optional)
+                        </label>
+                        <textarea
+                          v-model="satisfactionForm.remarks"
+                          rows="2"
+                          placeholder="Provide any feedback for the personnel or team..."
+                          class="w-full text-xs p-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-500 transition-all placeholder:text-slate-400"
+                        ></textarea>
+                      </div>
+
+                      <!-- Submit Button -->
                       <button
                         type="button"
-                        @click="triggerRatingFromModal(selectedTicket)"
-                        class="px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm shrink-0 flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
+                        :disabled="!isFormValid || isSubmittingFeedback"
+                        @click="closeTicket(selectedTicket)"
+                        class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md shadow-emerald-600/20 active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                       >
-                        <span>Rate on Ticket</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                        <svg v-if="isSubmittingFeedback" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
+                        <span>{{ isSubmittingFeedback ? 'Submitting Evaluation & Closing Ticket...' : 'Submit Evaluation & Close Ticket' }}</span>
                       </button>
                     </div>
                   </div>
@@ -1111,8 +1292,14 @@ const router = useRouter();
 
 const { onReconnected } = useNetworkStatus();
 const isSyncingTicket = ref(false);
+const syncDegraded = ref(false);
 const lastSyncedAt = ref(Date.now());
+const inModalRatingOpen = ref(false);
 let modalSyncTimer = null;
+let modalRetryTimer = null;
+let ticketsRetryTimer = null;
+let ticketsRetryAttempts = 0;
+let fetchTicketsStartTime = 0;
 let unregisterReconnected = null;
 
 const formatDate = (dateStr) => {
@@ -1160,12 +1347,28 @@ const toggleRatingForm = (ticket) => {
 
 const triggerRatingFromModal = (ticket) => {
   const targetId = ticket.ticketId || ticket.id;
+  // Ensure status filter includes the resolved ticket
+  if (statusFilter.value !== 'all' && statusFilter.value !== 'resolved') {
+    statusFilter.value = 'all';
+  }
+  // Clear search if it hides the target ticket
+  if (searchQuery.value && !String(targetId).toLowerCase().includes(searchQuery.value.toLowerCase())) {
+    searchQuery.value = '';
+    debouncedSearchQuery.value = '';
+  }
   closeTimeline();
   ratingTicketId.value = targetId;
   resetForm();
+
   setTimeout(() => {
-    const el = document.getElementById(targetId);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const matchIdx = filteredTickets.value.findIndex(t => String(t.ticketId || t.id).toLowerCase() === String(targetId).toLowerCase());
+    if (matchIdx !== -1) {
+      currentPage.value = Math.floor(matchIdx / perPage.value) + 1;
+    }
+    setTimeout(() => {
+      const el = document.getElementById(targetId);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
   }, 100);
 };
 
@@ -1550,10 +1753,12 @@ const mapTicketData = (t) => {
   };
 };
 
-// Dedicated Single-Ticket Live Synchronization
-const syncOpenTicket = async (targetId = null) => {
+// Dedicated Single-Ticket Live Synchronization with fault tolerance
+const syncOpenTicket = async (targetId = null, { manual = false, silent = false } = {}) => {
   const tId = targetId || selectedTicket.value?.ticketId || selectedTicket.value?.id;
   if (!tId) return;
+
+  if (isSyncingTicket.value && !manual) return;
 
   const start = Date.now();
   isSyncingTicket.value = true;
@@ -1568,18 +1773,40 @@ const syncOpenTicket = async (targetId = null) => {
       const idx = tickets.value.findIndex(t => String(t.ticketId || t.id) === curId);
       if (idx !== -1) {
         tickets.value[idx] = mapped;
+      } else {
+        tickets.value.unshift(mapped);
       }
       lastSyncedAt.value = Date.now();
+      syncDegraded.value = false;
+      if (modalRetryTimer) {
+        clearTimeout(modalRetryTimer);
+        modalRetryTimer = null;
+      }
+      if (manual) {
+        toast.success('Ticket status synced');
+      }
     }
   } catch (err) {
     console.warn(`[User_Tickets] Failed to sync ticket #${tId}:`, err?.message || err);
+    syncDegraded.value = true;
+    if (manual) {
+      toast.warning('Network slow: unable to reach server. Retrying...');
+    }
+    // Auto-retry single ticket sync while modal is open
+    if (selectedTicket.value && !modalRetryTimer) {
+      modalRetryTimer = setTimeout(() => {
+        modalRetryTimer = null;
+        if (selectedTicket.value) {
+          syncOpenTicket(tId, { silent: true });
+        }
+      }, 2000);
+    }
   } finally {
     const elapsed = Date.now() - start;
-    if (elapsed < 600) {
-      await new Promise(r => setTimeout(r, 600 - elapsed));
+    if (elapsed < 400 && manual) {
+      await new Promise(r => setTimeout(r, 400 - elapsed));
     }
     isSyncingTicket.value = false;
-    toast.success('Ticket status synced');
   }
 };
 
@@ -1589,31 +1816,68 @@ const handleManualRefreshTickets = async () => {
   isRefreshingList.value = true;
   const start = Date.now();
   try {
-    await fetchTickets();
+    await fetchTickets(true);
+    toast.success('Page refreshed');
+  } catch {
+    toast.warning('Refresh took longer than expected due to network issues.');
   } finally {
     const elapsed = Date.now() - start;
-    if (elapsed < 600) {
-      await new Promise(r => setTimeout(r, 600 - elapsed));
+    if (elapsed < 500) {
+      await new Promise(r => setTimeout(r, 500 - elapsed));
     }
     isRefreshingList.value = false;
-    toast.success('Page refreshed');
   }
 };
 
-const fetchTickets = async () => {
-  // Guard: skip overlapping polls during fast tab switches
-  if (isFetchingTickets) return;
+const scheduleTicketsRetry = () => {
+  if (ticketsRetryTimer) return;
+  ticketsRetryAttempts++;
+  const delayMs = Math.min(2000 * Math.pow(1.4, ticketsRetryAttempts - 1), 7000);
+  console.info(`[User_Tickets] Scheduling resilient retry in ${Math.round(delayMs)}ms (attempt ${ticketsRetryAttempts})...`);
+  ticketsRetryTimer = setTimeout(() => {
+    ticketsRetryTimer = null;
+    if (isTicketsAlive && !document.hidden) {
+      fetchTickets(true);
+    }
+  }, delayMs);
+};
+
+const fetchTickets = async (force = false) => {
+  // If forced (e.g. on network restored or manual refresh), abort any hanging in-flight request
+  if (force) {
+    try {
+      ticketsAbort?.abort('Superseded by forced tickets fetch');
+    } catch { /* noop */ }
+    isFetchingTickets = false;
+  } else if (isFetchingTickets) {
+    // If request has been hanging for more than 8 seconds, abort zombie request
+    if (Date.now() - fetchTicketsStartTime > 8000) {
+      try {
+        ticketsAbort?.abort('Aborting timed-out tickets fetch');
+      } catch { /* noop */ }
+      isFetchingTickets = false;
+    } else {
+      return;
+    }
+  }
+
   isFetchingTickets = true;
+  fetchTicketsStartTime = Date.now();
   const requestId = ++ticketsRequestSeq;
-  try {
-    ticketsAbort?.abort('Superseded by newer tickets fetch');
-  } catch { /* noop */ }
   ticketsAbort = new AbortController();
+
   try {
     const activeRes = await api.get('tickets/my-requests', { signal: ticketsAbort.signal });
     if (requestId !== ticketsRequestSeq || !isTicketsAlive) return;
-    const activeList = activeRes.data?.data?.tickets || [];
 
+    ticketsRetryAttempts = 0;
+    if (ticketsRetryTimer) {
+      clearTimeout(ticketsRetryTimer);
+      ticketsRetryTimer = null;
+    }
+    syncDegraded.value = false;
+
+    const activeList = activeRes.data?.data?.tickets || [];
     tickets.value = activeList.map(mapTicketData);
 
     const ackMap = JSON.parse(localStorage.getItem('gso_ssu_acknowledged_incidents') || '{}');
@@ -1629,12 +1893,17 @@ const fetchTickets = async () => {
       const updated = tickets.value.find(t => String(t.ticketId || t.id) === curId);
       if (updated) {
         selectedTicket.value = updated;
+      } else {
+        // Ticket is no longer in active list (e.g. completed or transitioned), sync it directly!
+        syncOpenTicket(curId, { silent: true });
       }
     }
     handleRouteTicket();
   } catch (error) {
     if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError' || error?.name === 'AbortError') return;
-    console.error('Failed to fetch tickets:', error);
+    console.warn('[User_Tickets] Failed to fetch tickets:', error?.message || error);
+    syncDegraded.value = true;
+    scheduleTicketsRetry();
   } finally {
     isFetchingTickets = false;
   }
@@ -1719,11 +1988,19 @@ watch(() => [route.query.ticket, route.query.ticketId, route.query.highlight, ro
   handleRouteTicket();
 });
 
+const handleNetworkRestored = () => {
+  console.info('[User_Tickets] Network restored event detected. Forcing immediate synchronization...');
+  fetchTickets(true);
+  if (selectedTicket.value) {
+    syncOpenTicket(selectedTicket.value.ticketId || selectedTicket.value.id, { silent: true });
+  }
+};
+
 const handleFocusOrVisibility = () => {
   if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-    fetchTickets();
+    fetchTickets(true);
     if (selectedTicket.value) {
-      syncOpenTicket();
+      syncOpenTicket(selectedTicket.value.ticketId || selectedTicket.value.id, { silent: true });
     }
   }
 };
@@ -1734,23 +2011,21 @@ onMounted(() => {
 
   userName.value = authStore.user?.first_name || authStore.fullName || 'User';
 
-  fetchTickets();
+  fetchTickets(true);
   pollingInterval = setInterval(() => {
     if (document.hidden) return;
     fetchTickets();
-  }, 35000);
+  }, 12000);
 
   // Tab Focus & Visibility change recovery
   window.addEventListener('focus', handleFocusOrVisibility);
   document.addEventListener('visibilitychange', handleFocusOrVisibility);
 
-  // Auto-recovery when internet / network connectivity restores
+  // Auto-recovery when internet / network connectivity restores (via browser events and network monitor)
+  window.addEventListener('online', handleNetworkRestored);
+  window.addEventListener('network:reconnected', handleNetworkRestored);
   unregisterReconnected = onReconnected(() => {
-    console.info('[User_Tickets] Network restored. Syncing tickets and active timeline...');
-    fetchTickets();
-    if (selectedTicket.value) {
-      syncOpenTicket();
-    }
+    handleNetworkRestored();
   });
 });
 
@@ -1763,9 +2038,13 @@ onUnmounted(() => {
   isFetchingTickets = false;
   window.removeEventListener('focus', handleFocusOrVisibility);
   document.removeEventListener('visibilitychange', handleFocusOrVisibility);
+  window.removeEventListener('online', handleNetworkRestored);
+  window.removeEventListener('network:reconnected', handleNetworkRestored);
   if (unregisterReconnected) unregisterReconnected();
   if (pollingInterval) clearInterval(pollingInterval);
   if (modalSyncTimer) clearInterval(modalSyncTimer);
+  if (modalRetryTimer) clearTimeout(modalRetryTimer);
+  if (ticketsRetryTimer) clearTimeout(ticketsRetryTimer);
 });
 
 // ---- Filtering & Pagination ----
@@ -1837,6 +2116,32 @@ watch([debouncedSearchQuery, statusFilter], () => {
   currentPage.value = 1;
 });
 
+const awaitingRatingCount = computed(() => {
+  return tickets.value.filter(t => isFeedbackEligible(t) && !t.isClosed).length;
+});
+
+const focusAwaitingRatingTicket = () => {
+  const target = tickets.value.find(t => isFeedbackEligible(t) && !t.isClosed);
+  if (!target) return;
+  const targetId = target.ticketId || target.id;
+  statusFilter.value = 'all';
+  searchQuery.value = '';
+  debouncedSearchQuery.value = '';
+  ratingTicketId.value = targetId;
+  resetForm();
+
+  setTimeout(() => {
+    const matchIdx = filteredTickets.value.findIndex(t => String(t.ticketId || t.id).toLowerCase() === String(targetId).toLowerCase());
+    if (matchIdx !== -1) {
+      currentPage.value = Math.floor(matchIdx / perPage.value) + 1;
+    }
+    setTimeout(() => {
+      const el = document.getElementById(targetId);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }, 100);
+};
+
 // ---- Timeline Modal ----
 const selectedTicket   = ref(null);
 const showDigitalForm  = ref(false);
@@ -1844,12 +2149,33 @@ const showDigitalForm  = ref(false);
 const openTimeline = (ticket) => {
   selectedTicket.value  = ticket;
   showDigitalForm.value = false;
+  inModalRatingOpen.value = isFeedbackEligible(ticket);
   resetForm();
   document.body.style.overflow = 'hidden';
+
+  const tId = ticket.ticketId || ticket.id;
+  // Immediately fetch freshest status from server
+  syncOpenTicket(tId, { silent: true });
+
+  // Dedicated active heartbeat polling while modal is open (every 3.5s)
+  if (modalSyncTimer) clearInterval(modalSyncTimer);
+  modalSyncTimer = setInterval(() => {
+    if (!selectedTicket.value || document.hidden) return;
+    syncOpenTicket(selectedTicket.value.ticketId || selectedTicket.value.id, { silent: true });
+  }, 3500);
 };
 
 const closeTimeline = () => {
+  if (modalSyncTimer) {
+    clearInterval(modalSyncTimer);
+    modalSyncTimer = null;
+  }
+  if (modalRetryTimer) {
+    clearTimeout(modalRetryTimer);
+    modalRetryTimer = null;
+  }
   selectedTicket.value = null;
+  inModalRatingOpen.value = false;
   document.body.style.overflow = '';
   clearRouteQueryTicket();
 };
@@ -2085,9 +2411,21 @@ const isFeedbackEligible = (ticket) => {
   if (!ticket || ticket.isClosed || ticket.status === 'closed' || ticket.status === 'completed') return false;
   if (isBorrowingService(ticket)) return false;
   // Ratings supported for FGMU and LEAU at completed step 6 or resolved status
-  if (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') return ticket.currentStep === 6 || ticket.status === 'resolved';
+  const unit = String(ticket.unit || ticket.unit_code || '').toUpperCase();
+  const unitId = Number(ticket.unit_id);
+  const isTargetUnit = unit === 'FGMU' || unit === 'LEAU' || unitId === 1 || unitId === 2;
+  if (isTargetUnit) {
+    const step = Number(ticket.currentStep ?? ticket.current_step);
+    return step >= 6 || ticket.status === 'resolved';
+  }
   return false;
 };
+
+watch(() => selectedTicket.value ? isFeedbackEligible(selectedTicket.value) : false, (eligible) => {
+  if (eligible) {
+    inModalRatingOpen.value = true;
+  }
+});
 
 const isStepCompleted = (ticket, index) => {
   if (!ticket) return false;
@@ -2192,13 +2530,13 @@ const closeTicket = async (ticket) => {
     
     ratingTicketId.value = null;
 
-    await fetchTickets();
+    await fetchTickets(true);
     if (selectedTicket.value) {
-      syncOpenTicket(ticketId);
+      syncOpenTicket(ticketId, { silent: true });
     }
   } catch (error) {
     console.error('Failed to submit feedback:', error);
-    ticket.isClosed = true;
+    toast.error(error.response?.data?.message || 'Failed to submit evaluation. Please check your internet connection and try again.');
   } finally {
     isSubmittingFeedback.value = false;
   }

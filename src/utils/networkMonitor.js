@@ -151,7 +151,7 @@ const startPeriodicHealthProbe = () => {
     if (typeof navigator !== 'undefined' && navigator.onLine) {
       await checkServerHealth();
     }
-  }, 8000);
+  }, 3500);
 };
 
 const stopPeriodicHealthProbe = () => {
