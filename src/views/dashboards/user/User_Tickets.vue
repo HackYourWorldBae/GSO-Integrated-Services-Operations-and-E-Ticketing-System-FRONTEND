@@ -100,13 +100,20 @@
             <!-- New Request -->
             <button
               data-tour="user-btn-new-ticket"
-              @click="$router.push('/services')"
-              class="flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-sm shadow-emerald-600/20 transition-all active:scale-95 text-sm sm:text-base whitespace-nowrap min-h-[44px] cursor-pointer"
+              @click="handleNewRequestClick"
+              :class="[
+                'flex items-center justify-center gap-2 px-5 py-3 font-black rounded-xl transition-all active:scale-95 text-sm sm:text-base whitespace-nowrap min-h-[44px] cursor-pointer shadow-sm',
+                awaitingRatingCount > 0
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/25 ring-2 ring-amber-400/50'
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
+              ]"
+              :title="awaitingRatingCount > 0 ? 'Policy: Rate previous jobs before requesting new service' : 'Submit new service request'"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-if="awaitingRatingCount === 0" xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
               </svg>
-              New Request
+              <span v-else class="text-base leading-none">★</span>
+              <span>{{ awaitingRatingCount > 0 ? 'New Request (Rating Required)' : 'New Request' }}</span>
             </button>
           </div>
         </div>
@@ -157,7 +164,7 @@
           <p class="text-sm text-slate-500 font-medium mb-6">
             {{ searchQuery || statusFilter !== 'all' ? 'Try adjusting your search or filters.' : 'Submit your first service request to get started.' }}
           </p>
-          <button @click="$router.push('/services')" class="px-6 py-3 bg-emerald-600 text-white font-black rounded-xl text-sm sm:text-base hover:bg-emerald-700 transition-colors min-h-[44px] cursor-pointer">
+          <button @click="handleNewRequestClick" class="px-6 py-3 bg-emerald-600 text-white font-black rounded-xl text-sm sm:text-base hover:bg-emerald-700 transition-colors min-h-[44px] cursor-pointer">
             New Service Request
           </button>
         </div>
@@ -558,14 +565,19 @@
                 <!-- Remarks -->
                 <div v-if="satisfactionForm.completionStatus" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-2 animate-fade-in">
                   <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-1">
-                    Remarks / Commendations (Optional)
+                    Remarks / Commendations <span class="text-rose-500">*</span>
+                    <span class="text-xs font-bold text-rose-500 lowercase tracking-normal ml-1">(Required)</span>
                   </label>
                   <textarea
                     v-model="satisfactionForm.remarks"
                     rows="3"
+                    required
                     class="w-full px-4 py-3 bg-slate-50/60 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white outline-none text-sm sm:text-base text-slate-800 transition-all resize-none placeholder:text-slate-400 font-medium"
-                    placeholder="Share your commendations, comments, or suggestions regarding the service...">
+                    placeholder="Share your commendations, comments, or suggestions regarding the service (required)...">
                   </textarea>
+                  <p v-if="!satisfactionForm.remarks || !satisfactionForm.remarks.trim()" class="text-xs text-rose-500 font-medium">
+                    Remarks are mandatory. Please provide your feedback to complete this evaluation.
+                  </p>
                 </div>
 
                 <!-- Submit Action Button -->
@@ -736,14 +748,14 @@
                     <button
                       type="button"
                       @click="syncOpenTicket(null, { manual: true })"
-                      :disabled="isSyncingTicket"
+                      :disabled="isManualSyncing"
                       class="px-3 py-1.5 bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 text-xs font-bold rounded-xl border border-slate-200 hover:border-emerald-200 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer disabled:opacity-60"
                       title="Force refresh status from server"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="{ 'animate-spin text-emerald-600': isSyncingTicket }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" :class="{ 'animate-spin text-emerald-600': isManualSyncing }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
-                      <span class="hidden sm:inline">{{ isSyncingTicket ? 'Syncing...' : 'Sync Status' }}</span>
+                      <span class="hidden sm:inline">{{ isManualSyncing ? 'Syncing...' : 'Sync Status' }}</span>
                     </button>
 
                     <button
@@ -1114,14 +1126,19 @@
                       <!-- 5. Remarks -->
                       <div v-if="satisfactionForm.completionStatus" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2 animate-fade-in">
                         <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide mb-1">
-                          Remarks / Commendations (Optional)
+                          Remarks / Commendations <span class="text-rose-500">*</span>
+                          <span class="text-xs font-bold text-rose-500 lowercase tracking-normal ml-1">(Required)</span>
                         </label>
                         <textarea
                           v-model="satisfactionForm.remarks"
                           rows="2"
-                          placeholder="Provide any feedback for the personnel or team..."
+                          required
+                          placeholder="Provide any feedback for the personnel or team (required)..."
                           class="w-full text-xs p-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-500 transition-all placeholder:text-slate-400"
                         ></textarea>
+                        <p v-if="!satisfactionForm.remarks || !satisfactionForm.remarks.trim()" class="text-xs text-rose-500 font-medium">
+                          Remarks are mandatory. Please provide your feedback to complete this evaluation.
+                        </p>
                       </div>
 
                       <!-- Submit Button -->
@@ -1280,6 +1297,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useNetworkStatus } from '@/utils/networkMonitor';
 import api from '@/api/client';
 import { toast } from 'vue3-toastify';
+import Swal from 'sweetalert2';
 import {
   isBorrowingService,
   BORROWING_STEPS,
@@ -1292,6 +1310,8 @@ const router = useRouter();
 
 const { onReconnected } = useNetworkStatus();
 const isSyncingTicket = ref(false);
+const isManualSyncing = ref(false);
+const isBackgroundSyncing = ref(false);
 const syncDegraded = ref(false);
 const lastSyncedAt = ref(Date.now());
 const inModalRatingOpen = ref(false);
@@ -1758,10 +1778,17 @@ const syncOpenTicket = async (targetId = null, { manual = false, silent = false 
   const tId = targetId || selectedTicket.value?.ticketId || selectedTicket.value?.id;
   if (!tId) return;
 
-  if (isSyncingTicket.value && !manual) return;
+  if (manual) {
+    if (isManualSyncing.value) return;
+    isManualSyncing.value = true;
+  } else {
+    // Background heartbeat / silent sync: run without interfering with UI
+    if (isBackgroundSyncing.value || isManualSyncing.value) return;
+    isBackgroundSyncing.value = true;
+  }
+  isSyncingTicket.value = manual;
 
   const start = Date.now();
-  isSyncingTicket.value = true;
   try {
     const res = await api.get(`tickets/${tId}`);
     const rawTicket = res.data?.data?.ticket;
@@ -1802,11 +1829,16 @@ const syncOpenTicket = async (targetId = null, { manual = false, silent = false 
       }, 2000);
     }
   } finally {
-    const elapsed = Date.now() - start;
-    if (elapsed < 400 && manual) {
-      await new Promise(r => setTimeout(r, 400 - elapsed));
+    if (manual) {
+      const elapsed = Date.now() - start;
+      if (elapsed < 400) {
+        await new Promise(r => setTimeout(r, 400 - elapsed));
+      }
+      isManualSyncing.value = false;
+      isSyncingTicket.value = false;
+    } else {
+      isBackgroundSyncing.value = false;
     }
-    isSyncingTicket.value = false;
   }
 };
 
@@ -2142,6 +2174,26 @@ const focusAwaitingRatingTicket = () => {
   }, 100);
 };
 
+const handleNewRequestClick = () => {
+  if (awaitingRatingCount.value > 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Evaluation Required',
+      text: `Under GSO policy, you cannot request a new service until you have submitted your rating and remarks for your previous completed ${awaitingRatingCount.value > 1 ? 'jobs' : 'job'} (${awaitingRatingCount.value} pending).`,
+      confirmButtonText: 'Rate Now',
+      confirmButtonColor: '#059669',
+      showCancelButton: true,
+      cancelButtonText: 'Later',
+    }).then((res) => {
+      if (res.isConfirmed) {
+        focusAwaitingRatingTicket();
+      }
+    });
+    return;
+  }
+  router.push('/services');
+};
+
 // ---- Timeline Modal ----
 const selectedTicket   = ref(null);
 const showDigitalForm  = ref(false);
@@ -2464,6 +2516,10 @@ const isStepActive = (ticket, index) => {
 const isFormValid = computed(() => {
   const form = satisfactionForm.value;
   if (!form.completionStatus) return false;
+
+  // Policy: Remarks are mandatory for evaluation
+  if (!form.remarks || !form.remarks.trim()) return false;
+
   if (form.completionStatus === 'early' || form.completionStatus === 'on-time' || form.completionStatus === 'beyond-time') {
     const r = form.ratings;
     return r.quality > 0 && r.efficiency > 0 && r.timeliness > 0;

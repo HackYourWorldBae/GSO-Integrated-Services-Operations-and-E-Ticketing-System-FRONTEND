@@ -2,6 +2,7 @@
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
+import Swal from 'sweetalert2';
 import { useFormsStore } from '@/stores/forms';
 import SignaturePad from '@/components/SignaturePad.vue';
 import SearchableDropdown from '@/components/SearchableDropdown.vue';
@@ -353,6 +354,19 @@ const handleFinalSubmit = async () => {
   } catch (error) {
     console.error('Submission error:', error);
     const data = error.response?.data;
+
+    if (data?.data?.requires_rating) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Evaluation Required',
+        text: data?.message || 'Under GSO policy, you must submit your evaluation and remarks for your previous completed jobs before requesting a new service.',
+        confirmButtonText: 'Rate Previous Jobs',
+        confirmButtonColor: '#059669',
+      });
+      router.push('/user/tickets');
+      return;
+    }
+
     const apiErrors = data?.errors || (typeof data?.messages === 'object' ? data.messages : null);
 
     if (apiErrors && typeof apiErrors === 'object' && Object.keys(apiErrors).length > 0) {

@@ -79,8 +79,17 @@
             </div>
             <button
               data-tour="user-btn-new-request"
-              v-if="authStore.hasPermission('tickets.create') && isUserVerified"
-              @click="$router.push('/services')"
+              v-if="hasAwaitingRating"
+              @click="handleNewRequestClick"
+              class="w-full sm:w-auto min-h-[48px] group flex items-center justify-center gap-2.5 bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-amber-950 font-black px-6 py-3.5 rounded-xl shadow-lg shadow-black/20 transition-all shrink-0 text-sm sm:text-base cursor-pointer border border-amber-300"
+            >
+              <span class="text-amber-800 text-lg leading-none">★</span>
+              <span>Rate Previous Jobs ({{ awaitingRatingTickets.length }} Pending)</span>
+            </button>
+            <button
+              data-tour="user-btn-new-request"
+              v-else-if="authStore.hasPermission('tickets.create') && isUserVerified"
+              @click="handleNewRequestClick"
               class="w-full sm:w-auto min-h-[48px] group flex items-center justify-center gap-2.5 bg-white hover:bg-emerald-50 active:scale-[0.98] text-emerald-800 font-black px-6 py-3.5 rounded-xl shadow-lg shadow-black/20 transition-all shrink-0 text-sm sm:text-base cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -99,6 +108,41 @@
               <span>Submissions Locked (ID Pending)</span>
             </div>
           </div>
+        </div>
+
+        <!-- Action Required Callout Banner (Awaiting Rating Policy Notice) -->
+        <div
+          v-if="hasAwaitingRating"
+          class="p-4 sm:p-5 bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-50/50 border-2 border-amber-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-fade-in"
+        >
+          <div class="flex items-start sm:items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/30 font-black text-lg">
+              ★
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200 text-amber-900 border border-amber-300">
+                  Policy Requirement
+                </span>
+                <span class="text-xs font-mono font-bold text-amber-900">
+                  {{ awaitingRatingTickets.length }} Service Ticket{{ awaitingRatingTickets.length > 1 ? 's' : '' }} Awaiting Rating
+                </span>
+              </div>
+              <p class="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                You have completed service jobs waiting for evaluation. Under policy, you must submit your rating and remarks for finished jobs before submitting a new service request.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            @click="goToRatePreviousJobs"
+            class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm shrink-0 flex items-center justify-center gap-1.5 cursor-pointer self-start sm:self-center"
+          >
+            <span>Rate Now</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
         </div>
 
         <!-- Recent Activity — Ticket Status Updates -->
@@ -228,6 +272,7 @@ import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
+import Swal from 'sweetalert2';
 import { useNetworkStatus } from '@/utils/networkMonitor';
 import { isBorrowingService, getBorrowingStatusLabel } from '@/utils/borrowing';
 
@@ -243,6 +288,53 @@ let unregisterReconnected = null;
 
 const userTickets      = ref([]);
 const completedTickets = ref([]);
+
+// Eligibility check for post-completion rating & evaluation
+const isFeedbackEligible = (ticket) => {
+  if (!ticket || ticket.isClosed || ticket.status === 'closed' || ticket.status === 'completed') return false;
+  if (isBorrowingService(ticket)) return false;
+  const unit = String(ticket.unit || ticket.unit_code || '').toUpperCase();
+  const unitId = Number(ticket.unit_id);
+  const isTargetUnit = unit === 'FGMU' || unit === 'LEAU' || unitId === 1 || unitId === 2;
+  if (isTargetUnit) {
+    const step = Number(ticket.currentStep ?? ticket.current_step);
+    return step >= 6 || ticket.status === 'resolved';
+  }
+  return false;
+};
+
+const awaitingRatingTickets = computed(() => {
+  return userTickets.value.filter(t => isFeedbackEligible(t));
+});
+
+const hasAwaitingRating = computed(() => awaitingRatingTickets.value.length > 0);
+
+const goToRatePreviousJobs = () => {
+  const target = awaitingRatingTickets.value[0];
+  const targetId = target?.ticketId || target?.id;
+  router.push({ path: '/user/tickets', query: targetId ? { highlight: targetId } : {} });
+};
+
+const handleNewRequestClick = () => {
+  if (hasAwaitingRating.value) {
+    const count = awaitingRatingTickets.value.length;
+    Swal.fire({
+      icon: 'warning',
+      title: 'Evaluation Required',
+      text: `Under GSO policy, you cannot request a new service until you have submitted your rating and remarks for your previous completed ${count > 1 ? 'jobs' : 'job'} (${count} pending).`,
+      confirmButtonText: 'Rate Previous Jobs Now',
+      confirmButtonColor: '#059669',
+      showCancelButton: true,
+      cancelButtonText: 'Close',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        goToRatePreviousJobs();
+      }
+    });
+    return;
+  }
+  router.push('/services');
+};
 
 // Deduplicated unified ticket collection by unique ticket ID
 const allTickets = computed(() => {
@@ -387,14 +479,22 @@ const fetchDashboardData = async () => {
     if (activeRes.data?.data?.tickets) {
       userTickets.value = activeRes.data.data.tickets.map(t => ({
         ticketId: t.id,
+        id: t.id,
         title: t.title,
-        service: t.service_type,
+        service: t.service_name || t.service_type,
+        service_type: t.service_type,
         status: t.status,
         statusLabel: isBorrowingService(t) ? getBorrowingStatusLabel(t) : t.status_label,
         date: new Date(t.submitted_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         submitted_at: t.submitted_at,
         completed_at: t.completed_at || t.updated_at,
         unit: t.unit_code,
+        unit_code: t.unit_code,
+        unit_id: t.unit_id,
+        currentStep: t.current_step,
+        current_step: t.current_step,
+        feedback: t.feedback || null,
+        isClosed: t.is_archived === 1 || t.status === 'closed' || t.status === 'completed',
         is_recategorized: Boolean(Number(t.is_recategorized) === 1 || t.is_recategorized === true),
         original_service_type: t.original_service_type || null,
         recategorization_reason: t.recategorization_reason || '',

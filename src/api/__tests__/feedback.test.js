@@ -60,4 +60,21 @@ describe('feedback api module', () => {
     apiClient.post.mockRejectedValueOnce(failure)
     await expect(submitFeedback('T-1', {})).rejects.toBe(failure)
   })
+
+  it('submits mandatory remarks along with ratings', async () => {
+    const ratings = {
+      completion_status: 'early',
+      quality_rating: 5,
+      efficiency_rating: 5,
+      timeliness_rating: 5,
+      remarks: 'Fast and thoroughly executed service. Very satisfied.',
+    }
+    apiClient.post.mockResolvedValueOnce({ data: { status: true, message: 'Feedback submitted successfully' } })
+    const res = await submitFeedback('LEAU-TIC-12-2026', ratings)
+    expect(apiClient.post).toHaveBeenCalledWith('/feedback', {
+      ticket_id: 'LEAU-TIC-12-2026',
+      ...ratings,
+    })
+    expect(res.data.status).toBe(true)
+  })
 })

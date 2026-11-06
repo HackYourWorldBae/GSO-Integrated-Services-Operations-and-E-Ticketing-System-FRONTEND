@@ -405,14 +405,19 @@
                 <!-- Remarks Textarea -->
                 <div v-if="satisfactionForm.completionStatus" class="bg-white p-5 sm:p-6 rounded-2xl border-2 border-slate-200/80 shadow-xs space-y-2 animate-fade-in">
                   <label class="block text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide mb-1">
-                    Remarks / Commendations (Optional)
+                    Remarks / Commendations <span class="text-rose-500">*</span>
+                    <span class="text-xs font-bold text-rose-500 lowercase tracking-normal ml-1">(Required)</span>
                   </label>
                   <textarea
                     v-model="satisfactionForm.remarks"
                     rows="3"
+                    required
                     class="w-full px-4 py-3 bg-slate-50/60 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white outline-none text-sm sm:text-base text-slate-800 transition-all resize-none placeholder:text-slate-400 font-medium"
-                    placeholder="Share your commendations, comments, or notes regarding the service...">
+                    placeholder="Share your commendations, comments, or notes regarding the service (required)...">
                   </textarea>
+                  <p v-if="!satisfactionForm.remarks || !satisfactionForm.remarks.trim()" class="text-xs text-rose-500 font-medium">
+                    Remarks are mandatory. Please provide your feedback to complete this evaluation.
+                  </p>
                 </div>
 
                 <!-- Submit Button -->
@@ -1113,6 +1118,7 @@ const isFeedbackEligible = (ticket) => {
 const isFormValid = computed(() => {
   const form = satisfactionForm.value;
   if (!form.completionStatus) return false;
+  if (!form.remarks || !form.remarks.trim()) return false;
   if (['early', 'on-time', 'beyond-time'].includes(form.completionStatus)) {
     const r = form.ratings;
     return r.quality > 0 && r.efficiency > 0 && r.timeliness > 0;

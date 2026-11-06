@@ -2,6 +2,8 @@
 import { ref, onMounted, onUnmounted, reactive, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import api from '@/api/client';
+import Swal from 'sweetalert2';
 import { toast } from 'vue3-toastify';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { debounce } from '@/utils/debounce';
@@ -587,7 +589,7 @@ const handleOutsideClick = (e) => {
   if (el && !el.contains(e.target)) isDropdownOpen.value = false;
 };
 
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener('click', handleOutsideClick);
 
   if (!authStore.isAuthenticated) {
@@ -595,6 +597,42 @@ onMounted(() => {
     return;
   }
 
+  // Policy Guard: Requestors must rate finished jobs before requesting a new service
+  const userRoleStr = (authStore.user?.role || authStore.role || '').toLowerCase();
+  if (userRoleStr === 'student' || userRoleStr === 'employee') {
+    try {
+      const res = await api.get('tickets/my-requests');
+      const activeList = res.data?.data?.tickets || [];
+      const unrated = activeList.filter(t => {
+        const unit = String(t.unit_code || t.unit || '').toUpperCase();
+        const unitId = Number(t.unit_id);
+        const isTargetUnit = unit === 'FGMU' || unit === 'LEAU' || unitId === 1 || unitId === 2;
+        if (!isTargetUnit) return false;
+        const s = String(t.service_type || t.title || '').toLowerCase();
+        if (s.includes('borrowing') || s.includes('borrow')) return false;
+        const isClosed = t.is_archived === 1 || t.status === 'closed' || t.status === 'completed';
+        if (isClosed) return false;
+        const step = Number(t.current_step);
+        return (step >= 6 || t.status === 'resolved') && !t.feedback;
+      });
+
+      if (unrated.length > 0) {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Evaluation Required',
+          text: `Under GSO policy, you cannot request a new service until you have submitted your rating and remarks for your previous completed ${unrated.length > 1 ? 'jobs' : 'job'}.`,
+          confirmButtonText: 'Rate Previous Jobs Now',
+          confirmButtonColor: '#059669',
+          allowOutsideClick: false,
+        });
+        const targetId = unrated[0]?.id;
+        router.push({ path: '/user/tickets', query: targetId ? { highlight: targetId } : {} });
+        return;
+      }
+    } catch (e) {
+      console.warn('[ServicesListView] Evaluation policy check error:', e);
+    }
+  }
 
   serviceCategories.value.forEach(cat => {
     cat.services.forEach(s => {
