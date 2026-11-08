@@ -180,10 +180,10 @@ const rawNavGroups = computed(() => {
           },
           ...(unit === 'fgmu' || unit === 'leau' ? [
             {
-              label: 'Common Materials Library',
-              to: `/admin/${unit}/materials`,
+              label: 'Inventory Management',
+              to: `/admin/${unit}/inventory`,
               exact: true,
-              icon: 'materials'
+              icon: 'box'
             }
           ] : [])
         ]
@@ -256,15 +256,7 @@ const rawNavGroups = computed(() => {
             to: `/admin/${unit}/active-tickets`,
             exact: true,
             icon: 'tools'
-          },
-          ...(unit === 'leau' || unit === 'fgmu' ? [
-            {
-              label: 'Inventory Management',
-              to: `/admin/${unit}/inventory`,
-              exact: true,
-              icon: 'box'
-            }
-          ] : [])
+          }
         ]
       },
       {

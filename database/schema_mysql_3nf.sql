@@ -378,6 +378,8 @@ CREATE TABLE IF NOT EXISTS `catalog_materials` (
   `name` varchar(255) NOT NULL,
   `unit` varchar(50) NOT NULL,
   `default_price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `quantity_available` int(11) NOT NULL DEFAULT 50,
+  `quantity_total` int(11) NOT NULL DEFAULT 50,
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),

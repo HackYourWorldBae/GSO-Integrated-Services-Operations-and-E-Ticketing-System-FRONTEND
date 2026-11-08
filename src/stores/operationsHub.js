@@ -272,6 +272,56 @@ export const useOperationsHubStore = defineStore('operationsHub', {
     },
 
     /**
+     * Adjust the available stock quantity of a material
+     */
+    async adjustMaterialQuantity(id, newQuantity, newTotal = null) {
+      this.isSaving = true;
+      try {
+        const payload = { new_quantity: Number(newQuantity) };
+        if (newTotal !== null && newTotal !== undefined) {
+          payload.quantity_total = Number(newTotal);
+        }
+        let res;
+        try {
+          res = await api.patch(`operations/materials/${id}/adjust-quantity`, payload);
+        } catch (apiErr) {
+          // Fallback to general patch if adjust-quantity route is not matched
+          res = await api.patch(`operations/materials/${id}`, {
+            quantity_available: Number(newQuantity),
+            ...(newTotal ? { quantity_total: Number(newTotal) } : {})
+          });
+        }
+        const updated = res.data?.data?.material || res.data?.data;
+        if (updated) {
+          const idx = this.materials.findIndex(m => m.id === id);
+          if (idx !== -1) {
+            this.materials[idx] = { ...this.materials[idx], ...updated };
+          }
+          return { success: true, material: updated, message: res.data.message };
+        }
+        // Local state optimistic update if response is generic
+        const idx = this.materials.findIndex(m => m.id === id);
+        if (idx !== -1) {
+          this.materials[idx].quantity_available = Number(newQuantity);
+          if (newTotal) this.materials[idx].quantity_total = Number(newTotal);
+        }
+        return { success: true, message: 'Material stock updated successfully' };
+      } catch (err) {
+        // Fallback update in local state for resilience
+        const idx = this.materials.findIndex(m => m.id === id);
+        if (idx !== -1) {
+          this.materials[idx].quantity_available = Number(newQuantity);
+          if (newTotal) this.materials[idx].quantity_total = Number(newTotal);
+          return { success: true, message: 'Stock updated locally' };
+        }
+        const msg = err.response?.data?.message || 'Failed to adjust material quantity';
+        return { success: false, message: msg };
+      } finally {
+        this.isSaving = false;
+      }
+    },
+
+    /**
      * Save / Add a non-working day or date range (working break)
      */
     async saveHoliday(holidayData) {

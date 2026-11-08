@@ -31,10 +31,18 @@ describe('Operations Hub Store & Dynamic Calendar Tests', () => {
     expect(fgmuList.length).toBeGreaterThan(0);
     expect(leauList.length).toBeGreaterThan(0);
 
-    // Verify all FGMU items have unit_code FGMU
-    fgmuList.forEach(m => expect(m.unit_code).toBe('FGMU'));
-    // Verify all LEAU items have unit_code LEAU
-    leauList.forEach(m => expect(m.unit_code).toBe('LEAU'));
+    // Verify all FGMU items have unit_code FGMU and tracked available quantities
+    fgmuList.forEach(m => {
+      expect(m.unit_code).toBe('FGMU');
+      expect(m.quantity_available).toBeDefined();
+      expect(m.quantity_total).toBeDefined();
+    });
+    // Verify all LEAU items have unit_code LEAU and tracked available quantities
+    leauList.forEach(m => {
+      expect(m.unit_code).toBe('LEAU');
+      expect(m.quantity_available).toBeDefined();
+      expect(m.quantity_total).toBeDefined();
+    });
   });
 
   it('correctly filters material names by unit', () => {
@@ -191,6 +199,31 @@ describe('Operations Hub Store & Dynamic Calendar Tests', () => {
     const delRes = await store.deleteMaterial(501);
     expect(delRes.success).toBe(true);
     expect(store.materials.some(m => m.id === 501)).toBe(false);
+  });
+
+  it('adjusts available material stock quantity via store action', async () => {
+    const store = useOperationsHubStore();
+    const item = store.materials[0];
+    expect(item).toBeDefined();
+
+    api.patch.mockResolvedValueOnce({
+      data: {
+        status: true,
+        message: 'Material stock updated successfully.',
+        data: {
+          material: {
+            ...item,
+            quantity_available: 35,
+            quantity_total: 50,
+          },
+        },
+      },
+    });
+
+    const res = await store.adjustMaterialQuantity(item.id, 35, 50);
+    expect(res.success).toBe(true);
+    const updated = store.materials.find(m => m.id === item.id);
+    expect(updated.quantity_available).toBe(35);
   });
 
   it('saves full schedule configuration including continuation, breaks, and weekend exclusions', async () => {

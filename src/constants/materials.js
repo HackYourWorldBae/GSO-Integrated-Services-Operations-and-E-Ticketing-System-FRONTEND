@@ -1,7 +1,7 @@
 // Common materials used in GSO (General Services Office) maintenance and repair work
 // Separated by sub-unit: FGMU (Facilities & Grounds) and LEAU (Landscaping & Aesthetics)
 
-export const COMMON_MATERIALS = [
+const RAW_COMMON_MATERIALS = [
   // ===========================================================================
   // FGMU Materials (Facilities & Grounds Management Unit)
   // ===========================================================================
@@ -224,6 +224,13 @@ export const COMMON_MATERIALS = [
   { name: 'Cable Ties Heavy Duty 12-inch', category: 'Event Decoration', unit: 'packs', unit_code: 'LEAU', default_price: 110.00 },
   { name: 'Event Floral Wire Green (Gauge 22)', category: 'Event Decoration', unit: 'rolls', unit_code: 'LEAU', default_price: 95.00 },
 ];
+
+export const COMMON_MATERIALS = RAW_COMMON_MATERIALS.map((item, index) => ({
+  id: index + 1,
+  quantity_available: item.quantity_available ?? 50,
+  quantity_total: item.quantity_total ?? 50,
+  ...item,
+}));
 
 // Helper to get unique categories
 export const MATERIAL_CATEGORIES = [...new Set(COMMON_MATERIALS.map(m => m.category))].sort();

@@ -618,6 +618,11 @@
 
         </div>
 
+        <!-- Unified Inventory Management (Tools, Equipment & Materials) -->
+        <div id="inventory" class="pt-6 border-t border-slate-200/80 scroll-mt-20">
+          <UnifiedInventoryManagement unit-code="LEAU" :embedded="true" />
+        </div>
+
       </div>
     </template>
   </MainLayout>
@@ -627,6 +632,7 @@
 import { onMounted, onUnmounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
+import UnifiedInventoryManagement from '@/components/inventory/UnifiedInventoryManagement.vue';
 import api from '@/api/client';
 
 const router = useRouter();
