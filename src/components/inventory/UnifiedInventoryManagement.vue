@@ -1,43 +1,38 @@
 <template>
   <div
-    class="space-y-6 sm:space-y-8 animate-fade-in"
+    class="space-y-4 sm:space-y-6 animate-fade-in"
     :class="[
       isLeau ? 'theme-unit-leau' : 'theme-unit-fgmu',
       embedded ? 'w-full' : 'p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto pb-16 min-h-screen'
     ]"
   >
-    <!-- Section Header & Executive Overview -->
-    <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-7 space-y-6">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <!-- Section Header & Sub-Navigation -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div class="flex items-center gap-2 flex-wrap mb-1.5">
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <span>Inventory Management</span>
             <span
-              class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border"
+              class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border"
               :class="isLeau
                 ? 'bg-amber-50 text-amber-800 border-amber-200'
                 : 'bg-emerald-50 text-emerald-800 border-emerald-200'"
             >
-              {{ effectiveUnit }} Operations
+              {{ effectiveUnit }}
             </span>
-            <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-black uppercase tracking-wider">
-              Single Inventory Management
-            </span>
-          </div>
-          <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            {{ effectiveUnit }} Inventory &amp; Materials Management
           </h3>
-          <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5 max-w-3xl">
-            Unified custody of operational equipment, tools, consumable parts, and materials for {{ unitTitle }}. Track available stock, perform adjustments, and support dispatch assessments in one central workspace.
+          <p class="text-xs text-slate-500 font-medium mt-0.5">
+            Tools, equipment, and materials stock
           </p>
         </div>
 
         <!-- Section Switcher Tabs (Separating Tools/Equipment and Materials) -->
-        <div data-tour="inventory-main-tabs" class="inline-flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200/80 shadow-inner self-start lg:self-auto shrink-0">
+        <div data-tour="inventory-main-tabs" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 shadow-inner self-start sm:self-auto shrink-0">
           <button
             type="button"
             @click="activeTab = 'tools'"
             :class="[
-              'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center gap-2 min-h-[44px] touch-manipulation',
+              'px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 min-h-[40px] touch-manipulation',
               activeTab === 'tools'
                 ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-900/5'
                 : 'text-slate-600 hover:text-slate-900'
@@ -49,7 +44,7 @@
             </svg>
             <span>Tools &amp; Equipment</span>
             <span
-              class="px-2 py-0.5 rounded-full text-[10px] font-black"
+              class="px-2 py-0.5 rounded-full text-[10px] font-bold"
               :class="activeTab === 'tools' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/80 text-slate-600'"
             >
               {{ toolsTotalCount }}
@@ -60,7 +55,7 @@
             type="button"
             @click="activeTab = 'materials'"
             :class="[
-              'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center gap-2 min-h-[44px] touch-manipulation',
+              'px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 min-h-[40px] touch-manipulation',
               activeTab === 'materials'
                 ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-900/5'
                 : 'text-slate-600 hover:text-slate-900'
@@ -69,79 +64,14 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="activeTab === 'materials' ? 'text-blue-600' : 'text-slate-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
-            <span>Materials Catalog &amp; Stock</span>
+            <span>Materials List</span>
             <span
-              class="px-2 py-0.5 rounded-full text-[10px] font-black"
+              class="px-2 py-0.5 rounded-full text-[10px] font-bold"
               :class="activeTab === 'materials' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/80 text-slate-600'"
             >
               {{ unitMaterials.length }}
             </span>
           </button>
-        </div>
-      </div>
-
-      <!-- Quick KPI Counters -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2 border-t border-slate-100">
-        <!-- 1. Tools Total & Available -->
-        <div
-          @click="activeTab = 'tools'; toolsAvailabilityFilter = 'all'"
-          class="p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between"
-          :class="activeTab === 'tools' ? 'bg-emerald-50/50 border-emerald-200/80 ring-1 ring-emerald-500/20' : 'bg-slate-50/70 border-slate-200/70 hover:bg-slate-100'"
-        >
-          <div>
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Tools &amp; Equipment</p>
-            <h4 class="text-2xl font-black text-slate-900 tabular-nums mt-0.5">{{ toolsTotalCount }} items</h4>
-            <p class="text-[11px] text-emerald-700 font-bold mt-0.5">{{ toolsAvailableCount }} currently available</p>
-          </div>
-          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black shrink-0">
-            🛠️
-          </div>
-        </div>
-
-        <!-- 2. Materials Total & Available Units -->
-        <div
-          @click="activeTab = 'materials'; materialStockFilter = 'all'"
-          class="p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between"
-          :class="activeTab === 'materials' ? 'bg-blue-50/50 border-blue-200/80 ring-1 ring-blue-500/20' : 'bg-slate-50/70 border-slate-200/70 hover:bg-slate-100'"
-        >
-          <div>
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Materials Catalog</p>
-            <h4 class="text-2xl font-black text-slate-900 tabular-nums mt-0.5">{{ unitMaterials.length }} items</h4>
-            <p class="text-[11px] text-blue-700 font-bold mt-0.5">{{ totalMaterialAvailableUnits }} available units in stock</p>
-          </div>
-          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-black shrink-0">
-            📦
-          </div>
-        </div>
-
-        <!-- 3. Tools in Maintenance -->
-        <div
-          @click="activeTab = 'tools'; toolsAvailabilityFilter = 'maintenance'"
-          class="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 hover:bg-amber-100/50 transition-all cursor-pointer flex items-center justify-between"
-        >
-          <div>
-            <p class="text-[10px] font-black text-amber-800 uppercase tracking-wider">Under Maintenance</p>
-            <h4 class="text-2xl font-black text-amber-900 tabular-nums mt-0.5">{{ toolsMaintenanceCount }} items</h4>
-            <p class="text-[11px] text-amber-700 font-bold mt-0.5">Undergoing repair/calibration</p>
-          </div>
-          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-black shrink-0">
-            ⚙️
-          </div>
-        </div>
-
-        <!-- 4. Low / Out of Stock Alert -->
-        <div
-          @click="activeTab = 'materials'; materialStockFilter = 'out_of_stock'"
-          class="p-4 rounded-2xl bg-rose-50/50 border border-rose-200/80 hover:bg-rose-100/50 transition-all cursor-pointer flex items-center justify-between"
-        >
-          <div>
-            <p class="text-[10px] font-black text-rose-800 uppercase tracking-wider">Restock Alert</p>
-            <h4 class="text-2xl font-black text-rose-900 tabular-nums mt-0.5">{{ outOfStockMaterialsCount }} items</h4>
-            <p class="text-[11px] text-rose-700 font-bold mt-0.5">Out of stock in catalog</p>
-          </div>
-          <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center font-black shrink-0">
-            ⚠️
-          </div>
         </div>
       </div>
     </div>
