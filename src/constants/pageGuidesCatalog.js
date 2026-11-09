@@ -387,7 +387,7 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
       {
         name: 'Job Requests: Approval Delays',
         badge: 'On Hold',
-        desc: 'Tickets temporarily held for material procurement, budget clearance, ocular inspection, or client specs.',
+        desc: 'Tickets temporarily held for material procurement or ocular inspection.',
         criteria: 'Remains in this tab until explicitly approved or declined. If escalated to Director, carries a Director Review tag.'
       },
       {
@@ -414,9 +414,7 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
         label: 'Delay',
         type: 'warning',
         desc: 'Opens the Delay Ticket Approval modal when work cannot proceed immediately.',
-        fields: isLeau
-          ? 'Reason for Delay: Awaiting Procurement of Materials/Parts, Awaiting Budget Clearance, Pending Vehicle/Equipment Inspection, Awaiting Additional Specifications from Requester, Scheduled for Bulk Parts Cycle, or Other/Custom Reason + Optional Notes.'
-          : 'Reason for Delay: Awaiting Procurement of Materials, Awaiting Budget Clearance, Pending Ocular Assessment/Inspection, Awaiting Additional Specifications, Scheduled for Bulk Procurement, or Other/Custom Reason + Optional Notes.',
+        fields: 'Reason for Delay: Awaiting Procurement of Materials, Pending Ocular Assessment / Inspection, or Other / Custom Reason + Optional Notes.',
         result: 'Moves ticket to the Approval Delayed tab and logs pre-work delay factors in root cause analytics.'
       },
       {
@@ -492,7 +490,7 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
       { element: '[data-tour="director-type-job"]', title: '2. Job Requests Switcher', desc: 'Select Job Requests to review and process facilities repairs and routine service tasks.' },
       { element: '[data-tour="director-type-borrowing"]', title: '3. Borrowing Requests Switcher', desc: isLeau ? 'Select Borrowing Requests to review and process nursery plant borrowing.' : 'Select Borrowing Requests to review and process tools and equipment borrowing.' },
       { element: '[data-tour="director-tab-pending"]', title: '4. Approval Requests Tab', desc: 'View newly submitted requests awaiting administrative review and verification.' },
-      { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets on hold for procurement, budget clearance, or inspection until explicitly approved or declined.' },
+      { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets on hold for material procurement or ocular inspection until explicitly approved or declined.' },
       { element: '[data-tour="director-search-input"]', title: '6. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
       { element: '[data-tour="director-btn-fullinfo"], [data-tour="director-tab-pending"]', title: '7. Full Scope & Photos Inspection', desc: 'Click "View Details" / "Full Info" to inspect problem particulars, client contacts, and uploaded photos before deciding.' },
       { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"], [data-tour="director-btn-decline"], [data-tour="director-tab-pending"]', title: '8. Decision Controls', desc: 'Approve to proceed to dispatch, Delay with justification, or Decline invalid requests.' }
@@ -3146,7 +3144,7 @@ export const pageGuidesCatalog = {
           { element: '[data-tour="director-type-job"]', title: '2. Job Requests Switcher', desc: 'Toggle to review and manage facilities maintenance, repairs, and infrastructure work orders.' },
           { element: '[data-tour="director-type-borrowing"]', title: '3. Equipment Borrowing Switcher', desc: 'Toggle to review tools and equipment borrowing requests.' },
           { element: '[data-tour="director-tab-pending"]', title: '4. Requests for Director Approval', desc: 'Review facilities repairs needing executive authorization and budget clearance.' },
-          { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets held pending materials, budget clearance, or ocular inspection.' },
+          { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets held pending materials or ocular inspection.' },
           { element: '[data-tour="director-tab-approved"]', title: '6. Approved Requests', desc: 'See approved tickets ready for FGMU technician and staff assignment.' },
           { element: '[data-tour="director-tab-dispatched"]', title: '7. Dispatched Requests', desc: 'Check tickets with assigned workers, scheduled implementation dates, and generated Job Orders.' },
           { element: '[data-tour="director-tab-active"]', title: '8. Work in Progress', desc: 'Monitor active jobs on campus with live elapsed working durations and grant extensions.' },

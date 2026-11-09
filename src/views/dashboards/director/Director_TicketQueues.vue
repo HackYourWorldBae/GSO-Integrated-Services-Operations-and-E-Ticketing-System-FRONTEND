@@ -2734,10 +2734,7 @@ const isSubmittingDelay = ref(false);
 
 const delayPresets = [
   'Awaiting Procurement of Materials',
-  'Awaiting Budget Clearance',
   'Pending Ocular Assessment / Inspection',
-  'Awaiting Additional Specifications from Requester',
-  'Scheduled for Bulk Procurement Cycle',
 ];
 
 // Extension Modal
