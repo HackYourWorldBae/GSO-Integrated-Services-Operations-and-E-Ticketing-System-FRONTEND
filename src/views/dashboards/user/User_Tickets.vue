@@ -305,13 +305,21 @@
                   </div>
 
                   <!-- 3. Approval Delay / Deferred Notice -->
-                  <div v-else-if="ticket.is_approval_delayed" class="mt-3.5 flex items-start gap-3 p-3 bg-amber-50/90 border border-amber-200 rounded-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-700 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div class="text-xs sm:text-sm">
-                      <p class="text-[11px] font-black uppercase tracking-wider text-amber-900">Approval Deferred in Queue</p>
-                      <p class="text-amber-950 font-medium">Temporarily deferred: <strong class="font-bold">{{ ticket.approval_delay_reason || 'Awaiting materials procurement or clearance' }}</strong>. Department will proceed once ready.</p>
+                  <div v-else-if="ticket.is_approval_delayed" class="mt-3.5 p-3 bg-amber-50/90 border border-amber-200 rounded-xl space-y-2">
+                    <div class="flex items-start gap-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-700 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div class="text-xs sm:text-sm">
+                        <p class="text-[11px] font-black uppercase tracking-wider text-amber-900">Approval Deferred in Queue</p>
+                        <p class="text-amber-950 font-medium">Temporarily deferred: <strong class="font-bold">{{ ticket.approval_delay_reason || 'Awaiting materials procurement or clearance' }}</strong>. Department will proceed once ready.</p>
+                      </div>
+                    </div>
+                    <div v-if="isOcularNotation(ticket.notation)" class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-800 bg-sky-100/80 px-2.5 py-1 rounded-lg border border-sky-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                      </svg>
+                      <span>Site inspection findings communicated below</span>
                     </div>
                   </div>
 
@@ -607,25 +615,57 @@
             <!-- ========== TICKET NOTATION / RECOMMENDATION CARD ========== -->
             <div
               v-if="ticket.notation || ticket.hasNotation"
-              class="border-t border-slate-100 p-5 bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-white"
+              :class="[
+                'border-t p-5 transition-colors',
+                isOcularNotation(ticket.notation)
+                  ? 'border-sky-200 bg-gradient-to-r from-sky-50/90 via-sky-50/50 to-white'
+                  : 'border-slate-100 bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-white'
+              ]"
             >
               <div class="flex items-start gap-3">
-                <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-700 shrink-0 shadow-2xs">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" style="width:18px;height:18px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div
+                  :class="[
+                    'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs',
+                    isOcularNotation(ticket.notation)
+                      ? 'bg-sky-100 text-sky-700 border border-sky-200'
+                      : 'bg-indigo-100 text-indigo-700'
+                  ]"
+                >
+                  <svg v-if="isOcularNotation(ticket.notation)" xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" style="width:18px;height:18px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" style="width:18px;height:18px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                   </svg>
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-                    <p class="text-[10px] font-black text-indigo-800 uppercase tracking-widest">
-                      {{ ticket.unit ? `${ticket.unit} Official Notation / Update` : 'Official Ticket Update / Recommendation' }}
+                    <p
+                      :class="[
+                        'text-[10px] font-black uppercase tracking-widest',
+                        isOcularNotation(ticket.notation) ? 'text-sky-900' : 'text-indigo-800'
+                      ]"
+                    >
+                      {{ isOcularNotation(ticket.notation) ? 'Ocular Assessment & Inspection Result' : (ticket.unit ? `${ticket.unit} Official Notation / Update` : 'Official Ticket Update / Recommendation') }}
                     </p>
-                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-indigo-100 text-indigo-700 border border-indigo-200 uppercase tracking-widest">
-                      From {{ ticket.unit || 'GSO' }} Staff
+                    <span
+                      :class="[
+                        'px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border',
+                        isOcularNotation(ticket.notation)
+                          ? 'bg-sky-100 text-sky-800 border-sky-200'
+                          : 'bg-indigo-100 text-indigo-700 border-indigo-200'
+                      ]"
+                    >
+                      {{ isOcularNotation(ticket.notation) ? 'Site Inspection Complete' : `From ${ticket.unit || 'GSO'} Staff` }}
                     </span>
                   </div>
-                  <p class="text-sm text-slate-800 font-medium leading-relaxed italic bg-white/80 p-3 rounded-xl border border-indigo-100/60 shadow-2xs">
-                    "{{ ticket.notation }}"
+                  <p
+                    :class="[
+                      'text-sm text-slate-800 font-medium leading-relaxed bg-white/90 p-3.5 rounded-xl border shadow-2xs whitespace-pre-line',
+                      isOcularNotation(ticket.notation) ? 'border-sky-200/80' : 'border-indigo-100/60 italic'
+                    ]"
+                  >
+                    {{ ticket.notation }}
                   </p>
                 </div>
               </div>
@@ -827,6 +867,15 @@
                         <p class="text-xs text-amber-800 font-medium mt-1">
                           The department will proceed with review once requirements are satisfied. You do not need to resubmit.
                         </p>
+                        <div v-if="isOcularNotation(selectedTicket.notation)" class="mt-2.5 p-3 rounded-xl bg-white border border-sky-200 text-slate-800 space-y-1">
+                          <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                            <span class="text-[10px] font-black uppercase tracking-wider text-sky-900">Communicated Inspection Result</span>
+                          </div>
+                          <p class="text-xs text-slate-700 whitespace-pre-line leading-relaxed font-medium">
+                            {{ selectedTicket.notation }}
+                          </p>
+                        </div>
                       </div>
                     </div>
 
@@ -854,23 +903,58 @@
                     </div>
 
                     <!-- Official Staff Notation / News Update Notice Banner in Modal -->
-                    <div v-if="selectedTicket.notation || selectedTicket.hasNotation" class="mb-5 p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl flex items-start gap-3 animate-fade-in shadow-xs">
-                      <div class="p-2 bg-indigo-100 rounded-xl text-indigo-700 shrink-0 mt-0.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div
+                      v-if="selectedTicket.notation || selectedTicket.hasNotation"
+                      :class="[
+                        'mb-5 p-4 rounded-2xl flex items-start gap-3 animate-fade-in shadow-xs border',
+                        isOcularNotation(selectedTicket.notation)
+                          ? 'bg-sky-50/80 border-sky-200'
+                          : 'bg-indigo-50/80 border-indigo-200'
+                      ]"
+                    >
+                      <div
+                        :class="[
+                          'p-2 rounded-xl shrink-0 mt-0.5',
+                          isOcularNotation(selectedTicket.notation)
+                            ? 'bg-sky-100 text-sky-700'
+                            : 'bg-indigo-100 text-indigo-700'
+                        ]"
+                      >
+                        <svg v-if="isOcularNotation(selectedTicket.notation)" xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                         </svg>
                       </div>
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1 flex-wrap">
-                          <span class="text-[10px] font-black text-indigo-900 uppercase tracking-widest">
-                            {{ selectedTicket.unit ? `${selectedTicket.unit} Official Notation / Update` : 'Official Ticket Update / Recommendation' }}
+                          <span
+                            :class="[
+                              'text-[10px] font-black uppercase tracking-widest',
+                              isOcularNotation(selectedTicket.notation) ? 'text-sky-900' : 'text-indigo-900'
+                            ]"
+                          >
+                            {{ isOcularNotation(selectedTicket.notation) ? 'Ocular Assessment & Inspection Result' : (selectedTicket.unit ? `${selectedTicket.unit} Official Notation / Update` : 'Official Ticket Update / Recommendation') }}
                           </span>
-                          <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-indigo-200 text-indigo-900 border border-indigo-300 uppercase tracking-wider">
-                            From {{ selectedTicket.unit || 'GSO' }} Staff
+                          <span
+                            :class="[
+                              'px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border',
+                              isOcularNotation(selectedTicket.notation)
+                                ? 'bg-sky-200 text-sky-900 border-sky-300'
+                                : 'bg-indigo-200 text-indigo-900 border-indigo-300'
+                            ]"
+                          >
+                            {{ isOcularNotation(selectedTicket.notation) ? 'Site Inspection Complete' : `From ${selectedTicket.unit || 'GSO'} Staff` }}
                           </span>
                         </div>
-                        <p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed italic bg-white/80 p-3 rounded-xl border border-indigo-100 shadow-2xs">
-                          "{{ selectedTicket.notation }}"
+                        <p
+                          :class="[
+                            'text-xs sm:text-sm text-slate-800 font-medium leading-relaxed bg-white/90 p-3 rounded-xl border shadow-2xs whitespace-pre-line',
+                            isOcularNotation(selectedTicket.notation) ? 'border-sky-200/80' : 'border-indigo-100 italic'
+                          ]"
+                        >
+                          {{ selectedTicket.notation }}
                         </p>
                       </div>
                     </div>
@@ -1343,6 +1427,12 @@ const isUnscheduledTicket = (t) => {
   const status = String(t.status || '').toLowerCase();
   if (['pending', 'declined', 'cancelled'].includes(status)) return true;
   return (!t.assignment?.working_days && !t.project_working_days && !t.working_days && !t.workingDays);
+};
+
+const isOcularNotation = (text) => {
+  if (!text) return false;
+  const lower = String(text).toLowerCase();
+  return lower.includes('ocular inspection') || lower.includes('[ocular inspection');
 };
 
 const isInternalStaffDocument = (fileName) => {
@@ -2207,6 +2297,17 @@ const getStepDescription = (ticket, step, index) => {
 
   if (isBorrowingService(ticket)) {
     return getBorrowingStepDescription(ticket, step, index, formatDate);
+  }
+
+  if (
+    (ticket?.unit === 'FGMU' || ticket?.unit === 'LEAU') &&
+    index === 2 &&
+    ticket.is_approval_delayed
+  ) {
+    if (isOcularNotation(ticket.notation)) {
+      return 'Approval deferred for ocular assessment: Inspection findings have been communicated. Waiting for final administrative review.';
+    }
+    return `Approval temporarily deferred: ${ticket.approval_delay_reason || 'Pending Materials / Inspection'}.`;
   }
 
   if (

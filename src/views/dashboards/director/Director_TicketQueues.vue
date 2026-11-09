@@ -696,6 +696,18 @@
                         </button>
 
                         <button
+                          v-if="ticket.is_escalated_to_director && activeTab === 'delayed' && isOcularInspection(ticket)"
+                          @click="openOcularInspectionModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="Update Requestor with Ocular Inspection Result"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                          </svg>
+                          <span>Inspection Result</span>
+                        </button>
+
+                        <button
                           v-if="ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')"
                           data-tour="director-btn-decline"
                           @click="openDeclineModal(ticket)"
@@ -801,7 +813,19 @@
                       </div>
 
                       <!-- Approval Delayed Tab Actions -->
-                      <div v-else-if="activeTab === 'delayed'" class="flex items-center justify-end gap-1.5">
+                      <div v-else-if="activeTab === 'delayed'" class="flex items-center justify-end gap-1.5 flex-wrap">
+                        <button
+                          v-if="isOcularInspection(ticket)"
+                          @click="openOcularInspectionModal(ticket)"
+                          class="px-3 py-1.5 min-h-[36px] rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                          title="Update Requestor with Ocular Inspection Result"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                          </svg>
+                          <span>Inspection Result</span>
+                        </button>
+
                         <button
                           data-tour="director-btn-fullinfo"
                           @click="openDetailsModal(ticket)"
@@ -1164,6 +1188,19 @@
                   <span>Delay</span>
                 </button>
 
+                <!-- Inspection Result button -->
+                <button
+                  v-if="ticket.is_escalated_to_director && activeTab === 'delayed' && isOcularInspection(ticket)"
+                  @click="openOcularInspectionModal(ticket)"
+                  class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
+                  title="Update Requestor with Ocular Inspection Result"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <span>Inspection Result</span>
+                </button>
+
                 <!-- Decline button -->
                 <button
                   v-if="ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')"
@@ -1234,6 +1271,17 @@
 
                 <!-- Job Delayed Actions -->
                 <template v-else-if="selectedCategory === 'job' && activeTab === 'delayed'">
+                  <button
+                    v-if="isOcularInspection(ticket)"
+                    @click="openOcularInspectionModal(ticket)"
+                    class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
+                    title="Update Requestor with Ocular Inspection Result"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <span>Inspection Result</span>
+                  </button>
                   <button @click="openDeclineModal(ticket)" class="px-3 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
                   <button
                     v-if="ticket.is_escalated_to_director"
@@ -1438,7 +1486,7 @@
           </div>
 
           <!-- Approval Delay Notice Banner -->
-          <div v-if="selectedTicketForModal.is_approval_delayed" class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-1.5">
+          <div v-if="selectedTicketForModal.is_approval_delayed" class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-2">
             <div class="flex items-center gap-2 font-black text-sm sm:text-base tracking-wide text-amber-900">
               <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               <span>Delay Reason: {{ selectedTicketForModal.approval_delay_reason || 'Pending Materials / Procurement' }}</span>
@@ -1446,6 +1494,19 @@
             <p v-if="selectedTicketForModal.delayed_by_first_name" class="text-xs sm:text-sm text-amber-700 font-medium leading-relaxed">
               Deferred by {{ selectedTicketForModal.delayed_by_first_name }} {{ selectedTicketForModal.delayed_by_last_name }} on {{ formatDate(selectedTicketForModal.approval_delayed_at) }}. Ticket is held outside general queue until directly approved once ready.
             </p>
+            <div v-if="isOcularInspection(selectedTicketForModal)" class="pt-1.5 flex items-center justify-between gap-3 flex-wrap">
+              <span class="text-xs text-amber-800 font-medium">Conducted an ocular inspection? Record findings to notify the requestor.</span>
+              <button
+                type="button"
+                @click="openOcularInspectionModal(selectedTicketForModal)"
+                class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                <span>Update Requestor of Inspection Result</span>
+              </button>
+            </div>
           </div>
 
           <!-- Requester & Location Cards -->
@@ -2092,6 +2153,16 @@
     @saved="handleRescheduleSaved"
   />
 
+  <!-- Ocular Inspection Result Modal -->
+  <OcularInspectionModal
+    v-if="showOcularInspectionModal"
+    :is-open="showOcularInspectionModal"
+    :ticket="ticketForOcularInspection"
+    :unit-code="currentUnit"
+    @close="closeOcularInspectionModal"
+    @updated="handleOcularInspectionSaved"
+  />
+
   <!-- ======================= ESCALATE TO DIRECTOR MODAL ======================= -->
   <Teleport to="body">
     <div v-if="showEscalateModal" class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in overflow-y-auto pointer-events-auto" @click.self="closeEscalateModal">
@@ -2286,6 +2357,7 @@ import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import RecategorizeTicketModal from '@/components/director/RecategorizeTicketModal.vue';
 import TicketNotationModal from '@/components/TicketNotationModal.vue';
 import RescheduleTicketModal from '@/components/RescheduleTicketModal.vue';
+import OcularInspectionModal from '@/components/OcularInspectionModal.vue';
 import { FGMU_SERVICES, LEAU_SERVICES } from '@/constants/services';
 import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
 import { isBorrowingService } from '@/utils/borrowing';
@@ -2679,6 +2751,35 @@ const ticketForNotation = ref(null);
 // Reschedule Scheduled Ticket Modal
 const showRescheduleModal = ref(false);
 const ticketForReschedule = ref(null);
+
+// Ocular Inspection Result Modal
+const showOcularInspectionModal = ref(false);
+const ticketForOcularInspection = ref(null);
+
+const isOcularInspection = (ticket) => {
+  if (!ticket) return false;
+  const reason = String(ticket.approval_delay_reason || '').toLowerCase();
+  return reason.includes('ocular') || reason.includes('inspection');
+};
+
+const openOcularInspectionModal = (ticket) => {
+  ticketForOcularInspection.value = ticket;
+  showOcularInspectionModal.value = true;
+};
+
+const closeOcularInspectionModal = () => {
+  showOcularInspectionModal.value = false;
+  ticketForOcularInspection.value = null;
+};
+
+const handleOcularInspectionSaved = (payload) => {
+  fetchAllQueues();
+  if (selectedTicketForModal.value && (selectedTicketForModal.value.id === payload?.ticketId || selectedTicketForModal.value.ticketId === payload?.ticketId)) {
+    selectedTicketForModal.value.staff_notation = payload?.notation;
+    selectedTicketForModal.value.notation = payload?.notation;
+    selectedTicketForModal.value.hasNotation = true;
+  }
+};
 
 // Live working durations for active tickets
 const liveWorkingDurations = ref({});
@@ -3513,7 +3614,7 @@ const handleRescheduleSaved = () => {
 
 const handleFocusOrVisibility = () => {
   if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value || showNotationModal.value || showRescheduleModal.value);
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value || showNotationModal.value || showOcularInspectionModal.value || showRescheduleModal.value);
     if (!isInteracting) {
       fetchAllQueues();
     }
@@ -3524,7 +3625,7 @@ onMounted(() => {
   fetchAllQueues();
   pollingInterval = setInterval(() => {
     if (document.hidden) return;
-    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value || showNotationModal.value || showRescheduleModal.value);
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value || showNotationModal.value || showOcularInspectionModal.value || showRescheduleModal.value);
     if (!isInteracting) {
       fetchAllQueues();
     }
