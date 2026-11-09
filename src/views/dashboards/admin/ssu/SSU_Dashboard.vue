@@ -67,6 +67,30 @@
         <div class="space-y-4">
           <!-- Filter Controls for Current Year & Daily -->
           <div class="flex flex-wrap items-center justify-end gap-2 px-1">
+            <!-- Global Analytics View Toggle -->
+            <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 shadow-inner">
+              <button
+                type="button"
+                @click="globalViewMode = 'numbers'"
+                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[40px] flex items-center gap-1.5"
+                :class="globalViewMode === 'numbers' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                title="Display numbers and text breakdown"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span>Numbers</span>
+              </button>
+              <button
+                type="button"
+                @click="globalViewMode = 'graph'"
+                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[40px] flex items-center gap-1.5"
+                :class="globalViewMode === 'graph' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                title="Display visual interactive graphs with point descriptions"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                <span>Graphs</span>
+              </button>
+            </div>
+
             <!-- Period Type Tabs -->
             <div data-tour="admin-timeframe-tabs" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 shadow-inner">
                 <button
@@ -229,74 +253,16 @@
           </div>
 
           <!-- 7-Day Recent Daily Performance Activity Breakdown -->
-          <div v-if="stats.daily_breakdown && stats.daily_breakdown.length > 0" class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-slate-200 pb-3">
-              <div>
-                <h4 data-tour="admin-daily-tracker" class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  Daily Activity Tracker (Last 7 Days)
-                </h4>
-              </div>
-              <span class="text-[10px] font-black text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto">
-                7-Day Overview
-              </span>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
-              <button
-                v-for="day in stats.daily_breakdown"
-                :key="day.date"
-                type="button"
-                @click="selectBreakdownDay(day.date)"
-                class="p-3 rounded-xl border transition-all text-left flex flex-col justify-between cursor-pointer"
-                :class="selectedPeriod === 'day' && selectedDate === day.date
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900 ring-offset-2'
-                  : 'bg-slate-50/70 hover:bg-slate-100 border-slate-200/70 text-slate-800'"
-              >
-                <div>
-                  <div class="flex items-center justify-between gap-1 mb-1">
-                    <span 
-                      class="text-xs font-black uppercase tracking-wider"
-                      :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-rose-400' : (day.is_today ? 'text-rose-600' : 'text-slate-500')"
-                    >
-                      {{ day.day_name }}
-                    </span>
-                    <span 
-                      v-if="day.is_today" 
-                      class="text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-tight"
-                      :class="selectedPeriod === 'day' && selectedDate === day.date ? 'bg-rose-400/20 text-rose-300' : 'bg-rose-100 text-rose-700'"
-                    >
-                      Today
-                    </span>
-                  </div>
-                  <p 
-                    class="text-xs font-bold"
-                    :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-slate-300' : 'text-slate-600'"
-                  >
-                    {{ day.label }}
-                  </p>
-                </div>
-
-                <div class="mt-3 pt-2.5 border-t" :class="selectedPeriod === 'day' && selectedDate === day.date ? 'border-slate-800' : 'border-slate-200/70'">
-                  <div class="flex items-center justify-between text-[11px] mb-0.5">
-                    <span :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-slate-300' : 'text-slate-500'">Requests</span>
-                    <span class="font-black tabular-nums" :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-white' : 'text-slate-800'">{{ day.total_requests }}</span>
-                  </div>
-                  <div class="flex items-center justify-between text-[11px]">
-                    <span :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-rose-300' : 'text-rose-600'">Completed</span>
-                    <span class="font-black tabular-nums" :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-rose-400' : 'text-rose-700'">{{ day.completed_jobs }}</span>
-                  </div>
-
-                  <!-- Mini completion bar -->
-                  <div class="w-full h-1.5 rounded-full overflow-hidden mt-1.5" :class="selectedPeriod === 'day' && selectedDate === day.date ? 'bg-slate-800' : 'bg-slate-200'">
-                    <div 
-                      class="h-full bg-rose-500 rounded-full transition-all duration-300" 
-                      :style="{ width: (day.total_requests > 0 ? Math.min(100, Math.round((day.completed_jobs / day.total_requests) * 100)) : (day.completed_jobs > 0 ? 100 : 0)) + '%' }"
-                    ></div>
-                  </div>
-                </div>
-              </button>
-            </div>
-          </div>
+          <DailyActivityTrackerCard
+            v-if="stats.daily_breakdown && stats.daily_breakdown.length > 0"
+            :daily-breakdown="stats.daily_breakdown"
+            :selected-period="selectedPeriod"
+            :selected-date="selectedDate"
+            accent-color="rose"
+            data-tour="admin-daily-tracker"
+            :global-view="globalViewMode"
+            @select-day="selectBreakdownDay"
+          />
         </div>
 
         <!-- Live Workload & Operations Status (Bottom 2 Cards) -->
@@ -345,18 +311,12 @@
 
         <!-- Main Charts Grid -->
         <div class="grid grid-cols-1 gap-6 sm:gap-8">
-          
-          <!-- Incident Distribution -->
-          <div class="p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200/80 shadow-md flex flex-col min-h-[300px] sm:min-h-[350px] lg:h-[400px]">
-            <h4 data-tour="ssu-incident-heatmap" class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2.5 h-6 bg-rose-500 rounded-full shrink-0"></div>
-              Incident Heatmap (By Category)
-            </h4>
-            <div class="flex-1 relative">
-              <canvas id="incidentDoughnut"></canvas>
-            </div>
-          </div>
-
+          <!-- Incident Heatmap & Point Guide -->
+          <IncidentHeatmapCard
+            :incident-heatmap="stats.incident_heatmap"
+            data-tour="ssu-incident-heatmap"
+            :global-view="globalViewMode"
+          />
         </div>
 
       </div>
@@ -368,9 +328,11 @@
 import { onMounted, onUnmounted, ref, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import Chart from 'chart.js/auto';
 import api from '@/api/client';
+import DailyActivityTrackerCard from '@/components/analytics/DailyActivityTrackerCard.vue';
+import IncidentHeatmapCard from '@/components/analytics/IncidentHeatmapCard.vue';
 
+const globalViewMode = ref('numbers');
 const router = useRouter();
 const stats = ref({});
 
@@ -384,74 +346,12 @@ const unresolvedCount = computed(() => {
   return Math.max(0, total - (resolved + declined));
 });
 
-const ssuActivePeriod = ref('Month');
-const ssuPeriodFilters = [
-  { key: 'Day',   label: 'This Day' },
-  { key: 'Week',  label: 'This Week' },
-  { key: 'Month', label: 'This Month' },
-  { key: 'Year',  label: 'This Year' }
-];
-
-
-let charts = [];
 let isAlive = true;
 let statsRequestSeq = 0;
 let statsAbort = null;
 
-function setSsuPeriod(period) {
-  ssuActivePeriod.value = period;
-  if (ssuServiceFreqChart && stats.value.service_freq) {
-    const data = stats.value.service_freq[period] || [];
-    ssuServiceFreqChart.data.labels = data.map(d => d.service_type);
-    ssuServiceFreqChart.data.datasets[0].data = data.map(d => parseInt(d.count));
-    
-  }
-}
-
 const renderCharts = () => {
-  if (!isAlive) return;
-  // Destroy existing charts to prevent memory leaks if re-rendered
-  charts.forEach(c => c.destroy());
-  charts = [];
-
-  const safeVal = (val) => parseFloat(val) || 0;
-
-  const formatReason = (code) => {
-    if (!code) return 'None';
-    const map = {
-      personnelAbsent: "Personnel Absent",
-      extendedBreak: "Extended Break Period",
-      additionalWork: "Additional Work",
-      lackWorkingDays: "Lack of Working Days",
-      lackMaterials: "Lack of Materials / Tools",
-      lackSkills: "Lack of Skills"
-    };
-    return map[code] || code.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-  };
-
-  // 1. Incident Heatmap Doughnut
-  const incidentCtx = document.getElementById('incidentDoughnut');
-  if (incidentCtx && stats.value.incident_heatmap) {
-    const data = stats.value.incident_heatmap;
-    charts.push(new Chart(incidentCtx, {
-      type: 'doughnut',
-      data: {
-        labels: data.map(d => d.category),
-        datasets: [{
-          data: data.map(d => parseInt(d.count)),
-          backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'],
-          hoverOffset: 15, borderRadius: 10, borderWidth: 4, borderColor: '#ffffff'
-        }]
-      },
-      options: {
-        animation: false,
-        animations: { colors: false, numbers: false },
-        transitions: { active: { animation: { duration: 0 } } },
-        plugins: { legend: { position: 'bottom' } },
-        cutout: '65%', responsive: true, maintainAspectRatio: false
-      }
-    }));
-  }
+  // Chart rendering is managed internally by IncidentHeatmapCard & DailyActivityTrackerCard
 };
 
 const formatDateToYMD = (date) => {
@@ -570,8 +470,6 @@ onUnmounted(() => {
   try {
     statsAbort?.abort('SSU dashboard unmounted');
   } catch { /* noop */ }
-  charts.forEach(c => c.destroy());
-  charts = [];
 });
 </script>
 

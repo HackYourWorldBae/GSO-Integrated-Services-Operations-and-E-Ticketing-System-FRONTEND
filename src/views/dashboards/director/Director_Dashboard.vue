@@ -65,8 +65,32 @@
               </div>
             </div>
 
-            <!-- Dynamic Selectors (Year, Month, Quarter) & Refresh -->
+            <!-- Dynamic Selectors (Year, Month, Quarter), View Mode Toggle & Refresh -->
             <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+              <!-- Global Analytics View Toggle -->
+              <div class="inline-flex p-1 rounded-xl bg-slate-200/60 border border-slate-200/80 gap-1">
+                <button
+                  type="button"
+                  @click="globalViewMode = 'numbers'"
+                  class="px-2.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[44px] flex items-center gap-1.5"
+                  :class="globalViewMode === 'numbers' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                  title="Display numbers, tables, and metric cards"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <span>Numbers</span>
+                </button>
+                <button
+                  type="button"
+                  @click="globalViewMode = 'graph'"
+                  class="px-2.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[44px] flex items-center gap-1.5"
+                  :class="globalViewMode === 'graph' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                  title="Display visual interactive graphs with point descriptions"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                  <span>Graphs</span>
+                </button>
+              </div>
+
               <!-- Year Selector -->
               <div v-if="selectedPeriod !== 'all'" class="relative flex-1 sm:flex-none">
                 <select
@@ -136,476 +160,56 @@
             </div>
           </div>
 
-          <!-- Cross-Unit Performance Matrix Table -->
-          <div class="space-y-3 pt-2">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <h4 data-tour="director-matrix-table" class="text-sm sm:text-base font-black text-slate-900 tracking-tight uppercase tracking-wider">Performance by Sub-Unit</h4>
-              <span class="text-xs sm:text-sm font-bold text-slate-500">{{ kpiPeriodLabel }}</span>
-            </div>
-
-            <!-- Desktop Performance Table -->
-            <div class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 shadow-sm">
-              <table class="min-w-[650px] w-full text-left border-collapse">
-                <thead>
-                  <tr class="bg-slate-50 text-slate-700 text-xs sm:text-sm font-black uppercase tracking-wider border-b border-slate-200">
-                    <th class="py-3 px-5">Sub-Unit</th>
-                    <th class="py-3 px-4 text-center">Unresolved</th>
-                    <th class="py-3 px-4 text-center">Resolved</th>
-                    <th class="py-3 px-4 text-center">Declined</th>
-                    <th class="py-3 px-5 text-center">Total Requests</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200 border-b border-slate-200 text-sm">
-                  <!-- FGMU -->
-                  <tr class="hover:bg-slate-50/80 transition-colors border-l-2 border-l-transparent hover:border-l-blue-400">
-                    <td class="py-3.5 px-5">
-                      <div class="flex items-center gap-3">
-                        <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-blue-50 text-blue-700 border border-blue-200/60 uppercase shrink-0">FGMU</span>
-                        <div>
-                          <div class="font-bold text-slate-900 text-sm sm:text-base">Facilities Management</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3.5 px-4 text-center font-black text-amber-700 tabular-nums text-sm sm:text-base">{{ getUnresolvedCount(executiveAnalytics?.units?.FGMU) }}</td>
-                    <td class="py-3.5 px-4 text-center font-black text-emerald-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</td>
-                    <td class="py-3.5 px-4 text-center font-bold text-slate-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</td>
-                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</td>
-                  </tr>
-
-                  <!-- LEAU -->
-                  <tr class="hover:bg-slate-50/80 transition-colors border-l-2 border-l-transparent hover:border-l-emerald-400">
-                    <td class="py-3.5 px-5">
-                      <div class="flex items-center gap-3">
-                        <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase shrink-0">LEAU</span>
-                        <div>
-                          <div class="font-bold text-slate-900 text-sm sm:text-base">Landscaping &amp; Environment</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3.5 px-4 text-center font-black text-amber-700 tabular-nums text-sm sm:text-base">{{ getUnresolvedCount(executiveAnalytics?.units?.LEAU) }}</td>
-                    <td class="py-3.5 px-4 text-center font-black text-emerald-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</td>
-                    <td class="py-3.5 px-4 text-center font-bold text-slate-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</td>
-                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</td>
-                  </tr>
-
-                  <!-- SSU -->
-                  <tr class="hover:bg-slate-50/80 transition-colors border-l-2 border-l-transparent hover:border-l-rose-400">
-                    <td class="py-3.5 px-5">
-                      <div class="flex items-center gap-3">
-                        <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-rose-50 text-rose-700 border border-rose-200/60 uppercase shrink-0">SSU</span>
-                        <div>
-                          <div class="font-bold text-slate-900 text-sm sm:text-base">Security Services</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3.5 px-4 text-center font-black text-amber-700 tabular-nums text-sm sm:text-base">{{ getUnresolvedCount(executiveAnalytics?.units?.SSU) }}</td>
-                    <td class="py-3.5 px-4 text-center font-black text-emerald-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</td>
-                    <td class="py-3.5 px-4 text-center font-bold text-slate-700 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</td>
-                    <td class="py-3.5 px-5 text-center font-black text-slate-900 tabular-nums text-sm sm:text-base">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</td>
-                  </tr>
-
-                  <!-- Consolidated Total Row -->
-                  <tr class="bg-slate-50 font-black text-slate-900 border-t-2 border-slate-200">
-                    <td class="py-3.5 px-5 text-xs sm:text-sm font-black tracking-wider text-slate-700 uppercase">GSO Overall</td>
-                    <td class="py-3.5 px-4 text-center text-amber-700 tabular-nums text-sm sm:text-base font-black">{{ getOverallUnresolvedCount() }}</td>
-                    <td class="py-3.5 px-4 text-center text-emerald-700 tabular-nums text-sm sm:text-base font-black">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</td>
-                    <td class="py-3.5 px-4 text-center text-slate-700 tabular-nums text-sm sm:text-base font-black">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</td>
-                    <td class="py-3.5 px-5 text-center text-slate-900 tabular-nums text-sm sm:text-base font-black">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Mobile Sub-Unit Cards View -->
-            <div class="md:hidden space-y-3">
-              <!-- FGMU Mobile Card -->
-              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-                <div class="flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-blue-50 text-blue-700 border border-blue-200/60 uppercase shrink-0">FGMU</span>
-                    <span class="font-bold text-slate-900 text-sm sm:text-base">Facilities Management</span>
-                  </div>
-                  <span class="text-xs font-bold text-slate-500">{{ executiveAnalytics?.units?.FGMU?.completion_rate ?? 0 }}% completed</span>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-200/60 text-center">
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-amber-700 uppercase tracking-wider block">Unresolved</span>
-                    <span class="text-base font-black text-amber-700 tabular-nums">{{ getUnresolvedCount(executiveAnalytics?.units?.FGMU) }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Resolved</span>
-                    <span class="text-base font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.resolved ?? 0 }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Declined</span>
-                    <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.declined ?? 0 }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Total</span>
-                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.total ?? 0 }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- LEAU Mobile Card -->
-              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-                <div class="flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase shrink-0">LEAU</span>
-                    <span class="font-bold text-slate-900 text-sm sm:text-base">Landscaping &amp; Environment</span>
-                  </div>
-                  <span class="text-xs font-bold text-slate-500">{{ executiveAnalytics?.units?.LEAU?.completion_rate ?? 0 }}% completed</span>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-200/60 text-center">
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-amber-700 uppercase tracking-wider block">Unresolved</span>
-                    <span class="text-base font-black text-amber-700 tabular-nums">{{ getUnresolvedCount(executiveAnalytics?.units?.LEAU) }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Resolved</span>
-                    <span class="text-base font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.resolved ?? 0 }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Declined</span>
-                    <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.declined ?? 0 }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Total</span>
-                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.total ?? 0 }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- SSU Mobile Card -->
-              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-                <div class="flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-rose-50 text-rose-700 border border-rose-200/60 uppercase shrink-0">SSU</span>
-                    <span class="font-bold text-slate-900 text-sm sm:text-base">Security Services</span>
-                  </div>
-                  <span class="text-xs font-bold text-slate-500">{{ executiveAnalytics?.units?.SSU?.completion_rate ?? 0 }}% completed</span>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-200/60 text-center">
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-amber-700 uppercase tracking-wider block">Unresolved</span>
-                    <span class="text-base font-black text-amber-700 tabular-nums">{{ getUnresolvedCount(executiveAnalytics?.units?.SSU) }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Resolved</span>
-                    <span class="text-base font-black text-emerald-700 tabular-nums">{{ executiveAnalytics?.units?.SSU?.resolved ?? 0 }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Declined</span>
-                    <span class="text-base font-black text-slate-700 tabular-nums">{{ executiveAnalytics?.units?.SSU?.declined ?? 0 }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-white border border-slate-200/60">
-                    <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Total</span>
-                    <span class="text-base font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.SSU?.total ?? 0 }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- GSO Overall Summary Card -->
-              <div class="p-4 rounded-2xl bg-slate-900 text-white space-y-3 shadow-sm">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-emerald-400">GSO Overall Total</span>
-                  <span class="text-xs font-bold text-emerald-400">{{ executiveAnalytics?.summary?.completion_rate ?? 0 }}% completed</span>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-center">
-                  <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">Unresolved</span>
-                    <span class="text-base font-black text-amber-400 tabular-nums">{{ getOverallUnresolvedCount() }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
-                    <span class="text-base font-black text-emerald-400 tabular-nums">{{ executiveAnalytics?.summary?.total_resolved ?? 0 }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Declined</span>
-                    <span class="text-base font-black text-slate-300 tabular-nums">{{ executiveAnalytics?.summary?.total_declined ?? 0 }}</span>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                    <span class="text-xs font-bold text-white uppercase tracking-wider block">Total</span>
-                    <span class="text-base font-black text-white tabular-nums">{{ executiveAnalytics?.summary?.total_requests ?? 0 }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- Cross-Unit Performance Matrix -->
+          <CrossUnitPerformanceCard
+            :executive-analytics="executiveAnalytics"
+            :kpi-period-label="kpiPeriodLabel"
+            :global-view="globalViewMode"
+          />
         </div>
 
         <!-- Operational Insights (Service Distribution & SLA Health) -->
-          <div class="space-y-6 pt-2">
-            <!-- Service Workload Share by Sub-Unit -->
-            <div class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-4 shadow-sm flex flex-col">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                <div class="flex items-center gap-2">
-                  <h4 data-tour="director-services-breakdown" class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Top Service Categories</h4>
-                </div>
+        <div class="space-y-6 pt-2">
+          <!-- Service Workload Share by Sub-Unit -->
+          <ServicesBreakdownCard
+            :displayed-service-groups="displayedServiceGroups"
+            :service-breakdown="executiveAnalytics?.service_breakdown"
+            :service-tabs="serviceTabs"
+            :active-service-tab="activeServiceTab"
+            :global-view="globalViewMode"
+            @update:active-service-tab="activeServiceTab = $event"
+          />
 
-                <!-- Sub-unit Filter Tabs -->
-                <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/70 gap-1 self-start sm:self-auto flex-wrap">
-                  <button
-                    v-for="tab in serviceTabs"
-                    :key="tab.key"
-                    type="button"
-                    @click="activeServiceTab = tab.key"
-                    class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[32px] touch-manipulation flex items-center gap-1.5"
-                    :class="activeServiceTab === tab.key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
-                  >
-                    <span>{{ tab.label }}</span>
-                    <span
-                      v-if="tab.key !== 'ALL' && executiveAnalytics?.service_breakdown_by_unit?.[tab.key]?.total"
-                      class="px-1.5 py-0.2 rounded-full text-[10px] font-black"
-                      :class="activeServiceTab === tab.key ? 'bg-slate-100 text-slate-800' : 'bg-slate-200 text-slate-600'"
-                    >
-                      {{ executiveAnalytics.service_breakdown_by_unit[tab.key].total }}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Per-Unit Service Groups -->
-              <div v-if="displayedServiceGroups.length" class="space-y-4">
-                <div
-                  v-for="group in displayedServiceGroups"
-                  :key="group.code"
-                  class="p-4 sm:p-5 rounded-xl border space-y-3"
-                  :class="group.code === 'FGMU' ? 'bg-blue-50/40 border-blue-100' : group.code === 'LEAU' ? 'bg-emerald-50/40 border-emerald-100' : 'bg-amber-50/40 border-amber-100'"
-                >
-                  <!-- Unit Header Bar -->
-                  <div class="flex items-center justify-between pb-2.5 border-b" :class="group.code === 'FGMU' ? 'border-blue-200/60' : group.code === 'LEAU' ? 'border-emerald-200/60' : 'border-amber-200/60'">
-                    <div class="flex items-center gap-2">
-                      <span
-                        class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider"
-                        :class="group.code === 'FGMU' ? 'bg-blue-600 text-white' : group.code === 'LEAU' ? 'bg-emerald-600 text-white' : 'bg-amber-600 text-white'"
-                      >
-                        {{ group.code }}
-                      </span>
-                      <span class="text-xs sm:text-sm font-black text-slate-800">{{ group.name }}</span>
-                    </div>
-                    <span class="text-xs sm:text-sm font-bold text-slate-600 tabular-nums">
-                      {{ group.total }} request{{ group.total !== 1 ? 's' : '' }}
-                    </span>
-                  </div>
-
-                  <!-- Services List -->
-                  <div class="space-y-3">
-                    <div v-for="item in group.services" :key="item.name" class="space-y-1">
-                      <div class="flex items-center justify-between gap-2">
-                        <span class="text-xs sm:text-sm font-semibold text-slate-800 truncate">{{ item.name }}</span>
-                        <span class="tabular-nums text-slate-700 font-bold text-xs sm:text-sm shrink-0">
-                          {{ item.count }} <span class="text-slate-500 font-normal">({{ item.percent }}%)</span>
-                        </span>
-                      </div>
-                      <div class="w-full h-2 bg-white/80 rounded-full overflow-hidden border border-slate-200/60">
-                        <div
-                          class="h-full rounded-full transition-all duration-500"
-                          :class="group.code === 'FGMU' ? 'bg-blue-500' : group.code === 'LEAU' ? 'bg-emerald-500' : 'bg-amber-500'"
-                          :style="{ width: `${item.percent}%` }"
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Fallback to flat list if by_unit is not present -->
-              <div v-else-if="executiveAnalytics?.service_breakdown?.length" class="space-y-3">
-                <div v-for="(item, idx) in executiveAnalytics.service_breakdown" :key="item.name" class="space-y-1.5">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-1.5 truncate">
-                      <span v-if="item.unit_code" class="px-1.5 py-0.5 rounded text-[10px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
-                        {{ item.unit_code }}
-                      </span>
-                      <span class="text-xs sm:text-sm font-bold text-slate-800 truncate">{{ item.name }}</span>
-                    </div>
-                    <span class="tabular-nums text-slate-600 font-black text-xs sm:text-sm ml-2 shrink-0">{{ item.count }} <span class="text-slate-500 font-semibold">({{ item.percent }}%)</span></span>
-                  </div>
-                  <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      class="h-full rounded-full transition-all duration-500"
-                      :class="idx % 3 === 0 ? 'bg-blue-500' : idx % 3 === 1 ? 'bg-emerald-500' : 'bg-rose-400'"
-                      :style="{ width: `${item.percent}%` }"
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              <p v-else class="text-xs sm:text-sm text-slate-500 font-medium py-6 text-center">No categories recorded for this period.</p>
+          <!-- Service Completion Rate & Ratings -->
+          <div class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-6 shadow-sm">
+            <div class="pb-4 border-b border-slate-100 flex items-center justify-between">
+              <h4 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Service Completion Rate &amp; Ratings</h4>
             </div>
 
-            <!-- Service Completion Rate & Ratings -->
-            <div class="p-5 sm:p-6 lg:p-8 rounded-2xl bg-white border border-slate-200/80 space-y-6 shadow-sm">
-              <div class="pb-4 border-b border-slate-100">
-                <h4 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Service Completion Rate &amp; Ratings</h4>
-              </div>
+            <!-- Two Distinct Sub-Unit Cards: FGMU & LEAU -->
+            <div class="flex flex-col gap-6 w-full">
+              <!-- FGMU Card -->
+              <UnitRatingsSummaryCard
+                unit-code="FGMU"
+                unit-title="Facilities Management"
+                unit-subtitle="Facilities &amp; Grounds Management Unit"
+                :health-stats="getUnitCompletionHealth('FGMU')"
+                :ratings="executiveAnalytics?.units?.FGMU?.avg_ratings"
+                :global-view="globalViewMode"
+              />
 
-              <!-- Two Distinct Sub-Unit Cards: FGMU & LEAU (Each Full-Width) -->
-              <div class="flex flex-col gap-6 w-full">
-
-                <!-- FGMU Card -->
-                <div class="w-full p-5 sm:p-6 lg:p-7 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-5">
-                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/70">
-                    <div class="flex items-center gap-2.5">
-                      <span class="px-2.5 py-1 rounded-lg text-xs font-black uppercase bg-blue-100 text-blue-800 border border-blue-200">FGMU</span>
-                      <div>
-                        <h5 class="text-sm sm:text-base font-black text-slate-900">Facilities Management</h5>
-                        <span class="text-[11px] font-medium text-slate-500">Facilities &amp; Grounds Management Unit</span>
-                      </div>
-                    </div>
-                    <div class="text-left sm:text-right">
-                      <div class="flex items-baseline sm:justify-end gap-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase">Rating:</span>
-                        <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums">
-                          {{ executiveAnalytics?.units?.FGMU?.avg_ratings?.overall_avg ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.overall_avg).toFixed(2) : '5.00' }}
-                        </span>
-                        <span class="text-xs font-semibold text-slate-400">/ 5.00</span>
-                      </div>
-                      <span class="text-[11px] font-medium text-slate-500 block">
-                        {{ executiveAnalytics?.units?.FGMU?.avg_ratings?.total_feedbacks ?? 0 }} client {{ (executiveAnalytics?.units?.FGMU?.avg_ratings?.total_feedbacks ?? 0) === 1 ? 'review' : 'reviews' }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- FGMU Completion Health -->
-                  <div class="space-y-2">
-                    <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Completion Timeliness</span>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div class="p-3.5 sm:p-4 bg-sky-50/90 rounded-xl border border-sky-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').early_finished ?? 0 }}</span>
-                        <span class="text-xs font-black text-sky-700 block">{{ getUnitCompletionHealth('FGMU').early_finished_percent ?? 0 }}%</span>
-                        <span class="text-[11px] font-bold text-sky-800 uppercase tracking-wider block mt-0.5">Early</span>
-                      </div>
-                      <div class="p-3.5 sm:p-4 bg-emerald-50/90 rounded-xl border border-emerald-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').on_time ?? 0 }}</span>
-                        <span class="text-xs font-black text-emerald-700 block">{{ getUnitCompletionHealth('FGMU').on_time_percent ?? 0 }}%</span>
-                        <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block mt-0.5">On-Time</span>
-                      </div>
-                      <div class="p-3.5 sm:p-4 bg-amber-50/90 rounded-xl border border-amber-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').beyond_time ?? 0 }}</span>
-                        <span class="text-xs font-black text-amber-700 block">{{ getUnitCompletionHealth('FGMU').beyond_time_percent ?? 0 }}%</span>
-                        <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider block mt-0.5">Overdue</span>
-                      </div>
-                      <div class="p-3.5 sm:p-4 bg-slate-100 rounded-xl border border-slate-200 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ getUnitCompletionHealth('FGMU').not_completed ?? 0 }}</span>
-                        <span class="text-xs font-black text-slate-600 block">{{ getUnitCompletionHealth('FGMU').not_completed_percent ?? 0 }}%</span>
-                        <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mt-0.5">Incomplete</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- FGMU Dimensions -->
-                  <div class="space-y-2 pt-2 border-t border-slate-200/60">
-                    <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Service Dimensions</span>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase">Quality</span>
-                        <div class="flex items-baseline gap-1">
-                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.avg_ratings?.avg_quality ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
-                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
-                        </div>
-                      </div>
-                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase">Efficiency</span>
-                        <div class="flex items-baseline gap-1">
-                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.avg_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
-                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
-                        </div>
-                      </div>
-                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase">Timeliness</span>
-                        <div class="flex items-baseline gap-1">
-                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.FGMU?.avg_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.units.FGMU.avg_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
-                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- LEAU Card -->
-                <div class="w-full p-5 sm:p-6 lg:p-7 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-5">
-                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/70">
-                    <div class="flex items-center gap-2.5">
-                      <span class="px-2.5 py-1 rounded-lg text-xs font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">LEAU</span>
-                      <div>
-                        <h5 class="text-sm sm:text-base font-black text-slate-900">Landscaping &amp; Environment</h5>
-                        <span class="text-[11px] font-medium text-slate-500">Landscaping &amp; Environmental Aesthetics Unit</span>
-                      </div>
-                    </div>
-                    <div class="text-left sm:text-right">
-                      <div class="flex items-baseline sm:justify-end gap-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase">Rating:</span>
-                        <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums">
-                          {{ executiveAnalytics?.units?.LEAU?.avg_ratings?.overall_avg ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.overall_avg).toFixed(2) : '5.00' }}
-                        </span>
-                        <span class="text-xs font-semibold text-slate-400">/ 5.00</span>
-                      </div>
-                      <span class="text-[11px] font-medium text-slate-500 block">
-                        {{ executiveAnalytics?.units?.LEAU?.avg_ratings?.total_feedbacks ?? 0 }} client {{ (executiveAnalytics?.units?.LEAU?.avg_ratings?.total_feedbacks ?? 0) === 1 ? 'review' : 'reviews' }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- LEAU Completion Health -->
-                  <div class="space-y-2">
-                    <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Completion Timeliness</span>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div class="p-3.5 sm:p-4 bg-sky-50/90 rounded-xl border border-sky-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-sky-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').early_finished ?? 0 }}</span>
-                        <span class="text-xs font-black text-sky-700 block">{{ getUnitCompletionHealth('LEAU').early_finished_percent ?? 0 }}%</span>
-                        <span class="text-[11px] font-bold text-sky-800 uppercase tracking-wider block mt-0.5">Early</span>
-                      </div>
-                      <div class="p-3.5 sm:p-4 bg-emerald-50/90 rounded-xl border border-emerald-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-emerald-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').on_time ?? 0 }}</span>
-                        <span class="text-xs font-black text-emerald-700 block">{{ getUnitCompletionHealth('LEAU').on_time_percent ?? 0 }}%</span>
-                        <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block mt-0.5">On-Time</span>
-                      </div>
-                      <div class="p-3.5 sm:p-4 bg-amber-50/90 rounded-xl border border-amber-200/70 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-amber-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').beyond_time ?? 0 }}</span>
-                        <span class="text-xs font-black text-amber-700 block">{{ getUnitCompletionHealth('LEAU').beyond_time_percent ?? 0 }}%</span>
-                        <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider block mt-0.5">Overdue</span>
-                      </div>
-                      <div class="p-3.5 sm:p-4 bg-slate-100 rounded-xl border border-slate-200 text-center">
-                        <span class="text-xl sm:text-2xl font-black text-slate-900 tabular-nums block">{{ getUnitCompletionHealth('LEAU').not_completed ?? 0 }}</span>
-                        <span class="text-xs font-black text-slate-600 block">{{ getUnitCompletionHealth('LEAU').not_completed_percent ?? 0 }}%</span>
-                        <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mt-0.5">Incomplete</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- LEAU Dimensions -->
-                  <div class="space-y-2 pt-2 border-t border-slate-200/60">
-                    <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Service Dimensions</span>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase">Quality</span>
-                        <div class="flex items-baseline gap-1">
-                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.avg_ratings?.avg_quality ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.avg_quality).toFixed(2) : '5.00' }}</span>
-                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
-                        </div>
-                      </div>
-                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase">Efficiency</span>
-                        <div class="flex items-baseline gap-1">
-                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.avg_ratings?.avg_efficiency ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.avg_efficiency).toFixed(2) : '5.00' }}</span>
-                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
-                        </div>
-                      </div>
-                      <div class="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/80 flex flex-col gap-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase">Timeliness</span>
-                        <div class="flex items-baseline gap-1">
-                          <span class="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{{ executiveAnalytics?.units?.LEAU?.avg_ratings?.avg_timeliness ? parseFloat(executiveAnalytics.units.LEAU.avg_ratings.avg_timeliness).toFixed(2) : '5.00' }}</span>
-                          <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
+              <!-- LEAU Card -->
+              <UnitRatingsSummaryCard
+                unit-code="LEAU"
+                unit-title="Landscaping &amp; Environment"
+                unit-subtitle="Landscaping &amp; Environmental Aesthetics Unit"
+                :health-stats="getUnitCompletionHealth('LEAU')"
+                :ratings="executiveAnalytics?.units?.LEAU?.avg_ratings"
+                :global-view="globalViewMode"
+              />
             </div>
           </div>
+        </div>
 
       </div>
     </template>
@@ -616,8 +220,14 @@
 import { onMounted, onUnmounted, ref, computed } from 'vue';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DirectorSidebar from './DirectorSidebar.vue';
+import CrossUnitPerformanceCard from '@/components/analytics/CrossUnitPerformanceCard.vue';
+import ServicesBreakdownCard from '@/components/analytics/ServicesBreakdownCard.vue';
+import UnitRatingsSummaryCard from '@/components/analytics/UnitRatingsSummaryCard.vue';
 import { toast } from 'vue3-toastify';
 import api from '@/api/client';
+
+// View Mode (numbers vs graph)
+const globalViewMode = ref('numbers');
 
 // Executive Analytics State
 const executiveAnalytics = ref(null);

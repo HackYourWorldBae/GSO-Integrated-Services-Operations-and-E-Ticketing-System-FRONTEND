@@ -43,6 +43,30 @@
         <div class="space-y-4">
           <!-- Filter Controls for Current Year & Daily -->
           <div class="flex flex-wrap items-center justify-end gap-2 px-1">
+            <!-- Global Analytics View Toggle -->
+            <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 shadow-inner">
+              <button
+                type="button"
+                @click="globalViewMode = 'numbers'"
+                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[40px] flex items-center gap-1.5"
+                :class="globalViewMode === 'numbers' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                title="Display numbers and text breakdown"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span>Numbers</span>
+              </button>
+              <button
+                type="button"
+                @click="globalViewMode = 'graph'"
+                class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer min-h-[40px] flex items-center gap-1.5"
+                :class="globalViewMode === 'graph' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                title="Display visual interactive graphs with point descriptions"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                <span>Graphs</span>
+              </button>
+            </div>
+
             <!-- Period Type Tabs -->
             <div data-tour="admin-timeframe-tabs" class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 shadow-inner">
                 <button
@@ -196,74 +220,16 @@
           </div>
 
           <!-- 7-Day Recent Daily Performance Activity Breakdown -->
-          <div v-if="stats.daily_breakdown && stats.daily_breakdown.length > 0" class="p-5 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white border border-slate-300 shadow-sm">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-slate-200 pb-3">
-              <div>
-                <h4 data-tour="admin-daily-tracker" class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  Daily Activity Tracker (Last 7 Days)
-                </h4>
-              </div>
-              <span class="text-[10px] font-black text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto">
-                7-Day Overview
-              </span>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
-              <button
-                v-for="day in stats.daily_breakdown"
-                :key="day.date"
-                type="button"
-                @click="selectBreakdownDay(day.date)"
-                class="p-3 rounded-xl border transition-all text-left flex flex-col justify-between cursor-pointer"
-                :class="selectedPeriod === 'day' && selectedDate === day.date
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900 ring-offset-2'
-                  : 'bg-slate-50/70 hover:bg-slate-100 border-slate-200/70 text-slate-800'"
-              >
-                <div>
-                  <div class="flex items-center justify-between gap-1 mb-1">
-                    <span 
-                      class="text-xs font-black uppercase tracking-wider"
-                      :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-teal-400' : (day.is_today ? 'text-teal-600' : 'text-slate-500')"
-                    >
-                      {{ day.day_name }}
-                    </span>
-                    <span 
-                      v-if="day.is_today" 
-                      class="text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-tight"
-                      :class="selectedPeriod === 'day' && selectedDate === day.date ? 'bg-teal-400/20 text-teal-300' : 'bg-teal-100 text-teal-700'"
-                    >
-                      Today
-                    </span>
-                  </div>
-                  <p 
-                    class="text-xs font-bold"
-                    :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-slate-300' : 'text-slate-600'"
-                  >
-                    {{ day.label }}
-                  </p>
-                </div>
-
-                <div class="mt-3 pt-2.5 border-t" :class="selectedPeriod === 'day' && selectedDate === day.date ? 'border-slate-800' : 'border-slate-200/70'">
-                  <div class="flex items-center justify-between text-[11px] mb-0.5">
-                    <span :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-slate-300' : 'text-slate-500'">Requests</span>
-                    <span class="font-black tabular-nums" :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-white' : 'text-slate-800'">{{ day.total_requests }}</span>
-                  </div>
-                  <div class="flex items-center justify-between text-[11px]">
-                    <span :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-teal-300' : 'text-teal-600'">Completed</span>
-                    <span class="font-black tabular-nums" :class="selectedPeriod === 'day' && selectedDate === day.date ? 'text-teal-400' : 'text-teal-700'">{{ day.completed_jobs }}</span>
-                  </div>
-
-                  <!-- Mini completion bar -->
-                  <div class="w-full h-1.5 rounded-full overflow-hidden mt-1.5" :class="selectedPeriod === 'day' && selectedDate === day.date ? 'bg-slate-800' : 'bg-slate-200'">
-                    <div 
-                      class="h-full bg-teal-500 rounded-full transition-all duration-300" 
-                      :style="{ width: (day.total_requests > 0 ? Math.min(100, Math.round((day.completed_jobs / day.total_requests) * 100)) : (day.completed_jobs > 0 ? 100 : 0)) + '%' }"
-                    ></div>
-                  </div>
-                </div>
-              </button>
-            </div>
-          </div>
+          <DailyActivityTrackerCard
+            v-if="stats.daily_breakdown && stats.daily_breakdown.length > 0"
+            :daily-breakdown="stats.daily_breakdown"
+            :selected-period="selectedPeriod"
+            :selected-date="selectedDate"
+            accent-color="emerald"
+            data-tour="admin-daily-tracker"
+            :global-view="globalViewMode"
+            @select-day="selectBreakdownDay"
+          />
         </div>
 
         <!-- Live Workload & Operations Status (2x2 Grid) -->
@@ -341,286 +307,34 @@
         <!-- Main Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           
-          <!-- Performance Radar -->
-          <div class="p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200/80 shadow-md flex flex-col min-h-[320px] lg:h-[400px]">
-            <h4 data-tour="admin-eval-averages" class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2 italic">
-              <div class="w-2.5 h-6 bg-teal-500 rounded-full shrink-0"></div>
-              Evaluation Averages
-            </h4>
-            <div class="flex-1 flex flex-col justify-center space-y-6 mt-2">
-              <div v-for="(metric, idx) in [
-                { label: 'Quality', val: safeVal(stats?.feedback_averages?.avg_quality) },
-                { label: 'Efficiency', val: safeVal(stats?.feedback_averages?.avg_efficiency) },
-                { label: 'Timeliness', val: safeVal(stats?.feedback_averages?.avg_timeliness) }
-              ]" :key="idx" class="flex flex-col gap-2">
-                <div class="flex items-center justify-between">
-                  <span class="text-sm font-black text-slate-700 uppercase tracking-wider">{{ metric.label }}</span>
-                  <span class="text-2xl font-black text-slate-900">{{ metric.val.toFixed(1) }}</span>
-                </div>
-                <div class="flex items-center gap-4">
-                  <div class="flex-1 h-3.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-amber-400 rounded-full" :style="{ width: (metric.val / 5 * 100) + '%' }"></div>
-                  </div>
-                  <div class="flex gap-1 text-amber-400 shrink-0">
-                    <svg v-for="i in 5" :key="i" class="w-4 h-4 sm:w-5 sm:h-5" :class="i <= Math.round(metric.val) ? 'fill-current' : 'text-slate-200 fill-current'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- Performance Evaluation Averages -->
+          <EvaluationAveragesCard
+            :feedback-averages="stats?.feedback_averages"
+            data-tour="admin-eval-averages"
+            :global-view="globalViewMode"
+          />
 
-          <!-- Job Completion Health (Words & Numbers) -->
-          <div class="p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200/80 shadow-md flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-6 gap-2">
-                <h4 data-tour="admin-completion-health" class="text-xl font-black text-slate-900 flex items-center gap-2 italic">
-                  <div class="w-2.5 h-6 bg-slate-800 rounded-full shrink-0"></div>
-                  Job Completion Health
-                </h4>
-                <span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-black rounded-full uppercase tracking-wider shrink-0">
-                  {{ completionStats.total }} Evaluated Jobs
-                </span>
-              </div>
+          <!-- Job Completion Health -->
+          <JobCompletionHealthCard
+            :stats="completionStats"
+            data-tour="admin-completion-health"
+            unit-code="LEAU"
+            :global-view="globalViewMode"
+          />
 
-              <!-- 4 Metric Cards Breakdown -->
-              <div class="space-y-3.5">
-                <!-- Early / Ahead of Schedule -->
-                <div class="p-4 rounded-2xl bg-sky-50/70 border border-sky-200/80 flex flex-col gap-2">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                      <span class="w-2.5 h-2.5 rounded-full bg-sky-500 shrink-0"></span>
-                      <span class="text-sm font-black text-slate-800 uppercase tracking-wider">Early / Ahead of Schedule</span>
-                    </div>
-                    <div class="flex items-baseline gap-1.5 shrink-0">
-                      <span class="text-2xl font-black text-sky-700 tabular-nums">{{ completionStats.earlyFinished }}</span>
-                      <span class="text-sm font-bold text-sky-700">({{ completionStats.earlyFinishedPercent }}%)</span>
-                    </div>
-                  </div>
-                  <div class="w-full h-2.5 bg-sky-200/50 rounded-full overflow-hidden">
-                    <div class="h-full bg-sky-500 rounded-full transition-all duration-500" :style="{ width: completionStats.earlyFinishedPercent + '%' }"></div>
-                  </div>
-                  <p class="text-xs sm:text-sm text-slate-600 font-medium">Jobs completed ahead of designated target schedule</p>
-                </div>
-
-                <!-- On-Time -->
-                <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col gap-2">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
-                      <span class="text-sm font-black text-slate-800 uppercase tracking-wider">On-Time Completion</span>
-                    </div>
-                    <div class="flex items-baseline gap-1.5 shrink-0">
-                      <span class="text-2xl font-black text-emerald-700 tabular-nums">{{ completionStats.onTime }}</span>
-                      <span class="text-sm font-bold text-emerald-700">({{ completionStats.onTimePercent }}%)</span>
-                    </div>
-                  </div>
-                  <div class="w-full h-2.5 bg-emerald-200/50 rounded-full overflow-hidden">
-                    <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" :style="{ width: completionStats.onTimePercent + '%' }"></div>
-                  </div>
-                  <p class="text-xs sm:text-sm text-slate-600 font-medium">Jobs completed strictly within scheduled timeframe</p>
-                </div>
-
-                <!-- Beyond Time / Delayed -->
-                <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex flex-col gap-2">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
-                      <span class="text-sm font-black text-slate-800 uppercase tracking-wider">Completed Beyond Time</span>
-                    </div>
-                    <div class="flex items-baseline gap-1.5 shrink-0">
-                      <span class="text-2xl font-black text-amber-700 tabular-nums">{{ completionStats.beyondTime }}</span>
-                      <span class="text-sm font-bold text-amber-700">({{ completionStats.beyondTimePercent }}%)</span>
-                    </div>
-                  </div>
-                  <div class="w-full h-2.5 bg-amber-200/50 rounded-full overflow-hidden">
-                    <div class="h-full bg-amber-500 rounded-full transition-all duration-500" :style="{ width: completionStats.beyondTimePercent + '%' }"></div>
-                  </div>
-                  <p class="text-xs sm:text-sm text-slate-600 font-medium">Finished with reported timeline extensions or delays</p>
-                </div>
-
-                <!-- Not Completed / Halted -->
-                <div class="p-4 rounded-2xl bg-rose-50/70 border border-rose-200/80 flex flex-col gap-2">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                      <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
-                      <span class="text-sm font-black text-slate-800 uppercase tracking-wider">Not Completed / Halted</span>
-                    </div>
-                    <div class="flex items-baseline gap-1.5 shrink-0">
-                      <span class="text-2xl font-black text-rose-700 tabular-nums">{{ completionStats.notCompleted }}</span>
-                      <span class="text-sm font-bold text-rose-700">({{ completionStats.notCompletedPercent }}%)</span>
-                    </div>
-                  </div>
-                  <div class="w-full h-2.5 bg-rose-200/50 rounded-full overflow-hidden">
-                    <div class="h-full bg-rose-500 rounded-full transition-all duration-500" :style="{ width: completionStats.notCompletedPercent + '%' }"></div>
-                  </div>
-                  <p class="text-xs sm:text-sm text-slate-600 font-medium">Work stalled or unfulfilled due to site constraints</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Delay & Barrier Root Cause Analysis (Ranked Words & Numbers) -->
-          <div class="p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] bg-white border border-slate-200/80 shadow-md flex flex-col lg:col-span-2 space-y-6">
-            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
-              <div>
-                <h4 data-tour="admin-root-cause" class="text-xl font-black text-slate-900 flex items-center gap-2 italic">
-                  <div class="w-2.5 h-6 bg-amber-500 rounded-full shrink-0"></div>
-                  Why Delays &amp; Barriers Happen (Root Cause Analysis)
-                </h4>
-                <p class="text-xs sm:text-sm text-slate-600 font-medium mt-0.5">Reported operational factors causing timeline extensions or work stoppages</p>
-              </div>
-              <button
-                type="button"
-                @click="showRootCauseDetails = !showRootCauseDetails"
-                class="px-4 py-2 min-h-[40px] text-xs sm:text-sm font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl transition-all cursor-pointer flex items-center gap-2 shrink-0 select-none shadow-2xs"
-                :aria-expanded="showRootCauseDetails"
-              >
-                <span>{{ showRootCauseDetails ? 'Hide Details' : 'View Detailed Factors' }}</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-4 h-4 transition-transform duration-200"
-                  :class="{ 'rotate-180': showRootCauseDetails }"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-
-            <div v-show="showRootCauseDetails" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in">
-              
-              <!-- Delay Reasons List -->
-              <div class="space-y-4">
-                <div class="flex items-center justify-between gap-2">
-                  <p class="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
-                    Completed Beyond Time (Delay Factors)
-                  </p>
-                  <span class="text-xs font-bold text-slate-500 shrink-0">{{ delayReasonsList.length }} Reasons</span>
-                </div>
-
-                <div v-if="delayReasonsList.length === 0" class="p-6 rounded-2xl bg-slate-50 border border-slate-100 text-center">
-                  <p class="text-sm font-bold text-slate-600">No Delay Reasons Reported</p>
-                  <p class="text-xs text-slate-500 mt-1">All recorded jobs were finished on-time without reported delay factors.</p>
-                </div>
-
-                <div v-else class="space-y-3">
-                  <div 
-                    v-for="(item, idx) in delayReasonsList" 
-                    :key="item.code"
-                    class="p-4 rounded-2xl bg-amber-50/40 border border-amber-100/80 flex flex-col gap-2 hover:bg-amber-50 transition-colors"
-                  >
-                    <div class="flex items-center justify-between gap-2">
-                      <div class="flex items-center gap-2.5 min-w-0">
-                        <span class="w-6 h-6 rounded-full bg-amber-200/80 text-amber-800 text-xs font-black flex items-center justify-center shrink-0">
-                          {{ idx + 1 }}
-                        </span>
-                        <span class="text-xs sm:text-sm font-black text-slate-800 break-words leading-tight">{{ item.name }}</span>
-                      </div>
-                      <div class="flex items-baseline gap-1.5 shrink-0">
-                        <span class="text-base font-black text-amber-700 tabular-nums">{{ item.count }}</span>
-                        <span class="text-xs font-bold text-slate-500">{{ item.count === 1 ? 'ticket' : 'tickets' }}</span>
-                      </div>
-                    </div>
-                    <div class="w-full h-2 bg-amber-100 rounded-full overflow-hidden">
-                      <div class="h-full bg-amber-500 rounded-full" :style="{ width: item.percent + '%' }"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Non-Completion Barriers List -->
-              <div class="space-y-4">
-                <div class="flex items-center justify-between gap-2">
-                  <p class="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
-                    Not Completed / Performed (Barriers)
-                  </p>
-                  <span class="text-xs font-bold text-slate-500 shrink-0">{{ nonCompletionList.length }} Barriers</span>
-                </div>
-
-                <div v-if="nonCompletionList.length === 0" class="p-6 rounded-2xl bg-slate-50 border border-slate-100 text-center">
-                  <p class="text-sm font-bold text-slate-600">No Non-Completion Barriers Reported</p>
-                  <p class="text-xs text-slate-500 mt-1">No tasks were left uncompleted or halted due to barriers.</p>
-                </div>
-
-                <div v-else class="space-y-3">
-                  <div 
-                    v-for="(item, idx) in nonCompletionList" 
-                    :key="item.code"
-                    class="p-4 rounded-2xl bg-rose-50/40 border border-rose-100/80 flex flex-col gap-2 hover:bg-rose-50 transition-colors"
-                  >
-                    <div class="flex items-center justify-between gap-2">
-                      <div class="flex items-center gap-2.5 min-w-0">
-                        <span class="w-6 h-6 rounded-full bg-rose-200/80 text-rose-800 text-xs font-black flex items-center justify-center shrink-0">
-                          {{ idx + 1 }}
-                        </span>
-                        <span class="text-xs sm:text-sm font-black text-slate-800 break-words leading-tight">{{ item.name }}</span>
-                      </div>
-                      <div class="flex items-baseline gap-1.5 shrink-0">
-                        <span class="text-base font-black text-rose-700 tabular-nums">{{ item.count }}</span>
-                        <span class="text-xs font-bold text-slate-500">{{ item.count === 1 ? 'ticket' : 'tickets' }}</span>
-                      </div>
-                    </div>
-                    <div class="w-full h-2 bg-rose-100 rounded-full overflow-hidden">
-                      <div class="h-full bg-rose-500 rounded-full" :style="{ width: item.percent + '%' }"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Approval Delay Reasons List -->
-              <div class="space-y-4">
-                <div class="flex items-center justify-between gap-2">
-                  <p class="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0"></span>
-                    Approval Delay Reasons (Pre-Work)
-                  </p>
-                  <span class="text-xs font-bold text-slate-500 shrink-0">{{ approvalDelayList.length }} Reasons</span>
-                </div>
-
-                <div v-if="approvalDelayList.length === 0" class="p-6 rounded-2xl bg-slate-50 border border-slate-100 text-center">
-                  <p class="text-sm font-bold text-slate-600">No Approval Delays Reported</p>
-                  <p class="text-xs text-slate-500 mt-1">All tickets were approved directly without deferred holds.</p>
-                </div>
-
-                <div v-else class="space-y-3">
-                  <div 
-                    v-for="(item, idx) in approvalDelayList" 
-                    :key="item.name"
-                    class="p-4 rounded-2xl bg-blue-50/40 border border-blue-100/80 flex flex-col gap-2 hover:bg-blue-50 transition-colors"
-                  >
-                    <div class="flex items-center justify-between gap-2">
-                      <div class="flex items-center gap-2.5 min-w-0">
-                        <span class="w-6 h-6 rounded-full bg-blue-200/80 text-blue-800 text-xs font-black flex items-center justify-center shrink-0">
-                          {{ idx + 1 }}
-                        </span>
-                        <span class="text-xs sm:text-sm font-black text-slate-800 break-words leading-tight">{{ item.name }}</span>
-                      </div>
-                      <div class="flex items-baseline gap-1.5 shrink-0">
-                        <span class="text-base font-black text-blue-700 tabular-nums">{{ item.count }}</span>
-                        <span class="text-xs font-bold text-slate-500">{{ item.count === 1 ? 'ticket' : 'tickets' }}</span>
-                      </div>
-                    </div>
-                    <div class="w-full h-2 bg-blue-100 rounded-full overflow-hidden">
-                      <div class="h-full bg-blue-500 rounded-full" :style="{ width: item.percent + '%' }"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
+          <!-- Delay & Barrier Root Cause Analysis -->
+          <div class="lg:col-span-2">
+            <RootCauseAnalysisCard
+              :delay-reasons-list="delayReasonsList"
+              :non-completion-list="nonCompletionList"
+              :approval-delay-list="approvalDelayList"
+              data-tour="admin-root-cause"
+              :global-view="globalViewMode"
+            />
           </div>
 
           
 
-        </div>
-
-        <!-- Unified Inventory Management (Tools, Equipment & Materials) -->
-        <div id="inventory" class="pt-6 border-t border-slate-200/80 scroll-mt-20">
-          <UnifiedInventoryManagement unit-code="LEAU" :embedded="true" />
         </div>
 
       </div>
@@ -632,9 +346,13 @@
 import { onMounted, onUnmounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
-import UnifiedInventoryManagement from '@/components/inventory/UnifiedInventoryManagement.vue';
 import api from '@/api/client';
+import DailyActivityTrackerCard from '@/components/analytics/DailyActivityTrackerCard.vue';
+import EvaluationAveragesCard from '@/components/analytics/EvaluationAveragesCard.vue';
+import JobCompletionHealthCard from '@/components/analytics/JobCompletionHealthCard.vue';
+import RootCauseAnalysisCard from '@/components/analytics/RootCauseAnalysisCard.vue';
 
+const globalViewMode = ref('numbers');
 const router = useRouter();
 const stats = ref({});
 
