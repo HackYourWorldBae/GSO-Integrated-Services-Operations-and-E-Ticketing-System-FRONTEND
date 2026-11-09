@@ -994,165 +994,18 @@
                             <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200/80 text-amber-900 border border-amber-300">Action Required</span>
                           </div>
                           <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight">Service Complete — Evaluation Required</h4>
-                          <p class="text-xs sm:text-sm text-slate-600 mt-1">The service has been completed by the assigned team. Please rate the service below or on the ticket card to finalize and close this ticket.</p>
+                          <p class="text-xs sm:text-sm text-slate-600 mt-1">The service has been completed by the assigned team. Please rate the service using the evaluation extension on the ticket card to finalize and close this ticket.</p>
                         </div>
                       </div>
-                      <div class="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          @click="inModalRatingOpen = !inModalRatingOpen"
-                          class="px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <span>{{ inModalRatingOpen ? 'Hide Form' : 'Rate Here' }}</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform" :class="{ 'rotate-180': inModalRatingOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                        <button
-                          type="button"
-                          @click="triggerRatingFromModal(selectedTicket)"
-                          class="px-3 py-2 bg-white hover:bg-amber-100 text-amber-900 font-bold text-xs uppercase tracking-wider rounded-xl border border-amber-300 transition-all flex items-center gap-1 cursor-pointer"
-                          title="Rate on Ticket Card in main list"
-                        >
-                          <span>On Card</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Direct In-Modal Rating Form -->
-                    <div v-if="inModalRatingOpen" class="mt-4 pt-4 border-t border-amber-200/80 space-y-4 animate-fade-in">
-                      <!-- 1. Job Completion Status -->
-                      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2.5">
-                        <div class="flex items-center justify-between gap-2">
-                          <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">
-                            1. Job Completion Status <span class="text-rose-500">*</span>
-                          </label>
-                          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Required</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          <label
-                            v-for="option in completionOptions"
-                            :key="option.value"
-                            :class="[
-                              'flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all duration-150 select-none group text-xs sm:text-sm',
-                              satisfactionForm.completionStatus === option.value
-                                ? option.activeClass
-                                : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50/80'
-                            ]"
-                          >
-                            <input type="radio" v-model="satisfactionForm.completionStatus" :value="option.value" class="hidden" />
-                            <div
-                              class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-                              :class="satisfactionForm.completionStatus === option.value ? option.indicatorClass : 'border-slate-300 bg-white group-hover:border-slate-400'"
-                            >
-                              <div v-if="satisfactionForm.completionStatus === option.value" class="w-2 h-2 rounded-full bg-white"></div>
-                            </div>
-                            <span class="font-bold leading-snug min-w-0 break-words">{{ option.label }}</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      <!-- 2. Ratings: Quality, Efficiency, Timeliness -->
-                      <div
-                        v-if="satisfactionForm.completionStatus === 'early' || satisfactionForm.completionStatus === 'on-time' || satisfactionForm.completionStatus === 'beyond-time'"
-                        class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3.5 animate-fade-in"
-                      >
-                        <div class="flex items-center justify-between gap-3 pb-2.5 border-b border-slate-200">
-                          <div>
-                            <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">
-                              2. Service Quality Rating <span class="text-rose-500">*</span>
-                            </label>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Rate each parameter from 1 (Poor) to 5 (Outstanding)</p>
-                          </div>
-                        </div>
-
-                        <div class="space-y-3">
-                          <div
-                            v-for="(label, key) in ratingCriteria"
-                            :key="key"
-                            class="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-2"
-                          >
-                            <div class="flex items-center justify-between gap-2">
-                              <span class="text-xs font-bold text-slate-800">{{ label }}</span>
-                              <span
-                                v-if="satisfactionForm.ratings[key] > 0"
-                                class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300"
-                              >
-                                {{ getRatingLabel(satisfactionForm.ratings[key]) }}
-                              </span>
-                            </div>
-
-                            <div class="grid grid-cols-5 gap-1.5">
-                              <button
-                                v-for="star in 5"
-                                :key="star"
-                                type="button"
-                                @click="satisfactionForm.ratings[key] = star"
-                                :class="[
-                                  'py-2 rounded-lg border flex flex-col items-center justify-center transition-all cursor-pointer',
-                                  satisfactionForm.ratings[key] === star
-                                    ? 'bg-amber-500 text-white font-black border-amber-500 shadow-xs scale-[1.02]'
-                                    : 'bg-white border-slate-200 text-slate-700 hover:bg-amber-50/60 hover:border-amber-300'
-                                ]"
-                              >
-                                <span class="text-xs font-black">{{ star }}</span>
-                                <span class="text-xs leading-none" :class="satisfactionForm.ratings[key] === star ? 'text-white' : 'text-amber-400'">★</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- 3. Beyond Time Reasons -->
-                      <div v-if="satisfactionForm.completionStatus === 'beyond-time'" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2 animate-fade-in">
-                        <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide mb-2">
-                          Reasons for beyond time completion
-                        </label>
-                        <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.personnelAbsent" label="Personnel absent / unavailable" />
-                        <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.extendedBreak" label="Extended breaks" />
-                        <CheckboxItem v-model="satisfactionForm.beyondTimeReasons.additionalWork" label="Additional work / scope expansion" />
-                      </div>
-
-                      <!-- 4. Not Completed Reasons -->
-                      <div v-if="satisfactionForm.completionStatus === 'not-completed'" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2 animate-fade-in">
-                        <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide mb-2">
-                          Reasons for not completed / performed
-                        </label>
-                        <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackWorkingDays" label="Lack of working days / time" />
-                        <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackMaterials" label="Lack of materials / supplies" />
-                        <CheckboxItem v-model="satisfactionForm.notCompletedReasons.lackSkills" label="Lack of required skills / tools" />
-                      </div>
-
-                      <!-- 5. Remarks -->
-                      <div v-if="satisfactionForm.completionStatus" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2 animate-fade-in">
-                        <label class="block text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide mb-1">
-                          Remarks / Commendations <span class="text-rose-500">*</span>
-                          <span class="text-xs font-bold text-rose-500 lowercase tracking-normal ml-1">(Required)</span>
-                        </label>
-                        <textarea
-                          v-model="satisfactionForm.remarks"
-                          rows="2"
-                          required
-                          placeholder="Provide any feedback for the personnel or team (required)..."
-                          class="w-full text-xs p-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-500 transition-all placeholder:text-slate-400"
-                        ></textarea>
-                        <p v-if="!satisfactionForm.remarks || !satisfactionForm.remarks.trim()" class="text-xs text-rose-500 font-medium">
-                          Remarks are mandatory. Please provide your feedback to complete this evaluation.
-                        </p>
-                      </div>
-
-                      <!-- Submit Button -->
                       <button
                         type="button"
-                        :disabled="!isFormValid || isSubmittingFeedback"
-                        @click="closeTicket(selectedTicket)"
-                        class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md shadow-emerald-600/20 active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+                        @click="triggerRatingFromModal(selectedTicket)"
+                        class="px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm shrink-0 flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
                       >
-                        <svg v-if="isSubmittingFeedback" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <span>Rate on Ticket</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
                         </svg>
-                        <span>{{ isSubmittingFeedback ? 'Submitting Evaluation & Closing Ticket...' : 'Submit Evaluation & Close Ticket' }}</span>
                       </button>
                     </div>
                   </div>
@@ -1314,7 +1167,6 @@ const isManualSyncing = ref(false);
 const isBackgroundSyncing = ref(false);
 const syncDegraded = ref(false);
 const lastSyncedAt = ref(Date.now());
-const inModalRatingOpen = ref(false);
 let modalSyncTimer = null;
 let modalRetryTimer = null;
 let ticketsRetryTimer = null;
@@ -2201,7 +2053,6 @@ const showDigitalForm  = ref(false);
 const openTimeline = (ticket) => {
   selectedTicket.value  = ticket;
   showDigitalForm.value = false;
-  inModalRatingOpen.value = isFeedbackEligible(ticket);
   resetForm();
   document.body.style.overflow = 'hidden';
 
@@ -2227,7 +2078,6 @@ const closeTimeline = () => {
     modalRetryTimer = null;
   }
   selectedTicket.value = null;
-  inModalRatingOpen.value = false;
   document.body.style.overflow = '';
   clearRouteQueryTicket();
 };
@@ -2472,12 +2322,6 @@ const isFeedbackEligible = (ticket) => {
   }
   return false;
 };
-
-watch(() => selectedTicket.value ? isFeedbackEligible(selectedTicket.value) : false, (eligible) => {
-  if (eligible) {
-    inModalRatingOpen.value = true;
-  }
-});
 
 const isStepCompleted = (ticket, index) => {
   if (!ticket) return false;
