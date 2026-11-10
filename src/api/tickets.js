@@ -125,4 +125,24 @@ export const escalateTicketToDirector = (ticketId, reason) =>
 export const deescalateTicketFromDirector = (ticketId, notes = '') =>
   apiClient.patch(`/tickets/${ticketId}/deescalate`, { notes });
 
+// --- Ocular Assessment Required Materials Workflow ---
+
+/**
+ * Save or update materials needed after ocular inspection when GSO inventory is short/empty.
+ * @param {string} ticketId
+ * @param {{ materials: Array<Object>, notes?: string }} payload
+ */
+export const saveRequiredMaterials = (ticketId, payload) =>
+  apiClient.post(`/tickets/${ticketId}/required-materials`, payload);
+
+/**
+ * Requestor confirms all listed required materials are already on-hand so ticket
+ * returns to the active approval queue.
+ * @param {string} ticketId
+ * @param {{ material_ids: Array<number>, note?: string }} payload
+ */
+export const confirmRequestorMaterials = (ticketId, payload) =>
+  apiClient.patch(`/tickets/${ticketId}/confirm-materials`, payload);
+
+
 

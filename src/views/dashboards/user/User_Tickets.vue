@@ -406,6 +406,13 @@
                   </button>
                 </div>
               </div>
+
+              <!-- Ocular Materials Needed Checklist for Requestor -->
+              <RequestorMaterialsChecklist
+                :ticket="ticket"
+                :compact="true"
+                @confirmed="handleMaterialsConfirmed"
+              />
             </div>
 
             <!-- Expanded Ratings Form -->
@@ -879,6 +886,13 @@
                       </div>
                     </div>
 
+                    <!-- Ocular Materials Needed Checklist in Modal -->
+                    <RequestorMaterialsChecklist
+                      v-if="selectedTicket"
+                      :ticket="selectedTicket"
+                      @confirmed="handleMaterialsConfirmed"
+                    />
+
                     <!-- Official Timeline Extension Notice Banner in Modal -->
                     <div v-if="!isUnscheduledTicket(selectedTicket) && selectedTicket.is_extended && selectedTicket.extension_days > 0" class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 animate-fade-in">
                       <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
@@ -1228,6 +1242,7 @@ import { ref, reactive, computed, watch, onMounted, onUnmounted, defineComponent
 import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
+import RequestorMaterialsChecklist from '@/components/RequestorMaterialsChecklist.vue';
 import { debounce } from '@/utils/debounce';
 import { parseDateLocal } from '@/utils/workCalendar';
 import { useAuthStore } from '@/stores/auth';
@@ -1701,6 +1716,12 @@ const mapTicketData = (t) => {
     is_approval_delayed: Boolean(Number(t.is_approval_delayed) === 1 || t.is_approval_delayed === true),
     approval_delay_reason: t.approval_delay_reason || '',
     approval_delayed_at: t.approval_delayed_at || null,
+    required_materials: Array.isArray(t.required_materials) ? t.required_materials : [],
+    required_materials_status: t.required_materials_status || 'none',
+    required_materials_notes: t.required_materials_notes || '',
+    required_materials_requested_at: t.required_materials_requested_at || null,
+    required_materials_confirmed_at: t.required_materials_confirmed_at || null,
+    requestor_materials_note: t.requestor_materials_note || '',
     is_recategorized: Boolean(Number(t.is_recategorized) === 1 || t.is_recategorized === true),
     original_service_type: t.original_service_type || null,
     recategorization_reason: t.recategorization_reason || '',
@@ -1881,6 +1902,28 @@ const fetchTickets = async (force = false) => {
   } finally {
     isFetchingTickets = false;
   }
+};
+
+const handleMaterialsConfirmed = (payload) => {
+  if (!payload?.ticketId) return;
+  const targetId = String(payload.ticketId);
+  const patchTicket = (t) => ({
+    ...t,
+    is_approval_delayed: false,
+    statusLabel: payload.status_label || t.statusLabel,
+    required_materials_status: 'requestor_ready',
+    required_materials_confirmed_at: payload.required_materials_confirmed_at || t.required_materials_confirmed_at,
+    requestor_materials_note: payload.requestor_materials_note ?? t.requestor_materials_note,
+    required_materials: Array.isArray(payload.required_materials) ? payload.required_materials : t.required_materials,
+  });
+
+  tickets.value = tickets.value.map((t) =>
+    String(t.ticketId || t.id) === targetId ? patchTicket(t) : t
+  );
+  if (selectedTicket.value && String(selectedTicket.value.ticketId || selectedTicket.value.id) === targetId) {
+    selectedTicket.value = patchTicket(selectedTicket.value);
+  }
+  fetchTickets(true);
 };
 
 let pollingInterval = null;

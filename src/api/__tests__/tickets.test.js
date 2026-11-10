@@ -31,6 +31,8 @@ import {
   completeTicket,
   escalateTicketToDirector,
   deescalateTicketFromDirector,
+  saveRequiredMaterials,
+  confirmRequestorMaterials,
 } from '../tickets'
 
 // Level 3 — Component tests: every ticket action the UI performs must reach
@@ -148,6 +150,25 @@ describe('tickets api module', () => {
     expect(apiClient.patch).toHaveBeenCalledWith('/tickets/FGMU-TIC-10-2026/deescalate', {
       notes: 'Routine maintenance only; unit head may proceed',
     })
+  })
+
+  it('saves required ocular materials list and notes to the dedicated endpoint', async () => {
+    const payload = {
+      materials: [
+        { catalog_material_id: 12, material_name: 'PVC Pipe', quantity: 3, unit_measurement: 'lengths', inventory_status: 'empty' },
+      ],
+      notes: 'GSO stock is empty; please confirm once prepared.',
+    }
+    apiClient.post.mockResolvedValueOnce({ data: { status: true } })
+    await saveRequiredMaterials('FGMU-TIC-77-2026', payload)
+    expect(apiClient.post).toHaveBeenCalledWith('/tickets/FGMU-TIC-77-2026/required-materials', payload)
+  })
+
+  it('confirms requestor materials readiness via PATCH confirm-materials', async () => {
+    const payload = { material_ids: [101, 102], note: 'Already on-hand at Dean office' }
+    apiClient.patch.mockResolvedValueOnce({ data: { status: true } })
+    await confirmRequestorMaterials('FGMU-TIC-77-2026', payload)
+    expect(apiClient.patch).toHaveBeenCalledWith('/tickets/FGMU-TIC-77-2026/confirm-materials', payload)
   })
 
   it('returns the backend envelope untouched (no unwrapping loss)', async () => {

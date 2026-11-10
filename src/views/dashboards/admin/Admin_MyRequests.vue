@@ -107,6 +107,13 @@
                         Awaiting Your Rating
                       </span>
                       <span
+                        v-else-if="ticket.is_approval_delayed"
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border bg-amber-100 text-amber-900 border-amber-300 shadow-2xs"
+                      >
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        Approval Delayed
+                      </span>
+                      <span
                         v-else
                         :class="['inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border', getStatusBadge(ticket.status)]"
                       >
@@ -195,6 +202,13 @@
                   </button>
                 </div>
               </div>
+
+              <!-- Ocular Materials Needed Checklist for Requestor -->
+              <RequestorMaterialsChecklist
+                :ticket="ticket"
+                :compact="true"
+                @confirmed="handleMaterialsConfirmed"
+              />
             </div>
 
             <!-- Notation Extension Card -->
@@ -579,6 +593,13 @@
                     </div>
                   </div>
 
+                  <!-- Ocular Materials Needed Checklist in Modal -->
+                  <RequestorMaterialsChecklist
+                    v-if="selectedTicket"
+                    :ticket="selectedTicket"
+                    @confirmed="handleMaterialsConfirmed"
+                  />
+
                   <!-- 2. TICKET INFORMATION CARD -->
                   <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4 shadow-2xs">
                     <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-2">Request Information</h4>
@@ -755,6 +776,7 @@ import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
 import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
+import RequestorMaterialsChecklist from '@/components/RequestorMaterialsChecklist.vue';
 import { parseDateLocal } from '@/utils/workCalendar';
 import { useAuthStore } from '@/stores/auth';
 import { useNetworkStatus } from '@/utils/networkMonitor';
@@ -848,6 +870,15 @@ const mapTicketData = (t) => {
       : null,
     workingDays: rawWorkingDays ? (rawWorkingDays + extensionDays) : null,
     isClosed: t.status === 'completed' || t.status === 'closed',
+    is_approval_delayed: Boolean(Number(t.is_approval_delayed) === 1 || t.is_approval_delayed === true),
+    approval_delay_reason: t.approval_delay_reason || '',
+    approval_delayed_at: t.approval_delayed_at || null,
+    required_materials: Array.isArray(t.required_materials) ? t.required_materials : [],
+    required_materials_status: t.required_materials_status || 'none',
+    required_materials_notes: t.required_materials_notes || '',
+    required_materials_requested_at: t.required_materials_requested_at || null,
+    required_materials_confirmed_at: t.required_materials_confirmed_at || null,
+    requestor_materials_note: t.requestor_materials_note || '',
     materials: t.materials || [],
     staff_notation: t.staff_notation || t.ssu_notation || t.notation || '',
     ssu_notation: t.ssu_notation || t.staff_notation || '',
@@ -884,6 +915,28 @@ const fetchTickets = async () => {
   } finally {
     isFetchingTickets.value = false;
   }
+};
+
+const handleMaterialsConfirmed = (payload) => {
+  if (!payload?.ticketId) return;
+  const targetId = String(payload.ticketId);
+  const patchTicket = (t) => ({
+    ...t,
+    is_approval_delayed: false,
+    statusLabel: payload.status_label || t.statusLabel,
+    required_materials_status: 'requestor_ready',
+    required_materials_confirmed_at: payload.required_materials_confirmed_at || t.required_materials_confirmed_at,
+    requestor_materials_note: payload.requestor_materials_note ?? t.requestor_materials_note,
+    required_materials: Array.isArray(payload.required_materials) ? payload.required_materials : t.required_materials,
+  });
+
+  tickets.value = tickets.value.map((t) =>
+    String(t.ticketId || t.id) === targetId ? patchTicket(t) : t
+  );
+  if (selectedTicket.value && String(selectedTicket.value.ticketId || selectedTicket.value.id) === targetId) {
+    selectedTicket.value = patchTicket(selectedTicket.value);
+  }
+  fetchTickets();
 };
 
 // Filtering logic

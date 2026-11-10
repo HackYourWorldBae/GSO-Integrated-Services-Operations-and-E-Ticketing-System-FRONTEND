@@ -858,6 +858,11 @@ const handleNotificationClick = async (notif) => {
     fullText.includes('new request') ||
     fullText.includes('review and approval') ||
     fullText.includes('pending approval') ||
+    fullText.includes('approval queue') ||
+    fullText.includes('approval delayed') ||
+    fullText.includes('materials needed') ||
+    fullText.includes('materials confirmed') ||
+    fullText.includes('materials ready') ||
     fullText.includes('submitted');
 
   let targetPath = '';
