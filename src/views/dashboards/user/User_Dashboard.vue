@@ -76,6 +76,18 @@
               <p class="text-emerald-200 text-xs sm:text-sm font-black uppercase tracking-wider mb-1">Quick Action</p>
               <h3 class="text-white text-xl sm:text-3xl font-black leading-tight">Need campus assistance?</h3>
               <p class="text-emerald-100 text-xs sm:text-base font-medium mt-1 leading-relaxed">Submit a new service request to the GSO in seconds.</p>
+              <div
+                role="note"
+                class="mt-4 flex items-start gap-3 rounded-xl bg-emerald-950/35 border border-emerald-400/30 px-4 py-3 text-xs sm:text-sm text-emerald-50 font-medium leading-relaxed backdrop-blur-xs"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-300 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p>
+                  <span class="font-extrabold text-amber-200">Note:</span>
+                  Please request services at least <span class="font-bold text-white">3 days before special events</span> to avoid delays in implementation.
+                </p>
+              </div>
             </div>
             <button
               data-tour="user-btn-new-request"
