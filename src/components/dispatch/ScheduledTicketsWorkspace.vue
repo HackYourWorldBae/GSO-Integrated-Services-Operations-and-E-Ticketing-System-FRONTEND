@@ -198,6 +198,17 @@
           </svg>
         </button>
       </div>
+
+      <!-- Implementation Date Filters (Job Schedules and Collab Tickets) -->
+      <ScheduleDateFilterBar
+        v-if="scheduledTab === 'jobs' || scheduledTab === 'collab'"
+        v-model="scheduleDateFilter"
+        :counts="scheduleDateCounts"
+        :accent="isScheduledCollab ? 'indigo' : (isLEAU ? 'amber' : 'emerald')"
+        :singular-label="isScheduledCollab ? 'collab job' : 'job'"
+        :plural-label="isScheduledCollab ? 'collab jobs' : 'jobs'"
+        @update:model-value="currentPage = 1"
+      />
     </div>
 
     <!-- ═══ Borrowing Requests Pane (awaiting pickup) ═══ -->
@@ -227,9 +238,12 @@
         :hide-toolbar="true"
         :search-text="searchQuery"
         :urgency-filter="urgencyFilter"
+        :schedule-date-filter="scheduleDateFilter"
         :emit-details="true"
         :key="'scheduled-collab-' + scheduledTabRefreshKey"
         @updated="onCollabUpdated"
+        @tickets-loaded="syncCollabScheduledTickets"
+        @reset-date-filter="setScheduleDateFilter(SCHEDULE_DATE_FILTER.ALL)"
         @open-details="openCollabDetails"
       />
     </div>
@@ -302,8 +316,28 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <p class="text-sm font-bold text-slate-700">No Scheduled Tickets Awaiting Start</p>
-                  <p class="text-xs text-slate-400 mt-1">All dispatched tickets have been started, or no tickets are currently pending start.</p>
+                  <p class="text-sm font-bold text-slate-700">
+                    {{
+                      scheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL
+                        ? 'No Scheduled Jobs in Selected Date Range'
+                        : 'No Scheduled Tickets Awaiting Start'
+                    }}
+                  </p>
+                  <p class="text-xs text-slate-400 mt-1">
+                    {{
+                      scheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL
+                        ? 'Try viewing all dates or switching to This Month.'
+                        : 'All dispatched tickets have been started, or no tickets are currently pending start.'
+                    }}
+                  </p>
+                  <button
+                    v-if="scheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL"
+                    type="button"
+                    @click="setScheduleDateFilter(SCHEDULE_DATE_FILTER.ALL)"
+                    class="mt-3 px-3.5 py-2 min-h-[36px] rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    Show All Dates
+                  </button>
                 </div>
               </td>
             </tr>
@@ -369,7 +403,7 @@
               <!-- Target Schedule (date only — durations appear on Active tickets only) -->
               <td class="px-3 py-2.5 whitespace-nowrap">
                 <div class="text-xs font-bold text-slate-800">
-                  {{ formatDate(ticket.assignment?.implementation_date) }}
+                  {{ formatDate(ticket.assignment?.implementation_date || ticket.implementation_date) }}
                 </div>
                 <div class="text-[10px] text-slate-400 font-medium mt-0.5">
                   Scheduled
@@ -502,7 +536,21 @@
           </svg>
         </div>
         <p class="text-xs font-bold text-slate-700">No Scheduled Tickets Found</p>
-        <p class="text-[10px] text-slate-400 mt-0.5">No tickets matching current filters.</p>
+        <p class="text-[10px] text-slate-400 mt-0.5">
+          {{
+            scheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL
+              ? 'No tickets scheduled in the selected date range.'
+              : 'No tickets matching current filters.'
+          }}
+        </p>
+        <button
+          v-if="scheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL"
+          type="button"
+          @click="setScheduleDateFilter(SCHEDULE_DATE_FILTER.ALL)"
+          class="mt-3 px-3.5 py-2 min-h-[36px] rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition-colors cursor-pointer"
+        >
+          Show All Dates
+        </button>
       </div>
 
       <!-- Mobile Ticket Cards -->
@@ -530,7 +578,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            {{ formatDate(ticket.assignment?.implementation_date) }}
+            {{ formatDate(ticket.assignment?.implementation_date || ticket.implementation_date) }}
           </span>
         </div>
 
@@ -1335,12 +1383,18 @@ import RescheduleTicketModal from '@/components/RescheduleTicketModal.vue';
 import BorrowingWorkspace from '@/components/dispatch/BorrowingWorkspace.vue';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 import CollabTicketsWorkspace from '@/components/dispatch/CollabTicketsWorkspace.vue';
+import ScheduleDateFilterBar from '@/components/dispatch/ScheduleDateFilterBar.vue';
 import { fetchCollabTickets, getTicketCollaborations } from '@/api/collaborations';
 import { getBorrowingQueue, recordBorrowingPickup } from '@/api/borrowing';
 import { isBorrowingService } from '@/utils/borrowing';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
 import { parseDateLocal } from '@/utils/workCalendar';
 import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
+import {
+  SCHEDULE_DATE_FILTER,
+  countTicketsByScheduleDate,
+  filterTicketsByScheduleDate,
+} from '@/utils/scheduleDateFilter';
 
 const props = defineProps({
   unitCode: {
@@ -1362,6 +1416,7 @@ const loading = ref(false);
 const searchQuery = ref('');
 const urgencyFilter = ref('all');
 const selectedServiceFilter = ref('');
+const scheduleDateFilter = ref(SCHEDULE_DATE_FILTER.ALL);
 const currentPage = ref(1);
 const pageSize = ref(10);
 
@@ -1443,6 +1498,9 @@ const clearRouteQueryTicket = () => {
 const switchScheduledTab = (tab) => {
   scheduledTab.value = tab === 'borrowing' ? 'borrowing' : tab === 'collab' ? 'collab' : 'jobs';
   currentPage.value = 1;
+  if (scheduledTab.value === 'borrowing') {
+    scheduleDateFilter.value = SCHEDULE_DATE_FILTER.ALL;
+  }
   // Close any open ticket modal and drop consumed deep-link params so
   // switching tabs never re-triggers the details modal.
   selectedTicketForModal.value = null;
@@ -1468,21 +1526,24 @@ const switchScheduledTab = (tab) => {
 
 const collabScheduledTickets = ref([]);
 
+const syncCollabScheduledTickets = (list, countOverride = null) => {
+  const normalized = Array.isArray(list) ? list : [];
+  collabScheduledTickets.value = normalized;
+  collabScheduledCount.value = countOverride ?? normalized.length;
+  collabScheduledIds.value = new Set(
+    normalized
+      .filter(t => ['pending', 'accepted'].includes(String(t.collaboration_status || '')))
+      .map(t => String(t.id))
+  );
+};
+
 const fetchCollabScheduledCount = async () => {
   try {
     const res = await fetchCollabTickets({ direction: 'all', stage: 'scheduled' });
     const list = res.data?.data?.tickets || [];
-    collabScheduledTickets.value = Array.isArray(list) ? list : [];
-    collabScheduledCount.value = res.data?.data?.count ?? collabScheduledTickets.value.length;
-    collabScheduledIds.value = new Set(
-      collabScheduledTickets.value
-        .filter(t => ['pending', 'accepted'].includes(String(t.collaboration_status || '')))
-        .map(t => String(t.id))
-    );
+    syncCollabScheduledTickets(list, res.data?.data?.count);
   } catch {
-    collabScheduledTickets.value = [];
-    collabScheduledCount.value = 0;
-    collabScheduledIds.value = new Set();
+    syncCollabScheduledTickets([], 0);
   }
 };
 
@@ -1682,7 +1743,7 @@ const uniqueServices = computed(() => {
   return Array.from(set).sort();
 });
 
-const filteredTickets = computed(() => {
+const baseFilteredJobTickets = computed(() => {
   let list = scheduledTickets.value;
 
   // Urgency filter
@@ -1714,6 +1775,43 @@ const filteredTickets = computed(() => {
   return list;
 });
 
+const baseFilteredCollabTickets = computed(() => {
+  let list = collabScheduledTickets.value;
+
+  if (urgencyFilter.value === 'emergency') {
+    list = list.filter(t => !!t.is_emergency);
+  } else if (urgencyFilter.value === 'standard') {
+    list = list.filter(t => !t.is_emergency);
+  }
+
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase().trim();
+    list = list.filter(t =>
+      String(t.id).toLowerCase().includes(q) ||
+      (t.title && t.title.toLowerCase().includes(q)) ||
+      (t.service_type && String(t.service_type).toLowerCase().includes(q)) ||
+      (t.requester && t.requester.toLowerCase().includes(q)) ||
+      (t.location && String(t.location).toLowerCase().includes(q)) ||
+      (t.scope_of_work && String(t.scope_of_work).toLowerCase().includes(q)) ||
+      (t.requesting_unit_code && String(t.requesting_unit_code).toLowerCase().includes(q)) ||
+      (t.collaborating_unit_code && String(t.collaborating_unit_code).toLowerCase().includes(q))
+    );
+  }
+
+  return list;
+});
+
+const scheduleDateCounts = computed(() => {
+  const sourceList = isScheduledCollab.value
+    ? baseFilteredCollabTickets.value
+    : baseFilteredJobTickets.value;
+  return countTicketsByScheduleDate(sourceList);
+});
+
+const filteredTickets = computed(() => {
+  return filterTicketsByScheduleDate(baseFilteredJobTickets.value, scheduleDateFilter.value);
+});
+
 const activeMatchesFromSearch = computed(() => {
   if (!searchQuery.value.trim() || scheduledTab.value !== 'jobs') return [];
   const q = searchQuery.value.toLowerCase().trim();
@@ -1727,6 +1825,12 @@ const activeMatchesFromSearch = computed(() => {
 
 const totalPages = computed(() => {
   return Math.ceil(filteredTickets.value.length / pageSize.value) || 1;
+});
+
+watch(totalPages, (nextTotal) => {
+  if (currentPage.value > nextTotal) {
+    currentPage.value = nextTotal;
+  }
 });
 
 const paginatedTickets = computed(() => {
@@ -1743,6 +1847,11 @@ const paginationRange = computed(() => {
 
 const setUrgencyFilter = (val) => {
   urgencyFilter.value = val;
+  currentPage.value = 1;
+};
+
+const setScheduleDateFilter = (val) => {
+  scheduleDateFilter.value = val;
   currentPage.value = 1;
 };
 
@@ -1763,9 +1872,11 @@ const getInitials = (name) => {
 
 const formatDate = (dateStr) => {
   if (!dateStr) return 'N/A';
+  const raw = String(dateStr).trim();
+  if (!raw || raw.startsWith('0000')) return 'N/A';
   const parsed = parseDateLocal(dateStr);
   if (!parsed || isNaN(parsed.getTime())) return dateStr;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(String(dateStr).trim())) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
     return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
   return parsed.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
@@ -2412,6 +2523,10 @@ const checkRouteQueryTicket = () => {
       return;
     }
 
+    if (scheduleDateFilter.value !== SCHEDULE_DATE_FILTER.ALL) {
+      scheduleDateFilter.value = SCHEDULE_DATE_FILTER.ALL;
+    }
+
     selectedTicketForModal.value = match;
     const idx = filteredTickets.value.findIndex(t => String(t.id) === String(match.id));
     if (idx !== -1) {
@@ -2442,6 +2557,7 @@ watch(() => route.query.tab, (v) => {
     currentPage.value = 1;
     selectedTicketForModal.value = null;
     if (next === 'borrowing') {
+      scheduleDateFilter.value = SCHEDULE_DATE_FILTER.ALL;
       scheduledTabRefreshKey.value += 1;
       fetchBorrowingCount();
     }

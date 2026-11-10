@@ -474,6 +474,17 @@
               </svg>
             </button>
           </div>
+
+          <!-- Implementation Date Filters (Dispatched Job Requests only) -->
+          <ScheduleDateFilterBar
+            v-if="selectedCategory === 'job' && activeTab === 'dispatched'"
+            v-model="selectedScheduleDateFilter"
+            :counts="dispatchedDateCounts"
+            :accent="isLeau ? 'amber' : 'emerald'"
+            singular-label="dispatched job"
+            plural-label="dispatched jobs"
+            @update:model-value="currentPage = 1"
+          />
         </div>
 
         <!-- ======================= DESKTOP TABULAR VIEW ======================= -->
@@ -521,6 +532,19 @@
                       <p class="text-xs text-slate-400 mt-1">
                         {{ emptyTabMessage }}
                       </p>
+                      <button
+                        v-if="selectedCategory === 'job' && activeTab === 'dispatched' && selectedScheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL"
+                        type="button"
+                        @click="setScheduleDateFilter(SCHEDULE_DATE_FILTER.ALL)"
+                        :class="[
+                          'mt-3 px-3.5 py-2 min-h-[36px] rounded-xl border text-xs font-bold transition-colors cursor-pointer',
+                          isLeau
+                            ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
+                            : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200'
+                        ]"
+                      >
+                        Show All Dates
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -1066,11 +1090,24 @@
             <p class="text-xs font-bold text-slate-400">Loading...</p>
           </div>
 
-          <div v-else-if="paginatedTickets.length === 0" data-tour="director-empty-state" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
+          <div v-else-if="paginatedTickets.length === 0" data-tour="director-empty-state" class="text-center py-10 bg-white rounded-2xl border border-slate-200 px-4">
             <p class="text-sm font-bold text-slate-600">No Tickets in {{ activeTabLabel }}</p>
             <p class="text-xs text-slate-400 mt-1">
               {{ emptyTabMessage }}
             </p>
+            <button
+              v-if="selectedCategory === 'job' && activeTab === 'dispatched' && selectedScheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL"
+              type="button"
+              @click="setScheduleDateFilter(SCHEDULE_DATE_FILTER.ALL)"
+              :class="[
+                'mt-3 px-3.5 py-2 min-h-[36px] rounded-xl border text-xs font-bold transition-colors cursor-pointer',
+                isLeau
+                  ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
+                  : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200'
+              ]"
+            >
+              Show All Dates
+            </button>
           </div>
 
           <div
@@ -2559,10 +2596,16 @@ import RescheduleTicketModal from '@/components/RescheduleTicketModal.vue';
 import OcularInspectionModal from '@/components/OcularInspectionModal.vue';
 import OcularMaterialsModal from '@/components/OcularMaterialsModal.vue';
 import { FGMU_SERVICES, LEAU_SERVICES } from '@/constants/services';
-import { calculateWorkingHoursElapsed } from '@/utils/workCalendar';
+import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
 import { isBorrowingService } from '@/utils/borrowing';
 import { isOcularInspectionDelay } from '@/utils/requiredMaterials';
 import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
+import {
+  SCHEDULE_DATE_FILTER,
+  countTicketsByScheduleDate,
+  filterTicketsByScheduleDate,
+} from '@/utils/scheduleDateFilter';
+import ScheduleDateFilterBar from '@/components/dispatch/ScheduleDateFilterBar.vue';
 import BorrowingDetailsSection from '@/components/dispatch/BorrowingDetailsSection.vue';
 
 const props = defineProps({
@@ -2645,6 +2688,12 @@ const isLoading = ref(false);
 const searchQuery = ref('');
 const selectedServiceFilter = ref('');
 const selectedEscalationFilter = ref('all'); // 'all' | 'escalated' | 'routine'
+const selectedScheduleDateFilter = ref(SCHEDULE_DATE_FILTER.ALL);
+
+const setScheduleDateFilter = (val) => {
+  selectedScheduleDateFilter.value = val;
+  currentPage.value = 1;
+};
 
 let handledRouteQueryTicketId = null;
 let isInitialFetch = true;
@@ -2682,6 +2731,7 @@ const selectCategory = (cat) => {
   searchQuery.value = '';
   selectedServiceFilter.value = '';
   selectedEscalationFilter.value = 'all';
+  selectedScheduleDateFilter.value = SCHEDULE_DATE_FILTER.ALL;
 
   // Normalize active tab across categories
   if (cat === 'job' && ['assigned', 'return'].includes(activeTab.value)) {
@@ -2697,6 +2747,7 @@ const switchTab = (tab) => {
   currentPage.value = 1;
   searchQuery.value = '';
   selectedEscalationFilter.value = 'all';
+  selectedScheduleDateFilter.value = SCHEDULE_DATE_FILTER.ALL;
   if (selectedCategory.value === 'borrowing') {
     selectedServiceFilter.value = '';
   }
@@ -3043,6 +3094,9 @@ const emptyTabMessage = computed(() => {
         ? 'No job tickets currently awaiting Director approval.'
         : 'No pending job requests matching current filters.';
     }
+    if (activeTab.value === 'dispatched' && selectedScheduleDateFilter.value !== SCHEDULE_DATE_FILTER.ALL) {
+      return 'No dispatched jobs scheduled in the selected implementation date range.';
+    }
     return `No ${activeTabLabel.value.toLowerCase()} matching current filters.`;
   } else {
     if (activeTab.value === 'pending') {
@@ -3112,7 +3166,7 @@ const serviceCategories = computed(() => {
 });
 
 // Filtered tickets based on search & category
-const filteredTickets = computed(() => {
+const baseFilteredTickets = computed(() => {
   let list = currentTabTickets.value;
 
   // Escalation filter for Pending tab
@@ -3159,8 +3213,27 @@ const filteredTickets = computed(() => {
   return list;
 });
 
+const dispatchedDateCounts = computed(() => {
+  if (selectedCategory.value !== 'job' || activeTab.value !== 'dispatched') {
+    return { all: 0, thisWeek: 0, thisMonth: 0 };
+  }
+  return countTicketsByScheduleDate(baseFilteredTickets.value);
+});
+
+const filteredTickets = computed(() => {
+  if (selectedCategory.value === 'job' && activeTab.value === 'dispatched') {
+    return filterTicketsByScheduleDate(baseFilteredTickets.value, selectedScheduleDateFilter.value);
+  }
+  return baseFilteredTickets.value;
+});
+
 // Paginated subset
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredTickets.value.length / perPage.value)));
+watch(totalPages, (nextTotal) => {
+  if (currentPage.value > nextTotal) {
+    currentPage.value = nextTotal;
+  }
+});
 
 const paginatedTickets = computed(() => {
   const start = (currentPage.value - 1) * perPage.value;
@@ -3190,8 +3263,10 @@ const getInitials = (name) => {
 
 const formatDate = (val) => {
   if (!val) return 'N/A';
-  const d = new Date(String(val).replace(' ', 'T'));
-  return isNaN(d.getTime()) ? val : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const raw = String(val).trim();
+  if (!raw || raw.startsWith('0000')) return 'N/A';
+  const d = parseDateLocal(val);
+  return !d || isNaN(d.getTime()) ? val : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 // Map ticket payload helper
@@ -3200,6 +3275,8 @@ const mapTicket = (t) => {
     ? `${t.first_name || ''} ${t.last_name || ''}`.trim() 
     : 'End User';
   const isBorrowing = Boolean(t.is_borrowing) || isBorrowingService(t);
+  const assignmentObj = t.assignment || (Array.isArray(t.assignments) && t.assignments[0]) || null;
+  const implDate = assignmentObj?.implementation_date || t.implementation_date || t.implementationDate || t.project_target_date || null;
   return {
     ...t,
     ticketId: t.id,
@@ -3221,6 +3298,9 @@ const mapTicket = (t) => {
     is_borrowing: isBorrowing,
     borrowing: isBorrowing ? (t.borrowing || null) : null,
     details: t.details || null,
+    implementation_date: implDate,
+    implementationDate: implDate,
+    assignment: assignmentObj || t.assignment,
     item_name_requested: isBorrowing ? (t.item_name_requested || t.borrowing?.item_name_requested || '') : '',
     item_model_requested: isBorrowing ? (t.item_model_requested || t.borrowing?.item_model_requested || null) : null,
     quantity_needed: isBorrowing ? (t.quantity_needed ?? t.borrowing?.quantity_needed ?? 1) : 1,
@@ -3425,6 +3505,9 @@ const checkRouteQueryTicket = () => {
   if (match) {
     handledRouteQueryTicketId = String(targetId);
     selectedTicketForModal.value = match;
+    if (selectedScheduleDateFilter.value !== SCHEDULE_DATE_FILTER.ALL) {
+      selectedScheduleDateFilter.value = SCHEDULE_DATE_FILTER.ALL;
+    }
 
     const isBorrowing = Boolean(match.is_borrowing || isBorrowingService(match));
     if (isBorrowing) {

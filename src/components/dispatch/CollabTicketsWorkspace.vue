@@ -185,6 +185,17 @@
           </svg>
         </button>
       </div>
+
+      <!-- Implementation Date Filters (Dispatched / Scheduled stage only) -->
+      <ScheduleDateFilterBar
+        v-if="effectiveMode === 'scheduled'"
+        v-model="internalScheduleDateFilter"
+        :counts="scheduleDateCounts"
+        accent="indigo"
+        singular-label="collab job"
+        plural-label="collab jobs"
+        @update:model-value="currentPage = 1"
+      />
     </div>
 
     <!-- ═══ Desktop Tabular View ═══ -->
@@ -222,7 +233,21 @@
                     </svg>
                   </div>
                   <p class="text-sm font-bold text-slate-700">No Collab Tickets Here</p>
-                  <p class="text-xs text-slate-400 mt-1">No joint tickets match this stage right now.</p>
+                  <p class="text-xs text-slate-400 mt-1">
+                    {{
+                      effectiveMode === 'scheduled' && effectiveScheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL
+                        ? 'No joint tickets scheduled in the selected date range.'
+                        : 'No joint tickets match this stage right now.'
+                    }}
+                  </p>
+                  <button
+                    v-if="effectiveMode === 'scheduled' && effectiveScheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL"
+                    type="button"
+                    @click="handleEmptyResetDateFilter"
+                    class="mt-3 px-3.5 py-2 min-h-[36px] rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    Show All Dates
+                  </button>
                 </div>
               </td>
             </tr>
@@ -258,6 +283,9 @@
                 <span :class="['px-2 py-0.5 rounded-full text-[10px] font-black border', collabBadge(ticket).cls]">{{ collabBadge(ticket).label }}</span>
                 <div v-if="effectiveMode !== 'approved'" class="text-[10px] font-bold mt-0.5" :class="ticket.my_unit_dispatched ? 'text-emerald-700' : 'text-amber-700'">
                   {{ ticket.my_unit_dispatched ? '✓ Your unit dispatched' : '○ Awaiting your dispatch' }}
+                </div>
+                <div v-if="effectiveMode === 'scheduled' && ticket.implementation_date" class="text-[10px] font-semibold text-slate-500 mt-0.5">
+                  Scheduled: <span class="text-slate-700 font-bold">{{ formatDate(ticket.implementation_date) }}</span>
                 </div>
               </td>
               <!-- Elapsed Duration (from joint assignments, active collab only) -->
@@ -410,9 +438,23 @@
       <div v-if="loading && tickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
         <p class="text-xs font-bold text-slate-400">Loading collab tickets...</p>
       </div>
-      <div v-else-if="paginatedTickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200">
+      <div v-else-if="paginatedTickets.length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200 px-4">
         <p class="text-sm font-bold text-slate-600">No Collab Tickets</p>
-        <p class="text-xs text-slate-400 mt-1">No matching records found.</p>
+        <p class="text-xs text-slate-400 mt-1">
+          {{
+            effectiveMode === 'scheduled' && effectiveScheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL
+              ? 'No joint tickets scheduled in the selected date range.'
+              : 'No matching records found.'
+          }}
+        </p>
+        <button
+          v-if="effectiveMode === 'scheduled' && effectiveScheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL"
+          type="button"
+          @click="handleEmptyResetDateFilter"
+          class="mt-3 px-3.5 py-2 min-h-[36px] rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors cursor-pointer"
+        >
+          Show All Dates
+        </button>
       </div>
       <div
         v-for="ticket in paginatedTickets"
@@ -435,6 +477,9 @@
           <span :class="['px-2 py-0.5 rounded-full text-[10px] font-black border shrink-0', collabBadge(ticket).cls]">{{ collabBadge(ticket).label }}</span>
         </div>
         <div class="mt-2 text-xs text-slate-600 truncate">{{ ticket.requester }} • {{ ticket.location || 'Main Campus' }}</div>
+        <div v-if="effectiveMode === 'scheduled' && ticket.implementation_date" class="mt-1 text-[11px] font-bold text-indigo-700">
+          Scheduled: {{ formatDate(ticket.implementation_date) }}
+        </div>
         <div class="mt-1 text-[11px] text-slate-500 truncate">{{ ticket.scope_of_work || '' }}</div>
         <div v-if="showDurations" class="mt-2 flex items-center justify-between text-[11px] font-bold text-slate-600">
           <span class="inline-flex items-center gap-1 text-indigo-800">
@@ -980,13 +1025,19 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
 import api from '@/api/client';
 import { fetchCollabTickets, respondCollaboration, getTicketCollaborations } from '@/api/collaborations';
 import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
-import { toast } from 'vue3-toastify';
 import { getWorkerInitials } from '@/utils/ticketPersonnelHelper';
-import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
+import {
+  SCHEDULE_DATE_FILTER,
+  countTicketsByScheduleDate,
+  filterTicketsByScheduleDate,
+} from '@/utils/scheduleDateFilter';
 import { generateFgmuJobRequestFormDocxBlob } from '@/utils/fgmuDocxGenerator';
+import DocumentViewerModal from '@/components/DocumentViewerModal.vue';
+import ScheduleDateFilterBar from '@/components/dispatch/ScheduleDateFilterBar.vue';
 
 const props = defineProps({
   unitCode: { type: String, required: true },
@@ -1002,6 +1053,8 @@ const props = defineProps({
   searchText: { type: String, default: '' },
   // Urgency filter: 'all' | 'emergency' | 'standard'
   urgencyFilter: { type: String, default: 'all' },
+  // Implementation date filter (scheduled mode): 'all' | 'this_week' | 'this_month'
+  scheduleDateFilter: { type: String, default: SCHEDULE_DATE_FILTER.ALL },
   // When true, row clicks / Full Info buttons emit 'open-details' with the raw
   // ticket instead of opening this component's own modal — lets the parent
   // reuse its richer details modal so both tabs share one design.
@@ -1013,7 +1066,7 @@ const props = defineProps({
   emitActions: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['updated', 'open-details', 'collab-action']);
+const emit = defineEmits(['updated', 'open-details', 'collab-action', 'tickets-loaded', 'reset-date-filter']);
 
 const route = useRoute();
 const router = useRouter();
@@ -1032,6 +1085,8 @@ const stageCounts = ref({ approved: 0, scheduled: 0, active: 0 });
 const switchStageTab = (stage) => {
   if (currentStage.value === stage) return;
   currentStage.value = stage;
+  internalScheduleDateFilter.value = SCHEDULE_DATE_FILTER.ALL;
+  currentPage.value = 1;
   if (router && route) {
     router.replace({
       query: {
@@ -1048,6 +1103,8 @@ watch(() => route?.query?.tab, (newTab) => {
     const resolved = resolveInitialStage(newTab);
     if (currentStage.value !== resolved) {
       currentStage.value = resolved;
+      internalScheduleDateFilter.value = SCHEDULE_DATE_FILTER.ALL;
+      currentPage.value = 1;
       fetchTickets();
     }
   }
@@ -1127,11 +1184,37 @@ watch(() => props.urgencyFilter, () => {
   currentPage.value = 1;
 });
 
+// Schedule implementation date filter (used on scheduled/dispatched stage)
+const internalScheduleDateFilter = ref(SCHEDULE_DATE_FILTER.ALL);
+const effectiveScheduleDateFilter = computed(() => {
+  if (effectiveMode.value !== 'scheduled') return SCHEDULE_DATE_FILTER.ALL;
+  return props.hideToolbar
+    ? (props.scheduleDateFilter || SCHEDULE_DATE_FILTER.ALL)
+    : internalScheduleDateFilter.value;
+});
+
+const setScheduleDateFilter = (filter) => {
+  internalScheduleDateFilter.value = filter;
+  currentPage.value = 1;
+};
+
+const handleEmptyResetDateFilter = () => {
+  if (props.hideToolbar) {
+    emit('reset-date-filter');
+    return;
+  }
+  setScheduleDateFilter(SCHEDULE_DATE_FILTER.ALL);
+};
+
+watch(() => props.scheduleDateFilter, () => {
+  currentPage.value = 1;
+});
+
 const emergencyCount = computed(() => {
   return tickets.value.filter(t => !!t.is_emergency).length;
 });
 
-const filteredTickets = computed(() => {
+const baseFilteredTickets = computed(() => {
   let list = tickets.value;
 
   // Filter by urgency
@@ -1157,7 +1240,23 @@ const filteredTickets = computed(() => {
   return list;
 });
 
+const scheduleDateCounts = computed(() => {
+  return countTicketsByScheduleDate(baseFilteredTickets.value);
+});
+
+const filteredTickets = computed(() => {
+  if (effectiveMode.value !== 'scheduled') {
+    return baseFilteredTickets.value;
+  }
+  return filterTicketsByScheduleDate(baseFilteredTickets.value, effectiveScheduleDateFilter.value);
+});
+
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredTickets.value.length / perPage.value)));
+watch(totalPages, (nextTotal) => {
+  if (currentPage.value > nextTotal) {
+    currentPage.value = nextTotal;
+  }
+});
 const paginatedTickets = computed(() => {
   const start = (currentPage.value - 1) * perPage.value;
   return filteredTickets.value.slice(start, start + perPage.value);
@@ -1229,6 +1328,7 @@ const fetchTickets = async () => {
     const res = await fetchCollabTickets({ direction: resolvedDirection.value, stage: resolvedStage.value });
     const list = res.data?.data?.tickets || [];
     tickets.value = Array.isArray(list) ? list : [];
+    emit('tickets-loaded', tickets.value);
     if (props.showStageTabs) {
       stageCounts.value[currentStage.value] = tickets.value.length;
       fetchStageCounts();
@@ -1763,6 +1863,11 @@ const checkRouteQueryTicket = async () => {
 
   if (match) {
     if (searchQuery.value) searchQuery.value = '';
+    if (props.hideToolbar && props.scheduleDateFilter !== SCHEDULE_DATE_FILTER.ALL) {
+      emit('reset-date-filter');
+    } else if (internalScheduleDateFilter.value !== SCHEDULE_DATE_FILTER.ALL) {
+      internalScheduleDateFilter.value = SCHEDULE_DATE_FILTER.ALL;
+    }
     await nextTick();
     const idx = filteredTickets.value.findIndex(t => String(t.id) === String(match.id));
     if (idx !== -1) {
