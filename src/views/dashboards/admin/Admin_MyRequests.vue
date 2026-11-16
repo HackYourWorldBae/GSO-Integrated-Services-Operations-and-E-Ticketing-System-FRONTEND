@@ -789,7 +789,7 @@ import {
   getBorrowingStepDescription,
   getBorrowingStatusLabel,
 } from '@/utils/borrowing';
-import { hasOcularInspectionCompleted } from '@/utils/requiredMaterials';
+import { hasOcularInspectionCompleted, isTicketUnderInspection } from '@/utils/requiredMaterials';
 import { isDocxFile, isPdfFile, handleAttachmentClick } from '@/utils/attachmentHelper';
 
 const route = useRoute();
@@ -875,7 +875,10 @@ const mapTicketData = (t) => {
       if (hasOcularInspectionCompleted(t)) {
         return 4;
       }
-      return 3;
+      if (isTicketUnderInspection(t) || rawStep >= 3) {
+        return 3;
+      }
+      return 2;
     })(),
     borrowing: t.borrowing || null,
     assignedWorker: t.assignment?.personnel_name || t.assigned_worker || (t.assignments?.[0]?.assigned_to_name) || null,
@@ -1060,7 +1063,10 @@ const getStepDescription = (ticket, step, index) => {
         }
         return 'Ocular inspection completed and findings recorded.';
       }
-      return 'Technical personnel will visit the site to assess scope of work and required materials.';
+      if (isTicketUnderInspection(ticket)) {
+        return 'Technical personnel have been scheduled for on-site ocular assessment of scope and materials.';
+      }
+      return 'Request received and queued for technical ocular inspection scheduling.';
     }
     if (index === 3 && ticket.is_approval_delayed) {
       return `Approval temporarily deferred: ${ticket.approval_delay_reason || 'Pending Materials'}.`;

@@ -122,9 +122,34 @@
           <!-- Under Job Requests -->
           <div
             v-if="selectedCategory === 'job'"
-            :class="['grid gap-2 p-2 border-b border-slate-200 bg-slate-50/50', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6']"
+            :class="['grid gap-2 p-2 border-b border-slate-200 bg-slate-50/50', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7']"
           >
-            <!-- 1. Under Inspection (Ocular inspection phase) -->
+            <!-- 1. New Requests (Procedural Step 1: Newly submitted job requests awaiting inspection setup) -->
+            <button
+              data-tour="director-tab-new-request"
+              @click="switchTab('new')"
+              :class="[
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
+                (activeTab === 'new' || activeTab === 'new_requests')
+                  ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
+              ]"
+            >
+              <span class="truncate">New Requests</span>
+              <span
+                :class="[
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                  (activeTab === 'new' || activeTab === 'new_requests')
+                    ? 'bg-white text-slate-950 font-black'
+                    : 'bg-slate-200 text-slate-800'
+                ]"
+              >
+                {{ jobNewRequestsCount }}
+              </span>
+            </button>
+
+            <!-- 2. Under Inspection (Procedural Step 2: Ocular inspection phase) -->
             <button
               data-tour="director-tab-under-inspection"
               @click="switchTab('under_inspection')"
@@ -522,7 +547,7 @@
                   <th class="px-3 py-3 text-slate-700">Requester</th>
                   <th v-if="selectedCategory === 'job'" class="px-3 py-3 text-slate-700">Location</th>
                   <th v-if="activeTab === 'delayed'" class="px-3 py-3 text-amber-800">Delay Reason</th>
-                  <th v-if="selectedCategory === 'job' && (activeTab === 'pending' || activeTab === 'under_inspection')" class="px-2 py-3 text-slate-700 text-center">Files</th>
+                  <th v-if="selectedCategory === 'job' && (activeTab === 'pending' || activeTab === 'under_inspection' || activeTab === 'new' || activeTab === 'new_requests')" class="px-2 py-3 text-slate-700 text-center">Files</th>
                   <th v-if="selectedCategory === 'job' && activeTab === 'dispatched'" class="px-3 py-3 text-slate-700">Scheduled Date &amp; Staff</th>
                   <th v-if="selectedCategory === 'job' && activeTab === 'active'" class="px-3 py-3 text-slate-700">Elapsed Duration</th>
                   <th v-if="selectedCategory === 'borrowing'" class="px-3 py-3 text-slate-700">Item Requested</th>
@@ -675,8 +700,8 @@
                     </div>
                   </td>
 
-                  <!-- Pending / Under Inspection: Files (Job Requests) -->
-                  <td v-if="selectedCategory === 'job' && (activeTab === 'pending' || activeTab === 'under_inspection')" class="px-2 py-2.5 text-center">
+                  <!-- Pending / Under Inspection / New: Files (Job Requests) -->
+                  <td v-if="selectedCategory === 'job' && (activeTab === 'pending' || activeTab === 'under_inspection' || activeTab === 'new' || activeTab === 'new_requests')" class="px-2 py-2.5 text-center">
                     <span
                       v-if="ticket.attachments && ticket.attachments.length > 0"
                       class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
@@ -820,8 +845,57 @@
 
                     <!-- Non-Director (Unit Head / Staff / Admin) Actions -->
                     <template v-else>
+                      <!-- New Requests Tab Actions -->
+                      <div v-if="activeTab === 'new' || activeTab === 'new_requests'" class="flex items-center justify-end gap-2 flex-wrap">
+                        <button
+                          @click="openSetForInspectionModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="Set this new job request for ocular inspection"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                          </svg>
+                          <span>Set for Inspection</span>
+                        </button>
+
+                        <button
+                          @click="openDetailsModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer select-none"
+                          title="View Details"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>View Details</span>
+                        </button>
+
+                        <button
+                          data-tour="director-btn-delay"
+                          @click="openDelayModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="Delay Approval"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>Delay</span>
+                        </button>
+
+                        <button
+                          @click="openDeclineModal(ticket)"
+                          class="px-3 py-2 min-h-[44px] rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="Decline Request"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          <span>Decline</span>
+                        </button>
+                      </div>
+
                       <!-- Under Inspection Tab Actions -->
-                      <div v-if="activeTab === 'under_inspection'" class="flex items-center justify-end gap-2 flex-wrap">
+                      <div v-else-if="activeTab === 'under_inspection'" class="flex items-center justify-end gap-2 flex-wrap">
                         <button
                           @click="openOcularInspectionModal(ticket)"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
@@ -854,6 +928,17 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>
                           <span>View Details</span>
+                        </button>
+
+                        <button
+                          @click="revertToNewRequests(ticket)"
+                          class="px-2.5 py-2 min-h-[44px] rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-800 text-xs font-semibold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                          title="Revert ticket back to New Requests queue"
+                        >
+                          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2m0 0l-4-4m4 4l4-4" />
+                          </svg>
+                          <span>Revert</span>
                         </button>
 
                         <button
@@ -1505,8 +1590,25 @@
 
               <!-- Non-Director Mobile Actions -->
               <template v-else>
+                <!-- Job New Requests Actions -->
+                <template v-if="selectedCategory === 'job' && (activeTab === 'new' || activeTab === 'new_requests')">
+                  <button
+                    @click="openSetForInspectionModal(ticket)"
+                    class="px-3 py-1.5 min-h-[36px] rounded-lg border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
+                    title="Set this new job request for ocular inspection"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <span>Set for Inspection</span>
+                  </button>
+                  <button @click="openDetailsModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-slate-300 bg-white text-slate-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Details</button>
+                  <button @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
+                  <button @click="openDeclineModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+                </template>
+
                 <!-- Job Under Inspection Actions -->
-                <template v-if="selectedCategory === 'job' && activeTab === 'under_inspection'">
+                <template v-else-if="selectedCategory === 'job' && activeTab === 'under_inspection'">
                   <button
                     @click="openOcularInspectionModal(ticket)"
                     class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
@@ -1528,6 +1630,8 @@
                     </svg>
                     <span>{{ ticket.required_materials?.length ? `Materials (${ticket.required_materials.length})` : 'Materials Needed' }}</span>
                   </button>
+
+                  <button @click="revertToNewRequests(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-slate-200 bg-slate-50 text-slate-600 text-xs font-semibold active:scale-95 transition-all touch-manipulation cursor-pointer">Revert</button>
 
                   <button v-if="ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Recall</button>
                   <button v-if="!ticket.is_escalated_to_director" @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
@@ -2272,8 +2376,56 @@
 
           <!-- Non-Director Actions -->
           <template v-else>
+            <!-- New Requests Tab Actions (Job Requests) -->
+            <div v-if="selectedCategory === 'job' && (activeTab === 'new' || activeTab === 'new_requests')" class="flex items-center gap-2 flex-wrap">
+              <button
+                @click="openSetForInspectionFromModal"
+                class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-md shadow-sky-600/20 cursor-pointer flex items-center gap-1.5 active:scale-95"
+                title="Set this new job request for ocular inspection"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                <span>Set for Inspection</span>
+              </button>
+
+              <button
+                v-if="selectedCategory === 'job' && !selectedTicketForModal.is_escalated_to_director"
+                @click="openRecategorizeModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Change Nature of Work / Recategorize Ticket"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <span>Recategorize</span>
+              </button>
+
+              <button
+                @click="openDelayModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                title="Delay Approval"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Delay</span>
+              </button>
+
+              <button
+                @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                title="Decline Request"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Decline Request</span>
+              </button>
+            </div>
+
             <!-- Under Inspection Tab Actions (Job Requests) -->
-            <div v-if="activeTab === 'under_inspection'" class="flex items-center gap-2 flex-wrap">
+            <div v-else-if="activeTab === 'under_inspection'" class="flex items-center gap-2 flex-wrap">
               <button
                 @click="openOcularInspectionModal(selectedTicketForModal); closeDetailsModal()"
                 class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
@@ -2783,6 +2935,15 @@
     @saved="handleRescheduleSaved"
   />
 
+  <!-- Set for Inspection Modal (Procedural Step: New Requests -> Under Inspection) -->
+  <SetForInspectionModal
+    v-if="showSetForInspectionModal"
+    :is-open="showSetForInspectionModal"
+    :ticket="ticketForInspection"
+    @close="closeSetForInspectionModal"
+    @confirmed="handleInspectionSet"
+  />
+
   <!-- Ocular Inspection Result Modal -->
   <OcularInspectionModal
     v-if="showOcularInspectionModal"
@@ -2988,7 +3149,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/api/client';
-import { escalateTicketToDirector, deescalateTicketFromDirector } from '@/api/tickets';
+import { escalateTicketToDirector, deescalateTicketFromDirector, unsetTicketForInspection } from '@/api/tickets';
 import { getBorrowingQueue, directorApproveBorrowing, directorRejectBorrowing } from '@/api/borrowing';
 import { toast } from 'vue3-toastify';
 import MainLayout from '@/layouts/Main_Dashboard_Layout.vue';
@@ -2997,6 +3158,7 @@ import TicketExtensionModal from '@/components/TicketExtensionModal.vue';
 import RecategorizeTicketModal from '@/components/director/RecategorizeTicketModal.vue';
 import TicketNotationModal from '@/components/TicketNotationModal.vue';
 import RescheduleTicketModal from '@/components/RescheduleTicketModal.vue';
+import SetForInspectionModal from '@/components/SetForInspectionModal.vue';
 import OcularInspectionModal from '@/components/OcularInspectionModal.vue';
 import OcularMaterialsModal from '@/components/OcularMaterialsModal.vue';
 import { FGMU_SERVICES, LEAU_SERVICES } from '@/constants/services';
@@ -3006,6 +3168,8 @@ import {
   isOcularInspectionDelay,
   isOcularNotation,
   hasOcularInspectionCompleted,
+  isTicketUnderInspection,
+  isNewJobRequest,
   canRequestApprovalOrDirectApprove,
 } from '@/utils/requiredMaterials';
 import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
@@ -3070,9 +3234,9 @@ const isPendingOnlyMode = computed(() => !isDirector.value || route.path.startsW
 // Request Type Category Selection: Job Requests ('job') vs Borrowing Requests ('borrowing')
 const selectedCategory = ref('job');
 
-// Process Stages for Job Requests: 'pending' | 'delayed' | 'approved' | 'dispatched' | 'active'
+// Process Stages for Job Requests: 'new' | 'under_inspection' | 'pending' | 'delayed' | 'approved' | 'dispatched' | 'active'
 // Process Stages for Borrowing Requests: 'pending' | 'delayed' | 'approved' | 'assigned' | 'return'
-const activeTab = ref('pending');
+const activeTab = ref(isPendingOnlyMode.value ? 'new' : 'pending');
 
 // Queues data cache
 const queuesData = ref({
@@ -3126,7 +3290,7 @@ watch(
   isPendingOnlyMode,
   (pendingOnly) => {
     if (pendingOnly && ['approved', 'dispatched', 'active', 'assigned', 'return'].includes(activeTab.value)) {
-      activeTab.value = 'pending';
+      activeTab.value = 'new';
     }
   },
   { immediate: true }
@@ -3144,8 +3308,8 @@ const selectCategory = (cat) => {
 
   // Normalize active tab across categories
   if (cat === 'job' && ['assigned', 'return'].includes(activeTab.value)) {
-    activeTab.value = 'pending';
-  } else if (cat === 'borrowing' && ['under_inspection', 'dispatched', 'active'].includes(activeTab.value)) {
+    activeTab.value = 'new';
+  } else if (cat === 'borrowing' && ['new', 'new_requests', 'under_inspection', 'dispatched', 'active'].includes(activeTab.value)) {
     activeTab.value = 'pending';
   }
 };
@@ -3164,30 +3328,45 @@ const switchTab = (tab) => {
 };
 
 // ======================= JOB REQUESTS COUNTS =======================
-const jobUnderInspectionCount = computed(() => {
+// Procedural Step 1: New Requests (newly submitted, awaiting ocular inspection setup)
+const jobNewRequestsCount = computed(() => {
   const list = (queuesData.value.pending || []).filter(
-    t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && !hasOcularInspectionCompleted(t)
+    t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && !hasOcularInspectionCompleted(t) && !isTicketUnderInspection(t)
   );
   return isDirector.value ? list.filter(t => Boolean(t.is_escalated_to_director)).length : list.length;
 });
+
+// Procedural Step 2: Under Inspection (scheduled / currently undergoing on-site assessment)
+const jobUnderInspectionCount = computed(() => {
+  const list = (queuesData.value.pending || []).filter(
+    t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && !hasOcularInspectionCompleted(t) && isTicketUnderInspection(t)
+  );
+  return isDirector.value ? list.filter(t => Boolean(t.is_escalated_to_director)).length : list.length;
+});
+
+// Procedural Step 3: Approval Requests (inspection complete / escalated, awaiting approval)
 const jobPendingCount = computed(() => {
   const list = (queuesData.value.pending || []).filter(
     t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && (hasOcularInspectionCompleted(t) || Boolean(t.is_escalated_to_director))
   );
   return isDirector.value ? list.filter(t => Boolean(t.is_escalated_to_director)).length : list.length;
 });
+
+// Procedural Step 4: Approval Delays (on hold for materials procurement, etc.)
 const jobDelayedCount = computed(() => {
   const list = (queuesData.value.delayed || []).filter(t => !t.is_borrowing && !isBorrowingService(t));
   return isDirector.value ? list.filter(t => Boolean(t.is_escalated_to_director)).length : list.length;
 });
+
 const jobApprovedCount = computed(() => (queuesData.value.approved || []).filter(t => !t.is_borrowing && !isBorrowingService(t)).length);
 const jobDispatchedCount = computed(() => (queuesData.value.dispatched || []).filter(t => !t.is_borrowing && !isBorrowingService(t)).length);
 const jobActiveCount = computed(() => (queuesData.value.active || []).filter(t => !t.is_borrowing && !isBorrowingService(t)).length);
+
 const totalJobRequestsCount = computed(() => {
   if (isPendingOnlyMode.value) {
-    return jobUnderInspectionCount.value + jobPendingCount.value + jobDelayedCount.value;
+    return jobNewRequestsCount.value + jobUnderInspectionCount.value + jobPendingCount.value + jobDelayedCount.value;
   }
-  return jobUnderInspectionCount.value + jobPendingCount.value + jobDelayedCount.value + jobApprovedCount.value + jobDispatchedCount.value + jobActiveCount.value;
+  return jobNewRequestsCount.value + jobUnderInspectionCount.value + jobPendingCount.value + jobDelayedCount.value + jobApprovedCount.value + jobDispatchedCount.value + jobActiveCount.value;
 });
 
 const escalatedPendingCount = computed(() => {
@@ -3419,6 +3598,85 @@ const ticketForNotation = ref(null);
 const showRescheduleModal = ref(false);
 const ticketForReschedule = ref(null);
 
+// Set For Inspection Modal (Procedural Step: New Requests -> Under Inspection)
+const showSetForInspectionModal = ref(false);
+const ticketForInspection = ref(null);
+
+const openSetForInspectionModal = (ticket) => {
+  ticketForInspection.value = ticket;
+  showSetForInspectionModal.value = true;
+};
+
+const openSetForInspectionFromModal = () => {
+  if (selectedTicketForModal.value) {
+    ticketForInspection.value = selectedTicketForModal.value;
+    closeDetailsModal();
+    showSetForInspectionModal.value = true;
+  }
+};
+
+const closeSetForInspectionModal = () => {
+  showSetForInspectionModal.value = false;
+  ticketForInspection.value = null;
+};
+
+const handleInspectionSet = (payload) => {
+  if (payload?.ticketId) {
+    const targetId = String(payload.ticketId);
+    const applyPatch = (t) => ({
+      ...t,
+      is_under_inspection: 1,
+      status_label: 'Under Inspection',
+      current_step: 3,
+      staff_notation: payload.notation || t.staff_notation,
+      notation: payload.notation || t.notation,
+      hasNotation: Boolean(payload.notation || t.hasNotation),
+    });
+    queuesData.value.pending = (queuesData.value.pending || []).map((t) =>
+      String(t.id || t.ticketId) === targetId ? applyPatch(t) : t
+    );
+    if (selectedTicketForModal.value && String(selectedTicketForModal.value.id || selectedTicketForModal.value.ticketId) === targetId) {
+      selectedTicketForModal.value = applyPatch(selectedTicketForModal.value);
+    }
+  }
+  // Automatically switch tab to 'under_inspection' so user sees the newly set ticket
+  activeTab.value = 'under_inspection';
+  fetchAllQueues();
+};
+
+const revertToNewRequests = async (ticket) => {
+  const ticketId = ticket.ticketId || ticket.id;
+  try {
+    try {
+      await unsetTicketForInspection(ticketId);
+    } catch (endpointErr) {
+      console.warn('Dedicated unset-inspection endpoint returned error, falling back:', endpointErr);
+      await api.patch(`tickets/${ticketId}/notation`, {
+        notation: '',
+        staff_notation: '',
+      });
+    }
+    toast.info(`Ticket #${ticketId} reverted to New Requests.`);
+    const applyPatch = (t) => ({
+      ...t,
+      is_under_inspection: 0,
+      status_label: 'Pending Approval',
+      current_step: 2,
+    });
+    queuesData.value.pending = (queuesData.value.pending || []).map((t) =>
+      String(t.id || t.ticketId) === String(ticketId) ? applyPatch(t) : t
+    );
+    if (selectedTicketForModal.value && String(selectedTicketForModal.value.id || selectedTicketForModal.value.ticketId) === String(ticketId)) {
+      selectedTicketForModal.value = applyPatch(selectedTicketForModal.value);
+    }
+    activeTab.value = 'new';
+    fetchAllQueues();
+  } catch (err) {
+    console.error('Failed to revert ticket to new requests:', err);
+    toast.error('Failed to revert ticket to New Requests.');
+  }
+};
+
 // Ocular Inspection Result Modal
 const showOcularInspectionModal = ref(false);
 const ticketForOcularInspection = ref(null);
@@ -3507,6 +3765,8 @@ let durationInterval = null;
 const activeTabLabel = computed(() => {
   if (selectedCategory.value === 'job') {
     switch (activeTab.value) {
+      case 'new':
+      case 'new_requests': return 'New Requests';
       case 'under_inspection': return 'Under Inspection';
       case 'pending': return isDirector.value ? 'Requests for Director Approval' : 'Approval Requests';
       case 'delayed': return 'Approval Delays';
@@ -3529,6 +3789,11 @@ const activeTabLabel = computed(() => {
 
 const emptyTabMessage = computed(() => {
   if (selectedCategory.value === 'job') {
+    if (activeTab.value === 'new' || activeTab.value === 'new_requests') {
+      return isDirector.value
+        ? 'No new job requests escalated for Director inspection review.'
+        : 'No new job requests awaiting inspection setup.';
+    }
     if (activeTab.value === 'under_inspection') {
       return 'No job tickets currently undergoing ocular inspection.';
     }
@@ -3555,9 +3820,18 @@ const currentTabTickets = computed(() => {
   if (selectedCategory.value === 'job') {
     let list = [];
     switch (activeTab.value) {
+      case 'new':
+      case 'new_requests':
+        list = (queuesData.value.pending || []).filter(
+          t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && !hasOcularInspectionCompleted(t) && !isTicketUnderInspection(t)
+        );
+        if (isDirector.value) {
+          list = list.filter(t => Boolean(t.is_escalated_to_director));
+        }
+        break;
       case 'under_inspection':
         list = (queuesData.value.pending || []).filter(
-          t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && !hasOcularInspectionCompleted(t)
+          t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && !hasOcularInspectionCompleted(t) && isTicketUnderInspection(t)
         );
         if (isDirector.value) {
           list = list.filter(t => Boolean(t.is_escalated_to_director));
@@ -3979,7 +4253,13 @@ const checkRouteQueryTicket = () => {
     } else {
       selectedCategory.value = 'job';
       if (queuesData.value.pending?.some(t => String(t.id) === String(match.id))) {
-        activeTab.value = hasOcularInspectionCompleted(match) ? 'pending' : 'under_inspection';
+        if (hasOcularInspectionCompleted(match)) {
+          activeTab.value = 'pending';
+        } else if (isTicketUnderInspection(match)) {
+          activeTab.value = 'under_inspection';
+        } else {
+          activeTab.value = 'new';
+        }
       } else if (queuesData.value.delayed?.some(t => String(t.id) === String(match.id))) {
         activeTab.value = 'delayed';
       } else if (queuesData.value.active?.some(t => String(t.id) === String(match.id))) {
@@ -4010,7 +4290,7 @@ const checkRouteQueryTicket = () => {
               queuesData.value.pending.unshift(mapped);
               queueCounts.value.pending = queuesData.value.pending.length;
             }
-            activeTab.value = hasOcularInspectionCompleted(mapped) ? 'pending' : 'under_inspection';
+            activeTab.value = hasOcularInspectionCompleted(mapped) ? 'pending' : (isTicketUnderInspection(mapped) ? 'under_inspection' : 'new');
             selectedCategory.value = (mapped.is_borrowing || isBorrowingService(mapped)) ? 'borrowing' : 'job';
           }
           clearRouteQueryTicket();
@@ -4392,7 +4672,7 @@ const handleRescheduleSaved = () => {
 
 const handleFocusOrVisibility = () => {
   if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value || showNotationModal.value || showOcularInspectionModal.value || showOcularMaterialsModal.value || showRescheduleModal.value);
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value || showNotationModal.value || showOcularInspectionModal.value || showOcularMaterialsModal.value || showRescheduleModal.value || showSetForInspectionModal.value);
     if (!isInteracting) {
       fetchAllQueues();
     }
@@ -4403,7 +4683,7 @@ onMounted(() => {
   fetchAllQueues();
   pollingInterval = setInterval(() => {
     if (document.hidden) return;
-    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value || showNotationModal.value || showOcularInspectionModal.value || showOcularMaterialsModal.value || showRescheduleModal.value);
+    const isInteracting = !!(showConfirmModal.value || ticketToDecline.value || ticketToDelay.value || selectedTicketForModal.value || showExtensionModal.value || showEscalateModal.value || showDeescalateModal.value || showNotationModal.value || showOcularInspectionModal.value || showOcularMaterialsModal.value || showRescheduleModal.value || showSetForInspectionModal.value);
     if (!isInteracting) {
       fetchAllQueues();
     }

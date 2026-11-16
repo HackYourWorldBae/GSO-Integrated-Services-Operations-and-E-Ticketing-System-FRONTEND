@@ -33,6 +33,8 @@ import {
   deescalateTicketFromDirector,
   saveRequiredMaterials,
   confirmRequestorMaterials,
+  setTicketForInspection,
+  unsetTicketForInspection,
 } from '../tickets'
 
 // Level 3 — Component tests: every ticket action the UI performs must reach
@@ -169,6 +171,19 @@ describe('tickets api module', () => {
     apiClient.patch.mockResolvedValueOnce({ data: { status: true } })
     await confirmRequestorMaterials('FGMU-TIC-77-2026', payload)
     expect(apiClient.patch).toHaveBeenCalledWith('/tickets/FGMU-TIC-77-2026/confirm-materials', payload)
+  })
+
+  it('sets a job request for ocular inspection via PATCH set-inspection', async () => {
+    const payload = { inspector: 'Juan Dela Cruz', scheduled_date: '2026-11-20', notes: 'Assess roof leak' }
+    apiClient.patch.mockResolvedValueOnce({ data: { status: true, message: 'Ticket set for ocular inspection' } })
+    await setTicketForInspection('FGMU-TIC-88-2026', payload)
+    expect(apiClient.patch).toHaveBeenCalledWith('/tickets/FGMU-TIC-88-2026/set-inspection', payload)
+  })
+
+  it('unsets a job request from ocular inspection via PATCH unset-inspection', async () => {
+    apiClient.patch.mockResolvedValueOnce({ data: { status: true, message: 'Ticket reverted from inspection' } })
+    await unsetTicketForInspection('FGMU-TIC-88-2026')
+    expect(apiClient.patch).toHaveBeenCalledWith('/tickets/FGMU-TIC-88-2026/unset-inspection')
   })
 
   it('returns the backend envelope untouched (no unwrapping loss)', async () => {

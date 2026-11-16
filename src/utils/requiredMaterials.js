@@ -40,6 +40,45 @@ export function hasOcularInspectionCompleted(ticket) {
 }
 
 /**
+ * Check if a ticket has been set for ocular inspection (in progress of site assessment).
+ * Returns false if ocular inspection has already completed (since that advances ticket to approval phase).
+ */
+export function isTicketUnderInspection(ticket) {
+  if (!ticket) return false;
+  if (hasOcularInspectionCompleted(ticket)) return false;
+  if (Boolean(Number(ticket.is_under_inspection) === 1 || ticket.is_under_inspection === true)) return true;
+  const statusLabel = String(ticket.status_label || '').toLowerCase();
+  if (statusLabel === 'under inspection') return true;
+  const notation = String(ticket.staff_notation || ticket.notation || '').toLowerCase();
+  if (
+    notation.includes('[set for ocular inspection') ||
+    notation.includes('ocular inspection scheduled') ||
+    notation.includes('[ocular inspection scheduled') ||
+    notation.includes('[under ocular inspection') ||
+    notation.includes('set for inspection') ||
+    notation.includes('inspection scheduled') ||
+    notation.includes('inspection_scheduled')
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Check if a job request is a new arrival waiting to be set for inspection.
+ */
+export function isNewJobRequest(ticket) {
+  if (!ticket) return false;
+  if (ticket.is_borrowing) return false;
+  const s = String(ticket.service || ticket.service_type || '').toLowerCase();
+  if (s.includes('borrowing') || s.includes('borrow')) return false;
+  if (ticket.is_approval_delayed) return false;
+  if (hasOcularInspectionCompleted(ticket)) return false;
+  if (isTicketUnderInspection(ticket)) return false;
+  return true;
+}
+
+/**
  * Check if a ticket is allowed to proceed to approval (or Director escalation).
  * For borrowing tickets, ocular inspection is not part of the process, so it returns true.
  * For job requests, either inspection result or materials needed is required.

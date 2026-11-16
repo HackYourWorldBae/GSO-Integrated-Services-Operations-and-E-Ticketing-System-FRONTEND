@@ -144,5 +144,24 @@ export const saveRequiredMaterials = (ticketId, payload) =>
 export const confirmRequestorMaterials = (ticketId, payload) =>
   apiClient.patch(`/tickets/${ticketId}/confirm-materials`, payload);
 
+// --- Ocular Inspection Scheduling & Triage Workflow ---
+
+/**
+ * Set a job request for ocular inspection.
+ * Procedural step moving ticket from "New Requests" to "Under Inspection".
+ * @param {string} ticketId
+ * @param {{ inspector?: string, scheduled_date?: string, notes?: string }} payload
+ */
+export const setTicketForInspection = (ticketId, payload = {}) =>
+  apiClient.patch(`/tickets/${ticketId}/set-inspection`, payload);
+
+/**
+ * Reverts a job request from "Under Inspection" back to "New Requests".
+ * @param {string} ticketId
+ */
+export const unsetTicketForInspection = (ticketId) =>
+  apiClient.patch(`/tickets/${ticketId}/unset-inspection`);
+
+
 
 

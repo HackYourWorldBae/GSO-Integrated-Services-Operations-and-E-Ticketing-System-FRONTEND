@@ -379,14 +379,20 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
     ],
     tabs: [
       {
+        name: 'Job Requests: New Requests',
+        badge: 'Initial Intake',
+        desc: 'Active queue of newly filed job requests awaiting review and scheduling for technical ocular inspection.',
+        criteria: 'Job requests enter here immediately upon digital submission until assigned or scheduled for inspection.'
+      },
+      {
         name: 'Job Requests: Under Inspection',
         badge: 'Ocular Assessment',
-        desc: 'Active queue of newly filed job requests undergoing mandatory on-site ocular assessment of scope and required materials.',
-        criteria: 'Job requests enter here immediately upon digital submission until ocular inspection findings or materials list is logged.'
+        desc: 'Active queue of job requests undergoing mandatory on-site ocular assessment of scope and required materials.',
+        criteria: 'Moves here once set for inspection until inspection findings or materials list is logged.'
       },
       {
         name: 'Job Requests: Approval Requests',
-        badge: 'Default Queue',
+        badge: 'Approval Queue',
         desc: 'Job requests with logged ocular inspection findings or required materials ready for administrative assessment.',
         criteria: 'Moves here after inspection result or materials list is logged.'
       },
@@ -410,6 +416,13 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
       }
     ],
     buttons: [
+      {
+        label: 'Set for Inspection',
+        type: 'primary',
+        desc: 'Schedules an on-site ocular inspection for a new job request, assigning an inspector and target date.',
+        fields: 'Assigned Inspector, Target Date, and Inspection Scope / Instructions.',
+        result: 'Transitions ticket from New Requests to Under Inspection.'
+      },
       {
         label: 'Approve / Approve Request',
         type: 'success',
@@ -453,6 +466,16 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
     ],
     procedures: [
       {
+        title: 'How to Set a New Request for Inspection',
+        steps: [
+          'Locate the newly submitted request in the "New Requests" tab.',
+          'Click "Set for Inspection" on the ticket row or inside Full Info.',
+          'Optionally assign a technical inspector and pick the target inspection date.',
+          'Provide specific inspection scope or instructions for the team.',
+          'Click "Confirm & Set Inspection". The ticket transitions to "Under Inspection".'
+        ]
+      },
+      {
         title: 'How to Approve a Ticket for Dispatch (or Request Director Approval)',
         steps: [
           'Locate the ticket in the Pending Approval queue and click "View Details" to inspect the scope of work.',
@@ -492,14 +515,16 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
       }
     ],
     tourSteps: [
-      { element: '[data-tour="director-type-job"], [data-tour="director-tab-pending"], [data-tour="admin-page-header"]', title: '1. Pending Approvals Queue', desc: `Review newly submitted ${U} service tickets awaiting administrative verification.` },
+      { element: '[data-tour="director-type-job"], [data-tour="director-tab-new-request"], [data-tour="admin-page-header"]', title: '1. Pending Approvals Queue', desc: `Review newly submitted ${U} service tickets awaiting administrative verification.` },
       { element: '[data-tour="director-type-job"]', title: '2. Job Requests Switcher', desc: 'Select Job Requests to review and process facilities repairs and routine service tasks.' },
       { element: '[data-tour="director-type-borrowing"]', title: '3. Borrowing Requests Switcher', desc: isLeau ? 'Select Borrowing Requests to review and process nursery plant borrowing.' : 'Select Borrowing Requests to review and process tools and equipment borrowing.' },
-      { element: '[data-tour="director-tab-pending"]', title: '4. Approval Requests Tab', desc: 'View newly submitted requests awaiting administrative review and verification.' },
-      { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets on hold for material procurement until explicitly approved or declined.' },
-      { element: '[data-tour="director-search-input"]', title: '6. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
-      { element: '[data-tour="director-btn-fullinfo"], [data-tour="director-tab-pending"]', title: '7. Full Scope & Photos Inspection', desc: 'Click "View Details" / "Full Info" to inspect problem particulars, client contacts, and uploaded photos before deciding.' },
-      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"], [data-tour="director-btn-decline"], [data-tour="director-tab-pending"]', title: '8. Decision Controls', desc: 'Approve to proceed to dispatch, Delay with justification, or Decline invalid requests.' }
+      { element: '[data-tour="director-tab-new-request"]', title: '4. New Requests Tab', desc: 'Newly submitted job requests appear here first to be reviewed and scheduled for on-site ocular inspection.' },
+      { element: '[data-tour="director-tab-under-inspection"]', title: '5. Under Inspection Tab', desc: 'View tickets actively undergoing technical inspection where staff evaluate work scope and required materials.' },
+      { element: '[data-tour="director-tab-pending"]', title: '6. Approval Requests Tab', desc: 'Review requests with recorded ocular inspection findings ready for administrative approval.' },
+      { element: '[data-tour="director-tab-delayed"]', title: '7. Approval Delays Tab', desc: 'View tickets on hold for material procurement until explicitly approved or declined.' },
+      { element: '[data-tour="director-search-input"]', title: '8. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
+      { element: '[data-tour="director-btn-fullinfo"], [data-tour="director-tab-new-request"]', title: '9. Full Scope & Photos Inspection', desc: 'Click "View Details" / "Full Info" to inspect problem particulars, client contacts, and uploaded photos before deciding.' },
+      { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"], [data-tour="director-btn-decline"], [data-tour="director-tab-new-request"]', title: '10. Decision & Inspection Controls', desc: 'Set for inspection, approve to proceed to dispatch, delay with justification, or decline invalid requests.' }
     ]
   };
 };

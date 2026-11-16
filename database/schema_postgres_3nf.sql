@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS tickets (
     status VARCHAR(30) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'processing', 'resolved', 'closed', 'declined', 'cancelled')),
     status_label VARCHAR(100) NOT NULL DEFAULT 'Pending Approval',
     is_emergency BOOLEAN NOT NULL DEFAULT FALSE,
+    is_under_inspection BOOLEAN NOT NULL DEFAULT FALSE,
     is_approval_delayed BOOLEAN NOT NULL DEFAULT FALSE,
     approval_delay_reason TEXT NULL,
     approval_delayed_at TIMESTAMP WITH TIME ZONE NULL,
@@ -167,6 +168,7 @@ CREATE TABLE IF NOT EXISTS tickets (
 CREATE INDEX IF NOT EXISTS idx_tickets_user_id ON tickets(user_id);
 CREATE INDEX IF NOT EXISTS idx_tickets_unit_status ON tickets(unit_id, status);
 CREATE INDEX IF NOT EXISTS idx_tickets_is_archived ON tickets(is_archived);
+CREATE INDEX IF NOT EXISTS idx_tickets_is_under_inspection ON tickets(is_under_inspection);
 CREATE INDEX IF NOT EXISTS idx_tickets_submitted_at ON tickets(submitted_at);
 CREATE INDEX IF NOT EXISTS idx_tickets_approval_delayed ON tickets(is_approval_delayed);
 CREATE INDEX IF NOT EXISTS idx_tickets_escalated ON tickets(is_escalated_to_director);

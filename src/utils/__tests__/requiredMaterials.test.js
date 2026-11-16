@@ -10,6 +10,8 @@ import {
   formatRequiredInventoryStatus,
   isOcularNotation,
   hasOcularInspectionCompleted,
+  isTicketUnderInspection,
+  isNewJobRequest,
   canRequestApprovalOrDirectApprove,
 } from '@/utils/requiredMaterials';
 
@@ -121,6 +123,73 @@ describe('requiredMaterials ocular assessment & requestor confirmation helpers',
       staff_notation: '',
     };
     expect(canRequestApprovalOrDirectApprove(borrowingTicket)).toBe(true);
+  });
+
+  it('determines whether a ticket is under inspection accurately', () => {
+    expect(isTicketUnderInspection(null)).toBe(false);
+
+    // If ocular inspection is already completed, it is not "under inspection"
+    expect(isTicketUnderInspection({
+      staff_notation: '[OCULAR INSPECTION RESULT - Nov 16, 2026] Done',
+      is_under_inspection: 1,
+    })).toBe(false);
+
+    // Via is_under_inspection flag
+    expect(isTicketUnderInspection({
+      is_under_inspection: 1,
+    })).toBe(true);
+
+    expect(isTicketUnderInspection({
+      is_under_inspection: true,
+    })).toBe(true);
+
+    // Via status_label
+    expect(isTicketUnderInspection({
+      status_label: 'Under Inspection',
+    })).toBe(true);
+
+    // Via staff_notation marker
+    expect(isTicketUnderInspection({
+      staff_notation: '[INSPECTION_SCHEDULED: 2026-11-20] Inspector: John Doe',
+    })).toBe(true);
+
+    // Brand new ticket without inspection set
+    expect(isTicketUnderInspection({
+      status: 'pending',
+      status_label: 'Pending Approval',
+    })).toBe(false);
+  });
+
+  it('identifies new job requests distinct from under inspection and completed requests', () => {
+    expect(isNewJobRequest(null)).toBe(false);
+
+    // Borrowing requests are never job requests
+    expect(isNewJobRequest({
+      is_borrowing: true,
+      status: 'pending',
+    })).toBe(false);
+
+    // Brand new job request
+    expect(isNewJobRequest({
+      service: 'Carpentry Works',
+      is_borrowing: false,
+      status: 'pending',
+      status_label: 'Pending Approval',
+    })).toBe(true);
+
+    // Ticket that has been set for inspection
+    expect(isNewJobRequest({
+      service: 'Carpentry Works',
+      is_borrowing: false,
+      is_under_inspection: 1,
+    })).toBe(false);
+
+    // Ticket that has completed inspection
+    expect(isNewJobRequest({
+      service: 'Carpentry Works',
+      is_borrowing: false,
+      staff_notation: '[OCULAR INSPECTION RESULT] Checked',
+    })).toBe(false);
   });
 });
 
