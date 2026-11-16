@@ -740,7 +740,7 @@
                   <div class="space-y-1.5 max-w-[200px]">
                     <div class="flex items-center justify-between gap-2">
                       <span class="font-black text-slate-900 text-xs tabular-nums">
-                        {{ getMaterialAvailableQty(item) }} / {{ getMaterialTotalQty(item) }} {{ item.unit || 'units' }}
+                        {{ getMaterialAvailableQty(item) }} / {{ getMaterialTotalQty(item) }}
                       </span>
                       <span
                         :class="[
@@ -857,7 +857,7 @@
               <div class="flex items-center justify-between text-xs">
                 <span class="font-bold text-slate-500 text-[11px]">Available Stock</span>
                 <span class="font-black text-slate-900 tabular-nums">
-                  {{ getMaterialAvailableQty(item) }} / {{ getMaterialTotalQty(item) }} {{ item.unit || 'units' }}
+                  {{ getMaterialAvailableQty(item) }} / {{ getMaterialTotalQty(item) }}
                 </span>
               </div>
               <div class="w-full bg-slate-200/70 rounded-full h-1.5 overflow-hidden">
