@@ -945,7 +945,7 @@ onMounted(async () => {
             cancellationReason: (t.status === 'cancelled' || String(t.status_label || '').toLowerCase().includes('cancel')) ? (t.cancellation_reason || t.decline_reason || '') : '',
             currentStep: isBorrowingService(t)
               ? 7
-              : Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 6),
+              : Math.max(parseInt(t.current_step) || 0, (t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3) ? 5 : 7),
             borrowing: t.borrowing || null,
             assignedWorker: t.assignment?.personnel_name || t.assigned_worker || 'Unassigned',
             assignedProfession: t.assignment?.specialty || t.assignment?.profession || (t.assignments?.[0]?.specialty) || null,
@@ -1106,6 +1106,7 @@ const unitSteps = {
   FGMU: [
     { label: 'Digital Submission',  description: 'The client completes the required fields in the digital form.' },
     { label: 'Ticket Creation',     description: 'System generated a Digital Ticket.' },
+    { label: 'Ocular Inspection',   description: 'On-site ocular assessment of scope and materials needed.' },
     { label: 'Admin Approval',      description: 'Approved by the administration unit.' },
     { label: 'Dispatch & Schedule', description: 'Dispatcher assigned personnel and scheduled implementation.' },
     { label: 'Job Started',         description: 'Personnel have started the job.' },
@@ -1114,6 +1115,7 @@ const unitSteps = {
   LEAU: [
     { label: 'Digital Submission',  description: 'The client completes the required fields in the digital form.' },
     { label: 'Ticket Creation',     description: 'System generated a Digital Ticket and assigned "Pending Approval" status.' },
+    { label: 'Ocular Inspection',   description: 'On-site ocular assessment of scope and materials needed.' },
     { label: 'Admin Approval',      description: 'Approved by the administration unit.' },
     { label: 'Dispatch & Schedule', description: 'Dispatcher assigned personnel and scheduled implementation.' },
     { label: 'Job Started',         description: 'Personnel have started the job.' },
@@ -1164,11 +1166,12 @@ const getSteps = (ticket) => {
 
   steps = steps.map(s => ({ ...s }));
 
-  if (ticket.implementationDate && (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') && steps.length > 3) {
+  const dispatchIndex = steps.length >= 7 ? 4 : 3;
+  if (ticket.implementationDate && (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') && steps.length > dispatchIndex) {
     const durationText = ticket.workingDays ? ` (${ticket.workingDays} working days expected)` : '';
     const extText = ticket.extension_days > 0 ? ` [Extended by +${ticket.extension_days} working day(s) to ${formatDate(ticket.effective_target_date || ticket.target_completion_date)}]` : '';
     const workerText = ticket.assignedWorker && ticket.assignedWorker !== 'Unassigned' ? ` Assigned Personnel: ${ticket.assignedWorker}${ticket.assignedProfession ? ` (${ticket.assignedProfession})` : ''}.` : '';
-    steps[3].description = `Dispatcher assigned personnel and scheduled implementation for ${ticket.implementationDate}${durationText}.${extText}${workerText}`;
+    steps[dispatchIndex].description = `Dispatcher assigned personnel and scheduled implementation for ${ticket.implementationDate}${durationText}.${extText}${workerText}`;
   }
 
   if (ticket.status === 'cancelled' || String(ticket.status || '').toLowerCase().includes('cancel') || String(ticket.statusLabel || '').toLowerCase().includes('cancel')) {

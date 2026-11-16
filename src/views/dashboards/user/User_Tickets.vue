@@ -1257,6 +1257,7 @@ import {
   getBorrowingStepDescription,
   getBorrowingStatusLabel,
 } from '@/utils/borrowing';
+import { hasOcularInspectionCompleted } from '@/utils/requiredMaterials';
 
 const router = useRouter();
 
@@ -1670,16 +1671,30 @@ const mapTicketData = (t) => {
       }
       const rawStep = parseInt(t.current_step, 10);
       const isClosedOrResolved = ['closed', 'completed', 'resolved'].includes(t.status);
+      const isSsu = t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3;
       if (isClosedOrResolved) {
-        const isSsu = t.unit === 'SSU' || t.unit_code === 'SSU' || t.unit_id === 3;
-        return Math.max(rawStep || 0, isSsu ? (['closed', 'completed'].includes(t.status) ? 5 : 4) : 6);
+        return Math.max(rawStep || 0, isSsu ? (['closed', 'completed'].includes(t.status) ? 5 : 4) : 7);
       }
-      if (!rawStep || isNaN(rawStep)) {
-        if (t.status === 'approved') return 3;
-        if (t.status === 'processing') return 4;
-        return 2;
+      if (isSsu) {
+        if (!rawStep || isNaN(rawStep)) {
+          if (t.status === 'approved') return 3;
+          if (t.status === 'processing') return 4;
+          return 2;
+        }
+        return Math.min(rawStep, 5);
       }
-      return Math.min(rawStep, 5);
+      // FGMU & LEAU Job Requests (7 Steps: Digital Submission, Ticket Creation, Ocular Inspection, Admin Approval, Dispatch & Schedule, Job Started, Job Finished)
+      if (t.status === 'processing') {
+        const hasStarted = rawStep >= 5 || t.status === 'in_progress' || Boolean(t.assignment?.started_at || t.project_actual_start);
+        return hasStarted ? 6 : 5;
+      }
+      if (t.status === 'approved') {
+        return 5;
+      }
+      if (hasOcularInspectionCompleted(t)) {
+        return 4;
+      }
+      return 3;
     })(),
     borrowing: t.borrowing || null,
     assignment: t.assignment || null,
@@ -2255,6 +2270,7 @@ const unitSteps = {
   FGMU: [
     { label: 'Digital Submission',  description: 'The client completes the required fields in the digital form.' },
     { label: 'Ticket Creation',     description: 'System generated a Digital Ticket.' },
+    { label: 'Ocular Inspection',   description: 'On-site ocular assessment of scope and materials needed.' },
     { label: 'Admin Approval',      description: 'Approved by the administration unit.' },
     { label: 'Dispatch & Schedule', description: 'Dispatcher assigned personnel and scheduled implementation.' },
     { label: 'Job Started',         description: 'Personnel have started the job.' },
@@ -2263,6 +2279,7 @@ const unitSteps = {
   LEAU: [
     { label: 'Digital Submission',  description: 'The client completes the required fields in the digital form.' },
     { label: 'Ticket Creation',     description: 'System generated a Digital Ticket and assigned "Pending Approval" status.' },
+    { label: 'Ocular Inspection',   description: 'On-site ocular assessment of scope and materials needed.' },
     { label: 'Admin Approval',      description: 'Approved by the administration unit.' },
     { label: 'Dispatch & Schedule', description: 'Dispatcher assigned personnel and scheduled implementation.' },
     { label: 'Job Started',         description: 'Personnel have started the job.' },
@@ -2307,11 +2324,12 @@ const getSteps = (ticket) => {
 
   steps = steps.map(s => ({ ...s }));
 
-  if (ticket.implementationDate && (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') && steps.length > 3) {
+  const dispatchIndex = steps.length >= 7 ? 4 : 3;
+  if (ticket.implementationDate && (ticket.unit === 'FGMU' || ticket.unit === 'LEAU') && steps.length > dispatchIndex) {
     const durationText = ticket.workingDays ? ` (${ticket.workingDays} working days expected)` : '';
     const extText = ticket.extension_days > 0 ? ` [Extended by +${ticket.extension_days} working day(s) to ${formatDate(ticket.effective_target_date || ticket.target_completion_date)}]` : '';
     const workerText = ticket.assignedWorker ? ` Assigned Personnel: ${ticket.assignedWorker}${ticket.assignedProfession ? ` (${ticket.assignedProfession})` : ''}.` : '';
-    steps[3].description = `Dispatcher assigned personnel and scheduled implementation for ${ticket.implementationDate}${durationText}.${extText}${workerText}`;
+    steps[dispatchIndex].description = `Dispatcher assigned personnel and scheduled implementation for ${ticket.implementationDate}${durationText}.${extText}${workerText}`;
   }
 
   if (ticket.status === 'cancelled' || String(ticket.statusLabel || '').toLowerCase().includes('cancel')) {
@@ -2342,15 +2360,23 @@ const getStepDescription = (ticket, step, index) => {
     return getBorrowingStepDescription(ticket, step, index, formatDate);
   }
 
-  if (
-    (ticket?.unit === 'FGMU' || ticket?.unit === 'LEAU') &&
-    index === 2 &&
-    ticket.is_approval_delayed
-  ) {
-    if (isOcularNotation(ticket.notation)) {
-      return 'Approval deferred for ocular assessment: Inspection findings have been communicated. Waiting for final administrative review.';
+  if (ticket?.unit === 'FGMU' || ticket?.unit === 'LEAU') {
+    if (index === 2) {
+      if (hasOcularInspectionCompleted(ticket)) {
+        if (ticket.notation) {
+          return `Ocular inspection conducted: "${ticket.notation}"`;
+        }
+        if (Array.isArray(ticket.required_materials) && ticket.required_materials.length > 0) {
+          return `Ocular inspection conducted: ${ticket.required_materials.length} required material(s) listed for this job.`;
+        }
+        return 'Ocular inspection completed and findings recorded.';
+      }
+      return 'Technical personnel will visit the site to assess scope of work and required materials.';
     }
-    return `Approval temporarily deferred: ${ticket.approval_delay_reason || 'Pending Materials / Inspection'}.`;
+
+    if (index === 3 && ticket.is_approval_delayed) {
+      return `Approval temporarily deferred: ${ticket.approval_delay_reason || 'Pending Materials'}.`;
+    }
   }
 
   if (
@@ -2456,13 +2482,13 @@ const resetForm = () => {
 const isFeedbackEligible = (ticket) => {
   if (!ticket || ticket.isClosed || ticket.status === 'closed' || ticket.status === 'completed') return false;
   if (isBorrowingService(ticket)) return false;
-  // Ratings supported for FGMU and LEAU at completed step 6 or resolved status
+  // Ratings supported for FGMU and LEAU at completed step 7 or resolved status
   const unit = String(ticket.unit || ticket.unit_code || '').toUpperCase();
   const unitId = Number(ticket.unit_id);
   const isTargetUnit = unit === 'FGMU' || unit === 'LEAU' || unitId === 1 || unitId === 2;
   if (isTargetUnit) {
     const step = Number(ticket.currentStep ?? ticket.current_step);
-    return step >= 6 || ticket.status === 'resolved';
+    return step >= 7 || ticket.status === 'resolved' || (ticket.status !== 'pending' && step >= 6);
   }
   return false;
 };

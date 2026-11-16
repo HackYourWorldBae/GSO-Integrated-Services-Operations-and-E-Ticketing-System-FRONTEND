@@ -8,6 +8,9 @@ import {
   buildRequiredMaterialsSignature,
   areAllMaterialsChecked,
   formatRequiredInventoryStatus,
+  isOcularNotation,
+  hasOcularInspectionCompleted,
+  canRequestApprovalOrDirectApprove,
 } from '@/utils/requiredMaterials';
 
 describe('requiredMaterials ocular assessment & requestor confirmation helpers', () => {
@@ -64,6 +67,60 @@ describe('requiredMaterials ocular assessment & requestor confirmation helpers',
     expect(formatRequiredInventoryStatus({ inventory_status: 'empty' })).toBe('Out of Stock in GSO');
     expect(formatRequiredInventoryStatus({ inventory_status: 'short', gso_available_qty: 2 })).toBe('Short in GSO (2 avail.)');
     expect(formatRequiredInventoryStatus({ inventory_status: 'not_in_catalog' })).toBe('Not in GSO Inventory');
+  });
+
+  it('detects ocular inspection notation strings accurately', () => {
+    expect(isOcularNotation(null)).toBe(false);
+    expect(isOcularNotation('')).toBe(false);
+    expect(isOcularNotation('Routine maintenance update')).toBe(false);
+    expect(isOcularNotation('[OCULAR INSPECTION RESULT - Nov 16, 2026]')).toBe(true);
+    expect(isOcularNotation('Site ocular inspection complete. Findings: Feasible.')).toBe(true);
+  });
+
+  it('evaluates whether ocular inspection requirement is satisfied for a ticket', () => {
+    // Ticket with neither notation nor materials
+    expect(hasOcularInspectionCompleted(null)).toBe(false);
+    expect(hasOcularInspectionCompleted({ staff_notation: null, required_materials: [] })).toBe(false);
+
+    // Ticket with ocular inspection result notation
+    expect(hasOcularInspectionCompleted({
+      staff_notation: '[OCULAR INSPECTION RESULT - Nov 16, 2026]\nOutcome: Ready for Approval',
+    })).toBe(true);
+
+    // Ticket with required materials listed
+    expect(hasOcularInspectionCompleted({
+      required_materials: [{ id: 1, material_name: 'Bulb' }],
+    })).toBe(true);
+
+    // Ticket with required_materials_status set
+    expect(hasOcularInspectionCompleted({
+      required_materials_status: 'awaiting_requestor',
+    })).toBe(true);
+  });
+
+  it('enforces inspection requirement before approval or escalation on job requests but exempts borrowing', () => {
+    const jobTicketWithoutInspection = {
+      service: 'Carpentry Works',
+      is_borrowing: false,
+      required_materials: [],
+      staff_notation: '',
+    };
+    expect(canRequestApprovalOrDirectApprove(jobTicketWithoutInspection)).toBe(false);
+
+    const jobTicketWithInspection = {
+      service: 'Carpentry Works',
+      is_borrowing: false,
+      staff_notation: '[OCULAR INSPECTION RESULT] Scope verified.',
+    };
+    expect(canRequestApprovalOrDirectApprove(jobTicketWithInspection)).toBe(true);
+
+    const borrowingTicket = {
+      service: 'Borrowing of tools/ equipment',
+      is_borrowing: true,
+      required_materials: [],
+      staff_notation: '',
+    };
+    expect(canRequestApprovalOrDirectApprove(borrowingTicket)).toBe(true);
   });
 });
 

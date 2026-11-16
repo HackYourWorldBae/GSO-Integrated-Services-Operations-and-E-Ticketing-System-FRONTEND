@@ -17,6 +17,42 @@ export function isOcularInspectionDelay(ticket) {
 }
 
 /**
+ * Check if a text notation represents an ocular inspection result.
+ */
+export function isOcularNotation(text) {
+  if (!text) return false;
+  const lower = String(text).toLowerCase();
+  return lower.includes('ocular inspection') || lower.includes('[ocular inspection') || lower.includes('ocular assessment');
+}
+
+/**
+ * Check if ocular inspection requirement has been completed for a ticket.
+ * An inspection is complete if an inspection result has been posted OR
+ * required materials have been listed.
+ */
+export function hasOcularInspectionCompleted(ticket) {
+  if (!ticket) return false;
+  const notation = ticket.staff_notation || ticket.notation || '';
+  if (isOcularNotation(notation)) return true;
+  if (Array.isArray(ticket.required_materials) && ticket.required_materials.length > 0) return true;
+  if (ticket.required_materials_status && ticket.required_materials_status !== 'none') return true;
+  return false;
+}
+
+/**
+ * Check if a ticket is allowed to proceed to approval (or Director escalation).
+ * For borrowing tickets, ocular inspection is not part of the process, so it returns true.
+ * For job requests, either inspection result or materials needed is required.
+ */
+export function canRequestApprovalOrDirectApprove(ticket) {
+  if (!ticket) return false;
+  if (ticket.is_borrowing) return true;
+  const s = String(ticket.service || ticket.service_type || '').toLowerCase();
+  if (s.includes('borrowing') || s.includes('borrow')) return true;
+  return hasOcularInspectionCompleted(ticket);
+}
+
+/**
  * Determine whether a GSO catalog material item has empty or low stock.
  */
 export function isCatalogMaterialShortOrEmpty(item, threshold = SHORT_STOCK_THRESHOLD) {

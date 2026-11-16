@@ -379,15 +379,21 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
     ],
     tabs: [
       {
+        name: 'Job Requests: Under Inspection',
+        badge: 'Ocular Assessment',
+        desc: 'Active queue of newly filed job requests undergoing mandatory on-site ocular assessment of scope and required materials.',
+        criteria: 'Job requests enter here immediately upon digital submission until ocular inspection findings or materials list is logged.'
+      },
+      {
         name: 'Job Requests: Approval Requests',
         badge: 'Default Queue',
-        desc: 'Active queue of newly filed job tickets waiting for initial administrative assessment.',
-        criteria: 'Job requests filed by requesters enter here immediately upon digital submission.'
+        desc: 'Job requests with logged ocular inspection findings or required materials ready for administrative assessment.',
+        criteria: 'Moves here after inspection result or materials list is logged.'
       },
       {
         name: 'Job Requests: Approval Delays',
         badge: 'On Hold',
-        desc: 'Tickets temporarily held for material procurement or ocular inspection.',
+        desc: 'Tickets temporarily held for material procurement or custom reason.',
         criteria: 'Remains in this tab until explicitly approved or declined. If escalated to Director, carries a Director Review tag.'
       },
       {
@@ -414,7 +420,7 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
         label: 'Delay',
         type: 'warning',
         desc: 'Opens the Delay Ticket Approval modal when work cannot proceed immediately.',
-        fields: 'Reason for Delay: Awaiting Procurement of Materials, Pending Ocular Assessment / Inspection, or Other / Custom Reason + Optional Notes.',
+        fields: 'Reason for Delay: Awaiting Procurement of Materials or Other / Custom Reason + Optional Notes.',
         result: 'Moves ticket to the Approval Delayed tab and logs pre-work delay factors in root cause analytics.'
       },
       {
@@ -458,10 +464,10 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
         ]
       },
       {
-        title: 'How to Delay a Ticket for Inspection or Materials',
+        title: 'How to Delay a Ticket for Materials',
         steps: [
           'Click "Delay" on the ticket row or inside Full Info.',
-          'Select the standardized Reason for Delay from the dropdown (e.g., Awaiting Procurement or Ocular Inspection).',
+          'Select the standardized Reason for Delay from the dropdown (e.g., Awaiting Procurement of Materials).',
           'Add descriptive notes for administrative tracking.',
           'Click "Confirm Delay". The ticket moves to the Approval Delayed tab.'
         ]
@@ -490,7 +496,7 @@ export const createUnitAdminQueuesGuide = (unitCode = 'fgmu') => {
       { element: '[data-tour="director-type-job"]', title: '2. Job Requests Switcher', desc: 'Select Job Requests to review and process facilities repairs and routine service tasks.' },
       { element: '[data-tour="director-type-borrowing"]', title: '3. Borrowing Requests Switcher', desc: isLeau ? 'Select Borrowing Requests to review and process nursery plant borrowing.' : 'Select Borrowing Requests to review and process tools and equipment borrowing.' },
       { element: '[data-tour="director-tab-pending"]', title: '4. Approval Requests Tab', desc: 'View newly submitted requests awaiting administrative review and verification.' },
-      { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets on hold for material procurement or ocular inspection until explicitly approved or declined.' },
+      { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets on hold for material procurement until explicitly approved or declined.' },
       { element: '[data-tour="director-search-input"]', title: '6. Search & Scope Filtering', desc: 'Filter requests by ticket ID, requester name, building, room, or issue description.' },
       { element: '[data-tour="director-btn-fullinfo"], [data-tour="director-tab-pending"]', title: '7. Full Scope & Photos Inspection', desc: 'Click "View Details" / "Full Info" to inspect problem particulars, client contacts, and uploaded photos before deciding.' },
       { element: '[data-tour="director-btn-approve"], [data-tour="director-btn-delay"], [data-tour="director-btn-decline"], [data-tour="director-tab-pending"]', title: '8. Decision Controls', desc: 'Approve to proceed to dispatch, Delay with justification, or Decline invalid requests.' }
@@ -3071,7 +3077,7 @@ export const pageGuidesCatalog = {
         ],
         tabs: [
           { name: 'Job: Requests for Director Approval', badge: 'Action Required', desc: 'Facilities repair requests escalated by FGMU Head requiring executive budget or structural approval.' },
-          { name: 'Job: Approval Delays', badge: 'Held by Director', desc: 'Tickets delayed by Director pending ocular inspections, materials, or budget.' },
+          { name: 'Job: Approval Delays', badge: 'Held by Director', desc: 'Tickets delayed by Director pending materials procurement or custom reason.' },
           { name: 'Job: Approved', badge: 'Awaiting Workers', desc: 'Approved tickets ready for FGMU admin technician assignment.' },
           { name: 'Job: Dispatched', badge: 'Scheduled', desc: 'Tickets scheduled with assigned workers, implementation dates, and official Job Orders.' },
           { name: 'Job: Work in Progress', badge: 'Active Site Work', desc: 'Jobs actively being serviced on campus with live institutional working hour tracking.' },
@@ -3091,7 +3097,7 @@ export const pageGuidesCatalog = {
           {
             label: 'Delay',
             type: 'warning',
-            desc: 'Delays approval while awaiting materials, budget, or ocular assessment.',
+            desc: 'Delays approval while awaiting materials or custom reason.',
             fields: 'Reason for Delay dropdown and optional notes.',
             result: 'Moves ticket to Approval Delayed tab.'
           },
@@ -3144,7 +3150,7 @@ export const pageGuidesCatalog = {
           { element: '[data-tour="director-type-job"]', title: '2. Job Requests Switcher', desc: 'Toggle to review and manage facilities maintenance, repairs, and infrastructure work orders.' },
           { element: '[data-tour="director-type-borrowing"]', title: '3. Equipment Borrowing Switcher', desc: 'Toggle to review tools and equipment borrowing requests.' },
           { element: '[data-tour="director-tab-pending"]', title: '4. Requests for Director Approval', desc: 'Review facilities repairs needing executive authorization and budget clearance.' },
-          { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets held pending materials or ocular inspection.' },
+          { element: '[data-tour="director-tab-delayed"]', title: '5. Approval Delays Tab', desc: 'View tickets held pending materials procurement.' },
           { element: '[data-tour="director-tab-approved"]', title: '6. Approved Requests', desc: 'See approved tickets ready for FGMU technician and staff assignment.' },
           { element: '[data-tour="director-tab-dispatched"]', title: '7. Dispatched Requests', desc: 'Check tickets with assigned workers, scheduled implementation dates, and generated Job Orders.' },
           { element: '[data-tour="director-tab-active"]', title: '8. Work in Progress', desc: 'Monitor active jobs on campus with live elapsed working durations and grant extensions.' },

@@ -193,8 +193,8 @@
               ></textarea>
             </div>
 
-            <!-- 4. Return to Active Queue Option (Sleek Switch Card) -->
-            <div class="px-4 py-3 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex items-center justify-between gap-3">
+            <!-- 4. Return to Active Queue Option (Sleek Switch Card, when delayed) -->
+            <div v-if="ticket?.is_approval_delayed" class="px-4 py-3 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex items-center justify-between gap-3">
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

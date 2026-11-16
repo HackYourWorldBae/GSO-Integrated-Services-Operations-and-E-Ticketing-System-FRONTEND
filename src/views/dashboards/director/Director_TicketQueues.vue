@@ -122,9 +122,34 @@
           <!-- Under Job Requests -->
           <div
             v-if="selectedCategory === 'job'"
-            :class="['grid gap-2 p-2 border-b border-slate-200 bg-slate-50/50', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5']"
+            :class="['grid gap-2 p-2 border-b border-slate-200 bg-slate-50/50', isPendingOnlyMode ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6']"
           >
-            <!-- 1. Approval Requests (renamed from escalated approvals) -->
+            <!-- 1. Under Inspection (Ocular inspection phase) -->
+            <button
+              data-tour="director-tab-under-inspection"
+              @click="switchTab('under_inspection')"
+              :class="[
+                'w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px] active:scale-[0.99] focus:outline-none focus-visible:ring-2',
+                isLeau ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-emerald-500',
+                activeTab === 'under_inspection'
+                  ? (isLeau ? 'bg-amber-600 text-white border-2 border-amber-600 shadow-sm shadow-amber-600/20' : 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-sm shadow-emerald-600/20')
+                  : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
+              ]"
+            >
+              <span class="truncate">Under Inspection</span>
+              <span
+                :class="[
+                  'ml-1.5 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black leading-none min-w-[24px] text-center shadow-xs transition-all',
+                  activeTab === 'under_inspection'
+                    ? 'bg-white text-slate-950 font-black'
+                    : 'bg-slate-200 text-slate-800'
+                ]"
+              >
+                {{ jobUnderInspectionCount }}
+              </span>
+            </button>
+
+            <!-- 2. Approval Requests (renamed from escalated approvals) -->
             <button
               data-tour="director-tab-pending"
               @click="switchTab('pending')"
@@ -149,7 +174,7 @@
               </span>
             </button>
 
-            <!-- 2. Approval Delays -->
+            <!-- 3. Approval Delays -->
             <button
               data-tour="director-tab-delayed"
               @click="switchTab('delayed')"
@@ -497,7 +522,7 @@
                   <th class="px-3 py-3 text-slate-700">Requester</th>
                   <th v-if="selectedCategory === 'job'" class="px-3 py-3 text-slate-700">Location</th>
                   <th v-if="activeTab === 'delayed'" class="px-3 py-3 text-amber-800">Delay Reason</th>
-                  <th v-if="selectedCategory === 'job' && activeTab === 'pending'" class="px-2 py-3 text-slate-700 text-center">Files</th>
+                  <th v-if="selectedCategory === 'job' && (activeTab === 'pending' || activeTab === 'under_inspection')" class="px-2 py-3 text-slate-700 text-center">Files</th>
                   <th v-if="selectedCategory === 'job' && activeTab === 'dispatched'" class="px-3 py-3 text-slate-700">Scheduled Date &amp; Staff</th>
                   <th v-if="selectedCategory === 'job' && activeTab === 'active'" class="px-3 py-3 text-slate-700">Elapsed Duration</th>
                   <th v-if="selectedCategory === 'borrowing'" class="px-3 py-3 text-slate-700">Item Requested</th>
@@ -650,8 +675,8 @@
                     </div>
                   </td>
 
-                  <!-- Pending: Files (Job Requests) -->
-                  <td v-if="selectedCategory === 'job' && activeTab === 'pending'" class="px-2 py-2.5 text-center">
+                  <!-- Pending / Under Inspection: Files (Job Requests) -->
+                  <td v-if="selectedCategory === 'job' && (activeTab === 'pending' || activeTab === 'under_inspection')" class="px-2 py-2.5 text-center">
                     <span
                       v-if="ticket.attachments && ticket.attachments.length > 0"
                       class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
@@ -729,7 +754,7 @@
                         </button>
 
                         <button
-                          v-if="ticket.is_escalated_to_director && activeTab === 'pending'"
+                          v-if="ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'under_inspection')"
                           data-tour="director-btn-delay"
                           @click="openDelayModal(ticket)"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
@@ -742,7 +767,7 @@
                         </button>
 
                         <button
-                          v-if="ticket.is_escalated_to_director && activeTab === 'delayed' && isOcularInspection(ticket)"
+                          v-if="!ticket.is_borrowing && !isBorrowingService(ticket) && (activeTab === 'under_inspection' || activeTab === 'pending' || activeTab === 'delayed')"
                           @click="openOcularInspectionModal(ticket)"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
                           title="Update Requestor with Ocular Inspection Result"
@@ -754,7 +779,7 @@
                         </button>
 
                         <button
-                          v-if="ticket.is_escalated_to_director && activeTab === 'delayed' && isOcularInspection(ticket)"
+                          v-if="!ticket.is_borrowing && !isBorrowingService(ticket) && (activeTab === 'under_inspection' || activeTab === 'pending' || activeTab === 'delayed')"
                           @click="openOcularMaterialsModal(ticket)"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
                           title="List needed materials from short/empty GSO inventory for the requestor"
@@ -766,7 +791,7 @@
                         </button>
 
                         <button
-                          v-if="ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')"
+                          v-if="ticket.is_escalated_to_director && (activeTab === 'under_inspection' || activeTab === 'pending' || activeTab === 'delayed')"
                           data-tour="director-btn-decline"
                           @click="openDeclineModal(ticket)"
                           class="px-3 py-2 min-h-[44px] rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
@@ -779,7 +804,7 @@
                         </button>
 
                         <button
-                          v-if="ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')"
+                          v-if="ticket.is_escalated_to_director && (activeTab === 'under_inspection' || activeTab === 'pending' || activeTab === 'delayed')"
                           data-tour="director-btn-approve"
                           @click="initiateApproval(ticket)"
                           class="px-4 py-2 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
@@ -795,8 +820,140 @@
 
                     <!-- Non-Director (Unit Head / Staff / Admin) Actions -->
                     <template v-else>
+                      <!-- Under Inspection Tab Actions -->
+                      <div v-if="activeTab === 'under_inspection'" class="flex items-center justify-end gap-2 flex-wrap">
+                        <button
+                          @click="openOcularInspectionModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="Update Requestor with Ocular Inspection Result"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                          </svg>
+                          <span>Inspection Result</span>
+                        </button>
+
+                        <button
+                          @click="openOcularMaterialsModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="List needed materials from short/empty GSO inventory for the requestor"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                          </svg>
+                          <span>{{ ticket.required_materials?.length ? `Materials (${ticket.required_materials.length})` : 'Materials Needed' }}</span>
+                        </button>
+
+                        <button
+                          @click="openDetailsModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer select-none"
+                          title="View Details"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>View Details</span>
+                        </button>
+
+                        <button
+                          data-tour="director-btn-delay"
+                          @click="openDelayModal(ticket)"
+                          class="px-3.5 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="Delay Approval"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>Delay</span>
+                        </button>
+
+                        <button
+                          @click="openDeclineModal(ticket)"
+                          class="px-3 py-2 min-h-[44px] rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="Decline Request"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          <span>Decline</span>
+                        </button>
+
+                        <!-- For FGMU: Request Director Approval -->
+                        <button
+                          v-if="isFgmu"
+                          @click="canRequestApprovalOrDirectApprove(ticket) ? openEscalateModal(ticket) : promptOcularRequirement(ticket)"
+                          :class="[
+                            'px-3.5 py-2 min-h-[44px] rounded-xl border text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs',
+                            canRequestApprovalOrDirectApprove(ticket)
+                              ? 'border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 cursor-pointer active:scale-95'
+                              : 'border-slate-200 bg-slate-100 text-slate-400 cursor-pointer opacity-75'
+                          ]"
+                          :title="canRequestApprovalOrDirectApprove(ticket) ? 'Request Director Approval' : 'Inspection result or materials needed required before requesting approval'"
+                        >
+                          <svg class="h-4 w-4" :class="canRequestApprovalOrDirectApprove(ticket) ? 'text-purple-700' : 'text-slate-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                          <span>Request Director Approval</span>
+                        </button>
+
+                        <!-- For LEAU: Direct Approve or Request Director Approval -->
+                        <template v-else>
+                          <button
+                            @click="canRequestApprovalOrDirectApprove(ticket) ? openEscalateModal(ticket) : promptOcularRequirement(ticket)"
+                            :class="[
+                              'px-3 py-2 min-h-[44px] rounded-xl border text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs',
+                              canRequestApprovalOrDirectApprove(ticket)
+                                ? 'border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 cursor-pointer active:scale-95'
+                                : 'border-slate-200 bg-slate-100 text-slate-400 cursor-pointer opacity-75'
+                            ]"
+                            :title="canRequestApprovalOrDirectApprove(ticket) ? 'Request Director Approval' : 'Inspection result or materials needed required before requesting approval'"
+                          >
+                            <svg class="h-4 w-4" :class="canRequestApprovalOrDirectApprove(ticket) ? 'text-purple-700' : 'text-slate-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                            <span>Request Director Approval</span>
+                          </button>
+                          <button
+                            @click="canRequestApprovalOrDirectApprove(ticket) ? initiateApproval(ticket) : promptOcularRequirement(ticket)"
+                            :class="[
+                              'px-4 py-2 min-h-[44px] rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5',
+                              canRequestApprovalOrDirectApprove(ticket)
+                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer active:scale-95'
+                                : 'bg-slate-200 text-slate-400 cursor-pointer opacity-75'
+                            ]"
+                            :title="canRequestApprovalOrDirectApprove(ticket) ? 'Approve Request' : 'Inspection result or materials needed required before direct approval'"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Approve</span>
+                          </button>
+                        </template>
+                      </div>
+
                       <!-- Pending Tab Actions -->
-                      <div v-if="activeTab === 'pending'" class="flex items-center justify-end gap-2 flex-wrap">
+                      <div v-else-if="activeTab === 'pending'" class="flex items-center justify-end gap-2 flex-wrap">
+                        <button
+                          v-if="!ticket.is_borrowing && !isBorrowingService(ticket)"
+                          @click="openOcularInspectionModal(ticket)"
+                          class="px-3 py-2 min-h-[44px] rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="Update Requestor with Ocular Inspection Result"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                          </svg>
+                          <span>Inspection Result</span>
+                        </button>
+
+                        <button
+                          v-if="!ticket.is_borrowing && !isBorrowingService(ticket)"
+                          @click="openOcularMaterialsModal(ticket)"
+                          class="px-3 py-2 min-h-[44px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                          title="List needed materials from short/empty GSO inventory for the requestor"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                          </svg>
+                          <span>{{ ticket.required_materials?.length ? `Materials (${ticket.required_materials.length})` : 'Materials Needed' }}</span>
+                        </button>
+
                         <button
                           @click="openDetailsModal(ticket)"
                           class="px-3.5 py-2 min-h-[44px] rounded-xl border border-slate-300 bg-white hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer select-none"
@@ -873,7 +1030,7 @@
                       <!-- Approval Delayed Tab Actions -->
                       <div v-else-if="activeTab === 'delayed'" class="flex items-center justify-end gap-1.5 flex-wrap">
                         <button
-                          v-if="isOcularInspection(ticket)"
+                          v-if="!ticket.is_borrowing && !isBorrowingService(ticket)"
                           @click="openOcularInspectionModal(ticket)"
                           class="px-3 py-1.5 min-h-[36px] rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
                           title="Update Requestor with Ocular Inspection Result"
@@ -885,7 +1042,7 @@
                         </button>
 
                         <button
-                          v-if="isOcularInspection(ticket)"
+                          v-if="!ticket.is_borrowing && !isBorrowingService(ticket)"
                           @click="openOcularMaterialsModal(ticket)"
                           class="px-3 py-1.5 min-h-[36px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
                           title="List needed materials from short/empty GSO inventory for the requestor"
@@ -1167,9 +1324,9 @@
 
             <!-- ================= JOB REQUEST DETAILS ================= -->
             <template v-if="selectedCategory === 'job'">
-              <!-- Location & Attachments (Pending, Delayed, Approved, Dispatched) -->
+              <!-- Location & Attachments (Under Inspection, Pending, Delayed, Approved, Dispatched) -->
               <div
-                v-if="['pending', 'delayed', 'approved', 'dispatched'].includes(activeTab)"
+                v-if="['under_inspection', 'pending', 'delayed', 'approved', 'dispatched'].includes(activeTab)"
                 class="mt-2 flex items-center justify-between text-xs text-slate-600"
               >
                 <div class="flex items-center gap-1.5 truncate">
@@ -1282,7 +1439,7 @@
               <template v-if="isDirector">
                 <!-- Delay button (Job approval requests) -->
                 <button
-                  v-if="selectedCategory === 'job' && activeTab === 'pending' && ticket.is_escalated_to_director"
+                  v-if="selectedCategory === 'job' && (activeTab === 'pending' || activeTab === 'under_inspection') && ticket.is_escalated_to_director"
                   @click="openDelayModal(ticket)"
                   class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
                   title="Delay Approval"
@@ -1295,7 +1452,7 @@
 
                 <!-- Inspection Result button -->
                 <button
-                  v-if="ticket.is_escalated_to_director && activeTab === 'delayed' && isOcularInspection(ticket)"
+                  v-if="!ticket.is_borrowing && !isBorrowingService(ticket) && (activeTab === 'under_inspection' || activeTab === 'pending' || activeTab === 'delayed')"
                   @click="openOcularInspectionModal(ticket)"
                   class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
                   title="Update Requestor with Ocular Inspection Result"
@@ -1308,7 +1465,7 @@
 
                 <!-- Materials Needed button -->
                 <button
-                  v-if="ticket.is_escalated_to_director && activeTab === 'delayed' && isOcularInspection(ticket)"
+                  v-if="!ticket.is_borrowing && !isBorrowingService(ticket) && (activeTab === 'under_inspection' || activeTab === 'pending' || activeTab === 'delayed')"
                   @click="openOcularMaterialsModal(ticket)"
                   class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
                   title="List needed materials from short/empty GSO inventory for the requestor"
@@ -1321,7 +1478,7 @@
 
                 <!-- Decline button -->
                 <button
-                  v-if="ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')"
+                  v-if="ticket.is_escalated_to_director && (activeTab === 'under_inspection' || activeTab === 'pending' || activeTab === 'delayed')"
                   @click="openDeclineModal(ticket)"
                   class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-700 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1"
                   title="Decline Request"
@@ -1334,7 +1491,7 @@
 
                 <!-- Approve button -->
                 <button
-                  v-if="ticket.is_escalated_to_director && (activeTab === 'pending' || activeTab === 'delayed')"
+                  v-if="ticket.is_escalated_to_director && (activeTab === 'under_inspection' || activeTab === 'pending' || activeTab === 'delayed')"
                   @click="initiateApproval(ticket)"
                   class="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-sm"
                   title="Executive Approve Request"
@@ -1348,8 +1505,101 @@
 
               <!-- Non-Director Mobile Actions -->
               <template v-else>
+                <!-- Job Under Inspection Actions -->
+                <template v-if="selectedCategory === 'job' && activeTab === 'under_inspection'">
+                  <button
+                    @click="openOcularInspectionModal(ticket)"
+                    class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
+                    title="Update Requestor with Ocular Inspection Result"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <span>Inspection Result</span>
+                  </button>
+
+                  <button
+                    @click="openOcularMaterialsModal(ticket)"
+                    class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
+                    title="List needed materials from short/empty GSO inventory for the requestor"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <span>{{ ticket.required_materials?.length ? `Materials (${ticket.required_materials.length})` : 'Materials Needed' }}</span>
+                  </button>
+
+                  <button v-if="ticket.is_escalated_to_director" @click="openDeescalateModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Recall</button>
+                  <button v-if="!ticket.is_escalated_to_director" @click="openDelayModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Delay</button>
+                  <button @click="openDeclineModal(ticket)" class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer">Decline</button>
+
+                  <button
+                    v-if="ticket.is_escalated_to_director"
+                    disabled
+                    class="px-3 py-1.5 min-h-[36px] rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold cursor-not-allowed opacity-80"
+                  >
+                    Awaiting Director's Approval
+                  </button>
+                  <button
+                    v-else-if="isFgmu"
+                    @click="canRequestApprovalOrDirectApprove(ticket) ? openEscalateModal(ticket) : promptOcularRequirement(ticket)"
+                    :class="[
+                      'px-3 py-1.5 min-h-[36px] rounded-lg border text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1',
+                      canRequestApprovalOrDirectApprove(ticket) ? 'border-purple-300 bg-purple-50 text-purple-800' : 'border-slate-200 bg-slate-100 text-slate-400'
+                    ]"
+                  >
+                    <svg class="h-3.5 w-3.5" :class="canRequestApprovalOrDirectApprove(ticket) ? 'text-purple-700' : 'text-slate-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                    <span>Request Director Approval</span>
+                  </button>
+                  <template v-else>
+                    <button
+                      @click="canRequestApprovalOrDirectApprove(ticket) ? openEscalateModal(ticket) : promptOcularRequirement(ticket)"
+                      :class="[
+                        'px-2.5 py-1.5 min-h-[36px] rounded-lg border text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1',
+                        canRequestApprovalOrDirectApprove(ticket) ? 'border-purple-300 bg-purple-50 text-purple-800' : 'border-slate-200 bg-slate-100 text-slate-400'
+                      ]"
+                    >
+                      <svg class="h-3.5 w-3.5" :class="canRequestApprovalOrDirectApprove(ticket) ? 'text-purple-700' : 'text-slate-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                      <span>Request Director Approval</span>
+                    </button>
+                    <button
+                      @click="canRequestApprovalOrDirectApprove(ticket) ? initiateApproval(ticket) : promptOcularRequirement(ticket)"
+                      :class="[
+                        'px-3.5 py-1.5 min-h-[36px] rounded-lg text-white text-xs font-black uppercase tracking-wider active:scale-95 transition-all touch-manipulation cursor-pointer',
+                        canRequestApprovalOrDirectApprove(ticket) ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-300 text-slate-500'
+                      ]"
+                    >
+                      Approve
+                    </button>
+                  </template>
+                </template>
+
                 <!-- Job Pending Actions -->
-                <template v-if="selectedCategory === 'job' && activeTab === 'pending'">
+                <template v-else-if="selectedCategory === 'job' && activeTab === 'pending'">
+                  <button
+                    v-if="!ticket.is_borrowing && !isBorrowingService(ticket)"
+                    @click="openOcularInspectionModal(ticket)"
+                    class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
+                    title="Update Requestor with Ocular Inspection Result"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <span>Inspection Result</span>
+                  </button>
+
+                  <button
+                    v-if="!ticket.is_borrowing && !isBorrowingService(ticket)"
+                    @click="openOcularMaterialsModal(ticket)"
+                    class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
+                    title="List needed materials from short/empty GSO inventory for the requestor"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <span>{{ ticket.required_materials?.length ? `Materials (${ticket.required_materials.length})` : 'Materials Needed' }}</span>
+                  </button>
+
                   <!-- For LEAU: Request Director Approval button -->
                   <button
                     v-if="!ticket.is_escalated_to_director && !isFgmu"
@@ -1390,7 +1640,7 @@
                 <!-- Job Delayed Actions -->
                 <template v-else-if="selectedCategory === 'job' && activeTab === 'delayed'">
                   <button
-                    v-if="isOcularInspection(ticket)"
+                    v-if="!ticket.is_borrowing && !isBorrowingService(ticket)"
                     @click="openOcularInspectionModal(ticket)"
                     class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
                     title="Update Requestor with Ocular Inspection Result"
@@ -1401,7 +1651,7 @@
                     <span>Inspection Result</span>
                   </button>
                   <button
-                    v-if="isOcularInspection(ticket)"
+                    v-if="!ticket.is_borrowing && !isBorrowingService(ticket)"
                     @click="openOcularMaterialsModal(ticket)"
                     class="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold active:scale-95 transition-all touch-manipulation cursor-pointer flex items-center gap-1 shadow-2xs"
                     title="List needed materials from short/empty GSO inventory for the requestor"
@@ -1810,6 +2060,27 @@
             </div>
           </div>
 
+          <!-- Ocular Inspection Findings Card -->
+          <div
+            v-if="selectedTicketForModal.staff_notation || selectedTicketForModal.notation"
+            class="p-4 rounded-2xl bg-sky-50/80 border border-sky-200 text-xs space-y-2"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-3 rounded-full bg-sky-600"></span>
+                <span class="text-xs font-black uppercase tracking-wider text-sky-900">
+                  Ocular Inspection Result / Findings
+                </span>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-300">
+                Recorded
+              </span>
+            </div>
+            <p class="text-sm text-slate-800 whitespace-pre-wrap bg-white p-3.5 rounded-xl border border-sky-100 leading-relaxed font-medium">
+              {{ selectedTicketForModal.staff_notation || selectedTicketForModal.notation }}
+            </p>
+          </div>
+
           <!-- Ocular Assessment Required Materials Summary -->
           <div
             v-if="selectedTicketForModal.required_materials && selectedTicketForModal.required_materials.length > 0"
@@ -2001,8 +2272,118 @@
 
           <!-- Non-Director Actions -->
           <template v-else>
+            <!-- Under Inspection Tab Actions (Job Requests) -->
+            <div v-if="activeTab === 'under_inspection'" class="flex items-center gap-2 flex-wrap">
+              <button
+                @click="openOcularInspectionModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Update Requestor with Ocular Inspection Result"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                <span>Inspection Result</span>
+              </button>
+
+              <button
+                @click="openOcularMaterialsModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="List needed materials from short/empty GSO inventory for the requestor"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span>{{ selectedTicketForModal.required_materials?.length ? `Materials (${selectedTicketForModal.required_materials.length})` : 'Materials Needed' }}</span>
+              </button>
+
+              <button
+                v-if="selectedCategory === 'job' && !selectedTicketForModal.is_escalated_to_director"
+                @click="openRecategorizeModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Change Nature of Work / Recategorize Ticket"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <span>Recategorize</span>
+              </button>
+
+              <button
+                v-if="!selectedTicketForModal.is_escalated_to_director"
+                @click="openDelayModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Delay</span>
+              </button>
+              <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
+                Decline Request
+              </button>
+
+              <button
+                v-if="isFgmu"
+                @click="canRequestApprovalOrDirectApprove(selectedTicketForModal) ? (openEscalateModal(selectedTicketForModal), closeDetailsModal()) : promptOcularRequirement(selectedTicketForModal)"
+                :class="[
+                  'px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-md transition-all cursor-pointer flex items-center gap-1.5',
+                  canRequestApprovalOrDirectApprove(selectedTicketForModal)
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-purple-600/20'
+                    : 'bg-slate-200 text-slate-500 shadow-none'
+                ]"
+                :title="canRequestApprovalOrDirectApprove(selectedTicketForModal) ? 'Request Director Approval' : 'Inspection result or materials needed required before requesting approval'"
+              >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                <span>Request Director Approval</span>
+              </button>
+              <template v-else>
+                <button
+                  @click="canRequestApprovalOrDirectApprove(selectedTicketForModal) ? (openEscalateModal(selectedTicketForModal), closeDetailsModal()) : promptOcularRequirement(selectedTicketForModal)"
+                  class="px-3.5 py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-800 text-xs font-bold hover:bg-purple-100 transition-all cursor-pointer flex items-center gap-1.5"
+                  title="Request Director Approval"
+                >
+                  <svg class="h-4 w-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                  <span>Request Director Approval</span>
+                </button>
+                <button
+                  @click="canRequestApprovalOrDirectApprove(selectedTicketForModal) ? (initiateApproval(selectedTicketForModal), closeDetailsModal()) : promptOcularRequirement(selectedTicketForModal)"
+                  :class="[
+                    'px-5 py-2.5 rounded-xl text-white text-xs font-black uppercase tracking-wider shadow-md transition-all cursor-pointer',
+                    canRequestApprovalOrDirectApprove(selectedTicketForModal)
+                      ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
+                      : 'bg-slate-300 text-slate-600 shadow-none'
+                  ]"
+                >
+                  Approve Request
+                </button>
+              </template>
+            </div>
+
             <!-- Pending Tab Actions (Job and Borrowing) -->
-            <div v-if="activeTab === 'pending'" class="flex items-center gap-2 flex-wrap">
+            <div v-else-if="activeTab === 'pending'" class="flex items-center gap-2 flex-wrap">
+              <button
+                v-if="!selectedTicketForModal.is_borrowing && !isBorrowingService(selectedTicketForModal)"
+                @click="openOcularInspectionModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Update Requestor with Ocular Inspection Result"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                <span>Inspection Result</span>
+              </button>
+
+              <button
+                v-if="!selectedTicketForModal.is_borrowing && !isBorrowingService(selectedTicketForModal)"
+                @click="openOcularMaterialsModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="List needed materials from short/empty GSO inventory for the requestor"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span>{{ selectedTicketForModal.required_materials?.length ? `Materials (${selectedTicketForModal.required_materials.length})` : 'Materials Needed' }}</span>
+              </button>
               <!-- Request Director Approval (For LEAU: formerly Escalate to Director) -->
               <button
                 v-if="!selectedTicketForModal.is_escalated_to_director && !isFgmu"
@@ -2079,7 +2460,30 @@
             </div>
 
             <!-- Delayed Actions (Job and Borrowing) -->
-            <div v-else-if="activeTab === 'delayed'" class="flex items-center gap-2">
+            <div v-else-if="activeTab === 'delayed'" class="flex items-center gap-2 flex-wrap">
+              <button
+                v-if="!selectedTicketForModal.is_borrowing && !isBorrowingService(selectedTicketForModal)"
+                @click="openOcularInspectionModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Update Requestor with Ocular Inspection Result"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                <span>Inspection Result</span>
+              </button>
+
+              <button
+                v-if="!selectedTicketForModal.is_borrowing && !isBorrowingService(selectedTicketForModal)"
+                @click="openOcularMaterialsModal(selectedTicketForModal); closeDetailsModal()"
+                class="px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer flex items-center gap-1.5"
+                title="List needed materials from short/empty GSO inventory for the requestor"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span>{{ selectedTicketForModal.required_materials?.length ? `Materials (${selectedTicketForModal.required_materials.length})` : 'Materials Needed' }}</span>
+              </button>
               <button @click="openDeclineModal(selectedTicketForModal); closeDetailsModal()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer">
                 Decline
               </button>
@@ -2598,7 +3002,12 @@ import OcularMaterialsModal from '@/components/OcularMaterialsModal.vue';
 import { FGMU_SERVICES, LEAU_SERVICES } from '@/constants/services';
 import { calculateWorkingHoursElapsed, parseDateLocal } from '@/utils/workCalendar';
 import { isBorrowingService } from '@/utils/borrowing';
-import { isOcularInspectionDelay } from '@/utils/requiredMaterials';
+import {
+  isOcularInspectionDelay,
+  isOcularNotation,
+  hasOcularInspectionCompleted,
+  canRequestApprovalOrDirectApprove,
+} from '@/utils/requiredMaterials';
 import { getAssignedWorkers, getWorkerInitials } from '@/utils/ticketPersonnelHelper';
 import {
   SCHEDULE_DATE_FILTER,
@@ -2736,7 +3145,7 @@ const selectCategory = (cat) => {
   // Normalize active tab across categories
   if (cat === 'job' && ['assigned', 'return'].includes(activeTab.value)) {
     activeTab.value = 'pending';
-  } else if (cat === 'borrowing' && ['dispatched', 'active'].includes(activeTab.value)) {
+  } else if (cat === 'borrowing' && ['under_inspection', 'dispatched', 'active'].includes(activeTab.value)) {
     activeTab.value = 'pending';
   }
 };
@@ -2755,8 +3164,16 @@ const switchTab = (tab) => {
 };
 
 // ======================= JOB REQUESTS COUNTS =======================
+const jobUnderInspectionCount = computed(() => {
+  const list = (queuesData.value.pending || []).filter(
+    t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && !hasOcularInspectionCompleted(t)
+  );
+  return isDirector.value ? list.filter(t => Boolean(t.is_escalated_to_director)).length : list.length;
+});
 const jobPendingCount = computed(() => {
-  const list = (queuesData.value.pending || []).filter(t => !t.is_borrowing && !isBorrowingService(t));
+  const list = (queuesData.value.pending || []).filter(
+    t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && (hasOcularInspectionCompleted(t) || Boolean(t.is_escalated_to_director))
+  );
   return isDirector.value ? list.filter(t => Boolean(t.is_escalated_to_director)).length : list.length;
 });
 const jobDelayedCount = computed(() => {
@@ -2768,13 +3185,15 @@ const jobDispatchedCount = computed(() => (queuesData.value.dispatched || []).fi
 const jobActiveCount = computed(() => (queuesData.value.active || []).filter(t => !t.is_borrowing && !isBorrowingService(t)).length);
 const totalJobRequestsCount = computed(() => {
   if (isPendingOnlyMode.value) {
-    return jobPendingCount.value + jobDelayedCount.value;
+    return jobUnderInspectionCount.value + jobPendingCount.value + jobDelayedCount.value;
   }
-  return jobPendingCount.value + jobDelayedCount.value + jobApprovedCount.value + jobDispatchedCount.value + jobActiveCount.value;
+  return jobUnderInspectionCount.value + jobPendingCount.value + jobDelayedCount.value + jobApprovedCount.value + jobDispatchedCount.value + jobActiveCount.value;
 });
 
 const escalatedPendingCount = computed(() => {
-  return (queuesData.value.pending || []).filter(t => !t.is_borrowing && !isBorrowingService(t) && t.is_escalated_to_director).length;
+  return (queuesData.value.pending || []).filter(
+    t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && (hasOcularInspectionCompleted(t) || Boolean(t.is_escalated_to_director)) && t.is_escalated_to_director
+  ).length;
 });
 
 // ======================= BORROWING REQUESTS COLLECTIONS & COUNTS =======================
@@ -2986,7 +3405,6 @@ const isSubmittingDelay = ref(false);
 
 const delayPresets = [
   'Awaiting Procurement of Materials',
-  'Pending Ocular Assessment / Inspection',
 ];
 
 // Extension Modal
@@ -3005,6 +3423,11 @@ const ticketForReschedule = ref(null);
 const showOcularInspectionModal = ref(false);
 const ticketForOcularInspection = ref(null);
 
+const promptOcularRequirement = (ticket) => {
+  toast.warning('Ocular inspection result or required materials list must be logged before requesting approval or approving.');
+  openOcularInspectionModal(ticket);
+};
+
 const isOcularInspection = (ticket) => isOcularInspectionDelay(ticket);
 
 const openOcularInspectionModal = (ticket) => {
@@ -3018,12 +3441,25 @@ const closeOcularInspectionModal = () => {
 };
 
 const handleOcularInspectionSaved = (payload) => {
-  fetchAllQueues();
-  if (selectedTicketForModal.value && (selectedTicketForModal.value.id === payload?.ticketId || selectedTicketForModal.value.ticketId === payload?.ticketId)) {
-    selectedTicketForModal.value.staff_notation = payload?.notation;
-    selectedTicketForModal.value.notation = payload?.notation;
-    selectedTicketForModal.value.hasNotation = true;
+  if (payload?.ticketId) {
+    const targetId = String(payload.ticketId);
+    const applyPatch = (t) => ({
+      ...t,
+      staff_notation: payload.notation,
+      notation: payload.notation,
+      hasNotation: true,
+    });
+    queuesData.value.pending = (queuesData.value.pending || []).map((t) =>
+      String(t.id || t.ticketId) === targetId ? applyPatch(t) : t
+    );
+    queuesData.value.delayed = (queuesData.value.delayed || []).map((t) =>
+      String(t.id || t.ticketId) === targetId ? applyPatch(t) : t
+    );
+    if (selectedTicketForModal.value && String(selectedTicketForModal.value.id || selectedTicketForModal.value.ticketId) === targetId) {
+      selectedTicketForModal.value = applyPatch(selectedTicketForModal.value);
+    }
   }
+  fetchAllQueues();
 };
 
 // Ocular Required Materials Modal
@@ -3050,6 +3486,9 @@ const handleOcularMaterialsSaved = (payload) => {
       required_materials_notes: payload.required_materials_notes ?? t.required_materials_notes,
       required_materials_requested_at: payload.required_materials_requested_at ?? t.required_materials_requested_at,
     });
+    queuesData.value.pending = (queuesData.value.pending || []).map((t) =>
+      String(t.id || t.ticketId) === targetId ? applyPatch(t) : t
+    );
     queuesData.value.delayed = (queuesData.value.delayed || []).map((t) =>
       String(t.id || t.ticketId) === targetId ? applyPatch(t) : t
     );
@@ -3068,6 +3507,7 @@ let durationInterval = null;
 const activeTabLabel = computed(() => {
   if (selectedCategory.value === 'job') {
     switch (activeTab.value) {
+      case 'under_inspection': return 'Under Inspection';
       case 'pending': return isDirector.value ? 'Requests for Director Approval' : 'Approval Requests';
       case 'delayed': return 'Approval Delays';
       case 'approved': return 'Approved Requests';
@@ -3089,6 +3529,9 @@ const activeTabLabel = computed(() => {
 
 const emptyTabMessage = computed(() => {
   if (selectedCategory.value === 'job') {
+    if (activeTab.value === 'under_inspection') {
+      return 'No job tickets currently undergoing ocular inspection.';
+    }
     if (activeTab.value === 'pending') {
       return isDirector.value
         ? 'No job tickets currently awaiting Director approval.'
@@ -3112,10 +3555,20 @@ const currentTabTickets = computed(() => {
   if (selectedCategory.value === 'job') {
     let list = [];
     switch (activeTab.value) {
-      case 'pending':
-        list = (queuesData.value.pending || []).filter(t => !t.is_borrowing && !isBorrowingService(t));
+      case 'under_inspection':
+        list = (queuesData.value.pending || []).filter(
+          t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && !hasOcularInspectionCompleted(t)
+        );
         if (isDirector.value) {
-          list = list.filter(t => t.is_escalated_to_director);
+          list = list.filter(t => Boolean(t.is_escalated_to_director));
+        }
+        break;
+      case 'pending':
+        list = (queuesData.value.pending || []).filter(
+          t => !t.is_borrowing && !isBorrowingService(t) && !t.is_approval_delayed && (hasOcularInspectionCompleted(t) || Boolean(t.is_escalated_to_director))
+        );
+        if (isDirector.value) {
+          list = list.filter(t => Boolean(t.is_escalated_to_director));
         }
         break;
       case 'delayed':
@@ -3169,8 +3622,8 @@ const serviceCategories = computed(() => {
 const baseFilteredTickets = computed(() => {
   let list = currentTabTickets.value;
 
-  // Escalation filter for Pending tab
-  if (activeTab.value === 'pending') {
+  // Escalation filter for Pending and Under Inspection tabs
+  if (activeTab.value === 'pending' || activeTab.value === 'under_inspection') {
     if (isDirector.value) {
       list = list.filter(t => Boolean(t.is_escalated_to_director));
     } else if (selectedEscalationFilter.value !== 'all') {
@@ -3526,7 +3979,7 @@ const checkRouteQueryTicket = () => {
     } else {
       selectedCategory.value = 'job';
       if (queuesData.value.pending?.some(t => String(t.id) === String(match.id))) {
-        activeTab.value = 'pending';
+        activeTab.value = hasOcularInspectionCompleted(match) ? 'pending' : 'under_inspection';
       } else if (queuesData.value.delayed?.some(t => String(t.id) === String(match.id))) {
         activeTab.value = 'delayed';
       } else if (queuesData.value.active?.some(t => String(t.id) === String(match.id))) {
@@ -3557,7 +4010,7 @@ const checkRouteQueryTicket = () => {
               queuesData.value.pending.unshift(mapped);
               queueCounts.value.pending = queuesData.value.pending.length;
             }
-            activeTab.value = 'pending';
+            activeTab.value = hasOcularInspectionCompleted(mapped) ? 'pending' : 'under_inspection';
             selectedCategory.value = (mapped.is_borrowing || isBorrowingService(mapped)) ? 'borrowing' : 'job';
           }
           clearRouteQueryTicket();
@@ -3640,6 +4093,10 @@ const initiateApproval = (ticket) => {
   }
   if (!isDirector.value && ticket?.is_escalated_to_director) {
     toast.warning("This ticket has been submitted and is awaiting the Director's executive approval.");
+    return;
+  }
+  if (!canRequestApprovalOrDirectApprove(ticket)) {
+    promptOcularRequirement(ticket);
     return;
   }
   ticketToApprove.value = ticket;
@@ -3818,6 +4275,10 @@ const escalationPresets = computed(() => {
 });
 
 const openEscalateModal = (ticket) => {
+  if (!canRequestApprovalOrDirectApprove(ticket)) {
+    promptOcularRequirement(ticket);
+    return;
+  }
   ticketToEscalate.value = ticket;
   if (isFgmu.value) {
     selectedEscalationPreset.value = 'Reviewed and recommended for Director approval.';
